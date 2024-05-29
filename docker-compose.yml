@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+  cosmos:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    ports:
+      - "8081:8081"
+      - "10250-10255:10250-10255"
+
+  mock-api:
+    image: xmlsolutions/mock-api:3.18
+    environment:
+      - DataSource=local:./config
+      - RoutesFile=setup.json
+    volumes:
+      - "./mock-api:/app/config"
+    ports:
+      - "4011:80"
+
+  oidc-server:
+    image: soluto/oidc-server-mock:latest
+    ports:
+      - "8010:443"
+      - "8020:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+80
+      ASPNETCORE_HTTPS_PORT: 8010
+      ASPNETCORE_Kestrel__Certificates__Default__Password: password
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+      AUTHENTICATION:ISSUER: https://localhost:8010
+      SERVER_OPTIONS_INLINE: |
+        {
+          "Authentication": {
+            "CookieSameSiteMode": "Lax",
+            "CheckSessionCookieSameSiteMode": "Lax"
+          }
+        }
+      USERS_CONFIGURATION_INLINE: |
+        [
+            {
+            "SubjectId":"cc.agent@nhs.uk",
+            "Username":"CC",
+            "Password":"1234abc",
+            "Claims": [
+                {
+                  "Type": "email",
+                  "Value": "cc.agent@nhs.uk"
+                },
+            ]}
+        ]
+      CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json
+
+    volumes:
+      - ./mock-oidc:/tmp/config:ro
+      - ~/.aspnet/https:/https:ro

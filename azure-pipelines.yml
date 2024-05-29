@@ -59,7 +59,7 @@ stages:
         - task: PublishBuildArtifacts@1
           displayName: "Publish Terraform"
           inputs:
-              PathtoPublish: "$(Build.SourcesDirectory)/terraform"
+              PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
         - task: PublishBuildArtifacts@1
@@ -118,7 +118,7 @@ stages:
 
                 Write-Host "Web host started successfully"
 
-                cd ..\Nhs.Appointments.Api.Integration\
+                cd ..\..\..\tests\Nhs.Appointments.Api.Integration\
                 Write-Host "Running integration tests..."
                 dotnet test --logger:"trx;logfilename=apptsServiceTests.trx"    
           - task: PublishTestResults@2

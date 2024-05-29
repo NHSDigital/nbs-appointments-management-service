@@ -1,0 +1,15 @@
+[
+  {
+    "ClientId": "nhs-appts-local",
+    "Description": "Mock oidc for running NBS locally",
+    "AllowedGrantTypes": ["authorization_code"],
+    "AllowAccessTokensViaBrowser": true,
+    "RedirectUris": [      
+	  "http://localhost:7071/api/auth-return"
+    ],
+    "AllowedScopes": ["openid", "profile", "email"],
+    "RequireClientSecret": false,
+    "IdentityTokenLifetime": 3600,
+    "AccessTokenLifetime": 3600
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "site": "urn:nhs:ods:12345",
+  "session_holder": "urn:nhs:clinic:vaccs",
+  "templates": [
+    {
+      "days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "sessions": [
+        {
+          "from": "09:00",
+          "until": "12:00",
+          "services": [ "FLU", "COVID" ],
+          "concurrency": 2
+        },
+        {
+          "from": "13:00",
+          "until": "18:00",
+          "services": [ "FLU", "COVID" ],
+          "concurrency": 2
+        }
+      ]
+    },
+    {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ],
+      "sessions": [
+        {
+          "from": "08:00",
+          "until": "12:00",
+          "services": [ "FLU" ],
+          "concurrency": 1
+        },
+        {
+          "from": "13:00",
+          "until": "16:00",
+          "services": [ "FLU", "COVID" ],
+          "concurrency": 1
+        }
+      ]
+    }
+  ]
+}

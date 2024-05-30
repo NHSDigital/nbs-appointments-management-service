@@ -40,6 +40,7 @@ public static class FunctionConfigurationExtensions
                 opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
                 opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
             })
+            .AddScoped<IUserContextProvider, UserContextProvider>()
             .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
             .AddSingleton<BearerTokenRequestAuthenticator>()
             .AddSingleton<ApiKeyRequestAuthenticator>()

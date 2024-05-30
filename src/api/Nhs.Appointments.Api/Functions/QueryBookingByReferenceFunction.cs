@@ -12,7 +12,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
-using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,8 +22,8 @@ public class QueryBookingByReferenceFunction : BaseApiFunction<QueryBookingByRef
     public QueryBookingByReferenceFunction(
         IBookingsService bookingsService, 
         IValidator<QueryBookingByReferenceRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<QueryBookingByReferenceFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<QueryBookingByReferenceFunction> logger) : base(validator, userContextProvider, logger)
     {
         _bookingsService = bookingsService;
     }

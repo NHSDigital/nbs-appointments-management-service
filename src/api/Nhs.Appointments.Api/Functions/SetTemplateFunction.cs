@@ -24,8 +24,8 @@ public class SetTemplateFunction : BaseApiFunction<WeekTemplate, string>
         ITemplateService templateService,
         IUserSiteAssignmentService userSiteAssignmentService,
         IValidator<WeekTemplate> validator, 
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<SetTemplateFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<SetTemplateFunction> logger) : base(validator, userContextProvider, logger)
     {
         _templateService = templateService;
         _userSiteAssignmentService = userSiteAssignmentService;

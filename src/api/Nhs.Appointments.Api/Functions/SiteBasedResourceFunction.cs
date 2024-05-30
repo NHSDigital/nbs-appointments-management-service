@@ -14,8 +14,8 @@ public abstract class SiteBasedResourceFunction<TResponse> : BaseApiFunction<Sit
     protected SiteBasedResourceFunction(
         IUserSiteAssignmentService userSiteAssignmentService,
         IValidator<SiteBasedResourceRequest> validator, 
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger logger) : base(validator, userContextProvider, logger)
     {
         _userSiteAssignmentService = userSiteAssignmentService;
     }

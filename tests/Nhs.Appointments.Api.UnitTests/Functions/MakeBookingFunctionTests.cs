@@ -23,9 +23,8 @@ public class MakeBookingFunctionTests
     private readonly Mock<IBookingsService> _bookingService = new();
     private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
-    private readonly Mock<IRequestAuthenticatorFactory> _authenticatorFactory = new();
-    private readonly Mock<IRequestAuthenticator> _authenticator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
 
     public MakeBookingFunctionTests()
@@ -37,9 +36,8 @@ public class MakeBookingFunctionTests
         };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         var claimsPrincipal = new ClaimsPrincipal(identity);
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ReturnsAsync(claimsPrincipal);
-        _authenticatorFactory.Setup(x => x.CreateAuthenticator(It.IsAny<string>())).Returns(_authenticator.Object);
-        _sut = new MakeBookingFunction(_bookingService.Object, _siteConfigurationService.Object, _availabilityCalculator.Object,  _validator.Object, _authenticatorFactory.Object, _logger.Object);
+
+        _sut = new MakeBookingFunction(_bookingService.Object, _siteConfigurationService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Api.Auth;
 using System.Text.RegularExpressions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -25,8 +24,8 @@ public class SetSiteConfiguration :  BaseApiFunction<SiteConfiguration, EmptyRes
     public SetSiteConfiguration(ISiteConfigurationService siteConfigurationService, 
         IScheduleService scheduleService,
         IValidator<SiteConfiguration> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<SetSiteConfiguration> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<SetSiteConfiguration> logger) : base(validator, userContextProvider, logger)
     {
         _siteConfigurationService = siteConfigurationService;
         _scheduleService = scheduleService;

@@ -11,7 +11,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
-using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -24,8 +23,8 @@ public class FindSitesByPostcodeFunction : BaseApiFunction<FindSitesByPostCodeRe
         IPostcodeLookupService postcodeLookupService, 
         ISiteSearchService siteSearchService,
         IValidator<FindSitesByPostCodeRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<FindSitesByPostcodeFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<FindSitesByPostcodeFunction> logger) : base(validator, userContextProvider, logger)
     {
         _postcodeLookupService = postcodeLookupService;
         _siteSearchService = siteSearchService;

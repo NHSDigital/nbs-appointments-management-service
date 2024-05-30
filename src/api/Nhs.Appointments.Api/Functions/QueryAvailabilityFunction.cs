@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Api.Auth;
 using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
@@ -30,8 +29,8 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
         ISiteConfigurationService siteConfigurationService,
         IValidator<QueryAvailabilityRequest> validator,
         IAvailabilityGrouperFactory availabilityGrouperFactory,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<QueryAvailabilityFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
     {
         _availabilityCalculator = availabilityCalculator;
         _siteConfigurationService = siteConfigurationService;

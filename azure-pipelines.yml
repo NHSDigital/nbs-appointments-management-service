@@ -9,9 +9,9 @@ variables:
   azure_subscription_id: '07748954-52d6-46ce-95e6-2701bfc715b4'
   buildConfiguration: "Release"
   apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-  apiUnitTestProjectPath: "src/api/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-  coreUnitTestProjectPath: "src/api/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-  persistanceUnitTestProjectPath: "src/api/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+  apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
+  coreUnitTestProjectPath: "tests/api/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
+  persistanceUnitTestProjectPath: "tests/api/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
   functionAppName: nbs-appts-func-dev-uks
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 

@@ -12,7 +12,7 @@ public class AvailabilityGrouperFactoryTests
     {
         var queryType = QueryType.Days;
         var result = _sut.Create(queryType);
-        result.Should().NotBeOfType<DailyAvailabilityGrouper>();
+        result.Should().BeOfType<DailyAvailabilityGrouper>();
     }
     
     [Fact]

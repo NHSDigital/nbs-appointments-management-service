@@ -72,7 +72,6 @@ stages:
               ArtifactName: "drop_web"
               publishLocation: "Container"
       - job: "RunIntegrationTests"
-        condition: false
         displayName: Run integration tests
         pool: 
           vmImage: windows-latest
@@ -132,7 +131,7 @@ stages:
               testRunTitle: Appointment Service Alpha Integration Tests
               testResultsFormat: 'VSTest'
               publishRunAttachments: true
-              searchFolder: '$(System.DefaultWorkingDirectory)\src\api\Nhs.Appointments.Api.Integration\TestResults'
+              searchFolder: '$(System.DefaultWorkingDirectory)\tests\Nhs.Appointments.Api.Integration\TestResults'
             condition: succeededOrFailed()
             
   - stage: DeployDev

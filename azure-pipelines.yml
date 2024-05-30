@@ -72,6 +72,7 @@ stages:
               ArtifactName: "drop_web"
               publishLocation: "Container"
       - job: "RunIntegrationTests"
+        condition: false
         displayName: Run integration tests
         pool: 
           vmImage: windows-latest

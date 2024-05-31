@@ -1,4 +1,4 @@
-﻿version: 2
+version: 2
 updates:
   - package-ecosystem: "nuget"
     directory: "/src/api/Nhs.Appointments.Api"
@@ -25,7 +25,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "nuget"
-    directory: "/src/api/Nhs.Appointments.Api.Integration"
+    directory: "/tests/Nhs.Appointments.Api.Integration"
     schedule:
       interval: "daily"
     groups:
@@ -33,7 +33,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "nuget"
-    directory: "/src/api/Nhs.Appointments.Api.UnitTests"
+    directory: "/tests/Nhs.Appointments.Api.UnitTests"
     schedule:
       interval: "daily"
     groups:
@@ -41,7 +41,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "nuget"
-    directory: "/src/api/Nhs.Appointments.Core.UnitTests"
+    directory: "/tests/Nhs.Appointments.Core.UnitTests"
     schedule:
       interval: "daily"
     groups:
@@ -49,7 +49,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "nuget"
-    directory: "/src/api/Nhs.Appointments.Persistance.UnitTests"
+    directory: "/tests/Nhs.Appointments.Persistance.UnitTests"
     schedule:
       interval: "daily"
     groups:

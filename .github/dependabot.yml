@@ -2,13 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "nuget"
     directories:
-      - "/src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-      - "/src/api/Nhs.Appointments.Core/Nhs.Appointments.Core.csproj"
-      - "/src/api/Nhs.Appointments.Persistance/Nhs.Appointments.Persistance.csproj"
-      - "/tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-      - "/tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-      - "/tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-      - "/tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+      - "/"
     schedule:
       interval: "daily"
     groups:

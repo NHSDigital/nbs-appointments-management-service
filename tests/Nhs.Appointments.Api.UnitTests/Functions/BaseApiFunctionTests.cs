@@ -8,6 +8,7 @@ using Nhs.Appointments.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using System.Security.Claims;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -26,7 +27,6 @@ public class BaseApiFunctionTests
             new Claim(ClaimTypes.NameIdentifier, "userId"),            
         };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);        
         _sut = new TestableBaseApiFunction(_validator.Object, _userContextProvider.Object, _logger);
     }
     
@@ -162,8 +162,7 @@ public class BaseApiFunctionTests
     private HttpRequest GetDefaultRequest()
     {
         var context = new DefaultHttpContext();
-        var request = context.Request;
-        request.Headers.Add("Authorization", "Test 1243");
+        var request = context.Request;        
         return request;
     }
 }

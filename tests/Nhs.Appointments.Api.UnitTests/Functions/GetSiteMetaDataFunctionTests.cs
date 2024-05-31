@@ -10,6 +10,7 @@ using Nhs.Appointments.Core;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

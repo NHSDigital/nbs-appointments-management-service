@@ -2,14 +2,12 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api;
+namespace Nhs.Appointments.Api.Auth;
 
 public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthenticatorFactory) : IFunctionsWorkerMiddleware
 {
@@ -18,53 +16,46 @@ public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthen
     {
         var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>() as UserContextProvider;
         var request = await context.GetHttpRequestDataAsync();
-
-        var authHeaderValue = request.Headers.GetValues("Authorization").FirstOrDefault();
-        if (authHeaderValue != null)
+        
+        if (request.Headers.Contains("Authorization"))
         {
+            var authHeaderValue = request.Headers.GetValues("Authorization").FirstOrDefault();
             var parts = authHeaderValue.Split(' ');
-            var scheme = parts[0];
-            var value = parts[1];
 
-            try
+            if (parts.Length == 2)
             {
-                var authenticator = _requestAuthenticatorFactory.CreateAuthenticator(scheme);
-                var principal = await authenticator.AuthenticateRequest(value);
+                var scheme = parts[0];
+                var value = parts[1];
 
-                if (principal.Identity.IsAuthenticated)
-                {                    
-                    userContextProvider.UserPrincipal = principal;
-                    await next(context);
+                try
+                {
+                    var authenticator = _requestAuthenticatorFactory.CreateAuthenticator(scheme);
+                    var principal = await authenticator.AuthenticateRequest(value);
+
+                    if (principal.Identity.IsAuthenticated)
+                    {
+                        userContextProvider.UserPrincipal = principal;
+                        await next(context);
+                    }
+                }
+                catch (NotSupportedException)
+                {
+
                 }
             }
-            catch (NotSupportedException)
-            {
+        }
 
-            }
-        }        
-
-        if(userContextProvider.UserPrincipal == null) 
+        if (userContextProvider.UserPrincipal == null)
         {
             HandleUnauthorizedAccess(context);
         }
     }
 
-    private void HandleUnauthorizedAccess(FunctionContext context)
+    protected virtual void HandleUnauthorizedAccess(FunctionContext context)
     {
         var resultBinding = context.GetOutputBindings<IActionResult>()
             .FirstOrDefault(b => b.BindingType == "http" && b.Name == "$return");
         resultBinding.Value = JsonResponseWriter.WriteResult(null, System.Net.HttpStatusCode.Unauthorized);
     }
-}
-
-public interface IUserContextProvider
-{
-    ClaimsPrincipal UserPrincipal { get; }
-}
-
-public class UserContextProvider : IUserContextProvider
-{
-
-    public ClaimsPrincipal UserPrincipal { get; set; }
 }
 

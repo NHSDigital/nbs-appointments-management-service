@@ -12,6 +12,7 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 

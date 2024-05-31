@@ -28,8 +28,8 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         ISiteConfigurationService siteConfigurationService,
         IAvailabilityCalculator availabilityCalculator,
         IValidator<MakeBookingRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory, 
-        ILogger<MakeBookingFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider, 
+        ILogger<MakeBookingFunction> logger) : base(validator, userContextProvider, logger)
     {
         _bookingService = bookingService;
         _siteConfigurationService = siteConfigurationService;

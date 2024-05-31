@@ -25,8 +25,8 @@ public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateRespons
         ITemplateService templateService,
         IUserSiteAssignmentService userSiteAssignmentService,
         IValidator<SiteBasedResourceRequest> validator, 
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<GetTemplatesFunction> logger) : base(userSiteAssignmentService, validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<GetTemplatesFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
     {
         _templateService = templateService;
         _userSiteAssignmentService = userSiteAssignmentService;

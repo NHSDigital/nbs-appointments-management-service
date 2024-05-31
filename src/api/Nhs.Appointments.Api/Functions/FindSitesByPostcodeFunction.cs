@@ -24,8 +24,8 @@ public class FindSitesByPostcodeFunction : BaseApiFunction<FindSitesByPostCodeRe
         IPostcodeLookupService postcodeLookupService, 
         ISiteSearchService siteSearchService,
         IValidator<FindSitesByPostCodeRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<FindSitesByPostcodeFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<FindSitesByPostcodeFunction> logger) : base(validator, userContextProvider, logger)
     {
         _postcodeLookupService = postcodeLookupService;
         _siteSearchService = siteSearchService;

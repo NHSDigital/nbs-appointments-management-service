@@ -8,60 +8,21 @@ using Nhs.Appointments.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using Nhs.Appointments.Api.Auth;
-using System.Security.Claims;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class BaseApiFunctionTests
 {
     private readonly TestableBaseApiFunction _sut;
-    private readonly Mock<IValidator<string>> _validator = new();
-    private readonly Mock<IRequestAuthenticatorFactory> _authenticatorFactory = new();
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<string>> _validator = new();    
     private readonly TestLogger _logger = new();
-    private readonly Mock<IRequestAuthenticator> _authenticator = new();    
 
     public BaseApiFunctionTests()
     {
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),            
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ReturnsAsync(claimsPrincipal);
-        _authenticatorFactory.Setup(x => x.CreateAuthenticator(It.IsAny<string>())).Returns(_authenticator.Object);
-        _sut = new TestableBaseApiFunction(_validator.Object, _authenticatorFactory.Object, _logger);
+        _sut = new TestableBaseApiFunction(_validator.Object, _userContextProvider.Object, _logger);
     }
-
-    [Fact]
-    public async Task RunAsync_ReturnUnauthorized_WhenAuthHeaderIsMissing()
-    {
-        var context = new DefaultHttpContext();
-        var request = context.Request;
-        var response = await _sut.RunAsync(request) as ContentResult;
-        response.StatusCode.Should().Be(401);
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnUnauthorized_WhenAuthenticationFails()
-    {
-        var request = GetDefaultRequest();
-        var unauthedPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ReturnsAsync(unauthedPrincipal);
-        var response = await _sut.RunAsync(request) as ContentResult;
-        response.StatusCode.Should().Be(401);
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnUnauthorized_WhenSchemeUnrecognised()
-    {
-        var request = GetDefaultRequest();
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ThrowsAsync(new NotSupportedException());
-        var response = await _sut.RunAsync(request) as ContentResult;
-        response.StatusCode.Should().Be(401);
-    }
-
+    
     [Fact]
     public async Task RunAsync_LogsError_WhenUnhandleExceptionReceivedOnHandle()
     {
@@ -194,8 +155,7 @@ public class BaseApiFunctionTests
     private HttpRequest GetDefaultRequest()
     {
         var context = new DefaultHttpContext();
-        var request = context.Request;
-        request.Headers.Add("Authorization", "Test 1243");
+        var request = context.Request;        
         return request;
     }
 }
@@ -204,8 +164,8 @@ internal class TestableBaseApiFunction : BaseApiFunction<string, string>
 {
     public TestableBaseApiFunction(
         IValidator<string> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger logger) : base(validator, userContextProvider, logger)
     {
     }
 

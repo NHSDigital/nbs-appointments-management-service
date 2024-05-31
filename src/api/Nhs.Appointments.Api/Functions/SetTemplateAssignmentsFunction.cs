@@ -10,9 +10,9 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -22,8 +22,8 @@ public class SetTemplateAssignmentsFunction : BaseApiFunction<SetTemplateAssignm
     public SetTemplateAssignmentsFunction(
         ITemplateService templateService,
         IValidator<SetTemplateAssignmentRequest> validator, 
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<SetTemplateAssignmentsFunction> logger) : base(validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<SetTemplateAssignmentsFunction> logger) : base(validator, userContextProvider, logger)
     {
         _templateService = templateService;
     }

@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using FluentAssertions;
 using FluentValidation;
@@ -27,27 +25,17 @@ public class QueryAvailabilityFunctionTests
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<IValidator<QueryAvailabilityRequest>> _validator = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
-    private readonly Mock<IRequestAuthenticatorFactory> _authenticatorFactory = new();
-    private readonly Mock<IRequestAuthenticator> _authenticator = new();
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<QueryAvailabilityFunction>> _logger = new();
 
     public QueryAvailabilityFunctionTests()
     {
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ReturnsAsync(claimsPrincipal);
-        _authenticatorFactory.Setup(x => x.CreateAuthenticator(It.IsAny<string>())).Returns(_authenticator.Object);
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object, 
             _siteConfigurationService.Object, 
             _validator.Object, 
             _availabilityGrouperFactory.Object, 
-            _authenticatorFactory.Object,
+            _userContextProvider.Object,
             _logger.Object);
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))

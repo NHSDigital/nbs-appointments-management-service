@@ -4,13 +4,12 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -20,23 +19,12 @@ public class GetSiteMetaDataFunctionTests
     private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
     private readonly Mock<IUserSiteAssignmentService> _userSiteAssignmentService = new();
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
-    private readonly Mock<IRequestAuthenticatorFactory> _authenticatorFactory = new();
-    private readonly Mock<IRequestAuthenticator> _authenticator = new();
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
 
     public GetSiteMetaDataFunctionTests()
-    {
-        
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
-        _authenticator.Setup(x => x.AuthenticateRequest(It.IsAny<string>())).ReturnsAsync(claimsPrincipal);
-        _authenticatorFactory.Setup(x => x.CreateAuthenticator(It.IsAny<string>())).Returns(_authenticator.Object);
-        _sut = new GetSiteMetaDataFunction(_userSiteAssignmentService.Object, _siteConfigurationService.Object, _validator.Object, _authenticatorFactory.Object, _logger.Object);
+    {        
+        _sut = new GetSiteMetaDataFunction(_userSiteAssignmentService.Object, _siteConfigurationService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

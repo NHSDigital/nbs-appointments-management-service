@@ -23,8 +23,8 @@ public class GetSiteMetaDataFunction : SiteBasedResourceFunction<GetSiteMetaData
         IUserSiteAssignmentService userSiteAssignmentService,
         ISiteConfigurationService siteConfigurationService,
         IValidator<SiteBasedResourceRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<GetSiteMetaDataFunction> logger) : base(userSiteAssignmentService, validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<GetSiteMetaDataFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
     {
         _siteConfigurationService = siteConfigurationService;
     }

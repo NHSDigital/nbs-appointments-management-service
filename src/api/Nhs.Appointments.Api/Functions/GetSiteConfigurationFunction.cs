@@ -26,8 +26,8 @@ public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<GetSiteCo
         ISiteSearchService siteSearchService,
         IUserSiteAssignmentService userSiteAssignmentService,
         IValidator<SiteBasedResourceRequest> validator,
-        IRequestAuthenticatorFactory authenticatorFactory,
-        ILogger<GetSiteConfigurationFunction> logger) : base(userSiteAssignmentService, validator, authenticatorFactory, logger)
+        IUserContextProvider userContextProvider,
+        ILogger<GetSiteConfigurationFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
     {
         _siteConfigurationService = siteConfigurationService;
         _siteSearchService = siteSearchService; 

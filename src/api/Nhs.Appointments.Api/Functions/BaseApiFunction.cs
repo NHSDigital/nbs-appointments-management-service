@@ -15,28 +15,16 @@ using System.Web.Http;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public abstract class BaseApiFunction<TRequest, TResponse>
+public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> validator, IUserContextProvider userContextProvider, ILogger logger)
 {
-    private readonly IRequestAuthenticatorFactory _authenticatorFactory;
-    private readonly IValidator<TRequest> _validator;
-    private ClaimsPrincipal _principal;
-    private readonly ILogger _logger;
-
-    protected BaseApiFunction(IValidator<TRequest> validator, IRequestAuthenticatorFactory authenticatorFactory, ILogger logger)
-    {
-        _validator = validator;
-        _authenticatorFactory = authenticatorFactory;
-        _logger = logger;
-    }
-
+    private readonly IUserContextProvider _userContextProvider = userContextProvider;
+    private readonly IValidator<TRequest> _validator =validator;
+    private readonly ILogger _logger = logger;    
+    
     public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
         try
         {
-            var authenticated = await AuthenticateRequest(req);
-            if(authenticated == false)
-                return ProblemResponse(HttpStatusCode.Unauthorized, string.Empty);
-
             (bool requestRead, TRequest request) = await ReadRequestAsync(req);
             if (requestRead == false)
                 return ProblemResponse(HttpStatusCode.BadRequest, "The request was invalid");
@@ -63,29 +51,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>
             return new InternalServerErrorResult();
         }
     }    
-
-    private async Task<bool> AuthenticateRequest(HttpRequest req)
-    {
-        var authHeaderValue = req.Headers["Authorization"].FirstOrDefault();
-        if (authHeaderValue == null)
-            return false;
-
-        var parts = authHeaderValue.Split(' ');
-        var scheme = parts[0];
-        var value = parts[1];
-        
-        try
-        {            
-            var authenticator = _authenticatorFactory.CreateAuthenticator(scheme);
-            _principal = await authenticator.AuthenticateRequest(value);
-            return _principal.Identity.IsAuthenticated;
-        }
-        catch(NotSupportedException)
-        {
-            return false;
-        }        
-    }
-
+    
     protected virtual Task<(bool requestRead, TRequest request)> ReadRequestAsync(HttpRequest req) => JsonRequestReader.TryReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
@@ -124,5 +90,5 @@ public abstract class BaseApiFunction<TRequest, TResponse>
 
     protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger);
 
-    protected ClaimsPrincipal Principal => _principal;
+    protected ClaimsPrincipal Principal => _userContextProvider.UserPrincipal;
 }

@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using FluentAssertions;
 using FluentValidation;
@@ -32,13 +30,6 @@ public class QueryAvailabilityFunctionTests
 
     public QueryAvailabilityFunctionTests()
     {
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object, 
             _siteConfigurationService.Object, 

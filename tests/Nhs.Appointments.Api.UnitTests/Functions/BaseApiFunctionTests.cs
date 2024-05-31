@@ -7,7 +7,6 @@ using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
-using System.Security.Claims;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -21,12 +20,6 @@ public class BaseApiFunctionTests
 
     public BaseApiFunctionTests()
     {
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),            
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
         _sut = new TestableBaseApiFunction(_validator.Object, _userContextProvider.Object, _logger);
     }
     

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
 using System.Text;
 using FluentAssertions;
 using FluentValidation;
@@ -29,14 +28,6 @@ public class MakeBookingFunctionTests
 
     public MakeBookingFunctionTests()
     {
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
-
         _sut = new MakeBookingFunction(_bookingService.Object, _siteConfigurationService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

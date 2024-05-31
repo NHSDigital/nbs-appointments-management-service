@@ -7,7 +7,6 @@ using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
@@ -24,15 +23,7 @@ public class GetSiteMetaDataFunctionTests
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
 
     public GetSiteMetaDataFunctionTests()
-    {
-        
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, "username"),
-            new Claim(ClaimTypes.NameIdentifier, "userId"),
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);        
+    {        
         _sut = new GetSiteMetaDataFunction(_userSiteAssignmentService.Object, _siteConfigurationService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))

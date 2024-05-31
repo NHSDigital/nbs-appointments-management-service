@@ -11,10 +11,7 @@
           - "/tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
       schedule: 
           interval: daily
-          time: 11:36
-          timezone: Europe/London
       groups:
         all-dependencies:
           patterns:
             - "*"
-      target-branch: "experimental/APPT-18-dependabot-nuget"

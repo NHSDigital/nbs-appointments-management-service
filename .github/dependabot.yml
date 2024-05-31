@@ -11,8 +11,6 @@ updates:
       - "/tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
     schedule:
       interval: "daily"
-      time: "13:44"
-      timezone: "Europe/London"
     groups:
       all-dependencies:
         patterns:

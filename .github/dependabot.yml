@@ -1,16 +1,57 @@
 ﻿version: 2
 updates:
   - package-ecosystem: "nuget"
-    directories:
-        - "/src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-        - "/src/api/Nhs.Appointments.Core/Nhs.Appointments.Core.csproj"
-        - "/src/api/Nhs.Appointments.Persistance/Nhs.Appointments.Persistance.csproj"
-        - "/tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-        - "/tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-        - "/tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-        - "/tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
-    schedule: 
-        interval: daily
+    directory: "/src/api/Nhs.Appointments.Api"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Core"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Persistance"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Api.Integration"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Api.UnitTests"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Core.UnitTests"
+    schedule:
+      interval: "daily"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "nuget"
+    directory: "/src/api/Nhs.Appointments.Persistance.UnitTests"
+    schedule:
+      interval: "daily"
     groups:
       all-dependencies:
         patterns:

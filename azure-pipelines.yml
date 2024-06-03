@@ -16,64 +16,90 @@ variables:
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 stages:
-  - stage: Build 
+  - stage: Build
     displayName: Build
     jobs:
       - job: "Build"
         steps:
-        - task: DotNetCoreCLI@2
-          displayName: dotnet Publish
-          inputs:
-            command: publish
-            publishWebProjects: false
-            projects: "$(apiProjectPath)"
-            arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)"
-            zipAfterPublish: false
-            modifyOutputPath: false
-        - task: DotNetCoreCLI@2
-          displayName: "Run Api Unit Tests"
-          inputs:
-            command: "test"
-            projects: "$(apiUnitTestProjectPath)"
-        - task: DotNetCoreCLI@2
-          displayName: "Run Core Unit Tests"
-          inputs:
-            command: "test"
-            projects: "$(coreUnitTestProjectPath)"
-        - task: DotNetCoreCLI@2
-          displayName: "Run Persistance Unit Tests"
-          inputs:
-            command: "test"
-            projects: "$(persistanceUnitTestProjectPath)"
-        - task: ArchiveFiles@2
-          displayName: Zip Api
-          inputs:
-            rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
-            includeRootFolder: false
-            archiveType: "zip"
-            archiveFile: "$(Build.ArtifactStagingDirectory)/out/appts-alpha-api-$(Build.BuildId).zip"
-            replaceExistingArchive: true
-        - task: PublishBuildArtifacts@1
-          displayName: "Publish Artifact"
-          inputs:
-            PathtoPublish: "$(Build.ArtifactStagingDirectory)/out"
-            ArtifactName: "drop_api"
-            publishLocation: "Container"
-        - task: PublishBuildArtifacts@1
-          displayName: "Publish Terraform"
-          inputs:
+          - task: DotNetCoreCLI@2
+            displayName: dotnet Publish
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: "$(apiProjectPath)"
+              arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+              zipAfterPublish: false
+              modifyOutputPath: false
+          - task: DotNetCoreCLI@2
+            displayName: "Run Api Unit Tests"
+            inputs:
+              command: "test"
+              projects: "$(apiUnitTestProjectPath)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run Core Unit Tests"
+            inputs:
+              command: "test"
+              projects: "$(coreUnitTestProjectPath)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run Persistance Unit Tests"
+            inputs:
+              command: "test"
+              projects: "$(persistanceUnitTestProjectPath)"
+          - task: ArchiveFiles@2
+            displayName: Zip Api
+            inputs:
+              rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
+              includeRootFolder: false
+              archiveType: "zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/out/appts-api-$(Build.BuildId).zip"
+              replaceExistingArchive: true
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish API Artifact"
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)/out"
+              ArtifactName: "drop_api"
+              publishLocation: "Container"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Terraform"
+            inputs:
               PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
-        - task: PublishBuildArtifacts@1
-          displayName: "Publish Web"
-          inputs:
-              PathtoPublish: "$(Build.SourcesDirectory)/src/client"
+          - task: UseNode@1
+            displayName: "Install Node"
+            inputs:
+              version: 20.x
+          - script: |
+              cd ./src/client
+              npm install 
+              npm run test:ci
+            displayName: "Run Web Client Tests"
+          - task: PublishTestResults@2
+            displayName: "Publish Web Client Test Results"
+            inputs:
+              testResultsFiles: "junit.xml"
+              testRunTitle: NBS Appointments Management Service Client Tests
+              testResultsFormat: "JUnit"
+              publishRunAttachments: true
+              searchFolder: '$(Build.SourcesDirectory)'
+          - task: CopyFiles@2
+            displayName: "Copy Client Files"
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/src/client"
+              Contents: |
+                **/*
+                !node_modules/**/*
+                !junit.xml
+              TargetFolder: "$(Build.ArtifactStagingDirectory)/client"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Web Client"
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)/client"
               ArtifactName: "drop_web"
               publishLocation: "Container"
       - job: "RunIntegrationTests"
         displayName: Run integration tests
-        pool: 
+        pool:
           vmImage: windows-latest
         steps:
           - task: Powershell@2
@@ -125,20 +151,20 @@ stages:
                 Write-Host "Running integration tests..."
                 dotnet test --logger:"trx;logfilename=apptsServiceTests.trx"    
           - task: PublishTestResults@2
-            displayName: 'Publish test results'
+            displayName: 'Publish API Test Results'
             inputs:
               testResultsFiles: 'apptsServiceTests.trx'
-              testRunTitle: Appointment Service Alpha Integration Tests
+              testRunTitle: NBS Appointments Management Service Integration Tests
               testResultsFormat: 'VSTest'
               publishRunAttachments: true
               searchFolder: '$(System.DefaultWorkingDirectory)\tests\Nhs.Appointments.Api.Integration\TestResults'
             condition: succeededOrFailed()
-            
+
   - stage: DeployDev
     condition: and(succeeded(), eq(variables.isMain, true))
     displayName: Deploy Dev
     jobs:
-    
+
       - job: RunTerraformPlan
         displayName: Run Terraform Plan
         steps:

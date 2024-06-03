@@ -93,9 +93,8 @@ namespace Nhs.Appointments.Api.Tests.Auth
             var userPrincipal = new ClaimsPrincipal(new ApiConsumerIdentity());
             var httpRequest = new TestHttpRequestData(_functionContext.Object);            
             ConfigureMocks(httpRequest);
-            
-            var methodInfo = typeof(FakeEntryPoints).GetMethod(nameof(FakeEntryPoints.UnauthenticatedEntryPoint));
-            _functionTypeInfoFeature.Setup(x => x.EntryPointInfo).Returns(methodInfo);
+                        
+            _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(false);
 
             var sut = new TestableAuthenticationMiddleware(_requestAuthenticatorFactory.Object);
             await sut.Invoke(_functionContext.Object, sut.Authenticate);
@@ -113,9 +112,8 @@ namespace Nhs.Appointments.Api.Tests.Auth
             var mockFeatures = new Mock<IInvocationFeatures>();
             mockFeatures.Setup(x => x.Get<IHttpRequestDataFeature>()).Returns(mockHttpRequestDataFeature.Object);
             mockFeatures.Setup(x => x.Get<IFunctionTypeInfoFeature>()).Returns(_functionTypeInfoFeature.Object);
-
-            var methodInfo = typeof(FakeEntryPoints).GetMethod(nameof(FakeEntryPoints.AuthenticatedEntryPoint));
-            _functionTypeInfoFeature.Setup(x => x.EntryPointInfo).Returns(methodInfo);
+            
+            _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(true);
 
             _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
             _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
@@ -143,21 +141,6 @@ namespace Nhs.Appointments.Api.Tests.Auth
 
         public bool Authenticated => _authenticated;
     }
-
-    public class FakeEntryPoints
-    {
-        public void AuthenticatedEntryPoint()
-        {
-
-        }
-
-        [AllowAnonymous]
-        public void UnauthenticatedEntryPoint()
-        {
-
-        }
-    }
-
 
     public class TestHttpRequestData : HttpRequestData
     {

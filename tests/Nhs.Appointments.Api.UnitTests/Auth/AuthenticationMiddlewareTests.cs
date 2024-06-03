@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
@@ -8,7 +9,8 @@ using System.Security.Claims;
 namespace Nhs.Appointments.Api.Tests.Auth
 {
     public class AuthenticationMiddlewareTests
-    {
+    {        
+        private readonly Mock<IFunctionTypeInfoFeature> _functionTypeInfoFeature = new();
         private readonly Mock<IServiceProvider> _serviceProvider = new();       
         private readonly Mock<IRequestAuthenticatorFactory> _requestAuthenticatorFactory = new();
         private readonly Mock<IRequestAuthenticator> _requestAuthenticator = new();
@@ -85,6 +87,21 @@ namespace Nhs.Appointments.Api.Tests.Auth
             _userContextProvider.UserPrincipal.Should().Be(userPrincipal);
         }
 
+        [Fact]
+        public async Task Invoke_AllowsAnonymousAccess_OnMarkedMethods()
+        {
+            var userPrincipal = new ClaimsPrincipal(new ApiConsumerIdentity());
+            var httpRequest = new TestHttpRequestData(_functionContext.Object);            
+            ConfigureMocks(httpRequest);
+                        
+            _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(false);
+
+            var sut = new TestableAuthenticationMiddleware(_requestAuthenticatorFactory.Object);
+            await sut.Invoke(_functionContext.Object, sut.Authenticate);
+            sut.Authenticated.Should().BeTrue();
+            _userContextProvider.UserPrincipal.Should().BeNull();
+        }
+
         private void ConfigureMocks(HttpRequestData httpRequest)
         {
             _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider);
@@ -94,6 +111,9 @@ namespace Nhs.Appointments.Api.Tests.Auth
 
             var mockFeatures = new Mock<IInvocationFeatures>();
             mockFeatures.Setup(x => x.Get<IHttpRequestDataFeature>()).Returns(mockHttpRequestDataFeature.Object);
+            mockFeatures.Setup(x => x.Get<IFunctionTypeInfoFeature>()).Returns(_functionTypeInfoFeature.Object);
+            
+            _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(true);
 
             _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
             _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
@@ -121,7 +141,6 @@ namespace Nhs.Appointments.Api.Tests.Auth
 
         public bool Authenticated => _authenticated;
     }
-
 
     public class TestHttpRequestData : HttpRequestData
     {

@@ -5,8 +5,10 @@ using Nhs.Appointments.Api.Auth;
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(builder =>
     {
-        builder.UseMiddleware<AuthenticationMiddleware>();
-        builder.ConfigureFunctionDependencies();
+        builder
+            .UseMiddleware<TypeDecoratorMiddleware>()
+            .UseMiddleware<AuthenticationMiddleware>()
+            .ConfigureFunctionDependencies();
     })
     .Build();
 

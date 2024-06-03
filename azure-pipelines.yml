@@ -82,8 +82,9 @@ stages:
               testResultsFormat: "JUnit"
               publishRunAttachments: true
               searchFolder: '$(Build.SourcesDirectory)'
+            condition: succeededOrFailed()
           - task: CopyFiles@2
-            displayName: "Copy Client Files"
+            displayName: "Copy Web Client Files"
             inputs:
               SourceFolder: "$(Build.SourcesDirectory)/src/client"
               Contents: |

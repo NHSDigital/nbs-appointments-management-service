@@ -23,6 +23,6 @@ describe("<SiteSelector>", () => {
         const presentOption = await screen.findByLabelText(context.siteConfig?.serviceConfiguration[0].displayName!);
         const missingOption = await screen.queryByText(context.siteConfig?.serviceConfiguration[1].displayName!);
         expect(presentOption).toBeVisible();
-        expect(missingOption).toBeInTheDocument();
+        expect(missingOption).not.toBeInTheDocument();
     });
 })

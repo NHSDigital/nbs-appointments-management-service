@@ -59,12 +59,6 @@ stages:
               PathtoPublish: "$(Build.ArtifactStagingDirectory)/out"
               ArtifactName: "drop_api"
               publishLocation: "Container"
-          - task: PublishBuildArtifacts@1
-            displayName: "Publish Terraform"
-            inputs:
-              PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
-              ArtifactName: "drop_terraform"
-              publishLocation: "Container"
           - task: UseNode@1
             displayName: "Install Node"
             inputs:
@@ -81,7 +75,7 @@ stages:
               testRunTitle: NBS Appointments Management Service Client Tests
               testResultsFormat: "JUnit"
               publishRunAttachments: true
-              searchFolder: '$(Build.SourcesDirectory)'
+              searchFolder: '$(Build.SourcesDirectory)/src/client'
             condition: succeededOrFailed()
           - task: CopyFiles@2
             displayName: "Copy Web Client Files"
@@ -97,6 +91,12 @@ stages:
             inputs:
               PathtoPublish: "$(Build.ArtifactStagingDirectory)/client"
               ArtifactName: "drop_web"
+              publishLocation: "Container"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Terraform"
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
+              ArtifactName: "drop_terraform"
               publishLocation: "Container"
       - job: "RunIntegrationTests"
         displayName: Run integration tests

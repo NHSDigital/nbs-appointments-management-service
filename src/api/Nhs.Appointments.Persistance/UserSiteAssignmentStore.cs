@@ -13,9 +13,9 @@ public class UserSiteAssignmentStore : IUserSiteAssignmentStore
         _cosmosStore = cosmosStore;
     }
 
-    public async Task<string> GetSiteIdForUserByEmailAsync(string userEmail)
+    public async Task<IEnumerable<string>> GetUserAssignedSites(string userId)
     {
         var assignmentsDocument = await _cosmosStore.GetByIdAsync<UserSiteAssignmentDocument>(DocumentId);
-        return assignmentsDocument.Assignments.SingleOrDefault(x => x.Email == userEmail)?.Site;
+        return assignmentsDocument.Assignments.Where(x => x.Email == userId).Select(x => x.Site);
     }
 }

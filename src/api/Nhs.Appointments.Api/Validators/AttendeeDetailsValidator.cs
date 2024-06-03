@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
@@ -28,4 +31,9 @@ public class AttendeeDetailsValidator : AbstractValidator<AttendeeDetails>
                     .LessThan(x => today).WithMessage("Date of birth must be in the past");
             });
     }
+}
+
+public class EmptyValidator : AbstractValidator<EmptyRequest>
+{
+    
 }

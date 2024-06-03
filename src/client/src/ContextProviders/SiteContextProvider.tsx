@@ -5,6 +5,7 @@ import { useSiteConfigurationService } from "../Services/SiteConfigurationServic
 import { useAuthContext } from "./AuthContextProvider";
 import { Site } from "../Types/Site";
 import { SiteSetup } from "../Components/SiteSetup";
+import { SelectSite } from "../Components/SelectSite";
 
 export interface ISiteContext {
     site: Site | null
@@ -14,14 +15,15 @@ export interface ISiteContext {
 
 export const SiteContext = React.createContext<ISiteContext | null>(null);
 
-type SiteContextState = "loading" | "not-configured" | "not-found" | "ready";
+type SiteContextState = "loading" | "select-site" | "not-configured" | "not-found" | "ready";
 
 export const SiteContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [state, setState] = React.useState<SiteContextState>("loading");
     const [site, setSite] = React.useState<Site|null>(null);
+    const [availableSites, setAvailableSites] = React.useState<Site[]>([] as Site[])
     const [siteConfig, setSiteConfig] = React.useState<SiteConfiguration | null>(null)
     const { idToken } = useAuthContext();
-    const { getSiteConfigurationForUser, setSiteConfiguration } = useSiteConfigurationService()
+    const { getSiteConfiguration, getSitesForUser, setSiteConfiguration } = useSiteConfigurationService()
 
     const saveSiteConfiguration = (siteConfiguration:SiteConfiguration) => {
         return setSiteConfiguration(siteConfiguration).then(rsp => {
@@ -38,21 +40,32 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
     useEffect(() => {
         setSiteConfig(null);
         if(idToken) {
-            getSiteConfigurationForUser().then(sc => {
-                if(sc) {
-                    setSite(sc.site)
-                    if(sc.siteConfiguration) {
-                        setSiteConfig(sc.siteConfiguration);
+            if(site === null) {
+                getSitesForUser().then(sfu => {
+                    if(sfu.length > 1) {
+                        setAvailableSites(sfu)
+                        setState("select-site")
+                    } else if(sfu.length === 1) {
+                        setSite(sfu[0])
                     } else {
+                        setState("not-found");
+                    }
+                })
+            }
+            else {
+                getSiteConfiguration(site!.id).then(sc => {
+                    if(sc) {
+                        setSiteConfig(sc);
+                    }
+                    else {
                         setState("not-configured");
                     }
-                }
-                else {
-                    setState("not-found");
-                }
-            })
+                })
+            }
+        } else {
+            setSite(null);
         }
-    }, [idToken]);
+    }, [idToken, site]);
 
     return (
         <SiteContext.Provider value={{site, siteConfig, saveSiteConfiguration}}>
@@ -60,6 +73,9 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
             <When condition={state === "ready"}>{children}</When>
             <When condition={state === "not-configured"}>
                 <SiteSetup site={site!} />
+            </When>
+            <When condition={state === "select-site"}>
+                <SelectSite sites={availableSites} selectSite={s => setSite(s)} />
             </When>
             <When condition={state === "not-found"}>
                 <div>We were unable to find you site. It may not be registered with our systems. You will need to contact our onboarding team.</div>

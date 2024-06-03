@@ -1,8 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directories:
-      - "/"
+    directory: "/"
     schedule:
       interval: "daily"
     groups:
@@ -10,11 +9,13 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "npm"
-    directories:
-      - "/src/client"
+    directory: "/src/client"
     schedule:
       interval: "daily"
     groups:
       all-dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Net.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Options;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -25,6 +25,7 @@ public class GetAuthTokenFunction
     }
 
     [Function("GetAuthTokenFunction")]
+    [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")] HttpRequest req)
         {

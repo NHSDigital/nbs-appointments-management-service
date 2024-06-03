@@ -14,9 +14,16 @@ public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthen
     private readonly IRequestAuthenticatorFactory _requestAuthenticatorFactory = requestAuthenticatorFactory;
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
+        var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
+        if(functionTypeInfoFeature.RequiresAuthentication == false)
+        {
+            await next(context);
+            return;
+        }
+
         var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>() as UserContextProvider;
         var request = await context.GetHttpRequestDataAsync();
-        
+            
         if (request.Headers.Contains("Authorization"))
         {
             var authHeaderValue = request.Headers.GetValues("Authorization").FirstOrDefault();

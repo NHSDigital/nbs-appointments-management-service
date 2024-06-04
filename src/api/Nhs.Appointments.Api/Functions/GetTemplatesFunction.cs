@@ -46,9 +46,8 @@ public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateRespons
     }
 
     protected override async Task<ApiResult<GetTemplateResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
-    {
-        var site = await GetSiteFromRequestAsync(request);
-        var templates = await _templateService.GetTemplates(site);
+    {        
+        var templates = await _templateService.GetTemplates(request.Site);
         return Success(new GetTemplateResponse
         {
             Templates = templates.ToArray()

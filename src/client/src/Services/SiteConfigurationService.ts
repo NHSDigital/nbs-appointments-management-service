@@ -1,3 +1,4 @@
+import { Site } from "../Types/Site";
 import { SiteConfiguration, SiteInformation } from "../Types/SiteConfiguration";
 import { useAuthenticatedClient } from "./ApiClient";
 
@@ -13,15 +14,20 @@ export const useSiteConfigurationService = () => {
             });
         }
 
-        const getSiteConfigurationForUser = async () : Promise<SiteInformation|null> => {
-            var response = await client.get(`site-configuration?user`)
+        const getSiteConfiguration = async (siteId: string) : Promise<SiteConfiguration|null> => {
+            var response = await client.get(`site-configuration?site=${siteId}`)
             if(response.status === 404)
                   return null;
             if(!response.ok) {
                   throw new Error("An error occurred getting site configuration");
             }
-            return await response.json() as SiteInformation;
+            return await response.json() as SiteConfiguration;
         }
 
-        return {getSiteConfigurationForUser, setSiteConfiguration}
+        const getSitesForUser = async() : Promise<Site[]> => {
+            var response = await client.get('user/sites')
+            return await response.json() as Site[];
+        }
+
+        return {getSiteConfiguration, getSitesForUser, setSiteConfiguration}
 }

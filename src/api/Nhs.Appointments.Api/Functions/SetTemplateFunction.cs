@@ -18,17 +18,14 @@ namespace Nhs.Appointments.Api.Functions;
 public class SetTemplateFunction : BaseApiFunction<WeekTemplate, string>
 {
     private readonly ITemplateService _templateService;
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
 
     public SetTemplateFunction(
-        ITemplateService templateService,
-        IUserSiteAssignmentService userSiteAssignmentService,
+        ITemplateService templateService,        
         IValidator<WeekTemplate> validator, 
         IUserContextProvider userContextProvider,
         ILogger<SetTemplateFunction> logger) : base(validator, userContextProvider, logger)
     {
-        _templateService = templateService;
-        _userSiteAssignmentService = userSiteAssignmentService;
+        _templateService = templateService;        
     }
 
     [OpenApiOperation(operationId: "SetTemplate", tags: new[] { "Site Configuration" }, Summary = "Save a week template definition")]
@@ -45,12 +42,6 @@ public class SetTemplateFunction : BaseApiFunction<WeekTemplate, string>
 
     protected override async Task<ApiResult<string>> HandleRequest(WeekTemplate request, ILogger logger)
     {
-        if(string.IsNullOrEmpty(request.Site))
-        {
-            var userEmail = Principal.Claims.GetUserEmail();
-            request.Site = await _userSiteAssignmentService.GetSiteIdForUserByEmailAsync(userEmail);                
-        }
-
         var templateId = await _templateService.SaveTemplate(request);
         return Success(templateId);
     }

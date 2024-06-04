@@ -1,21 +1,16 @@
 ﻿namespace Nhs.Appointments.Core;
 
 public interface IUserSiteAssignmentService
-{
-    Task<string> GetSiteIdForUserByEmailAsync(string userEmail);
+{    
+    Task<IEnumerable<string>> GetUserAssignedSites(string userId);
 }
 
-public class UserSiteAssignmentService : IUserSiteAssignmentService
+public class UserSiteAssignmentService(IUserSiteAssignmentStore store) : IUserSiteAssignmentService
 {
-    private readonly IUserSiteAssignmentStore _store;
+    private readonly IUserSiteAssignmentStore _store = store;    
 
-    public UserSiteAssignmentService(IUserSiteAssignmentStore store)
+    public Task<IEnumerable<string>> GetUserAssignedSites(string userId) 
     {
-        _store = store;
-    }
-
-    public Task<string> GetSiteIdForUserByEmailAsync(string userEmail)
-    {
-        return _store.GetSiteIdForUserByEmailAsync(userEmail);
+        return _store.GetUserAssignedSites(userId);        
     }
 }

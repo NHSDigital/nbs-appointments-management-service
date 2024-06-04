@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
-using FluentValidation.Results;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;

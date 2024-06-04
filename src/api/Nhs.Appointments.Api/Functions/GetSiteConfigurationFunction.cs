@@ -15,7 +15,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<GetSiteConfigurationResponse>   
+public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<SiteConfiguration>   
 {
     private readonly IUserSiteAssignmentService _userSiteAssignmentService;
     private readonly ISiteConfigurationService _siteConfigurationService;
@@ -48,24 +48,13 @@ public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<GetSiteCo
         return base.RunAsync(req);
     }
     
-    protected override async Task<ApiResult<GetSiteConfigurationResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
+    protected override async Task<ApiResult<SiteConfiguration>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var siteId = await  GetSiteFromRequestAsync(request);
-        if(string.IsNullOrEmpty(siteId)) 
-        { 
-            return request.ForUser ?
-            Failed(System.Net.HttpStatusCode.Unauthorized, "") :
-            Failed(System.Net.HttpStatusCode.BadRequest, "SiteId was not provided");
-        }
-        
-        var siteDetails = await _siteSearchService.GetSiteByIdAsync(siteId);
-
-        if (siteDetails != null)
-        {
-            var siteConfiguration = await _siteConfigurationService.GetSiteConfigurationOrDefaultAsync(siteId);
-            var response = new GetSiteConfigurationResponse(siteDetails, siteConfiguration);
-            return Success(response);
-        }        
+        var siteConfiguration = await _siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
+        if (siteConfiguration != null)
+        {            
+            return Success(siteConfiguration);
+        }               
         
         return Failed(System.Net.HttpStatusCode.NotFound, "No site configuration was found for the specified site");
     }       

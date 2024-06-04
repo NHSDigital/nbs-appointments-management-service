@@ -22,18 +22,7 @@ public abstract class SiteBasedResourceFunction<TResponse> : BaseApiFunction<Sit
 
     protected override Task<(bool requestRead, SiteBasedResourceRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        var site = req.Query["site"];
-        var forUser = req.Query.ContainsKey("user");
-        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site, forUser)));
-    }
-
-    protected async Task<string> GetSiteFromRequestAsync(SiteBasedResourceRequest request)
-    {        
-        if (request.ForUser)
-        {
-            var userEmail = Principal.Claims.GetUserEmail();
-            return await _userSiteAssignmentService.GetSiteIdForUserByEmailAsync(userEmail);
-        }
-        return request.Site;
-    }
+        var site = req.Query["site"];        
+        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site)));
+    }    
 }

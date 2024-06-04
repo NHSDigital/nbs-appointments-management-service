@@ -12,15 +12,21 @@ export const SelectSite = ({sites, selectSite} : SelectSiteProps) => {
     return(
         <>
             <NhsHeader navLinks={[]} />
-            <h3 className="nhsuk-heading-m">Please select a site</h3>
             <div className="nhsuk-width-container">
-                <div className="nhsuk-inset-text">
-                    {sites.map(s => (
-                        <QuickSetupLink 
-                        label={s.name} 
-                        action={() => selectSite(s)}/>
-                    ))}
-                </div>
+                <main className="nhsuk-main-wrapper " id="maincontent" role="main">
+                    <div className="nhsuk-grid-row">
+                        <div className="nhsuk-grid-column-full">
+                            <h2>Please select a site</h2>
+                            <div className="nhsuk-inset-text">
+                        {sites.map(s => (
+                            <QuickSetupLink 
+                            label={s.name} 
+                            action={() => selectSite(s)}/>
+                        ))}
+                    </div>
+                        </div>
+                    </div>
+                </main>
             </div>
             <NhsFooter/>
         </>

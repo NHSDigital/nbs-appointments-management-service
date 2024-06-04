@@ -32,8 +32,3 @@ public class AttendeeDetailsValidator : AbstractValidator<AttendeeDetails>
             });
     }
 }
-
-public class EmptyValidator : AbstractValidator<EmptyRequest>
-{
-    
-}

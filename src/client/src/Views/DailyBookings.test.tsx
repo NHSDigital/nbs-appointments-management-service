@@ -60,11 +60,11 @@ describe("<DailyBookings />", () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}/>);
         const searchInput = await screen.findByRole("textbox", { name: "Filter bookings list" });
-        userEvent.type(searchInput, "XYZ");
+        await userEvent.type(searchInput, "XYZ");
         expect(screen.queryByText(testBooking.reference)).not.toBeInTheDocument();
         expect(await screen.findByText("No results found")).toBeVisible();
-        userEvent.clear(searchInput);
-        userEvent.type(searchInput, testBooking.reference);
+        await userEvent.clear(searchInput);
+        await userEvent.type(searchInput, testBooking.reference);
         await expectText(testBooking.reference);
     });
 
@@ -85,7 +85,7 @@ describe("<DailyBookings />", () => {
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
         const nextDayLink = await screen.findByRole("link", {name: "next day"})
-        userEvent.click(nextDayLink);
+        await userEvent.click(nextDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
 
@@ -97,7 +97,7 @@ describe("<DailyBookings />", () => {
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
         const previousDayLink = await screen.findByRole("link", {name: "previous day"})
-        userEvent.click(previousDayLink);
+        await userEvent.click(previousDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
 
@@ -108,9 +108,9 @@ describe("<DailyBookings />", () => {
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
         const previousDayLink = await screen.findByRole("link", {name: "previous day"})
-        userEvent.click(previousDayLink);
+        await userEvent.click(previousDayLink);
         const todayLink = await screen.findByRole("link", {name: "today"})
-        userEvent.click(todayLink);
+        await userEvent.click(todayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
 
@@ -119,7 +119,7 @@ describe("<DailyBookings />", () => {
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
         const nextDayLink = await screen.findByRole("link", {name: "next day"})
-        userEvent.click(nextDayLink);
+        await userEvent.click(nextDayLink);
         expect(screen.queryByRole("checkbox")).toBeNull();
     })
 
@@ -129,7 +129,7 @@ describe("<DailyBookings />", () => {
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
         const firstCheckBox = await screen.findByRole("checkbox");
         await act(async () => {
-            userEvent.click(firstCheckBox);
+            await userEvent.click(firstCheckBox);
         });
         expect(mockSetBookingStatus).toHaveBeenCalledWith(site.id, testBooking.reference, "CheckedIn" );
         expect(firstCheckBox).toBeChecked();

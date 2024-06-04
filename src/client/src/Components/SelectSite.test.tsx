@@ -27,7 +27,7 @@ describe("<SiteSelector>", () => {
         wrappedRender(<SelectSite sites={sites} selectSite={selectSiteFunc} />);
         const siteAlphaLink = await screen.findByRole("link", {name: "Site Alpha"});
         const siteBetaLink = await screen.findByRole("link", {name: "Site Beta"});
-        userEvent.click(siteAlphaLink);
+        await userEvent.click(siteAlphaLink);
         expect(selectSiteFunc).toHaveBeenCalledWith({"address": "somewhere", "id": "1000", "name": "Site Alpha"});
     })
 })

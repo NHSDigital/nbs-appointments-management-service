@@ -185,10 +185,10 @@
 }
 
 .nhsuk-checkboxes__input+.nhsuk-checkboxes__label::after {
-  height: 10px;
+  height: 9px;
   left: 6px;
   top: 9px;
-  width: 19px;
+  width: 18px;
 }
 
 td > .nhsuk-checkboxes__item {

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
@@ -34,6 +35,7 @@ public class CancelBookingFunction : BaseApiFunction<CancelBookingRequest, Cance
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/json", typeof(CancelBookingResponse), Description = "Booking successfully cancelled")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "Requested site not configured for appointments")]
+    [RequiresPermission("book:cancel")]
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/cancel")] HttpRequest req)

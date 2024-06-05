@@ -1,4 +1,4 @@
-import {act, screen} from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from "@testing-library/user-event";
 import { DailyBookings } from './DailyBookings';
 import { SiteConfiguration, defaultServiceConfigurationTypes } from '../Types/SiteConfiguration';
@@ -84,7 +84,7 @@ describe("<DailyBookings />", () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
-        const nextDayLink = await screen.findByRole("link", {name: "next day"})
+        const nextDayLink = await screen.findByRole("button", {name: "next day"})
         await userEvent.click(nextDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
@@ -96,7 +96,7 @@ describe("<DailyBookings />", () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
-        const previousDayLink = await screen.findByRole("link", {name: "previous day"})
+        const previousDayLink = await screen.findByRole("button", {name: "previous day"})
         await userEvent.click(previousDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
@@ -107,9 +107,9 @@ describe("<DailyBookings />", () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
-        const previousDayLink = await screen.findByRole("link", {name: "previous day"})
+        const previousDayLink = await screen.findByRole("button", {name: "previous day"})
         await userEvent.click(previousDayLink);
-        const todayLink = await screen.findByRole("link", {name: "today"})
+        const todayLink = await screen.findByRole("button", {name: "today"})
         await userEvent.click(todayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
     })
@@ -118,7 +118,7 @@ describe("<DailyBookings />", () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
         wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} />);
-        const nextDayLink = await screen.findByRole("link", {name: "next day"})
+        const nextDayLink = await screen.findByRole("button", {name: "next day"})
         await userEvent.click(nextDayLink);
         expect(screen.queryByRole("checkbox")).toBeNull();
     })

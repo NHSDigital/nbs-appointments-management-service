@@ -73,10 +73,12 @@
   }
 }
 
-/*NHS Frontend Overrides*/
+/*Custom styles*/
 
-.nhsuk-date-input {
-  display:inline-block;
+.asa-button-message {
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
 }
 
 .nhsuk-button--link {
@@ -105,6 +107,8 @@
   outline: 4px solid transparent;
 }
 
+/*NHS Frontend Overrides*/
+
 .nhsuk-back-link__link:active, .nhsuk-back-link__link:focus {
   background-color: transparent;
   border: none;
@@ -114,12 +118,6 @@
 .nhsuk-table__body th {
   border-bottom: 0;
   padding-bottom: 0;
-}
-
-.dd-header {
-  display:inline-block;
-  width: 10.8ex; /*to match .nhsuk-input--width-5*/
-  margin-right: 21px;
 }
 
 .nhsuk-header__container {
@@ -191,14 +189,28 @@
   width: 18px;
 }
 
-td > .nhsuk-checkboxes__item {
-  display: inline;
-}
-
 td > .nhsuk-checkboxes__item > label {
   padding:0;
 }
 
+.nhsuk-back-link__link .nhsuk-icon__chevron-right {
+  transform:rotate(180deg);
+  height: 24px;
+  position: absolute;
+  width: 24px;
+}
+
+.nhsuk-back-link__link:hover .nhsuk-icon {
+  fill: #7c2855;  
+}
+
+.nhsuk-back-link__link:focus .nhsuk-icon {
+  fill: #212b32;  
+}
+
+.nhsuk-back-link__link .nhsuk-icon {
+  top: 0;
+}
 
 /* react-big-calendar overrides */
 

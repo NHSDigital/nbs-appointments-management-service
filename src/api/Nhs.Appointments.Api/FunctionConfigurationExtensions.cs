@@ -90,6 +90,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserSiteAssignmentService, UserSiteAssignmentService>()
             .AddTransient<IDateTimeProvider, SystemDateTimeProvider>()
+            .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
     var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");

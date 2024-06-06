@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
+using Microsoft.IdentityModel.Tokens;
 using Nhs.Appointments.Api.Json;
 
 namespace Nhs.Appointments.Api.Auth;
@@ -23,20 +23,17 @@ public class TypeDecoratorMiddleware : IFunctionsWorkerMiddleware
     }
 }
 
-public class AuthorizationMiddleware : IFunctionsWorkerMiddleware
+public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFunctionsWorkerMiddleware
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
         var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
-        if(functionTypeInfoFeature.RequiresPermission == false)
+        var requiredPermission = functionTypeInfoFeature.RequiredPermission;
+        bool IsAuthorized() => permissionChecker.HasPermission(requiredPermission);
+        if(requiredPermission.IsNullOrEmpty() || IsAuthorized())
         {
-            // var requiredPermission = functionTypeInfoFeature.RequiredPermission;
-            // var isAuthorized = _permissionChecker.HasPermission(userId, requiredPermission);
-            // if (isAuthorized)
-            // {
-                await next(context);
-                return;
-        //     }
+            await next(context);
+            return;
         }
         HandleUnauthorizedAccess(context);
     }
@@ -55,3 +52,16 @@ public class RequiresPermissionAttribute(string permission) : Attribute
     public string Permission { get; } = permission;
 }
 
+public class PermissionChecker : IPermissionChecker
+{
+    public bool HasPermission(string requiredPermission)
+    {
+        var userPermission = "book:cancel";
+        return userPermission == requiredPermission;
+    }
+}
+
+public interface IPermissionChecker
+{
+    bool HasPermission(string requiredPermission);
+}

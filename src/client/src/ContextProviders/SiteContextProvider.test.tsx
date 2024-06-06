@@ -78,7 +78,7 @@ describe("<SiteContextProvider>", () => {
         expect(await screen.findByText("Select Site")).toBeVisible()        
     })
 
-    it("loads site setup when site has not site config", async () => {
+    it("loads site setup when site has no site config", async () => {
         const sites : Site[] = [
             {id: "1000", name: "Test", address: "somewhere"}
         ]

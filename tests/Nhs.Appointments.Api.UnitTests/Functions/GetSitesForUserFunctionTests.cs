@@ -49,7 +49,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Aplha", "somewhere"),
+                new Site("1", "Alpha", "somewhere"),
                 new Site("2", "Beta", "elsewhere"),
             };
 

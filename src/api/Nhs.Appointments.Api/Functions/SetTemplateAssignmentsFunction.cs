@@ -33,6 +33,7 @@ public class SetTemplateAssignmentsFunction : BaseApiFunction<SetTemplateAssignm
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Template assignments successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [RequiresPermission("availability:get-setup")]
     [Function("SetTemplateAssignments")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "templates/assignments")] HttpRequest req)

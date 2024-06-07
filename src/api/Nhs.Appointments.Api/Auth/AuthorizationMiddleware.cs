@@ -14,18 +14,21 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
-        var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
-        
         var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
         var requiredPermission = functionTypeInfoFeature.RequiredPermission;
-        Task<bool> IsAuthorized() => permissionChecker.HasPermissionAsync(userEmail, requiredPermission);
-        if(requiredPermission.IsNullOrEmpty() || await IsAuthorized())
+        if(requiredPermission.IsNullOrEmpty() || await IsAuthorized(context, requiredPermission))
         {
             await next(context);
             return;
         }
         HandleUnauthorizedAccess(context);
+    }
+
+    private Task<bool> IsAuthorized(FunctionContext context, string requiredPermission)
+    {
+        var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        return permissionChecker.HasPermissionAsync(userEmail, requiredPermission);
     }
     
     protected virtual void HandleUnauthorizedAccess(FunctionContext context)

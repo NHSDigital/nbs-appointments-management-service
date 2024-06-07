@@ -32,6 +32,7 @@ public class QueryBookingsFunction : BaseApiFunction<QueryBookingsRequest, IEnum
     [OpenApiRequestBody("text/json", typeof(QueryBookingsRequest))]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(IEnumerable<Booking>), Description = "The bookings matching the query")]
+    [RequiresPermission("bookings:query")]
     [Function("QueryBookingsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "get-bookings")] HttpRequest req)

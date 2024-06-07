@@ -39,7 +39,7 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         setSiteConfig(null);
-        if(idToken) {
+        if(idToken !== null) {
             if(site === null) {
                 getSitesForUser().then(sfu => {
                     if(sfu.length > 1) {
@@ -78,7 +78,7 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
                 <SelectSite sites={availableSites} selectSite={s => setSite(s)} />
             </When>
             <When condition={state === "not-found"}>
-                <div>We were unable to find you site. It may not be registered with our systems. You will need to contact our onboarding team.</div>
+                <div>We were unable to find your site. It may not be registered with our systems. You will need to contact our onboarding team.</div>
             </When>
         </SiteContext.Provider>
         );

@@ -76,6 +76,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
             .AddTransient<IUserSiteAssignmentStore, UserSiteAssignmentStore>()
+            .AddTransient<IRolesStore, RolesStore>()
+            .AddTransient<IRolesService, RolesService>()
             .AddCosmosDataStores()
             .Configure<SiteSearchService.Options>(opts => opts.ServiceName = "APIM")
             .Configure<PostcodeLookupService.Options>(opts => opts.ServiceName = "APIM")

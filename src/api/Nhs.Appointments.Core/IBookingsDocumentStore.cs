@@ -25,6 +25,11 @@ public interface IUserSiteAssignmentStore
     Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId);
 }
 
+public interface IRolesStore
+{
+    Task<IEnumerable<Role>> GetRoles();
+}
+
 public interface IDocumentUpdate<TModel>
 {
     IDocumentUpdate<TModel> UpdateProperty<TProp>(Expression<Func<TModel, TProp>> prop, TProp val);

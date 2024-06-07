@@ -11,7 +11,6 @@ namespace Nhs.Appointments.Api.Auth;
 
 public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthenticatorFactory) : IFunctionsWorkerMiddleware
 {
-    private readonly IRequestAuthenticatorFactory _requestAuthenticatorFactory = requestAuthenticatorFactory;
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
         var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
@@ -36,7 +35,7 @@ public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthen
 
                 try
                 {
-                    var authenticator = _requestAuthenticatorFactory.CreateAuthenticator(scheme);
+                    var authenticator = requestAuthenticatorFactory.CreateAuthenticator(scheme);
                     var principal = await authenticator.AuthenticateRequest(value);
 
                     if (principal.Identity.IsAuthenticated)

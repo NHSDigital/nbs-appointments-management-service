@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Nhs.Appointments.Api.Auth;
 
@@ -16,12 +17,14 @@ public class ApiKeyRequestAuthenticator : IRequestAuthenticator
     {
         _options = options.Value;
     }
-
+    
     public Task<ClaimsPrincipal> AuthenticateRequest(string apiKey)
     {
         if(_options.ValidKeys.Contains(apiKey))
         {
-            var apiClaimant = new ClaimsPrincipal(new ApiConsumerIdentity());
+            var claimsIdentity = new ClaimsIdentity("ApiKey");
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "ApiUser"));              
+            var apiClaimant = new ClaimsPrincipal(claimsIdentity);
             return Task.FromResult(apiClaimant);
         }
 
@@ -29,6 +32,7 @@ public class ApiKeyRequestAuthenticator : IRequestAuthenticator
     }
 }
 
+// TODO Need to delete
 public class ApiConsumerIdentity : IIdentity
 {
     public string AuthenticationType => "ApiKey";

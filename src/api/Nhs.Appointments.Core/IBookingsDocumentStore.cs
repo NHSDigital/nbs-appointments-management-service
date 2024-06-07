@@ -22,7 +22,7 @@ public interface ISiteConfigurationStore
 
 public interface IUserSiteAssignmentStore
 {
-    Task<IEnumerable<string>> GetUserAssignedSites(string userId);
+    Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId);
 }
 
 public interface IDocumentUpdate<TModel>

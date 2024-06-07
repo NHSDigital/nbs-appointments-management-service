@@ -1,11 +1,11 @@
 version: '3.4'
 
 services:
-  cosmos:
-    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
-    ports:
-      - "8081:8081"
-      - "10250-10255:10250-10255"
+#  cosmos:
+#    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+#    ports:
+#      - "8081:8081"
+#      - "10250-10255:10250-10255"
 
   mock-api:
     image: xmlsolutions/mock-api:3.18

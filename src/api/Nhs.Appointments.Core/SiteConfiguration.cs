@@ -16,3 +16,10 @@ public class SiteConfiguration
     [JsonProperty("serviceConfiguration")]
     public IEnumerable<ServiceConfiguration> ServiceConfiguration { get; set; }
 }
+
+public class UserAssignment
+{
+    public string Email { get; set; }
+    public string Site { get; set; }
+    public string[] Roles { get; set; }
+}

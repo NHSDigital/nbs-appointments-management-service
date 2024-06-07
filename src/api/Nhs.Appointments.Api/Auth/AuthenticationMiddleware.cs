@@ -37,7 +37,7 @@ public class AuthenticationMiddleware(IRequestAuthenticatorFactory requestAuthen
                 try
                 {
                     var authenticator = _requestAuthenticatorFactory.CreateAuthenticator(scheme);
-                    var principal = await authenticator.AuthenticateRequest(value);
+                    var principal = await authenticator.AuthenticateRequest(value, request);
 
                     if (principal.Identity.IsAuthenticated)
                     {

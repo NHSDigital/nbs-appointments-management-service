@@ -5,10 +5,23 @@ import { TemplateAssignment, WeekTemplate, ErrorResponse } from "../Types";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 import { When, GettingStartedCallout } from "../Components";
 
-export const ScheduleEditor = () => {
-    const templateService = useTemplateService();
-    const { site } = useSiteContext();
+type ScheduleEditorProps = {
+    getTemplates: () => Promise<WeekTemplate[]>
+    getAssignments: () => Promise<TemplateAssignment[]>
+    saveAssignments: (assignments: TemplateAssignment[]) => Promise<Response>
+}
 
+export const ScheduleEditorCtx = () => {
+    const { site } = useSiteContext();
+    const templateService = useTemplateService();
+    return <ScheduleEditor
+        getTemplates={() => templateService.getTemplates(site?.id!)}
+        getAssignments={() => templateService.getAssignments(site?.id!)}
+        saveAssignments={assignments => templateService.saveAssignments(site?.id!, assignments)}
+    />
+}
+
+export const ScheduleEditor = ({getTemplates, getAssignments, saveAssignments}: ScheduleEditorProps) => {
     const [status, setStatus] = React.useState<"loading" | "loaded">("loading");
     const [errors, setErrors] = React.useState<ErrorResponse[]>([] as ErrorResponse[]);
     const [templates, setTemplates] = React.useState<WeekTemplate[]>([] as WeekTemplate[])
@@ -16,37 +29,24 @@ export const ScheduleEditor = () => {
     const [confirmed, setConfirmed] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        loadData();
-    }, [])
-
-    const loadData = () => {
         setStatus("loading");
-        templateService.getTemplates(site!.id).then(rsp => {
+        getTemplates().then(rsp => {
             setTemplates(rsp);
-            templateService.getAssignments(site!.id).then(rsp => {
+            getAssignments().then(rsp => {
                 rsp.sort((a, b) => a.from > b.from ? 1 : -1)
                 setAssignments(rsp);
                 setStatus("loaded");
             })
         })
-    }
-
-    const fromDate = React.useMemo(() => {
-        if (assignments.length > 0) {
-            const from = dayjs(assignments.slice(-1)[0].until, "YYYY-MM-DD").add(1, "day")
-            return from
-        } else {
-            return dayjs(new Date())
-        }
-    }, [assignments])
+    }, [errors])
 
     const addAvailability = () => {
+        const fromDate = assignments.length > 0 ? dayjs(assignments.slice(-1)[0].until, "YYYY-MM-DD").add(1, "day") : dayjs();
         const newAvailability = {
             from: fromDate.format("YYYY-MM-DD"),
-            until: fromDate.add(7, 'day').format("YYYY-MM-DD"),
+            until: fromDate.add(1, 'week').format("YYYY-MM-DD"),
             templateId: templates[0].id
         };
-
         setAssignments([...assignments, newAvailability]);
     }
 
@@ -60,37 +60,26 @@ export const ScheduleEditor = () => {
     const removeAssignment = (index: number) => {
         const newAssignments = [...assignments];
         newAssignments.splice(index, 1);
-        newAssignments.sort((a, b) => a.from > b.from ? 1 : -1);
         setAssignments(newAssignments);
     }
 
     const confirm = () => {
-        setErrors([] as ErrorResponse[]);
-        templateService.saveAssignments(site!.id, assignments).then(rsp => {
+        setErrors([]);
+        saveAssignments(assignments).then(rsp => {
             if (rsp.status === 200) {
                 setConfirmed(true);
             } else if (rsp.status === 400) {
                 rsp.json().then(j => setErrors(j))
             } else {
-                loadData()
                 setErrors([{ message: "There was a problem saving your assignments.", property: "" }])
             }
-
         })
-
         // todo confirmation / error handling
-
     }
 
     const cancel = () => {
-        setErrors([] as ErrorResponse[]);
-        loadData();
+        setErrors([]);
     }
-
-    const hasAssignments = () => {
-        return assignments && assignments.length > 0;
-    }
-
 
     return (
         <>
@@ -124,10 +113,10 @@ export const ScheduleEditor = () => {
                 </div>
             </When>
             <When condition={status === "loaded" && templates.length > 0}>
-                <When condition={!hasAssignments()}>
+                <When condition={assignments?.length < 1}>
                     <p>There is no scheduled availability for the current site</p>
                 </When>
-                <When condition={hasAssignments()} >
+                <When condition={assignments?.length > 0} >
                     <div className="nhsuk-grid-row">
                         <div className="nhsuk-grid-column-one-half">
                             <table className="nhsuk-table" style={{ marginBottom: "10px" }}>
@@ -156,7 +145,7 @@ export const ScheduleEditor = () => {
                                                 key={i}
                                                 assignment={a}
                                                 templateItems={templates}
-                                                onAssignmentChanged={u => updateAssignment(i, u)}
+                                                onAssignmentChanged={assignment => updateAssignment(i, assignment)}
                                                 onRemoveAssignment={() => removeAssignment(i)} />
                                         ))
                                     }
@@ -208,29 +197,13 @@ type TemplateAssignmentRowProps = {
 }
 
 export const TemplateAssignmentRow = ({ templateItems, assignment, onAssignmentChanged, onRemoveAssignment }: TemplateAssignmentRowProps) => {
-
-    const updateFrom = (from: string) => {
-        const updatedAssignment = { ...assignment, from }
-        onAssignmentChanged(updatedAssignment);
-    }
-
-    const updateUntil = (until: string) => {
-        const updatedAssignment = { ...assignment, until }
-        onAssignmentChanged(updatedAssignment);
-    }
-
-    const updateTemplate = (templateId: string) => {
-        const updatedAssignment = { ...assignment, templateId }
-        onAssignmentChanged(updatedAssignment);
-    }
-
     return (
         <tr role="row" className="nhsuk-table__row">
             <td className={`nhsuk-table__cell`}>
                 <div className="nhsuk-date-input__item">
                     <input
                         type="date"
-                        onChange={e => updateFrom(e.target.value)}
+                        onChange={e => onAssignmentChanged({...assignment, from: e.target.value})}
                         value={assignment.from}
                         className="nhsuk-input nhsuk-date-input nhsuk-input--width-8"
                         aria-label="enter from date"
@@ -241,7 +214,7 @@ export const TemplateAssignmentRow = ({ templateItems, assignment, onAssignmentC
                 <div className="nhsuk-date-input__item">
                     <input
                         type="date"
-                        onChange={e => updateUntil(e.target.value)}
+                        onChange={e => onAssignmentChanged({...assignment, until: e.target.value})}
                         value={assignment.until}
                         className="nhsuk-input nhsuk-date-input nhsuk-input--width-8"
                         aria-label="enter until date"
@@ -252,7 +225,7 @@ export const TemplateAssignmentRow = ({ templateItems, assignment, onAssignmentC
                 <select
                     className="nhsuk-select"
                     value={assignment.templateId}
-                    onChange={e => updateTemplate(e.target.value)}>
+                    onChange={e => onAssignmentChanged({...assignment, templateId: e.target.value})}>
                     {
                         templateItems.map(t => (
                             <option key={t.id} value={t.id}>{t.name}</option>

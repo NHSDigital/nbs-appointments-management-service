@@ -7,8 +7,8 @@ import { DailyBookingsCtx } from './Views/DailyBookings';
 import { HomePage } from './Views/HomePage';
 import { AppointmentsCalendarCtx } from './Views/AppointmentCalendar';
 import { WeekTemplateEditorCtx } from './Views/WeekTemplateEditor';
-import { TemplateListView } from './Views/TemplateListView';
-import { ScheduleEditor } from './Views/ScheduleEditor';
+import { TemplateListViewCtx } from './Views/TemplateListView';
+import { ScheduleEditorCtx } from './Views/ScheduleEditor';
 import { AppPage } from './Components/AppPage';
 
 function App() {
@@ -26,11 +26,11 @@ function App() {
         ]}>
             <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/availability" element={<ScheduleEditor />} />
+                  <Route path="/availability" element={<ScheduleEditorCtx />} />
                   <Route path="/site" element={<EditSiteServicesCtx />} />
                   <Route path="/bookings" element={<DailyBookingsCtx />} />
                   <Route path="/calendar" element={<AppointmentsCalendarCtx />} />
-                  <Route path="/templates" element={<TemplateListView />} />
+                  <Route path="/templates" element={<TemplateListViewCtx />} />
                   <Route path="/templates/edit" element={<WeekTemplateEditorCtx />} />
                   <Route path="/templates/edit/:templateId" element={<WeekTemplateEditorCtx />} />
             </Routes>

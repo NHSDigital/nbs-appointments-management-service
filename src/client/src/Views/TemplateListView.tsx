@@ -1,13 +1,22 @@
 import React from "react";
-import { DayOfWeek, WeekTemplate } from "../Types/Schedule";
+import { DayOfWeek, WeekTemplate } from "../Types";
 import { When, GettingStartedCallout } from "../Components";
 import { useTemplateService } from "../Services/TemplateService";
 import { Link } from "react-router-dom";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 
-export const TemplateListView = () => {
+type TemplateListViewProps = {
+  getTemplates: () => Promise<WeekTemplate[]>
+}
+
+export const TemplateListViewCtx = () => {
   const { site } = useSiteContext();
-  const templateService = useTemplateService();
+  const { getTemplates } = useTemplateService();
+  return <TemplateListView getTemplates={() => getTemplates(site?.id!)} />
+}
+
+
+export const TemplateListView = ({getTemplates}: TemplateListViewProps) => {
   const [status, setStatus] = React.useState<"loading" | "loaded">("loading");
   const [templates, setTemplates] = React.useState<WeekTemplate[]>([] as WeekTemplate[])
 
@@ -16,7 +25,7 @@ export const TemplateListView = () => {
   }
 
   React.useEffect(() => {
-    templateService.getTemplates(site!.id).then(rsp => {
+    getTemplates().then(rsp => {
       setTemplates(rsp);
       setStatus("loaded");
     })

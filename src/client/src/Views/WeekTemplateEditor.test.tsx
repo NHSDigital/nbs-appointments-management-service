@@ -25,7 +25,7 @@ describe("<WeekTemplateEditor />", () => {
         it("calls loadTemplates with template id and displays response", async () => {
             const testValues = { start: "09:00", end: "16:30"};
             const mockGetTemplates = jest.fn().mockResolvedValue([createTemplate("1", "Test Template", testValues.start, testValues.end)]);
-            wrappedRender(<WeekTemplateEditor templateId='1' getTemplates={mockGetTemplates} saveTemplate={jest.fn()}  />);
+            wrappedRender(<WeekTemplateEditor templateId='1' siteId='1' getTemplates={mockGetTemplates} saveTemplate={jest.fn()}  />);
             const startInput = await screen.findAllByDisplayValue(testValues.start);
             const endInputs =  await screen.findAllByDisplayValue(testValues.end);
             expect(mockGetTemplates).toHaveBeenCalled();
@@ -38,7 +38,7 @@ describe("<WeekTemplateEditor />", () => {
             const mockGetTemplates = jest.fn().mockResolvedValue([createTemplate("1", "Test Template", selectableValue, "17:00")]);
             const mockSaveTemplate = jest.fn().mockResolvedValue(null);
             const newValue = "09:15";
-            wrappedRender(<WeekTemplateEditor templateId='1' getTemplates={mockGetTemplates} saveTemplate={mockSaveTemplate} />);
+            wrappedRender(<WeekTemplateEditor templateId='1' siteId='1' getTemplates={mockGetTemplates} saveTemplate={mockSaveTemplate} />);
             const startInputs = await screen.findAllByDisplayValue(selectableValue);
             // first input is for Monday
             fireEvent.change(startInputs[0], {target: {value: newValue}});
@@ -61,7 +61,7 @@ describe("<WeekTemplateEditor />", () => {
             ]
             const expectedTemplate : WeekTemplate = {
                 id: "1",
-                site: "",
+                site: "1",
                 name: "Test Template",
                 items: expectedScheduleItems
             }
@@ -73,7 +73,7 @@ describe("<WeekTemplateEditor />", () => {
             const newValue = "09:01";
             const testValues = { start: "09:00", end: "16:30"};
             const mockGetTemplates = jest.fn().mockResolvedValue([createTemplate("1", "Test Template", testValues.start, testValues.end)]);
-            wrappedRender(<WeekTemplateEditor templateId="1" getTemplates={mockGetTemplates} saveTemplate={jest.fn()} />);
+            wrappedRender(<WeekTemplateEditor templateId="1" siteId='1' getTemplates={mockGetTemplates} saveTemplate={jest.fn()} />);
             const startInputs = await screen.findAllByDisplayValue(selectableValue);
             const confirmButton = screen.getByText("Confirm template");
             fireEvent.change(startInputs[0], {target: {value: newValue}});

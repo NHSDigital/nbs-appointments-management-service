@@ -43,8 +43,11 @@ namespace Nhs.Appointments.Api.Tests.Functions
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
-            var sites = new[] { "1", "2" };
-
+            var sites = new List<UserAssignment>()
+            {
+                new() { Email = "test@test.com", Site = "1", Roles = ["Role1", "Role2"] },
+                new() { Email = "test@test.com", Site = "2", Roles = ["Role1", "Role2"] }
+            };
             _userSiteAssignmentService.Setup(x => x.GetUserAssignedSites("test@test.com")).ReturnsAsync(sites);
 
             var siteDetails = new[]

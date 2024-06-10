@@ -8,7 +8,7 @@ interface TimeBlockRowProps {
     error?: ValidationError,
     uniqueId: string,
     enableAutoFocus: boolean
-    handleTimeChange: (value: string, startOrEnd: "start" | "end") => void,
+    handleTimeChange: (session: Session) => void,
     handleRemove: () => void,
     handleBlur: () => void,
     handleEnterKey: () => void,
@@ -37,7 +37,7 @@ export const TimeBlockRow = ({ block, error, uniqueId, enableAutoFocus, handleTi
                             type="time"
                             className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${error?.field?.includes("start") ? "nhsuk-input--error" : ""}`}
                             value={block.from}
-                            onChange={e => handleTimeChange(e.target.value, "start")}
+                            onChange={e => handleTimeChange({...block, from: e.target.value})}
                             onBlur={handleBlur}
                             onKeyDown={e => {
                                 if (e.key === "Enter") {
@@ -56,7 +56,7 @@ export const TimeBlockRow = ({ block, error, uniqueId, enableAutoFocus, handleTi
                             type="time"
                             className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${error?.field?.includes("end") ? "nhsuk-input--error" : ""}`}
                             value={block.until}
-                            onChange={e => handleTimeChange(e.target.value, "end")}
+                            onChange={e => handleTimeChange({...block, until: e.target.value})}
                             onBlur={handleBlur}
                             onKeyDown={e => {
                                 if (e.key === "Enter") {

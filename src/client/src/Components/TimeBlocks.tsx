@@ -16,14 +16,8 @@ export const TimeBlocks = ({ dayLabel, scheduleBlocks, setDayBlocks, setIsValid,
     const [validationErrors, setValidationErrors] = React.useState<ValidationError[]>([]);
     const [enableAutoFocus, setEnableAutoFocus] = React.useState(false);
 
-    const handleTimeChange = (value: string, type: "start" | "end", i: number) => {
-        if (scheduleBlocks) {
-            if (type === "start") {
-                scheduleBlocks[i].from = value;
-            } else {
-                scheduleBlocks[i].until = value;
-            }
-        }
+    const handleTimeChange = (block: Session, index: number) => {
+        scheduleBlocks[index] = block;
         setDayBlocks([...scheduleBlocks]);
     }
 
@@ -164,7 +158,7 @@ export const TimeBlocks = ({ dayLabel, scheduleBlocks, setDayBlocks, setIsValid,
                 scheduleBlocks.map((block, i) => {
                     return <TimeBlockRow
                         block={block}
-                        handleTimeChange={(value, type) => handleTimeChange(value, type, i)}
+                        handleTimeChange={block => handleTimeChange(block, i)}
                         handleRemove={() => removeBlock(i)}
                         handleBlur={sortBlocks}
                         handleEnterKey={addBlock}

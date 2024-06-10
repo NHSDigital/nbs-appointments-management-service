@@ -13,6 +13,7 @@ let initialTemplate: ExplodedWeekTemplate = {
     id: "",
     days: initialDays
 };
+let originalTemplate: ExplodedWeekTemplate;
 
 type WeekTemplateEditorProps = {
     templateId: string | undefined
@@ -36,7 +37,6 @@ export const WeekTemplateEditorCtx = () => {
 
 export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTemplate }: WeekTemplateEditorProps) => {
     const [status, setStatus] = React.useState<null | "loading" | "errored" | "confirmed">(null);
-    const [originalTemplate, setOriginalTemplate] = React.useState<ExplodedWeekTemplate>(initialTemplate);
     const [weekTemplate, setWeekTemplate] = React.useState<ExplodedWeekTemplate>(initialTemplate);
     const [isValid, setIsValid] = React.useState(true);
     const errorText = React.useRef("");
@@ -70,8 +70,7 @@ export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTempl
                 const template = templates.find(t => t.id === templateId);
                 if (template) {
                     const transformedTemplate = templateToViewModel(template);
-                    const clone = cloneTemplate(transformedTemplate);
-                    setOriginalTemplate(clone)
+                    originalTemplate = cloneTemplate(transformedTemplate);
                     setWeekTemplate(transformedTemplate);
                     setStatus(null);
                 } else {
@@ -83,9 +82,9 @@ export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTempl
 
     const hasChanged = React.useMemo(() => {
         const changed = Object.entries(weekTemplate.days).map(([dayLabel, blocks]) =>
-            blocks && originalTemplate.days && blocksEqual(blocks, originalTemplate.days[dayLabel as DayOfWeek]));
-        return originalTemplate.name !== weekTemplate.name || changed.some(x => !x);
-    }, [weekTemplate, originalTemplate]);
+            blocks && originalTemplate && blocksEqual(blocks, originalTemplate.days[dayLabel as DayOfWeek]));
+        return originalTemplate?.name !== weekTemplate.name || changed.some(x => !x);
+    }, [weekTemplate]);
 
     return (
             <div className="nhsuk-grid-row">

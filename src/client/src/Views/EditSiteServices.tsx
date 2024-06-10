@@ -1,7 +1,7 @@
 import React from "react";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { SiteConfiguration, defaultServiceConfigurationTypes } from "../Types/SiteConfiguration";
-import { When } from "../Components/When";
+import { SiteConfiguration, defaultServiceConfigurationTypes } from "../Types";
+import { When } from "../Components";
 
 type EditSiteServicesProps = {
       siteConfiguration: SiteConfiguration | null,

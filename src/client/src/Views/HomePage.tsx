@@ -1,6 +1,5 @@
-import { SiteDetails } from "../Components/SiteDetails";
-import { WarningCallout } from "../Components/WarningCallout";
-import { useSiteContext } from "../ContextProviders/SiteContextProvider"
+import { SiteDetails, WarningCallout } from "../Components";
+import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 
 export const HomePage = () => {
       const { site } = useSiteContext();

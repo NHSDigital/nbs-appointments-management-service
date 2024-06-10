@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { ServiceSelector } from "./ServiceSelector";
 import { wrappedRender } from "../utils";
-import { ISiteContext, SiteContext } from "../ContextProviders/SiteContextProvider";
+import { ISiteContext } from "../ContextProviders/SiteContextProvider";
 
 
 const context: ISiteContext = {    

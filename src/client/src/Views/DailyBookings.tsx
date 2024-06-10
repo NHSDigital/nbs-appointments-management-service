@@ -1,9 +1,8 @@
 import React from "react";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { Booking } from "../Types/Booking";
+import { Booking, SiteConfiguration } from "../Types";
 import { useBookingService } from "../Services/BookingService";
-import { When } from "../Components/When";
-import { SiteConfiguration } from "../Types/SiteConfiguration";
+import { When } from "../Components";
 import dayjs from "dayjs";
 
 type DailyBookingsProps = {

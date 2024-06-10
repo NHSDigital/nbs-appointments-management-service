@@ -2,8 +2,7 @@ import { render, screen } from "@testing-library/react"
 import { SiteContextProvider } from "./SiteContextProvider"
 import { useSiteConfigurationService } from "../Services/SiteConfigurationService";
 import { useAuthContext } from "./AuthContextProvider";
-import { Site } from "../Types/Site";
-import { ServiceConfiguration, SiteConfiguration } from "../Types/SiteConfiguration";
+import { Site, ServiceConfiguration, SiteConfiguration } from "../Types";
 
 jest.mock("../Services/SiteConfigurationService")
 const useSiteConfigurationServiceMock = useSiteConfigurationService as jest.Mock<any>

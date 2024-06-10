@@ -1,6 +1,5 @@
 import React from "react";
-import { When } from "../Components/When";
-import { SignIn } from "../Components/SignIn";
+import { When, SignIn } from "../Components"
 import { useSearchParams } from "react-router-dom";
 import { getApiUrl } from "../configuration";
 import { jwtDecode } from "jwt-decode";

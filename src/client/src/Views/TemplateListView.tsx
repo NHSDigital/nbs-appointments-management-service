@@ -1,10 +1,9 @@
-import React from "react"
+import React from "react";
 import { DayOfWeek, WeekTemplate } from "../Types/Schedule";
-import { When } from "../Components/When";
+import { When, GettingStartedCallout } from "../Components";
 import { useTemplateService } from "../Services/TemplateService";
 import { Link } from "react-router-dom";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { GettingStartedCallout } from "../Components/GettingStartedCallout";
 
 export const TemplateListView = () => {
   const { site } = useSiteContext();

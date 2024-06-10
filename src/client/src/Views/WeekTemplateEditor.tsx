@@ -1,7 +1,6 @@
 import React from "react";
 import { DayOfWeek, ExplodedWeekTemplate, WeekDaySessionMap, WeekTemplate } from "../Types/Schedule";
-import { When } from "../Components/When";
-import { TimeBlocks } from "../Components/TimeBlocks";
+import { When, TimeBlocks } from "../Components";
 import { useTemplateService } from "../Services/TemplateService";
 import { Link, useParams } from "react-router-dom";
 import { blocksEqual, cloneTemplate, templateToViewModel, viewModelToTemplate } from "../utils"

@@ -1,4 +1,4 @@
-import { Site } from "../Types/Site";
+import { Site } from "../Types";
 
 export const SiteDetails = ({ site }: { site: Site }) => {
   return (

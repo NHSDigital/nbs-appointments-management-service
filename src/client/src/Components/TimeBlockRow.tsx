@@ -1,6 +1,5 @@
 import { Session } from "../Types/Schedule";
-import { ServiceConfiguration } from "../Types/SiteConfiguration";
-import { ValidationError } from "../Types/ValidationError";
+import { ServiceConfiguration, ValidationError } from "../Types";
 import { ServiceSelector } from "./ServiceSelector";
 import { When } from "./When";
 

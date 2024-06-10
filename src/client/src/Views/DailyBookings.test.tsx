@@ -1,8 +1,7 @@
 import {act, screen} from '@testing-library/react';
 import userEvent from "@testing-library/user-event";
 import { DailyBookings } from './DailyBookings';
-import { SiteConfiguration, defaultServiceConfigurationTypes } from '../Types/SiteConfiguration';
-import { Site } from '../Types/Site';
+import { Site, SiteConfiguration, defaultServiceConfigurationTypes } from '../Types';
 import { Booking } from '../Types/Booking';
 import { wrappedRender } from '../utils';
 import dayjs from 'dayjs';

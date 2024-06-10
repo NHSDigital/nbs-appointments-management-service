@@ -1,10 +1,7 @@
 import React from "react";
-import { DayOfWeek, Session } from "../Types/Schedule";
-import { TimeBlockRow } from "./TimeBlockRow";
-import { ValidationError } from "../Types/ValidationError";
+import { DayOfWeek, Session, ValidationError, ServiceConfiguration } from "../Types";
+import { TimeBlockRow, When } from "./index";
 import { calculateNewSessionTime, parseTime } from "../utils";
-import { When } from "./When";
-import { ServiceConfiguration } from "../Types/SiteConfiguration";
 
 interface TimeBlockProps {
     dayLabel: DayOfWeek,

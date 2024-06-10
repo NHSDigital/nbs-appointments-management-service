@@ -1,7 +1,7 @@
 import React from "react";
 import "./ServiceSelector.css"
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { ServiceConfiguration } from "../Types/SiteConfiguration";
+import { ServiceConfiguration } from "../Types";
 import { When } from "./When";
 
 type ServiceSelectorProps = {

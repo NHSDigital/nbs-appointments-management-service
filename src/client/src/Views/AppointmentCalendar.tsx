@@ -1,14 +1,12 @@
-import React from 'react';
-import { Calendar, dayjsLocalizer, Views, View } from 'react-big-calendar';
-import dayjs from 'dayjs';
 import 'dayjs/locale/en-gb'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { useBookingService } from '../Services/BookingService';
+import React from 'react';
+import dayjs from 'dayjs';
+import { Calendar, dayjsLocalizer, Views, View } from 'react-big-calendar';
 import { useSiteContext } from '../ContextProviders/SiteContextProvider';
-import { SiteConfiguration } from '../Types/SiteConfiguration';
-import { Booking } from '../Types/Booking';
-import { DayOfWeek, TemplateAssignment, WeekTemplate } from '../Types/Schedule';
+import { SiteConfiguration, Booking, DayOfWeek, TemplateAssignment, WeekTemplate} from '../Types/index';
 import { useTemplateService } from '../Services/TemplateService';
+import { useBookingService } from '../Services/BookingService';
 
 
 type Event = {

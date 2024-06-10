@@ -1,5 +1,4 @@
-import { NhsFooter } from "./NhsFooter"
-import { NhsHeader } from "./NhsHeader"
+import { NhsFooter, NhsHeader } from "./index";
 
 type SignInProps = {
     signIn: () => void

@@ -1,8 +1,7 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { WeekTemplateEditor } from './WeekTemplateEditor';
 import { wrappedRender } from '../utils';
-import { ScheduleTemplate, WeekTemplate } from '../Types/Schedule';
-import { SiteConfiguration } from '../Types/SiteConfiguration';
+import { ScheduleTemplate, WeekTemplate, SiteConfiguration } from '../Types';
 
 const site: SiteConfiguration = { siteId: "1", serviceConfiguration: [], informationForCitizen: "" };
 

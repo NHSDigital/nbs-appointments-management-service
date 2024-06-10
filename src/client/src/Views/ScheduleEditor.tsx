@@ -1,11 +1,9 @@
 import React from "react";
-import { useTemplateService } from "../Services/TemplateService";
-import { TemplateAssignment, WeekTemplate } from "../Types/Schedule";
-import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { When } from "../Components/When";
 import dayjs from "dayjs";
-import { GettingStartedCallout } from "../Components/GettingStartedCallout";
-import { ErrorResponse } from "../Types/ErrorResponse";
+import { useTemplateService } from "../Services/TemplateService";
+import { TemplateAssignment, WeekTemplate, ErrorResponse } from "../Types";
+import { useSiteContext } from "../ContextProviders/SiteContextProvider";
+import { When, GettingStartedCallout } from "../Components";
 
 export const ScheduleEditor = () => {
     const templateService = useTemplateService();

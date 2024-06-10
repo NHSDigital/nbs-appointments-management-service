@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { When } from "../Components/When";
-import { SiteConfiguration } from "../Types/SiteConfiguration";
+import { Site, SiteConfiguration } from "../Types";
 import { useSiteConfigurationService } from "../Services/SiteConfigurationService";
 import { useAuthContext } from "./AuthContextProvider";
-import { Site } from "../Types/Site";
-import { SiteSetup } from "../Components/SiteSetup";
-import { SelectSite } from "../Components/SelectSite";
+import { SiteSetup, SelectSite } from "../Components";
 
 export interface ISiteContext {
     site: Site | null

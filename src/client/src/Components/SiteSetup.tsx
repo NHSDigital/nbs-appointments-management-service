@@ -1,11 +1,7 @@
 import { useAuthContext } from "../ContextProviders/AuthContextProvider"
 import { useSiteContext } from "../ContextProviders/SiteContextProvider"
-import { Site } from "../Types/Site"
-import { defaultServiceConfigurationTypes, ServiceConfiguration, SiteConfiguration } from "../Types/SiteConfiguration"
-import { NhsFooter } from "./NhsFooter"
-import { NhsHeader } from "./NhsHeader"
-import { SiteDetails } from "./SiteDetails"
-import { WarningCallout } from "./WarningCallout"
+import { defaultServiceConfigurationTypes, Site, ServiceConfiguration, SiteConfiguration } from "../Types"
+import { NhsFooter, NhsHeader, SiteDetails, WarningCallout } from "./index"
 import { useNavigate } from "react-router-dom";
 
 export const SiteSetup = ({site}:{site: Site}) => {

@@ -20,7 +20,7 @@ namespace Nhs.Appointments.ApiClient
 
             var hmacSha256 = new HMACSHA256 { Key = Convert.FromBase64String(key) };
 
-            var payload = $"{method}\n${path}\n${requestTimestamp}\n${hasedContentBase64}";
+            var payload = $"{method}\n{path}\n{requestTimestamp}\n{hasedContentBase64}";
             var sigBytes = hmacSha256.ComputeHash(Encoding.UTF8.GetBytes(payload));
             return Convert.ToBase64String(sigBytes);
         }

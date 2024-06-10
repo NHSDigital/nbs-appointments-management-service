@@ -4,7 +4,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { Calendar, dayjsLocalizer, Views, View } from 'react-big-calendar';
 import { useSiteContext } from '../ContextProviders/SiteContextProvider';
-import { SiteConfiguration, Booking, DayOfWeek, TemplateAssignment, WeekTemplate} from '../Types/index';
+import { SiteConfiguration, Booking, DayOfWeek, TemplateAssignment, WeekTemplate, ScheduleTemplate} from '../Types';
 import { useTemplateService } from '../Services/TemplateService';
 import { useBookingService } from '../Services/BookingService';
 
@@ -53,11 +53,13 @@ const assignedTemplatesToBGEvents = (start: Date, end: Date, assignments:Templat
     let events: Event[] = [];
     let day = dayjs(start);
     const endVal = end.valueOf();
+    const filterAssignments = (a: TemplateAssignment) => (day.isAfter(a.from) || day.isSame(a.from)) && (day.isBefore(a.until) || day.isSame(a.until));
+    const filterBlocks = (i: ScheduleTemplate) => i.days.includes(days[day.day()])
     while(day.valueOf() < endVal){
-        const [assignment] = assignments.filter(a => (day.isAfter(a.from) || day.isSame(a.from)) && (day.isBefore(a.until) || day.isSame(a.until)));
+        const [assignment] = assignments.filter(filterAssignments);
         if(assignment){
             const [template] = templates.filter(t => t.id === assignment.templateId);
-            const scheduleBlocks = template.items.filter(i => i.days.includes(days[day.day()])).flatMap(i => i.scheduleBlocks);
+            const scheduleBlocks = template.items.filter(filterBlocks).flatMap(i => i.scheduleBlocks);
             const formattedDate = day.format("YYYY/MM/DD");
             const converted = scheduleBlocks.map(sb => ({from: dayjs(`${formattedDate} ${sb.from}`).toDate(), until: dayjs(`${formattedDate} ${sb.until}`).toDate()}));
             events = events.concat(converted)

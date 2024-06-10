@@ -251,12 +251,11 @@ export const TemplateAssignmentRow = ({ templateItems, assignment, onAssignmentC
             <td className="nhsuk-table__cell ">
                 <select
                     className="nhsuk-select"
-                    defaultValue={assignment.templateId}
                     value={assignment.templateId}
                     onChange={e => updateTemplate(e.target.value)}>
                     {
                         templateItems.map(t => (
-                            <option key={t.id} selected={t.id === assignment.templateId} value={t.id}>{t.name} </option>
+                            <option key={t.id} value={t.id}>{t.name}</option>
                         ))
                     }
                 </select>

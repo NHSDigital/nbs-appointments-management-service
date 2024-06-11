@@ -11,15 +11,15 @@ public class ReferenceNumberProvider : IReferenceNumberProvider
 {
     private readonly ISiteConfigurationStore _siteConfigurationStore;
     private readonly IReferenceNumberDocumentStore _referenceNumberDocumentStore;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly TimeProvider _timeProvider;
     public ReferenceNumberProvider(
         ISiteConfigurationStore siteConfigurationStore,
         IReferenceNumberDocumentStore referenceNumberDocumentStore,
-        IDateTimeProvider dateTimeProvider)
+        TimeProvider timeProvider)
     {
         _siteConfigurationStore = siteConfigurationStore;
         _referenceNumberDocumentStore = referenceNumberDocumentStore;
-        _dateTimeProvider = dateTimeProvider;
+        _timeProvider = timeProvider;
     }
     public async Task<string> GetReferenceNumber(string siteId)
     {
@@ -32,7 +32,8 @@ public class ReferenceNumberProvider : IReferenceNumberProvider
         }
 
         var sequence = await _referenceNumberDocumentStore.GetNextSequenceNumber(referenceGroup);
-        var rng = _dateTimeProvider.Now.Day + _dateTimeProvider.Now.Second;
+        var now = _timeProvider.GetUtcNow();
+        var rng = now.Day + now.Second;
 
         return $"{referenceGroup:00}-{rng:00}-{sequence:000000}";
     }

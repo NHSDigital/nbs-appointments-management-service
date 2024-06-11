@@ -18,9 +18,8 @@ public class ApiKeyRequestAuthenticatorTests
 
     [Fact]
     public async Task AuthenticateRequest_ReturnsTrue_WhenApiKeyIsValid()
-    {
-        
-        var result = await _sut.AuthenticateRequest("valid_key");
+    {        
+        var result = await _sut.AuthenticateRequest("valid_key", null);
         result.Should().NotBeNull();
         result.Identity.IsAuthenticated.Should().BeTrue();
     }
@@ -28,7 +27,7 @@ public class ApiKeyRequestAuthenticatorTests
     [Fact]
     public async Task AuthenticateRequest_ReturnsFalse_WhenApiKeyIsNotValid()
     {
-        var result = await _sut.AuthenticateRequest("invalid_key");
+        var result = await _sut.AuthenticateRequest("invalid_key", null);
         result.Should().NotBeNull();
         result.Identity.IsAuthenticated.Should().BeFalse();
     }

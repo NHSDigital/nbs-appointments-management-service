@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
         _options = options.Value;
     }
 
-    public async Task<ClaimsPrincipal> AuthenticateRequest(string encodedToken)
+    public async Task<ClaimsPrincipal> AuthenticateRequest(string encodedToken, HttpRequestData _)
     {
         var tokenValidationParams = new TokenValidationParameters
         {

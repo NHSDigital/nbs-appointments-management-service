@@ -32,7 +32,7 @@ public class BearerTokenRequestAuthenticatorTests
         var claimsPrincipal = new ClaimsPrincipal(identity);
         SecurityToken token = null;
         _validator.Setup(x => x.ValidateToken("123", It.IsAny<TokenValidationParameters>(), out token)).Returns(claimsPrincipal);
-        var result = await _sut.AuthenticateRequest("123");
+        var result = await _sut.AuthenticateRequest("123", null);
         result.Should().NotBeNull();
         result.Identity.IsAuthenticated.Should().BeTrue();        
     }
@@ -42,7 +42,7 @@ public class BearerTokenRequestAuthenticatorTests
     {
         SecurityToken token = null;
         _validator.Setup(x => x.ValidateToken("123", It.IsAny<TokenValidationParameters>(), out token)).Throws(new SecurityTokenValidationException());
-        var result = await _sut.AuthenticateRequest("123");
+        var result = await _sut.AuthenticateRequest("123", null);
         result.Should().NotBeNull();
         result.Identity.IsAuthenticated.Should().BeFalse();
     }
@@ -52,7 +52,7 @@ public class BearerTokenRequestAuthenticatorTests
     {        
         SecurityToken token = null;
         _validator.Setup(x => x.ValidateToken("123", It.IsAny<TokenValidationParameters>(), out token)).Throws(new SecurityTokenValidationException());
-        var result = await _sut.AuthenticateRequest("123");
+        var result = await _sut.AuthenticateRequest("123", null);
         result.Should().NotBeNull();
         result.Identity.IsAuthenticated.Should().BeFalse();
 

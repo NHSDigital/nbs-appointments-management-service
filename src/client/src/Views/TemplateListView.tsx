@@ -81,7 +81,7 @@ export const TemplateListView = () => {
             </tbody>
           </table>
           <div>
-            <Link className="nhsuk-button--link" style={{ paddingLeft: "0px" }} to="/templates/edit">
+            <Link className="nhsuk-button nhsuk-u-margin-bottom-0" to="/templates/edit">
               Create new template
             </Link>
           </div>

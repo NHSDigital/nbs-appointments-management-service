@@ -30,7 +30,7 @@ describe("<TimeBlocks />", () => {
     })
 
     it("prevents the user adding more than 24 hours of availability per day", async () => {
-        const block: Session[] = [{from: "00:00", until: "00:00", services: [" "]}];
+        const block: Session[] = [{from: "00:00", until: "24:00", services: [" "]}];
         wrappedRender(<TimeBlocks dayLabel="Monday" scheduleBlocks={block} setDayBlocks={jest.fn()} setIsValid={jest.fn()} copyToAllDays={jest.fn()} />);
         const button = await screen.findByText("Add time period");
         expect(button).toBeDisabled();

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.ApiClient;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
@@ -14,7 +15,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class BaseFeatureSteps : Feature
 {
-    private const string ApiKey = "12345";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
@@ -38,8 +38,9 @@ public abstract class BaseFeatureSteps : Feature
             LimitToEndpoint = true
         };
 
-        Http = new HttpClient();
-        Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("ApiKey", ApiKey);
+        var requestSigner = new RequestSigningHandler(TimeProvider.System, "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==");
+        requestSigner.InnerHandler = new HttpClientHandler();
+        Http = new HttpClient(requestSigner);
 
         Client = new(
             accountEndpoint: "https://localhost:8081/",

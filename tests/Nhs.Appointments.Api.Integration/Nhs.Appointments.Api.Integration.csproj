@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\api\Nhs.Appointments.ApiClient\Nhs.Appointments.ApiClient.csproj" />
     <ProjectReference Include="..\..\src\api\Nhs.Appointments.Api\Nhs.Appointments.Api.csproj" />
     <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
   </ItemGroup>

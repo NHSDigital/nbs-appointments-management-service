@@ -128,11 +128,14 @@ export const ScheduleEditor = () => {
             <When condition={status === "loaded" && templates.length > 0}>
                 <When condition={!hasAssignments()}>
                     <p>There is no scheduled availability for the current site</p>
+                    <button className="nhsuk-button" type="button" onClick={addAvailability}>
+                        Add availability
+                    </button>
                 </When>
                 <When condition={hasAssignments()} >
                     <div className="nhsuk-grid-row">
                         <div className="nhsuk-grid-column-one-half">
-                            <table className="nhsuk-table" style={{ marginBottom: "10px" }}>
+                            <table className="nhsuk-table">
                                 <caption className="nhsuk-table__caption">
                                     Site Schedule Management
                                     <div className="nhsuk-hint">Assign templates to date ranges to schedule availability</div>
@@ -151,7 +154,7 @@ export const ScheduleEditor = () => {
                                         <th>&nbsp;</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="nhsuk-table__body">
                                     {
                                         assignments.map((a, i) => (
                                             <TemplateAssignmentRow
@@ -162,41 +165,44 @@ export const ScheduleEditor = () => {
                                                 onRemoveAssignment={() => removeAssignment(i)} />
                                         ))
                                     }
+                                    <tr>
+                                        <th>
+                                            <button
+                                                className="nhsuk-button--link"
+                                                type="button"
+                                                onClick={addAvailability}>
+                                                Add availability
+                                            </button>
+                                        </th>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                    <div className="nhsuk-navigation">
+                        <button
+                            type="button"
+                            className="nhsuk-button nhsuk-u-margin-0"
+                            onClick={confirm}>
+                            Confirm availability
+                        </button>
+                        <button
+                            type="button"
+                            className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
+                            onClick={cancel}>
+                            Cancel
+                        </button>
+                        <When condition={confirmed}>
+                            <div className="asa-button-message">
+                                <svg className="nhsuk-icon nhsuk-icon__tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" width="34" height="34">
+                                    <path strokeWidth="4" strokeLinecap="round" d="M18.4 7.8l-8.5 8.4L5.6 12" stroke="#007f3b"></path>
+                                </svg>
+                                Schedule confirmed
+                                <button className="nhsuk-back-link__link" type="button" onClick={() => setConfirmed(false)}>dismiss</button>
+                            </div>
+                        </When>
+                    </div>
                 </When>
-                <button style={{ marginBottom: "16px" }}
-                    className="nhsuk-button--link"
-                    type="button"
-                    onClick={addAvailability}>
-                    Add availability
-                </button>
-                <div style={{ display: "flex", marginTop: "16px" }}>
-                    <button
-                        type="button"
-                        className="nhsuk-button"
-                        onClick={confirm}>
-                        Confirm availability
-                    </button>
-                    <button
-                        style={{ marginLeft: "24px" }}
-                        type="button"
-                        className="nhsuk-button nhsuk-button--secondary"
-                        onClick={cancel}>
-                        Cancel
-                    </button>
-                    <When condition={confirmed}>
-                        <p style={{ display: "flex", alignItems: "center", paddingLeft: "15px" }}>
-                            <svg className="nhsuk-icon nhsuk-icon__tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" width="34" height="34">
-                                <path strokeWidth="4" strokeLinecap="round" d="M18.4 7.8l-8.5 8.4L5.6 12" stroke="#007f3b"></path>
-                            </svg>
-                            Schedule confirmed
-                            <button style={{ padding: "0 0 0 5px" }} className="nhsuk-button--link" type="button" onClick={() => setConfirmed(false)}>dismiss</button>
-                        </p>
-                    </When>
-                </div>
             </When>
         </>
     )

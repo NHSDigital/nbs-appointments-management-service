@@ -116,7 +116,7 @@ export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTempl
                             <label className="nhsuk-label">
                                 Template name
                             </label>
-                            <input className="nhsuk-input" style={{ width: "400px" }} value={weekTemplate.name} type="text" onChange={handleNameChange} />
+                            <input className="nhsuk-input nhsuk-input--width-20" value={weekTemplate.name} type="text" onChange={handleNameChange} />
                         </div>
                         {
                             Object.entries(weekTemplate.days).map(([dayLabel, scheduleBlocks]) => {
@@ -134,30 +134,30 @@ export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTempl
                                 />
                             })
                         }
-                        <div style={{display: "flex"}}>
+                        <div className="nhsuk-navigation">
                             <button
                                 id="submit-schedule"
                                 type="button"
-                                className="nhsuk-button"
+                                className="nhsuk-button nhsuk-u-margin-bottom-0"
                                 onClick={save}
                                 disabled={!isValid || !hasChanged}
                             >
                                 Confirm template
                             </button>
-                            <Link to="/templates" style={{ marginLeft: "12px" }} className="nhsuk-button nhsuk-button--secondary">
+                            <Link to="/templates" className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0">
                                 Cancel
                             </Link>
                             <When condition={status === "loading"}>
                                 <div>Loading...</div>
                             </When>
                             <When condition={status === "confirmed"}>
-                                <p style={{ display: "flex", alignItems: "center", paddingLeft: "15px"}}>
+                                <div className="asa-button-message">
                                     <svg className="nhsuk-icon nhsuk-icon__tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" width="34" height="34">
                                         <path strokeWidth="4" strokeLinecap="round" d="M18.4 7.8l-8.5 8.4L5.6 12" stroke="#007f3b"></path>
                                     </svg>
                                     Schedule confirmed
-                                    <button style={{ padding: "0 0 0 5px" }} className="nhsuk-button--link" type="button" onClick={() => setStatus(null)}>dismiss</button>
-                                </p>
+                                    <button className="nhsuk-back-link__link" type="button" onClick={() => setStatus(null)}>dismiss</button>
+                                </div>
                             </When>
                         </div>
                 </div>

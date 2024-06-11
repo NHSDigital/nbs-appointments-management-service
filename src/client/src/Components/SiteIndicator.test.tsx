@@ -1,7 +1,6 @@
 import { act, screen } from "@testing-library/react";
 import { SiteIndicator } from "./SiteIndicator";
 import { wrappedRender } from "../utils";
-import userEvent from "@testing-library/user-event";
 
 describe("<SiteIndicator>", () => {
     it("Renders passed title prop correctly", async () => {

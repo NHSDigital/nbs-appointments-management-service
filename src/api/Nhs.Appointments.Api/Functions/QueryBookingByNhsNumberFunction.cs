@@ -32,7 +32,7 @@ public class QueryBookingByNhsNumberFunction : BaseApiFunction<QueryBookingByNhs
     [OpenApiParameter("nhsNumber", Required = true, In = ParameterLocation.Query, Description = "The nhsNumber of the patients' bookings to retrieve")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(IEnumerable<Booking>), Description = "The bookings for patient with the provided nhsNumber")]
-    [RequiresPermission("bookings:query")]
+    [RequiresPermission("booking:query")]
     [Function("QueryBookingByNhsNumberReference")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "booking")] HttpRequest req)

@@ -17,6 +17,7 @@ let initialTemplate: ExplodedWeekTemplate = {
 
 type WeekTemplateEditorProps = {
     templateId: string | undefined
+    siteId: string
     getTemplates: () => Promise<WeekTemplate[]>
     saveTemplate: (template: WeekTemplate) => Promise<string>
 }
@@ -28,12 +29,13 @@ export const WeekTemplateEditorCtx = () => {
 
     return (<WeekTemplateEditor
         templateId={templateId}
+        siteId={site!.id}
         getTemplates={() => templateService.getTemplates(site!.id)}
         saveTemplate={templateService.saveTemplate}
     />)
 }
 
-export const WeekTemplateEditor = ({ templateId, getTemplates, saveTemplate }: WeekTemplateEditorProps) => {
+export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTemplate }: WeekTemplateEditorProps) => {
     const [status, setStatus] = React.useState<null | "loading" | "errored" | "confirmed">(null);
     const [originalTemplate, setOriginalTemplate] = React.useState<ExplodedWeekTemplate>(initialTemplate);
     const [weekTemplate, setWeekTemplate] = React.useState<ExplodedWeekTemplate>(initialTemplate);
@@ -51,8 +53,9 @@ export const WeekTemplateEditor = ({ templateId, getTemplates, saveTemplate }: W
 
     const save = () => {
         var payload = viewModelToTemplate(weekTemplate);
+        payload.site = siteId;
         saveTemplate(payload).then(id => {
-            setWeekTemplate({ ...weekTemplate, id })
+            setWeekTemplate({ ...weekTemplate, id})
             setStatus("confirmed");
         });
     }

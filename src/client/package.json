@@ -46,6 +46,10 @@
       "last 1 safari version"
     ]
   },
+  "overrides": {
+    "nth-check": "^2.1.1",
+    "postcss": "^8.4.38"
+  },
   "devDependencies": {
     "@types/react-big-calendar": "^1.8.9",
     "jest-junit": "^16.0.0"

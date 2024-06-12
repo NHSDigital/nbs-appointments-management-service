@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Nhs.Appointments.Api.Auth;
 
@@ -17,8 +17,8 @@ public class ApiKeyRequestAuthenticator : IRequestAuthenticator
     {
         _options = options.Value;
     }
-    
-    public Task<ClaimsPrincipal> AuthenticateRequest(string apiKey)
+
+    public Task<ClaimsPrincipal> AuthenticateRequest(string apiKey, HttpRequestData _)
     {
         if(_options.ValidKeys.Contains(apiKey))
         {
@@ -30,16 +30,6 @@ public class ApiKeyRequestAuthenticator : IRequestAuthenticator
 
         return Task.FromResult(new ClaimsPrincipal(new ClaimsIdentity()));
     }
-}
-
-// TODO Need to delete
-public class ApiConsumerIdentity : IIdentity
-{
-    public string AuthenticationType => "ApiKey";
-
-    public bool IsAuthenticated => true;
-
-    public string Name => "Api User";
 }
 
 public class ApiKeyOptions

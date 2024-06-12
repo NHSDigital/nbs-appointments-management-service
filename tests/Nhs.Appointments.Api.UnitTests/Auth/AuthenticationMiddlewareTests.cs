@@ -61,7 +61,7 @@ namespace Nhs.Appointments.Api.Tests.Auth
             var httpRequest = new TestHttpRequestData(_functionContext.Object);
             httpRequest.Headers.Add("Authorization", "unsupported token");
             ConfigureMocks(httpRequest);
-            _requestAuthenticator.Setup(x => x.AuthenticateRequest("token")).ReturnsAsync(new ClaimsPrincipal(new ClaimsIdentity()));
+            _requestAuthenticator.Setup(x => x.AuthenticateRequest("token", httpRequest)).ReturnsAsync(new ClaimsPrincipal(new ClaimsIdentity()));
             _requestAuthenticatorFactory.Setup(x => x.CreateAuthenticator("unsupported")).Returns(_requestAuthenticator.Object);
 
             var sut = new TestableAuthenticationMiddleware(_requestAuthenticatorFactory.Object);
@@ -73,11 +73,11 @@ namespace Nhs.Appointments.Api.Tests.Auth
         [Fact]
         public async Task Invoke_ReturnsAuthorized_WhenAuthorizationSucceeds()
         {
-            var userPrincipal = new ClaimsPrincipal(new ApiConsumerIdentity());
+            var userPrincipal = CreateAuthenticatedPrincipal();
             var httpRequest = new TestHttpRequestData(_functionContext.Object);
             httpRequest.Headers.Add("Authorization", "unsupported token");
             ConfigureMocks(httpRequest);
-            _requestAuthenticator.Setup(x => x.AuthenticateRequest("token")).ReturnsAsync(userPrincipal);
+            _requestAuthenticator.Setup(x => x.AuthenticateRequest("token", httpRequest)).ReturnsAsync(userPrincipal);
             _requestAuthenticatorFactory.Setup(x => x.CreateAuthenticator("unsupported")).Returns(_requestAuthenticator.Object);
 
             var sut = new TestableAuthenticationMiddleware(_requestAuthenticatorFactory.Object);
@@ -89,7 +89,6 @@ namespace Nhs.Appointments.Api.Tests.Auth
         [Fact]
         public async Task Invoke_AllowsAnonymousAccess_OnMarkedMethods()
         {
-            var userPrincipal = new ClaimsPrincipal(new ApiConsumerIdentity());
             var httpRequest = new TestHttpRequestData(_functionContext.Object);            
             ConfigureMocks(httpRequest);
                         
@@ -99,6 +98,13 @@ namespace Nhs.Appointments.Api.Tests.Auth
             await sut.Invoke(_functionContext.Object, sut.Authenticate);
             sut.Authenticated.Should().BeTrue();
             _userContextProvider.UserPrincipal.Should().BeNull();
+        }
+
+        private ClaimsPrincipal CreateAuthenticatedPrincipal()
+        {
+            var claimsIdentity = new ClaimsIdentity("ApiKey");
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "ApiUser"));
+            return new ClaimsPrincipal(claimsIdentity);
         }
 
         private void ConfigureMocks(HttpRequestData httpRequest)

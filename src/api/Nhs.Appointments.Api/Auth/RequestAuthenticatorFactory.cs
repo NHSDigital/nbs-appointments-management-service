@@ -16,6 +16,7 @@ public class RequestAuthenticatorFactory : IRequestAuthenticatorFactory
     {
         "Bearer" => _serviceProvider.GetService<BearerTokenRequestAuthenticator>(),
         "ApiKey" => _serviceProvider.GetService<ApiKeyRequestAuthenticator>(),
+        "Signed" => _serviceProvider.GetService<SignedRequestAuthenticator>(),
         _ => throw new NotSupportedException()
     };
 }    

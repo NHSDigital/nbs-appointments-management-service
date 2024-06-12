@@ -5,11 +5,11 @@ public class ReferenceNumberProviderTests
     private readonly ReferenceNumberProvider _sut;
     private readonly Mock<ISiteConfigurationStore> _siteConfigurationStore = new();
     private readonly Mock<IReferenceNumberDocumentStore> _referenceNumberDocumentStore = new();
-    private readonly Mock<IDateTimeProvider> _dateTimeProvider = new();
+    private readonly Mock<TimeProvider> _timeProvider = new();
 
     public ReferenceNumberProviderTests()
     {
-        _sut = new ReferenceNumberProvider(_siteConfigurationStore.Object, _referenceNumberDocumentStore.Object, _dateTimeProvider.Object);
+        _sut = new ReferenceNumberProvider(_siteConfigurationStore.Object, _referenceNumberDocumentStore.Object, _timeProvider.Object);
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class ReferenceNumberProviderTests
     [Fact]
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber()
     {
-        _dateTimeProvider.Setup(x => x.Now).Returns(new DateTime(2077, 1, 31, 9, 0, 59));
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2077, 1, 31, 9, 0, 59));
         _referenceNumberDocumentStore.Setup(x => x.GetNextSequenceNumber(14)).ReturnsAsync(2345);
 
         var siteConfiguration = new SiteConfiguration

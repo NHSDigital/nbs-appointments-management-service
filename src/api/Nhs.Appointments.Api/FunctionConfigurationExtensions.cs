@@ -40,12 +40,18 @@ public static class FunctionConfigurationExtensions
                 opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
                 opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
             })
+            .Configure<SignedRequestAuthenticator.Options>(opts =>
+            {
+                opts.SigningKey = Environment.GetEnvironmentVariable("HMAC_SIGNING_KEY");
+                opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
+            })
             .AddScoped<IUserContextProvider, UserContextProvider>()
             .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
+            .AddSingleton<SignedRequestAuthenticator>()
             .AddSingleton<BearerTokenRequestAuthenticator>()
             .AddSingleton<ApiKeyRequestAuthenticator>()
             .AddSingleton<IJwksRetriever, JwksRetriever>()
-            .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()            
+            .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
             .AddMemoryCache();
         
         builder.Services
@@ -91,8 +97,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserSiteAssignmentService, UserSiteAssignmentService>()
-            .AddTransient<IDateTimeProvider, SystemDateTimeProvider>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
+            .AddSingleton<TimeProvider>(TimeProvider.System)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
     var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");

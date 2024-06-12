@@ -110,12 +110,12 @@ export const EditSiteServices = ({ siteConfiguration, setSiteConfiguration }: Ed
                                           You can enter up to {maxInfoForCitizenLength - (infoForCitizen?.length || 0)} characters
                                     </div>
                               </div>
-                              <div style={{display:"flex"}}>
+                              <div className="nhsuk-navigation">
                                     <button className="nhsuk-button nhsuk-u-margin-0" type="submit">
                                           Confirm site configuration
                                     </button>
                                     <When condition={submitted}>
-                                          <div style={{ display: "flex", alignItems: "center", paddingLeft: 15 }}>
+                                          <div className="asa-button-message">
                                                 <svg className="nhsuk-icon nhsuk-icon__tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" width="34" height="34">
                                                       <path strokeWidth="4" strokeLinecap="round" d="M18.4 7.8l-8.5 8.4L5.6 12" stroke="#007f3b"></path>
                                                 </svg>

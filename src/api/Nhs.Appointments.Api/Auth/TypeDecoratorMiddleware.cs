@@ -17,4 +17,3 @@ public class TypeDecoratorMiddleware : IFunctionsWorkerMiddleware
         return next(context);
     }
 }
-

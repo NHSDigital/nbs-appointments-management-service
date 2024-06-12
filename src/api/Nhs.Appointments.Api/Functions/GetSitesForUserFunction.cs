@@ -46,16 +46,15 @@ public class GetSitesForUserFunction : BaseApiFunction<EmptyRequest, Site[]>
     protected override async Task<ApiResult<Site[]>> HandleRequest(EmptyRequest request, ILogger logger)
     {
         var userEmail = Principal.Claims.GetUserEmail();
-        var userSiteIds = await _userSiteAssignmentService.GetUserAssignedSites(userEmail);
+        var userAssignments  = await _userSiteAssignmentService.GetUserAssignedSites(userEmail);
 
         var siteInfoList = new List<Site>();
 
-        foreach(var siteId in userSiteIds) 
+        foreach(var assignment in userAssignments.Where(ua => ua.Site != "__global__")) 
         { 
-            var siteInfo = await _siteSearchService.GetSiteByIdAsync(siteId);
+            var siteInfo = await _siteSearchService.GetSiteByIdAsync(assignment.Site);
             siteInfoList.Add(siteInfo);            
         }
-
 
         return ApiResult<Site[]>.Success(siteInfoList.ToArray());
     }

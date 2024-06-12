@@ -1,21 +1,16 @@
-﻿using Nhs.Appointments.Core;
+﻿using AutoMapper;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class UserSiteAssignmentStore : IUserSiteAssignmentStore
+public class UserSiteAssignmentStore(ITypedDocumentCosmosStore<UserSiteAssignmentDocument> cosmosStore, IMapper mapper) : IUserSiteAssignmentStore
 {
     private const string DocumentId = "assignments";
-    private readonly ITypedDocumentCosmosStore<UserSiteAssignmentDocument> _cosmosStore;
-
-    public UserSiteAssignmentStore(ITypedDocumentCosmosStore<UserSiteAssignmentDocument> cosmosStore)
+    
+    public async Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId)
     {
-        _cosmosStore = cosmosStore;
-    }
-
-    public async Task<IEnumerable<string>> GetUserAssignedSites(string userId)
-    {
-        var assignmentsDocument = await _cosmosStore.GetByIdAsync<UserSiteAssignmentDocument>(DocumentId);
-        return assignmentsDocument.Assignments.Where(x => x.Email == userId).Select(x => x.Site);
+        var assignmentsDocument = await cosmosStore.GetByIdAsync<UserSiteAssignmentDocument>(DocumentId);
+        return assignmentsDocument.Assignments.Where(x => x.Email == userId).Select(mapper.Map<UserAssignment>);
     }
 }

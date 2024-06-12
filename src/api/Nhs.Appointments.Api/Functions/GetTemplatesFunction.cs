@@ -38,6 +38,7 @@ public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateRespons
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/json", typeof(GetTemplateResponse), Description = "The week templates for the specified site")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The request did not contain a valid site in the query string")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "No data was found for the specified site")]
+    [RequiresPermission("availability:get-setup")]
     [Function("GetTemplatesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "templates")] HttpRequest req)

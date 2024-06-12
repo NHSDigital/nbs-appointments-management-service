@@ -10,6 +10,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
+using Role = Nhs.Appointments.Persistance.Models.Role;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
@@ -52,6 +53,8 @@ public abstract class BaseFeatureSteps : Feature
             cfg.AddProfile<CosmosAutoMapperProfile>();
         });
         Mapper = new Mapper(mapperConfiguration);
+        SetUpRoles();
+        SetUpUserAssignments();
     }
 
     [Given(@"The following service configuration")]
@@ -221,4 +224,32 @@ public abstract class BaseFeatureSteps : Feature
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
+    private void SetUpRoles()
+    {
+        var roles = new RolesDocument()
+        {
+            Id = "global_roles",
+            DocumentType = "roles",
+            Roles = [
+                new Role
+                    { Id = "canned:api-user", Name = "Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel" ] }
+            ]
+        };        
+        Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
+    }
+    
+    private void SetUpUserAssignments()
+    {
+        var userAssignments = new UserSiteAssignmentDocument()
+        {
+            
+            Id = "assignments",
+            DocumentType = "user_site_assignments",
+            Assignments = [
+                new UserSiteAssignment
+                    { Email = "ApiUser", Site = "__global__", Roles = ["canned:api-user"] }
+            ]
+        };        
+        Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
+    }
 }

@@ -10,5 +10,6 @@ public class FunctionTypeInfoFeature(MethodInfo methodInfo) : IFunctionTypeInfoF
     public MethodInfo EntryPointInfo => _methodInfo;
 
     public bool RequiresAuthentication => _methodInfo.GetCustomAttribute<AllowAnonymousAttribute>() == null;
+    public string RequiredPermission => _methodInfo.GetCustomAttribute<RequiresPermissionAttribute>()?.Permission;
 }
 

@@ -43,6 +43,7 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     AuthProvider_ChallengePhrase          = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                 = var.auth_provider_client_id
     AuthProvider_ReturnUri                = var.auth_provider_return_uri
+    HMAC_SIGNING_KEY                      = var.hmac_signing_key
   }
 
   identity {

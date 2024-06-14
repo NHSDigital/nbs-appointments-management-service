@@ -34,6 +34,7 @@ module "api" {
   api_keys                       = var.API_KEYS
   apim_uri                       = var.APIM_URI
   apim_subscription_key          = var.APIM_SUBSCRIPTION_KEY
+  hmac_signing_key               = var.HMAC_SIGNING_KEY
 }
 
 output "func_app_url" {
@@ -99,3 +100,7 @@ variable "APIM_SUBSCRIPTION_KEY" {
   sensitive = true
 }
 
+variable "HMAC_SIGNING_KEY" {
+  type      = string
+  sensitive = true
+}

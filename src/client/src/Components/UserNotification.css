@@ -1,0 +1,34 @@
+/*colours taken from warning callout*/
+.user-notification {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    min-block-size: 3rem;
+    border-inline-start: 3px solid #ffeb3b;
+    background-color: #fff9c4;
+    margin-bottom: 48px;
+}
+
+.user-notification::before {
+    border-color: 1px solid #ffeb3b;
+}
+
+.user-notification__content {
+    display: flex;
+    flex-grow: 1;
+    align-items:center;
+    margin: 1rem;
+}
+
+.user-notification__close {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    padding-right: 1rem;
+    font-size: 1rem;
+}
+
+.user-notification__close:hover {
+    text-decoration: none;
+}

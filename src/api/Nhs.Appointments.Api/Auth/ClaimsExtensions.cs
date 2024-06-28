@@ -8,7 +8,7 @@ namespace Nhs.Appointments.Api.Auth
     {
         public static string GetUserEmail(this IEnumerable<Claim> claims) 
         {
-            var claimsToCheck = new[] { ClaimTypes.Email, "Email Address", ClaimTypes.NameIdentifier };
+            var claimsToCheck = new[] { ClaimTypes.Email, "Email Address", ClaimTypes.NameIdentifier, "sub" };
             foreach (var claim in claimsToCheck)
             {
                 var emailClaim = claims.SingleOrDefault(x => x.Type == claim);

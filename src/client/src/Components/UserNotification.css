@@ -10,7 +10,17 @@
 }
 
 .user-notification::before {
-    border-color: 1px solid #ffeb3b;
+    border-color: #ffeb3b;
+    position: absolute;
+    box-sizing: border-box;
+    border-width: 1px 1px 1px 0;
+    border-style: solid;
+    block-size: 100%;
+    content: "";
+    inline-size: 100%;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    pointer-events: none;
 }
 
 .user-notification__content {

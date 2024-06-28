@@ -10,6 +10,7 @@ import { WeekTemplateEditorCtx } from './Views/WeekTemplateEditor';
 import { TemplateListView } from './Views/TemplateListView';
 import { ScheduleEditor } from './Views/ScheduleEditor';
 import { AppPage } from './Components/AppPage';
+import { GuardedRoute } from './Components/GuardedRouteHOC';
 
 function App() {
   return (
@@ -30,7 +31,11 @@ function App() {
                   <Route path="/site" element={<EditSiteServicesCtx />} />
                   <Route path="/bookings" element={<DailyBookingsCtx />} />
                   <Route path="/calendar" element={<AppointmentsCalendarCtx />} />
-                  <Route path="/templates" element={<TemplateListView />} />
+                  <Route path="/templates" element={
+                    <GuardedRoute permission='availability:get-setup'>
+                      <TemplateListView />
+                    </GuardedRoute>
+                  } />
                   <Route path="/templates/edit" element={<WeekTemplateEditorCtx />} />
                   <Route path="/templates/edit/:templateId" element={<WeekTemplateEditorCtx />} />
             </Routes>

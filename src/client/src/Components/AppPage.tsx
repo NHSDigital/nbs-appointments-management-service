@@ -9,9 +9,13 @@ type AppPageProps = {
     children: React.ReactNode;
   };
   
-  export const AppPage = ({ navLinks, children }: AppPageProps) => {
-    const { getUserEmail, signOut } = useAuthContext();
+  export const AppPage = ({ navLinks, children}: AppPageProps) => {
+    const { getUserEmail, signOut, hasPermission } = useAuthContext();
     const currentRoute = useLocation()
+
+    if(!hasPermission("availability:get-setup")){
+      navLinks = navLinks.filter(link => link.route != "/templates")
+    }
     return(
     <>
         <NhsHeader navLinks={navLinks} userEmail={getUserEmail()} signOut={signOut}  />

@@ -232,7 +232,7 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { Id = "canned:api-user", Name = "Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel" ] }
+                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup" ] }
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
@@ -247,7 +247,7 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "user_site_assignments",
             Assignments = [
                 new UserSiteAssignment
-                    { Email = "ApiUser", Site = "__global__", Roles = ["canned:api-user"] }
+                    { Email = "ApiUser", Site = "__global__", Roles = ["integration-test:api-user"] }
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);

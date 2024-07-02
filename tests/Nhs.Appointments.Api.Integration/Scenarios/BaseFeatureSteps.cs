@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.ApiClient;
+using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
@@ -38,7 +39,7 @@ public abstract class BaseFeatureSteps : Feature
             LimitToEndpoint = true
         };
 
-        var requestSigner = new RequestSigningHandler(TimeProvider.System, "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==");
+        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA=="));
         requestSigner.InnerHandler = new HttpClientHandler();
         Http = new HttpClient(requestSigner);
 

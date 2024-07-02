@@ -11,6 +11,7 @@ import { TemplateListView } from './Views/TemplateListView';
 import { ScheduleEditor } from './Views/ScheduleEditor';
 import { AppPage } from './Components/AppPage';
 import { GuardedRoute } from './Components/GuardedRouteHOC';
+import { Permissions } from './Types/Permissions';
 
 function App() {
   return (
@@ -32,12 +33,13 @@ function App() {
                   <Route path="/bookings" element={<DailyBookingsCtx />} />
                   <Route path="/calendar" element={<AppointmentsCalendarCtx />} />
                   <Route path="/templates" element={
-                    <GuardedRoute permission='availability:get-setup'>
+                    <GuardedRoute permission={Permissions.CANGETAVAILABILITY}>
                       <TemplateListView />
                     </GuardedRoute>
                   } />
                   <Route path="/templates/edit" element={<WeekTemplateEditorCtx />} />
                   <Route path="/templates/edit/:templateId" element={<WeekTemplateEditorCtx />} />
+                  <Route path="/unauthorised" element={<h2>You do not have permission to access this page.</h2>} />
             </Routes>
           </AppPage>
         </SiteContextProvider>

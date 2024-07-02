@@ -7,6 +7,7 @@ import { UserNotification } from "../Components/UserNotification";
 import { SiteConfiguration } from "../Types/SiteConfiguration";
 import dayjs from "dayjs";
 import { useAuthContext } from "../ContextProviders/AuthContextProvider";
+import { Permissions } from "../Types/Permissions";
 
 type DailyBookingsProps = {
     siteConfig: SiteConfiguration,
@@ -228,7 +229,7 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus, hasPe
                                             value={booking.outcome ?? ""}
                                             onChange={() => { toggleCheckedIn(booking.reference) }}
                                             checked={booking.outcome === "CheckedIn"}
-                                            disabled={!hasPermission("booking:set-status")}
+                                            disabled={!hasPermission(Permissions.CANSETBOOKINGSTATUS)}
                                             />
                                         <label className="nhsuk-label nhsuk-checkboxes__label" htmlFor={booking.reference}>
                                         </label>

@@ -1,4 +1,5 @@
 import { useAuthContext } from "../ContextProviders/AuthContextProvider";
+import { Permissions } from "../Types/Permissions";
 import { NhsFooter } from "./NhsFooter";
 import { NhsHeader } from "./NhsHeader";
 import { SiteIndicator } from "./SiteIndicator";
@@ -13,7 +14,7 @@ type AppPageProps = {
     const { getUserEmail, signOut, hasPermission } = useAuthContext();
     const currentRoute = useLocation()
 
-    if(!hasPermission("availability:get-setup")){
+    if(!hasPermission(Permissions.CANGETAVAILABILITY)){
       navLinks = navLinks.filter(link => link.route != "/templates")
     }
     return(

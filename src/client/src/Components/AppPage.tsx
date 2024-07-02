@@ -15,8 +15,13 @@ type AppPageProps = {
     const currentRoute = useLocation()
 
     if(!hasPermission(Permissions.CANGETAVAILABILITY)){
-      navLinks = navLinks.filter(link => link.route != "/templates")
+      navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")
     }
+
+    if(!hasPermission(Permissions.CANGETSITES)){
+      navLinks = navLinks.filter(link => link.route !== "/site");
+    }
+
     return(
     <>
         <NhsHeader navLinks={navLinks} userEmail={getUserEmail()} signOut={signOut}  />

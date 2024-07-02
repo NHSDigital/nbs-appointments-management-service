@@ -28,8 +28,15 @@ function App() {
         ]}>
             <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/availability" element={<ScheduleEditor />} />
-                  <Route path="/site" element={<EditSiteServicesCtx />} />
+                  <Route path="/availability" element={
+                    <GuardedRoute permission={Permissions.CANGETAVAILABILITY}>
+                      <ScheduleEditor />
+                    </GuardedRoute>
+                  } />
+                  <Route path="/site" element={
+                    <GuardedRoute permission={Permissions.CANGETSITES}>
+                      <EditSiteServicesCtx />
+                    </GuardedRoute>} />
                   <Route path="/bookings" element={<DailyBookingsCtx />} />
                   <Route path="/calendar" element={<AppointmentsCalendarCtx />} />
                   <Route path="/templates" element={

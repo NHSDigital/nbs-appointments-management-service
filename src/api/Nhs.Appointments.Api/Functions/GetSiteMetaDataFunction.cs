@@ -20,11 +20,11 @@ public class GetSiteMetaDataFunction : SiteBasedResourceFunction<GetSiteMetaData
     private readonly ISiteConfigurationService _siteConfigurationService;
 
     public GetSiteMetaDataFunction(
-        IUserSiteAssignmentService userSiteAssignmentService,
+        IUserService userService,
         ISiteConfigurationService siteConfigurationService,
         IValidator<SiteBasedResourceRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<GetSiteMetaDataFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
+        ILogger<GetSiteMetaDataFunction> logger) : base(userService, validator, userContextProvider, logger)
     {
         _siteConfigurationService = siteConfigurationService;
     }

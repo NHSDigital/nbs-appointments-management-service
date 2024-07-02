@@ -17,7 +17,7 @@ public class GetSiteMetaDataFunctionTests
 {
     private readonly GetSiteMetaDataFunction _sut;
     private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
-    private readonly Mock<IUserSiteAssignmentService> _userSiteAssignmentService = new();
+    private readonly Mock<IUserService> _userSiteAssignmentService = new();
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();

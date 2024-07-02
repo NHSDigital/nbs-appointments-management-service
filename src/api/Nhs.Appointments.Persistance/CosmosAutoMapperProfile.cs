@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -26,7 +25,7 @@ public class CosmosAutoMapperProfile : Profile
         
         CreateMap<BookingDocument, Booking>();
         CreateMap<SiteConfigurationDocument, SiteConfiguration>();
-        CreateMap<UserSiteAssignment, UserAssignment>();
+        CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();
     }
 }

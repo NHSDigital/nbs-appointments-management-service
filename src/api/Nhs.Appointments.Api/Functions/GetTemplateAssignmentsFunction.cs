@@ -21,10 +21,10 @@ public class GetTemplateAssignmentsFunction : SiteBasedResourceFunction<GetTempl
     private readonly ITemplateService _templateService;
     public GetTemplateAssignmentsFunction(
         ITemplateService templateService,
-        IUserSiteAssignmentService userSiteAssignmentService,
+        IUserService userService,
         IValidator<SiteBasedResourceRequest> validator, 
         IUserContextProvider userContextProvider,
-        ILogger<GetTemplateAssignmentsFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
+        ILogger<GetTemplateAssignmentsFunction> logger) : base(userService, validator, userContextProvider, logger)
     {
         _templateService = templateService;
     }

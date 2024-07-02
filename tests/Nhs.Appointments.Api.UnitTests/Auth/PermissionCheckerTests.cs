@@ -8,7 +8,7 @@ namespace Nhs.Appointments.Api.Tests.Auth;
 public class PermissionCheckerTests
 {
     private readonly PermissionChecker _sut;
-    private readonly Mock<IUserSiteAssignmentService> _userAssignmentService = new();
+    private readonly Mock<IUserService> _userAssignmentService = new();
     private readonly Mock<IRolesService> _roleService = new();
 
     public PermissionCheckerTests()
@@ -25,13 +25,13 @@ public class PermissionCheckerTests
         {
             new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
         };
-        var userAssignments = new List<UserAssignment>
+        var userAssignments = new List<RoleAssignment>
         {
-            new() { Email = userId, Site = "1000", Roles = null }
+            new() { Role = null, Scope = "global" }
         };
 
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
-        _userAssignmentService.Setup(x => x.GetUserAssignedSites(userId)).ReturnsAsync(userAssignments);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.HasPermissionAsync(userId, requiredPermission);
         result.Should().BeFalse();
     }
@@ -45,13 +45,13 @@ public class PermissionCheckerTests
         {
             new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
         };
-        var userAssignments = new List<UserAssignment>
+        var userAssignments = new List<RoleAssignment>
         {
-            new() { Email = userId, Site = "__global__", Roles = [ "Role1" ] }
+            new() { Role = "Role1", Scope = "global" }
         };
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
-        _userAssignmentService.Setup(x => x.GetUserAssignedSites(userId)).ReturnsAsync(userAssignments);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.HasPermissionAsync(userId, requiredPermission);
         result.Should().BeFalse();
     }
@@ -65,13 +65,13 @@ public class PermissionCheckerTests
         {
             new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
         };
-        var userAssignments = new List<UserAssignment>
+        var userAssignments = new List<RoleAssignment>
         {
-            new() { Email = userId, Site = "__global__", Roles = [ "Role1" ] }
+            new() { Role = "Role1", Scope = "global" }
         };
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
-        _userAssignmentService.Setup(x => x.GetUserAssignedSites(userId)).ReturnsAsync(userAssignments);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.HasPermissionAsync(userId, requiredPermission);
         result.Should().BeTrue();
     }
@@ -86,13 +86,14 @@ public class PermissionCheckerTests
             new() { Id = "Role1", Name = "Role One", Permissions = ["Permission-1", "Permission-2"] },
             new() { Id = "Role2", Name = "Role Two", Permissions = ["Permission-3", "Permission-4"] }
         };
-        var userAssignments = new List<UserAssignment>
+        var userAssignments = new List<RoleAssignment>
         {
-            new() { Email = userId, Site = "__global__", Roles = [ "Role1", "Role2" ] }
+            new() { Role = "Role1", Scope = "global" },
+            new() { Role = "Role2", Scope = "global" }
         };
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
-        _userAssignmentService.Setup(x => x.GetUserAssignedSites(userId)).ReturnsAsync(userAssignments);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.HasPermissionAsync(userId, requiredPermission);
         result.Should().BeTrue();
     }

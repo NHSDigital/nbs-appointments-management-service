@@ -17,21 +17,21 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<SiteConfiguration>   
 {
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
+    private readonly IUserService _userService;
     private readonly ISiteConfigurationService _siteConfigurationService;
     private readonly ISiteSearchService _siteSearchService;
     
     public GetSiteConfigurationFunction(
         ISiteConfigurationService siteConfigurationService,
         ISiteSearchService siteSearchService,
-        IUserSiteAssignmentService userSiteAssignmentService,
+        IUserService userService,
         IValidator<SiteBasedResourceRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<GetSiteConfigurationFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
+        ILogger<GetSiteConfigurationFunction> logger) : base(userService, validator, userContextProvider, logger)
     {
         _siteConfigurationService = siteConfigurationService;
         _siteSearchService = siteSearchService; 
-        _userSiteAssignmentService = userSiteAssignmentService;
+        _userService = userService;
     }
 
     [OpenApiOperation(operationId: "GetSiteConfiguration", tags: new [] {"Site Configuration"}, Summary = "Get the site configuration")]

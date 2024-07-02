@@ -16,21 +16,9 @@ using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSitesForUserFunction : BaseApiFunction<EmptyRequest, Site[]>
+public class GetSitesForUserFunction(ISiteSearchService siteSearchService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesForUserFunction> logger)
+    : BaseApiFunction<EmptyRequest, Site[]>(validator, userContextProvider, logger)
 {
-    private readonly ISiteSearchService _siteSearchService;
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
-
-    public GetSitesForUserFunction(
-        ISiteSearchService siteSearchService, 
-        IUserSiteAssignmentService userSiteAssignmentService,
-        IValidator<EmptyRequest> validator,
-        IUserContextProvider userContextProvider,
-        ILogger<GetSitesForUserFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _siteSearchService = siteSearchService;
-        _userSiteAssignmentService = userSiteAssignmentService;
-    }
 
     [OpenApiOperation(operationId: "GetSitesForUser", tags: new[] { "Utility" }, Summary = "Set the status of a booking")]
     [OpenApiRequestBody("text/json", typeof(SetBookingStatusRequest))]
@@ -46,16 +34,16 @@ public class GetSitesForUserFunction : BaseApiFunction<EmptyRequest, Site[]>
     protected override async Task<ApiResult<Site[]>> HandleRequest(EmptyRequest request, ILogger logger)
     {
         var userEmail = Principal.Claims.GetUserEmail();
-        var userAssignments  = await _userSiteAssignmentService.GetUserAssignedSites(userEmail);
-
+        var roleAssignments  = await userService.GetUserRoleAssignments(userEmail);
+        var siteIdsForUser = roleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
         var siteInfoList = new List<Site>();
 
-        foreach(var assignment in userAssignments.Where(ua => ua.Site != "__global__")) 
+        foreach(var site in siteIdsForUser.Distinct()) 
         { 
-            var siteInfo = await _siteSearchService.GetSiteByIdAsync(assignment.Site);
+            var siteInfo = await siteSearchService.GetSiteByIdAsync(site);
             siteInfoList.Add(siteInfo);            
         }
-
+        
         return ApiResult<Site[]>.Success(siteInfoList.ToArray());
     }
 

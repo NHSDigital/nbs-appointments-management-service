@@ -10,14 +10,14 @@ namespace Nhs.Appointments.Api.Functions;
 
 public abstract class SiteBasedResourceFunction<TResponse> : BaseApiFunction<SiteBasedResourceRequest, TResponse>
 {
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
+    private readonly IUserService _userService;
     protected SiteBasedResourceFunction(
-        IUserSiteAssignmentService userSiteAssignmentService,
+        IUserService userService,
         IValidator<SiteBasedResourceRequest> validator, 
         IUserContextProvider userContextProvider,
         ILogger logger) : base(validator, userContextProvider, logger)
     {
-        _userSiteAssignmentService = userSiteAssignmentService;
+        _userService = userService;
     }
 
     protected override Task<(bool requestRead, SiteBasedResourceRequest request)> ReadRequestAsync(HttpRequest req)

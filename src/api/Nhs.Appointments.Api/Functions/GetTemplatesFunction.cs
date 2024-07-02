@@ -19,17 +19,17 @@ namespace Nhs.Appointments.Api.Functions;
 public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateResponse>
 {
     private readonly ITemplateService _templateService;
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
+    private readonly IUserService _userService;
 
     public GetTemplatesFunction(
         ITemplateService templateService,
-        IUserSiteAssignmentService userSiteAssignmentService,
+        IUserService userService,
         IValidator<SiteBasedResourceRequest> validator, 
         IUserContextProvider userContextProvider,
-        ILogger<GetTemplatesFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
+        ILogger<GetTemplatesFunction> logger) : base(userService, validator, userContextProvider, logger)
     {
         _templateService = templateService;
-        _userSiteAssignmentService = userSiteAssignmentService;
+        _userService = userService;
     }
 
     [OpenApiOperation(operationId: "GetTemplates", tags: new[] { "Site Configuration" }, Summary = "Get week templates")]

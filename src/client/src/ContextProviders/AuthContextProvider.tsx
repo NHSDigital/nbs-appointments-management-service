@@ -9,6 +9,7 @@ export interface IAuthContext {
     idToken: string | null;
     getUserEmail: () => string;
     signOut: () => void;
+    hasPermission: (permission: string) => boolean;
 }
 
 export const AuthContext = React.createContext<IAuthContext | null>(null);
@@ -30,6 +31,12 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
 
         return ""
     }
+
+    const hasPermission = (permission: string): boolean => {
+        const storedPerms = localStorage.getItem("perms")
+        const perms = storedPerms ? JSON.parse(storedPerms) : [];
+        return perms.includes(permission);
+    }
     
     const signIn = () => {
         window.location.replace(`${getApiUrl("authenticate")}?redirect_uri=${host}`);
@@ -44,17 +51,18 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         const code = searchParams.get("code");
         fetch(getApiUrl("token"), { method: "POST", body: code })
             .then(rsp => {
-                if (rsp.ok) return rsp.text()
-            }).then(idToken => {
-                if (idToken) {
-                    localStorage.setItem("idtoken", idToken!)
+                if (rsp.ok) return rsp.json()
+            }).then(authObj => {
+                if (authObj.token) {
+                    localStorage.setItem("idtoken", authObj.token)
+                    localStorage.setItem("perms", JSON.stringify(authObj.permissions))
                     window.location.replace(host)
                 }
             });
     }
 
     return (
-        <AuthContext.Provider value={{idToken, signOut, getUserEmail}}>
+        <AuthContext.Provider value={{idToken, signOut, getUserEmail, hasPermission}}>
             <When condition={idToken !== null}>
                 {children}
             </When>

@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom"
 import { When } from "./When";
 
-interface NhsHeaderProps {
+type NhsHeaderProps = {
     navLinks: { name: string, route: string }[]
     userEmail?: string
     signOut?: () => void;

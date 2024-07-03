@@ -12,9 +12,10 @@ export const wrappedRender = (child: React.ReactNode, siteContext: ISiteContext 
 }, signOut: () => void = () => {}) => {
 
     const getUserEmail = () => "";
+    const hasPermission = () => true;
 
     return render(
-        <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail}}>
+        <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail, hasPermission}}>
             <SiteContext.Provider value={siteContext}>
                 <Router>
                         {child}

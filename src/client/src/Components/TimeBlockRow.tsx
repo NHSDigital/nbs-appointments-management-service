@@ -4,17 +4,17 @@ import { ValidationError } from "../Types/ValidationError";
 import { ServiceSelector } from "./ServiceSelector";
 import { When } from "./When";
 
-interface TimeBlockRowProps {
-    block: Session
-    error?: ValidationError,
+type TimeBlockRowProps =  {
+    block: Session;
+    error?: ValidationError;
     uniqueId: string,
     enableAutoFocus: boolean
-    handleTimeChange: (value: string, startOrEnd: "start" | "end") => void,
-    handleRemove: () => void,
-    handleBlur: () => void,
-    handleEnterKey: () => void,
-    handleServiceChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-    handleSelectAllChange: (event: React.ChangeEvent<HTMLInputElement>, serviceConfiguration:ServiceConfiguration[]) => void
+    handleTimeChange: (value: string, startOrEnd: "start" | "end") => void;
+    handleRemove: () => void;
+    handleBlur: () => void;
+    handleEnterKey: () => void;
+    handleServiceChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSelectAllChange: (event: React.ChangeEvent<HTMLInputElement>, serviceConfiguration:ServiceConfiguration[]) => void;
 }
 
 export const TimeBlockRow = ({ block, error, uniqueId, enableAutoFocus, handleTimeChange, handleBlur, handleRemove, handleEnterKey, handleServiceChange, handleSelectAllChange }: TimeBlockRowProps) => {

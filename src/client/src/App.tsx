@@ -10,6 +10,8 @@ import { WeekTemplateEditorCtx } from './Views/WeekTemplateEditor';
 import { TemplateListView } from './Views/TemplateListView';
 import { ScheduleEditor } from './Views/ScheduleEditor';
 import { AppPage } from './Components/AppPage';
+import { GuardedRoute } from './Components/GuardedRoute';
+import { Permissions } from './Types/Permissions';
 
 function App() {
   return (
@@ -26,13 +28,25 @@ function App() {
         ]}>
             <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/availability" element={<ScheduleEditor />} />
-                  <Route path="/site" element={<EditSiteServicesCtx />} />
+                  <Route path="/availability" element={
+                    <GuardedRoute permission={Permissions.GetAvailability}>
+                      <ScheduleEditor />
+                    </GuardedRoute>
+                  } />
+                  <Route path="/site" element={
+                    <GuardedRoute permission={Permissions.GetSites}>
+                      <EditSiteServicesCtx />
+                    </GuardedRoute>} />
                   <Route path="/bookings" element={<DailyBookingsCtx />} />
                   <Route path="/calendar" element={<AppointmentsCalendarCtx />} />
-                  <Route path="/templates" element={<TemplateListView />} />
+                  <Route path="/templates" element={
+                    <GuardedRoute permission={Permissions.GetAvailability}>
+                      <TemplateListView />
+                    </GuardedRoute>
+                  } />
                   <Route path="/templates/edit" element={<WeekTemplateEditorCtx />} />
                   <Route path="/templates/edit/:templateId" element={<WeekTemplateEditorCtx />} />
+                  <Route path="/unauthorised" element={<h2>You do not have permission to access this page.</h2>} />
             </Routes>
           </AppPage>
         </SiteContextProvider>

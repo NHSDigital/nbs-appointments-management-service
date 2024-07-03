@@ -25,6 +25,8 @@ const testBooking: Booking = {
     }
 }
 
+const doesHavePermission = () => true;
+
 const expectText = async (text: string) => {
     const element = await screen.findByText(text);
     expect(element).toBeVisible();
@@ -33,7 +35,7 @@ const expectText = async (text: string) => {
 describe("<DailyBookings />", () => {
     it("calls getBookings with site id and displays response", async () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()} hasPermission={jest.fn()}/>);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()} hasPermission={doesHavePermission}/>);
         await expectText(testBooking.reference);
         await expectText(testBooking.attendeeDetails.firstName);
         await expectText(testBooking.attendeeDetails.lastName);
@@ -46,19 +48,19 @@ describe("<DailyBookings />", () => {
     
     it("shows appropriate message when no bookings are retrieved", async () => {
         const mockGetBookings = jest.fn().mockResolvedValue([]);
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={jest.fn()}/>);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={doesHavePermission}/>);
         await expectText("No bookings on this day");
     });
     
     it("shows error state when request for bookings fails", async () => {
         const mockGetBookings = jest.fn().mockRejectedValue(new Error("test server error"));
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={jest.fn()}/>);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={doesHavePermission}/>);
         await expectText("Unable to get bookings");
     });
     
     it("filters by name and booking reference correctly", async () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={jest.fn()}/>);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={jest.fn()}  hasPermission={doesHavePermission}/>);
         const searchInput = await screen.findByRole("textbox", { name: "Filter bookings list" });
         await userEvent.type(searchInput, "XYZ");
         expect(screen.queryByText(testBooking.reference)).not.toBeInTheDocument();
@@ -73,7 +75,7 @@ describe("<DailyBookings />", () => {
         const expectedDate = dayjs(date).format("DD/MM/YYYY - dddd")
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus}  hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus}  hasPermission={doesHavePermission} />);
         expect(screen.getByText(expectedDate)).toBeVisible();
     })
 
@@ -83,7 +85,7 @@ describe("<DailyBookings />", () => {
         const expectedDate = dayjs(nextDay).format("DD/MM/YYYY - dddd")
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus}  hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus}  hasPermission={doesHavePermission} />);
         const nextDayLink = await screen.findByRole("button", {name: "next day"})
         await userEvent.click(nextDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
@@ -95,7 +97,7 @@ describe("<DailyBookings />", () => {
         const expectedDate = dayjs(nextDay).format("DD/MM/YYYY - dddd")
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={doesHavePermission} />);
         const previousDayLink = await screen.findByRole("button", {name: "previous day"})
         await userEvent.click(previousDayLink);
         expect(await screen.findByText(expectedDate)).toBeVisible();
@@ -106,7 +108,7 @@ describe("<DailyBookings />", () => {
         const expectedDate = dayjs(date).format("DD/MM/YYYY - dddd")
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={doesHavePermission} />);
         const previousDayLink = await screen.findByRole("button", {name: "previous day"})
         await userEvent.click(previousDayLink);
         const todayLink = await screen.findByRole("button", {name: "today"})
@@ -117,7 +119,7 @@ describe("<DailyBookings />", () => {
     it("hides the check in box when viewing a day other than today", async () => {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={doesHavePermission} />);
         const nextDayLink = await screen.findByRole("button", {name: "next day"})
         await userEvent.click(nextDayLink);
         expect(screen.queryByRole("checkbox")).toBeNull();
@@ -126,7 +128,7 @@ describe("<DailyBookings />", () => {
     it("changes the status of the booking when Check In box is checked", async ()=> {
         const mockGetBookings = jest.fn().mockResolvedValue([testBooking]);
         const mockSetBookingStatus = jest.fn().mockResolvedValue("fakeResponse");
-        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={jest.fn()} />);
+        wrappedRender(<DailyBookings siteConfig={siteConfig} getBookings={mockGetBookings} setBookingStatus={mockSetBookingStatus} hasPermission={doesHavePermission} />);
         const firstCheckBox = await screen.findByRole("checkbox");
         await act(async () => {
             await userEvent.click(firstCheckBox);

@@ -229,7 +229,7 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus, hasPe
                                             value={booking.outcome ?? ""}
                                             onChange={() => { toggleCheckedIn(booking.reference) }}
                                             checked={booking.outcome === "CheckedIn"}
-                                            disabled={!hasPermission(Permissions.CANSETBOOKINGSTATUS)}
+                                            disabled={!hasPermission(Permissions.SetBookingStatus)}
                                             />
                                         <label className="nhsuk-label nhsuk-checkboxes__label" htmlFor={booking.reference}>
                                         </label>

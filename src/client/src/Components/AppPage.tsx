@@ -14,11 +14,11 @@ type AppPageProps = {
     const { getUserEmail, signOut, hasPermission } = useAuthContext();
     const currentRoute = useLocation()
 
-    if(!hasPermission(Permissions.CANGETAVAILABILITY)){
+    if(!hasPermission(Permissions.GetAvailability)){
       navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")
     }
 
-    if(!hasPermission(Permissions.CANGETSITES)){
+    if(!hasPermission(Permissions.GetSites)){
       navLinks = navLinks.filter(link => link.route !== "/site");
     }
 

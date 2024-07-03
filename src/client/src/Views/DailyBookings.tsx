@@ -141,7 +141,7 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus, hasPe
                     </div>
                 </div>
             </When>
-            <When condition={!hasPermission("booking:set-status") && showNotification}>
+            <When condition={!hasPermission(Permissions.SetBookingStatus) && showNotification}>
                 <UserNotification
                     title="You don't have permission to check a patient in. Contact your site admin if you need access."
                     handleClose={() => {setShowNotification(false)}} />

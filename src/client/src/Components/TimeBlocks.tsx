@@ -6,12 +6,12 @@ import { calculateNewSessionTime, parseTime } from "../utils";
 import { When } from "./When";
 import { ServiceConfiguration } from "../Types/SiteConfiguration";
 
-interface TimeBlockProps {
-    dayLabel: DayOfWeek,
-    scheduleBlocks: Session[]
-    setDayBlocks: (dayBlocks: Session[]) => void,
-    setIsValid: (isValid: boolean) => void,
-    copyToAllDays: (sourceDay: DayOfWeek) => void
+type TimeBlockProps = {
+    dayLabel: DayOfWeek;
+    scheduleBlocks: Session[];
+    setDayBlocks: (dayBlocks: Session[]) => void;
+    setIsValid: (isValid: boolean) => void;
+    copyToAllDays: (sourceDay: DayOfWeek) => void;
 }
 
 export const TimeBlocks = ({ dayLabel, scheduleBlocks, setDayBlocks, setIsValid, copyToAllDays }: TimeBlockProps) => {

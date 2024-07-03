@@ -1,6 +1,11 @@
 import "./UserNotification.css"
 
-export const UserNotification = ({title, handleClose}:{title:string, handleClose:()=>void}) => {
+type UserNotificationProps =  {
+      title: string;
+      handleClose: () => void;
+}
+
+export const UserNotification = ({title, handleClose}: UserNotificationProps) => {
     return(
           <div role="status" className="user-notification">
             <div className="user-notification__content">

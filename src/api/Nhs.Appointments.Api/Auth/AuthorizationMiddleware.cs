@@ -33,7 +33,7 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
             siteId = siteIdValue.ToString();
         }
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
-        return permissionChecker.HasPermissionAsync(userEmail, requiredPermission, siteId);
+        return permissionChecker.HasPermissionAsync(userEmail, siteId, requiredPermission);
     }
     
     protected virtual void HandleUnauthorizedAccess(FunctionContext context)

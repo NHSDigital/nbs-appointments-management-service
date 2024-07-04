@@ -6,7 +6,6 @@ import { When } from "../Components/When";
 import { UserNotification } from "../Components/UserNotification";
 import { SiteConfiguration } from "../Types/SiteConfiguration";
 import dayjs from "dayjs";
-import { useAuthContext } from "../ContextProviders/AuthContextProvider";
 import { Permissions } from "../Types/Permissions";
 
 type DailyBookingsProps = {
@@ -17,8 +16,7 @@ type DailyBookingsProps = {
 };
 
 export const DailyBookingsCtx = () => {
-    const { siteConfig } = useSiteContext();
-    const { hasPermission } = useAuthContext();
+    const { siteConfig, hasPermission } = useSiteContext();
     const { getBookings, setBookingStatus } = useBookingService();
 
     return <DailyBookings

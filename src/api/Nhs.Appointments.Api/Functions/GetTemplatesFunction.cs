@@ -16,22 +16,8 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateResponse>
+public class GetTemplatesFunction(ITemplateService templateService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetTemplatesFunction> logger) : SiteBasedResourceFunction<GetTemplateResponse>(validator, userContextProvider, logger)
 {
-    private readonly ITemplateService _templateService;
-    private readonly IUserService _userService;
-
-    public GetTemplatesFunction(
-        ITemplateService templateService,
-        IUserService userService,
-        IValidator<SiteBasedResourceRequest> validator, 
-        IUserContextProvider userContextProvider,
-        ILogger<GetTemplatesFunction> logger) : base(userService, validator, userContextProvider, logger)
-    {
-        _templateService = templateService;
-        _userService = userService;
-    }
-
     [OpenApiOperation(operationId: "GetTemplates", tags: new[] { "Site Configuration" }, Summary = "Get week templates")]
     [OpenApiParameter("site", Required = true, In = ParameterLocation.Query, Description = "The site for which to retrieve week template assignments")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
@@ -48,7 +34,7 @@ public class GetTemplatesFunction : SiteBasedResourceFunction<GetTemplateRespons
 
     protected override async Task<ApiResult<GetTemplateResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {        
-        var templates = await _templateService.GetTemplates(request.Site);
+        var templates = await templateService.GetTemplates(request.Site);
         return Success(new GetTemplateResponse
         {
             Templates = templates.ToArray()

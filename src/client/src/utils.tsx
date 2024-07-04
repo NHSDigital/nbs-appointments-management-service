@@ -8,14 +8,14 @@ import { AuthContext } from "./ContextProviders/AuthContextProvider";
 export const wrappedRender = (child: React.ReactNode, siteContext: ISiteContext = {
     site: null,
     siteConfig: null,
-    saveSiteConfiguration: jest.fn()
+    saveSiteConfiguration: jest.fn(),
+    hasPermission: () => true
 }, signOut: () => void = () => {}) => {
 
     const getUserEmail = () => "";
-    const hasPermission = () => true;
 
     return render(
-        <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail, hasPermission}}>
+        <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail}}>
             <SiteContext.Provider value={siteContext}>
                 <Router>
                         {child}

@@ -12,7 +12,8 @@ const context: ISiteContext = {
             { code: "service2", displayName: "Service 2", duration: 10, enabled: false }
         ]
     },
-    saveSiteConfiguration: jest.fn()
+    saveSiteConfiguration: jest.fn(),
+    hasPermission: () => true
 }
 describe("<SiteSelector>", () => {
     it("shows enabled services and filters disabled services from the list", async () => {

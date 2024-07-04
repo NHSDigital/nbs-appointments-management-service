@@ -15,24 +15,9 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<SiteConfiguration>   
+public class GetSiteConfigurationFunction(ISiteConfigurationService siteConfigurationService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteConfigurationFunction> logger)
+    : SiteBasedResourceFunction<SiteConfiguration>(validator, userContextProvider, logger)
 {
-    private readonly IUserService _userService;
-    private readonly ISiteConfigurationService _siteConfigurationService;
-    private readonly ISiteSearchService _siteSearchService;
-    
-    public GetSiteConfigurationFunction(
-        ISiteConfigurationService siteConfigurationService,
-        ISiteSearchService siteSearchService,
-        IUserService userService,
-        IValidator<SiteBasedResourceRequest> validator,
-        IUserContextProvider userContextProvider,
-        ILogger<GetSiteConfigurationFunction> logger) : base(userService, validator, userContextProvider, logger)
-    {
-        _siteConfigurationService = siteConfigurationService;
-        _siteSearchService = siteSearchService; 
-        _userService = userService;
-    }
 
     [OpenApiOperation(operationId: "GetSiteConfiguration", tags: new [] {"Site Configuration"}, Summary = "Get the site configuration")]
     [OpenApiRequestBody("text/json", typeof(SiteConfiguration))]
@@ -51,7 +36,7 @@ public class GetSiteConfigurationFunction  : SiteBasedResourceFunction<SiteConfi
     
     protected override async Task<ApiResult<SiteConfiguration>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var siteConfiguration = await _siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
+        var siteConfiguration = await siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
         if (siteConfiguration != null)
         {            
             return Success(siteConfiguration);

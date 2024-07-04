@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
 import { When } from "../Components/When";
 import { SiteConfiguration } from "../Types/SiteConfiguration";
-import { useSiteConfigurationService } from "../Services/SiteConfigurationService";
+import {useSiteConfigurationService} from "../Services/SiteConfigurationService";
 import { useAuthContext } from "./AuthContextProvider";
 import { Site } from "../Types/Site";
 import { SiteSetup } from "../Components/SiteSetup";
 import { SelectSite } from "../Components/SelectSite";
+import {useUserService} from "../Services/UserService";
 
 export interface ISiteContext {
     site: Site | null
     siteConfig: SiteConfiguration | null
     saveSiteConfiguration: (siteConfiguration: SiteConfiguration) => Promise<void>
+    hasPermission: (permission: string) => boolean;
 }
 
 export const SiteContext = React.createContext<ISiteContext | null>(null);
@@ -24,6 +26,7 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
     const [siteConfig, setSiteConfig] = React.useState<SiteConfiguration | null>(null)
     const { idToken } = useAuthContext();
     const { getSiteConfiguration, getSitesForUser, setSiteConfiguration } = useSiteConfigurationService()
+    const { getUserPermissions } = useUserService();
 
     const saveSiteConfiguration = (siteConfiguration:SiteConfiguration) => {
         return setSiteConfiguration(siteConfiguration).then(rsp => {
@@ -31,11 +34,24 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
         });
     }
 
+    const hasPermission = (permission: string): boolean => {
+        const storedPerms = localStorage.getItem("perms")
+        const perms = storedPerms ? JSON.parse(storedPerms) : [];
+        return perms.includes(permission);
+    }
+
     useEffect(() => {
         if(siteConfig) {
             setState("ready")
         }
     }, [siteConfig])
+
+    useEffect(() => {
+        if(site) {
+            getUserPermissions(site.id).then(rsp => 
+                localStorage.setItem("perms", JSON.stringify(rsp.permissions)));   
+        }
+    }, [site])
 
     useEffect(() => {
         setSiteConfig(null);
@@ -68,7 +84,7 @@ export const SiteContextProvider = ({ children }: { children: React.ReactNode })
     }, [idToken, site]);
 
     return (
-        <SiteContext.Provider value={{site, siteConfig, saveSiteConfiguration}}>
+        <SiteContext.Provider value={{site, siteConfig, saveSiteConfiguration, hasPermission}}>
             <When condition={state === "loading"}>Loading Configuration...</When>
             <When condition={state === "ready"}>{children}</When>
             <When condition={state === "not-configured"}>

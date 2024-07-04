@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useAuthContext } from "../ContextProviders/AuthContextProvider"
+import {useSiteContext} from "../ContextProviders/SiteContextProvider";
 
 type GuardedRouteProps = {
     permission: string;
@@ -7,6 +7,6 @@ type GuardedRouteProps = {
 }
 
 export const GuardedRoute = ({permission, children}: GuardedRouteProps) => {
-    const {hasPermission} = useAuthContext();
+    const {hasPermission} = useSiteContext();
     return hasPermission(permission) ? <>{children}</> : <Navigate to="/unauthorised" replace/>
 }

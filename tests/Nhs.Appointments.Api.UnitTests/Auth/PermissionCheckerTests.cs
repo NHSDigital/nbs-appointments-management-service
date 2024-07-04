@@ -32,7 +32,7 @@ public class PermissionCheckerTests
 
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
+        var result = await _sut.HasPermissionAsync(userId, "1", requiredPermission);
         result.Should().BeFalse();
     }
 

@@ -1,5 +1,8 @@
-
-export const WarningCallout = ({title, children}:{title:string, children:React.ReactNode}) => {
+type WarningCalloutProps = {
+      title:string;
+      children:React.ReactNode;
+}
+export const WarningCallout = ({title, children}: WarningCalloutProps) => {
       return(
             <div className="nhsuk-warning-callout">
                   <h3 className="nhsuk-warning-callout__label">

@@ -27,8 +27,11 @@ public class SiteInspectorMiddleware : IFunctionsWorkerMiddleware
                 try
                 {
                     using var jsonDocument = JsonDocument.Parse(body);
-                    var siteId = jsonDocument.RootElement.GetProperty("site").ToString();
-                    context.Items.Add("siteId", siteId);
+                    if (jsonDocument.RootElement.TryGetProperty("site", out var siteIdValue))
+                    {
+                        var siteId = siteIdValue.ToString();
+                        context.Items.Add("siteId", siteId);
+                    }
                 }
                 catch (JsonException)
                 {

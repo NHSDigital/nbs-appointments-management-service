@@ -17,14 +17,13 @@ public class GetSiteMetaDataFunctionTests
 {
     private readonly GetSiteMetaDataFunction _sut;
     private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
-    private readonly Mock<IUserService> _userSiteAssignmentService = new();
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
 
     public GetSiteMetaDataFunctionTests()
     {        
-        _sut = new GetSiteMetaDataFunction(_userSiteAssignmentService.Object, _siteConfigurationService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetSiteMetaDataFunction(_siteConfigurationService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

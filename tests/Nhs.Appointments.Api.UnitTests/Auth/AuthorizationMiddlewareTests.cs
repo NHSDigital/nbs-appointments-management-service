@@ -28,13 +28,15 @@ public class AuthorizationMiddlewareTests
     {
         var userPrincipal = CreateAuthenticatedPrincipal();
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
+        var siteIdValue = new Dictionary<object, object> { {"siteId", "1"} };
         ConfigureMocks(httpRequest);
         
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
+        _functionContext.Setup(x => x.Items).Returns(siteIdValue);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "permission1", "1")).ReturnsAsync(false);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(false);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeFalse();
@@ -46,13 +48,16 @@ public class AuthorizationMiddlewareTests
     {
         var userPrincipal = CreateAuthenticatedPrincipal();
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
+        var siteIdValue = new Dictionary<object, object> { {"siteId", "1"} };
+        ConfigureMocks(httpRequest);
         ConfigureMocks(httpRequest);
         
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
+        _functionContext.Setup(x => x.Items).Returns(siteIdValue);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "permission1", "1")).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(true);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeTrue();

@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public record AttendeeDetails(
-        [JsonProperty("nhsNumber")]
+        [property: JsonPropertyName("nhsNumber")]
     string NhsNumber,
-        [JsonProperty("firstName")]
+        [property: JsonPropertyName("firstName")]
     string FirstName,
-        [JsonProperty("lastName")]
+        [property: JsonPropertyName("lastName")]
     string LastName,
-        [JsonProperty("dateOfBirth")]
+        [property: JsonPropertyName("dateOfBirth")]
     string DateOfBirth
     );
 }

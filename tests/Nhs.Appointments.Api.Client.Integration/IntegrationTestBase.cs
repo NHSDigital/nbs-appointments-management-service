@@ -22,9 +22,11 @@ namespace Nhs.Appointments.Api.Client.Integration
                 .SetMinimumLevel(LogLevel.Trace)
                 .AddConsole());
 
-            ILogger<IntegrationTestBase> logger = loggerFactory.CreateLogger<IntegrationTestBase>();
+            ILogger<BookingsApiClient> bookingsLogger = loggerFactory.CreateLogger<BookingsApiClient>();
+            ILogger<SitesApiClient> sitesLogger = loggerFactory.CreateLogger<SitesApiClient>();
+            ILogger<TemplatesApiClient> templatesLogger = loggerFactory.CreateLogger<TemplatesApiClient>();
 
-            _apiClient = new NhsAppointmentsApi(new BookingsApiClient(CreateHttpClient, logger), new SitesApiClient(CreateHttpClient, logger), new TemplatesApiClient(CreateHttpClient, logger));
+            _apiClient = new NhsAppointmentsApi(new BookingsApiClient(CreateHttpClient, bookingsLogger), new SitesApiClient(CreateHttpClient, sitesLogger), new TemplatesApiClient(CreateHttpClient, templatesLogger));
         }
 
         protected INhsAppointmentsApi ApiClient => _apiClient;

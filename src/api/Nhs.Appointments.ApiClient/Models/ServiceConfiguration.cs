@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public record ServiceConfiguration(
-    [JsonProperty("code")] string Code,
-    [JsonProperty("displayName")] string DisplayName,
-    [JsonProperty("duration")] int Duration,
-    [JsonProperty("enabled")] bool Enabled);
+    [property: JsonPropertyName("code")] string Code,
+    [property: JsonPropertyName("displayName")] string DisplayName,
+    [property: JsonPropertyName("duration")] int Duration,
+    [property: JsonPropertyName("enabled")] bool Enabled);
 }

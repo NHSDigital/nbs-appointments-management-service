@@ -1,4 +1,9 @@
-﻿namespace Nhs.Appointments.ApiClient.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Nhs.Appointments.ApiClient.Models
 {
-    public record Site(string Id, string Name, string Address);
+    public record Site(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("address")] string Address);
 }

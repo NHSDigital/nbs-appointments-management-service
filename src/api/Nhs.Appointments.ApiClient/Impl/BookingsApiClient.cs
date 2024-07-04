@@ -5,55 +5,22 @@ namespace Nhs.Appointments.ApiClient.Impl
 {
     public class BookingsApiClient : ApiClientBase, IBookingsApiClient
     {
-        public BookingsApiClient(Func<HttpClient> httpClientFactory, ILogger logger) : base(httpClientFactory, logger)
+        public BookingsApiClient(Func<HttpClient> httpClientFactory, ILogger<BookingsApiClient> logger) : base(httpClientFactory, logger)
         {
         }
 
-        public async Task<CancelBookingResponse> CancelBooking(string bookingReference, string site)
-        {
-            var request = new CancelBookingRequest(bookingReference, site);
-            var response = await Post<CancelBookingRequest, CancelBookingResponse>(request, "api/booking/cancel");
-            return response;
-        }
+        public Task<CancelBookingResponse> CancelBooking(string bookingReference, string site) => Post<CancelBookingRequest, CancelBookingResponse>("api/booking/cancel", new CancelBookingRequest(bookingReference, site));
 
-        public async Task<MakeBookingResponse> MakeBooking(string site, DateTime from, string service, string sessionHolder, AttendeeDetails attendeeDetails)
-        {
-            var request = new MakeBookingRequest(site, from.ToString("yyyy-MM-dd HH:mm"), service, sessionHolder, attendeeDetails);
-            var response = await Post<MakeBookingRequest, MakeBookingResponse>(request, "api/booking");
-            return response;
-        }
+        public Task<MakeBookingResponse> MakeBooking(string site, DateTime from, string service, string sessionHolder, AttendeeDetails attendeeDetails) => Post<MakeBookingRequest, MakeBookingResponse>("api/booking", new MakeBookingRequest(site, from.ToString("yyyy-MM-dd HH:mm"), service, sessionHolder, attendeeDetails));
 
-        public async Task<QueryAvailabilityResponse> QueryAvailability(string[] sites, string service, DateTime from, DateTime until, QueryType queryType)
-        {
-            var request = new QueryAvailabilityRequest(sites, service, from.ToString("yyyy-MM-dd"), until.ToString("yyyy-MM-dd"), queryType);
-            var response = await Post<QueryAvailabilityRequest, QueryAvailabilityResponse>(request, "api/availability/query");
-            return response;
-        }
+        public Task<QueryAvailabilityResponse> QueryAvailability(string[] sites, string service, DateOnly from, DateOnly until, QueryType queryType) => Post<QueryAvailabilityRequest, QueryAvailabilityResponse>("api/availability/query", new QueryAvailabilityRequest(sites, service, from.ToString("yyyy-MM-dd"), until.ToString("yyyy-MM-dd"), queryType));
 
-        public async Task<IEnumerable<Booking>> QueryBookingByNhsNumber(string nhsNumber)
-        {
-            var response = await Get<IEnumerable<Booking>>($"api/availability/query?nhsNumber={nhsNumber}");
-            return response;
-        }
+        public Task<IEnumerable<Booking>> QueryBookingByNhsNumber(string nhsNumber) => Get<IEnumerable<Booking>>($"api/availability/query?nhsNumber={nhsNumber}");
 
-        public async Task<Booking> QueryBookingByReference(string bookingReference)
-        {
-            var response = await Get<Booking>($"api/booking/{bookingReference}");
-            return response;
-        }
+        public Task<Booking> QueryBookingByReference(string bookingReference) => Get<Booking>($"api/booking/{bookingReference}");
 
-        public async Task<IEnumerable<Booking>> QueryBookings(string site, DateTime from, DateTime to)
-        {
-            var request = new QueryBookingsRequest(from, to, site);
-            var response = await Post<QueryBookingsRequest, IEnumerable<Booking>>(request, "api/get-bookings");
-            return response;
-        }
+        public Task<IEnumerable<Booking>> QueryBookings(string site, DateTime from, DateTime to) => Post<QueryBookingsRequest, IEnumerable<Booking>>("api/get-bookings", new QueryBookingsRequest(from, to, site));
 
-        public async Task<SetBookingStatusResponse> SetBookingStatus(string bookingReference, string status)
-        {
-            var request = new SetBookingStatusRequest(bookingReference, status);
-            var response = await Post<SetBookingStatusRequest, SetBookingStatusResponse>(request, "api/booking/set-status");
-            return response;
-        }
+        public Task<SetBookingStatusResponse> SetBookingStatus(string bookingReference, string status) => Post<SetBookingStatusRequest, SetBookingStatusResponse>("api/booking/set-status", new SetBookingStatusRequest(bookingReference, status));
     }
 }

@@ -5,32 +5,17 @@ namespace Nhs.Appointments.ApiClient.Impl
 {
     public class TemplatesApiClient : ApiClientBase, ITemplatesApiClient
     {
-        public TemplatesApiClient(Func<HttpClient> httpClientFactory, ILogger logger) : base(httpClientFactory, logger)
+        public TemplatesApiClient(Func<HttpClient> httpClientFactory, ILogger<TemplatesApiClient> logger) : base(httpClientFactory, logger)
         {
         }
 
-        public async Task<GetTemplateResponse> GetTemplate(string site)
-        {
-            var response = await Get<GetTemplateResponse>($"api/templates?site={site}");
-            return response;
-        }
+        public Task<GetTemplateResponse> GetTemplate(string site) => Get<GetTemplateResponse>($"api/templates?site={site}");
 
-        public async Task<GetTemplateAssignmentsResponse> GetTemplateAssignments(string site)
-        {
-            var response = await Get<GetTemplateAssignmentsResponse>($"api/templates/assignments?site={site}");
-            return response;
-        }
+        public Task<GetTemplateAssignmentsResponse> GetTemplateAssignments(string site) => Get<GetTemplateAssignmentsResponse>($"api/templates/assignments?site={site}");
 
-        public async Task<string> SetTemplate(WeekTemplate weekTemplate)
-        {
-            var response = await Post<WeekTemplate, string>(weekTemplate, "api/template");
-            return response;
-        }
+        public Task<string> SetTemplate(WeekTemplate weekTemplate) => Post<WeekTemplate, string>("api/template", weekTemplate);
 
-        public async Task SetTemplateAssignment(string site, TemplateAssignment[] templates)
-        {
-            var request = new SetTemplateAssignmentRequest { Assignments = templates, Site = site };
-            await Post(request, "api/templates/assignments");
-        }
+        public Task SetTemplateAssignment(string site, TemplateAssignment[] templates) => Post("api/templates/assignments", new SetTemplateAssignmentRequest { Assignments = templates, Site = site });
+
     }
 }

@@ -2,7 +2,6 @@
 using System.Net.Http.Headers;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.ApiClient.Impl;
-using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.ApiClient.Configuration
 {
@@ -30,14 +29,7 @@ namespace Nhs.Appointments.ApiClient.Configuration
                 };
             });
 
-            using var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddConsole();
-            });
-
-            var logger = loggerFactory.CreateLogger<NhsAppointmentsApi>();
-
-            services.AddSingleton<ILogger>(logger);
+            services.AddLogging();
 
             return services;
         }

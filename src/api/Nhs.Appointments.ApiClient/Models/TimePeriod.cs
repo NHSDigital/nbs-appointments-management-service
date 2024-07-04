@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.ApiClient.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Nhs.Appointments.ApiClient.Models
 {
     public class TimePeriod
     {
@@ -16,8 +18,10 @@
             Duration = duration;
         }
 
+        [JsonPropertyName("from")]
         public DateTime From { get; private set; }
 
+        [JsonPropertyName("duration")]
         public TimeSpan Duration { get; private set; }
         internal DateTime Until => From.Add(Duration);
     }

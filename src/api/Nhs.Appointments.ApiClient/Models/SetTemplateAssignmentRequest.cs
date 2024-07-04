@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public record SetTemplateAssignmentRequest
     {
-        [JsonProperty("site")]
+        [property: JsonPropertyName("site")]
         public string Site { get; set; }
 
-        [JsonProperty("assignments")]
+        [property: JsonPropertyName("assignments")]
         public TemplateAssignment[] Assignments { get; set; }
     }
 }

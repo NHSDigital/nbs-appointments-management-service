@@ -1,31 +1,31 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public class Booking
     {
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
 
-        [JsonProperty("from")]
+        [JsonPropertyName("from")]
         public DateTime From { get; set; }
 
-        [JsonProperty("duration")]
+        [JsonPropertyName("duration")]
         public int Duration { get; set; }
 
-        [JsonProperty("service")]
+        [JsonPropertyName("service")]
         public string Service { get; set; }
 
-        [JsonProperty("site")]
+        [JsonPropertyName("site")]
         public string Site { get; set; }
 
-        [JsonProperty("sessionHolder")]
+        [JsonPropertyName("sessionHolder")]
         public string SessionHolder { get; set; }
 
-        [JsonProperty("outcome")]
+        [JsonPropertyName("outcome")]
         public string Outcome { get; set; }
 
-        [JsonProperty("attendeeDetails")]
+        [JsonPropertyName("attendeeDetails")]
         public AttendeeDetails AttendeeDetails { get; set; }
 
         [JsonIgnore]

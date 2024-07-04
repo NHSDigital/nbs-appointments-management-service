@@ -1,17 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public record MakeBookingRequest(
-    [JsonProperty("site")]
+    [property: JsonPropertyName("site")]
     string Site,
-    [JsonProperty("from")]
+    [property: JsonPropertyName("from")]
     string From,
-    [JsonProperty("service")]
+    [property: JsonPropertyName("service")]
     string Service,
-    [JsonProperty("sessionHolder")]
+    [property: JsonPropertyName("sessionHolder")]
     string SessionHolder,
-    [JsonProperty("attendeeDetails")]
+    [property: JsonPropertyName("attendeeDetails")]
     AttendeeDetails AttendeeDetails
 );
 

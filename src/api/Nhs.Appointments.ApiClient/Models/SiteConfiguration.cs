@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public class SiteConfiguration
     {
-        [JsonProperty("siteId")]
+        [JsonPropertyName("siteId")]
         public string SiteId { get; set; }
 
-        [JsonProperty("informationForCitizen")]
+        [JsonPropertyName("informationForCitizen")]
         public string InformationForCitizen { get; set; }
 
-        [JsonProperty("referenceNumberGroup")]
+        [JsonPropertyName("referenceNumberGroup")]
         public int ReferenceNumberGroup { get; set; }
 
-        [JsonProperty("serviceConfiguration")]
+        [JsonPropertyName("serviceConfiguration")]
         public IEnumerable<ServiceConfiguration> ServiceConfiguration { get; set; }
     }
 }

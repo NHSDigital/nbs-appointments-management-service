@@ -5,37 +5,18 @@ namespace Nhs.Appointments.ApiClient.Impl
 {
     public class SitesApiClient : ApiClientBase, ISitesApiClient
     {
-        public SitesApiClient(Func<HttpClient> httpClientFactory, ILogger logger) : base(httpClientFactory, logger)
+        public SitesApiClient(Func<HttpClient> httpClientFactory, ILogger<SitesApiClient> logger) : base(httpClientFactory, logger)
         {
         }
 
-        public async Task<IEnumerable<Site>> FindSitesByPostcode(string postcode)
-        {
-            var response = await Get<IEnumerable<Site>>($"api/sites?postcode={postcode}");
-            return response;
-        }
+        public Task<IEnumerable<Site>> FindSitesByPostcode(string postcode) => Get<IEnumerable<Site>>($"api/sites?postcode={postcode}");
 
-        public async Task<SiteConfiguration> GetSiteConfiguration(string site)
-        {
-            var response = await Get<SiteConfiguration>($"api/site-configuration?site={site}");
-            return response;
-        }
+        public Task<SiteConfiguration> GetSiteConfiguration(string site) => Get<SiteConfiguration>($"api/site-configuration?site={site}");
 
-        public async Task<GetSiteMetaDataResponse> GetSiteMetaData(string site)
-        {
-            var response = await Get<GetSiteMetaDataResponse>($"api/site/meta?site={site}");
-            return response;
-        }
+        public Task<GetSiteMetaDataResponse> GetSiteMetaData(string site) => Get<GetSiteMetaDataResponse>($"api/site/meta?site={site}");
 
-        public async Task<IEnumerable<Site>> GetSitesForUser()
-        {
-            var response = await Get<IEnumerable<Site>>("api/user/sites");
-            return response;
-        }
+        public Task<IEnumerable<Site>> GetSitesForUser() => Get<IEnumerable<Site>>("api/user/sites");
 
-        public async Task SetSiteConfiguration(SiteConfiguration siteConfiguration)
-        {
-            await Post(siteConfiguration, "api/site-configuration");
-        }
+        public Task SetSiteConfiguration(SiteConfiguration siteConfiguration) => Post("api/site-configuration", siteConfiguration);
     }
 }

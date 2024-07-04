@@ -26,7 +26,7 @@ namespace Nhs.Appointments.ApiClient.Impl
             }
         }
 
-        protected async Task<TResponse> Post<TRequest, TResponse>(TRequest requestObject, string path)
+        protected async Task<TResponse> Post<TRequest, TResponse>(string path, TRequest requestObject)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, path)
             {
@@ -48,7 +48,7 @@ namespace Nhs.Appointments.ApiClient.Impl
             }
         }
 
-        protected async Task Post<TRequest>(TRequest requestObject, string path)
+        protected async Task Post<TRequest>(string path, TRequest requestObject)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, path)
             {

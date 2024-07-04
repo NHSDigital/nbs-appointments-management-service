@@ -1,4 +1,9 @@
-﻿namespace Nhs.Appointments.ApiClient.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Nhs.Appointments.ApiClient.Models
 {
-    public record QueryAvailabilityResponseItem(string site, string service, List<QueryAvailabilityResponseInfo> availability);
+    public record QueryAvailabilityResponseItem(
+        [property: JsonPropertyName("site")] string site,
+        [property: JsonPropertyName("service")] string service,
+        [property: JsonPropertyName("availability")] List<QueryAvailabilityResponseInfo> availability);
 }

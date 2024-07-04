@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.ApiClient.Models
 {
     public record TemplateAssignment(
-        [JsonProperty("from")] string From,
-        [JsonProperty("until")] string Until,
-        [JsonProperty("templateId")] string TemplateId);
+        [property: JsonPropertyName("from")] string From,
+        [property:JsonPropertyName("until")] string Until,
+        [property:JsonPropertyName("templateId")] string TemplateId);
 
 }

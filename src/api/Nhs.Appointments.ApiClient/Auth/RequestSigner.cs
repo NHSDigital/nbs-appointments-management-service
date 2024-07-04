@@ -30,19 +30,7 @@ namespace Nhs.Appointments.ApiClient.Auth
             request.Headers.Add("RequestTimestamp", requestTimestamp);
         }
 
-        private static string GetCanonicalQueryParameters(NameValueCollection queryParameters)
-        {
-            StringBuilder canonicalQueryParameters = new StringBuilder();
-            foreach (string key in queryParameters)
-            {
-                canonicalQueryParameters.AppendFormat("{0}={1}&", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(queryParameters[key]));
-            }
-
-            // remove trailing '&'
-            if (canonicalQueryParameters.Length > 0)
-                canonicalQueryParameters.Remove(canonicalQueryParameters.Length - 1, 1);
-
-            return canonicalQueryParameters.ToString();
-        }
+        private static string GetCanonicalQueryParameters(NameValueCollection queryParameters) => 
+            string.Join("&", queryParameters.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(queryParameters[key])}"));
     }
 }

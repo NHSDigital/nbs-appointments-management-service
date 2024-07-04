@@ -7,7 +7,7 @@ namespace Nhs.Appointments.Api.Client.Integration
         [Fact]
         public async void CanQueryAvailability()
         {
-            var slots = await ApiClient.Bookings.QueryAvailability([KnownSiteId], "COVID:12_15", DateTime.Now.AddYears(-1), DateTime.Now.AddYears(1), Appointments.ApiClient.Models.QueryType.Days);
+            var slots = await ApiClient.Bookings.QueryAvailability([KnownSiteId], "COVID:12_15", DateOnly.FromDateTime(DateTime.Now.AddYears(-1)), DateOnly.FromDateTime(DateTime.Now.AddYears(1)), QueryType.Days);
             Assert.NotNull(slots);
         }
 

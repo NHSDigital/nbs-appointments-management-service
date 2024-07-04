@@ -27,7 +27,7 @@ export const SiteSetup = ({ site }: { site: Site }) => {
             enabled: serviceTypes.includes(sc.code)
         }));
         const siteConfiguration: SiteConfiguration = {
-            siteId: site.id,
+            site: site.id,
             informationForCitizen: "",
             serviceConfiguration: siteServices
         }

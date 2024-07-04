@@ -4,7 +4,7 @@ import { wrappedRender } from '../utils';
 import { ScheduleTemplate, WeekTemplate } from '../Types/Schedule';
 import { SiteConfiguration } from '../Types/SiteConfiguration';
 
-const site: SiteConfiguration = { siteId: "1", serviceConfiguration: [], informationForCitizen: "" };
+const site: SiteConfiguration = { site: "1", serviceConfiguration: [], informationForCitizen: "" };
 
 const createTemplate = (id: string, name: string, from: string, until: string) : WeekTemplate => ({
     id,

@@ -7,7 +7,7 @@ import { ISiteContext, SiteContext } from "../ContextProviders/SiteContextProvid
 const context: ISiteContext = {    
     site: {id: "1", name: "Test Site", address: "Test Lane"},
     siteConfig: {
-        siteId: "1", informationForCitizen: "", serviceConfiguration: [
+        site: "1", informationForCitizen: "", serviceConfiguration: [
             { code: "service1", displayName: "Service 1", duration: 10, enabled: true },
             { code: "service2", displayName: "Service 2", duration: 10, enabled: false }
         ]

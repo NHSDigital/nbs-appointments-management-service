@@ -32,7 +32,7 @@ public class PermissionCheckerTests
 
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission);
+        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
         result.Should().BeFalse();
     }
 
@@ -52,7 +52,7 @@ public class PermissionCheckerTests
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission);
+        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
         result.Should().BeFalse();
     }
 
@@ -72,7 +72,7 @@ public class PermissionCheckerTests
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission);
+        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
         result.Should().BeTrue();
     }
     
@@ -94,7 +94,7 @@ public class PermissionCheckerTests
         
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission);
+        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
         result.Should().BeTrue();
     }
 }

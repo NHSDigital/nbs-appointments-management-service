@@ -27,7 +27,7 @@ public class SiteConfigurationFeatureSteps : BaseFeatureSteps
 
         var newSiteConfiguration = new Core.SiteConfiguration()
         {
-            SiteId = currentSiteConfiguration.SiteId,
+            Site = currentSiteConfiguration.Site,
             ServiceConfiguration = currentSiteConfiguration.ServiceConfiguration
                 .Select(x => x.Code == serviceTypeToDisable ? x with { Enabled = false } : x).ToList()
         };

@@ -78,9 +78,9 @@ export const AppointmentsCalendarCtx = () => {
     const { getBookings } = useBookingService();
     return <AppointmentsCalendar
                 siteConfig={siteConfig!}
-                getTemplates={() => getTemplates(siteConfig?.siteId!)}
-                getAssignments={() => getAssignments(siteConfig?.siteId!)}
-                getBookings={(from: Date, to: Date) => getBookings(siteConfig?.siteId!, from, to)}
+                getTemplates={() => getTemplates(siteConfig?.site!)}
+                getAssignments={() => getAssignments(siteConfig?.site!)}
+                getBookings={(from: Date, to: Date) => getBookings(siteConfig?.site!, from, to)}
             />
 }
 
@@ -119,7 +119,7 @@ export const AppointmentsCalendar = ({ siteConfig, getTemplates, getAssignments,
                 });
               })
           });
-    }, [siteConfig?.siteId]);
+    }, [siteConfig?.site]);
 
     const showBookings = (calendarEvent: Event, reactEvent: React.SyntheticEvent) => {
         const bookingsToShow = bookings?.filter(b => {

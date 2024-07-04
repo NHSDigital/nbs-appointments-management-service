@@ -4,8 +4,8 @@ namespace Nhs.Appointments.Core;
 
 public class SiteConfiguration
 {
-    [JsonProperty("siteId")]
-    public string SiteId { get; set; }
+    [JsonProperty("site")]
+    public string Site { get; set; }
     
     [JsonProperty("informationForCitizen")]
     public string InformationForCitizen { get; set; }

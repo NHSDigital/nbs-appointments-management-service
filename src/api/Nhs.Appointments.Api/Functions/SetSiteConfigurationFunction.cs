@@ -54,7 +54,7 @@ public class SetSiteConfiguration :  BaseApiFunction<SiteConfiguration, EmptyRes
             .Select(x => x.Code);
         if (disabledServiceTypes.Any())
         {
-            await _scheduleService.UpdateDisabledServiceTypes(request.SiteId, disabledServiceTypes);
+            await _scheduleService.UpdateDisabledServiceTypes(request.Site, disabledServiceTypes);
         }
         return Success();
     }

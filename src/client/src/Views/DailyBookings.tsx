@@ -35,7 +35,7 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus }: Dai
         setStatus("loading");
         const from = dayjs(currentDay).startOf("day");
         const to = from.endOf("day");
-        getBookings(siteConfig?.siteId, from.toDate(), to.toDate()).then(bookings => {
+        getBookings(siteConfig?.site, from.toDate(), to.toDate()).then(bookings => {
             setBookingsList(bookings);
             setStatus(null);
         }).catch(e => {
@@ -48,7 +48,7 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus }: Dai
         const booking = bookingsList?.find(b => b.reference === reference);
         const newStatus = booking?.outcome === "CheckedIn" ? "Waiting" : "CheckedIn";
         setStatus("loading");
-        setBookingStatus(siteConfig.siteId, reference, newStatus)
+        setBookingStatus(siteConfig.site, reference, newStatus)
             .then(() => {
                 const bookings = bookingsList!.map(b => {
                     if (b.reference === reference) {

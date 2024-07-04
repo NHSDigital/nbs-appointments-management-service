@@ -8,7 +8,7 @@ import { wrappedRender } from '../utils';
 import dayjs from 'dayjs';
 
 const site: Site = { name: "Test Site", id: "1", address: "123" };
-const siteConfig: SiteConfiguration = { siteId: site.id, informationForCitizen: "", serviceConfiguration: defaultServiceConfigurationTypes };
+const siteConfig: SiteConfiguration = { site: site.id, informationForCitizen: "", serviceConfiguration: defaultServiceConfigurationTypes };
 const testBooking: Booking = {
     reference: "123",
     from: new Date().toString(),

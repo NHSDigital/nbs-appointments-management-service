@@ -73,7 +73,7 @@ public abstract class BaseFeatureSteps : Feature
             Id = GetSiteId(siteDesignation),
             DocumentType = "site_configuration",
             SiteName = "TEST",
-            SiteId = GetSiteId(siteDesignation),
+            Site = GetSiteId(siteDesignation),
             ServiceConfiguration = dataTable.Rows.Skip(1).Select(row => {
                 var isEnabled = int.TryParse(row.Cells.ElementAt(1).Value, out int duration);
                 return new ServiceConfiguration(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(0).Value, duration, isEnabled);

@@ -51,7 +51,7 @@ describe("<SiteContextProvider>", () => {
         getSitesForUserMock.mockResolvedValue(sites);
 
         const siteConfig : SiteConfiguration = {
-            siteId: "1000",
+            site: "1000",
             informationForCitizen: "",
             serviceConfiguration: [] as ServiceConfiguration[]
         }

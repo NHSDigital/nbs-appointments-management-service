@@ -27,8 +27,13 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
     private Task<bool> IsAuthorized(FunctionContext context, string requiredPermission)
     {
         var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        var siteId = string.Empty;
+        if (context.Items.TryGetValue("siteId", out var siteIdValue))
+        {
+            siteId = siteIdValue.ToString();
+        }
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
-        return permissionChecker.HasPermissionAsync(userEmail, requiredPermission);
+        return permissionChecker.HasPermissionAsync(userEmail, requiredPermission, siteId);
     }
     
     protected virtual void HandleUnauthorizedAccess(FunctionContext context)

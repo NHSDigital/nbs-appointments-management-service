@@ -3,28 +3,38 @@ import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 import { Booking } from "../Types/Booking";
 import { useBookingService } from "../Services/BookingService";
 import { When } from "../Components/When";
+import { UserNotification } from "../Components/UserNotification";
 import { SiteConfiguration } from "../Types/SiteConfiguration";
 import dayjs from "dayjs";
+import { useAuthContext } from "../ContextProviders/AuthContextProvider";
+import { Permissions } from "../Types/Permissions";
 
 type DailyBookingsProps = {
     siteConfig: SiteConfiguration,
     getBookings: (siteId: string, from: Date, to: Date) => Promise<Booking[]>,
     setBookingStatus: (site: string, bookingRef: string, status: string) => Promise<unknown>
+    hasPermission: (permission: string) => boolean
 };
 
 export const DailyBookingsCtx = () => {
     const { siteConfig } = useSiteContext();
+    const { hasPermission } = useAuthContext();
     const { getBookings, setBookingStatus } = useBookingService();
 
-    return <DailyBookings siteConfig={siteConfig!} getBookings={getBookings} setBookingStatus={setBookingStatus} />
+    return <DailyBookings
+        siteConfig={siteConfig!}
+        getBookings={getBookings}
+        setBookingStatus={setBookingStatus}
+        hasPermission={hasPermission} />
 }
 
-export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus }: DailyBookingsProps) => {
+export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus, hasPermission }: DailyBookingsProps) => {
 
     const [bookingsList, setBookingsList] = React.useState<Booking[] | null>(null);
     const [currentDay, setCurrentDay] = React.useState(new Date());
     const [status, setStatus] = React.useState<null | "loading" | "errored">();
     const [filterTerm, setFilterTerm] = React.useState("");
+    const [showNotification, setShowNotification] = React.useState(true);
 
     const codeToDisplayNameMap = siteConfig?.serviceConfiguration.reduce((prv, cur) => {
         return { ...prv, [cur.code]: cur.displayName }
@@ -131,6 +141,11 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus }: Dai
                     </div>
                 </div>
             </When>
+            <When condition={!hasPermission(Permissions.SetBookingStatus) && showNotification}>
+                <UserNotification
+                    title="You don't have permission to check a patient in. Contact your site admin if you need access."
+                    handleClose={() => {setShowNotification(false)}} />
+            </When>
             <table className="nhsuk-table">
                 <caption className="nhsuk-table__caption">
                     {dayjs(currentDay).format("DD/MM/YYYY - dddd")}
@@ -213,7 +228,9 @@ export const DailyBookings = ({ siteConfig, getBookings, setBookingStatus }: Dai
                                         <input className="nhsuk-checkboxes__input" type="checkbox" id={booking.reference}
                                             value={booking.outcome ?? ""}
                                             onChange={() => { toggleCheckedIn(booking.reference) }}
-                                            checked={booking.outcome === "CheckedIn"} />
+                                            checked={booking.outcome === "CheckedIn"}
+                                            disabled={!hasPermission(Permissions.SetBookingStatus)}
+                                            />
                                         <label className="nhsuk-label nhsuk-checkboxes__label" htmlFor={booking.reference}>
                                         </label>
                                     </div>

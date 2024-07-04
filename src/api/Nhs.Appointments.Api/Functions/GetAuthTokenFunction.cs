@@ -10,6 +10,11 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Options;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 using Microsoft.AspNetCore.Authorization;
+using Nhs.Appointments.Core;
+using System.Security.Claims;
+using System.Linq;
+using System;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -17,11 +22,15 @@ public class GetAuthTokenFunction
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly AuthOptions _authOptions;
+    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
+    private readonly IRolesService _rolesService;
 
-    public GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions)
+    public GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions, IUserSiteAssignmentService userSiteAssignmentService, IRolesService rolesService)
     {
         _httpClientFactory = httpClientFactory;
         _authOptions = authOptions.Value;
+        _userSiteAssignmentService = userSiteAssignmentService;
+        _rolesService = rolesService;
     }
 
     [Function("GetAuthTokenFunction")]
@@ -44,7 +53,12 @@ public class GetAuthTokenFunction
         var httpClient = _httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($" {_authOptions.ProviderUri}/{_authOptions.TokenPath}", form);
         var rawResponse = await response.Content.ReadAsStringAsync();
-        var tokenReponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
-        return new OkObjectResult(tokenReponse.IdToken);
+        var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
+        var roles = await _rolesService.GetRoles();
+        var email = new JwtSecurityTokenHandler().ReadJwtToken(tokenResponse.IdToken).Claims.GetUserEmail();
+        var userAssignments = await _userSiteAssignmentService.GetUserAssignedSites(email);
+        var userRoles = userAssignments.SingleOrDefault(ua => ua.Site == "__global__")?.Roles ?? Array.Empty<string>();
+        var usersPermissions = roles.Where(r => userRoles.Contains(r.Id)).SelectMany(r => r.Permissions).Distinct();
+        return new OkObjectResult(new { token = tokenResponse.IdToken, permissions = usersPermissions });
     }
 }

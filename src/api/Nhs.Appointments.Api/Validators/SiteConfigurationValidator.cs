@@ -8,6 +8,6 @@ public class SiteConfigurationValidator :  AbstractValidator<SiteConfiguration>
     public SiteConfigurationValidator() 
     {
         RuleFor(x => x.Site)
-            .NotEmpty().WithMessage("Provide a site id");
+            .NotEmpty().WithMessage("Provide a site");
     } 
 }

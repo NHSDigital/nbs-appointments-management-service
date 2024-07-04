@@ -2,15 +2,13 @@
 
 public interface IUserSiteAssignmentService
 {    
-    Task<IEnumerable<string>> GetUserAssignedSites(string userId);
+    Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId);
 }
 
 public class UserSiteAssignmentService(IUserSiteAssignmentStore store) : IUserSiteAssignmentService
 {
-    private readonly IUserSiteAssignmentStore _store = store;    
-
-    public Task<IEnumerable<string>> GetUserAssignedSites(string userId) 
+    public Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId)
     {
-        return _store.GetUserAssignedSites(userId);        
+        return store.GetUserAssignedSites(userId);
     }
 }

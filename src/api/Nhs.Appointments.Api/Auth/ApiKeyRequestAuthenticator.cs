@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
-using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;

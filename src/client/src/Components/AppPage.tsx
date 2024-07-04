@@ -1,4 +1,5 @@
 import { useAuthContext } from "../ContextProviders/AuthContextProvider";
+import { Permissions } from "../Types/Permissions";
 import { NhsFooter } from "./NhsFooter";
 import { NhsHeader } from "./NhsHeader";
 import { SiteIndicator } from "./SiteIndicator";
@@ -9,9 +10,18 @@ type AppPageProps = {
     children: React.ReactNode;
   };
   
-  export const AppPage = ({ navLinks, children }: AppPageProps) => {
-    const { getUserEmail, signOut } = useAuthContext();
+  export const AppPage = ({ navLinks, children}: AppPageProps) => {
+    const { getUserEmail, signOut, hasPermission } = useAuthContext();
     const currentRoute = useLocation()
+
+    if(!hasPermission(Permissions.GetAvailability)){
+      navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")
+    }
+
+    if(!hasPermission(Permissions.GetSites)){
+      navLinks = navLinks.filter(link => link.route !== "/site");
+    }
+
     return(
     <>
         <NhsHeader navLinks={navLinks} userEmail={getUserEmail()} signOut={signOut}  />

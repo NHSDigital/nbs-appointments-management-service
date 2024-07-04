@@ -43,8 +43,11 @@ namespace Nhs.Appointments.Api.Tests.Functions
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
-            var sites = new[] { "1", "2" };
-
+            var sites = new List<UserAssignment>()
+            {
+                new() { Email = "test@test.com", Site = "1", Roles = ["Role1", "Role2"] },
+                new() { Email = "test@test.com", Site = "2", Roles = ["Role1", "Role2"] }
+            };
             _userSiteAssignmentService.Setup(x => x.GetUserAssignedSites("test@test.com")).ReturnsAsync(sites);
 
             var siteDetails = new[]
@@ -55,6 +58,34 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("2")).ReturnsAsync(siteDetails[1]);
+
+            var sut = new GetSitesForUserFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+            var result = await sut.RunAsync(request) as ContentResult;
+
+            var actualResponse = await ReadResponseAsync<Site[]>(result.Content);
+            actualResponse.Should().BeEquivalentTo(siteDetails);
+        }
+        
+        [Fact]
+        public async Task RunAsync_IgnoresGlobalSiteAssignments_ForSignedInUser()
+        {
+            var testPrincipal = CreateUserPrincipal("test@test.com");
+            _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+            var sites = new List<UserAssignment>()
+            {
+                new() { Email = "test@test.com", Site = "__global__", Roles = ["Role1", "Role2"] },
+                new() { Email = "test@test.com", Site = "1", Roles = null }
+            };
+            _userSiteAssignmentService.Setup(x => x.GetUserAssignedSites("test@test.com")).ReturnsAsync(sites);
+
+            var siteDetails = new[]
+            {
+                new Site("1", "Alpha", "somewhere"),
+            };
+
+            _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
 
             var sut = new GetSitesForUserFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
             var result = await sut.RunAsync(request) as ContentResult;

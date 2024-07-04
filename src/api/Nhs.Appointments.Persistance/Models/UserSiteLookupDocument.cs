@@ -15,5 +15,8 @@ public class UserSiteAssignment
     public string Email { get; set; }
 
     [JsonProperty("site")]
-    public string Site { get; set; }    
+    public string Site { get; set; }
+    
+    [JsonProperty("roles")]
+    public string[] Roles { get; set; }
 }

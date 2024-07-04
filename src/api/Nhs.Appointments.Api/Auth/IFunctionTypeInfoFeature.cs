@@ -7,5 +7,6 @@ public interface IFunctionTypeInfoFeature
     MethodInfo EntryPointInfo { get; }
 
     public bool RequiresAuthentication { get; }
+    public string RequiredPermission { get; }
 }
 

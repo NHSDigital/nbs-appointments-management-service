@@ -82,6 +82,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
             .AddTransient<IUserSiteAssignmentStore, UserSiteAssignmentStore>()
+            .AddTransient<IRolesStore, RolesStore>()
+            .AddTransient<IRolesService, RolesService>()
             .AddCosmosDataStores()
             .Configure<SiteSearchService.Options>(opts => opts.ServiceName = "APIM")
             .Configure<PostcodeLookupService.Options>(opts => opts.ServiceName = "APIM")
@@ -95,6 +97,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserSiteAssignmentService, UserSiteAssignmentService>()
+            .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddSingleton<TimeProvider>(TimeProvider.System)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 

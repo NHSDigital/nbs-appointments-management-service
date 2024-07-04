@@ -8,6 +8,7 @@ var host = new HostBuilder()
         builder
             .UseMiddleware<TypeDecoratorMiddleware>()
             .UseMiddleware<AuthenticationMiddleware>()
+            .UseMiddleware<AuthorizationMiddleware>()
             .ConfigureFunctionDependencies();
     })
     .Build();

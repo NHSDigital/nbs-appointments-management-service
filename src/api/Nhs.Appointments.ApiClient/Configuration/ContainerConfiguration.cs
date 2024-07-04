@@ -7,6 +7,7 @@ namespace Nhs.Appointments.ApiClient.Configuration
 {
     public static class ContainerConfiguration
     {
+        internal const string HttpClientKey = "nhs-appointments-http-client";
         public static IServiceCollection AddNhsAppointmentsApiClient(this IServiceCollection services, Uri endpoint, string signingKey)
         {
             services.AddTransient<INhsAppointmentsApi, NhsAppointmentsApi>();
@@ -15,7 +16,7 @@ namespace Nhs.Appointments.ApiClient.Configuration
             services.AddTransient<ITemplatesApiClient, TemplatesApiClient>();
             services.AddTransient<IRequestSigner>(_ => new RequestSigner(TimeProvider.System, signingKey));
  
-            services.AddKeyedTransient<Func<HttpClient>>("nhs-appointments-http-client", (_, key) => 
+            services.AddKeyedTransient<Func<HttpClient>>(HttpClientKey, (_, key) => 
             {
                 return () =>
                 {

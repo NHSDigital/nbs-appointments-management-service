@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.ApiClient.Configuration;
 using Nhs.Appointments.ApiClient.Models;
 using System.Net;
 using System.Net.Http.Json;
 
 namespace Nhs.Appointments.ApiClient.Impl
 {
-    public abstract class ApiClientBase([FromKeyedServices("nhs-appointments-http-client")]Func<HttpClient> httpClientFactory, ILogger logger)
+    public abstract class ApiClientBase(Func<HttpClient> httpClientFactory, ILogger logger)
     {
         protected async Task<TResponse> Get<TResponse>(string path)
         {

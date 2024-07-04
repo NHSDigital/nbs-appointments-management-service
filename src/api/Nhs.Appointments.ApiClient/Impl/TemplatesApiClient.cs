@@ -1,11 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.ApiClient.Configuration;
 using Nhs.Appointments.ApiClient.Models;
 
 namespace Nhs.Appointments.ApiClient.Impl
 {
     public class TemplatesApiClient : ApiClientBase, ITemplatesApiClient
     {
-        public TemplatesApiClient(Func<HttpClient> httpClientFactory, ILogger<TemplatesApiClient> logger) : base(httpClientFactory, logger)
+        public TemplatesApiClient([FromKeyedServices(ContainerConfiguration.HttpClientKey)] Func<HttpClient> httpClientFactory, ILogger<TemplatesApiClient> logger) : base(httpClientFactory, logger)
         {
         }
 

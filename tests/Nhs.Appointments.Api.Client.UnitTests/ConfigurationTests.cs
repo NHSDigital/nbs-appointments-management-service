@@ -10,6 +10,7 @@ namespace Nhs.Appointments.Api.Client.UnitTests
         public void CanConfigureClientForDI()
         {
             var services = new ServiceCollection();
+            services.AddLogging();
             services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_signing_key");
             var container = services.BuildServiceProvider();
             var client = container.GetRequiredService<INhsAppointmentsApi>();
@@ -26,6 +27,7 @@ namespace Nhs.Appointments.Api.Client.UnitTests
         public void LocalDIConfigurationIsUnaffected()
         {
             var services = new ServiceCollection();
+            services.AddLogging();
             services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_signing_key");
             services.AddTransient(_ => new HttpClient { BaseAddress = new Uri("http://tempuri.org/") });
             var container = services.BuildServiceProvider();

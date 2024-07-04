@@ -162,7 +162,7 @@ stages:
             condition: succeededOrFailed()
 
   - stage: DeployDev
-    condition: and(succeeded(), eq(variables.isMain, true))
+    condition: succeeded()
     displayName: Deploy Dev
     jobs:
 

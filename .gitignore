@@ -234,3 +234,4 @@ FakesAssemblies/
 # Certificate files
 *.crt
 /src/api/AppointmentsDataLoader
+/src/api/Nhs.Appointments.Api/jon.settings.json

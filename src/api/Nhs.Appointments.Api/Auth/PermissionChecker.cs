@@ -16,8 +16,16 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
     public async Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId)
     {
-        var roles = await rolesService.GetRoles();
-        var userRoleAssignments = await userService.GetUserRoleAssignments(userId);
+        var rolesOp = await TryPattern.TryAsync(() => rolesService.GetRoles());
+        if (rolesOp.Completed == false)
+            return Enumerable.Empty<string>();
+        var roles = rolesOp.Result;
+
+        var userRoleAssignmentsOp = await TryPattern.TryAsync(() => userService.GetUserRoleAssignments(userId));
+        if (userRoleAssignmentsOp.Completed == false)
+            return Enumerable.Empty<string>();
+        var userRoleAssignments = userRoleAssignmentsOp.Result;
+
         Func<RoleAssignment, bool> filter = string.IsNullOrEmpty(siteId) ? ra => ra.Scope == "global" : ra => ra.Scope == "global" || ra.Scope == $"site:{siteId}";
         var userRoles = userRoleAssignments.Where(filter).Select(ra => ra.Role);
         return roles.Where(r => userRoles.Contains(r.Id)).SelectMany(r => r.Permissions).Distinct();

@@ -28,12 +28,12 @@ public class AuthorizationMiddlewareTests
     {
         var userPrincipal = CreateAuthenticatedPrincipal();
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
-        var siteIdValue = new Dictionary<object, object> { {"siteId", "1"} };
+        var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} };
         ConfigureMocks(httpRequest);
         
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-        _functionContext.Setup(x => x.Items).Returns(siteIdValue);
+        _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
         _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(false);
@@ -48,13 +48,12 @@ public class AuthorizationMiddlewareTests
     {
         var userPrincipal = CreateAuthenticatedPrincipal();
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
-        var siteIdValue = new Dictionary<object, object> { {"siteId", "1"} };
-        ConfigureMocks(httpRequest);
+        var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} }; 
         ConfigureMocks(httpRequest);
         
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-        _functionContext.Setup(x => x.Items).Returns(siteIdValue);
+        _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
         _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(true);

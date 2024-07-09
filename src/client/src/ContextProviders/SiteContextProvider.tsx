@@ -6,7 +6,7 @@ import { useAuthContext } from "./AuthContextProvider";
 import { Site } from "../Types/Site";
 import { SiteSetup } from "../Components/SiteSetup";
 import { SelectSite } from "../Components/SelectSite";
-import {useUserService} from "../Services/UserService";
+import { useUserService } from "../Services/UserService";
 
 export interface ISiteContext {
     site: Site | null

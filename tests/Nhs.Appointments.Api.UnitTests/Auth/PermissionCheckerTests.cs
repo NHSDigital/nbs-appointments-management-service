@@ -18,11 +18,12 @@ public class PermissionCheckerTests
         _sut = new PermissionChecker(_userAssignmentService.Object, _roleService.Object);
     }
 
-    [Fact]
-    public async Task HasPermissionAsync_ReturnsFalse_WhenUserDoesNotHaveRequiredPermission()
+    [Theory]
+    [InlineData("Permission3", false)]
+    [InlineData("Permission1", true)]
+    public async Task HasPermissionAsync_ReturnsCorrectResult_BasedOnRequiredPermission(string requiredPermission, bool expectedResult)
     {
         const string userId = "test@test.com";
-        const string requiredPermission = "Permission3";
         var roles = new List<Role>
         {
             new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
@@ -34,30 +35,10 @@ public class PermissionCheckerTests
 
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, requiredPermission, "1");
-        result.Should().BeFalse();
+        var result = await _sut.HasPermissionAsync(userId, "1", requiredPermission);
+        result.Should().Be(expectedResult);
     }
-
-    [Fact]
-    public async Task HasPermissionAsync_ReturnsTrue_WhenUserHasRequiredPermission()
-    {
-        const string userId = "test@test.com";
-        const string requiredPermission = "Permission1";
-        var roles = new List<Role>
-        {
-            new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
-        };
-        var userAssignments = new List<RoleAssignment>
-        {
-            new() { Role = "Role1", Scope = "global" }
-        };
-        
-        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
-        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, "1",  requiredPermission);
-        result.Should().BeTrue();
-    }
-
+    
     [Fact]
     public async Task GetPermissionAsync_ReturnsNoPermissions_WhenUserHasNoRoles()
     {

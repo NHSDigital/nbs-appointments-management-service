@@ -26,7 +26,7 @@ public class AuthorizationMiddlewareTests
     [Fact]
     public async Task Invoke_DoesNotProcessRequest_WhenUserNotAuthorized()
     {
-        var userPrincipal = CreateAuthenticatedPrincipal();
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} };
         ConfigureMocks(httpRequest);
@@ -46,7 +46,7 @@ public class AuthorizationMiddlewareTests
     [Fact]
     public async Task Invoke_ProcessesRequest_WhenUserIsAuthorized()
     {
-        var userPrincipal = CreateAuthenticatedPrincipal();
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} }; 
         ConfigureMocks(httpRequest);
@@ -63,12 +63,32 @@ public class AuthorizationMiddlewareTests
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
     
+    [Fact]
+    public async Task Invoke_ProcessesRequest_WhenNoSiteIdInFunctionContext()
+    {
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
+        var httpRequest = new TestHttpRequestData(_functionContext.Object);
+        var itemsDictionary = new Dictionary<object, object>(); 
+        ConfigureMocks(httpRequest);
+        
+        _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
+        _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
+        _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
+        _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
+        _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "", "permission1")).ReturnsAsync(true);
+        
+        await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
+        _sut.IsAuthorized.Should().BeTrue();
+        _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
+    }
+    
     [Theory]
     [InlineData("")]
     [InlineData((string)null)]
     public async Task Invoke_ReturnsAuthorized_WhenRequiredPermissionIsNullOrEmpty(string requiredPermission)
     {
-        var userPrincipal = CreateAuthenticatedPrincipal();
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         ConfigureMocks(httpRequest);
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns(requiredPermission);
@@ -96,13 +116,6 @@ public class AuthorizationMiddlewareTests
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-    }
-    
-    private static ClaimsPrincipal CreateAuthenticatedPrincipal()
-    {
-        var claimsIdentity = new ClaimsIdentity("TestUser");
-        claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, "test@test.com"));
-        return new ClaimsPrincipal(claimsIdentity);
     }
 
     private class TestableAuthorizationMiddleware(IPermissionChecker permissionChecker) : AuthorizationMiddleware(permissionChecker)

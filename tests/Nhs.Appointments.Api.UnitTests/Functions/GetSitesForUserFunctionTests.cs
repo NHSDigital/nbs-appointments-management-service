@@ -9,7 +9,6 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Security.Claims;
 using System.Security.Principal;
 
 namespace Nhs.Appointments.Api.Tests.Functions
@@ -25,7 +24,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         [Fact]
         public async Task RunsAsync_GetsAssignments_ForSignedInUser()
         {            
-            var testPrincipal = CreateUserPrincipal("test@test.com");
+            var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -39,7 +38,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         [Fact]
         public async Task RunsAsync_GetsCorrectSites_ForSignedInUser()
         {
-            var testPrincipal = CreateUserPrincipal("test@test.com");
+            var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -71,7 +70,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         [Fact]
         public async Task RunAsync_IgnoresScopesNotPrefixedWithSite_ForSignedInUser()
         {
-            var testPrincipal = CreateUserPrincipal("test@test.com");
+            var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
@@ -95,17 +94,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var actualResponse = await ReadResponseAsync<Site[]>(result.Content);
             actualResponse.Should().BeEquivalentTo(siteDetails);
         }
-
-        private ClaimsPrincipal CreateUserPrincipal(string emailAddress)
-        {
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Email, emailAddress),                
-            };
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            return new ClaimsPrincipal(identity);
-        }
-
+        
         private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
         {
             var body = await new StringReader(response).ReadToEndAsync();

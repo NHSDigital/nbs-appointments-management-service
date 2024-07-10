@@ -16,18 +16,9 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetTemplateAssignmentsFunction : SiteBasedResourceFunction<GetTemplateAssignmentsResponse>
+public class GetTemplateAssignmentsFunction(ITemplateService templateService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetTemplateAssignmentsFunction> logger)
+    : SiteBasedResourceFunction<GetTemplateAssignmentsResponse>(validator, userContextProvider, logger)
 {
-    private readonly ITemplateService _templateService;
-    public GetTemplateAssignmentsFunction(
-        ITemplateService templateService,
-        IUserSiteAssignmentService userSiteAssignmentService,
-        IValidator<SiteBasedResourceRequest> validator, 
-        IUserContextProvider userContextProvider,
-        ILogger<GetTemplateAssignmentsFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
-    {
-        _templateService = templateService;
-    }
 
     [OpenApiOperation(operationId: "GetTemplateAssignments", tags: new[] { "Site Configuration" }, Summary = "Get data about the week template assignments")]
     [OpenApiParameter("site", Required = true, In = ParameterLocation.Query, Description = "The site for which to retrieve week template assignments")]
@@ -45,7 +36,7 @@ public class GetTemplateAssignmentsFunction : SiteBasedResourceFunction<GetTempl
 
     protected override async Task<ApiResult<GetTemplateAssignmentsResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var assignments = await _templateService.GetAssignmentsAsync(request.Site);
+        var assignments = await templateService.GetAssignmentsAsync(request.Site);
         var mappedAssignments = assignments.Select(a => new Models.TemplateAssignment(
             a.From.ToString("yyyy-MM-dd"),
             a.Until.ToString("yyyy-MM-dd"),

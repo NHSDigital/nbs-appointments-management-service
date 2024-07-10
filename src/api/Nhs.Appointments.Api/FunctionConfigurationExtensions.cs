@@ -81,7 +81,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteConfigurationStore, SiteConfigurationCosmosDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
-            .AddTransient<IUserSiteAssignmentStore, UserSiteAssignmentStore>()
+            .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddCosmosDataStores()
@@ -96,7 +96,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
-            .AddTransient<IUserSiteAssignmentService, UserSiteAssignmentService>()
+            .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddSingleton<TimeProvider>(TimeProvider.System)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));

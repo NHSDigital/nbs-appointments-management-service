@@ -4,6 +4,7 @@ import { NhsFooter } from "./NhsFooter";
 import { NhsHeader } from "./NhsHeader";
 import { SiteIndicator } from "./SiteIndicator";
 import { useLocation } from 'react-router-dom'
+import {useSiteContext} from "../ContextProviders/SiteContextProvider";
 
 type AppPageProps = {
     navLinks: {name:string, route:string}[]
@@ -11,8 +12,9 @@ type AppPageProps = {
   };
   
   export const AppPage = ({ navLinks, children}: AppPageProps) => {
-    const { getUserEmail, signOut, hasPermission } = useAuthContext();
-    const currentRoute = useLocation()
+    const { getUserEmail, signOut } = useAuthContext();
+    const { hasPermission } = useSiteContext();
+    const currentRoute = useLocation();
 
     if(!hasPermission(Permissions.GetAvailability)){
       navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")

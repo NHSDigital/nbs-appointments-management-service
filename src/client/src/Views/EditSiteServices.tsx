@@ -44,7 +44,7 @@ export const EditSiteServices = ({ siteConfiguration, setSiteConfiguration }: Ed
                   return sc;
             })
             const newSiteConfiguration: SiteConfiguration = {
-                  siteId: siteConfiguration?.siteId!,
+                  site: siteConfiguration?.site!,
                   informationForCitizen: infoForCitizen,
                   serviceConfiguration: newServiceConfigs
             };

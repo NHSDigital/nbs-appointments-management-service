@@ -6,7 +6,7 @@ export type SiteInformation = {
 }
 
 export type SiteConfiguration = {
-      siteId: string,
+      site: string,
       informationForCitizen: string,
       serviceConfiguration: ServiceConfiguration[]
 }

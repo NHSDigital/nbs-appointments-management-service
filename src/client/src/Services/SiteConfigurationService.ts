@@ -1,6 +1,6 @@
-import { Site } from "../Types/Site";
-import { SiteConfiguration, SiteInformation } from "../Types/SiteConfiguration";
-import { useAuthenticatedClient } from "./ApiClient";
+import {Site} from "../Types/Site";
+import {SiteConfiguration} from "../Types/SiteConfiguration";
+import {useAuthenticatedClient} from "./ApiClient";
 
 export const useSiteConfigurationService = () => {
 
@@ -31,3 +31,4 @@ export const useSiteConfigurationService = () => {
 
         return {getSiteConfiguration, getSitesForUser, setSiteConfiguration}
 }
+

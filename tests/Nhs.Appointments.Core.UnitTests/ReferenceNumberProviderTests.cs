@@ -17,7 +17,7 @@ public class ReferenceNumberProviderTests
     {
         var siteConfiguration = new SiteConfiguration
         {
-            SiteId = "test"
+            Site = "test"
         };
 
         _siteConfigurationStore.Setup(x => x.GetAsync("test")).ReturnsAsync(siteConfiguration);
@@ -34,7 +34,7 @@ public class ReferenceNumberProviderTests
     {
         var siteConfiguration = new SiteConfiguration
         {
-            SiteId = "test",
+            Site = "test",
             ReferenceNumberGroup = 14
         };
 
@@ -54,7 +54,7 @@ public class ReferenceNumberProviderTests
 
         var siteConfiguration = new SiteConfiguration
         {
-            SiteId = "test",
+            Site = "test",
             ReferenceNumberGroup = 14
         };
 

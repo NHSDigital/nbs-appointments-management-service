@@ -15,19 +15,9 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteMetaDataFunction : SiteBasedResourceFunction<GetSiteMetaDataResponse>
+public class GetSiteMetaDataFunction(ISiteConfigurationService siteConfigurationService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteMetaDataFunction> logger)
+    : SiteBasedResourceFunction<GetSiteMetaDataResponse>(validator, userContextProvider, logger)
 {
-    private readonly ISiteConfigurationService _siteConfigurationService;
-
-    public GetSiteMetaDataFunction(
-        IUserSiteAssignmentService userSiteAssignmentService,
-        ISiteConfigurationService siteConfigurationService,
-        IValidator<SiteBasedResourceRequest> validator,
-        IUserContextProvider userContextProvider,
-        ILogger<GetSiteMetaDataFunction> logger) : base(userSiteAssignmentService, validator, userContextProvider, logger)
-    {
-        _siteConfigurationService = siteConfigurationService;
-    }
 
     [OpenApiOperation(operationId: "GetSiteMetaData", tags: new[] { "Site Configuration" }, Summary = "Get meta data about the site specific to appointments")]
     [OpenApiRequestBody("text/json", typeof(SiteConfiguration))]
@@ -46,7 +36,7 @@ public class GetSiteMetaDataFunction : SiteBasedResourceFunction<GetSiteMetaData
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var siteConfiguration = await _siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
+        var siteConfiguration = await siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
         if (siteConfiguration != null)
         {
             return Success(new GetSiteMetaDataResponse(request.Site, siteConfiguration.InformationForCitizen));

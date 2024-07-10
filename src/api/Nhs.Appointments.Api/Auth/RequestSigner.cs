@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
-using Polly;
 using System;
 using System.Collections.Specialized;
 using System.Linq;
@@ -24,7 +23,6 @@ namespace Nhs.Appointments.Api.Auth
             using var hash = SHA256.Create();
             var hashedContentBytes = hash.ComputeHash(contentBytes);
             var hashedContentBase64 = Convert.ToBase64String(hashedContentBytes);
-
             
             var hmacSha256 = new HMACSHA256 { Key = Convert.FromBase64String(key) };
             var payload = $"{method}\n{path}\n{requestTimestamp}\n{hashedContentBase64}";

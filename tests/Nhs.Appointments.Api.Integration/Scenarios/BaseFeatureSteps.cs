@@ -12,6 +12,7 @@ using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using Role = Nhs.Appointments.Persistance.Models.Role;
+using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
@@ -73,7 +74,7 @@ public abstract class BaseFeatureSteps : Feature
             Id = GetSiteId(siteDesignation),
             DocumentType = "site_configuration",
             SiteName = "TEST",
-            SiteId = GetSiteId(siteDesignation),
+            Site = GetSiteId(siteDesignation),
             ServiceConfiguration = dataTable.Rows.Skip(1).Select(row => {
                 var isEnabled = int.TryParse(row.Cells.ElementAt(1).Value, out int duration);
                 return new ServiceConfiguration(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(0).Value, duration, isEnabled);
@@ -241,14 +242,14 @@ public abstract class BaseFeatureSteps : Feature
     
     private void SetUpUserAssignments()
     {
-        var userAssignments = new UserSiteAssignmentDocument()
+        var userAssignments = new UserDocument()
         {
             
-            Id = "assignments",
-            DocumentType = "user_site_assignments",
-            Assignments = [
-                new UserSiteAssignment
-                    { Email = "ApiUser", Site = "__global__", Roles = ["integration-test:api-user"] }
+            Id = "ApiUser",
+            DocumentType = "user",
+            RoleAssignments = [
+                new RoleAssignment
+                    { Role = "integration-test:api-user", Scope = "global" }
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);

@@ -94,7 +94,7 @@ warning unless you import the certificate from the cosmos container, this can sa
 ### Adding roles and permissions
 
 Add a document with the following structure in to the index_data container. This sets up the permissions that each role
-contains so that the UI can react to a user's assigned permissions.This will have to be done once the function has started
+contains so that the UI can react to a user's assigned permissions. This will have to be done once the function has started
 (so that the containers have been created) but before you can login. If you restart your cosmos database you will need to
 insert the document again.
 
@@ -154,36 +154,41 @@ insert the document again.
 
 ### Adding in User Site Assignments
 
-Add another document with the following structure in to the index_data container. This will have to be done once the function
-has started (so that the containers have been created) but before you can login. If you restart your cosmos database you
-will need to insert the document again.
+Add another document to represent a user with the following structure in to the index_data container. Each user is represented by a single document which contains the id of the user and all the roles that are assigned to the user at each site. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites. 
+
+This will have to be done once the function has started (so that the containers have been created) but before you can login. If you restart your cosmos database you will need to insert the document again.
 
 ```json
 {
-    "id": "assignments",
-    "docType": "user_site_assignments",
-    "assignments": [
-        {
-            "email": "cc.agent@nhs.uk",
-            "site": "__global__",
-            "roles": [
-                "canned:check-in",
-                "canned:appointment-manager",
-                "canned:availability-manager",
-                "canned:site-configuration-manager"
-            ]
-        },
-        {
-            "email": "ApiUser",
-            "site": "__global__",
-            "roles": [
-                "canned:api-user"
-            ]
-        },
-        {
-            "email": "cc.agent@nhs.uk",
-            "site": "1000"
-        }
-    ]
+  "id": "cc.agent@nhs.uk",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:site-configuration-manager",
+      "scope": "site:1000"
+    },
+    {
+      "role": "canned:check-in",
+      "scope": "site:1001"
+    },
+    {
+      "role": "canned:availability-manager",
+      "scope": "site:1001"
+    }
+  ]
+}
+```
+
+Example of ApiUser with global scoped role:
+```json
+{
+  "id": "ApiUser",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:api-user",
+      "scope": "global"
+    }
+  ]
 }
 ```

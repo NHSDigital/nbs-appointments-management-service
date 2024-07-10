@@ -20,11 +20,6 @@ public interface ISiteConfigurationStore
     Task AssignPrefix(string site, int prefix);
 }
 
-public interface IUserSiteAssignmentStore
-{
-    Task<IEnumerable<UserAssignment>> GetUserAssignedSites(string userId);
-}
-
 public interface IRolesStore
 {
     Task<IEnumerable<Role>> GetRoles();

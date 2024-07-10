@@ -4,8 +4,8 @@ namespace Nhs.Appointments.ApiClient.Models
 {
     public class SiteConfiguration
     {
-        [JsonPropertyName("siteId")]
-        public string SiteId { get; set; }
+        [JsonPropertyName("site")]
+        public string Site { get; set; }
 
         [JsonPropertyName("informationForCitizen")]
         public string InformationForCitizen { get; set; }

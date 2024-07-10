@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -16,7 +15,7 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.NhsNumber, opt => opt.MapFrom(src => src.AttendeeDetails.NhsNumber));
 
         CreateMap<SiteConfiguration, SiteConfigurationDocument>()
-            .ForMember(x => x.Id, opt => opt.MapFrom(src => src.SiteId));
+            .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Site));
 
         CreateMap<WeekTemplate, WeekTemplateDocument>()
             .ForMember(x => x.TemplateItems, opt => opt.MapFrom(src => src.Items));
@@ -26,7 +25,7 @@ public class CosmosAutoMapperProfile : Profile
         
         CreateMap<BookingDocument, Booking>();
         CreateMap<SiteConfigurationDocument, SiteConfiguration>();
-        CreateMap<UserSiteAssignment, UserAssignment>();
+        CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();
     }
 }

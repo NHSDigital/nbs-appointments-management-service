@@ -18,20 +18,9 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAuthTokenFunction
+public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions)
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly AuthOptions _authOptions;
-    private readonly IUserSiteAssignmentService _userSiteAssignmentService;
-    private readonly IRolesService _rolesService;
-
-    public GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions, IUserSiteAssignmentService userSiteAssignmentService, IRolesService rolesService)
-    {
-        _httpClientFactory = httpClientFactory;
-        _authOptions = authOptions.Value;
-        _userSiteAssignmentService = userSiteAssignmentService;
-        _rolesService = rolesService;
-    }
+    private readonly AuthOptions _authOptions = authOptions.Value;
 
     [Function("GetAuthTokenFunction")]
     [AllowAnonymous]
@@ -50,15 +39,12 @@ public class GetAuthTokenFunction
         };
 
         var form = new FormUrlEncodedContent(formValues);
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($" {_authOptions.ProviderUri}/{_authOptions.TokenPath}", form);
         var rawResponse = await response.Content.ReadAsStringAsync();
         var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
-        var roles = await _rolesService.GetRoles();
-        var email = new JwtSecurityTokenHandler().ReadJwtToken(tokenResponse.IdToken).Claims.GetUserEmail();
-        var userAssignments = await _userSiteAssignmentService.GetUserAssignedSites(email);
-        var userRoles = userAssignments.SingleOrDefault(ua => ua.Site == "__global__")?.Roles ?? Array.Empty<string>();
-        var usersPermissions = roles.Where(r => userRoles.Contains(r.Id)).SelectMany(r => r.Permissions).Distinct();
-        return new OkObjectResult(new { token = tokenResponse.IdToken, permissions = usersPermissions });
+        return new OkObjectResult(new { token = tokenResponse.IdToken });
     }
 }
+
+

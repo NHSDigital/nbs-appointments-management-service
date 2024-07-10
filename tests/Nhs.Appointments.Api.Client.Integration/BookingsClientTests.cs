@@ -58,7 +58,7 @@ namespace Nhs.Appointments.Api.Client.Integration
             {
                 InformationForCitizen = "Some information",
                 ReferenceNumberGroup = 14,
-                SiteId = KnownSiteId,
+                Site = KnownSiteId,
                 ServiceConfiguration = [new ServiceConfiguration("COVID:12_15", "Covid Vaccination", 10, true)]
             });
 

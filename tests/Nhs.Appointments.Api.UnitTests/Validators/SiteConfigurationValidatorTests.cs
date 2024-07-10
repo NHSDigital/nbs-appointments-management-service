@@ -22,7 +22,7 @@ public class SiteConfigurationValidatorTests
     {
         var request = new SiteConfiguration
         {
-            SiteId = "26"
+            Site = "26"
         };
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();

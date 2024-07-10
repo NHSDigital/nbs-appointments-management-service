@@ -39,7 +39,7 @@ public class SiteConfigurationCosmosDocumentStore : ISiteConfigurationStore
 
     public async Task ReplaceOrCreate(SiteConfiguration siteConfiguration)
     {        
-        var originalDocument = await GetOrDefault(siteConfiguration.SiteId);
+        var originalDocument = await GetOrDefault(siteConfiguration.Site);
         var siteReferenceGroup = originalDocument?.ReferenceNumberGroup ?? 0;
         siteConfiguration.ReferenceNumberGroup = siteReferenceGroup;
         await InsertAsync(siteConfiguration);

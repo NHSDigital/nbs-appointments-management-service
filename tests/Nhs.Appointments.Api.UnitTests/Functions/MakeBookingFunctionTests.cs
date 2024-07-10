@@ -179,7 +179,7 @@ public class MakeBookingFunctionTests
     {
         return new SiteConfiguration
         {
-            SiteId = siteId,
+            Site = siteId,
             ServiceConfiguration = new List<ServiceConfiguration> { new (serviceCode, serviceName, 5, true) }
         };
     }

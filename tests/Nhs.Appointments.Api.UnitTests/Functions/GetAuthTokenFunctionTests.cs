@@ -12,8 +12,6 @@ public class GetAuthTokenFunctionTests
     private readonly GetAuthTokenFunction _sut;
     private readonly Mock<IHttpClientFactory> _httpClientFactory = new();
     private readonly Mock<IOptions<AuthOptions>> _options = new();
-    private readonly Mock<IUserSiteAssignmentService> _userSiteAssignmentService = new();
-    private readonly Mock<IRolesService> _rolesService = new();
     public GetAuthTokenFunctionTests()
     {
         _options.Setup(x => x.Value).Returns(new AuthOptions
@@ -28,7 +26,7 @@ public class GetAuthTokenFunctionTests
             TokenPath = "token"
         });
 
-        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object, _userSiteAssignmentService.Object, _rolesService.Object);
+        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object);
     }
 
     public void Test()

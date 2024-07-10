@@ -6,8 +6,8 @@ namespace Nhs.Appointments.Persistance.Models;
 [CosmosDocumentType("site_configuration")]
 public class SiteConfigurationDocument : IndexDataCosmosDocument
 {        
-    [JsonProperty("siteId")]
-    public string SiteId{ get; set; }
+    [JsonProperty("site")]
+    public string Site{ get; set; }
 
     [JsonProperty("siteName")]
     public string SiteName { get; set; }

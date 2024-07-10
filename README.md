@@ -97,15 +97,40 @@ Add a document with the following structure in to the index_data container. This
 has started (so that the containers have been created) but before you can login. If you restart your cosmos database you
 will need to insert the document again.
 
+Each user has it's own document. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites.
+
+Example of individual user with site scoped roles:
 ```json
 {
-    "id": "assignments",
-    "docType": "user_site_assignments",
-    "assignments": [
-        {
-            "email": "cc.agent@nhs.uk",
-            "site": "1000"
-        }
-    ]
+  "id": "cc.agent@nhs.uk",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:site-configuration-manager",
+      "scope": "site:1000"
+    },
+    {
+      "role": "canned:check-in",
+      "scope": "site:1001"
+    },
+    {
+      "role": "canned:availability-manager",
+      "scope": "site:1001"
+    }
+  ]
+}
+```
+
+Example of ApiUser with global scoped role:
+```json
+{
+  "id": "ApiUser",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:api-user",
+      "scope": "global"
+    }
+  ]
 }
 ```

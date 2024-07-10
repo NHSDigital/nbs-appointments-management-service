@@ -3,7 +3,7 @@ export interface AppConfiguration {
   }
   
   const defaultConfiguration: AppConfiguration = {
-    apiUrl: process.env.REACT_APP_API_URL || "http://localhost:7071/api"    
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:7071/api"
   };
   
   export const getConfig = (): AppConfiguration => {

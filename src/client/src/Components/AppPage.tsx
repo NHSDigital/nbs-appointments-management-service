@@ -20,7 +20,7 @@ type AppPageProps = {
       navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")
     }
 
-    if(!hasPermission(Permissions.GetSites)){
+    if(!hasPermission(Permissions.SetSites)){
       navLinks = navLinks.filter(link => link.route !== "/site");
     }
 

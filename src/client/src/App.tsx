@@ -34,7 +34,7 @@ function App() {
                     </GuardedRoute>
                   } />
                   <Route path="/site" element={
-                    <GuardedRoute permission={Permissions.GetSites}>
+                    <GuardedRoute permission={Permissions.SetSites}>
                       <EditSiteServicesCtx />
                     </GuardedRoute>} />
                   <Route path="/bookings" element={<DailyBookingsCtx />} />

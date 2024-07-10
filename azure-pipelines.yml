@@ -268,7 +268,7 @@ stages:
                 cd drop_web
                 write-host "Building web with endpoint: $(funcAppUrl)"
                 npm install
-                ($env:REACT_APP_API_URL = "https://$(funcAppUrl)/api") -and (npm run build)
+                ($env:NEXT_PUBLIC_API_URL = "https://$(funcAppUrl)/api") -and (npm run build)
           - task: AzureCLI@2
             name: UploadWeb
             displayName: 'Deploy Web'
@@ -279,7 +279,7 @@ stages:
               azureSubscription: $(azure_devops_subscription_name)
               workingDirectory: '$(Pipeline.Workspace)\drop_web'
               inlineScript: |
-                az storage blob upload-batch -d "`$web" --account-name $(webStorageName) -s build --overwrite
+                az storage blob upload-batch -d "`$web" --account-name $(webStorageName) -s dist --overwrite
 
       - job: "DeployApi"
         dependsOn: ApplyTerraform

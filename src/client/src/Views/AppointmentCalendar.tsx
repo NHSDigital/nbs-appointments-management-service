@@ -23,7 +23,7 @@ const clusterBookings = (bookings: Booking[]): Event[] => {
     bookings.sort((a, b) => {
         return dayjs(a.from).isAfter(dayjs(b.from)) ? 1 : -1;
     })
-    let clusters = [], temp = [];
+    let clusters:Booking[][] = [], temp:Booking[] = [];
     for (let i = 0; i <= bookings.length - 1; i++) {
         const startTime = dayjs(bookings[i].from);
         const lastEntry = temp[temp.length - 1];

@@ -1,5 +1,3 @@
-@import "/node_modules/nhsuk-frontend/dist/nhsuk.css";
-
 /* imported styles for site-indicator, based on https://github.com/nhsuk/nhsuk-service-manual-community-backlog/issues/192*/
 .site-indicator {
   border-top: 10px solid #aeb7bd;

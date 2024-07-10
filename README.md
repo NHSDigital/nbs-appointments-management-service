@@ -32,7 +32,7 @@ We will build an Appointments API using
 
 We will build a web based application for appointment and site management
 
-- We will use React
+- We will use React/Next.js
 - Github (for code repo)
 - Azure Devops (pipelines)
 
@@ -62,7 +62,7 @@ Each of the following steps needs to be done in a separate terminal window
 - Run the API
   - From the folder `/src/api/Nhs.Appointments.Api` run the command `func start`
 - Run the Web Application
-  - From the folder `/src/client/` run `npm install` and then run `npm start`
+  - From the folder `/src/client/` run `npm install` and then run `npm run dev`
 
 ### Setting a cert for the OIDC server
 
@@ -91,15 +91,73 @@ When running locally in docker the data in the cosmos database can be viewed and
 explorer. To access the explorer visit `https://localhost:8081/_explorer/index.html` (not you may get an unsafe page
 warning unless you import the certificate from the cosmos container, this can safely be ignored for this url)
 
+### Adding roles and permissions
+
+Add a document with the following structure in to the index_data container. This sets up the permissions that each role
+contains so that the UI can react to a user's assigned permissions. This will have to be done once the function has started
+(so that the containers have been created) but before you can login. If you restart your cosmos database you will need to
+insert the document again.
+
+```json
+{
+    "id": "global_roles",
+    "docType": "roles",
+    "roles": [
+        {
+            "id": "canned:check-in",
+            "name": "Check-in",
+            "permissions": [
+                "booking:query",
+                "booking:set-status"
+            ]
+        },
+        {
+            "id": "canned:appointment-manager",
+            "name": "Appointment manager",
+            "permissions": [
+                "booking:make",
+                "booking:query",
+                "booking:cancel"
+            ]
+        },
+        {
+            "id": "canned:availability-manager",
+            "name": "Availability manager",
+            "permissions": [
+                "availability:get-setup",
+                "availability:set-setup",
+                "availability:query"
+            ]
+        },
+        {
+            "id": "canned:site-configuration-manager",
+            "name": "Site configuration manager",
+            "permissions": [
+                "site:get-config",
+                "site:set-config"
+            ]
+        },
+        {
+            "id": "canned:api-user",
+            "name": "Api User",
+            "permissions": [
+                "site:get-meta-data",
+                "availability:query",
+                "booking:make",
+                "booking:query",
+                "booking:cancel"
+            ]
+        }
+    ]
+}
+```
+
 ### Adding in User Site Assignments
 
-Add a document with the following structure in to the index_data container. This will have to be done once the function
-has started (so that the containers have been created) but before you can login. If you restart your cosmos database you
-will need to insert the document again.
+Add another document to represent a user with the following structure in to the index_data container. Each user is represented by a single document which contains the id of the user and all the roles that are assigned to the user at each site. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites. 
 
-Each user has it's own document. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites.
+This will have to be done once the function has started (so that the containers have been created) but before you can login. If you restart your cosmos database you will need to insert the document again.
 
-Example of individual user with site scoped roles:
 ```json
 {
   "id": "cc.agent@nhs.uk",

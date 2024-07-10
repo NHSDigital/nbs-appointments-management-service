@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Api.Client.UnitTests
         {
             var services = new ServiceCollection();
             services.AddLogging();
-            services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_signing_key");
+            services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_client_id", "my_signing_key");
             var container = services.BuildServiceProvider();
             var client = container.GetRequiredService<INhsAppointmentsApi>();
             Assert.NotNull(client);
@@ -28,7 +28,7 @@ namespace Nhs.Appointments.Api.Client.UnitTests
         {
             var services = new ServiceCollection();
             services.AddLogging();
-            services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_signing_key");
+            services.AddNhsAppointmentsApiClient(new Uri("http://localhost/"), "my_client_id", "my_signing_key");
             services.AddTransient(_ => new HttpClient { BaseAddress = new Uri("http://tempuri.org/") });
             var container = services.BuildServiceProvider();
             var theirClient = container.GetRequiredService<HttpClient>();

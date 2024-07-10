@@ -14,6 +14,7 @@ namespace Nhs.Appointments.Api.Client.Integration
         private const string GoodSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
         private const string BadSigningKey = "dGhpc2lzd3Jvbmc=";
         protected const string KnownSiteId = "1";
+        protected const string ClientId = "test-client";
 
         protected IntegrationTestBase()
         {
@@ -39,6 +40,7 @@ namespace Nhs.Appointments.Api.Client.Integration
             client.BaseAddress = new Uri("http://localhost:7071");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("ClientId", new[]{ClientId});
             return client;
         }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
 
@@ -31,7 +32,7 @@ public class PostcodeLookupService : IPostcodeLookupService
         using var response = await httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        var postcodeLookupResponse = JsonConvert.DeserializeObject<PostcodeLookupSearchResponse>(responseContent);
+        var postcodeLookupResponse = JsonSerializer.Deserialize<PostcodeLookupSearchResponse>(responseContent);
 
         var mostRelevantEntry = postcodeLookupResponse?.Results.OrderByDescending(x => x.SearchScore)?.FirstOrDefault();
 
@@ -50,13 +51,13 @@ public class PostcodeLookupService : IPostcodeLookupService
 
     internal class PostcodeLookupSearchResponse
     {
-        [JsonProperty("value")]
+        [JsonPropertyName("value")]
         public List<PostcodeLookupSearchResult> Results { get; set; }
     }
 
     internal class PostcodeLookupSearchResult 
     {
-        [JsonProperty("@search.score")]
+        [JsonPropertyName("@search.score")]
         public double SearchScore { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }

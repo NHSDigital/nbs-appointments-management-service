@@ -1,36 +1,36 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
 
 public class SiteConfiguration
 {
-    [JsonProperty("site")]
+    [JsonPropertyName("site")]
     public string Site { get; set; }
     
-    [JsonProperty("informationForCitizen")]
+    [JsonPropertyName("informationForCitizen")]
     public string InformationForCitizen { get; set; }
     
-    [JsonProperty("referenceNumberGroup")]
+    [JsonPropertyName("referenceNumberGroup")]
     public int ReferenceNumberGroup { get; set; }
 
-    [JsonProperty("serviceConfiguration")]
+    [JsonPropertyName("serviceConfiguration")]
     public IEnumerable<ServiceConfiguration> ServiceConfiguration { get; set; }
 }
 
 public class User
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
-    [JsonProperty("roleAssignments")]
+    [JsonPropertyName("roleAssignments")]
     public RoleAssignment[] RoleAssignments { get; set; }
 }
 
 public class RoleAssignment
 {
-    [JsonProperty("role")]
+    [JsonPropertyName("role")]
     public string Role { get; set; }
 
-    [JsonProperty("scope")]
+    [JsonPropertyName("scope")]
     public string Scope { get; set; }
 }

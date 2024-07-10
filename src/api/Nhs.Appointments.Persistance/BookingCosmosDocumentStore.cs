@@ -86,4 +86,4 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     {
         return new DocumentUpdate<Booking, BookingDocument>(_bookingStore, site, reference);
     }
-}    
+}

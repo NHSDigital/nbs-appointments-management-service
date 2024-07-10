@@ -42,7 +42,6 @@ public static class FunctionConfigurationExtensions
             })
             .Configure<SignedRequestAuthenticator.Options>(opts =>
             {
-                opts.SigningKey = Environment.GetEnvironmentVariable("HMAC_SIGNING_KEY");
                 opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
             })
             .AddScoped<IUserContextProvider, UserContextProvider>()
@@ -81,9 +80,11 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteConfigurationStore, SiteConfigurationCosmosDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IApiClientProfileStore, ApiClientProfileCosmosDocumentStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
+            .AddTransient<IApiClientService, ApiClientService>()
             .AddCosmosDataStores()
             .Configure<SiteSearchService.Options>(opts => opts.ServiceName = "APIM")
             .Configure<PostcodeLookupService.Options>(opts => opts.ServiceName = "APIM")
@@ -98,7 +99,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
-            .AddSingleton<TimeProvider>(TimeProvider.System)
+            .AddSingleton(TimeProvider.System)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
     var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");

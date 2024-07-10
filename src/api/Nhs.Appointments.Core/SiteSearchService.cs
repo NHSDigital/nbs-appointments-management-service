@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
 
@@ -36,7 +37,7 @@ public class SiteSearchService : ISiteSearchService
         var response = await httpClient.PostAsJsonAsync("/covid-sites/search?api-version=1", searchRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        var siteSearchResponse = JsonConvert.DeserializeObject<SiteSearchResponse>(responseContent);
+        var siteSearchResponse = JsonSerializer.Deserialize<SiteSearchResponse>(responseContent);
 
         return siteSearchResponse.Sites.Select(s => new Site(s.UnitId.ToString(), s.SiteName, s.SiteAddress));
     }
@@ -53,7 +54,7 @@ public class SiteSearchService : ISiteSearchService
         var response = await httpClient.PostAsJsonAsync("/covid-sites/search?api-version=1", searchRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        var siteSearchResponse = JsonConvert.DeserializeObject<SiteSearchResponse>(responseContent);
+        var siteSearchResponse = JsonSerializer.Deserialize<SiteSearchResponse>(responseContent);
         var match = siteSearchResponse.Sites.SingleOrDefault(s => s.UnitId.ToString() == siteId);
         return match != null ? new Site(match.UnitId.ToString(), match.SiteName, match.SiteAddress) : null;
     }
@@ -65,19 +66,19 @@ public class SiteSearchService : ISiteSearchService
 
     internal class SiteSearchResponse
     {
-        [JsonProperty("value")]
+        [JsonPropertyName("value")]
         public List<SiteSearchResponseEntry> Sites { get; set; }
     }
 
     internal class SiteSearchResponseEntry
     {
-        [JsonProperty("UnitID")]
+        [JsonPropertyName("UnitID")]
         public int UnitId { get; set; }
 
-        [JsonProperty("OrganisationName")]
+        [JsonPropertyName("OrganisationName")]
         public string SiteName { get; set; }
 
-        [JsonProperty("Address")]
+        [JsonPropertyName("Address")]
         public string SiteAddress { get; set; }
     }
 }

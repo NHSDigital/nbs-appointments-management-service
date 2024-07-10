@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -8,24 +9,38 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Auth
 {
-    public class SignedRequestAuthenticator(TimeProvider dateTimeProvider, IOptions<SignedRequestAuthenticator.Options> options) : IRequestAuthenticator
+    public class SignedRequestAuthenticator(TimeProvider dateTimeProvider, IApiClientService apiClients, IOptions<SignedRequestAuthenticator.Options> options) : IRequestAuthenticator
     {        
         public async Task<ClaimsPrincipal> AuthenticateRequest(string authenticationToken, HttpRequestData requestData)
         {
             try
             {
+                var clientId = requestData.Headers.GetValues("ClientId").SingleOrDefault();
+
+                if(string.IsNullOrEmpty(clientId))
+                {
+                    return Unauthorized();
+                }
+
+                var clientProfile = await apiClients.Get(clientId);
+
+                if(clientProfile == null)
+                {
+                    return Unauthorized();
+                }
+
                 var requestTimestamp = requestData.Headers.GetValues("RequestTimestamp").SingleOrDefault();
                 var requestDateTime = DateTime.Parse(requestTimestamp, null, DateTimeStyles.RoundtripKind);
                 var requestAge = dateTimeProvider.GetUtcNow().Subtract(requestDateTime);
 
                 if (requestAge < options.Value.RequestTimeTolerance)
                 {
-                    var expectedSignature = await RequestSigner.SignRequestAsync(requestData, requestTimestamp, options.Value.SigningKey);
+                    var expectedSignature = await RequestSigner.SignRequestAsync(requestData, requestTimestamp, clientProfile.SigningKey);
 
                     if (expectedSignature == authenticationToken)
                     {
                         var claimsIdentity = new ClaimsIdentity("ApiKey");
-                        claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "ApiUser"));
+                        claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, clientId));
                         return new ClaimsPrincipal(claimsIdentity);
                     }
                 }
@@ -35,13 +50,17 @@ namespace Nhs.Appointments.Api.Auth
 
             }
 
+            return Unauthorized();
+        }
+
+        private ClaimsPrincipal Unauthorized()
+        {
             ClaimsIdentity unauthenticated = new ClaimsIdentity();
             return new ClaimsPrincipal(unauthenticated);
         }
 
         public class Options
         {
-            public string SigningKey { get; set; }
             public TimeSpan RequestTimeTolerance { get; set; }
         }
     }

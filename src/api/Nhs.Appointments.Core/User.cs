@@ -1,15 +1,14 @@
 ﻿using Newtonsoft.Json;
 
-namespace Nhs.Appointments.Persistance.Models;
+namespace Nhs.Appointments.Core;
 
-[CosmosDocumentType("user")]
-public class UserDocument : IndexDataCosmosDocument
+public class User
 {
     [JsonProperty("id")]
     public string Id { get; set; }
 
     [JsonProperty("roleAssignments")]
-    public Core.RoleAssignment[] RoleAssignments { get; set; }
+    public RoleAssignment[] RoleAssignments { get; set; }
 }
 
 public class RoleAssignment

@@ -27,5 +27,8 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<SiteConfigurationDocument, SiteConfiguration>();
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();
+        
+        CreateMap<User, UserDocument>()
+            .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
     }
 }

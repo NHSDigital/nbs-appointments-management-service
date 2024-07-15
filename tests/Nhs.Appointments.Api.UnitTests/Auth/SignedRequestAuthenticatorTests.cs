@@ -45,6 +45,17 @@ namespace Nhs.Appointments.Api.Tests.Auth
         }
 
         [Fact]
+        public async Task AuthenticateRequest_ReturnsUnauthorized_WhenMultipleClientIdHeaderValuesArePresent()
+        {
+            var request = SetupTestData();
+            request.Headers.Remove("ClientId");
+            request.Headers.Add("ClientId", new string[] { "test", "test" });
+            var result = await _sut.AuthenticateRequest("valid_sig", request);
+            result.Should().NotBeNull();
+            result.Identity.IsAuthenticated.Should().BeFalse();
+        }
+
+        [Fact]
         public async Task AuthenticateRequest_ReturnsUnauthorized_WhenApiUserKeyCannotBeRetrieved()
         {
             var request = SetupTestData();
@@ -103,6 +114,19 @@ namespace Nhs.Appointments.Api.Tests.Auth
             var request = SetupTestData();
             request.Headers.Remove("RequestTimestamp");
             request.Headers.Add("RequestTimestamp", "not-a-date");
+
+            var result = await _sut.AuthenticateRequest("valid_sig", request);
+            result.Should().NotBeNull();
+            result.Identity.IsAuthenticated.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task AuthenticateRequest_ReturnsUnauthorized_WhenMultipleRequestTimestampHeaderValuesArePresent()
+        {
+            var requestDateTime = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+            var request = SetupTestData();
+            request.Headers.Remove("RequestTimestamp");
+            request.Headers.Add("RequestTimestamp", new string[] { requestDateTime, requestDateTime });
 
             var result = await _sut.AuthenticateRequest("valid_sig", request);
             result.Should().NotBeNull();

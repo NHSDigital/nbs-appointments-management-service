@@ -12,13 +12,14 @@ namespace Nhs.Appointments.Api.Auth
     public class SignedRequestAuthenticator(TimeProvider dateTimeProvider, IUserService userService, IRequestSigner requestSigner, IOptions<SignedRequestAuthenticator.Options> options) : IRequestAuthenticator
     {        
         public async Task<ClaimsPrincipal> AuthenticateRequest(string authenticationToken, HttpRequestData requestData)
-        {
+        {            
             if (requestData.Headers.Contains("ClientId") == false || requestData.Headers.Contains("RequestTimestamp") == false)
             {
                 return Unauthorized();
             }
 
-            var clientId = requestData.Headers.GetValues("ClientId").SingleOrDefault();
+            var clientIdValues = requestData.Headers.GetValues("ClientId");
+            var clientId = clientIdValues.Count() == 1 ? clientIdValues.ElementAt(0) : null;
 
             if (string.IsNullOrEmpty(clientId))
             {
@@ -33,7 +34,15 @@ namespace Nhs.Appointments.Api.Auth
 
             try
             {
-                var requestTimestamp = requestData.Headers.GetValues("RequestTimestamp").SingleOrDefault();
+                var requestTimestampValues = requestData.Headers.GetValues("RequestTimestamp");
+
+                var requestTimestamp = requestTimestampValues.Count() == 1 ? requestTimestampValues.ElementAt(0) : null;
+
+                if(string.IsNullOrEmpty(requestTimestamp))
+                {
+                    return Unauthorized();
+                }
+
                 var requestDateTime = DateTime.Parse(requestTimestamp, null, DateTimeStyles.RoundtripKind);
                 var requestAge = dateTimeProvider.GetUtcNow().Subtract(requestDateTime);
 

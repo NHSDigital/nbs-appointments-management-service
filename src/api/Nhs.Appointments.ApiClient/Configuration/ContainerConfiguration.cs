@@ -8,7 +8,7 @@ namespace Nhs.Appointments.ApiClient.Configuration
     public static class ContainerConfiguration
     {
         internal const string HttpClientKey = "nhs-appointments-http-client";
-        public static IServiceCollection AddNhsAppointmentsApiClient(this IServiceCollection services, Uri endpoint, string signingKey)
+        public static IServiceCollection AddNhsAppointmentsApiClient(this IServiceCollection services, Uri endpoint, string clientId, string signingKey)
         {
             services.AddTransient<INhsAppointmentsApi, NhsAppointmentsApi>();
             services.AddTransient<IBookingsApiClient, BookingsApiClient>();
@@ -26,6 +26,7 @@ namespace Nhs.Appointments.ApiClient.Configuration
                     client.BaseAddress = endpoint;
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("ClientId", clientId);
                     return client;
                 };
             });

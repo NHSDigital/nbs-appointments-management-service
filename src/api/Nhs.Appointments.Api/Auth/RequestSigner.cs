@@ -10,9 +10,14 @@ using System.Web;
 
 namespace Nhs.Appointments.Api.Auth
 {
-    internal static class RequestSigner
+    public interface IRequestSigner
     {
-        public static async Task<string> SignRequestAsync(HttpRequestData requestData, string requestTimestamp, string key)
+        Task<string> SignRequestAsync(HttpRequestData requestData, string requestTimestamp, string key);
+    }
+
+    internal class RequestSigner : IRequestSigner
+    {
+        public async Task<string> SignRequestAsync(HttpRequestData requestData, string requestTimestamp, string key)
         {            
             string method = requestData.Method;
             string path = requestData.Url.AbsolutePath;

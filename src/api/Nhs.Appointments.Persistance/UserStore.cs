@@ -17,17 +17,43 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     
     public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var user = new User
+        var documentType = cosmosStore.GetDocumentType();
+        var originalDocument = await GetOrDefault(userId);
+        if (originalDocument == null)
         {
-            Id = userId,
-            RoleAssignments = roleAssignments.ToArray()
-        };
-        await InsertAsync(user);
+            var user = new User
+            {
+                Id = userId,
+                RoleAssignments = roleAssignments.ToArray()
+            };
+            await InsertAsync(user);
+        }
+        else
+        {
+            var originalRoleAssignments = originalDocument.RoleAssignments;
+            var newRoleAssignments = originalRoleAssignments
+                .Where(ra => ra.Scope != scope)
+                .Concat(roleAssignments);
+            var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
+            await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
+        }
     }
     
     private Task InsertAsync(User user)
     {
         var document = cosmosStore.ConvertToDocument(user);
         return cosmosStore.WriteAsync(document);
+    }
+    
+    private async Task<User> GetOrDefault(string userId)
+    {
+        try
+        {
+            return await cosmosStore.GetByIdAsync<User>(userId);
+        }
+        catch (CosmosException ex) when ( ex.StatusCode == System.Net.HttpStatusCode.NotFound )
+        {
+            return default;
+        }
     }
 }

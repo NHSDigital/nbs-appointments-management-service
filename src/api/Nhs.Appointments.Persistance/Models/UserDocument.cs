@@ -9,7 +9,7 @@ public class UserDocument : IndexDataCosmosDocument
     public string Id { get; set; }
 
     [JsonProperty("roleAssignments")]
-    public Core.RoleAssignment[] RoleAssignments { get; set; }
+    public RoleAssignment[] RoleAssignments { get; set; }
 }
 
 public class RoleAssignment

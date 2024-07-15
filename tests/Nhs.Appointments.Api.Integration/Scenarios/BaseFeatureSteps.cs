@@ -248,7 +248,7 @@ public abstract class BaseFeatureSteps : Feature
             Id = "ApiUser",
             DocumentType = "user",
             RoleAssignments = [
-                new Core.RoleAssignment()
+                new RoleAssignment()
                     { Role = "integration-test:api-user", Scope = "global" }
             ]
         };        

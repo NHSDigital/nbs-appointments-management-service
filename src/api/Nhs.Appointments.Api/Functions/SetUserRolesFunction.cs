@@ -16,10 +16,10 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserPermissionsFunction> logger) 
+public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "SetUserRoles", tags: new[] { "Uer Roles" }, Summary = "Set user roles for a site")]
+    [OpenApiOperation(operationId: "SetUserRoles", tags: new[] { "User Roles" }, Summary = "Set user roles for a site")]
     [OpenApiRequestBody("text/json", typeof(SetUserRolesRequest))]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "User role successfully saved")]

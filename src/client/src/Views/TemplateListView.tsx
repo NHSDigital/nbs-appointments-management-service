@@ -2,7 +2,7 @@ import React from "react"
 import { DayOfWeek, WeekTemplate } from "../Types/Schedule";
 import { When } from "../Components/When";
 import { useTemplateService } from "../Services/TemplateService";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 import { GettingStartedCallout } from "../Components/GettingStartedCallout";
 
@@ -72,7 +72,7 @@ export const TemplateListView = () => {
                   <td>{t.name}</td>
                   <td>{getOpeningDayDetails(t)}</td>
                   <td>
-                    <Link to={`edit/${t.id}`}>
+                    <Link href={`templates/edit/${t.id}`}>
                       Edit
                     </Link>
                   </td>
@@ -81,7 +81,7 @@ export const TemplateListView = () => {
             </tbody>
           </table>
           <div>
-            <Link className="nhsuk-button nhsuk-u-margin-bottom-0" to="/templates/edit">
+            <Link className="nhsuk-button nhsuk-u-margin-bottom-0" href="/templates/edit">
               Create new template
             </Link>
           </div>

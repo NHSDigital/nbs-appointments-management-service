@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.ApiClient;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
@@ -18,6 +17,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class BaseFeatureSteps : Feature
 {
+    protected const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
@@ -41,9 +41,10 @@ public abstract class BaseFeatureSteps : Feature
             LimitToEndpoint = true
         };
 
-        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA=="));
+        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
         Http = new HttpClient(requestSigner);
+        Http.DefaultRequestHeaders.Add("ClientId", "test");
 
         Client = new(
             accountEndpoint: "https://localhost:8081/",
@@ -245,7 +246,8 @@ public abstract class BaseFeatureSteps : Feature
         var userAssignments = new UserDocument()
         {
             
-            Id = "ApiUser",
+            Id = "api@test",
+            ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [
                 new RoleAssignment

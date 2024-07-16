@@ -24,7 +24,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     
     public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var documentType = cosmosStore.GetDocumentType();
         var originalDocument = await GetOrDefault(userId);
         if (originalDocument == null)
         {
@@ -37,6 +36,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
         else
         {
+            var documentType = cosmosStore.GetDocumentType();
             var originalRoleAssignments = originalDocument.RoleAssignments;
             var newRoleAssignments = originalRoleAssignments
                 .Where(ra => ra.Scope != scope)

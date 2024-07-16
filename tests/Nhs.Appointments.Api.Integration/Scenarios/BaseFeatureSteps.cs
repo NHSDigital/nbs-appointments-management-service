@@ -57,7 +57,7 @@ public abstract class BaseFeatureSteps : Feature
         });
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles();
-        SetUpUserAssignments();
+        SetUpIntegrationTestUserRoleAssignments();
     }
 
     [Given(@"The following service configuration")]
@@ -226,7 +226,9 @@ public abstract class BaseFeatureSteps : Feature
 
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
+    protected string GetUserId(string userId) => $"{userId}@{_testId}";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
+    
     private void SetUpRoles()
     {
         var roles = new RolesDocument()
@@ -235,13 +237,13 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup" ] }
+                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] },
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
     }
     
-    private void SetUpUserAssignments()
+    private void SetUpIntegrationTestUserRoleAssignments()
     {
         var userAssignments = new UserDocument()
         {
@@ -250,7 +252,7 @@ public abstract class BaseFeatureSteps : Feature
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [
-                new RoleAssignment
+                new RoleAssignment()
                     { Role = "integration-test:api-user", Scope = "global" }
             ]
         };        

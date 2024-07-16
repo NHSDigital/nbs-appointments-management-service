@@ -26,6 +26,13 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<BookingDocument, Booking>();
         CreateMap<SiteConfigurationDocument, SiteConfiguration>();
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
+        CreateMap<Core.RoleAssignment, Models.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();
+        
+        CreateMap<User, UserDocument>()
+            .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
+
+        CreateMap<UserDocument, User>()
+            .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
     }
 }

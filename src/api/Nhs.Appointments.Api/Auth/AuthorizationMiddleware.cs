@@ -16,7 +16,7 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
     {
         var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
         var requiredPermission = functionTypeInfoFeature.RequiredPermission;
-        if(requiredPermission.IsNullOrEmpty() || await IsAuthorized(context, requiredPermission))
+        if(string.IsNullOrEmpty(requiredPermission) || await IsAuthorized(context, requiredPermission))
         {
             await next(context);
             return;

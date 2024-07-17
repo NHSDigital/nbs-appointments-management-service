@@ -26,7 +26,8 @@ export default function App({ Component, pageProps }: AppProps) {
                     { name: "Templates", route: "/templates" },
                     { name: "Edit Services", route: "/site" },
                     { name: "Daily Bookings", route: "/bookings" },
-                    { name: "Calendar", route: "/calendar" }
+                    { name: "Calendar", route: "/calendar" },
+                    { name: "Manage Staff Roles", route: "/editUser" }
                 ]}>
                     <Component {...pageProps} />
                 </AppPage>

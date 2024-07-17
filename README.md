@@ -182,8 +182,9 @@ This will have to be done once the function has started (so that the containers 
 Example of ApiUser with global scoped role:
 ```json
 {
-  "id": "ApiUser",
+  "id": "api@dev",
   "docType": "user",
+  "apiSigningKey": "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA=="
   "roleAssignments": [
     {
       "role": "canned:api-user",
@@ -192,3 +193,6 @@ Example of ApiUser with global scoped role:
   ]
 }
 ```
+
+REST calls using an API user must be signed (via HMAC) using the key associated with the api user.
+The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls

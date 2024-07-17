@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace Nhs.Appointments.Persistance.Models;
+namespace Nhs.Appointments.Core;
 
-[CosmosDocumentType("user")]
-public class UserDocument : IndexDataCosmosDocument
+public class User
 {
-    [JsonProperty("apiSigningKey")]
-    public string ApiSigningKey { get; set; }
+    [JsonProperty("id")]
+    public string Id { get; set; }
 
     [JsonProperty("roleAssignments")]
     public RoleAssignment[] RoleAssignments { get; set; }

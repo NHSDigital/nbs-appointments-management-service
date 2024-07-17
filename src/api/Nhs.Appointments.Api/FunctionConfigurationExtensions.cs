@@ -41,8 +41,7 @@ public static class FunctionConfigurationExtensions
                 opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
             })
             .Configure<SignedRequestAuthenticator.Options>(opts =>
-            {
-                opts.SigningKey = Environment.GetEnvironmentVariable("HMAC_SIGNING_KEY");
+            {                
                 opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
             })
             .AddScoped<IUserContextProvider, UserContextProvider>()
@@ -52,6 +51,7 @@ public static class FunctionConfigurationExtensions
             .AddSingleton<ApiKeyRequestAuthenticator>()
             .AddSingleton<IJwksRetriever, JwksRetriever>()
             .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
+            .AddTransient<IRequestSigner, RequestSigner>()
             .AddMemoryCache();
         
         builder.Services

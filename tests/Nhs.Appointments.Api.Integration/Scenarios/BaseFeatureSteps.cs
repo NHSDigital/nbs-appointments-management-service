@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.ApiClient;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
@@ -18,6 +17,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class BaseFeatureSteps : Feature
 {
+    protected const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
@@ -41,9 +41,10 @@ public abstract class BaseFeatureSteps : Feature
             LimitToEndpoint = true
         };
 
-        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA=="));
+        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
         Http = new HttpClient(requestSigner);
+        Http.DefaultRequestHeaders.Add("ClientId", "test");
 
         Client = new(
             accountEndpoint: "https://localhost:8081/",
@@ -56,7 +57,7 @@ public abstract class BaseFeatureSteps : Feature
         });
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles();
-        SetUpUserAssignments();
+        SetUpIntegrationTestUserRoleAssignments();
     }
 
     [Given(@"The following service configuration")]
@@ -225,7 +226,9 @@ public abstract class BaseFeatureSteps : Feature
 
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
+    protected string GetUserId(string userId) => $"{userId}@{_testId}";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
+    
     private void SetUpRoles()
     {
         var roles = new RolesDocument()
@@ -234,21 +237,22 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup" ] }
+                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] },
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
     }
     
-    private void SetUpUserAssignments()
+    private void SetUpIntegrationTestUserRoleAssignments()
     {
         var userAssignments = new UserDocument()
         {
             
-            Id = "ApiUser",
+            Id = "api@test",
+            ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [
-                new RoleAssignment
+                new RoleAssignment()
                     { Role = "integration-test:api-user", Scope = "global" }
             ]
         };        

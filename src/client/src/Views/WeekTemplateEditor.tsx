@@ -3,7 +3,8 @@ import { DayOfWeek, ExplodedWeekTemplate, WeekDaySessionMap, WeekTemplate } from
 import { When } from "../Components/When";
 import { TimeBlocks } from "../Components/TimeBlocks";
 import { useTemplateService } from "../Services/TemplateService";
-import { Link, useParams } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { blocksEqual, cloneTemplate, templateToViewModel, viewModelToTemplate } from "../utils"
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 
@@ -24,7 +25,7 @@ type WeekTemplateEditorProps = {
 
 export const WeekTemplateEditorCtx = () => {
     const { site } = useSiteContext();
-    const { templateId } = useParams();
+    const { templateId } = useParams<{templateId: string}>();
     const templateService = useTemplateService();
 
     return (<WeekTemplateEditor
@@ -144,7 +145,7 @@ export const WeekTemplateEditor = ({ templateId, siteId, getTemplates, saveTempl
                             >
                                 Confirm template
                             </button>
-                            <Link to="/templates" className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0">
+                            <Link href="/templates" className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0">
                                 Cancel
                             </Link>
                             <When condition={status === "loading"}>

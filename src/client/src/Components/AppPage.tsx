@@ -3,7 +3,7 @@ import { Permissions } from "../Types/Permissions";
 import { NhsFooter } from "./NhsFooter";
 import { NhsHeader } from "./NhsHeader";
 import { SiteIndicator } from "./SiteIndicator";
-import { useLocation } from 'react-router-dom'
+import { usePathname } from 'next/navigation';
 import {useSiteContext} from "../ContextProviders/SiteContextProvider";
 
 type AppPageProps = {
@@ -14,7 +14,7 @@ type AppPageProps = {
   export const AppPage = ({ navLinks, children}: AppPageProps) => {
     const { getUserEmail, signOut } = useAuthContext();
     const { hasPermission } = useSiteContext();
-    const currentRoute = useLocation();
+    const currentRoute = usePathname();
 
     if(!hasPermission(Permissions.GetAvailability)){
       navLinks = navLinks.filter(link => link.route !== "/templates" && link.route !== "/availability")
@@ -27,7 +27,7 @@ type AppPageProps = {
     return(
     <>
         <NhsHeader navLinks={navLinks} userEmail={getUserEmail()} signOut={signOut}  />
-        <SiteIndicator title={navLinks.find(x => x.route === currentRoute.pathname)?.name ?? ""} />
+        <SiteIndicator title={navLinks.find(x => x.route === currentRoute)?.name ?? ""} />
         <div className="nhsuk-width-container-fluid">
           <main className="nhsuk-main-wrapper " id="maincontent" role="main">
                 {children}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./ServiceSelector.css"
+import styles from "./ServiceSelector.module.css"
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
 import { ServiceConfiguration } from "../Types/SiteConfiguration";
 import { When } from "./When";
@@ -73,11 +73,11 @@ export const ServiceSelector = ({ checkedServices, uniqueId, handleChange, hasEr
     const filteredServiceConfig = siteConfig?.serviceConfiguration.filter(s => checkedServices.includes(s.code) || s.enabled) ?? [];
 
 
-    return <div className={`dropdown-check-list ${isVisible ? "visible" : ""}`} tabIndex={0} onFocus={() => setIsVisible(true)} ref={containerRef}>
-        <span className={`anchor ${hasError ? "error" : ""}`}>
+    return <div className={styles["dropdown-check-list"] +  ` ${isVisible ? styles.visible : ""}`} tabIndex={0} onFocus={() => setIsVisible(true)} ref={containerRef}>
+        <span className={styles.anchor + ` ${hasError ? styles.error : ""}`}>
             {serviceString ? serviceString : "Select a service"}
         </span>
-        <ul className="items">
+        <ul className={styles.items}>
             <When condition={filteredServiceConfig.length > 1}>
                 <li className="nhsuk-checkboxes__item">
                     <input

@@ -1,7 +1,7 @@
 import React from "react";
 import { When } from "../Components/When";
 import { SignIn } from "../Components/SignIn";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "next/navigation";
 import { getApiUrl } from "../configuration";
 import { jwtDecode } from "jwt-decode";
 
@@ -14,7 +14,7 @@ export interface IAuthContext {
 export const AuthContext = React.createContext<IAuthContext | null>(null);
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [searchParams] = useSearchParams();
+    const searchParams = useSearchParams();
     const idToken = localStorage.getItem("idtoken");
     const host = `${window.location.protocol}//${window.location.host}`
 

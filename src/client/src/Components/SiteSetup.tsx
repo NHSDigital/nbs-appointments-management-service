@@ -6,7 +6,7 @@ import { NhsFooter } from "./NhsFooter"
 import { NhsHeader } from "./NhsHeader"
 import { SiteDetails } from "./SiteDetails"
 import { WarningCallout } from "./WarningCallout"
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 export const SiteSetup = ({ site }: { site: Site }) => {
 
@@ -17,7 +17,7 @@ export const SiteSetup = ({ site }: { site: Site }) => {
     const covidOnly = ["COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:75"];
     const fluOnly = ["FLU:18_64", "FLU:65"];
     const { saveSiteConfiguration } = useSiteContext();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const initialiseServices = (serviceTypes: string[]) => {
         const siteServices: ServiceConfiguration[] = defaultServiceConfigurationTypes.map(sc => ({
@@ -32,7 +32,7 @@ export const SiteSetup = ({ site }: { site: Site }) => {
             serviceConfiguration: siteServices
         }
         saveSiteConfiguration(siteConfiguration);
-        navigate("/templates");
+        router.push("/templates");
     }
 
     return (

@@ -1,4 +1,4 @@
-import "./UserNotification.css"
+import styles from "./UserNotification.module.css"
 
 type UserNotificationProps =  {
       title: string;
@@ -7,14 +7,14 @@ type UserNotificationProps =  {
 
 export const UserNotification = ({title, handleClose}: UserNotificationProps) => {
     return(
-          <div role="status" className="user-notification">
-            <div className="user-notification__content">
+          <div role="status" className={styles["user-notification"]}>
+            <div className={styles["user-notification__content"]}>
                   <span className="nhsuk-u-visually-hidden">Information: </span>
-                  <div className="user-notification__text">
+                  <div className={styles["user-notification__text"]}>
                         {title}
                   </div>
             </div>
-            <button className="user-notification__close" onClick={handleClose}>close</button>
+            <button className={styles["user-notification__close"]} onClick={handleClose}>close</button>
           </div>
     );
 }

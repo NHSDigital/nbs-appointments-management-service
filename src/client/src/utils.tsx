@@ -1,7 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import { ISiteContext, SiteContext } from "./ContextProviders/SiteContextProvider";
-import { MemoryRouter as Router} from 'react-router-dom';
 import { DayOfWeek, ExplodedWeekTemplate, ScheduleTemplate, Session, WeekDaySessionMap, WeekTemplate } from "./Types/Schedule";
 import { AuthContext } from "./ContextProviders/AuthContextProvider";
 
@@ -17,9 +16,7 @@ export const wrappedRender = (child: React.ReactNode, siteContext: ISiteContext 
     return render(
         <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail}}>
             <SiteContext.Provider value={siteContext}>
-                <Router>
-                        {child}
-                </Router>
+                {child}
             </SiteContext.Provider>
         </AuthContext.Provider>
     )

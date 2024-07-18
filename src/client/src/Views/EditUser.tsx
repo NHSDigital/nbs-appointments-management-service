@@ -1,23 +1,41 @@
 ﻿import React from "react";
-import {Role} from "../Types/Permissions";
 import Link from "next/link";
 import {useUserService} from "../Services/UserService";
+import {useRolesService} from "../Services/RolesService";
 import {useSiteContext} from "../ContextProviders/SiteContextProvider";
+import {Role} from "../Types/Permissions";
+import {Site} from "../Types/Site";
+
+type EditUserProps = {
+    setUserRoles: (user: string, site: string, roles: string[]) => Promise<any>
+    getRoles: () => Promise<any>
+    site: Site
+}
 
 export const EditUserCtx = () => {
-    return ( <EditUser />)
-}
-export const EditUser = () => {
-    const { site } = useSiteContext();
     const { setUserRoles } = useUserService();
+    const { getRoles } = useRolesService();
+    const { site } = useSiteContext();
+
+    return ( <EditUser setUserRoles={setUserRoles} getRoles={getRoles} site={site!} />)
+}
+export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
+    const [status, setStatus] = React.useState<"loading" | "loaded">("loading");
+    const [ selectedRoles, setSelectedRoles] = React.useState<string[]>([] as string[]);
     const [user, setUser] = React.useState("");
-    
-    const [roles, setRoles] = React.useState<Role[]>([
-        {displayName: "Site Admin", id: "canned:site-admin"},
-        {displayName: "Availability Manager", id: "canned:availability-manager"},
-    ]);
-    
-    const [selectedRoles, setSelectedRoles] = React.useState<string[]>([] as string[]);
+    const [roles, setRoles ] = React.useState<Role[]>([] as Role[])
+
+    React.useEffect(() => {
+        loadRoles();
+    }, [])
+
+    const loadRoles = () => {
+        setStatus("loading");
+        getRoles().then(rsp => {
+            setRoles(rsp);
+            setStatus("loaded");
+        })
+    }
     
     const handleOnChange = (roleId: string) => {
         selectedRoles?.includes(roleId) ?
@@ -46,15 +64,15 @@ export const EditUser = () => {
                     Roles
                 </h3>
                 {roles.map(r => (
-                    <div>
-                        <label>
-                            <input 
-                                type="checkbox"
-                                id={r.id}
-                                checked={selectedRoles?.includes(r.id)}
-                                onChange={() => handleOnChange(r.id)}
-                            />
-                            <span>{r.displayName}</span>
+                    <div className="nhsuk-checkboxes__item">
+                        <input 
+                            type="checkbox"
+                            className="nhsuk-checkboxes__input"
+                            id={r.id}
+                            checked={selectedRoles?.includes(r.id)}
+                            onChange={() => handleOnChange(r.id)}
+                        />
+                        <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
                         </label>
                     </div>
                 ))}

@@ -47,6 +47,11 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
         setUserRoles(site!.id, user, selectedRoles).then(r => r);
     }
     
+    const clearUser = () => {
+        setUser("");
+        setSelectedRoles([] as string[])
+    }
+    
     return (
         <div>
             <div>
@@ -63,19 +68,21 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                 <h3>
                     Roles
                 </h3>
-                {roles.map(r => (
-                    <div className="nhsuk-checkboxes__item">
-                        <input 
-                            type="checkbox"
-                            className="nhsuk-checkboxes__input"
-                            id={r.id}
-                            checked={selectedRoles?.includes(r.id)}
-                            onChange={() => handleOnChange(r.id)}
-                        />
-                        <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
-                        </label>
-                    </div>
-                ))}
+                <div>
+                    {roles.map(r => (
+                        <div className="nhsuk-checkboxes__item">
+                            <input 
+                                type="checkbox"
+                                className="nhsuk-checkboxes__input"
+                                id={r.id}
+                                checked={selectedRoles?.includes(r.id)}
+                                onChange={() => handleOnChange(r.id)}
+                            />
+                            <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
+                            </label>
+                        </div>
+                    ))}
+                </div>
                 <div className="nhsuk-navigation">
                     <button
                         id="submit-schedule"
@@ -85,9 +92,13 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                     >
                         Confirm and create user
                     </button>
-                    <Link href="/" className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0">
+                    <button
+                        type="button"
+                        className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
+                        onClick={clearUser}
+                    >
                         Cancel
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>

@@ -26,7 +26,7 @@ public class GetSiteConfigurationFunction(ISiteConfigurationService siteConfigur
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(SiteConfiguration),  Description = "The site configuration for the specified site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "No site configuration was found for the specified site")]
-    [RequiresPermission("site:get-config")]
+    [RequiresPermission("site:get-config", typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteConfiguration")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "site-configuration")] HttpRequest req)

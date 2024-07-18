@@ -8,5 +8,7 @@ public interface IFunctionTypeInfoFeature
 
     public bool RequiresAuthentication { get; }
     public string RequiredPermission { get; }
+
+    public System.Type RequestInspector { get; }
 }
 

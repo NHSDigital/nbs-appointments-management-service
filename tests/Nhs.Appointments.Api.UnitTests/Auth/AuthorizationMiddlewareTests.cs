@@ -15,6 +15,7 @@ public class AuthorizationMiddlewareTests
     private readonly Mock<IServiceProvider> _serviceProvider = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IPermissionChecker> _permissionChecker = new();
+    private readonly Mock<IRequestInspector> _requestInspector = new();
     private readonly Mock<FunctionExecutionDelegate> _functionExecutionDelegate = new();
     private readonly TestableAuthorizationMiddleware _sut;
 
@@ -27,14 +28,13 @@ public class AuthorizationMiddlewareTests
     public async Task Invoke_DoesNotProcessRequest_WhenUserNotAuthorized()
     {
         var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
-        var httpRequest = new TestHttpRequestData(_functionContext.Object);
-        var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} };
+        var httpRequest = new TestHttpRequestData(_functionContext.Object);        
         ConfigureMocks(httpRequest);
         
-        _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
+        _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");        
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-        _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
+        _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
         _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(false);
         
@@ -48,12 +48,12 @@ public class AuthorizationMiddlewareTests
     {
         var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
-        var itemsDictionary = new Dictionary<object, object> { {"siteId", "1"} }; 
+        
         ConfigureMocks(httpRequest);
         
-        _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
+        _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");        
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-        _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
+        
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
         _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(true);
@@ -70,7 +70,8 @@ public class AuthorizationMiddlewareTests
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         var itemsDictionary = new Dictionary<object, object>(); 
         ConfigureMocks(httpRequest);
-        
+
+        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("");
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
         _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
@@ -113,6 +114,9 @@ public class AuthorizationMiddlewareTests
         mockFeatures.Setup(x => x.Get<IFunctionTypeInfoFeature>()).Returns(_functionTypeInfoFeature.Object);
             
         _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(true);
+        _functionTypeInfoFeature.Setup(x => x.RequestInspector).Returns(typeof(NoSiteRequestInspector));
+        _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
+        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("1");
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);

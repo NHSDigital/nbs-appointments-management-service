@@ -33,7 +33,7 @@ public class SetTemplateFunction : BaseApiFunction<WeekTemplate, string>
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Week template successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
-    [RequiresPermission("availability:set-setup")]
+    [RequiresPermission("availability:set-setup", typeof(SiteFromBodyInspector))]
     [Function("SetTemplateFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "template")] HttpRequest req)

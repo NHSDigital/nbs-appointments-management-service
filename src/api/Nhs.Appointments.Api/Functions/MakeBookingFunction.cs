@@ -42,7 +42,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(MakeBookingResponse), Description = "Booking successfully made")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "Requested site not configured for appointments")]
-    [RequiresPermission("booking:make")]
+    [RequiresPermission("booking:make", typeof(SiteFromBodyInspector))]
     [Function("MakeBookingFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking")] HttpRequest req)

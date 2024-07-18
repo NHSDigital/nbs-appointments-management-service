@@ -53,35 +53,37 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
     }
     
     return (
-        <div>
-            <div>
-                <h3>Create new user</h3>
-                <div>Set the details and roles of a new user</div>
-                <label className="nhsuk-label">
-                    Email
-                </label>
-                <input 
-                    type="text" 
-                    className="nhsuk-input nhsuk-input--width-20" 
-                    value={user} 
-                    onChange={e => setUser(e.target.value)}/>
-                <h3>
-                    Roles
-                </h3>
-                <div>
-                    {roles.map(r => (
-                        <div className="nhsuk-checkboxes__item">
-                            <input 
-                                type="checkbox"
-                                className="nhsuk-checkboxes__input"
-                                id={r.id}
-                                checked={selectedRoles?.includes(r.id)}
-                                onChange={() => handleOnChange(r.id)}
-                            />
-                            <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
-                            </label>
-                        </div>
-                    ))}
+        <div className="nhsuk-grid-row">
+            <div className="nhsuk-grid-column-one-half">
+                <div className="nhsuk-form-group">
+                    <h3>Create new user</h3>
+                    <div className="nhsuk-hint">
+                        Set the details and roles of a new user
+                    </div>
+                    <label className="nhsuk-label">Email</label>
+                    <input 
+                        type="text" 
+                        className="nhsuk-input nhsuk-input--width-20" 
+                        value={user} 
+                        onChange={e => setUser(e.target.value)}/>
+                </div>
+                <div className="nhsuk-form-group">
+                    <h3>Roles</h3>
+                    <div>
+                        {roles.map(r => (
+                            <div className="nhsuk-checkboxes__item">
+                                <input 
+                                    type="checkbox"
+                                    className="nhsuk-checkboxes__input"
+                                    id={r.id}
+                                    checked={selectedRoles?.includes(r.id)}
+                                    onChange={() => handleOnChange(r.id)}
+                                />
+                                <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <div className="nhsuk-navigation">
                     <button

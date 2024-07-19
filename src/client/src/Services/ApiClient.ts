@@ -1,10 +1,12 @@
 import { useAuthContext } from "../ContextProviders/AuthContextProvider";
-import { getApiUrl } from "../configuration"
+import { getApiUrl } from "../configuration";
+import { useRouter } from "next/router";
 
 export const useAuthenticatedClient = () => {
     const { idToken, signOut } = useAuthContext();
+    const router = useRouter();
 
-    const post = async (path: string, body: any) : Promise<Response> => {
+    const post = async (path: string, body: any) : Promise<Response>  => {
         const response = await fetch(getApiUrl(path), 
           { method: "POST", 
             headers: {
@@ -13,6 +15,9 @@ export const useAuthenticatedClient = () => {
           if(response.status === 401) {
               signOut();
           }
+          if(response.status === 403) {
+            router.push("/unauthorised");
+          }
           return response;
     }
 
@@ -20,8 +25,11 @@ export const useAuthenticatedClient = () => {
       const response = await fetch(getApiUrl(path), 
         { method: "GET", 
           headers: { Authorization: `Bearer ${idToken}`}});
-      if(response.status === 401) {
-            signOut();
+        if(response.status === 401) {
+          signOut();
+        }
+        if(response.status === 403) {
+          router.push("/unauthorised");
         }
         return response;
     }

@@ -10,8 +10,6 @@ using FluentValidation;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Api.Auth;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
@@ -24,35 +22,7 @@ public static class FunctionConfigurationExtensions
 {
     public static IFunctionsWorkerApplicationBuilder ConfigureFunctionDependencies(this IFunctionsWorkerApplicationBuilder builder)
     {
-        builder.Services
-            .Configure<ApiKeyOptions>(opts =>
-            {
-                opts.ValidKeys = Environment.GetEnvironmentVariable("API_KEYS")?.Split(",") ?? new string[0];
-            })
-            .Configure<AuthOptions>(opts =>
-            {
-                opts.ProviderUri = Environment.GetEnvironmentVariable("AuthProvider_ProviderUri");
-                opts.Issuer = Environment.GetEnvironmentVariable("AuthProvider_Issuer");
-                opts.AuthorizePath = Environment.GetEnvironmentVariable("AuthProvider_AuthorizePath");
-                opts.TokenPath = Environment.GetEnvironmentVariable("AuthProvider_TokenPath");
-                opts.JwksPath = Environment.GetEnvironmentVariable("AuthProvider_JwksPath");
-                opts.ChallengePhrase = Environment.GetEnvironmentVariable("AuthProvider_ChallengePhrase");
-                opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
-                opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
-            })
-            .Configure<SignedRequestAuthenticator.Options>(opts =>
-            {                
-                opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
-            })
-            .AddScoped<IUserContextProvider, UserContextProvider>()
-            .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
-            .AddSingleton<SignedRequestAuthenticator>()
-            .AddSingleton<BearerTokenRequestAuthenticator>()
-            .AddSingleton<ApiKeyRequestAuthenticator>()
-            .AddSingleton<IJwksRetriever, JwksRetriever>()
-            .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
-            .AddTransient<IRequestSigner, RequestSigner>()
-            .AddMemoryCache();
+        builder.Services.AddCustomAuthentication();            
         
         builder.Services
             .AddSingleton<IOpenApiConfigurationOptions>(_ => 
@@ -134,32 +104,32 @@ public static class FunctionConfigurationExtensions
     return builder;
     }
 
-private static async Task SetupCosmosDatabase(CosmosClient cosmosClient)
-{
-    var database = await cosmosClient.CreateDatabaseIfNotExistsAsync(id: "appts");
-    await database.Database.CreateContainerIfNotExistsAsync(id: "booking_data", partitionKeyPath: "/site");
-    await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
-}
-
-private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint)
-{
-    if(cosmosEndpoint.StartsWith("https://localhost"))
+    private static async Task SetupCosmosDatabase(CosmosClient cosmosClient)
     {
-        return new CosmosClientOptions()
-        {
-            HttpClientFactory = () => new HttpClient(new HttpClientHandler()
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            }),                    
-            Serializer = new CosmosJsonSerializer(),
-            ConnectionMode = ConnectionMode.Gateway,
-            LimitToEndpoint = true
-        };                
+        var database = await cosmosClient.CreateDatabaseIfNotExistsAsync(id: "appts");
+        await database.Database.CreateContainerIfNotExistsAsync(id: "booking_data", partitionKeyPath: "/site");
+        await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
 
-    return new()
+    private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint)
     {
-        Serializer = new CosmosJsonSerializer()
-    };            
-}
+        if(cosmosEndpoint.StartsWith("https://localhost"))
+        {
+            return new CosmosClientOptions()
+            {
+                HttpClientFactory = () => new HttpClient(new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                }),                    
+                Serializer = new CosmosJsonSerializer(),
+                ConnectionMode = ConnectionMode.Gateway,
+                LimitToEndpoint = true
+            };                
+        }
+
+        return new()
+        {
+            Serializer = new CosmosJsonSerializer()
+        };            
+    }    
 }

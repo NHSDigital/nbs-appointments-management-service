@@ -1,12 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Nhs.Appointments.Api.Json;
+
 
 namespace Nhs.Appointments.Api.Auth;
 
@@ -16,7 +17,8 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
     {
         var functionTypeInfoFeature = context.Features.Get<IFunctionTypeInfoFeature>();
         var requiredPermission = functionTypeInfoFeature.RequiredPermission;
-        if(string.IsNullOrEmpty(requiredPermission) || await IsAuthorized(context, requiredPermission))
+        var requestInspectorType = functionTypeInfoFeature.RequestInspector;
+        if(string.IsNullOrEmpty(requiredPermission) || await IsAuthorized(context, requiredPermission, requestInspectorType))
         {
             await next(context);
             return;
@@ -24,16 +26,23 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
         HandleUnauthorizedAccess(context);
     }
 
-    private Task<bool> IsAuthorized(FunctionContext context, string requiredPermission)
+    private async Task<bool> IsAuthorized(FunctionContext context, string requiredPermission, Type requestInspectorType)
     {
         var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        
         var siteId = string.Empty;
-        if (context.Items.TryGetValue("siteId", out var siteIdValue))
+        if(requestInspectorType is not null)
         {
-            siteId = siteIdValue.ToString();
+            var requestInspector = context.InstanceServices.GetService(requestInspectorType) as IRequestInspector;
+            if (requestInspector is not null)
+            {
+                var request = await context.GetHttpRequestDataAsync();
+                siteId = await requestInspector.GetSiteId(request);
+            }
         }
+        
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
-        return permissionChecker.HasPermissionAsync(userEmail, siteId, requiredPermission);
+        return await permissionChecker.HasPermissionAsync(userEmail, siteId, requiredPermission);
     }
     
     protected virtual void HandleUnauthorizedAccess(FunctionContext context)

@@ -34,7 +34,7 @@ public class QueryBookingByReferenceFunction : BaseApiFunction<QueryBookingByRef
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(Booking), Description = "The booking for patient with the provided reference")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "Booking not found")]
-    [RequiresPermission("booking:query")]
+    [RequiresPermission("booking:query", typeof(NoSiteRequestInspector))]
     [Function("QueryBookingByBookingReference")]
     public Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "booking/{bookingReference}")] HttpRequest req)

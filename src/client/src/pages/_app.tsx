@@ -27,7 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     { name: "Edit Services", route: "/site" },
                     { name: "Daily Bookings", route: "/bookings" },
                     { name: "Calendar", route: "/calendar" },
-                    { name: "Manage Staff Roles", route: "/editUser" }
+                    { name: "Manage Staff Roles", route: "/users/manage" }
                 ]}>
                     <Component {...pageProps} />
                 </AppPage>

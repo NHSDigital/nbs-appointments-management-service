@@ -1,5 +1,5 @@
 export type ValidationError = {
-    index: number,
+    index?: number,
     message: string,
-    field?: "start" | "end" | "start&end" | "services"
+    field?: "start" | "end" | "start&end" | "services" | "email" | "roles"
 }

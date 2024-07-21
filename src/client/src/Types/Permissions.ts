@@ -11,8 +11,3 @@ export enum Permissions {
     SetBookingStatus = "booking:set-status",
     ManageUsers = "users:manage"
 }
-
-export type Role = {
-    displayName: string,
-    id: string
-}

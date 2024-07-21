@@ -2,7 +2,7 @@
 import {useUserService} from "../Services/UserService";
 import {useRolesService} from "../Services/RolesService";
 import {useSiteContext} from "../ContextProviders/SiteContextProvider";
-import {Role} from "../Types/Permissions";
+import {Role} from "../Types/Role";
 import {Site} from "../Types/Site";
 import {When} from "../Components/When";
 import {ValidationError} from "../Types/ValidationError";
@@ -48,7 +48,7 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
     
     const validateFields = (user: string, selectedRoles: string[]) => {
         const newValidationErrors: ValidationError[] = [];
-        const emailRegex = /[\w-\.]+@([\w-]+\.)+[\w-]{2,4}/
+        const emailRegex = /[\w-.]+@([\w-]+\.)+[\w-]{2,4}/
         if (!emailRegex.test(user)) {
             newValidationErrors.push({message: "You have not entered a valid nhs email address", field: "email"})
         }
@@ -60,7 +60,6 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
     }
     
     const saveUser = () => {
-        console.log(`Save user post validate Fields: ${validationErrors.map(e => e.field)}`)
         if (validateFields(user, selectedRoles)) {
             setUserRoles(site!.id, user, selectedRoles).then(r => {
                 router.push("/")
@@ -103,9 +102,9 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                             </span>
                     </When>
                     <input 
-                        type="text" 
+                        type="text"
                         className="nhsuk-input nhsuk-input--width-20" 
-                        value={user} 
+                        value={user}
                         onChange={e => setUser(e.target.value)}/>
                 </div>
 
@@ -127,7 +126,7 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                                         <input 
                                             type="checkbox"
                                             className="nhsuk-checkboxes__input"
-                                            id={r.id}
+                                            aria-label={r.id}
                                             checked={selectedRoles?.includes(r.id)}
                                             onChange={() => handleOnChange(r.id)}
                                         />
@@ -141,8 +140,8 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                 
                 <div className="nhsuk-navigation">
                     <button
-                        id="submit-schedule"
                         type="button"
+                        aria-label="save user"
                         className="nhsuk-button nhsuk-u-margin-bottom-0"
                         disabled={status === "loading"}
                         onClick={saveUser}
@@ -151,6 +150,7 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
                     </button>
                     <button
                         type="button"
+                        aria-label="cancel"
                         className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
                         onClick={clearUser}
                     >

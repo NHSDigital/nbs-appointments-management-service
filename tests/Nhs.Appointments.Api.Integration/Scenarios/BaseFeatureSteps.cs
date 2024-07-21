@@ -226,7 +226,7 @@ public abstract class BaseFeatureSteps : Feature
 
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
-    protected string GetUserId(string userId) => $"{userId}@{_testId}";
+    protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
     
     private void SetUpRoles()
@@ -237,7 +237,7 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { Id = "integration-test:api-user", Name = "Integration Test Api User", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] },
+                    { Id = "integration-test:api-user", Name = "Integration Test Api User Role", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] },
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);

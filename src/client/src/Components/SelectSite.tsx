@@ -1,4 +1,4 @@
-import { useAuthContext } from "src/ContextProviders/AuthContextProvider"
+import { useAuthContext } from "../ContextProviders/AuthContextProvider"
 import { Site } from "../Types/Site"
 import { NhsFooter } from "./NhsFooter"
 import { NhsHeader } from "./NhsHeader"

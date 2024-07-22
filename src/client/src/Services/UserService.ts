@@ -9,5 +9,14 @@ export const useUserService = () => {
                 return rsp.json();
             })
     }
-    return {getUserPermissions}
+    
+    const setUserRoles = async (site: string, user: string, roles: string[]) => {
+        const payload = {
+            scope: `site:${site}`,
+            user,
+            roles
+        }
+        return client.post('user/roles', payload)
+    }
+    return {getUserPermissions, setUserRoles}
 }

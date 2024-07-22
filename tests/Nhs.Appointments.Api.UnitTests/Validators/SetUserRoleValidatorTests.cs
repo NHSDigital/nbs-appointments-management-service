@@ -15,7 +15,7 @@ public class SetUserRoleValidatorTests
         var testRequest = new SetUserRolesRequest()
         {
             Scope = "site:1000", 
-            User = "test@test.com", 
+            User = "test.one@test.com", 
             Roles = ["Role1", "Role2"]
         };
         var result = _sut.Validate(testRequest);
@@ -23,13 +23,17 @@ public class SetUserRoleValidatorTests
     }
     
     [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_ReturnError_WhenScopeIsNullOrEmpty(string scope)
+    [InlineData("", "")]
+    [InlineData(null, null)]
+    [InlineData("", "1000")]
+    [InlineData("site", "1000")]
+    [InlineData(":", "1000")]
+    [InlineData("site:", "")]
+    public void Validate_ReturnError_WhenScopeIsNotValid(string prefix, string site)
     {
         var testRequest = new SetUserRolesRequest()
         {
-            Scope = scope, 
+            Scope = prefix + site, 
             User = "test@test.com", 
             Roles = ["Role1", "Role2"]
         };
@@ -42,7 +46,13 @@ public class SetUserRoleValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Validate_ReturnError_WhenUserIsNullOrEmpty(string user)
+    [InlineData("test@")]
+    [InlineData("test@com")]
+    [InlineData("test@test.")]
+    [InlineData("test@testcom")]
+    [InlineData("testtest.com")]
+    [InlineData("@test.com")]
+    public void Validate_ReturnError_WhenUserIsNotValidEmailAddress(string user)
     {
         var testRequest = new SetUserRolesRequest()
         {

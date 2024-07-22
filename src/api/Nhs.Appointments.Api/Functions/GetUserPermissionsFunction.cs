@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -21,7 +20,7 @@ public class GetUserPermissionsFunction(IPermissionChecker permissionChecker, IV
 
     [OpenApiOperation(operationId: "GetPermissionsForUser", tags: new[] { "Auth" }, Summary = "Gets the users for a given user and site")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(Site[]), Description = "List of permissions the user has at the specified site")]    
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(PermissionsResponse), Description = "List of permissions the user has at the specified site")]    
     [Function("GetPermissionsForUserFunction")]
     public override Task<IActionResult> RunAsync(
       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/permissions")] HttpRequest req)
@@ -35,9 +34,4 @@ public class GetUserPermissionsFunction(IPermissionChecker permissionChecker, IV
         var permissions = await permissionChecker.GetPermissionsAsync(user, request.Site);
         return ApiResult<PermissionsResponse>.Success(new PermissionsResponse{ Permissions = permissions.ToArray()});
     }
-}
-
-public class PermissionsResponse
-{
-    public string[] Permissions { get; set; }
 }

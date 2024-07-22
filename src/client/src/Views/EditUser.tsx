@@ -6,22 +6,24 @@ import {Role} from "../Types/Role";
 import {Site} from "../Types/Site";
 import {When} from "../Components/When";
 import {ValidationError} from "../Types/ValidationError";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
+import {EMAIL_REGEX} from "../constants";
 
 type EditUserProps = {
     setUserRoles: (user: string, site: string, roles: string[]) => Promise<any>
     getRoles: () => Promise<any>
     site: Site
+    navigate: (href: string) => void;
 }
 
 export const EditUserCtx = () => {
     const { setUserRoles } = useUserService();
     const { getRoles } = useRolesService();
     const { site } = useSiteContext();
-    return ( <EditUser setUserRoles={setUserRoles} getRoles={getRoles} site={site!} />)
+    const { push } = useRouter();
+    return ( <EditUser setUserRoles={setUserRoles} getRoles={getRoles} site={site!} navigate={push}/>)
 }
-export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
-    const router = useRouter();
+export const EditUser = ({setUserRoles, getRoles, site, navigate} : EditUserProps) => {
     const [validationErrors, setValidationErrors] = React.useState<ValidationError[]>([]);
     const [status, setStatus] = React.useState<"loading" | "loaded" >("loading");
     const [ selectedRoles, setSelectedRoles] = React.useState<string[]>([] as string[]);
@@ -48,8 +50,7 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
     
     const validateFields = (user: string, selectedRoles: string[]) => {
         const newValidationErrors: ValidationError[] = [];
-        const emailRegex = /[\w-.]+@([\w-]+\.)+[\w-]{2,4}/
-        if (!emailRegex.test(user)) {
+        if (!EMAIL_REGEX.test(user)) {
             newValidationErrors.push({message: "You have not entered a valid nhs email address", field: "email"})
         }
         if (selectedRoles.length < 1) {
@@ -62,7 +63,7 @@ export const EditUser = ({setUserRoles, getRoles, site} : EditUserProps) => {
     const saveUser = () => {
         if (validateFields(user, selectedRoles)) {
             setUserRoles(site!.id, user, selectedRoles).then(r => {
-                router.push("/")
+                navigate("/")
             });
         }
     }

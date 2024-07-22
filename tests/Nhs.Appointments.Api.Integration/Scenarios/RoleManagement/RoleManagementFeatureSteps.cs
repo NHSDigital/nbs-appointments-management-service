@@ -17,8 +17,9 @@ public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
     private GetRolesResponse _actualResponse;
     
     [Given("There are existing roles")]
-    public Task RoleAssignments()
+    public Task Roles()
     {
+        // Roles already setup by SetUpRoles() in BaseFeatureSteps
         return Task.CompletedTask;
     }
     

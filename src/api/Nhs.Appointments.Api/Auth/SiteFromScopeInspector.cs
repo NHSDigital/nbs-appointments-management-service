@@ -18,7 +18,7 @@ public class SiteFromScopeInspector : IRequestInspector
                 using var jsonDocument = JsonDocument.Parse(body);
                 if (jsonDocument.RootElement.TryGetProperty("scope", out var scopeValue))
                 {
-                    return scopeValue.ToString().Replace("site:", "");
+                    return scopeValue.ToString().StartsWith("site:") ? scopeValue.ToString().Replace("site:", "") : string.Empty;
                 }
             }
             catch (JsonException)

@@ -17,19 +17,10 @@ const testRoles:  Role[] = [
     },
 ]
 
-jest.mock('next/navigation', () => {
-    return {
-        useRouter: () => ({
-            push: jest.fn(),
-        })
-    }
-});
-
-
 describe("<EditUser />", () => {
     it("shows available roles to user", async () => {
         const mockGetRoles = jest.fn().mockResolvedValue(testRoles);
-        wrappedRender(<EditUser setUserRoles={jest.fn()} getRoles={mockGetRoles} site={site}/>);
+        wrappedRender(<EditUser setUserRoles={jest.fn()} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
         expect(mockGetRoles).toHaveBeenCalled();
         expect(await screen.findByText("Test Role One")).toBeVisible();
         expect(await screen.findByText("Test Role Two")).toBeVisible();
@@ -39,7 +30,7 @@ describe("<EditUser />", () => {
     it("displays validation message when submitting an invalid email address", async () => {
         const mockGetRoles = jest.fn().mockResolvedValue(testRoles);
         const mockSaveUser = jest.fn().mockResolvedValue(null);
-        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site}/>);
+        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
         
         const emailInput = screen.getByRole("textbox");
         await userEvent.type(emailInput, "invalid-email-address");
@@ -58,7 +49,7 @@ describe("<EditUser />", () => {
     it("displays validation message when submitting with no roles selected", async () => {
         const mockGetRoles = jest.fn().mockResolvedValue(testRoles);
         const mockSaveUser = jest.fn().mockResolvedValue(null);
-        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site}/>);
+        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
         
         const emailInput = screen.getByRole("textbox");
         await userEvent.type(emailInput, "valid-email-address@test.com");
@@ -73,7 +64,7 @@ describe("<EditUser />", () => {
     
     it("clears fields when user cancels", async () => {
         const mockGetRoles = jest.fn().mockResolvedValue(testRoles);
-        wrappedRender(<EditUser setUserRoles={jest.fn()} getRoles={mockGetRoles} site={site}/>);
+        wrappedRender(<EditUser setUserRoles={jest.fn()} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
 
         const emailInput = screen.getByRole("textbox");
         await userEvent.type(emailInput, "test@test.com");
@@ -91,7 +82,7 @@ describe("<EditUser />", () => {
     it("calls saveUser with correct user information", async () => {
         const mockGetRoles = jest.fn().mockResolvedValue(testRoles);
         const mockSaveUser = jest.fn().mockResolvedValue("fakeResult");
-        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site}/>);
+        wrappedRender(<EditUser setUserRoles={mockSaveUser} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
         
         const emailInput = screen.getByRole("textbox");
         await userEvent.type(emailInput, "test@test.com");

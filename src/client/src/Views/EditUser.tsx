@@ -121,21 +121,27 @@ export const EditUser = ({setUserRoles, getRoles, site, navigate} : EditUserProp
                             <span>Loading roles...</span>
                         </When>
                         <When condition={status === "loaded"}>
-                            <div>
-                                {roles.map(r => (
-                                    <div key={r.id} className="nhsuk-checkboxes__item"> 
-                                        <input 
-                                            type="checkbox"
-                                            className="nhsuk-checkboxes__input"
-                                            aria-label={r.id}
-                                            checked={selectedRoles?.includes(r.id)}
-                                            onChange={() => handleOnChange(r.id)}
-                                        />
-                                        <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
+                            <fieldset className="nhsuk-fieldset">
+                                <div>
+                                    {roles.map(r => (
+                                        <div key={r.id}>
+                                        <div className="nhsuk-checkboxes__item"> 
+                                            <input 
+                                                type="checkbox"
+                                                className="nhsuk-checkboxes__input"
+                                                aria-label={r.id}
+                                                checked={selectedRoles?.includes(r.id)}
+                                                onChange={() => handleOnChange(r.id)}
+                                            />
+                                            <label className="nhsuk-label nhsuk-checkboxes__label">{r.displayName}
+                                            </label>
+                                        </div>
+                                        <div className="nhsuk-hint">{r.description}
+                                        </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </fieldset>
                         </When>
                     </div>
                 

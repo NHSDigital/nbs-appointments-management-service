@@ -237,7 +237,12 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { Id = "integration-test:api-user", Name = "Integration Test Api User Role", Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] },
+                    { 
+                        Id = "integration-test:api-user", 
+                        Name = "Integration Test Api User Role",
+                        Description = "Role for integration test user",
+                        Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage" ] 
+                    }
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);

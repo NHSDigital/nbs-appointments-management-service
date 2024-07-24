@@ -9,11 +9,13 @@ const site: Site = { name: "Test Site", id: "1", address: "123" };
 const testRoles:  Role[] = [
     {
         displayName: "Test Role One",
-        id: "test-role-one"
+        id: "test-role-one",
+        description: "Description for test role one"
     },
     {
         displayName: "Test Role Two",
-        id: "test-role-two"
+        id: "test-role-two",
+        description: "Description for test role two"
     },
 ]
 
@@ -23,7 +25,9 @@ describe("<EditUser />", () => {
         wrappedRender(<EditUser setUserRoles={jest.fn()} getRoles={mockGetRoles} site={site} navigate={jest.fn}/>);
         expect(mockGetRoles).toHaveBeenCalled();
         expect(await screen.findByText("Test Role One")).toBeVisible();
+        expect(await screen.findByText("Description for test role one")).toBeVisible();
         expect(await screen.findByText("Test Role Two")).toBeVisible();
+        expect(await screen.findByText("Description for test role two")).toBeVisible();
         expect(screen.queryByText("Loading roles...")).toBeNull();
     });
     

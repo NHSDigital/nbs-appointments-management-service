@@ -2,6 +2,7 @@ import React from "react";
 import { When } from "../Components/When";
 import { SignIn } from "../Components/SignIn";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import { getApiUrl } from "../configuration";
 import { jwtDecode } from "jwt-decode";
 
@@ -9,6 +10,7 @@ export interface IAuthContext {
     idToken: string | null;
     getUserEmail: () => string;
     signOut: () => void;
+    unauthorised: () => void;
 }
 
 export const AuthContext = React.createContext<IAuthContext | null>(null);
@@ -16,7 +18,8 @@ export const AuthContext = React.createContext<IAuthContext | null>(null);
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const searchParams = useSearchParams();
     const idToken = localStorage.getItem("idtoken");
-    const host = `${window.location.protocol}//${window.location.host}`
+    const host = `${window.location.protocol}//${window.location.host}`;
+    const router = useRouter();
 
     const getUserEmail = () => {
         const decoded = jwtDecode(idToken!) as any;
@@ -37,7 +40,11 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
 
     const signOut = () => {
         localStorage.removeItem("idtoken");
-        window.location.replace(host);
+        router.push("/");
+    }
+
+    const unauthorised = () => {
+        router.push("/unauthorised");
     }
 
     if (searchParams.has("code")) {
@@ -48,13 +55,13 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
             }).then(authObj => {
                 if (authObj.token) {
                     localStorage.setItem("idtoken", authObj.token)
-                    window.location.replace(host)
+                    router.push("/");
                 }
             });
     }
 
     return (
-        <AuthContext.Provider value={{idToken, signOut, getUserEmail}}>
+        <AuthContext.Provider value={{idToken, signOut, getUserEmail, unauthorised}}>
             <When condition={idToken !== null}>
                 {children}
             </When>

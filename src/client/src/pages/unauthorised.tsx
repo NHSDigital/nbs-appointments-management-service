@@ -1,3 +1,3 @@
 export default function UnauthorisedPage() {
-    return <h2>You do not have permission to access this page.</h2>
+    return <h2>You don't have permissions to view this page</h2>
 }

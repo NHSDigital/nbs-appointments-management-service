@@ -8,5 +8,6 @@ export enum Permissions {
     MakeBooking = "booking:make",
     QueryBooking = "booking:query",
     CancelBooking = "booking:cancel",
-    SetBookingStatus = "booking:set-status"
+    SetBookingStatus = "booking:set-status",
+    ManageUsers = "users:manage"
 }

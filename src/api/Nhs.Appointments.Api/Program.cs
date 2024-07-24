@@ -6,8 +6,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(builder =>
     {
         builder
-            .UseMiddleware<TypeDecoratorMiddleware>()
-            .UseMiddleware<SiteInspectorMiddleware>()
+            .UseMiddleware<TypeDecoratorMiddleware>()            
             .UseMiddleware<AuthenticationMiddleware>()
             .UseMiddleware<AuthorizationMiddleware>()
             .ConfigureFunctionDependencies();

@@ -24,7 +24,7 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "User role successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
-    [RequiresPermission("users:manage")]
+    [RequiresPermission("users:manage", typeof(SiteFromScopeInspector))]
     [Function("SetUserRoles")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/roles")] HttpRequest req)

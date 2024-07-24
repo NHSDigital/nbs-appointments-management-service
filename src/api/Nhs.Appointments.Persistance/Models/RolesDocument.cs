@@ -17,6 +17,9 @@ public class Role
     [JsonProperty("name")]
     public string Name { get; set; }
     
+    [JsonProperty("description")]
+    public string Description { get; set; }
+
     [JsonProperty("permissions")]
     public string[] Permissions { get; set; }
 }

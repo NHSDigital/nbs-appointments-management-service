@@ -2,18 +2,21 @@ import { Suspense } from 'react';
 import { UsersList, UsersListSkeleton } from './list';
 import Link from 'next/link';
 import React from 'react';
+import ActionSuccess from '@/app/components/action-success';
+import { When } from '@/app/components/when';
 
 type PageProps = {
     params: {
         site: string
     }
     searchParams?: {
-      query?: string;
-      page?: string;
+      action: string
     }
 }
 
 const Page = async ({params, searchParams}:PageProps) => {
+
+    const action = searchParams?.action;
     
     return (
         <>
@@ -30,8 +33,14 @@ const Page = async ({params, searchParams}:PageProps) => {
                 Add User Role Assignments
             </Link>
             </div>
+            <When condition={action === "saved"}>
+                <ActionSuccess message="User roles have been assigned" />
+            </When>
+            <When condition={action === "revoked"}>
+                <ActionSuccess message="User access has been revoked" />
+            </When>
             <Suspense fallback={<UsersListSkeleton />}>
-                <UsersList site={params.site} searchParams={searchParams} />
+                <UsersList site={params.site} />
             </Suspense>
         </>
     )

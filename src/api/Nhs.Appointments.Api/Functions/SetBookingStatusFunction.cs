@@ -32,7 +32,7 @@ public class SetBookingStatusFunction : BaseApiFunction<SetBookingStatusRequest,
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(SetBookingStatusResponse), Description = "Booking status successfully set")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "Booking not found")]
-    [RequiresPermission("booking:set-status", typeof(NoSiteRequestInspector))]
+    [RequiresPermission("booking:set-status", typeof(SiteFromBodyInspector))]
     [Function("SetBookingStatusFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/set-status")] HttpRequest req)

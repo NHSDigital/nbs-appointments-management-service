@@ -36,7 +36,7 @@ public class GetUsersForSiteFunction(IUserService userService, IValidator<SiteBa
     {
         var permissionRequiredToViewAllUsers =
             (await userService.GetUserRoleAssignments(Principal.Claims.GetUserEmail()))
-            .FirstOrDefault(roleAssignment => roleAssignment.Role == "users:view");
+            .FirstOrDefault(roleAssignment => roleAssignment.Role == "users:view" && roleAssignment.Scope == $"site:{request.Site}");
         if (permissionRequiredToViewAllUsers is null)
         {
             return ApiResult<GetUsersForSiteResponse>.Failed(HttpStatusCode.Forbidden, "Insufficient permissions.");

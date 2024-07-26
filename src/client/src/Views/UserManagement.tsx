@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { When } from "../Components/When";
 import { useSiteContext } from "../ContextProviders/SiteContextProvider";
-import { useUserService } from "src/Services/UserService";
+import { useUserService } from "../Services/UserService";
 import { User } from "../Types/User";
-import { Table } from "src/Components/Table";
+import { Table } from "../Components/Table";
 
 type UserManagementProps = {
   siteId: string;
-  getUsersForSite: () => Promise<User[]>;
+  getUsersForSite: (siteId: string) => Promise<User[]>;
 };
 
 export const UserManagementCtx = () => {
@@ -17,7 +17,7 @@ export const UserManagementCtx = () => {
   return (
     <UserManagement
       siteId={site!.id}
-      getUsersForSite={() => userService.getUsersForSite(site!.id)}
+      getUsersForSite={userService.getUsersForSite}
     />
   );
 };
@@ -34,8 +34,7 @@ export const UserManagement = ({
   useEffect(() => {
     if (siteId) {
       setStatus("loading");
-      getUsersForSite().then((users) => {
-        console.dir(users);
+      getUsersForSite(siteId).then((users) => {
         setUsers(users);
       });
       setStatus("ready");

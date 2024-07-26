@@ -8,7 +8,7 @@ const mockRows = [
   ["Row 2 Col 1", "Row 2 Col 2"],
 ];
 
-describe("Table", () => {
+describe("<Table />", () => {
   it("renders", () => {
     render(
       <Table caption={mockCaption} headers={mockHeaders} rows={mockRows} />

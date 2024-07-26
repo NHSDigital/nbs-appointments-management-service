@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { UserManagement } from "./UserManagement";
 import { User } from "src/Types/User";
 
-describe("UserManagement", () => {
+describe("<UserManagement />", () => {
   it("renders", () => {
     render(
       <UserManagement

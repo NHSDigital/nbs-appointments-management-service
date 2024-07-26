@@ -4,30 +4,32 @@ import { ISiteContext, SiteContext } from "./ContextProviders/SiteContextProvide
 import { DayOfWeek, ExplodedWeekTemplate, ScheduleTemplate, Session, WeekDaySessionMap, WeekTemplate } from "./Types/Schedule";
 import { AuthContext } from "./ContextProviders/AuthContextProvider";
 
-export const wrappedRender = (child: React.ReactNode, siteContext: ISiteContext = {
-    site: null,
-    siteConfig: null,
-    saveSiteConfiguration: jest.fn(),
-    hasPermission: () => true
-}, signOut: () => void = () => {}) => {
-
-    const getUserEmail = () => "";
-
-    return render(
-        <AuthContext.Provider value={{idToken: "123", signOut, getUserEmail}}>
-            <SiteContext.Provider value={siteContext}>
-                {child}
-            </SiteContext.Provider>
-        </AuthContext.Provider>
-    )
+export const wrappedRender = (
+    child: React.ReactNode,
+    siteContext: ISiteContext = {
+        site: null,
+        siteConfig: null,
+        saveSiteConfiguration: jest.fn(),
+        hasPermission: () => true
+    },
+    signOut: () => void = () => { },
+    getUserEmail: () => string = () => "",
+    unauthorised: () => void = () => { }) => {
+        return render(
+            <AuthContext.Provider value={{ idToken: "123", signOut, getUserEmail, unauthorised }}>
+                <SiteContext.Provider value={siteContext}>
+                    {child}
+                </SiteContext.Provider>
+            </AuthContext.Provider>
+        )
 }
 
-export const parseTime = ( timeString: string, isUntil:boolean = false): null | Date => {
+export const parseTime = (timeString: string, isUntil: boolean = false): null | Date => {
     if (timeString === "") return null;
     var d = new Date();
     var time = timeString.trim().match(/(\d+):(\d\d)/);
     if (time) {
-        if(isUntil && time[1].startsWith("00")){
+        if (isUntil && time[1].startsWith("00")) {
             d.setDate(d.getDate() + 1);
         }
         d.setHours(parseInt(time[1]), parseInt(time[2]));
@@ -39,8 +41,8 @@ export const parseTime = ( timeString: string, isUntil:boolean = false): null | 
 
 export const blocksEqual = (s1: Session[], s2: Session[]) => {
     return s1.length === s2.length &&
-       s1.every((s, i) => s.from === s2[i].from && s.until === s2[i].until && s.services.every((s,j)=> s === s2[i].services[j]));
- }
+        s1.every((s, i) => s.from === s2[i].from && s.until === s2[i].until && s.services.every((s, j) => s === s2[i].services[j]));
+}
 
 export const calculateNewSessionTime = (previousUntil: string, defaultTimes: { start: string, end: string }) => {
     //add one hour session
@@ -55,7 +57,7 @@ export const calculateNewSessionTime = (previousUntil: string, defaultTimes: { s
     return returnObject;
 }
 
-export const templateToViewModel = (weekTemplate: WeekTemplate) : ExplodedWeekTemplate => {
+export const templateToViewModel = (weekTemplate: WeekTemplate): ExplodedWeekTemplate => {
     const days: WeekDaySessionMap = { "Monday": [], "Tuesday": [], "Wednesday": [], "Thursday": [], "Friday": [], "Saturday": [], "Sunday": [] };
     weekTemplate.items.forEach((sT) => {
         sT.days.forEach(day => {
@@ -71,7 +73,7 @@ export const templateToViewModel = (weekTemplate: WeekTemplate) : ExplodedWeekTe
     }
 }
 
-export const cloneTemplate = (original: ExplodedWeekTemplate) : ExplodedWeekTemplate => {
+export const cloneTemplate = (original: ExplodedWeekTemplate): ExplodedWeekTemplate => {
     const clone = {
         id: original.id,
         name: original.name,
@@ -86,7 +88,7 @@ export const cloneTemplate = (original: ExplodedWeekTemplate) : ExplodedWeekTemp
     return clone;
 }
 
-export const viewModelToTemplate = (state: ExplodedWeekTemplate) : WeekTemplate => {
+export const viewModelToTemplate = (state: ExplodedWeekTemplate): WeekTemplate => {
     const templates: ScheduleTemplate[] = [];
     Object.entries(state.days).forEach(([day, blocks]) => {
         const match = templates.find(t => blocksEqual(t.scheduleBlocks, blocks));

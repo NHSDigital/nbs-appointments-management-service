@@ -37,7 +37,7 @@ public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
         _statusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var expectedRoleItems = dataTable.Rows.Skip(1)
             .Select((row) => 
-                new GetRoleResponseItem(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(1).Value));
+                new GetRoleResponseItem(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(1).Value, row.Cells.ElementAt(2).Value));
         var expectedRolesResponse = new GetRolesResponse(expectedRoleItems);
         _actualResponse.Should().BeEquivalentTo(expectedRolesResponse);
     }

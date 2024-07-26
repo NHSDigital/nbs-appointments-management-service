@@ -33,7 +33,7 @@ public class GetRolesFunction(IRolesService rolesService, IValidator<EmptyReques
     protected override async Task<ApiResult<GetRolesResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
         var roles = await rolesService.GetRoles();
-        var mappedRoles = roles.Select(role => new GetRoleResponseItem(role.Name, role.Id));
+        var mappedRoles = roles.Select(role => new GetRoleResponseItem(role.Name, role.Id, role.Description));
         return ApiResult<GetRolesResponse>.Success(new GetRolesResponse(mappedRoles.ToArray()));
     }
     

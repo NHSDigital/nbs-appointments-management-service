@@ -1,3 +1,4 @@
+import { useAuthContext } from "../ContextProviders/AuthContextProvider"
 import { Site } from "../Types/Site"
 import { NhsFooter } from "./NhsFooter"
 import { NhsHeader } from "./NhsHeader"
@@ -9,9 +10,10 @@ type SelectSiteProps = {
 }
 
 export const SelectSite = ({sites, selectSite} : SelectSiteProps) => {
+    const {getUserEmail, signOut} = useAuthContext()
     return(
         <>
-            <NhsHeader navLinks={[]} />
+            <NhsHeader navLinks={[]} userEmail={getUserEmail()} signOut={signOut} />
             <div className="nhsuk-width-container">
                 <main className="nhsuk-main-wrapper " id="maincontent" role="main">
                     <div className="nhsuk-grid-row">

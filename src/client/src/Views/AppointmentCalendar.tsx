@@ -117,8 +117,8 @@ export const AppointmentsCalendar = ({ siteConfig, getTemplates, getAssignments,
                 getBookings(startOfWeek, endOfWeek).then(bookings => {
                     setBookings(bookings);
                 });
-              })
-          });
+              }).catch(e => console.log("Caught assignments error: " + e.message));
+          }).catch(e => console.log("Caught templates error: " + e.message));
     }, [siteConfig?.site]);
 
     const showBookings = (calendarEvent: Event, reactEvent: React.SyntheticEvent) => {

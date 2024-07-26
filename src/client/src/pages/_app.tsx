@@ -16,27 +16,30 @@ const DynamicAuthCtxProvider = dynamic(
 );
 
 export default function App({ Component, pageProps }: AppProps) {
-    return <>
-        <Head>
-            <meta name="viewport" content="width=device-width, initial-scale=1"/>
-            <title>NHS Appointments Book</title>
-        </Head>
-        <DynamicAuthCtxProvider>
-            <SiteContextProvider>
-                <AppPage navLinks={[
-                    { name: "Home", route: "/" },
-                    { name: "Availability Scheduler", route: "/availability" },
-                    { name: "Templates", route: "/templates" },
-                    { name: "Edit Services", route: "/site" },
-                    { name: "Daily Bookings", route: "/bookings" },
-                    { name: "Calendar", route: "/calendar" },
-                    { name: "Manage Staff Roles", route: "/users/manage" },
-                    { name: "User Management", route: "/user-management" },
-                ]}>
-                    <Component {...pageProps} />
-                </AppPage>
-            </SiteContextProvider>
-        </DynamicAuthCtxProvider>
+  return (
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>NHS Appointments Book</title>
+      </Head>
+      <DynamicAuthCtxProvider>
+        <SiteContextProvider>
+          <AppPage
+            navLinks={[
+              { name: "Home", route: "/" },
+              { name: "Availability Scheduler", route: "/availability" },
+              { name: "Templates", route: "/templates" },
+              { name: "Edit Services", route: "/site" },
+              { name: "Daily Bookings", route: "/bookings" },
+              { name: "Calendar", route: "/calendar" },
+              { name: "Manage Staff Roles", route: "/users/manage" },
+              { name: "User Management", route: "/user-management" },
+            ]}
+          >
+            <Component {...pageProps} />
+          </AppPage>
+        </SiteContextProvider>
+      </DynamicAuthCtxProvider>
     </>
   );
 }

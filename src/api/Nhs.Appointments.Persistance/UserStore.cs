@@ -45,6 +45,11 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
         }
     }
+
+    public Task<IEnumerable<User>> GetUsersForSite(string siteId)
+    {
+        return cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{siteId}"));
+    }
     
     private Task InsertAsync(User user)
     {

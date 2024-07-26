@@ -5,6 +5,7 @@ public interface IUserService
     Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId);
     Task<string> GetApiUserSigningKey(string clientId);
     Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    public Task<IEnumerable<User>> GetUsersForSite(string siteId);
 }
 
 public class UserService(IUserStore store) : IUserService
@@ -22,5 +23,10 @@ public class UserService(IUserStore store) : IUserService
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
         return store.SaveUserAsync(userId, scope, roleAssignments);
+    }
+
+    public Task<IEnumerable<User>> GetUsersForSite(string siteId)
+    {
+        return store.GetUsersForSite(siteId);
     }
 }

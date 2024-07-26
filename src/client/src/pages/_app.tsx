@@ -1,5 +1,5 @@
-import "/node_modules/nhsuk-frontend/dist/nhsuk.css"
-import '../index.css'
+import "/node_modules/nhsuk-frontend/dist/nhsuk.css";
+import "../index.css";
 import type { AppProps } from "next/app";
 import dynamic from "next/dynamic";
 import { AppPage } from "src/Components/AppPage";
@@ -8,8 +8,11 @@ import Head from "next/head";
 
 // dynamically render auth provider as it uses window object
 const DynamicAuthCtxProvider = dynamic(
-    () => import('src/ContextProviders/AuthContextProvider').then(mod => mod.AuthContextProvider),
-    {ssr: false}
+  () =>
+    import("src/ContextProviders/AuthContextProvider").then(
+      (mod) => mod.AuthContextProvider
+    ),
+  { ssr: false }
 );
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -27,11 +30,13 @@ export default function App({ Component, pageProps }: AppProps) {
                     { name: "Edit Services", route: "/site" },
                     { name: "Daily Bookings", route: "/bookings" },
                     { name: "Calendar", route: "/calendar" },
-                    { name: "Manage Staff Roles", route: "/users/manage" }
+                    { name: "Manage Staff Roles", route: "/users/manage" },
+                    { name: "User Management", route: "/user-management" },
                 ]}>
                     <Component {...pageProps} />
                 </AppPage>
             </SiteContextProvider>
         </DynamicAuthCtxProvider>
     </>
+  );
 }

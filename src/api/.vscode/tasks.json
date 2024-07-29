@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dotnet Build",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Dotnet Clean",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["clean", "Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Run API",
+      "command": "func",
+      "type": "process",
+      "args": ["start"],
+      "options": {
+        "cwd": "Nhs.Appointments.Api/"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Clean and Run API",
+      "command": "func",
+      "type": "process",
+      "args": ["start"],
+      "options": {
+        "cwd": "Nhs.Appointments.Api/"
+      },
+      "problemMatcher": "$msCompile",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Dotnet Clean"]
+    }
+  ]
+}

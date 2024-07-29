@@ -38,7 +38,7 @@ We will build a web based application for appointment and site management
 
 ## GitHub Repo and signed commits
 
-The repo has signed commits enabled. This means that only commits that are verified can be merged into the main branch. More information about signed commits can be found  [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
+The repo has signed commits enabled. This means that only commits that are verified can be merged into the main branch. More information about signed commits can be found [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
 
 Your workstation will need to be set up to use signed commits. Please follow this guide for [instructions](https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md).
 
@@ -53,16 +53,28 @@ Your workstation will need to be set up to use signed commits. Please follow thi
   Tools [instructions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
 - Install NPM [instructions](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
+#### VS Code Setup (optional)
+
+If you are using VS Code, you may find it beneficial to open the repo by opening the `nbs-ams.code-workspace` file itself. This will open a workspace configured with several productivity boons:
+
+- The Explorer window is split into folders for convenience and to make navigating the repo quicker/easier
+- Terminals can be opened straight into any of these folders using the `ctrl-shift-'` command
+- Default build tasks have been configured for Dotnet and Typescript. You can run these with the `ctrl-shift-b` command
+- Non-build tasks have been configured for starting the docker, dotnet, and NextJS services. These are configured in `tasks.json` folders and can be ran through `Terminal` -> `Run Task...`
+
 ### Running locally
 
 Each of the following steps needs to be done in a separate terminal window
 
 - Run the Cosmos Emulator and MockApi
   - From the root folder run `docker compose up`
+  - (OR if using VS Code) run the `Start local development containers` task
 - Run the API
   - From the folder `/src/api/Nhs.Appointments.Api` run the command `func start`
+  - (OR if using VS Code) run the `Clean and Run API` task
 - Run the Web Application
   - From the folder `/src/client/` run `npm install` and then run `npm run dev`
+  - (OR if using VS Code) run the `Run Client in Dev Mode` task
 
 ### Setting a cert for the OIDC server
 
@@ -100,61 +112,51 @@ insert the document again.
 
 ```json
 {
-    "id": "global_roles",
-    "docType": "roles",
-    "roles": [
-        {
-            "id": "canned:check-in",
-            "name": "Check-in",
-            "permissions": [
-                "booking:query",
-                "booking:set-status"
-            ]
-        },
-        {
-            "id": "canned:appointment-manager",
-            "name": "Appointment manager",
-            "permissions": [
-                "booking:make",
-                "booking:query",
-                "booking:cancel"
-            ]
-        },
-        {
-            "id": "canned:availability-manager",
-            "name": "Availability manager",
-            "permissions": [
-                "availability:get-setup",
-                "availability:set-setup",
-                "availability:query"
-            ]
-        },
-        {
-            "id": "canned:site-configuration-manager",
-            "name": "Site configuration manager",
-            "permissions": [
-                "site:get-config",
-                "site:set-config"
-            ]
-        },
-        {
-            "id": "canned:api-user",
-            "name": "Api User",
-            "permissions": [
-                "site:get-meta-data",
-                "availability:query",
-                "booking:make",
-                "booking:query",
-                "booking:cancel"
-            ]
-        }
-    ]
+  "id": "global_roles",
+  "docType": "roles",
+  "roles": [
+    {
+      "id": "canned:check-in",
+      "name": "Check-in",
+      "permissions": ["booking:query", "booking:set-status"]
+    },
+    {
+      "id": "canned:appointment-manager",
+      "name": "Appointment manager",
+      "permissions": ["booking:make", "booking:query", "booking:cancel"]
+    },
+    {
+      "id": "canned:availability-manager",
+      "name": "Availability manager",
+      "permissions": [
+        "availability:get-setup",
+        "availability:set-setup",
+        "availability:query"
+      ]
+    },
+    {
+      "id": "canned:site-configuration-manager",
+      "name": "Site configuration manager",
+      "permissions": ["site:get-config", "site:set-config"]
+    },
+    {
+      "id": "canned:api-user",
+      "name": "Api User",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:query",
+        "booking:make",
+        "booking:query",
+        "booking:cancel"
+      ]
+    }
+  ]
 }
 ```
 
 ### Adding in User Site Assignments
 
-Add another document to represent a user with the following structure in to the index_data container. Each user is represented by a single document which contains the id of the user and all the roles that are assigned to the user at each site. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites. 
+Add another document to represent a user with the following structure in to the index_data container. Each user is represented by a single document which contains the id of the user and all the roles that are assigned to the user at each site. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites.
 
 This will have to be done once the function has started (so that the containers have been created) but before you can login. If you restart your cosmos database you will need to insert the document again.
 
@@ -180,6 +182,7 @@ This will have to be done once the function has started (so that the containers 
 ```
 
 Example of ApiUser with global scoped role:
+
 ```json
 {
   "id": "api@dev",

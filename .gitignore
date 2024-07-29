@@ -8,7 +8,7 @@
 .version
 
 *.code-workspace
-!project.code-workspace
+!nbs-ams.code-workspace
 
 # Please, add your custom content below!
 ## Ignore Visual Studio temporary files, build results, and
@@ -225,7 +225,6 @@ FakesAssemblies/
 *.opt
 
 # VS Code related folders and files
-.vscode/
 *.jfm
 
 # idea related folders and files

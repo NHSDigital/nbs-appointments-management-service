@@ -1,0 +1,79 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Typescript",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "options": {
+        "args": ["--noEmit"]
+      },
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "Build Next App",
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Client in Dev Mode",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Client",
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": [],
+      "dependsOrder": "sequence",
+      "dependsOn": ["Build Next App"]
+    },
+    {
+      "label": "Run Jest Tests",
+      "type": "npm",
+      "script": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "NPM Install",
+      "type": "npm",
+      "script": "install",
+      "problemMatcher": []
+    },
+    {
+      "label": "Full build",
+      "type": "shell",
+      "command": "echo Finished",
+      "dependsOrder": "sequence",
+      "dependsOn": ["NPM Install", "Build Typescript", "Build Next App"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Full build and test",
+      "type": "shell",
+      "command": "echo Finished",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "NPM Install",
+        "Build Typescript",
+        "Build Next App",
+        "Run Jest Tests"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

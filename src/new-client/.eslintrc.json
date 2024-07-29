@@ -143,18 +143,6 @@
         "import/no-dynamic-require": "off",
         "no-console": "off"
       }
-    },
-    {
-      "files": ["useful-scripts/*.ts", "useful-scripts/*/**.ts"],
-      "rules": {
-        "no-console": "off",
-        "no-underscore-dangle": [
-          "error",
-          {
-            "allow": ["__dirname", "__filename"]
-          }
-        ]
-      }
     }
   ]
 }

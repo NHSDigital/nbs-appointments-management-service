@@ -2,24 +2,23 @@
 import React from "react";
 
 export interface IAuthContext {
-    signIn: () => void;
-    getUserEmail: () => string;
+    hasPermission: (permission: string) => boolean
 }
 
 export const AuthContext = React.createContext<IAuthContext | null>(null);
 
-export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [ email, setEmail ] = React.useState<string>("test@nhs.net");
+type Props = { 
+    permissions: string[]
+    children: React.ReactNode 
+}
 
-    const getUserEmail = () => email!;
-    
-    const signIn = () => {
-        setEmail("cc.agent@nhs.net")
-    }
+export const AuthContextProvider = ({permissions, children} : Props) => {
+
+    const hasPermission = (permission: string) => permissions.includes(permission)
 
     return (
-        <AuthContext.Provider value={{signIn, getUserEmail}}>
-            {children}
+        <AuthContext.Provider value={{hasPermission}}>
+                {children}
         </AuthContext.Provider>
     );
 }

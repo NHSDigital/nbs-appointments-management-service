@@ -3,7 +3,7 @@ import { UsersList, UsersListSkeleton } from './list';
 import Link from 'next/link';
 import React from 'react';
 import ActionSuccess from '@/app/components/action-success';
-import { When } from '@/app/components/when';
+import Authorized from '@/app/components/authorization';
 
 type PageProps = {
     params: {
@@ -15,13 +15,23 @@ type PageProps = {
 }
 
 const Page = async ({params, searchParams}:PageProps) => {
-
-    const action = searchParams?.action;
     
     return (
         <>
             <h2 className="text-4xl font-extrabold dark:text-white">User Management</h2>
-            <div style={{padding: "10px"}}>
+            <Authorized requiredPermission="users:manage" site={params.site} fallback={<div>You can't manage users</div>}>
+                <AddRoleAssignmentsButton/>
+            </Authorized>
+            <ActionSuccess message="User roles have been assigned" />
+            <Suspense fallback={<UsersListSkeleton />}>
+                <UsersList site={params.site} />
+            </Suspense>
+        </>
+    )
+}
+
+const AddRoleAssignmentsButton = () => (
+    <div style={{padding: "10px"}}>
                 <Link href={`users/manage`} className="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-white hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-700 active:bg-blue-800">
 
                 <svg className="svg-circleplus" viewBox="0 0 100 100" style={{stroke: "white", height: "24px", marginRight: "10px"}}>
@@ -33,17 +43,6 @@ const Page = async ({params, searchParams}:PageProps) => {
                 Add User Role Assignments
             </Link>
             </div>
-            <When condition={action === "saved"}>
-                <ActionSuccess message="User roles have been assigned" />
-            </When>
-            <When condition={action === "revoked"}>
-                <ActionSuccess message="User access has been revoked" />
-            </When>
-            <Suspense fallback={<UsersListSkeleton />}>
-                <UsersList site={params.site} />
-            </Suspense>
-        </>
-    )
-}
+)
 
 export default Page

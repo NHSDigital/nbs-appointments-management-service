@@ -15,7 +15,8 @@ namespace Nhs.Appointments.Api.Functions
 {
     public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger)
         : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger)
-    {                
+    {
+        [RequiresPermission("users:view", typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]
         public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req)
         {

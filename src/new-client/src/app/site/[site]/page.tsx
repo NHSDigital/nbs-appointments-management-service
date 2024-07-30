@@ -1,6 +1,4 @@
-type SiteConfig = {
-  description: string;
-};
+import { SiteConfig } from '@types';
 
 async function getData(siteId: string): Promise<SiteConfig> {
   if (siteId === '1000') {
@@ -18,10 +16,6 @@ async function getData(siteId: string): Promise<SiteConfig> {
   }
 
   return res.json();
-}
-
-interface Params {
-  site: string;
 }
 
 export default async function Page({ params }: { params: { site: string } }) {

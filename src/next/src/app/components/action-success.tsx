@@ -1,21 +1,15 @@
 'use client'
-import { useCookies } from 'next-client-cookies';
 import React from 'react';
 import { When } from './when';
+import { useNotifications } from '../context/notifications';
 
-const ActionSuccess = ({message}:{message:string}) => {    
+const ActionSuccess = () => {
+    const { messages } = useNotifications();
     const [isVisible, setIsVisible] = React.useState(false);
-    const cookies = useCookies();
 
     React.useEffect(() => {
-        const notificationCookie = cookies.get("notification");
-        if(notificationCookie) {
-            setIsVisible(true);
-            cookies.remove("notification")
-        }        
-    },[])
-
-
+        setIsVisible(messages.length > 0);
+    }, [messages])
     
     return (
         <When condition={isVisible}>
@@ -25,7 +19,7 @@ const ActionSuccess = ({message}:{message:string}) => {
                 </svg>
                 <span className="sr-only">Info</span>
                 <div>
-                    <span className="font-medium">{message}</span>
+                    <span className="font-medium">{messages[0]}</span>
                 </div>
             </div>
         </When>

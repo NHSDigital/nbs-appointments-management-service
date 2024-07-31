@@ -7,16 +7,18 @@ export default async function Home() {
 
   return (
     <>
-      <div>Welcome to Appointment Service</div>
-      <ul className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        {sites.map(s => (
-            <li key={s.id} className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
-                <Link href={`site/${s.id}/users`} className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                     {s.name}
-                  </Link>
-            </li>
-        ))}
-        </ul>
+      <div style={{padding: "10px"}}>Choose a site</div>
+      <div style={{padding: "10px"}}>
+        <ul className="text-sm w-1/2 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          {sites.map(s => (
+              <li key={s.id} className="p-3 w-3 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <Link href={`site/${s.id}/users`} className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      {s.name}
+                    </Link>
+              </li>
+          ))}
+          </ul>
+        </div>
     </>
   );
 }

@@ -41,5 +41,10 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
             ClaimsIdentity unauthenticated = new ClaimsIdentity();
             return new ClaimsPrincipal(unauthenticated);
         }
+        catch(SecurityTokenMalformedException)
+        {
+            ClaimsIdentity unauthenticated = new ClaimsIdentity();
+            return new ClaimsPrincipal(unauthenticated);
+        }
     }    
 }

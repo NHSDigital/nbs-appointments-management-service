@@ -4,6 +4,8 @@ import "./globals.css";
 import { fetchSites } from "./lib/sitesService";
 import { When } from "./components/when";
 import { AuthWrapper } from "./components/authwrapper";
+import Providers from "./context/providers";
+import ActionSuccess from "./components/action-success";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,12 +25,18 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <When condition={sites.length === 0}>
-          <AuthWrapper />
-        </When>
-        <When condition={sites.length > 0}>
-          {children}
-        </When>
+        <div style={{background: "#326499", padding: "10px", borderBottom: "solid 1px gray", color: "White"}}>
+          NHS Appointments Book
+        </div>
+        <Providers>
+          <ActionSuccess />
+          <When condition={sites.length === 0}>
+            <AuthWrapper />
+          </When>
+          <When condition={sites.length > 0}>
+            {children}
+          </When>
+        </Providers>
       </body>
     </html>
   );

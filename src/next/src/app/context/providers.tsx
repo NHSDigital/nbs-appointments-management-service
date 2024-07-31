@@ -1,12 +1,12 @@
 'use client'
 
 import { ReactNode } from "react"
-import { AuthContextProvider } from "./auth"
+import { NotificationsContextProvider } from "./notifications"
 
 const Providers = ({children} : {children: ReactNode}) => (
-    <AuthContextProvider>
+    <NotificationsContextProvider>
         {children}
-    </AuthContextProvider>
+    </NotificationsContextProvider>
 )
 
 export default Providers

@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { UsersList, UsersListSkeleton } from './list';
 import Link from 'next/link';
 import React from 'react';
-import ActionSuccess from '@/app/components/action-success';
 import Authorized from '@/app/components/authorization';
+import ServerNotificationListener from '@/app/components/server-notification-listener';
 
 type PageProps = {
     params: {
@@ -22,7 +22,7 @@ const Page = async ({params, searchParams}:PageProps) => {
             <Authorized requiredPermission="users:manage" site={params.site} fallback={<div>You can't manage users</div>}>
                 <AddRoleAssignmentsButton/>
             </Authorized>
-            <ActionSuccess message="User roles have been assigned" />
+            <ServerNotificationListener />
             <Suspense fallback={<UsersListSkeleton />}>
                 <UsersList site={params.site} />
             </Suspense>

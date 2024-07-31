@@ -11,6 +11,7 @@ export async function fetchUsers (site: string) {
 
     const response = await fetch(getEndpoint(`users?site=${site}`),
         {
+            cache: "no-store",
         headers: {
           "Authorization": `Bearer ${tokenCookie?.value}`,
         }});
@@ -24,7 +25,7 @@ export async function fetchRoles () {
 
     if(tokenCookie === undefined) {
         revalidatePath("/");
-        throw Error("It just splode");
+        return {status: 401, data: [] as Role[]}
     }
 
     var response = await fetch(getEndpoint("roles"),
@@ -72,10 +73,9 @@ export async function fetchAccessToken(code: string) {
     }
 }
 
-export async function saveUserRoleAssignments(site: string, user: string, formData: FormData) {
+export async function saveUserRoleAssignments(site: string, user: string, roles: string[]) {
     const tokenCookie = cookies().get("token");
 
-    const roles = formData.getAll("roles"); // Is this a string or an array?
     const payload = {
         scope: `site:${site}`,
         user: user,
@@ -96,6 +96,10 @@ export async function saveUserRoleAssignments(site: string, user: string, formDa
         cookies().set("notification", "user_saved")
         revalidatePath(`/site/${site}/users`);
         redirect(`/site/${site}/users`);
+    } else if (response.status === 403) {
+        return "no_permission"
+    } else if(response.status === 401) {
+        return "no_auth"
     }
 }
 

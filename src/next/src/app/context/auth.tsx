@@ -9,7 +9,7 @@ export const AuthContext = React.createContext<IAuthContext | null>(null);
 
 type Props = { 
     permissions: string[]
-    children: React.ReactNode 
+    children: React.ReactNode
 }
 
 export const AuthContextProvider = ({permissions, children} : Props) => {

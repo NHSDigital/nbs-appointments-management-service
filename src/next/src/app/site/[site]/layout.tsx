@@ -1,4 +1,5 @@
 import { AuthWrapper } from "@/app/components/authwrapper";
+import ServerNotificationListener from "@/app/components/server-notification-listener";
 import { When } from "@/app/components/when";
 import { AuthContextProvider } from "@/app/context/auth";
 import { fecthPermissions } from "@/app/lib/usersService"

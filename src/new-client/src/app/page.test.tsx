@@ -5,6 +5,10 @@ describe('Home Page', () => {
   it('should render the home page', () => {
     render(<Home />);
 
-    expect(screen.getByText('Hello world!')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Welcome to the National Booking Service - Appointment Management System',
+      ),
+    ).toBeInTheDocument();
   });
 });

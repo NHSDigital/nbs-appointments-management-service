@@ -1,0 +1,68 @@
+{
+  "id": "global_roles",
+  "docType": "roles",
+  "roles": [
+    {
+      "id": "canned:check-in",
+      "name": "Check-in",
+      "permissions": [
+        "booking:query",
+        "booking:set-status"
+      ]
+    },
+    {
+      "id": "canned:appointment-manager",
+      "name": "Appointment manager",
+      "permissions": [
+        "booking:make",
+        "booking:query",
+        "booking:cancel"
+      ]
+    },
+    {
+      "id": "canned:availability-manager",
+      "name": "Availability manager",
+      "permissions": [
+        "availability:get-setup",
+        "availability:set-setup",
+        "availability:query"
+      ]
+    },
+    {
+      "id": "canned:site-configuration-manager",
+      "name": "Site configuration manager",
+      "permissions": [
+        "site:get-config",
+        "site:set-config"
+      ]
+    },
+    {
+      "id": "canned:api-user",
+      "name": "Api User",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:query",
+        "booking:make",
+        "booking:query",
+        "booking:cancel"
+      ]
+    },
+    {
+      "id": "all-permissions",
+      "name": "All Permissions",
+      "permissions": [
+        "site:get-config",
+        "site:set-config",
+        "site:get-meta-data",
+        "availability:get-setup",
+        "availability:set-setup",
+        "availability:query",
+        "booking:make",
+        "booking:query",
+        "booking:cancel",
+        "booking:set-status",
+        "users:manage"
+      ]
+    }
+  ]
+}

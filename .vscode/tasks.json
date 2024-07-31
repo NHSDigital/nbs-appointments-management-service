@@ -26,6 +26,16 @@
         },
         "files": ["docker-compose.yml"]
       }
+    },
+    {
+      "label": "Seed Cosmos",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "mock-data/CosmosDbSeeder/"
+      },
+      "args": ["run", "CosmosDbSeeder.csproj"],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

@@ -1,3 +1,7 @@
 export default function Home() {
-  return <span>Hello world!</span>;
+  return (
+    <span>
+      Welcome to the National Booking Service - Appointment Management System
+    </span>
+  );
 }

@@ -70,14 +70,10 @@ class Program
             var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
             try
             {
-                await container.CreateItemAsync(item);
-                Console.WriteLine($"Added {fileName} to {containerName}");
-            }
-            catch (CosmosException e)
-                when (e.StatusCode == HttpStatusCode.Conflict)
-            {
-                await container.ReplaceItemAsync(item, item.GetValue("id").ToString());
-                Console.WriteLine($"Replaced {fileName} in {containerName}");
+                var response = await container.UpsertItemAsync(item);
+                Console.WriteLine(response.StatusCode == HttpStatusCode.Created
+                    ? $"Created {fileName} in {containerName}"
+                    : $"Replaced {fileName} in {containerName}");
             }
             catch (Exception e)
             {

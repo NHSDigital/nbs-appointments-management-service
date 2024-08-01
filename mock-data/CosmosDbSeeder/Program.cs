@@ -2,6 +2,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CosmosDbSeeder;
 
@@ -66,7 +67,7 @@ class Program
         foreach (var file in jsonFiles)
         {
             var fileName = file.Split($"{containerName}").Last();
-            var item = JsonConvert.DeserializeObject<object>(await File.ReadAllTextAsync(file));
+            var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
             try
             {
                 await container.CreateItemAsync(item);
@@ -75,10 +76,12 @@ class Program
             catch (CosmosException e)
                 when (e.StatusCode == HttpStatusCode.Conflict)
             {
-                    // var parsedItem = JsonConvert.DeserializeObject<Item>(item.ToString());
-                    // await container.ReplaceItemAsync(item, parsedItem.Id);
-                    // Console.WriteLine($"Replaced {fileName} in {containerName}");
-                    Console.WriteLine($"Skipped {fileName} in {containerName} as it already existed");
+                await container.ReplaceItemAsync(item, item.GetValue("id").ToString());
+                Console.WriteLine($"Replaced {fileName} in {containerName}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"ERROR writing {fileName} to {containerName} - {e}");
             }
         }
     }
@@ -100,11 +103,6 @@ class Program
 
 public class ContainerConfig
 {
-    public string Name { get; set; }
-    public string PartitionKey { get; set; }
-}
-
-public class Item
-{
-    public string Id { get; }
+    public required string Name { get; set; }
+    public required string PartitionKey { get; set; }
 }

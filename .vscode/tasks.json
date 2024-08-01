@@ -26,6 +26,28 @@
         },
         "files": ["docker-compose.yml"]
       }
+    },
+    {
+      "label": "Clean Cosmos Db Seeder",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "mock-data/CosmosDbSeeder/"
+      },
+      "args": ["clean", "CosmosDbSeeder.csproj"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Seed Cosmos",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "mock-data/CosmosDbSeeder/"
+      },
+      "args": ["run", "CosmosDbSeeder.csproj"],
+      "problemMatcher": "$msCompile",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Clean Cosmos Db Seeder"]
     }
   ]
 }

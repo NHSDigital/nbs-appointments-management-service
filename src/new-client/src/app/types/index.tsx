@@ -1,5 +1,5 @@
 type UserProfile = {
-  emailAddress: string
-}
+  emailAddress: string;
+};
 
 export type { UserProfile };

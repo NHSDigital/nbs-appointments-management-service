@@ -1,22 +1,22 @@
-import { render, screen } from "@testing-library/react";
-import { When } from "./when";
+import { render, screen } from '@testing-library/react';
+import { When } from './when';
 
-describe("<When>", () => {
-  it("renders its children when the condition is met", async () => {
+describe('<When>', () => {
+  it('renders its children when the condition is met', async () => {
     render(
       <When condition={true}>
         <div>content</div>
-      </When>
+      </When>,
     );
-    expect(screen.queryByText("content")).toBeVisible();
+    expect(screen.queryByText('content')).toBeVisible();
   });
 
-  it("does not render its children when the condition is not met", async () => {
+  it('does not render its children when the condition is not met', async () => {
     render(
       <When condition={false}>
         <div>content</div>
-      </When>
+      </When>,
     );
-    expect(screen.queryByText("content")).toBeNull();
+    expect(screen.queryByText('content')).toBeNull();
   });
 });

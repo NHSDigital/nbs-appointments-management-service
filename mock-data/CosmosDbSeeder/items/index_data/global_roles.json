@@ -5,23 +5,19 @@
     {
       "id": "canned:check-in",
       "name": "Check-in",
-      "permissions": [
-        "booking:query",
-        "booking:set-status"
-      ]
+      "description": "A user can check in/undo check in patients for their bookings.",
+      "permissions": ["booking:query", "booking:set-status"]
     },
     {
       "id": "canned:appointment-manager",
       "name": "Appointment manager",
-      "permissions": [
-        "booking:make",
-        "booking:query",
-        "booking:cancel"
-      ]
+      "description": "A user can create, edit, and cancel bookings.",
+      "permissions": ["booking:make", "booking:query", "booking:cancel"]
     },
     {
       "id": "canned:availability-manager",
       "name": "Availability manager",
+      "description": "A user can create, view, and manage site availabilty.",
       "permissions": [
         "availability:get-setup",
         "availability:set-setup",
@@ -31,14 +27,19 @@
     {
       "id": "canned:site-configuration-manager",
       "name": "Site configuration manager",
-      "permissions": [
-        "site:get-config",
-        "site:set-config"
-      ]
+      "description": "A user can view and manage site information, such as access needs.",
+      "permissions": ["site:get-config", "site:set-config"]
+    },
+    {
+      "id": "canned:user-manager",
+      "name": "User manager",
+      "description": "A user can view and manage user role assignments.",
+      "permissions": ["users:manage"]
     },
     {
       "id": "canned:api-user",
       "name": "Api User",
+      "description": "This is a dedicated NBS role",
       "permissions": [
         "site:get-meta-data",
         "availability:query",
@@ -61,6 +62,21 @@
         "booking:query",
         "booking:cancel",
         "booking:set-status",
+        "users:manage"
+      ]
+    },
+    {
+      "id": "integration-test:api-user",
+      "name": "Integration Test Api User Role",
+      "description": "Role for integration test user",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:query",
+        "booking:make",
+        "booking:query",
+        "booking:cancel",
+        "site:set-config",
+        "availability:get-setup",
         "users:manage"
       ]
     }

@@ -31,7 +31,7 @@ class Program
             authKeyOrResourceToken: cosmosToken,
             clientOptions: cosmosOptions);
 
-        await CreateDatabaseAsync(databaseName);
+        _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
             await AddItemsToContainerAsync(container.Name, container.PartitionKey);
@@ -40,13 +40,18 @@ class Program
         Console.WriteLine("Database seeded successfully");
     }
 
-    private static async Task CreateDatabaseAsync(string? databaseId)
+    private static async Task<Database> CreateDatabaseAsync(string? databaseId)
     {
         if (_cosmosClient is null)
             throw new Exception("Cosmos Client was not initialised");
 
-        _database = await _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseId);
-        Console.WriteLine("Created Database: {0}\n", _database.Id);
+        var response = await _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseId);
+
+        Console.WriteLine(response.StatusCode == HttpStatusCode.Created
+            ? $"Created database {databaseId}"
+            : $"Skipped creating database {databaseId} as it already exists");
+
+        return response.Database;
     }
 
     private static async Task<Container> CreateContainerAsync(string containerId, string partitionKeyPath)
@@ -54,30 +59,32 @@ class Program
         if (_database is null)
             throw new Exception("Database was not initialised");
 
-        var container = await _database.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath);
-        Console.WriteLine("Created Container: {0}\n", containerId);
-        return container;
+        var response = await _database.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath);
+
+        Console.WriteLine(response.StatusCode == HttpStatusCode.Created
+            ? $"Created container {containerId} with partition key {partitionKeyPath}"
+            : $"Skipped creating container {containerId} as it already exists");
+
+        return response.Container;
     }
 
     private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath)
     {
         var container = await CreateContainerAsync(containerName, partitionKeyPath);
-        var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{containerName}"), "*.json");
 
-        foreach (var file in jsonFiles)
+        var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{containerName}");
+        if(Directory.Exists(folderPath))
         {
-            var fileName = file.Split($"{containerName}").Last();
-            var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
-            try
+            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{containerName}"), "*.json");
+
+            foreach (var file in jsonFiles)
             {
+                var fileName = file.Split($"{containerName}").Last();
+                var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
                 var response = await container.UpsertItemAsync(item);
                 Console.WriteLine(response.StatusCode == HttpStatusCode.Created
                     ? $"Created {fileName} in {containerName}"
                     : $"Replaced {fileName} in {containerName}");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"ERROR writing {fileName} to {containerName} - {e}");
             }
         }
     }

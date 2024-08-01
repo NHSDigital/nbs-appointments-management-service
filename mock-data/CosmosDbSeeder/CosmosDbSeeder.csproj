@@ -21,6 +21,9 @@
       <None Update="items\index_data\cc_user.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="items\index_data\cc2_user.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="items\index_data\api_user.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

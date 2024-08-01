@@ -20,6 +20,7 @@ const config = {
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
     '^axios$': '<rootDir>/node_modules/axios/dist/axios.js',
   },
+  modulePathIgnorePatterns: ['.next'],
   moduleFileExtensions: [
     'web.js',
     'js',

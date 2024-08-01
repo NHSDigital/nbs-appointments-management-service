@@ -24,9 +24,13 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
       allowed_origins = ["*"]
     }
     use_32_bit_worker = false
+    application_stack {
+      dotnet_version = "v8.0"
+    }
   }
 
   app_settings = {
+    FUNCTIONS_WORKER_RUNTIME              = "dotnet-isolated"
     WEBSITE_RUN_FROM_PACKAGE              = 1
     COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.nbs_appts_cdb.endpoint
     COSMOS_TOKEN                          = azurerm_cosmosdb_account.nbs_appts_cdb.primary_key
@@ -92,12 +96,12 @@ resource "azurerm_application_insights" "nbs_appts_ai" {
 ## Cosmos
 
 resource "azurerm_cosmosdb_account" "nbs_appts_cdb" {
-  name                      = "${var.application}-cdb-${var.environment}-${var.loc}"
-  location                  = data.azurerm_resource_group.nbs_appts_rg.location
-  resource_group_name       = data.azurerm_resource_group.nbs_appts_rg.name
-  offer_type                = "Standard"
-  kind                      = "GlobalDocumentDB"
-  enable_automatic_failover = false
+  name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
+  location                   = data.azurerm_resource_group.nbs_appts_rg.location
+  resource_group_name        = data.azurerm_resource_group.nbs_appts_rg.name
+  offer_type                 = "Standard"
+  kind                       = "GlobalDocumentDB"
+  automatic_failover_enabled = false
   geo_location {
     location          = data.azurerm_resource_group.nbs_appts_rg.location
     failover_priority = 0

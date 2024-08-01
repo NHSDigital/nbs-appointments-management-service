@@ -4,6 +4,7 @@ const nextConfig = {
   env: {
     BUILD_NUMBER: process.env.BUILD_BUILDNUMBER ?? '',
   },
+  output: 'standalone'
 };
 
 export default nextConfig;

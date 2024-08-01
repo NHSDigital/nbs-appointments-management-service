@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --reporters=jest-junit --reporters=default"
   },
   "dependencies": {
     "@next/env": "^14.2.5",

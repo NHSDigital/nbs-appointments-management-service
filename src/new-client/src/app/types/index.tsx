@@ -1,5 +1,12 @@
 type UserProfile = {
   emailAddress: string;
+  availableSites: Site[];
 };
 
-export type { UserProfile };
+type Site = {
+  id: string;
+  name: string;
+  address: string;
+};
+
+export type { UserProfile, Site };

@@ -1,14 +1,20 @@
 import Home from './page';
 import { render, screen } from '@testing-library/react';
+import { fetchUserProfile } from './lib/auth';
+
+jest.mock('./lib/auth');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fetchUserProfileMock = fetchUserProfile as jest.Mock<any>;
 
 describe('Home Page', () => {
-  it('should render the home page', () => {
-    render(<Home />);
+  it('should render the home page', async () => {
+    fetchUserProfileMock.mockResolvedValue({
+      emailAddress: 'test@test.com',
+      availableSites: [],
+    });
 
-    expect(
-      screen.getByText(
-        'Welcome to the National Booking Service - Appointment Management System',
-      ),
-    ).toBeInTheDocument();
+    const jsx = await Home();
+    await render(jsx);
+    expect(screen.getByText('Appointment Management Service')).toBeVisible();
   });
 });

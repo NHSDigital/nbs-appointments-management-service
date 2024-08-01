@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,12 +16,11 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserProfileFunction(IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesForUserFunction> logger)
+    public class GetUserProfileFunction(ISiteSearchService siteSearchService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger)
     : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger)
     {
 
-        [OpenApiOperation(operationId: "GetUserProfile", tags: new[] { "Utility" }, Summary = "Gets information about the signed in user")]
-        [OpenApiRequestBody("text/json", typeof(SetBookingStatusRequest))]
+        [OpenApiOperation(operationId: "GetUserProfile", tags: new[] { "Utility" }, Summary = "Gets information about the signed in user")]        
         [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(UserProfile), Description = "Information about the signed in user")]
         [Function("GetUserProfileFunction")]
@@ -30,10 +30,20 @@ namespace Nhs.Appointments.Api.Functions
             return base.RunAsync(req);
         }
 
-        protected override Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger)
+        protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger)
         {
             var userEmail = Principal.Claims.GetUserEmail();
-            return Task.FromResult(ApiResult<UserProfile>.Success(new UserProfile(userEmail)));
+            var roleAssignments = await userService.GetUserRoleAssignments(userEmail);
+            var siteIdsForUser = roleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
+            var siteInfoList = new List<Site>();
+
+            foreach (var site in siteIdsForUser.Distinct())
+            {
+                var siteInfo = await siteSearchService.GetSiteByIdAsync(site);
+                siteInfoList.Add(siteInfo);
+            }
+
+            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList));
         }
 
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

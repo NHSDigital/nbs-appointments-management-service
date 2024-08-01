@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { fetchUserProfile, fetchAccessToken } from './auth';
 
 jest.mock('next/headers');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const cookiesMock = cookies as jest.Mock<any>;
 
 describe('fetchUserProfile', () => {

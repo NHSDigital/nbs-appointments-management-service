@@ -1,0 +1,42 @@
+.nhsuk-button--link:hover,
+.nhsuk-header__transactional .header__user-control-link:hover {
+    text-decoration: none;
+}
+
+.nhsuk-button--link:focus,
+.nhsuk-header__transactional .header__user-control-link:focus {
+    background-color: #ffeb3b;
+    box-shadow: 0 -2px #ffeb3b, 0 4px #212b32;
+    color: #212b32;
+    outline: 4px solid transparent;
+}
+
+.nhsuk-header__container {
+    max-width: 100%;
+    margin: 0 32px;
+}
+
+.nhsuk-header__transactional .header__content {
+    margin-left: auto;
+}
+
+.nhsuk-header__transactional .header__user-control-list {
+    display: flex;
+    column-gap: 2rem;
+    list-style: none;
+    padding-top: 3px;
+    align-items: baseline;
+}
+
+.nhsuk-header__transactional .header__user-control-item {
+    color: #fff;
+}
+
+.nhsuk-header__transactional .header__user-control-link {
+    background: none;
+    border: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1.1875rem;
+}

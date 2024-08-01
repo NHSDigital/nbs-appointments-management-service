@@ -1,0 +1,18 @@
+﻿{
+  "id": "cc2.agent@nhs.uk",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:site-configuration-manager",
+      "scope": "site:1001"
+    },
+    {
+      "role": "canned:site-configuration-manager",
+      "scope": "site:1000"
+    },
+    {
+      "role": "canned:availability-manager",
+      "scope": "site:1000"
+    }
+  ]
+}

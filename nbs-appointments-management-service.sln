@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.ApiClient"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.Api.Client.UnitTests", "tests\Nhs.Appointments.Api.Client.UnitTests\Nhs.Appointments.Api.Client.UnitTests.csproj", "{F9E0C737-EC44-48D8-B656-EBCC8F09C033}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Api.Client.Integration", "tests\Nhs.Appointments.Api.Client.Integration\Nhs.Appointments.Api.Client.Integration.csproj", "{DFA538A6-9D01-417F-A0B3-D91102B9FA22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.Api.Client.Integration", "tests\Nhs.Appointments.Api.Client.Integration\Nhs.Appointments.Api.Client.Integration.csproj", "{DFA538A6-9D01-417F-A0B3-D91102B9FA22}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "local-tools", "local-tools", "{22B97405-2671-42B1-BE08-E1D0E18A2F1F}"
 EndProject

@@ -10,6 +10,7 @@ export const SignIn = ({ authenticateUrl }: { authenticateUrl: string }) => {
   const code = searchParams.get('code') ?? '';
   const pathname = usePathname();
   const [, startTransition] = useTransition();
+  const [returnUrl, setReturnUrl] = React.useState('');
 
   React.useEffect(() => {
     if (hasCode) {
@@ -17,6 +18,7 @@ export const SignIn = ({ authenticateUrl }: { authenticateUrl: string }) => {
         await fetchAccessToken(code);
       });
     }
+    setReturnUrl(window.location.href);
   }, [hasCode, pathname, code, searchParams]);
 
   return (
@@ -24,7 +26,7 @@ export const SignIn = ({ authenticateUrl }: { authenticateUrl: string }) => {
       <div style={{ margin: '20px' }}>
         <a
           className="nhsuk-button"
-          href={`${authenticateUrl}?redirect_uri=${window.location.href}`}
+          href={`${authenticateUrl}?redirect_uri=${returnUrl}`}
         >
           Sign In
         </a>

@@ -240,30 +240,25 @@ stages:
                       terraform apply -no-color -input=false -auto-approve -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="APIM_SUBSCRIPTION_KEY=$(APIM_SUBSCRIPTION_KEY)"
       - job: "DeployWeb"
         dependsOn: ApplyTerraform
-        displayName: Deploy Webapp to Dev
+        displayName: "Deploy webapp to Dev"
         steps:
           - checkout: none
           - task: DownloadBuildArtifacts@0
-            displayName: Download Web Artifact
+            displayName: "Download Web App Artifact"
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'drop_web'
               downloadPath: '$(Pipeline.Workspace)'
-          - task: AzureCLI@2
-            displayName: Deploy Web App
+          - task: AzureWebApp@1
+            displayName: "Deploy Web App"
             inputs:
-              scriptType: pscore
-              scriptLocation: inlineScript
-              addSpnToEnvironment: true
               azureSubscription: $(azure_devops_subscription_name)
-              inlineScript: |
-                az webapp deploy `
-                --resource-group $(resourceGroupName) `
-                --name $(amsWebServerName) `
-                --src-path $(Pipeline.Workspace)/drop_web/next.zip `
-                --type zip `
-                --clean true
+              appType: 'webAppLinux'
+              appName: $(amsWebServerName)
+              package: '$(Pipeline.Workspace)/drop_web/next.zip'
+              deploymentMethod: 'auto'
+              startUpCommand: 'node standalone/server.js'
       - job: "DeployApi"
         dependsOn: ApplyTerraform
         displayName: Deploy Api

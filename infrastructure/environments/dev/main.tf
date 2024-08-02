@@ -37,14 +37,6 @@ module "api" {
   hmac_signing_key               = var.HMAC_SIGNING_KEY
 }
 
-output "func_app_url" {
-  value = module.api.module_func_app_url
-}
-
-output "web_storage_name" {
-  value = module.api.module_web_storage_name
-}
-
 variable "AUTH_PROVIDER_PROVIDER_URI" {
   type      = string
   sensitive = false

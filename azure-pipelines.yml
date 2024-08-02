@@ -5,14 +5,16 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  azure_devops_subscription_name: 'nbs-appts-rg-dev'
-  azure_subscription_id: '07748954-52d6-46ce-95e6-2701bfc715b4'
   buildConfiguration: "Release"
   apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
   apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
   coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
   persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
-  functionAppName: nbs-appts-func-dev-uks
+  azure_devops_subscription_name: 'nbs-appts-rg-dev'
+  azure_subscription_id: '07748954-52d6-46ce-95e6-2701bfc715b4'
+  amsApiServerName: 'nbs-appts-func-dev-uks'
+  amsWebServerName: 'nbs-appts-wa-dev-uks'
+  resourceGroupName: 'nbs-appts-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 stages:
@@ -64,32 +66,35 @@ stages:
             inputs:
               version: 20.x
           - script: |
-              cd ./src/client
+              cd ./src/new-client
               npm install 
               npm run test:ci
-            displayName: "Run Web Client Tests"
+            displayName: "Run Web App Tests"
           - task: PublishTestResults@2
-            displayName: "Publish Web Client Test Results"
+            displayName: "Publish Web App Test Results"
             inputs:
               testResultsFiles: "junit.xml"
               testRunTitle: NBS Appointments Management Service Client Tests
               testResultsFormat: "JUnit"
               publishRunAttachments: true
-              searchFolder: '$(Build.SourcesDirectory)/src/client'
+              searchFolder: '$(Build.SourcesDirectory)/src/new-client'
             condition: succeededOrFailed()
-          - task: CopyFiles@2
-            displayName: "Copy Web Client Files"
+          - script: |
+              cd ./src/new-client
+              npm run build
+              mv .next/static .next/standalone/.next/static
+            displayName: "Build Web App"
+          - task: ArchiveFiles@2
+            displayName: Zip Web Client
             inputs:
-              SourceFolder: "$(Build.SourcesDirectory)/src/client"
-              Contents: |
-                **/*
-                !node_modules/**/*
-                !junit.xml
-              TargetFolder: "$(Build.ArtifactStagingDirectory)/client"
+              rootFolderOrFile: "$(Build.SourcesDirectory)/src/new-client/.next"
+              includeRootFolder: false
+              archiveType: "zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/web/next.zip"
           - task: PublishBuildArtifacts@1
-            displayName: "Publish Web Client"
+            displayName: "Publish Web App"
             inputs:
-              PathtoPublish: "$(Build.ArtifactStagingDirectory)/client"
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)/web"
               ArtifactName: "drop_web"
               publishLocation: "Container"
           - task: PublishBuildArtifacts@1
@@ -165,7 +170,6 @@ stages:
     condition: and(succeeded(), eq(variables.isMain, true))
     displayName: Deploy Dev
     jobs:
-
       - job: RunTerraformPlan
         displayName: Run Terraform Plan
         steps:
@@ -192,7 +196,6 @@ stages:
                 cd $(Pipeline.Workspace)\drop_terraform\environments\dev
                 terraform init
                 terraform plan -no-color -input=false -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="APIM_SUBSCRIPTION_KEY=$(APIM_SUBSCRIPTION_KEY)"
-
       - job: "ApproveTerraformPlan"
         dependsOn: RunTerraformPlan
         displayName: Approve Terraform Plan
@@ -203,7 +206,6 @@ stages:
             inputs:
               notifyUsers: ''
               instructions: Review plan and approve
-
       - deployment: ApplyTerraform
         dependsOn: ApproveTerraformPlan
         displayName: "Apply Terraform"
@@ -236,51 +238,27 @@ stages:
                       cd $(Pipeline.Workspace)\drop_terraform\environments\dev
                       terraform init
                       terraform apply -no-color -input=false -auto-approve -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="APIM_SUBSCRIPTION_KEY=$(APIM_SUBSCRIPTION_KEY)"
-                      $webStorageName = terraform output -raw web_storage_name
-                      $funcAppUrl =  terraform output -raw func_app_url
-                      write-host "Storing WebStorageName: $webStorageName"
-                      write-host "Storing FuncAppUrl: $funcAppUrl"
-                      Write-Host "##vso[task.setvariable variable=FuncAppUrl;isoutput=true]$funcAppUrl"
-                      Write-Host "##vso[task.setvariable variable=WebStorageName;isoutput=true]$webStorageName"
-
       - job: "DeployWeb"
         dependsOn: ApplyTerraform
-        displayName: Deploy Web
-        variables:
-          funcAppUrl: $[dependencies.ApplyTerraform.outputs['ApplyTerraform.ApplyTerraformTask.FuncAppUrl']]
-          webStorageName: $[dependencies.ApplyTerraform.outputs['ApplyTerraform.ApplyTerraformTask.WebStorageName']]
+        displayName: "Deploy webapp to Dev"
         steps:
           - checkout: none
           - task: DownloadBuildArtifacts@0
-            displayName: Download Web Artifact
+            displayName: "Download Web App Artifact"
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'drop_web'
               downloadPath: '$(Pipeline.Workspace)'
-          - task: PowerShell@2
-            name: BuildWeb
-            displayName: Build Web
+          - task: AzureWebApp@1
+            displayName: "Deploy Web App"
             inputs:
-              targetType: 'inline'
-              workingDirectory: '$(Pipeline.Workspace)'
-              script: |
-                cd drop_web
-                write-host "Building web with endpoint: $(funcAppUrl)"
-                npm install
-                ($env:NEXT_PUBLIC_API_URL = "https://$(funcAppUrl)/api") -and (npm run build)
-          - task: AzureCLI@2
-            name: UploadWeb
-            displayName: 'Deploy Web'
-            inputs:
-              scriptType: pscore
-              scriptLocation: inlineScript
-              addSpnToEnvironment: true
               azureSubscription: $(azure_devops_subscription_name)
-              workingDirectory: '$(Pipeline.Workspace)\drop_web'
-              inlineScript: |
-                az storage blob upload-batch -d "`$web" --account-name $(webStorageName) -s dist --overwrite
-
+              appType: 'webAppLinux'
+              appName: $(amsWebServerName)
+              package: '$(Pipeline.Workspace)/drop_web/next.zip'
+              deploymentMethod: 'auto'
+              startUpCommand: 'node standalone/server.js'
       - job: "DeployApi"
         dependsOn: ApplyTerraform
         displayName: Deploy Api
@@ -298,6 +276,6 @@ stages:
             inputs:
               connectedServiceNameARM: $(azure_devops_subscription_name)
               appType: 'functionApp'
-              appName: '$(functionAppName)'
+              appName: '$(amsApiServerName)'
               package: '$(Pipeline.Workspace)/**/*.zip'
               deploymentMethod: 'auto'

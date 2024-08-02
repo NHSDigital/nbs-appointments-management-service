@@ -24,19 +24,10 @@ resource "azurerm_linux_web_app" "nbs_appts_web_app_service" {
   }
 
   app_settings = {
-    NBS_API_BASE_URL                      = "https://${azurerm_windows_function_app.nbs_appts_func_app.default_hostname}"
-    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.nbs_appts_web_ai.connection_string
+    NBS_API_BASE_URL = "https://${azurerm_windows_function_app.nbs_appts_func_app.default_hostname}"
   }
 
   identity {
     type = "SystemAssigned"
   }
-}
-
-resource "azurerm_application_insights" "nbs_appts_web_ai" {
-  name                = "${var.application}-webai-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_appts_rg.name
-  location            = data.azurerm_resource_group.nbs_appts_rg.location
-  application_type    = "web"
-  retention_in_days   = 30
 }

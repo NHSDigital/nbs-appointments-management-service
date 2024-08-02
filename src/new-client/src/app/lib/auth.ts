@@ -39,6 +39,24 @@ export async function fetchAccessToken(code: string) {
   }
 }
 
+export async function fecthPermissions(site: string) {
+  const tokenCookie = cookies().get('token');
+
+  if (tokenCookie) {
+    const response = await fetch(getEndpoint(`user/permissions?site=${site}`), {
+      headers: {
+        Authorization: `Bearer ${tokenCookie.value}`,
+      },
+    });
+
+    if (response.status === 200) {
+      return response.json().then(data => data.permissions as string[]);
+    }
+  }
+
+  return [] as string[];
+}
+
 export async function signOut() {
   cookies().delete('token');
   revalidatePath('/');

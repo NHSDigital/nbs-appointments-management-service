@@ -13,26 +13,44 @@ using System.Security.Principal;
 
 namespace Nhs.Appointments.Api.Tests.Functions
 {
-    public class GetSitesForUserFunctionTests
+    public class GetUserProfileFunctionTests
     {
         private readonly Mock<ISiteSearchService> _siteSearchService = new();
         private readonly Mock<IUserService> _userSiteAssignmentService = new();
         private readonly Mock<IValidator<EmptyRequest>> _validator = new();
         private readonly Mock<IUserContextProvider> _userContextProvider = new();
-        private readonly Mock<ILogger<GetSitesForUserFunction>> _logger = new();
+        private readonly Mock<ILogger<GetUserProfileFunction>> _logger = new();
+        private GetUserProfileFunction _sut;
+
+        public GetUserProfileFunctionTests()
+        {
+            _sut = new GetUserProfileFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        }
 
         [Fact]
-        public async Task RunsAsync_GetsAssignments_ForSignedInUser()
+        public async Task RunsAsync_GetsRoleAssignments_ForSignedInUser()
         {            
             var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
-
-            var sut = new GetSitesForUserFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
-            await sut.RunAsync(request);
+            
+            await _sut.RunAsync(request);
 
             _userSiteAssignmentService.Verify(x => x.GetUserRoleAssignments("test@test.com"), Times.Once());
+        }
+
+        [Fact]
+        public async Task RunsAsync_GetsCorrectEmailAdress_ForSignedInUser()
+        {
+            var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
+            _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+
+            var response = await _sut.RunAsync(request) as ContentResult;
+            var actualResponse = await ReadResponseAsync<UserProfile>(response.Content);
+            actualResponse.EmailAddress.Should().Be("test@test.com");
         }
 
         [Fact]
@@ -59,12 +77,11 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("2")).ReturnsAsync(siteDetails[1]);
+            
+            var result = await _sut.RunAsync(request) as ContentResult;
 
-            var sut = new GetSitesForUserFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
-            var result = await sut.RunAsync(request) as ContentResult;
-
-            var actualResponse = await ReadResponseAsync<Site[]>(result.Content);
-            actualResponse.Should().BeEquivalentTo(siteDetails);
+            var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
+            actualResponse.AvailableSites.Should().BeEquivalentTo(siteDetails);
         }
         
         [Fact]
@@ -87,12 +104,11 @@ namespace Nhs.Appointments.Api.Tests.Functions
             };
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
+            
+            var result = await _sut.RunAsync(request) as ContentResult;
 
-            var sut = new GetSitesForUserFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
-            var result = await sut.RunAsync(request) as ContentResult;
-
-            var actualResponse = await ReadResponseAsync<Site[]>(result.Content);
-            actualResponse.Should().BeEquivalentTo(siteDetails);
+            var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
+            actualResponse.AvailableSites.Should().BeEquivalentTo(siteDetails);
         }
         
         private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)

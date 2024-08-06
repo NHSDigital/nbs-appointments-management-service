@@ -25,7 +25,14 @@ const Layout = async ({ params, children }: LayoutProps) => {
           </NhsWarning>
         </div>
       </When>
-      <When condition={permissions.length > 0}>{children}</When>
+      <When condition={permissions.length > 0}>
+        <main
+          className="nhsuk-main-wrapper nhsuk-main-wrapper--s nhsuk-width-container-fluid"
+          role="main"
+        >
+          {children}
+        </main>
+      </When>
     </div>
   );
 };

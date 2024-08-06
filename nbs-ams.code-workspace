@@ -30,7 +30,8 @@
     },
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.endOfLine": "crlf"
   },
   "extensions": {
     "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]

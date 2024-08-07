@@ -8,8 +8,8 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
-[FeatureFile("./Scenarios/UserManagement/UserManagement.feature")]
-public sealed class UserManagementFeatureSteps : BaseFeatureSteps
+[FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
+public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
 {
     private  HttpResponseMessage _response;
     
@@ -17,24 +17,6 @@ public sealed class UserManagementFeatureSteps : BaseFeatureSteps
     public Task NoRoleAssignments()
     {
         return Task.CompletedTask;
-    }
-
-    [Given(@"The following role assignments for '(.+)' exist")]
-    public async Task AddRoleAssignments(string user, Gherkin.Ast.DataTable dataTable)
-    {
-        var roleAssignments = dataTable.Rows.Skip(1).Select(
-            row => new RoleAssignment()
-            {
-                Scope = row.Cells.ElementAt(0).Value,
-                Role = row.Cells.ElementAt(1).Value
-            }).ToArray();
-        var userDocument = new UserDocument()
-            {
-                Id = GetUserId(user),
-                DocumentType = "user",
-                RoleAssignments = roleAssignments
-            };    
-        await Client.GetContainer("appts", "index_data").CreateItemAsync(userDocument);
     }
 
     [When(@"I assign the following roles to user '(.+)'")]
@@ -48,7 +30,7 @@ public sealed class UserManagementFeatureSteps : BaseFeatureSteps
         var payload = new
         {
             user = GetUserId(user),
-            scope = row.Cells.ElementAt(0).Value,
+            scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
             roles = row.Cells.ElementAt(1).Value.Split(",")
         };
         
@@ -64,7 +46,7 @@ public sealed class UserManagementFeatureSteps : BaseFeatureSteps
         var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(
             (row) => new RoleAssignment
             {
-                Scope = row.Cells.ElementAt(0).Value,
+                Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
                 Role = row.Cells.ElementAt(1).Value
             });
         var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<UserDocument>(userId, new Microsoft.Azure.Cosmos.PartitionKey("user"));

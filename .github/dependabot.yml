@@ -9,13 +9,10 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "npm"
-    directory: "/src/client"
+    directory: "/src/new-client"
     schedule:
       interval: "daily"
     groups:
       all-dependencies:
         patterns:
           - "*"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]

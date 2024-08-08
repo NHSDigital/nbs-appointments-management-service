@@ -19,4 +19,8 @@ describe('<When>', () => {
     );
     expect(screen.queryByText('content')).toBeNull();
   });
+
+  it('fails deliberately to check if the github action reports failure correctly', () => {
+    expect(true).toBe(false);
+  });
 });

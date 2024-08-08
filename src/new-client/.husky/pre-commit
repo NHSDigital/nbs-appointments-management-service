@@ -1,0 +1,6 @@
+# .husky/pre-commit
+
+echo "HUSKY >> Running pre-commit hook..."
+
+cd src/new-client
+npx lint-staged

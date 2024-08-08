@@ -8,7 +8,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint **/*.{ts,tsx}",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "test": "jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default"
@@ -61,3 +61,4 @@
     ]
   }
 }
+

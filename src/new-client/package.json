@@ -52,13 +52,12 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "eslint --fix"
+      "eslint --fix",
+      "prettier --write --list-different"
     ],
     "*.{scss,css}": [
-      "stylelint --fix"
-    ],
-    "*.{js,jsx,ts,tsx,css,scss,html}": [
-      "prettier --write"
+      "stylelint --fix",
+      "prettier --write --list-different"
     ]
   }
 }

@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint **/*.{ts,tsx}",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "test": "jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default"
@@ -61,4 +62,3 @@
     ]
   }
 }
-

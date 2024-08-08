@@ -32,5 +32,8 @@ jobs:
         with:
           dotnet-version: "8.0.x"
       - run: dotnet build nbs-appointments-management-service.sln
-      - run: dotnet test nbs-appointments-management-service.sln
+      - run: dotnet test tests/Nhs.Appointments.Api.Client.UnitTests
+      - run: dotnet test tests/Nhs.Appointments.Api.UnitTests
+      - run: dotnet test tests/Nhs.Appointments.Core.UnitTests
+      - run: dotnet test tests/Nhs.Appointments.Persistance.UnitTests
   

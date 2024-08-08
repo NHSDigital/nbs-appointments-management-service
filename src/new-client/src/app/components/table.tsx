@@ -16,8 +16,6 @@ export const Table = ({ caption, headers, rows }: TableProps) => {
   const cardinality =
     headers.length > 2 ? 'three-or-more-column' : 'two-column';
 
-  const tempVarForTestCommit = 'test';
-
   return (
     <table
       role="table"

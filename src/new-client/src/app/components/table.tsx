@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 type TableProps = {
-  caption: string;
+  caption?: string;
   headers: Cell[];
   rows: Cell[][];
 };

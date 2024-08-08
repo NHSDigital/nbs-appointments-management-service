@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - APPT-108/pre-commit-and-actions
 jobs:
   run-jest-tests:
     name: Frontend build, linting and tests

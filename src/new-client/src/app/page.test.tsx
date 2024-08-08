@@ -1,8 +1,8 @@
+import { fetchUserProfile } from '@services/nbsService';
 import Home from './page';
 import { render, screen } from '@testing-library/react';
-import { fetchUserProfile } from './lib/auth';
 
-jest.mock('./lib/auth');
+jest.mock('@services/nbsService');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<any>;
 

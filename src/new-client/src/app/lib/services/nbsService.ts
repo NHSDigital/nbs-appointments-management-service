@@ -1,0 +1,45 @@
+'use server';
+import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { Role, User, UserProfile } from '@types';
+import { nbsApi } from '@services/api/nbsApi';
+
+export const fetchAccessToken = async (code: string) => {
+  const response = await nbsApi.post<{
+    token: string;
+  }>('token', code);
+  return response.token;
+};
+
+export const fetchUserProfile = async () => {
+  return await nbsApi.get<UserProfile>('user/profile');
+};
+
+export async function fetchUsers(site: string) {
+  const users = await nbsApi.get<User[]>(`users?site=${site}`, 'no-store');
+
+  return users.filter(usr => usr.id.includes('@'));
+}
+
+export async function fetchRoles() {
+  return await nbsApi.get<Role[]>('roles');
+}
+
+export async function fetchPermissions(site: string) {
+  const response = await nbsApi.get<{ permissions: string[] }>(
+    `user/permissions?site=${site}`,
+  );
+
+  return response?.permissions;
+}
+
+export const authenticationEndpoint = () => {
+  return `${nbsApi.getBaseUrl()}/api/authenticate`;
+};
+
+export const signOut = async () => {
+  cookies().delete('token');
+  revalidatePath('/');
+  redirect('/');
+};

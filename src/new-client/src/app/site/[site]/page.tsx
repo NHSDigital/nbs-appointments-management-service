@@ -1,5 +1,5 @@
-import { fetchUserProfile } from '../../lib/auth';
 import NhsNavCard from '@components/nhs-nav-card';
+import { fetchUserProfile } from '@services/nbsService';
 
 type PageProps = {
   params: {

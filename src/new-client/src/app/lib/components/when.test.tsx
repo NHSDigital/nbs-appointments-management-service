@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { When } from './when';
+import { When } from '@components/when';
 
 describe('<When>', () => {
   it('renders its children when the condition is met', async () => {

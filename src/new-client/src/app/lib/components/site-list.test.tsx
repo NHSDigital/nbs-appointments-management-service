@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import SiteList from './site-list';
+import SiteList from '@components/site-list';
 import { Site } from '@types';
 
 describe('<SiteList>', () => {

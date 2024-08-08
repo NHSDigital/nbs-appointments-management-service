@@ -1,7 +1,6 @@
 import { Table } from '@components/table';
-import { fetchUsers } from '../../../lib/users';
-import { fetchRoles } from '../../../lib/roles';
 import NhsPageTitle from '@components/nhs-page-title';
+import { fetchUsers, fetchRoles } from '@services/nbsService';
 
 type PageProps = {
   params: {

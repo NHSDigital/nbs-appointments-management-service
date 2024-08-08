@@ -1,6 +1,6 @@
-import { Site } from '@types';
 import Link from 'next/link';
-import NhsCard from './nhs-card';
+import { Site } from '@types';
+import NhsCard from '@components/nhs-card';
 
 type Props = {
   sites: Site[];

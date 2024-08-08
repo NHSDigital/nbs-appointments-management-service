@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare": "husky",
+    "prepare": "cd ../../ && husky src/new-client/.husky",
     "tsc": "tsc --noEmit",
     "dev": "next dev",
     "build": "next build",

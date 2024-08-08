@@ -1,12 +1,10 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
 import { Role, User } from '@types';
 import UsersPage from './page';
-import { fetchRoles } from '../../../lib/roles';
-import { fetchUsers } from '../../../lib/users';
 import { getMockUserAssignments, mockRoles } from '../../../testing/data';
+import { fetchRoles, fetchUsers } from '@services/nbsService';
 
-jest.mock('../../../lib/roles');
-jest.mock('../../../lib/users');
+jest.mock('@services/nbsService');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;

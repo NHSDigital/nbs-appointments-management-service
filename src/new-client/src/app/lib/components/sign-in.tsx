@@ -1,10 +1,10 @@
 'use client';
 import { useSearchParams, usePathname } from 'next/navigation';
 import React, { useTransition } from 'react';
-import { fetchAccessToken } from '../lib/auth';
-import { When } from './when';
+import { When } from '@components/when';
+import { authenticationEndpoint, fetchAccessToken } from '@services/nbsService';
 
-export const SignIn = ({ authenticateUrl }: { authenticateUrl: string }) => {
+export const SignIn = () => {
   const searchParams = useSearchParams();
   const hasCode = searchParams.has('code');
   const code = searchParams.get('code') ?? '';
@@ -26,7 +26,7 @@ export const SignIn = ({ authenticateUrl }: { authenticateUrl: string }) => {
       <div style={{ margin: '20px' }}>
         <a
           className="nhsuk-button"
-          href={`${authenticateUrl}?redirect_uri=${returnUrl}`}
+          href={`${authenticationEndpoint}?redirect_uri=${returnUrl}`}
         >
           Sign In
         </a>

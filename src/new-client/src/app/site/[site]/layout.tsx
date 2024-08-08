@@ -1,6 +1,6 @@
+import { fetchPermissions } from '@services/nbsService';
 import NhsWarning from '@components/nhs-warning';
 import { When } from '@components/when';
-import { fecthPermissions } from '../../lib/auth';
 
 export type LayoutProps = {
   params: {
@@ -10,7 +10,7 @@ export type LayoutProps = {
 };
 
 const Layout = async ({ params, children }: LayoutProps) => {
-  const permissions = await fecthPermissions(params.site);
+  const permissions = await fetchPermissions(params.site);
 
   return (
     <div>

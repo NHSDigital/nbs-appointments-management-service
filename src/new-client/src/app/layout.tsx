@@ -2,11 +2,10 @@ import 'nhsuk-frontend/dist/nhsuk.css';
 import './global.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { fetchUserProfile } from './lib/auth';
 import { NhsHeader } from '@components/nhs-header';
 import { When } from '@components/when';
 import { SignIn } from '@components/sign-in';
-import { getEndpoint } from './lib/utils';
+import { fetchUserProfile } from '@services/nbsService';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,7 +19,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authenticateUrl = getEndpoint('authenticate');
   const userProfile = await fetchUserProfile();
 
   return (
@@ -29,7 +27,7 @@ export default async function RootLayout({
         <main>
           <NhsHeader userEmail={userProfile?.emailAddress} />
           <When condition={userProfile === undefined}>
-            <SignIn authenticateUrl={authenticateUrl} />
+            <SignIn />
           </When>
           <When condition={userProfile !== undefined}>{children}</When>
         </main>

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { NhsHeader } from './nhs-header';
+import { NhsHeader } from '@components/nhs-header';
 
 describe('<NhsHeader>', () => {
   it('renders without email address and logout button when it is undefined', async () => {

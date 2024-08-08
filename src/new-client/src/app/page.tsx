@@ -1,5 +1,5 @@
+import { fetchUserProfile } from '@services/nbsService';
 import SiteList from '@components/site-list';
-import { fetchUserProfile } from './lib/auth';
 
 const Home = async () => {
   const userProfile = await fetchUserProfile();

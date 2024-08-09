@@ -1,30 +1,28 @@
 'use client'; // Error components must be Client Components
 
-import { useEffect } from 'react';
-
 export default function Error({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
-  }, [error]);
-
   return (
-    <div>
-      <h2>Something went wrong!</h2>
-      <button
-        onClick={
-          // Attempt to recover by trying to re-render the segment
-          () => reset()
-        }
-      >
-        Try again
-      </button>
-    </div>
+    <ul className="nhsuk-grid-row nhsuk-card-group" style={{ padding: '20px' }}>
+      <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+        <div
+          className="nhsuk-error-summary"
+          aria-labelledby="error-summary-title"
+          role="alert"
+          tabIndex={-1}
+        >
+          <h2 className="nhsuk-error-summary__title" id="error-summary-title">
+            There is a problem
+          </h2>
+          <div className="nhsuk-error-summary__body">
+            <p>{error.message}</p>
+          </div>
+        </div>
+      </li>
+    </ul>
   );
 }

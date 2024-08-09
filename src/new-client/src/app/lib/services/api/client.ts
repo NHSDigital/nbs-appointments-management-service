@@ -34,10 +34,9 @@ class Client {
         // TODO: Return error object with message
         // Implement error boundary to show "You may not see this resource" message
         // Also implement breadcrumbs so they can easily "go back a step" in one click
-        throw new Error('Forbidden');
-      }
-      if (response.status === 404) {
-        return undefined;
+        throw new Error(
+          '403 Forbidden: You lack the necessary permissions to view this resource',
+        );
       }
 
       if (response.status === 200) {

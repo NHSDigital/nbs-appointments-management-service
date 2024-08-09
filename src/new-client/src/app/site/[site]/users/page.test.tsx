@@ -2,7 +2,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { Role, User } from '@types';
 import UsersPage from './page';
-import { fetchRoles, fetchUsers } from '@services/nbsService';
+import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
 jest.mock('@services/nbsService');
 

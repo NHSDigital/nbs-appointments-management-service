@@ -1,4 +1,4 @@
-import { fetchUserProfile } from '@services/nbsService';
+import { fetchUserProfile } from '@services/appointmentsService';
 import Home from './page';
 import { render, screen } from '@testing-library/react';
 

@@ -1,5 +1,5 @@
 import NhsNavCard from '@components/nhs-nav-card';
-import { fetchUserProfile } from '@services/nbsService';
+import { fetchUserProfile } from '@services/appointmentsService';
 
 type PageProps = {
   params: {

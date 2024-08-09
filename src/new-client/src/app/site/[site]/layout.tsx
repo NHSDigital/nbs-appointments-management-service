@@ -1,4 +1,4 @@
-import { fetchPermissions } from '@services/nbsService';
+import { fetchPermissions } from '@services/appointmentsService';
 import NhsWarning from '@components/nhs-warning';
 import { When } from '@components/when';
 

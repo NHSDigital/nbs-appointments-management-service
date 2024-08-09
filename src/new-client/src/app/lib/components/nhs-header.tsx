@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { When } from '@components/when';
-import { fetchUserProfile, signOut } from '@services/nbsService';
+import { fetchUserProfile, signOut } from '@services/appointmentsService';
 
 type NhsHeaderProps = {
   userEmail?: string;

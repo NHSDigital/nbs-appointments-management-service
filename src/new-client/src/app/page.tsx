@@ -1,4 +1,4 @@
-import { fetchUserProfile } from '@services/nbsService';
+import { fetchUserProfile } from '@services/appointmentsService';
 import SiteList from '@components/site-list';
 
 const Home = async () => {

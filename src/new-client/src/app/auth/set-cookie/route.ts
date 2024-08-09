@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { fetchAccessToken } from '@services/nbsService';
+import { fetchAccessToken } from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(request: NextRequest) {

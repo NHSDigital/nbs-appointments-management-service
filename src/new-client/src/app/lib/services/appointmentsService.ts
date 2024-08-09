@@ -3,23 +3,23 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Role, User, UserProfile } from '@types';
-import { nbsApi } from '@services/api/nbsApi';
+import { appointmentsApi } from '@services/api/appointmentsApi';
 
 export const fetchAccessToken = async (code: string) => {
-  const response = await nbsApi.post<{
+  const response = await appointmentsApi.post<{
     token: string;
   }>('token', code);
   return response.token;
 };
 
 export const fetchUserProfile = async () => {
-  return nbsApi.get<UserProfile>('user/profile', {
+  return appointmentsApi.get<UserProfile>('user/profile', {
     next: { tags: ['user'] },
   });
 };
 
 export async function fetchUsers(site: string) {
-  const users = await nbsApi.get<User[]>(`users?site=${site}`, {
+  const users = await appointmentsApi.get<User[]>(`users?site=${site}`, {
     cache: 'no-cache',
   });
 
@@ -27,11 +27,11 @@ export async function fetchUsers(site: string) {
 }
 
 export async function fetchRoles() {
-  return await nbsApi.get<Role[]>('roles');
+  return await appointmentsApi.get<Role[]>('roles');
 }
 
 export async function fetchPermissions(site: string) {
-  const response = await nbsApi.get<{ permissions: string[] }>(
+  const response = await appointmentsApi.get<{ permissions: string[] }>(
     `user/permissions?site=${site}`,
   );
 

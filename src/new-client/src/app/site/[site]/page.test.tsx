@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import Page from './page';
-import { fetchUserProfile } from '@services/nbsService';
+import { fetchUserProfile } from '@services/appointmentsService';
 
 jest.mock('@services/nbsService');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

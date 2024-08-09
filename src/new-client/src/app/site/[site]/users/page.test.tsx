@@ -2,7 +2,7 @@
 import { Role, User } from '@types';
 import UsersPage from './page';
 import { getMockUserAssignments, mockRoles } from '../../../testing/data';
-import { fetchRoles, fetchUsers } from '@services/nbsService';
+import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
 jest.mock('@services/nbsService');
 

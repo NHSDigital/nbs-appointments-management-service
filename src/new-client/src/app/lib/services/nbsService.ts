@@ -13,11 +13,15 @@ export const fetchAccessToken = async (code: string) => {
 };
 
 export const fetchUserProfile = async () => {
-  return await nbsApi.get<UserProfile>('user/profile');
+  return nbsApi.get<UserProfile>('user/profile', {
+    next: { tags: ['user'] },
+  });
 };
 
 export async function fetchUsers(site: string) {
-  const users = await nbsApi.get<User[]>(`users?site=${site}`, 'no-store');
+  const users = await nbsApi.get<User[]>(`users?site=${site}`, {
+    cache: 'no-cache',
+  });
 
   return users.filter(usr => usr.id.includes('@'));
 }
@@ -33,10 +37,6 @@ export async function fetchPermissions(site: string) {
 
   return response?.permissions;
 }
-
-export const authenticationEndpoint = () => {
-  return `${nbsApi.getBaseUrl()}/api/authenticate`;
-};
 
 export const signOut = async () => {
   cookies().delete('token');

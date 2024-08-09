@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { When } from '@components/when';
-import { signOut } from '@services/nbsService';
+import { fetchUserProfile, signOut } from '@services/nbsService';
 
 type NhsHeaderProps = {
   userEmail?: string;
 };
 
-export const NhsHeader = ({ userEmail }: NhsHeaderProps) => {
+export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
+  const userProfile = await fetchUserProfile();
+
   return (
     <header className="nhsuk-header nhsuk-header__transactional" role="banner">
       <div className="nhsuk-header__container">
@@ -38,7 +40,7 @@ export const NhsHeader = ({ userEmail }: NhsHeaderProps) => {
             NHS Appointment Book
           </Link>
         </div>
-        <When condition={userEmail !== undefined}>
+        <When condition={userProfile?.emailAddress !== undefined}>
           <div className="header__content" id="content-header">
             <div
               className="header__user-control"

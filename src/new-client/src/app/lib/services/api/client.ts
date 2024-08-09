@@ -1,4 +1,6 @@
+'use server';
 import { cookies } from 'next/headers';
+import redirectToIdServer from '../../../auth/redirectToIdServer';
 
 interface ClientOptions {
   baseUrl: string;
@@ -12,25 +14,37 @@ class Client {
     this.baseUrl = baseUrl;
   }
 
-  public get<T = unknown>(
-    path: string,
-    cacheConfig?: RequestCache,
-  ): Promise<T> {
+  public get<T = unknown>(path: string, config?: RequestInit): Promise<T> {
     const tokenCookie = cookies().get('token');
 
     return fetch(`${this.baseUrl}/${path}`, {
-      cache: cacheConfig,
       method: 'GET',
       headers: tokenCookie
         ? {
             Authorization: `Bearer ${tokenCookie.value}`,
           }
         : undefined,
-    }).then(response => {
-      if (response.status !== 200) {
+      ...config,
+    }).then(async response => {
+      if (response.status === 401) {
+        await redirectToIdServer();
         return undefined;
       }
-      return response.json();
+      if (response.status === 403) {
+        // TODO: Return error object with message
+        // Implement error boundary to show "You may not see this resource" message
+        // Also implement breadcrumbs so they can easily "go back a step" in one click
+        throw new Error('Forbidden');
+      }
+      if (response.status === 404) {
+        return undefined;
+      }
+
+      if (response.status === 200) {
+        return response.json();
+      }
+
+      return undefined;
     });
   }
 

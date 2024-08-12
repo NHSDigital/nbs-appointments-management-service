@@ -17,7 +17,7 @@ describe('<UserManagement />', () => {
     fetchRolesMock.mockResolvedValue(mockRoles);
 
     const jsx = await UsersPage({ params: { site: mockSiteId } });
-    await render(jsx);
+    render(jsx);
 
     expect(
       screen.getByRole('table', {

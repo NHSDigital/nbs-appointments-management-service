@@ -1,4 +1,5 @@
-﻿'use client';
+﻿/* eslint-disable react/jsx-props-no-spreading */
+'use client';
 import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Role, RoleAssignment } from '@types';

@@ -52,6 +52,7 @@ const FindUserForm = ({ site }: { site: string }) => {
           </label>
           <input
             id="email"
+            aria-label="enter an email address"
             className="nhsuk-input nhsuk-input--width-20"
             type="text"
             {...register('email', {
@@ -64,7 +65,7 @@ const FindUserForm = ({ site }: { site: string }) => {
         <div className="nhsuk-navigation">
           <button
             type="submit"
-            aria-label="save user"
+            aria-label="Search user"
             className="nhsuk-button nhsuk-u-margin-bottom-0"
           >
             Search user

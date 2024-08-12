@@ -8,8 +8,8 @@ import { fetchUsers } from '../../../lib/users';
 jest.mock('../../../lib/roles');
 jest.mock('../../../lib/users');
 
-const fetchUsersMock = fetchUsers as jest.Mock<any>;
-const fetchRolesMock = fetchRoles as jest.Mock<any>;
+const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
+const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
 
 describe('<UserManagement />', () => {
   it('renders', async () => {
@@ -19,11 +19,11 @@ describe('<UserManagement />', () => {
     const jsx = await UsersPage({ params: { site: mockSiteId } });
     render(jsx);
 
+    expect(screen.getByText('Manage Staff Roles')).toBeVisible();
+
     expect(
-      screen.getByRole('table', {
-        name: "Manage your current site's staff roles",
-      }),
-    ).toBeInTheDocument();
+      screen.getByText("Manage your current site's staff roles"),
+    ).toBeVisible();
   });
 
   it('displays each user in the table', async () => {

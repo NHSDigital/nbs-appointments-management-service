@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import userEvent from '@testing-library/user-event';
 import FindUserForm from './find-user-form';
 import { usePathname, useRouter } from 'next/navigation';
@@ -7,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 jest.mock('next/navigation');
 
 const mockUsePathName = usePathname as jest.Mock<string>;
-const mockUseRouter = useRouter as jest.Mock<any>;
+const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
 
 describe('FindUserForm', () => {

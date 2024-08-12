@@ -1,13 +1,18 @@
-/* eslint-disable react/display-name */
 import { render, screen } from '@testing-library/react';
 import AssignRolesPage from './page';
 
-jest.mock('./find-user-form', () => () => {
-  return <div>Find User Form</div>;
+jest.mock('./find-user-form', () => {
+  const MockFindUserForm = () => {
+    return <div>Find User Form</div>;
+  };
+  return MockFindUserForm;
 });
 
-jest.mock('./assign-roles', () => () => {
-  return <div>Assign Roles Form</div>;
+jest.mock('./assign-roles', () => {
+  const MockAssignRolesForm = () => {
+    return <div>Assign Roles Form</div>;
+  };
+  return MockAssignRolesForm;
 });
 
 describe('User Management Page', () => {

@@ -1,5 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-import { render, screen, waitFor } from '@testing-library/react';
+﻿import { render, screen, waitFor } from '@testing-library/react';
 import { Role, User } from '@types';
 import UsersPage from './page';
 import { fetchRoles } from '../../../lib/roles';

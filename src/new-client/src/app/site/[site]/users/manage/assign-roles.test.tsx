@@ -1,39 +1,37 @@
-/* eslint-disable react/display-name */
 import { render, screen } from '@testing-library/react';
 import AssignRoles from './assign-roles';
 import { fetchRoles } from '../../../../lib/roles';
 import { fetchUsers } from '../../../../lib/users';
 import { Role, RoleAssignment, User } from '@types';
 
-jest.mock(
-  './assign-roles-form',
-  () =>
-    ({
-      site,
-      user,
-      roles,
-      assignments,
-    }: {
-      site: string;
-      user: string;
-      roles: Role[];
-      assignments: RoleAssignment[];
-    }) => {
-      return (
-        <>
-          <div>Assign Roles Form</div>
-          {assignments.map(a => (
-            <div key={a.role}>assignment={a.role}</div>
-          ))}
-          {roles.map(r => (
-            <div key={r.id}>role={r.id}</div>
-          ))}
-          <div>site={site}</div>
-          <div>user={user}</div>
-        </>
-      );
-    },
-);
+jest.mock('./assign-roles-form', () => {
+  const MockForm = ({
+    site,
+    user,
+    roles,
+    assignments,
+  }: {
+    site: string;
+    user: string;
+    roles: Role[];
+    assignments: RoleAssignment[];
+  }) => {
+    return (
+      <>
+        <div>Assign Roles Form</div>
+        {assignments.map(a => (
+          <div key={a.role}>assignment={a.role}</div>
+        ))}
+        {roles.map(r => (
+          <div key={r.id}>role={r.id}</div>
+        ))}
+        <div>site={site}</div>
+        <div>user={user}</div>
+      </>
+    );
+  };
+  return MockForm;
+});
 
 jest.mock('../../../../lib/roles');
 jest.mock('../../../../lib/users');

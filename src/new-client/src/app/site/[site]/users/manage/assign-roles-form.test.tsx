@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { render, screen } from '@testing-library/react';
 import AssignRolesForm from './assign-roles-form';
 import { Role, RoleAssignment } from '@types';
@@ -7,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { saveUserRoleAssignments } from '../../../../lib/users';
 
 jest.mock('next/navigation');
-const mockUseRouter = useRouter as jest.Mock<any>;
+const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
 
 jest.mock('../../../../lib/users');

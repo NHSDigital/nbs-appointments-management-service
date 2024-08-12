@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import dayjs from 'dayjs';
+
 type UserProfile = {
   emailAddress: string;
   availableSites: Site[];
@@ -38,4 +41,28 @@ interface ApiErrorResponse {
   errorMessage: string;
 }
 
-export type { UserProfile, Site, User, RoleAssignment, Role, ApiResponse };
+type AvailabilityBlock = {
+  day: dayjs.Dayjs;
+  start: string;
+  end: string;
+  sessionHolders: number;
+  services: number;
+  isPreview?: boolean;
+};
+
+type WeekInfo = {
+  weekNumber: number;
+  month: string;
+  commencing: dayjs.Dayjs;
+};
+
+export type {
+  UserProfile,
+  Site,
+  User,
+  RoleAssignment,
+  Role,
+  ApiResponse,
+  AvailabilityBlock,
+  WeekInfo,
+};

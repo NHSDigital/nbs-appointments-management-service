@@ -67,7 +67,9 @@ stages:
               version: 20.x
           - script: |
               cd ./src/new-client
-              npm install 
+              npm ci 
+              npm run lint
+              npm run format:check
               npm run test:ci
             displayName: "Run Web App Tests"
           - task: PublishTestResults@2

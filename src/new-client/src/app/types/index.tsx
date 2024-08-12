@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import dayjs from 'dayjs';
+
 type UserProfile = {
   emailAddress: string;
   availableSites: Site[];
@@ -25,4 +28,27 @@ type Role = {
   description: string;
 };
 
-export type { UserProfile, Site, User, RoleAssignment, Role };
+type AvailabilityBlock = {
+  day: dayjs.Dayjs;
+  start: string;
+  end: string;
+  sessionHolders: number;
+  services: number;
+  isPreview?: boolean;
+};
+
+type WeekInfo = {
+  weekNumber: number;
+  month: string;
+  commencing: dayjs.Dayjs;
+};
+
+export type {
+  UserProfile,
+  Site,
+  User,
+  RoleAssignment,
+  Role,
+  AvailabilityBlock,
+  WeekInfo,
+};

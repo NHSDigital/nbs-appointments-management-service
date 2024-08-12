@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@next/env": "^14.2.5",
+    "dayjs": "^1.11.12",
     "next": "14.2.5",
     "nhsuk-frontend": "^8.3.0",
     "react": "^18",

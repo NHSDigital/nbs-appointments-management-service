@@ -3,6 +3,7 @@ import AssignRoles from './assign-roles';
 import { fetchRoles } from '../../../../lib/roles';
 import { fetchUsers } from '../../../../lib/users';
 import { Role, RoleAssignment, User } from '@types';
+import { getMockUserAssignments, mockRoles } from '../../../../testing/data';
 
 jest.mock('./assign-roles-form', () => {
   const MockForm = ({
@@ -38,10 +39,11 @@ jest.mock('../../../../lib/users');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
+const mockSiteId = 'TEST';
 
 describe('AssignRoles', () => {
   beforeEach(() => {
-    fetchUsersMock.mockResolvedValue(mockUserAssignments);
+    fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
     fetchRolesMock.mockResolvedValue(mockRoles);
   });
   it('throws error when rendered without user', async () => {
@@ -95,39 +97,3 @@ describe('AssignRoles', () => {
     expect(screen.getByText('role=role-3')).toBeVisible();
   });
 });
-
-const mockSiteId = '1000';
-const mockUserAssignments: User[] = [
-  {
-    id: 'test.one@nhs.net',
-    roleAssignments: [
-      { role: 'role-1', scope: `site:${mockSiteId}` },
-      {
-        role: 'role-2',
-        scope: `site:${mockSiteId}`,
-      },
-    ],
-  },
-  {
-    id: 'test.two@nhs.net',
-    roleAssignments: [{ role: 'role-3', scope: `site:${mockSiteId}` }],
-  },
-];
-
-const mockRoles: Role[] = [
-  {
-    displayName: 'Role 1',
-    id: 'role-1',
-    description: 'This is a short description of role 1.',
-  },
-  {
-    displayName: 'Role 2',
-    id: 'role-2',
-    description: 'This is a short description of role 2.',
-  },
-  {
-    displayName: 'Role 3',
-    id: 'role-3',
-    description: 'This is a short description of role 3.',
-  },
-];

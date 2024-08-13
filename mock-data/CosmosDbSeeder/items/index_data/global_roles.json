@@ -34,7 +34,7 @@
       "id": "canned:user-manager",
       "name": "User manager",
       "description": "A user can view and manage user role assignments.",
-      "permissions": ["users:manage"]
+      "permissions": ["users:manage", "users:view"]
     },
     {
       "id": "canned:api-user",

@@ -23,7 +23,9 @@ export const Table = ({ caption, headers, rows }: TableProps) => {
         cardinality === 'two-column' ? 'nhsuk-table' : 'nhsuk-table-responsive'
       }
     >
-      <caption className="nhsuk-table__caption">{caption}</caption>
+      {caption !== undefined && (
+        <caption className="nhsuk-table__caption">{caption}</caption>
+      )}
       <thead className="nhsuk-table__head">
         <tr role="row">
           {headers.map((header, index) => {

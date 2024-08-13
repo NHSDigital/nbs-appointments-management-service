@@ -44,7 +44,7 @@ const FindUserForm = ({ site }: { site: string }) => {
           {errors.email && (
             <span className="nhsuk-error-message">
               <span className="nhsuk-u-visually-hidden">Error:</span> You have
-              not entered a valid nhs email address
+              not entered a valid NHS email address
             </span>
           )}
           <label htmlFor="email" className="nhsuk-label">

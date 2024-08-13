@@ -7,6 +7,10 @@
       "scope": "site:1000"
     },
     {
+      "role": "canned:user-manager",
+      "scope":  "site:1000"
+    },
+    {
       "role": "canned:site-configuration-manager",
       "scope": "site:1001"
     },

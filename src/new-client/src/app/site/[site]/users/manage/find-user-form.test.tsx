@@ -22,11 +22,11 @@ describe('FindUserForm', () => {
     await userEvent.click(searchButton);
 
     expect(
-      await screen.findByText('You have not entered a valid nhs email address'),
+      await screen.findByText('You have not entered a valid NHS email address'),
     ).toBeVisible();
   });
 
-  it('shows a validation error when an non nhs.net email address is submitted', async () => {
+  it('shows a validation error when an none nhs.net email address is submitted', async () => {
     render(<FindUserForm site="TEST" />);
 
     const searchButton = screen.getByRole('button', { name: 'Search user' });
@@ -38,7 +38,7 @@ describe('FindUserForm', () => {
     await userEvent.click(searchButton);
 
     expect(
-      await screen.findByText('You have not entered a valid nhs email address'),
+      await screen.findByText('You have not entered a valid NHS email address'),
     ).toBeVisible();
   });
 

@@ -30,7 +30,7 @@ describe('User Management Page', () => {
     expect(screen.getByText('Find User Form')).toBeVisible();
   });
 
-  it('renders assig roles form when user in search params', () => {
+  it('renders assign roles form when user in search params', () => {
     render(
       <AssignRolesPage
         params={{ site: 'TEST' }}

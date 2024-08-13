@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import AssignRolesForm from './assign-roles-form';
-import { Role, RoleAssignment } from '@types';
+import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import userEvent from '@testing-library/user-event';
 import { saveUserRoleAssignments } from '../../../../lib/users';
+import { mockRoles } from '../../../../testing/data';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -99,24 +100,6 @@ describe('Assign Roles Form', () => {
     );
   });
 });
-
-const mockRoles: Role[] = [
-  {
-    displayName: 'Role 1',
-    id: 'role-1',
-    description: 'This is a short description of role 1.',
-  },
-  {
-    displayName: 'Role 2',
-    id: 'role-2',
-    description: 'This is a short description of role 2.',
-  },
-  {
-    displayName: 'Role 3',
-    id: 'role-3',
-    description: 'This is a short description of role 3.',
-  },
-];
 
 const mockAssignments = [
   { role: 'role-1', scope: 'site:TEST' },

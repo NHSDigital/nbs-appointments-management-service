@@ -1,6 +1,6 @@
 'use server';
 import { cookies } from 'next/headers';
-import redirectToIdServer from '../../../auth/redirectToIdServer';
+import { ApiResponse } from '@types';
 
 interface ClientOptions {
   baseUrl: string;
@@ -14,7 +14,10 @@ class Client {
     this.baseUrl = baseUrl;
   }
 
-  public get<T = unknown>(path: string, config?: RequestInit): Promise<T> {
+  public get<T = unknown>(
+    path: string,
+    config?: RequestInit,
+  ): Promise<ApiResponse<T>> {
     const tokenCookie = cookies().get('token');
 
     return fetch(`${this.baseUrl}/${path}`, {
@@ -27,23 +30,38 @@ class Client {
       ...config,
     }).then(async response => {
       if (response.status === 401) {
-        await redirectToIdServer();
-        return undefined;
+        return {
+          success: false,
+          httpStatusCode: 401,
+          errorMessage:
+            'Unauthorized: You must be logged in to view this resource',
+        };
       }
+
       if (response.status === 403) {
-        // TODO: Return error object with message
-        // Implement error boundary to show "You may not see this resource" message
-        // Also implement breadcrumbs so they can easily "go back a step" in one click
-        throw new Error(
-          '403 Forbidden: You lack the necessary permissions to view this resource',
-        );
+        return {
+          success: false,
+          httpStatusCode: 403,
+          errorMessage: 'Forbidden: You lack the necessary permissions',
+        };
+      }
+
+      if (response.status === 404) {
+        return {
+          success: false,
+          httpStatusCode: 404,
+          errorMessage: 'Not found',
+        };
       }
 
       if (response.status === 200) {
-        return response.json();
+        return {
+          success: true,
+          data: await response.json(),
+        };
       }
 
-      return undefined;
+      throw new Error('An unhandled error occured');
     });
   }
 

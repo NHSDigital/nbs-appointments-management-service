@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { When } from '@components/when';
-import { fetchUserProfile, signOut } from '@services/appointmentsService';
+import { signOut } from '@services/appointmentsService';
+import redirectToIdServer from '../../auth/redirectToIdServer';
 
 type NhsHeaderProps = {
   userEmail?: string;
 };
 
 export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
-  const userProfile = await fetchUserProfile();
-
   return (
     <header className="nhsuk-header nhsuk-header__transactional" role="banner">
       <div className="nhsuk-header__container">
@@ -40,7 +39,7 @@ export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
             NHS Appointment Book
           </Link>
         </div>
-        <When condition={userProfile?.emailAddress !== undefined}>
+        <When condition={userEmail !== undefined}>
           <div className="header__content" id="content-header">
             <div
               className="header__user-control"
@@ -57,6 +56,29 @@ export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
                       type="submit"
                     >
                       Log out
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </When>
+        <When condition={userEmail === undefined}>
+          <div className="header__content" id="content-header">
+            <div
+              className="header__user-control"
+              role="navigation"
+              aria-label="Primary navigation"
+            >
+              <ul className="header__user-control-list">
+                <li className="header__user-control-item">
+                  <form action={redirectToIdServer.bind(null, undefined)}>
+                    <button
+                      aria-label="log out"
+                      className="header__user-control-link"
+                      type="submit"
+                    >
+                      Log in
                     </button>
                   </form>
                 </li>

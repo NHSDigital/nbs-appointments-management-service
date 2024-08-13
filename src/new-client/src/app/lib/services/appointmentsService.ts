@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Role, User, UserProfile } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
+import { ApiResponse } from '@types';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{
@@ -13,29 +14,55 @@ export const fetchAccessToken = async (code: string) => {
 };
 
 export const fetchUserProfile = async () => {
-  return appointmentsApi.get<UserProfile>('user/profile', {
+  const response = await appointmentsApi.get<UserProfile>('user/profile', {
     next: { tags: ['user'] },
   });
+
+  return handleResponse(response, undefined, true);
 };
 
 export async function fetchUsers(site: string) {
-  const users = await appointmentsApi.get<User[]>(`users?site=${site}`, {
+  const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
     cache: 'no-cache',
   });
 
-  return users.filter(usr => usr.id.includes('@'));
+  return handleResponse(response, (users: User[]) =>
+    users.filter(usr => usr.id.includes('@')),
+  );
 }
 
 export async function fetchRoles() {
-  return await appointmentsApi.get<Role[]>('roles');
+  const response = await appointmentsApi.get<Role[]>('roles');
+
+  return handleResponse(response);
 }
 
 export async function fetchPermissions(site: string) {
-  const response = await appointmentsApi.get<{ permissions: string[] }>(
+  const response = await appointmentsApi.get<string[]>(
     `user/permissions?site=${site}`,
   );
 
-  return response?.permissions;
+  return handleResponse(response);
+}
+
+function handleResponse<T>(
+  response: ApiResponse<T>,
+  transformData = (data: T) => data,
+  suppress401Errors = false,
+) {
+  if (response.success) {
+    return transformData(response.data);
+  }
+
+  if (response.httpStatusCode === 404) {
+    return undefined;
+  }
+
+  if (response.httpStatusCode === 401 && suppress401Errors) {
+    return undefined;
+  }
+
+  throw new Error(response.errorMessage);
 }
 
 export const signOut = async () => {

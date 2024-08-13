@@ -10,8 +10,8 @@ type PageProps = {
 };
 
 const UsersPage = async ({ params }: PageProps) => {
-  const users = await fetchUsers(params.site);
-  const roles = await fetchRoles();
+  const users = (await fetchUsers(params.site)) ?? [];
+  const roles = (await fetchRoles()) ?? [];
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
   return (

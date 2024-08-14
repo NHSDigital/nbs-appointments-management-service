@@ -7,21 +7,25 @@ export interface Breadcrumb {
 }
 
 interface Props {
-  breadcrumbs?: Breadcrumb[];
+  trail?: Breadcrumb[];
 }
 
-const Breadcrumbs = ({ breadcrumbs = [] }: Props) => {
-  const breadCrumbsWithHome = [{ name: 'Home', href: '/' }, ...breadcrumbs];
+const Breadcrumbs = ({ trail = [] }: Props) => {
+  const trailWithHome = [{ name: 'Home', href: '/' }, ...trail];
+
+  const previousCrumb =
+    trailWithHome.length > 1 ? trailWithHome.slice(-2)[0] : undefined;
 
   return (
     <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
       <div className="nhsuk-width-container">
         <ol className="nhsuk-breadcrumbs__list">
-          {breadCrumbsWithHome.map((breadcrumb, index) => {
+          {trailWithHome.map((breadcrumb, index) => {
             return (
               <li
                 key={`$breadcrumb_${index}`}
                 className="nhsuk-breadcrumb__item"
+                aria-label={breadcrumb.name}
               >
                 {breadcrumb.href ? (
                   <Link
@@ -37,11 +41,11 @@ const Breadcrumbs = ({ breadcrumbs = [] }: Props) => {
             );
           })}
         </ol>
-        {breadCrumbsWithHome && breadCrumbsWithHome.length > 1 && (
+        {previousCrumb && (
           <p className="nhsuk-breadcrumb__back">
-            <a className="nhsuk-breadcrumb__backlink" href="#">
+            <a className="nhsuk-breadcrumb__backlink" href={previousCrumb.href}>
               <span className="nhsuk-u-visually-hidden">Back to &nbsp;</span>
-              {breadCrumbsWithHome.slice(-1)[0].name}
+              {previousCrumb.name}
             </a>
           </p>
         )}

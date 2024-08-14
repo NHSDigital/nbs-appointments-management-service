@@ -16,7 +16,7 @@ const NhsPage = async ({ title, children = null, breadcrumbs }: Props) => {
   return (
     <>
       <NhsHeader userEmail={userProfile?.emailAddress} />
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs trail={breadcrumbs} />
       <div className="nhsuk-width-container app-width-container">
         <main
           className="govuk-main-wrapper app-main-wrapper"

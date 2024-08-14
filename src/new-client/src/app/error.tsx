@@ -10,7 +10,7 @@ export default function Error({
 }) {
   return (
     <>
-      <NhsHeader />
+      <NhsHeader showAuthControls={false} />
       <Breadcrumbs />
       <div className="nhsuk-width-container app-width-container">
         <main

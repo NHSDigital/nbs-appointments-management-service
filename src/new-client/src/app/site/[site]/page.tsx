@@ -11,7 +11,7 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const userProfile = await fetchUserProfile();
 
-  if (userProfile === undefined) return null;
+  if (userProfile === undefined) throw Error('Cannot find user profile');
 
   const site = userProfile.availableSites.find(s => s.id === params.site);
 

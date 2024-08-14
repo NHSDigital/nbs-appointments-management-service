@@ -15,7 +15,13 @@ const AssignRolesPage = ({ params, searchParams }: UserPageProps) => {
     (searchParams && 'user' in searchParams) ?? false;
 
   return (
-    <NhsPage title="Staff Role Management">
+    <NhsPage
+      title="Staff Role Management"
+      breadcrumbs={[
+        { name: 'Site', href: `/site/${params.site}` },
+        { name: 'Users' },
+      ]}
+    >
       <ManageUsersPage
         userIsSpecified={userIsSpecified()}
         params={params}

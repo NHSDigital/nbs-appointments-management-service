@@ -40,9 +40,9 @@ export const fetchSite = async (siteId: string) => {
 };
 
 export async function fetchRoles() {
-  const response = await appointmentsApi.get<Role[]>('roles');
+  const response = await appointmentsApi.get<{ roles: Role[] }>('roles');
 
-  return handleResponse(response) ?? [];
+  return handleResponse(response);
 }
 
 export async function fetchPermissions(site: string) {

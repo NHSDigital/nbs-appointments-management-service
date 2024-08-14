@@ -14,15 +14,18 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const users = (await fetchUsers(params.site)) ?? [];
-  const roles = (await fetchRoles()) ?? [];
+  const rolesResponse = await fetchRoles();
   const site = await fetchSite(params.site);
 
   return (
     <NhsPage
       title="Manage Staff Roles"
-      breadcrumbs={[{ name: 'Users', href: `/site/${site.id}/users` }]}
+      breadcrumbs={[
+        { name: site.name, href: `/site/${params.site}` },
+        { name: 'Users' },
+      ]}
     >
-      <UsersPage users={users} roles={roles} />
+      <UsersPage users={users} roles={rolesResponse?.roles ?? []} />
     </NhsPage>
   );
 };

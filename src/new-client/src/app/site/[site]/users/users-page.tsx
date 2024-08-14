@@ -23,11 +23,12 @@ export const UsersPage = ({ users, roles }: Props) => {
       </div>
       <Table
         caption={`Manage your current site's staff roles`}
-        headers={['Email', 'Roles']}
+        headers={['Email', 'Roles', 'Manage']}
         rows={users.map(user => {
           return [
             user.id,
             user.roleAssignments?.map(ra => getRoleName(ra.role))?.join(' | '),
+            <EditRoleAssignmentsButton key={user.id} user={user.id} />,
           ];
         })}
       />
@@ -43,10 +44,10 @@ const AddRoleAssignmentsButton = () => (
   </div>
 );
 
-// const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
-//   <div>
-//     <Link href={`users/manage?user=${user}`} className="nhsuk-link">
-//       Edit
-//     </Link>
-//   </div>
-// );
+const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
+  <div>
+    <Link href={`users/manage?user=${user}`} className="nhsuk-link">
+      Edit
+    </Link>
+  </div>
+);

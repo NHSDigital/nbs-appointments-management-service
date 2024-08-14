@@ -1,4 +1,4 @@
-import { Role, User } from '@types';
+import { Role, Site, User } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -35,4 +35,10 @@ const mockRoles: Role[] = [
   },
 ];
 
-export { getMockUserAssignments, mockRoles };
+const mockSites: Site[] = [
+  { id: '1001', name: 'Site Alpha', address: 'Alpha Street' },
+  { id: '1002', name: 'Site Beta', address: 'Beta Street' },
+  { id: '1003', name: 'Site Gamma', address: 'Gamma Street' },
+];
+
+export { getMockUserAssignments, mockRoles, mockSites };

@@ -4,13 +4,17 @@ import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import userEvent from '@testing-library/user-event';
 import { mockRoles } from '../../../../testing/data';
+import * as appointmentsService from '@services/appointmentsService';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
 
 jest.mock('@services/appointmentsService');
-const mockSaveUserRoleAssignments = jest.fn();
+const mockSaveUserRoleAssignments = jest.spyOn(
+  appointmentsService,
+  'saveUserRoleAssignments',
+);
 
 describe('Assign Roles Form', () => {
   beforeEach(() => {

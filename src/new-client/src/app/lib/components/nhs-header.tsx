@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { When } from '@components/when';
-import { signOut } from '@services/appointmentsService';
-import redirectToIdServer from '../../auth/redirectToIdServer';
+import NhsHeaderLogIn from '@components/nhs-header-log-in';
+import NhsHeaderLogOut from '@components/nhs-header-log-out';
 
 type NhsHeaderProps = {
   userEmail?: string;
@@ -49,15 +49,7 @@ export const NhsHeader = ({ userEmail }: NhsHeaderProps) => {
               <ul className="header__user-control-list">
                 <li className="header__user-control-item">{userEmail}</li>
                 <li className="header__user-control-item">
-                  <form action={signOut}>
-                    <button
-                      aria-label="log out"
-                      className="header__user-control-link"
-                      type="submit"
-                    >
-                      Log out
-                    </button>
-                  </form>
+                  <NhsHeaderLogOut />
                 </li>
               </ul>
             </div>
@@ -72,15 +64,7 @@ export const NhsHeader = ({ userEmail }: NhsHeaderProps) => {
             >
               <ul className="header__user-control-list">
                 <li className="header__user-control-item">
-                  <form action={redirectToIdServer.bind(null, undefined)}>
-                    <button
-                      aria-label="log in"
-                      className="header__user-control-link"
-                      type="submit"
-                    >
-                      Log in
-                    </button>
-                  </form>
+                  <NhsHeaderLogIn />
                 </li>
               </ul>
             </div>

@@ -1,15 +1,21 @@
 import { fetchUserProfile } from '@services/appointmentsService';
-import SiteList from '@components/site-list';
 import NhsPage from '@components/nhs-page';
+import HomePage from './home-page';
+import { Metadata } from 'next';
 
-const Home = async () => {
+export const metadata: Metadata = {
+  title: 'Appointment Management Service',
+  description: 'A National Booking Service site for managing NHS appointments',
+};
+
+const Page = async () => {
   const userProfile = await fetchUserProfile();
 
   return (
     <NhsPage title="Appointment Management Service">
-      <SiteList sites={userProfile?.availableSites ?? []} />
+      <HomePage sites={userProfile?.availableSites ?? []} />
     </NhsPage>
   );
 };
 
-export default Home;
+export default Page;

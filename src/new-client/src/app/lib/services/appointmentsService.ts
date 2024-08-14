@@ -31,6 +31,14 @@ export async function fetchUsers(site: string) {
   );
 }
 
+export const fetchSite = async (siteId: string) => {
+  const userProfile = await fetchUserProfile();
+  const site = userProfile?.availableSites.find(s => s.id === siteId);
+
+  if (site === undefined) throw Error('Cannot find information for site');
+  return site;
+};
+
 export async function fetchRoles() {
   const response = await appointmentsApi.get<Role[]>('roles');
 

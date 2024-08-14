@@ -36,13 +36,13 @@ jest.mock('./assign-roles-form', () => {
 jest.mock('@services/appointmentsService');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
-const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
+const fetchRolesMock = fetchRoles as jest.Mock<Promise<{ roles: Role[] }>>;
 const mockSiteId = 'TEST';
 
 describe('AssignRoles', () => {
   beforeEach(() => {
     fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
-    fetchRolesMock.mockResolvedValue(mockRoles);
+    fetchRolesMock.mockResolvedValue({ roles: mockRoles });
   });
   it('throws error when rendered without user', async () => {
     await expect(

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import AssignRolesPage from './manage-users-page';
+import { ManageUsersPage } from './page';
 
 jest.mock('./find-user-form', () => {
   const MockFindUserForm = () => {
@@ -18,7 +18,7 @@ jest.mock('./assign-roles', () => {
 describe('User Management Page', () => {
   it('renders title and subtitle correctly', () => {
     render(
-      <AssignRolesPage
+      <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{}}
         userIsSpecified={false}
@@ -32,7 +32,7 @@ describe('User Management Page', () => {
 
   it('renders search form when no user in search params', () => {
     render(
-      <AssignRolesPage
+      <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{}}
         userIsSpecified={false}
@@ -44,7 +44,7 @@ describe('User Management Page', () => {
 
   it('renders assign roles form when user in search params', () => {
     render(
-      <AssignRolesPage
+      <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{ user: 'test@nhs.net' }}
         userIsSpecified

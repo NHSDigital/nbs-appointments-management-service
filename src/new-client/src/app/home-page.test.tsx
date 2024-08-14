@@ -1,4 +1,4 @@
-import HomePage from './home-page';
+import { HomePage } from './page';
 import { render, screen } from '@testing-library/react';
 import { mockSites } from './testing/data';
 

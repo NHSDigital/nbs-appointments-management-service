@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import SitePage from './site-page';
+import { SitePage } from './page';
 import { mockSites } from '../../testing/data';
 
 describe('Site Page', () => {

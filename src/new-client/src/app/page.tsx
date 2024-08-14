@@ -1,7 +1,8 @@
 import { fetchUserProfile } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
-import HomePage from './home-page';
 import { Metadata } from 'next';
+import SiteList from '@components/site-list';
+import { Site } from '@types';
 
 export const metadata: Metadata = {
   title: 'Appointment Management Service',
@@ -16,6 +17,14 @@ const Page = async () => {
       <HomePage sites={userProfile?.availableSites ?? []} />
     </NhsPage>
   );
+};
+
+interface HomePageProps {
+  sites: Site[];
+}
+
+export const HomePage = ({ sites }: HomePageProps) => {
+  return <SiteList sites={sites} />;
 };
 
 export default Page;

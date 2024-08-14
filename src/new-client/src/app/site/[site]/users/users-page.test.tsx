@@ -1,5 +1,5 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
-import UsersPage from './users-page';
+import { UsersPage } from './page';
 import { getMockUserAssignments, mockRoles } from '../../../testing/data';
 
 const mockSiteId = 'TEST';

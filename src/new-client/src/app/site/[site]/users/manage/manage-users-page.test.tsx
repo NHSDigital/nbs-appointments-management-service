@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { ManageUsersPage } from './page';
+import { ManageUsersPage } from './manage-users-page';
 
 jest.mock('./find-user-form', () => {
   const MockFindUserForm = () => {

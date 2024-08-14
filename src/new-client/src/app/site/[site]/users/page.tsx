@@ -1,7 +1,11 @@
 import { Table } from '@components/table';
-import NhsPageTitle from '@components/nhs-page-title';
 import Link from 'next/link';
-import { fetchUsers, fetchRoles } from '@services/appointmentsService';
+import {
+  fetchUsers,
+  fetchRoles,
+  fetchUserProfile,
+} from '@services/appointmentsService';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   params: {
@@ -10,36 +14,42 @@ type PageProps = {
 };
 
 const UsersPage = async ({ params }: PageProps) => {
+  const userProfile = await fetchUserProfile();
   const users = (await fetchUsers(params.site)) ?? [];
   const roles = (await fetchRoles()) ?? [];
+
+  if (userProfile === undefined) return null;
+
+  const site = userProfile.availableSites.find(s => s.id === params.site);
+  if (site === undefined) throw Error('Cannot find information for site');
+
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
+
   return (
-    <>
-      <NhsPageTitle title="Manage Staff Roles" />
-      <div>
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
-            Manage your current site's staff roles
-          </span>
-          <span>
-            <AddRoleAssignmentsButton />
-          </span>
-        </div>
-        <Table
-          headers={['Email', 'Roles', 'Manage']}
-          rows={users.map(user => {
-            return [
-              user.id,
-              user.roleAssignments
-                ?.map(ra => getRoleName(ra.role))
-                ?.join(' | '),
-              <EditRoleAssignmentsButton key={user.id} user={user.id} />,
-            ];
-          })}
-        />
+    <NhsPage
+      title="Manage Staff Roles"
+      breadcrumbs={[{ name: 'Users', href: `/site/${site.id}/users` }]}
+    >
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
+          Manage your current site's staff roles
+        </span>
+        <span>
+          <AddRoleAssignmentsButton />
+        </span>
       </div>
-    </>
+      <Table
+        caption={`Manage your current site's staff roles`}
+        headers={['Email', 'Roles']}
+        rows={users.map(user => {
+          return [
+            user.id,
+            user.roleAssignments?.map(ra => getRoleName(ra.role))?.join(' | '),
+          ];
+        })}
+      />
+    </NhsPage>
   );
 };
 

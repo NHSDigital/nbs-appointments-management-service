@@ -1,6 +1,5 @@
 'use client';
 import NhsPage from '@components/nhs-page';
-// Error components must be Client Components
 
 export default function Error({
   error,

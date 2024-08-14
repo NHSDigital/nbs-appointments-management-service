@@ -1,4 +1,5 @@
 import NhsNavCard from '@components/nhs-nav-card';
+import NhsPage from '@components/nhs-page';
 import { fetchUserProfile } from '@services/appointmentsService';
 
 type PageProps = {
@@ -10,25 +11,22 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const userProfile = await fetchUserProfile();
 
-  if (userProfile === undefined) throw Error('failed to retrieve user profile');
+  if (userProfile === undefined) return null;
 
   const site = userProfile.availableSites.find(s => s.id === params.site);
 
   if (site === undefined) throw Error('Cannot find information for site');
 
   return (
-    <div>
+    <NhsPage title={site.name} breadcrumbs={[{ name: site.name }]}>
       <div className="nhsuk-card">
         <div className="nhsuk-card__content">
           <h3 className="nhsuk-card__heading">{site.name}</h3>
           <p className="nhsuk-card__description">{site.address}</p>
         </div>
       </div>
-      <ul
-        className="nhsuk-grid-row nhsuk-card-group"
-        style={{ padding: '20px' }}
-      >
-        <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+      <ul className="nhsuk-grid-row nhsuk-card-group">
+        <li className="nhsuk-grid-column-two-thirds nhsuk-card-group__item">
           <NhsNavCard
             href={`${params.site}/users`}
             title="User Management"
@@ -36,7 +34,7 @@ const Page = async ({ params }: PageProps) => {
           />
         </li>
       </ul>
-    </div>
+    </NhsPage>
   );
 };
 

@@ -1,20 +1,17 @@
 import { fetchUserProfile } from '@services/appointmentsService';
 import SiteList from '@components/site-list';
+import NhsPage from '@components/nhs-page';
 
 const Home = async () => {
   const userProfile = await fetchUserProfile();
   if (userProfile === undefined) {
     return null;
   }
+
   return (
-    <div className="nhsuk-grid-row nhsuk-main-wrapper nhsuk-width-container">
-      <div className="nhsuk-grid-column-full">
-        <h1>Appointment Management Service</h1>
-        <div>
-          <SiteList sites={userProfile.availableSites} />
-        </div>
-      </div>
-    </div>
+    <NhsPage title="Appointment Management Service">
+      <SiteList sites={userProfile.availableSites} />
+    </NhsPage>
   );
 };
 

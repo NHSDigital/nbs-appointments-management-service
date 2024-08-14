@@ -3,8 +3,8 @@
 import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Role, RoleAssignment } from '@types';
-import { saveUserRoleAssignments } from '../../../../lib/users';
 import { useRouter } from 'next/navigation';
+import { saveUserRoleAssignments } from '@services/appointmentsService';
 
 type FormFields = {
   roles: string[];

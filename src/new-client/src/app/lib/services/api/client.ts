@@ -65,7 +65,10 @@ class Client {
     });
   }
 
-  public post<T = unknown>(path: string, payload: BodyInit): Promise<T> {
+  public post<T = unknown>(
+    path: string,
+    payload: BodyInit,
+  ): Promise<ApiResponse<T>> {
     const tokenCookie = cookies().get('token');
 
     return fetch(`${this.baseUrl}/${path}`, {
@@ -76,11 +79,40 @@ class Client {
             Authorization: `Bearer ${tokenCookie.value}`,
           }
         : undefined,
-    }).then(response => {
-      if (response.status !== 200) {
-        return undefined;
+    }).then(async response => {
+      if (response.status === 401) {
+        return {
+          success: false,
+          httpStatusCode: 401,
+          errorMessage:
+            'Unauthorized: You must be logged in to view this resource',
+        };
       }
-      return response.json();
+
+      if (response.status === 403) {
+        return {
+          success: false,
+          httpStatusCode: 403,
+          errorMessage: 'Forbidden: You lack the necessary permissions',
+        };
+      }
+
+      if (response.status === 404) {
+        return {
+          success: false,
+          httpStatusCode: 404,
+          errorMessage: 'Not found',
+        };
+      }
+
+      if (response.status === 200) {
+        return {
+          success: true,
+          data: await response.json(),
+        };
+      }
+
+      throw new Error('An unhandled error occured');
     });
   }
 

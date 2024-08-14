@@ -7,10 +7,8 @@ import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 
 export const fetchAccessToken = async (code: string) => {
-  const response = await appointmentsApi.post<{
-    token: string;
-  }>('token', code);
-  return response.token;
+  const response = await appointmentsApi.post<{ token: string }>('token', code);
+  return handleResponse(response);
 };
 
 export const fetchUserProfile = async () => {
@@ -26,15 +24,17 @@ export async function fetchUsers(site: string) {
     cache: 'no-cache',
   });
 
-  return handleResponse(response, (users: User[]) =>
-    users.filter(usr => usr.id.includes('@')),
+  return (
+    handleResponse(response, (users: User[]) =>
+      users.filter(usr => usr.id.includes('@')),
+    ) ?? []
   );
 }
 
 export async function fetchRoles() {
   const response = await appointmentsApi.get<Role[]>('roles');
 
-  return handleResponse(response);
+  return handleResponse(response) ?? [];
 }
 
 export async function fetchPermissions(site: string) {
@@ -42,7 +42,7 @@ export async function fetchPermissions(site: string) {
     `user/permissions?site=${site}`,
   );
 
-  return handleResponse(response);
+  return handleResponse(response) ?? [];
 }
 
 function handleResponse<T>(
@@ -82,8 +82,12 @@ export const saveUserRoleAssignments = async (
     roles: roles,
   };
 
-  await nbsApi.post<string>(`user/roles`, JSON.stringify(payload));
+  const response = await appointmentsApi.post(
+    `user/roles`,
+    JSON.stringify(payload),
+  );
 
+  handleResponse(response);
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };

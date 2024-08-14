@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import AssignRoles from './assign-roles';
-import { fetchRoles } from '../../../../lib/roles';
-import { fetchUsers } from '../../../../lib/users';
 import { Role, RoleAssignment, User } from '@types';
 import { getMockUserAssignments, mockRoles } from '../../../../testing/data';
+import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
 jest.mock('./assign-roles-form', () => {
   const MockForm = ({

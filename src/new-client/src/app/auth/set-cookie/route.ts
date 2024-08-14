@@ -12,12 +12,12 @@ export async function GET(request: NextRequest) {
     throw Error('No code found in request');
   }
 
-  const token = await fetchAccessToken(code);
-  if (token === null) {
+  const tokenResponse = await fetchAccessToken(code);
+  if (tokenResponse === undefined) {
     throw Error('No token found in response');
   }
 
-  cookies().set('token', token);
+  cookies().set('token', tokenResponse.token);
   revalidateTag('user');
 
   const previousPage = cookies().get('previousPage');

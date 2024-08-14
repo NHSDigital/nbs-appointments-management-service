@@ -3,17 +3,14 @@ import AssignRolesForm from './assign-roles-form';
 import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import userEvent from '@testing-library/user-event';
-import { saveUserRoleAssignments } from '../../../../lib/users';
 import { mockRoles } from '../../../../testing/data';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
 
-jest.mock('../../../../lib/users');
-const mockSaveUserRoleAssignments = saveUserRoleAssignments as jest.Mock<
-  Promise<void>
->;
+jest.mock('@services/appointmentsService');
+const mockSaveUserRoleAssignments = jest.fn();
 
 describe('Assign Roles Form', () => {
   beforeEach(() => {

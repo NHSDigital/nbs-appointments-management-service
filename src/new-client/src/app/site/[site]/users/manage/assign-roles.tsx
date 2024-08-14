@@ -1,9 +1,8 @@
 ﻿import { UserPageProps } from './page';
-import { fetchRoles } from '../../../../lib/roles';
-import { fetchUsers } from '../../../../lib/users';
 import { RoleAssignment } from '@types';
 import AssignRolesForm from './assign-roles-form';
 import React from 'react';
+import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
 const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
   const user = searchParams?.user;

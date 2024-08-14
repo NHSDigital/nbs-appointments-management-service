@@ -7,7 +7,7 @@ type NhsHeaderProps = {
   userEmail?: string;
 };
 
-export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
+export const NhsHeader = ({ userEmail }: NhsHeaderProps) => {
   return (
     <header className="nhsuk-header nhsuk-header__transactional" role="banner">
       <div className="nhsuk-header__container">
@@ -74,7 +74,7 @@ export const NhsHeader = async ({ userEmail }: NhsHeaderProps) => {
                 <li className="header__user-control-item">
                   <form action={redirectToIdServer.bind(null, undefined)}>
                     <button
-                      aria-label="log out"
+                      aria-label="log in"
                       className="header__user-control-link"
                       type="submit"
                     >

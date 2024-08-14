@@ -2,9 +2,8 @@ import { fetchUserProfile } from '@services/appointmentsService';
 import Home from './page';
 import { render, screen } from '@testing-library/react';
 
-jest.mock('@services/nbsService');
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fetchUserProfileMock = fetchUserProfile as jest.Mock<any>;
+jest.mock('@services/appointmentsService');
+const fetchUserProfileMock = fetchUserProfile as jest.Mock;
 
 describe('Home Page', () => {
   it('should render the home page', async () => {
@@ -14,7 +13,7 @@ describe('Home Page', () => {
     });
 
     const jsx = await Home();
-    await render(jsx);
+    render(jsx);
     expect(screen.getByText('Appointment Management Service')).toBeVisible();
   });
 });

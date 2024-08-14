@@ -33,8 +33,7 @@ jest.mock('./assign-roles-form', () => {
   return MockForm;
 });
 
-jest.mock('../../../../lib/roles');
-jest.mock('../../../../lib/users');
+jest.mock('@services/appointmentsService');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import Page from './page';
 import { fetchUserProfile } from '@services/appointmentsService';
 
-jest.mock('@services/nbsService');
+jest.mock('@services/appointmentsService');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<any>;
 

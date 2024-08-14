@@ -1,19 +1,34 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
-import { Role, User } from '@types';
+import { Role, User, UserProfile } from '@types';
 import UsersPage from './page';
 import { getMockUserAssignments, mockRoles } from '../../../testing/data';
-import { fetchRoles, fetchUsers } from '@services/appointmentsService';
+import {
+  fetchRoles,
+  fetchUsers,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 
-jest.mock('@services/nbsService');
+jest.mock('@services/appointmentsService');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
+const fetchUserProfileMock = fetchUserProfile as jest.Mock<
+  Promise<UserProfile>
+>;
 const mockSiteId = 'TEST';
 
-describe('<UserManagement />', () => {
+describe('UserManagement', () => {
   beforeEach(() => {
     fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
     fetchRolesMock.mockResolvedValue(mockRoles);
+    fetchUserProfileMock.mockResolvedValue({
+      emailAddress: 'test@test.com',
+      availableSites: [
+        { id: '1000', name: 'Site Alpha', address: 'Alpha Street' },
+        { id: '1001', name: 'Site Beta', address: 'Beta Street' },
+        { id: 'TEST', name: 'Test site', address: 'Test street' },
+      ],
+    });
   });
 
   it('renders', async () => {

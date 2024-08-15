@@ -1,6 +1,6 @@
 'use client';
 
-import { WeekInfo } from '@types';
+import { AvailabilityBlock, WeekInfo } from '@types';
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
@@ -23,11 +23,11 @@ const AvailabilityPage = () => {
     commencing: weekStart,
   };
 
-  const editSessionUrl = (day: dayjs.Dayjs, blockStart?: string) => {
+  const editSessionUrl = (block: AvailabilityBlock) => {
     const params = new URLSearchParams(searchParams);
     params.delete('wn');
-    params.set('date', day.format('YYYY-MM-DD'));
-    if (blockStart) params.set('block', blockStart);
+    params.set('date', block.day.format('YYYY-MM-DD'));
+    if (!block.isPreview) params.set('block', block.start);
     replace(`${pathname}/session?${params.toString()}`);
   };
 

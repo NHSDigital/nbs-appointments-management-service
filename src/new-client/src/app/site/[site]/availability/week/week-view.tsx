@@ -1,8 +1,8 @@
 import { AvailabilityBlock, WeekInfo } from '@types';
 import { timeSort } from './common';
-import { serviceSummary } from '../services';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
+import { DayCardProps, DaySummary } from '../day-summary';
 
 type WeekViewProps = {
   onAddBlock: (day: dayjs.Dayjs, block?: string) => void;
@@ -42,12 +42,6 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
   );
 };
 
-type DayCardProps = {
-  onAddBlock: (day: dayjs.Dayjs, block?: string) => void;
-  day: dayjs.Dayjs;
-  blocks: AvailabilityBlock[];
-};
-
 const DayCard = ({ day, onAddBlock, blocks }: DayCardProps) => {
   return (
     <div className="nhsuk-card nhsuk-card">
@@ -61,28 +55,6 @@ const DayCard = ({ day, onAddBlock, blocks }: DayCardProps) => {
         </a>
       </div>
     </div>
-  );
-};
-
-const DaySummary = ({ blocks, onAddBlock, day }: DayCardProps) => {
-  return (
-    <dl className="nhsuk-summary-list">
-      {blocks.map((b, i) => (
-        <div key={i} className="nhsuk-summary-list__row">
-          <dt className="nhsuk-summary-list__key">
-            {b.start} - {b.end}
-          </dt>
-          <dd className="nhsuk-summary-list__value">
-            {serviceSummary(b.services)}
-          </dd>
-          <dd className="nhsuk-summary-list__actions">
-            <a href="#" onClick={() => onAddBlock(day, b.start)}>
-              Change<span className="nhsuk-u-visually-hidden"> name</span>
-            </a>
-          </dd>
-        </div>
-      ))}
-    </dl>
   );
 };
 

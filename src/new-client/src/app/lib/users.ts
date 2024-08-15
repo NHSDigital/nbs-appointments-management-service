@@ -41,7 +41,6 @@ export async function saveUserRoleAssignments(
   });
 
   if (response.status === 200) {
-    //cookies().set("notification", "user_saved")
     revalidatePath(`/site/${site}/users`);
     redirect(`/site/${site}/users`);
   } else {

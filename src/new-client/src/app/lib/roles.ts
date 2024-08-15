@@ -5,7 +5,7 @@ import { Role } from '@types';
 export async function fetchRoles() {
   const tokenCookie = cookies().get('token');
 
-  const response = await fetch(getEndpoint('roles'), {
+  const response = await fetch(getEndpoint('roles?tag=canned'), {
     headers: {
       Authorization: `Bearer ${tokenCookie?.value}`,
     },

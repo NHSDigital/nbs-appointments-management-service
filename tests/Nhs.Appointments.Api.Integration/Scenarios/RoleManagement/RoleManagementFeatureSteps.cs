@@ -23,10 +23,10 @@ public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
         return Task.CompletedTask;
     }
     
-    [When("I query for all roles in the system")]
-    public async Task QueryForRoles()
+    [When(@"I query for all '([\w]+)' roles")]
+    public async Task QueryForRoles(string tag)
     {
-        _response = await Http.GetAsync("http://localhost:7071/api/roles");
+        _response = await Http.GetAsync($"http://localhost:7071/api/roles?tag={tag}");
         _statusCode = _response.StatusCode;
         _actualResponse = await JsonRequestReader.ReadRequestAsync<GetRolesResponse>(await _response.Content.ReadAsStreamAsync());
     }

@@ -12,7 +12,7 @@ const isBefore = (lhs: string, rhs: string) => {
   return a < b;
 };
 
-const timeAsInt = (time: string) => time.replace(':', '');
+const timeAsInt = (time: string) => parseInt(time.replace(':', ''));
 
 const conflictsWith = (
   a: { start: string; end: string },
@@ -28,4 +28,4 @@ const conflictsWith = (
   return false;
 };
 
-export { timeSort, isBefore, conflictsWith };
+export { timeSort, isBefore, conflictsWith, timeAsInt };

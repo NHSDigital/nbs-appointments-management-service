@@ -1,11 +1,10 @@
 import { AvailabilityBlock, WeekInfo } from '@types';
 import { timeSort } from './common';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
-import { DayCardProps, DaySummary } from '../day-summary';
+import { DaySummary } from '../day-summary';
 
 type WeekViewProps = {
-  onAddBlock: (day: dayjs.Dayjs, block?: string) => void;
+  onAddBlock: (block: AvailabilityBlock) => void;
   blocks: AvailabilityBlock[];
   week: WeekInfo;
 };
@@ -33,7 +32,7 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
               key={d.format('DD ddd')}
               className="nhsuk-grid-column-one-third nhsuk-card-group__item"
             >
-              <DayCard day={d} blocks={dayBlocks(d)} onAddBlock={onAddBlock} />
+              <DayCard day={d} blocks={dayBlocks(d)} action={onAddBlock} />
             </li>
           ))}
         </ul>
@@ -42,15 +41,33 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
   );
 };
 
-const DayCard = ({ day, onAddBlock, blocks }: DayCardProps) => {
+type DayCardProps = {
+  day: dayjs.Dayjs;
+  action: (block: AvailabilityBlock) => void;
+  blocks: AvailabilityBlock[];
+};
+
+const DayCard = ({ day, action, blocks }: DayCardProps) => {
+  const defaultBlock = {
+    day,
+    start: '09:00',
+    end: '12:00',
+    sessionHolders: 1,
+    services: [],
+    isPreview: true,
+  };
+
   return (
     <div className="nhsuk-card nhsuk-card">
       <div className="nhsuk-card__content nhsuk-card__content--primary">
         <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {day.format('DD ddd')}
         </h2>
-        <DaySummary blocks={blocks} onAddBlock={onAddBlock} day={day} />
-        <a href="#" onClick={() => onAddBlock(day)}>
+        <DaySummary
+          blocks={blocks}
+          actionProvider={() => ({ title: 'Change', action })}
+        />
+        <a href="#" onClick={() => action(defaultBlock)}>
           Add a time block
         </a>
       </div>

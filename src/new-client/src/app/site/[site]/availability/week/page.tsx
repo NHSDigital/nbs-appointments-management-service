@@ -1,20 +1,18 @@
-/* eslint-disable import/no-extraneous-dependencies */
 'use client';
 
-import { When } from '@components/when';
-import { AvailabilityBlock, WeekInfo } from '@types';
+import { WeekInfo } from '@types';
 import dayjs from 'dayjs';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { timeSort } from './common';
-import SessionView from './session-view';
 import WeekView from './week-view';
+import { useAvailability } from '../blocks';
 
 const AvailabilityPage = () => {
-  const [mode, setMode] = React.useState('week');
-  const [blocks, setBlocks] = React.useState([] as AvailabilityBlock[]);
-  const [selectedDay, setSelectedDay] = React.useState<dayjs.Dayjs>();
+  const { blocks } = useAvailability();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const weekNumber = parseInt(searchParams.get('wn')!);
 
   const weekStart = dayjs('2024-01-01').add(weekNumber - 1, 'week');
@@ -25,50 +23,38 @@ const AvailabilityPage = () => {
     commencing: weekStart,
   };
 
-  const onAddBlock = (day: dayjs.Dayjs) => {
-    setSelectedDay(day);
-    setMode('session');
+  const editSessionUrl = (day: dayjs.Dayjs, blockStart?: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('wn');
+    params.set('date', day.format('YYYY-MM-DD'));
+    if (blockStart) params.set('block', blockStart);
+    replace(`${pathname}/session?${params.toString()}`);
   };
 
-  const saveTimeBlock = (block: AvailabilityBlock) => {
-    setBlocks([...blocks, block]);
-    setMode('week');
-  };
-
-  const dayBlocks = (d: dayjs.Dayjs) =>
-    blocks.filter(b => b.day.isSame(d)).sort(timeSort);
-
-  React.useEffect(() => {
-    const storedAvailability = localStorage.getItem('availability');
-    if (storedAvailability) {
-      const temp = JSON.parse(storedAvailability) as AvailabilityBlock[];
-      const loaded = temp.map(t => ({
-        ...t,
-        day: dayjs(t.day),
-      })) as AvailabilityBlock[];
-      setBlocks(loaded);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (blocks.length > 0)
-      localStorage.setItem('availability', JSON.stringify(blocks));
-  }, [blocks]);
+  const link = pathname.replace('/week', '');
 
   return (
     <div className="nhsuk-width-container-fluid">
-      <When condition={mode === 'week'}>
-        <WeekView onAddBlock={onAddBlock} blocks={blocks} week={weekInfo} />
-      </When>
-      <When condition={mode === 'session'}>
-        <SessionView
-          day={selectedDay!}
-          blocks={dayBlocks(selectedDay!)}
-          onSave={saveTimeBlock}
-          onCancel={() => setMode('week')}
-        />
-      </When>
+      <div className="nhsuk-grid-row">
+        <BreadCrumb link={link} />
+      </div>
+      <WeekView onAddBlock={editSessionUrl} blocks={blocks} week={weekInfo} />
     </div>
+  );
+};
+
+const BreadCrumb = ({ link }: { link: string }) => {
+  return (
+    <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
+      <ol className="nhsuk-breadcrumb__list">
+        <li className="nhsuk-breadcrumb__item">
+          <a className="nhsuk-breadcrumb__link" href={link}>
+            Availability Overview
+          </a>
+        </li>
+        <li className="nhsuk-breadcrumb__item">Week View</li>
+      </ol>
+    </nav>
   );
 };
 

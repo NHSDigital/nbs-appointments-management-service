@@ -309,3 +309,119 @@ stages:
               appName: '$(amsApiServerName)'
               package: '$(Pipeline.Workspace)/**/*.zip'
               deploymentMethod: 'auto'
+              
+  - stage: DeployEXP
+    condition: succeeded()
+    variables:
+      - group: 'nbs-ems-exp'
+    displayName: "Deploy to EXP env"
+    jobs:
+      - job: RunTerraformPlan
+        displayName: "Run Terraform Plan for EXP"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Terraform Artifact
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop_terraform'
+              downloadPath: '$(Pipeline.Workspace)'
+          - task: AzureCLI@2
+            displayName: 'Run Terraform Plan'
+            inputs:
+              scriptType: pscore
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              azureSubscription: $(azure_devops_subscription_name)
+              inlineScript: |
+                $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                $env:ARM_TENANT_ID=$env:tenantId
+                $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                cd $(Pipeline.Workspace)\drop_terraform\environments\exp
+                terraform init
+                terraform plan -no-color -input=false -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="APIM_SUBSCRIPTION_KEY=$(APIM_SUBSCRIPTION_KEY)"
+      - job: "ApproveTerraformPlan"
+        dependsOn: RunTerraformPlan
+        displayName: "Approve Terraform Plan for EXP"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: 'Review Terraform Plan for EXP'
+            inputs:
+              notifyUsers: ''
+              instructions: Review plan and approve
+      - deployment: ApplyTerraform
+        dependsOn: ApproveTerraformPlan
+        displayName: "Apply Terraform for EXP env"
+        environment: "nbs-appts-exp"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: none
+                - task: DownloadBuildArtifacts@0
+                  displayName: Download Terraform Artifact
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'drop_terraform'
+                    downloadPath: '$(Pipeline.Workspace)'
+                - task: AzureCLI@2
+                  displayName: 'Apply Terraform'
+                  name: ApplyTerraformTask
+                  inputs:
+                    scriptType: pscore
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    azureSubscription: $(azure_devops_subscription_name)
+                    inlineScript: |
+                      $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                      $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                      $env:ARM_TENANT_ID=$env:tenantId
+                      $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                      cd $(Pipeline.Workspace)\drop_terraform\environments\exp
+                      terraform init
+                      terraform apply -no-color -input=false -auto-approve -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="APIM_SUBSCRIPTION_KEY=$(APIM_SUBSCRIPTION_KEY)"
+      - job: "DeployWeb"
+        dependsOn: ApplyTerraform
+        displayName: "Deploy webapp to EXP env"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Web App Artifact"
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop_web'
+              downloadPath: '$(Pipeline.Workspace)'
+          - task: AzureWebApp@1
+            displayName: "Deploy Web App"
+            inputs:
+              azureSubscription: $(azure_devops_subscription_name)
+              appType: 'webAppLinux'
+              appName: 'nbs-appts-wa-exp-uks'
+              package: '$(Pipeline.Workspace)/drop_web/next.zip'
+              deploymentMethod: 'auto'
+              startUpCommand: 'node standalone/server.js'
+      - job: "DeployApi"
+        dependsOn: ApplyTerraform
+        displayName: "Deploy Api to EXP env"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Api Artifact
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop_api'
+              downloadPath: '$(Pipeline.Workspace)'
+          - task: AzureFunctionApp@2
+            displayName: "Deploy Api"
+            inputs:
+              connectedServiceNameARM: $(azure_devops_subscription_name)
+              appType: 'functionApp'
+              appName: 'nbs-appts-func-exp-uks'
+              package: '$(Pipeline.Workspace)/**/*.zip'
+              deploymentMethod: 'auto'

@@ -12,13 +12,16 @@ An appointment and booking api designed to support national vaccination bookings
 
 - Sponsor - James Spirit
 - Product Owner - Lauren Caveney
-- Development Team - Vincent Crowe, Joe Farina, Kim Crowe, Khurram Aziz, Saritha Lakkreddy
+- Development Team - Vincent Crowe, Sam Biram, Kim Crowe, Khurram Aziz, Saritha Lakkreddy
+- Past Development Team - Joe Farina
 
 ### Technologies
 
-- dotnet (v8)
-- C#
-- Azure Functions
+- Dotnet V8
+- C# V12
+- Azure Functions V4
+- Javascript/Typescript (React V18)
+- Next.js V14
 - Cosmos document database
 
 ### Project Goal
@@ -26,7 +29,8 @@ An appointment and booking api designed to support national vaccination bookings
 We will build an Appointments API using
 
 - Will follow REST principles as much as possible
-- Azure Devops (for code repo and pipelines)
+- Github (for code repo)
+- Azure Devops (for CI pipelines)
 - C# (development language)
 - Azure Functions (as a platform for hosting)
 
@@ -35,23 +39,27 @@ We will build a web based application for appointment and site management
 - We will use React/Next.js
 - Github (for code repo)
 - Azure Devops (pipelines)
+- Azure Web Apps (to host the NextJS server)
 
 ## GitHub Repo and signed commits
 
 The repo has signed commits enabled. This means that only commits that are verified can be merged into the main branch. More information about signed commits can be found [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
 
-Your workstation will need to be set up to use signed commits. Please follow this guide for [instructions](https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md).
+Your workstation will need to be set up to use signed commits. Please follow this guide for [instructions](https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md).\*
+
+\*At the time of writing this guide is missing a step in the Windows section. After running `git config --global commit.gpgsign true` you must then run `git config --global user.signingkey <key>` to actually tell git about the key you just created.
 
 ## Running Locally
 
 ### Setup
 
-- Install Docker for Windows (use Linux
-  Containers) [instructions](https://docs.docker.com/desktop/install/windows-install/)
-- Install .NET 6.0 [instructions](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60)
-- Install the Azure Functions Core
-  Tools [instructions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
-- Install NPM [instructions](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- Install [Docker for Windows](https://docs.docker.com/desktop/install/windows-install/) (use Linux
+  Containers)
+- Install [.NET 8.0](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60)
+- Install the [Azure Functions Core
+  Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
+- Install [Node V20](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager)
+- Install [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
 #### VS Code Setup (optional)
 
@@ -95,107 +103,25 @@ If your configuration causes any of these to be running differently then you wil
 configuration files accordingly. (Or use environment variables to override local configuration)
 
 API configuration file is found at `/src/Nhs.Appointments.Api/localsettings.json`
-Client configuration file is found at `/src/client/src/configuration.ts`
+Client configuration file is found at `/src/new-client/.env`
 
 ### Exploring the Cosmos Database
 
 When running locally in docker the data in the cosmos database can be viewed and modified using the cosmos emulator
-explorer. To access the explorer visit `https://localhost:8081/_explorer/index.html` (not you may get an unsafe page
+explorer. To access the explorer visit `https://localhost:8081/_explorer/index.html` (note you may get an unsafe page
 warning unless you import the certificate from the cosmos container, this can safely be ignored for this url)
 
-### Adding roles and permissions
+### Seeding the Cosmos Database
 
-Add a document with the following structure in to the index_data container. This sets up the permissions that each role
-contains so that the UI can react to a user's assigned permissions. This will have to be done once the function has started
-(so that the containers have been created) but before you can login. If you restart your cosmos database you will need to
-insert the document again.
+To meaningfully explore the API/frontend you'll need a minimum set of data present in the Cosmos DB. There is a .NET Console App which uploads a set of cosmos-friendly documents in `/src/mock-data/CosmosDbSeeder`.
 
-```json
-{
-  "id": "global_roles",
-  "docType": "roles",
-  "roles": [
-    {
-      "id": "canned:check-in",
-      "name": "Check-in",
-      "permissions": ["booking:query", "booking:set-status"]
-    },
-    {
-      "id": "canned:appointment-manager",
-      "name": "Appointment manager",
-      "permissions": ["booking:make", "booking:query", "booking:cancel"]
-    },
-    {
-      "id": "canned:availability-manager",
-      "name": "Availability manager",
-      "permissions": [
-        "availability:get-setup",
-        "availability:set-setup",
-        "availability:query"
-      ]
-    },
-    {
-      "id": "canned:site-configuration-manager",
-      "name": "Site configuration manager",
-      "permissions": ["site:get-config", "site:set-config"]
-    },
-    {
-      "id": "canned:api-user",
-      "name": "Api User",
-      "permissions": [
-        "site:get-meta-data",
-        "availability:query",
-        "booking:make",
-        "booking:query",
-        "booking:cancel"
-      ]
-    }
-  ]
-}
-```
+You simply need to run this app to upload the default mock data. If using VS Code you can do this by running the `Seed Cosmos` task. You can also run it manually with the `dotnet run` terminal command in that folder.
 
-### Adding in User Site Assignments
+The folder/file structure within the `items` folder matches the desired structure in Cosmos 1:1 (that is, there will be a Cosmos container called `index_data` which will contain each child `.json` file as a document). If you wish to create or modify a container simply alter these files, then re-run the seeder. Remember that if you run the app manually you will need to run `dotnet clean` first for the changes to be picked up (the VS Code task does this for you automatically).
 
-Add another document to represent a user with the following structure in to the index_data container. Each user is represented by a single document which contains the id of the user and all the roles that are assigned to the user at each site. Role assignments are site or global scoped - site scoped means that the user is assigned that role at the given site; global scope means that the user has been assigned that role and is valid for all sites.
+Alternatively, you can upload these files one at a time yourself through the [emulator's browser interface](https://localhost:8081/_explorer/index.html).
 
-This will have to be done once the function has started (so that the containers have been created) but before you can login. If you restart your cosmos database you will need to insert the document again.
-
-```json
-{
-  "id": "cc.agent@nhs.uk",
-  "docType": "user",
-  "roleAssignments": [
-    {
-      "role": "canned:site-configuration-manager",
-      "scope": "site:1000"
-    },
-    {
-      "role": "canned:check-in",
-      "scope": "site:1001"
-    },
-    {
-      "role": "canned:availability-manager",
-      "scope": "site:1001"
-    }
-  ]
-}
-```
-
-Example of ApiUser with global scoped role:
-
-```json
-{
-  "id": "api@dev",
-  "docType": "user",
-  "apiSigningKey": "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA=="
-  "roleAssignments": [
-    {
-      "role": "canned:api-user",
-      "scope": "global"
-    }
-  ]
-}
-```
+## Authenticating calls to the API
 
 REST calls using an API user must be signed (via HMAC) using the key associated with the api user.
 The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls

@@ -2,6 +2,8 @@ import { AvailabilityBlock, WeekInfo } from '@types';
 import { timeSort } from './common';
 import dayjs from 'dayjs';
 import { DaySummary } from '../day-summary';
+import NhsPaging from '../pager';
+import { usePathname } from 'next/navigation';
 
 type WeekViewProps = {
   onAddBlock: (block: AvailabilityBlock) => void;
@@ -10,18 +12,32 @@ type WeekViewProps = {
 };
 
 const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
-  const days = [];
+  const pathname = usePathname();
 
+  const days = [];
   for (let i = 0; i < 7; i++) days.push(week.commencing.add(i, 'day'));
 
   const dayBlocks = (d: dayjs.Dayjs) =>
     blocks.filter(b => b.day.isSame(d)).sort(timeSort);
+
+  const weekUrl = (i: number) => {
+    const params = new URLSearchParams();
+
+    params.set('wn', (week.weekNumber + i).toString());
+    return `${pathname}?${params.toString()}`;
+  };
 
   return (
     <>
       <h2>
         Availability for Week Commencing {week.commencing.format('MMMM DD')}
       </h2>
+      <NhsPaging
+        nextLink={weekUrl(1)}
+        nextText="Next week"
+        prevLink={weekUrl(-1)}
+        prevText="Previous week"
+      />
       <div className="nhsuk-width-container-fluid">
         <ul
           className="nhsuk-grid-row nhsuk-card-group"
@@ -65,6 +81,7 @@ const DayCard = ({ day, action, blocks }: DayCardProps) => {
         </h2>
         <DaySummary
           blocks={blocks}
+          hasError={() => false}
           actionProvider={() => ({ title: 'Change', action })}
         />
         <a href="#" onClick={() => action(defaultBlock)}>

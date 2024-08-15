@@ -13,7 +13,7 @@ An appointment and booking api designed to support national vaccination bookings
 - Sponsor - James Spirit
 - Product Owner - Lauren Caveney
 - Development Team - Vincent Crowe, Sam Biram, Kim Crowe, Khurram Aziz, Saritha Lakkreddy
-- Past Development Team - Joe Farine
+- Past Development Team - Joe Farina
 
 ### Technologies
 

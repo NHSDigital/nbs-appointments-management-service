@@ -286,7 +286,7 @@ stages:
     condition: succeeded()
     variables:
       - group: 'nbs-ems-exp'
-    displayName: "Deploy to EXP env"
+    displayName: "Deploy EXP"
     jobs:
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan for EXP"

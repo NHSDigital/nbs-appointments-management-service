@@ -1,7 +1,6 @@
 import { AvailabilityBlock } from '@types';
 import dayjs from 'dayjs';
 import React from 'react';
-import { services } from './services';
 
 export const useAvailability = () => {
   const [blocks, setBlocks] = React.useState<AvailabilityBlock[]>(
@@ -11,7 +10,18 @@ export const useAvailability = () => {
   const dayBlocks = (day: dayjs.Dayjs) => blocks.filter(b => b.day.isSame(day));
 
   const saveBlock = (block: AvailabilityBlock) => {
-    setBlocks([...blocks, block]);
+    setBlocks([
+      ...blocks.filter(
+        b => !(b.day.isSame(block.day) && b.start === block.start),
+      ),
+      block,
+    ]);
+  };
+
+  const removeBlock = (block: AvailabilityBlock) => {
+    setBlocks(
+      blocks.filter(b => !(b.day.isSame(block.day) && b.start === block.start)),
+    );
   };
 
   React.useEffect(() => {
@@ -41,5 +51,5 @@ export const useAvailability = () => {
     }
   }, []);
 
-  return { blocks, dayBlocks };
+  return { blocks, dayBlocks, saveBlock, removeBlock };
 };

@@ -33,7 +33,7 @@ type AvailabilityBlock = {
   start: string;
   end: string;
   sessionHolders: number;
-  services: number;
+  services: string[];
   isPreview?: boolean;
 };
 

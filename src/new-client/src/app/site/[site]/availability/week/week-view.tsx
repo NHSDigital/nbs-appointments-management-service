@@ -1,10 +1,11 @@
 import { AvailabilityBlock, WeekInfo } from '@types';
 import { timeSort } from './common';
+import { serviceSummary } from '../services';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
 
 type WeekViewProps = {
-  onAddBlock: (day: dayjs.Dayjs) => void;
+  onAddBlock: (day: dayjs.Dayjs, block?: string) => void;
   blocks: AvailabilityBlock[];
   week: WeekInfo;
 };
@@ -32,11 +33,7 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
               key={d.format('DD ddd')}
               className="nhsuk-grid-column-one-third nhsuk-card-group__item"
             >
-              <DayCard
-                day={d}
-                blocks={dayBlocks(d)}
-                onAddBlock={() => onAddBlock(d)}
-              />
+              <DayCard day={d} blocks={dayBlocks(d)} onAddBlock={onAddBlock} />
             </li>
           ))}
         </ul>
@@ -46,7 +43,7 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
 };
 
 type DayCardProps = {
-  onAddBlock: () => void;
+  onAddBlock: (day: dayjs.Dayjs, block?: string) => void;
   day: dayjs.Dayjs;
   blocks: AvailabilityBlock[];
 };
@@ -58,8 +55,8 @@ const DayCard = ({ day, onAddBlock, blocks }: DayCardProps) => {
         <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {day.format('DD ddd')}
         </h2>
-        <DaySummary blocks={blocks} />
-        <a href="#" onClick={onAddBlock}>
+        <DaySummary blocks={blocks} onAddBlock={onAddBlock} day={day} />
+        <a href="#" onClick={() => onAddBlock(day)}>
           Add a time block
         </a>
       </div>
@@ -67,7 +64,7 @@ const DayCard = ({ day, onAddBlock, blocks }: DayCardProps) => {
   );
 };
 
-const DaySummary = ({ blocks }: { blocks: AvailabilityBlock[] }) => {
+const DaySummary = ({ blocks, onAddBlock, day }: DayCardProps) => {
   return (
     <dl className="nhsuk-summary-list">
       {blocks.map((b, i) => (
@@ -76,10 +73,10 @@ const DaySummary = ({ blocks }: { blocks: AvailabilityBlock[] }) => {
             {b.start} - {b.end}
           </dt>
           <dd className="nhsuk-summary-list__value">
-            {b.sessionHolders} session holders , {b.services} services
+            {serviceSummary(b.services)}
           </dd>
           <dd className="nhsuk-summary-list__actions">
-            <a href="#">
+            <a href="#" onClick={() => onAddBlock(day, b.start)}>
               Change<span className="nhsuk-u-visually-hidden"> name</span>
             </a>
           </dd>

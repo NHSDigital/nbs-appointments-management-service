@@ -304,6 +304,11 @@ const SessionPage = () => {
               </h2>
               <DaySummary
                 blocks={previewBlocks}
+                hasError={b =>
+                  errors.time !== undefined &&
+                  b.start === conflictBlock &&
+                  !b.isPreview
+                }
                 actionProvider={getSummaryAction}
               />
             </div>

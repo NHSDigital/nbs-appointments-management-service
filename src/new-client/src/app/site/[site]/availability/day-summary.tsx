@@ -9,10 +9,15 @@ type SummaryAction = {
 
 export type DaySummaryProps = {
   actionProvider: (block: AvailabilityBlock) => SummaryAction | undefined;
+  hasError: (block: AvailabilityBlock) => boolean;
   blocks: AvailabilityBlock[];
 };
 
-export const DaySummary = ({ blocks, actionProvider }: DaySummaryProps) => {
+export const DaySummary = ({
+  blocks,
+  actionProvider,
+  hasError,
+}: DaySummaryProps) => {
   return (
     <dl className="nhsuk-summary-list">
       {blocks.map((b, i) => {
@@ -20,8 +25,16 @@ export const DaySummary = ({ blocks, actionProvider }: DaySummaryProps) => {
         return (
           <div key={i} className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">
-              {b.isPreview ? '*' : ''}
-              {b.start} - {b.end}
+              <div
+                className={
+                  hasError(b)
+                    ? 'nhsuk-form-group--error nhsuk-error-message'
+                    : ''
+                }
+              >
+                {b.isPreview ? '*' : ''}
+                {b.start} - {b.end}
+              </div>
             </dt>
             <dd className="nhsuk-summary-list__value">
               {serviceSummary(b.services)}

@@ -16,11 +16,13 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
     (searchParams && 'user' in searchParams) ?? false;
 
   const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
+
   return (
     <NhsPage
       title="Staff Role Management"
       breadcrumbs={[
-        { name: site.name, href: `/site/${params.site}` },
+        { name: siteMoniker, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
         { name: 'Manage Staff Roles' },
       ]}

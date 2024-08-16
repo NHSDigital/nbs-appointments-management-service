@@ -16,12 +16,13 @@ const Page = async ({ params }: PageProps) => {
   const users = (await fetchUsers(params.site)) ?? [];
   const rolesResponse = await fetchRoles();
   const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   return (
     <NhsPage
       title="Manage Staff Roles"
       breadcrumbs={[
-        { name: site.name, href: `/site/${params.site}` },
+        { name: siteMoniker, href: `/site/${params.site}` },
         { name: 'Users' },
       ]}
     >

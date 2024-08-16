@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import React from 'react';
 
-export interface Breadcrumb {
+export type Breadcrumb = {
   name: string;
   href?: string;
-}
+};
 
-interface Props {
+type Props = {
   trail?: Breadcrumb[];
-}
+};
 
 const Breadcrumbs = ({ trail = [] }: Props) => {
   const trailWithHome = [{ name: 'Home', href: '/' }, ...trail];

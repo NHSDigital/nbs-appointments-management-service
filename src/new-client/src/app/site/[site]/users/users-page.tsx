@@ -2,10 +2,10 @@ import { Table } from '@components/table';
 import Link from 'next/link';
 import { Role, User } from '@types';
 
-interface Props {
+type Props = {
   users: User[];
   roles: Role[];
-}
+};
 
 export const UsersPage = ({ users, roles }: Props) => {
   const getRoleName = (role: string) =>

@@ -1,4 +1,4 @@
-import { signOut } from '@services/appointmentsService';
+import { signOut } from '../../auth/signOut';
 
 const NhsHeaderLogOut = () => {
   return (

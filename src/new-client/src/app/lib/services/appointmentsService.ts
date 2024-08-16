@@ -32,10 +32,7 @@ export async function fetchUsers(site: string) {
 
 export const fetchSite = async (siteId: string) => {
   const userProfile = await fetchUserProfile();
-  const site = userProfile?.availableSites.find(s => s.id === siteId);
-
-  if (site === undefined) throw Error('Cannot find information for site');
-  return site;
+  return userProfile?.availableSites.find(s => s.id === siteId);
 };
 
 export async function fetchRoles() {

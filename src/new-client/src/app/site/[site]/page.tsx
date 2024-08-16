@@ -19,9 +19,14 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
 
+  // TODO: Because we rely on fetchUserProfile() to get the site,
+  // we can't differentiate between being logged out and the site not being found.
+  // NhsPage automatically handles the case of the user being logged out, but
+  // before it renders we need to know what to pass as title and breadcrumbs
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
   return (
-    <NhsPage title={site.name} breadcrumbs={[{ name: site.name }]}>
-      <SitePage site={site} />
+    <NhsPage title={siteMoniker} breadcrumbs={[{ name: siteMoniker }]}>
+      {site !== undefined && <SitePage site={site} />}
     </NhsPage>
   );
 };

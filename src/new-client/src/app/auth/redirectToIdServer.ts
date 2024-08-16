@@ -6,7 +6,9 @@ import { headers, cookies } from 'next/headers';
 async function redirectToIdServer(currentPage?: string) {
   const idServerEndpoint = `${process.env.NBS_API_BASE_URL}/api/authenticate`;
 
-  const routeHandlerToInvokeOnReturn = `${process.env.NBS_CLIENT_BASE_URL}/auth/set-cookie`;
+  const host = headers().get('host');
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
+  const routeHandlerToInvokeOnReturn = `${protocol}://${host}/auth/set-cookie`;
 
   const previousPage = currentPage ?? headers().get('referer');
   if (previousPage !== null) {

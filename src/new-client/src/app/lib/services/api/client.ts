@@ -29,39 +29,7 @@ class Client {
         : undefined,
       ...config,
     }).then(async response => {
-      if (response.status === 401) {
-        return {
-          success: false,
-          httpStatusCode: 401,
-          errorMessage:
-            'Unauthorized: You must be logged in to view this resource',
-        };
-      }
-
-      if (response.status === 403) {
-        return {
-          success: false,
-          httpStatusCode: 403,
-          errorMessage: 'Forbidden: You lack the necessary permissions',
-        };
-      }
-
-      if (response.status === 404) {
-        return {
-          success: false,
-          httpStatusCode: 404,
-          errorMessage: 'Not found',
-        };
-      }
-
-      if (response.status === 200) {
-        return {
-          success: true,
-          data: await response.json(),
-        };
-      }
-
-      throw new Error('An unhandled error occured');
+      return await this.handleResponse<T>(response);
     });
   }
 
@@ -80,44 +48,50 @@ class Client {
           }
         : undefined,
     }).then(async response => {
-      if (response.status === 401) {
-        return {
-          success: false,
-          httpStatusCode: 401,
-          errorMessage:
-            'Unauthorized: You must be logged in to view this resource',
-        };
-      }
-
-      if (response.status === 403) {
-        return {
-          success: false,
-          httpStatusCode: 403,
-          errorMessage: 'Forbidden: You lack the necessary permissions',
-        };
-      }
-
-      if (response.status === 404) {
-        return {
-          success: false,
-          httpStatusCode: 404,
-          errorMessage: 'Not found',
-        };
-      }
-
-      if (response.status === 200) {
-        return {
-          success: true,
-          data: await response.json(),
-        };
-      }
-
-      throw new Error('An unhandled error occured');
+      return await this.handleResponse<T>(response);
     });
   }
 
   public getBaseUrl(): string {
     return this.baseUrl;
+  }
+
+  private async handleResponse<T = unknown>(
+    response: Response,
+  ): Promise<ApiResponse<T>> {
+    if (response.status === 401) {
+      return {
+        success: false,
+        httpStatusCode: 401,
+        errorMessage:
+          'Unauthorized: You must be logged in to view this resource',
+      };
+    }
+
+    if (response.status === 403) {
+      return {
+        success: false,
+        httpStatusCode: 403,
+        errorMessage: 'Forbidden: You lack the necessary permissions',
+      };
+    }
+
+    if (response.status === 404) {
+      return {
+        success: false,
+        httpStatusCode: 404,
+        errorMessage: 'Not found',
+      };
+    }
+
+    if (response.status === 200) {
+      return {
+        success: true,
+        data: await response.json(),
+      };
+    }
+
+    throw new Error('An unhandled error occured');
   }
 }
 

@@ -10,12 +10,26 @@ describe('Home Page', () => {
       screen.getByRole('heading', { name: 'Choose a site' }),
     ).toBeInTheDocument();
 
-    mockSites.forEach(site => {
-      expect(screen.getByRole('link', { name: site.name })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: site.name })).toHaveAttribute(
-        'href',
-        `site/${site.id}`,
-      );
-    });
+    expect(
+      screen.getByRole('link', { name: 'Site Alpha' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Site Alpha' })).toHaveAttribute(
+      'href',
+      `site/1001`,
+    );
+
+    expect(screen.getByRole('link', { name: 'Site Beta' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Site Beta' })).toHaveAttribute(
+      'href',
+      `site/1002`,
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'Site Gamma' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Site Gamma' })).toHaveAttribute(
+      'href',
+      `site/1003`,
+    );
   });
 });

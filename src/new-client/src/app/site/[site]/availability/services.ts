@@ -1,9 +1,5 @@
 const services = [
   {
-    key: 'COVID:18_74',
-    value: 'Covid 18-74',
-  },
-  {
     key: 'COVID:5_11_10',
     value: 'Covid 5-11',
   },
@@ -14,6 +10,10 @@ const services = [
   {
     key: 'COVID:16_17',
     value: 'Covid 16-17',
+  },
+  {
+    key: 'COVID:18_74',
+    value: 'Covid 18-74',
   },
   {
     key: 'COVID:75',

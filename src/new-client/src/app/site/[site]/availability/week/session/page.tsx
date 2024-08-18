@@ -7,6 +7,7 @@ import { DaySummary } from '../../day-summary';
 import { useAvailability } from '../../blocks';
 import { AvailabilityBlock } from '@types';
 import { timeSort, timeAsInt, conflictsWith } from '../common';
+import { When } from '@components/when';
 
 type Errors = {
   time?: string;
@@ -21,7 +22,6 @@ const SessionPage = () => {
   const date = searchParams.get('date');
   const day = dayjs(date);
 
-  const [block, setBlock] = React.useState(searchParams.get('block'));
   const [conflictBlock, setConflictBlock] = React.useState<
     string | undefined
   >();
@@ -33,11 +33,37 @@ const SessionPage = () => {
   const [previewBlocks, setPreviewBlocks] = React.useState<AvailabilityBlock[]>(
     [],
   );
+  const [targetBlock, setTargetBlock] =
+    React.useState<AvailabilityBlock | null>(null);
+  const [showUnsavedChangesMessage, setShowUnsavedChangesMessage] =
+    React.useState(false);
 
   const toggleService = (svc: string) => {
     if (selectedServices.includes(svc))
       setSelectedServices(selectedServices.filter(s => s !== svc));
     else setSelectedServices([...selectedServices, svc]);
+  };
+
+  const addSession = () => {
+    if (checkForUnsavedChanges()) {
+      setShowUnsavedChangesMessage(true);
+    } else {
+      setShowUnsavedChangesMessage(false);
+      setTargetBlock({
+        day,
+        start: '09:00',
+        end: '10:00',
+        sessionHolders: 1,
+        services: [],
+        isPreview: true,
+      });
+    }
+  };
+
+  const cancelChanges = () => {
+    setTargetBlock(null);
+    setShowUnsavedChangesMessage(false);
+    setErrors({});
   };
 
   const backToWeek = () => {
@@ -49,6 +75,14 @@ const SessionPage = () => {
 
     replace(`${pathname.replace('/session', '')}?${params.toString()}`);
   };
+
+  const checkForUnsavedChanges = () =>
+    targetBlock &&
+    (targetBlock?.isPreview ||
+      targetBlock?.start != startTime ||
+      targetBlock?.end != endTime ||
+      targetBlock.sessionHolders != sessionHolders ||
+      targetBlock?.services != selectedServices);
 
   const validate = () => {
     const err = {} as Errors;
@@ -67,63 +101,68 @@ const SessionPage = () => {
     return err.time === undefined;
   };
 
-  const save = (finished: boolean) => {
+  const save = () => {
     if (validate()) {
-      saveBlock({
-        day,
-        start: startTime,
-        end: endTime,
-        sessionHolders,
-        services: selectedServices,
-      });
+      saveBlock(
+        {
+          day,
+          start: startTime,
+          end: endTime,
+          sessionHolders,
+          services: selectedServices,
+        },
+        targetBlock !== null && !targetBlock.isPreview
+          ? targetBlock
+          : undefined,
+      );
+      setShowUnsavedChangesMessage(false);
+      setTargetBlock(null);
+    }
+  };
 
-      if (finished) backToWeek();
+  const edit = (bl: AvailabilityBlock) => {
+    if (checkForUnsavedChanges()) {
+      setShowUnsavedChangesMessage(true);
+    } else {
+      setShowUnsavedChangesMessage(false);
+      setTargetBlock(bl);
     }
   };
 
   const remove = (bl: AvailabilityBlock) => {
-    removeBlock(bl);
-    if (dayBlocks.length > 0) {
-      setBlock(dayBlocks[0].start);
+    if (checkForUnsavedChanges()) {
+      setShowUnsavedChangesMessage(true);
     } else {
-      setBlock(null);
-      setStartTime('09:00');
-      setEndTime('12:00');
-      setSessionHolders(1);
-      setSelectedServices([]);
+      setShowUnsavedChangesMessage(false);
+      removeBlock(bl);
     }
   };
 
-  const dayBlocks = React.useMemo(
-    () => blocks.filter(b => b.day.isSame(day) && b.start !== block),
-    [blocks, day, block],
-  );
+  const dayBlocks = React.useMemo(() => {
+    const timeFilter = targetBlock?.isPreview ? 'na' : targetBlock?.start;
+    return blocks.filter(b => b.day.isSame(day) && b.start !== timeFilter);
+  }, [blocks, day, targetBlock]);
 
-  const getSummaryAction = (bl: AvailabilityBlock) => {
-    if (!bl.isPreview)
-      return {
-        title: 'Change',
-        action: (b: AvailabilityBlock) => setBlock(b.start),
-      };
-    else if (bl.start === block) {
-      return {
-        title: 'Remove',
-        action: (b: AvailabilityBlock) => remove(b),
-      };
-    }
+  const editAction = {
+    title: 'Edit',
+    action: edit,
+    test: (b: AvailabilityBlock) => !b.isPreview,
+  };
+
+  const removeAction = {
+    title: 'Delete',
+    action: remove,
+    test: (b: AvailabilityBlock) => !b.isPreview,
   };
 
   React.useEffect(() => {
-    if (block) {
-      const target = blocks.find(b => b.day.isSame(day) && b.start === block);
-      if (target) {
-        setStartTime(target.start);
-        setEndTime(target.end);
-        setSessionHolders(target.sessionHolders);
-        setSelectedServices(target.services);
-      }
+    if (targetBlock) {
+      setStartTime(targetBlock.start);
+      setEndTime(targetBlock.end);
+      setSessionHolders(targetBlock.sessionHolders);
+      setSelectedServices(targetBlock.services);
     }
-  }, [block, blocks]);
+  }, [targetBlock]);
 
   React.useEffect(() => {
     const test = { start: startTime, end: endTime };
@@ -134,18 +173,27 @@ const SessionPage = () => {
   React.useEffect(() => {
     const pbs: AvailabilityBlock[] = [
       ...dayBlocks.filter(b => b.day.isSame(day)),
-      {
+    ];
+    if (targetBlock) {
+      pbs.push({
         day,
         start: startTime,
         end: endTime,
         sessionHolders: sessionHolders,
         services: selectedServices,
         isPreview: true,
-      },
-    ];
+      });
+    }
     pbs.sort(timeSort);
     setPreviewBlocks(pbs);
-  }, [blocks, startTime, endTime, selectedServices, sessionHolders]);
+  }, [
+    blocks,
+    targetBlock,
+    startTime,
+    endTime,
+    selectedServices,
+    sessionHolders,
+  ]);
 
   return (
     <>
@@ -164,137 +212,140 @@ const SessionPage = () => {
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <div>
-          <div
-            className={`nhsuk-form-group ${errors.time ? 'nhsuk-form-group--error' : ''}`}
-          >
-            {errors.time && (
-              <span className="nhsuk-error-message">
-                <span className="nhsuk-u-visually-hidden">Error:</span>{' '}
-                {errors.time}
-              </span>
-            )}
-            <label htmlFor="email" className="nhsuk-label">
-              Start time
-            </label>
-            <input
-              type="time"
-              className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
-              value={startTime}
-              onChange={e => setStartTime(e.target.value)}
-              aria-label="enter start time"
-            />
-            <label
-              htmlFor="email"
-              className="nhsuk-label"
-              style={{ marginTop: '24px' }}
+          <When condition={targetBlock !== null}>
+            <div
+              className={`nhsuk-form-group ${errors.time ? 'nhsuk-form-group--error' : ''}`}
             >
-              End time
-            </label>
-            <input
-              type="time"
-              className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
-              value={endTime}
-              onChange={e => setEndTime(e.target.value)}
-              aria-label="enter start time"
-            />
-          </div>
-          <div className="nhsuk-form-group">
-            <label htmlFor="email" className="nhsuk-label">
-              Maximum simultaneous appointments
-            </label>
-            <input
-              type="number"
-              className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5`}
-              value={sessionHolders}
-              onChange={e => setSessionHolders(parseInt(e.target.value))}
-              aria-label="enter maximum number of simultaneous appointments"
-            />
-          </div>
-          <div className="nhsuk-form-group">
-            <label htmlFor="email" className="nhsuk-label">
-              Services
-            </label>
-            <div className="nhsuk-checkboxes">
-              <div className="nhsuk-checkboxes__item">
-                <input
-                  id="break"
-                  type="checkbox"
-                  className="nhsuk-checkboxes__input"
-                  checked={selectedServices.length === 0}
-                  onChange={() => setSelectedServices([])}
-                />
-                <label
-                  htmlFor="break"
-                  className="nhsuk-label nhsuk-checkboxes__label"
-                >
-                  No services - this is a break period
-                </label>
-              </div>
-              <div className="nhsuk-checkboxes__item">
-                <input
-                  id="all"
-                  type="checkbox"
-                  className="nhsuk-checkboxes__input"
-                  checked={selectedServices.length === services.length}
-                  onChange={() =>
-                    setSelectedServices(services.map(svc => svc.key))
-                  }
-                />
-                <label
-                  htmlFor="all"
-                  className="nhsuk-label nhsuk-checkboxes__label"
-                >
-                  All services
-                </label>
-              </div>
-              {services.map(svc => (
-                <div key={svc.key} className="nhsuk-checkboxes__item">
+              {errors.time && (
+                <span className="nhsuk-error-message">
+                  <span className="nhsuk-u-visually-hidden">Error:</span>{' '}
+                  {errors.time}
+                </span>
+              )}
+              <label htmlFor="email" className="nhsuk-label">
+                Start time
+              </label>
+              <input
+                type="time"
+                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                aria-label="enter start time"
+              />
+              <label
+                htmlFor="email"
+                className="nhsuk-label"
+                style={{ marginTop: '24px' }}
+              >
+                End time
+              </label>
+              <input
+                type="time"
+                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
+                value={endTime}
+                onChange={e => setEndTime(e.target.value)}
+                aria-label="enter start time"
+              />
+            </div>
+            <div className="nhsuk-form-group">
+              <label htmlFor="email" className="nhsuk-label">
+                Maximum simultaneous appointments
+              </label>
+              <input
+                type="number"
+                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5`}
+                value={sessionHolders}
+                onChange={e => setSessionHolders(parseInt(e.target.value))}
+                aria-label="enter maximum number of simultaneous appointments"
+              />
+            </div>
+            <div className="nhsuk-form-group">
+              <label htmlFor="email" className="nhsuk-label">
+                Services
+              </label>
+              <div className="nhsuk-checkboxes">
+                <div className="nhsuk-checkboxes__item">
                   <input
-                    id={svc.key}
+                    id="break"
                     type="checkbox"
                     className="nhsuk-checkboxes__input"
-                    value={svc.key}
-                    checked={selectedServices.includes(svc.key)}
-                    onChange={() => toggleService(svc.key)}
+                    checked={selectedServices.length === 0}
+                    onChange={() => setSelectedServices([])}
                   />
                   <label
-                    htmlFor={svc.key}
+                    htmlFor="break"
                     className="nhsuk-label nhsuk-checkboxes__label"
                   >
-                    {svc.value}
+                    No services - this is a break period
                   </label>
                 </div>
-              ))}
-            </div>
-            <div style={{ marginTop: '20px', width: '600px' }}>
-              <div className="nhsuk-navigation">
-                <button
-                  type="button"
-                  aria-label="save user"
-                  className="nhsuk-button nhsuk-u-margin-bottom-0"
-                  onClick={() => save(true)}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  aria-label="save user"
-                  className="nhsuk-button nhsuk-u-margin-bottom-0 nhsuk-u-margin-left-3"
-                  onClick={() => save(false)}
-                >
-                  Save and add another
-                </button>
-                <button
-                  type="button"
-                  aria-label="cancel"
-                  className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
-                  onClick={backToWeek}
-                >
-                  Cancel
-                </button>
+                <div className="nhsuk-checkboxes__item">
+                  <input
+                    id="all"
+                    type="checkbox"
+                    className="nhsuk-checkboxes__input"
+                    checked={selectedServices.length === services.length}
+                    onChange={() =>
+                      setSelectedServices(services.map(svc => svc.key))
+                    }
+                  />
+                  <label
+                    htmlFor="all"
+                    className="nhsuk-label nhsuk-checkboxes__label"
+                  >
+                    All services
+                  </label>
+                </div>
+                {services.map(svc => (
+                  <div key={svc.key} className="nhsuk-checkboxes__item">
+                    <input
+                      id={svc.key}
+                      type="checkbox"
+                      className="nhsuk-checkboxes__input"
+                      value={svc.key}
+                      checked={selectedServices.includes(svc.key)}
+                      onChange={() => toggleService(svc.key)}
+                    />
+                    <label
+                      htmlFor={svc.key}
+                      className="nhsuk-label nhsuk-checkboxes__label"
+                    >
+                      {svc.value}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: '20px', width: '600px' }}>
+                <div className="nhsuk-navigation">
+                  <button
+                    type="button"
+                    aria-label="save user"
+                    className="nhsuk-button nhsuk-u-margin-bottom-0"
+                    onClick={save}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="cancel"
+                    className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
+                    onClick={cancelChanges}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </When>
+          <When condition={targetBlock === null}>
+            <div style={{ width: '600px' }}>
+              <span className="nhsuk-caption-l nhsuk-caption--bottom">
+                <span className="nhsuk-u-visually-hidden">-</span>
+                No session is selected. Select on from the day preview or add a
+                new session.
+              </span>
+            </div>
+          </When>
         </div>
         <div>
           <div className="nhsuk-card nhsuk-card">
@@ -309,10 +360,40 @@ const SessionPage = () => {
                   b.start === conflictBlock &&
                   !b.isPreview
                 }
-                actionProvider={getSummaryAction}
+                primaryAction={editAction}
+                secondaryAction={removeAction}
               />
+              <a href="#" onClick={() => addSession()}>
+                Add a session
+              </a>
+              <a
+                href="#"
+                onClick={() => backToWeek()}
+                style={{ marginLeft: '20px' }}
+              >
+                Back to week view
+              </a>
             </div>
           </div>
+          <When condition={showUnsavedChangesMessage}>
+            <div
+              className="nhsuk-error-summary"
+              aria-labelledby="error-summary-title"
+              role="alert"
+            >
+              <h2
+                className="nhsuk-error-summary__title"
+                id="error-summary-title"
+              >
+                You have unsaved changes
+              </h2>
+              <div className="nhsuk-error-summary__body">
+                <p>
+                  Please save or cancel your current edits before continuing
+                </p>
+              </div>
+            </div>
+          </When>
         </div>
       </div>
     </>

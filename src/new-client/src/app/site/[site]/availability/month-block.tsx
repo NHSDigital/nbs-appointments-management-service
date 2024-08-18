@@ -1,8 +1,9 @@
 'use client';
-import { AvailabilityBlock, WeekInfo } from '@types';
+import { WeekInfo } from '@types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { useAvailability } from './blocks';
 
 type MonthData = {
   month: string;
@@ -10,25 +11,12 @@ type MonthData = {
 };
 
 const MonthBlock = ({ month, weeks }: MonthData) => {
+  const { blocks } = useAvailability();
   const getWeekRange = (commencing: dayjs.Dayjs) => {
     const start = commencing.format('DD');
     const end = commencing.add(6, 'day').format('DD');
     return `${start} - ${end}`;
   };
-
-  const loadAvailability = () => {
-    const storedAvailability = localStorage.getItem('availability');
-    if (storedAvailability) {
-      const temp = JSON.parse(storedAvailability) as AvailabilityBlock[];
-      return temp.map(t => ({
-        ...t,
-        day: dayjs(t.day),
-      })) as AvailabilityBlock[];
-    }
-    return [] as AvailabilityBlock[];
-  };
-
-  const availability = loadAvailability();
 
   const canChange = (week: WeekInfo) => week.commencing > dayjs();
 
@@ -38,11 +26,11 @@ const MonthBlock = ({ month, weeks }: MonthData) => {
   };
 
   const hasAvailability = (week: WeekInfo) =>
-    availability.find(
+    blocks.filter(
       av =>
-        av.day.isAfter(week.commencing) &&
+        av.day.isAfter(week.commencing.add(-1, 'day')) &&
         av.day.isBefore(week.commencing.add(6, 'day')),
-    ) !== undefined;
+    ).length > 0;
 
   return (
     <div className="nhsuk-card nhsuk-card">

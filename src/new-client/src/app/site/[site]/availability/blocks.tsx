@@ -9,10 +9,13 @@ export const useAvailability = () => {
 
   const dayBlocks = (day: dayjs.Dayjs) => blocks.filter(b => b.day.isSame(day));
 
-  const saveBlock = (block: AvailabilityBlock) => {
+  const saveBlock = (
+    block: AvailabilityBlock,
+    oldBlock?: AvailabilityBlock,
+  ) => {
     setBlocks([
       ...blocks.filter(
-        b => !(b.day.isSame(block.day) && b.start === block.start),
+        b => !(b.day.isSame(block.day) && b.start === oldBlock?.start),
       ),
       block,
     ]);

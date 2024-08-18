@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { DaySummary } from '../day-summary';
 import NhsPaging from '../pager';
 import { usePathname } from 'next/navigation';
+import { When } from '@components/when';
 
 type WeekViewProps = {
   onAddBlock: (block: AvailabilityBlock) => void;
@@ -64,6 +65,8 @@ type DayCardProps = {
 };
 
 const DayCard = ({ day, action, blocks }: DayCardProps) => {
+  const canEdit = dayjs().isBefore(day);
+
   const defaultBlock = {
     day,
     start: '09:00',
@@ -79,14 +82,12 @@ const DayCard = ({ day, action, blocks }: DayCardProps) => {
         <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {day.format('DD ddd')}
         </h2>
-        <DaySummary
-          blocks={blocks}
-          hasError={() => false}
-          actionProvider={() => ({ title: 'Change', action })}
-        />
-        <a href="#" onClick={() => action(defaultBlock)}>
-          Add a time block
-        </a>
+        <DaySummary blocks={blocks} hasError={() => false} />
+        <When condition={canEdit}>
+          <a href="#" onClick={() => action(defaultBlock)}>
+            Edit
+          </a>
+        </When>
       </div>
     </div>
   );

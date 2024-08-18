@@ -1,10 +1,12 @@
 'use client';
-/* eslint-disable import/no-extraneous-dependencies */
+
 import { WeekInfo } from '@types';
 import dayjs from 'dayjs';
 import MonthBlock from './month-block';
+import { useRouter } from 'next/navigation';
 
 const AvailabilityOverviewPage = () => {
+  const { refresh } = useRouter();
   let cursor = dayjs('2024-01-01');
   const weeks = [] as WeekInfo[];
 
@@ -37,6 +39,14 @@ const AvailabilityOverviewPage = () => {
   return (
     <div className="nhsuk-width-container-fluid">
       <div>Availability Overview</div>
+      <button
+        onClick={() => {
+          localStorage.removeItem('availability');
+          refresh();
+        }}
+      >
+        Clear Availability
+      </button>
       <ul
         className="nhsuk-grid-row nhsuk-card-group"
         style={{ padding: '20px' }}

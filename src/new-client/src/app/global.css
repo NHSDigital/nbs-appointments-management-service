@@ -73,3 +73,8 @@
   line-height: normal;
   font-size: 1rem;
 }
+
+.selected {
+  border-left: 4px solid #005eb8;
+  padding-left: 4px;
+}

@@ -85,9 +85,13 @@ class Client {
     }
 
     if (response.status === 200) {
+      let data: T | null = null;
+      try {
+        data = await response.json();
+      } catch {}
       return {
         success: true,
-        data: await response.json(),
+        data: data,
       };
     }
 

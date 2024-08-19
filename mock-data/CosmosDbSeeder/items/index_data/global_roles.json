@@ -37,7 +37,7 @@
       "permissions": ["users:manage", "users:view"]
     },
     {
-      "id": "canned:api-user",
+      "id": "system:api-user",
       "name": "Api User",
       "description": "This is a dedicated NBS role",
       "permissions": [

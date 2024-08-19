@@ -1,7 +1,6 @@
-﻿import NhsPageTitle from '@components/nhs-page-title';
-import FindUserForm from './find-user-form';
-import { When } from '@components/when';
-import AssignRoles from './assign-roles';
+﻿import NhsPage from '@components/nhs-page';
+import { ManageUsersPage } from './manage-users-page';
+import { fetchSite } from '@services/appointmentsService';
 
 export type UserPageProps = {
   params: {
@@ -12,28 +11,28 @@ export type UserPageProps = {
   };
 };
 
-const AssignRolesPage = ({ params, searchParams }: UserPageProps) => {
+const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   const userIsSpecified = () =>
     (searchParams && 'user' in searchParams) ?? false;
 
-  return (
-    <div className="nhsuk-grid-row">
-      <div className="nhsuk-grid-column-one-half">
-        <div className="nhsuk-form-group">
-          <NhsPageTitle title="Staff Role Management" />
-          <div className="nhsuk-hint">
-            Set the details and roles of a new user
-          </div>
-        </div>
+  const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
-        <When condition={userIsSpecified()}>
-          <AssignRoles params={params} searchParams={searchParams} />
-        </When>
-        <When condition={!userIsSpecified()}>
-          <FindUserForm site={params.site} />
-        </When>
-      </div>
-    </div>
+  return (
+    <NhsPage
+      title="Staff Role Management"
+      breadcrumbs={[
+        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: 'Users', href: `/site/${params.site}/users` },
+        { name: 'Manage Staff Roles' },
+      ]}
+    >
+      <ManageUsersPage
+        userIsSpecified={userIsSpecified()}
+        params={params}
+        searchParams={searchParams}
+      />
+    </NhsPage>
   );
 };
 

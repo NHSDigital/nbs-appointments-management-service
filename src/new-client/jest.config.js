@@ -19,6 +19,9 @@ const config = {
   moduleNameMapper: {
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
     '^axios$': '<rootDir>/node_modules/axios/dist/axios.js',
+    '@types': '<rootDir>/src/app/lib/types/index',
+    '@components/(.*)$': '<rootDir>/src/app/lib/components/$1',
+    '@services/(.*)$': '<rootDir>/src/app/lib/services/$1',
   },
   modulePathIgnorePatterns: ['.next'],
   moduleFileExtensions: [

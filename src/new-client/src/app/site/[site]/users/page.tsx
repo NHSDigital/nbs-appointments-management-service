@@ -1,8 +1,10 @@
-import { Table } from '@components/table';
-import { fetchUsers } from '../../../lib/users';
-import { fetchRoles } from '../../../lib/roles';
-import NhsPageTitle from '@components/nhs-page-title';
-import Link from 'next/link';
+import {
+  fetchUsers,
+  fetchRoles,
+  fetchSite,
+} from '@services/appointmentsService';
+import NhsPage from '@components/nhs-page';
+import { UsersPage } from './users-page';
 
 type PageProps = {
   params: {
@@ -10,57 +12,23 @@ type PageProps = {
   };
 };
 
-const UsersPage = async ({ params }: PageProps) => {
-  const users = await fetchUsers(params.site);
-  const roles = await fetchRoles();
-  const isVisibleRole = (role: string) =>
-    roles.find(r => r.id === role) !== undefined;
-  const getRoleName = (role: string) =>
-    roles.find(r => r.id === role)?.displayName;
+const Page = async ({ params }: PageProps) => {
+  const users = (await fetchUsers(params.site)) ?? [];
+  const rolesResponse = await fetchRoles();
+  const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
+
   return (
-    <>
-      <NhsPageTitle title="Manage Staff Roles" />
-      <div>
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
-            Manage your current site's staff roles
-          </span>
-          <span>
-            <AddRoleAssignmentsButton />
-          </span>
-        </div>
-        <Table
-          headers={['Email', 'Roles', 'Manage']}
-          rows={users.map(user => {
-            return [
-              user.id,
-              user.roleAssignments
-                .filter(ra => isVisibleRole(ra.role))
-                ?.map(ra => getRoleName(ra.role))
-                ?.join(' | '),
-              <EditRoleAssignmentsButton key={user.id} user={user.id} />,
-            ];
-          })}
-        />
-      </div>
-    </>
+    <NhsPage
+      title="Manage Staff Roles"
+      breadcrumbs={[
+        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: 'Users' },
+      ]}
+    >
+      <UsersPage users={users} roles={rolesResponse?.roles ?? []} />
+    </NhsPage>
   );
 };
 
-const AddRoleAssignmentsButton = () => (
-  <div style={{ fontSize: 'large' }}>
-    <Link href={`users/manage`} className="nhsuk-link">
-      Assign staff roles
-    </Link>
-  </div>
-);
-
-const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
-  <div>
-    <Link href={`users/manage?user=${user}`} className="nhsuk-link">
-      Edit
-    </Link>
-  </div>
-);
-
-export default UsersPage;
+export default Page;

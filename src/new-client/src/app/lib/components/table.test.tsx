@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { Table } from './table';
+import { Table } from '@components/table';
 
 const mockCaption = 'This is a mock table caption.';
 const mockHeaders = ['Header 1', 'Header 2'];

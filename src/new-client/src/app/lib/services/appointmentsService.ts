@@ -57,7 +57,8 @@ function handleResponse<T>(
   suppress401Errors = false,
 ) {
   if (response.success) {
-    return transformData(response.data);
+    if (response.data) return transformData(response.data);
+    else return undefined;
   }
 
   if (response.httpStatusCode === 404) {

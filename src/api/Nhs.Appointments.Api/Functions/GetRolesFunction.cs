@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -17,8 +15,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetRolesFunction(IRolesService rolesService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger ) 
-    : BaseApiFunction<EmptyRequest, GetRolesResponse>(validator, userContextProvider, logger)
+public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger ) 
+    : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "GetRoles", tags: new[] { "Auth" }, Summary = "Gets all existing roles")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
@@ -30,15 +28,18 @@ public class GetRolesFunction(IRolesService rolesService, IValidator<EmptyReques
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<GetRolesResponse>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<GetRolesResponse>> HandleRequest(GetRolesRequest request, ILogger logger)
     {
         var roles = await rolesService.GetRoles();
-        var mappedRoles = roles.Select(role => new GetRoleResponseItem(role.Name, role.Id, role.Description));
+        var mappedRoles = roles
+            .Where(r => r.Id.StartsWith(request.tag))
+            .Select(role => new GetRoleResponseItem(role.Name, role.Id, role.Description));
         return ApiResult<GetRolesResponse>.Success(new GetRolesResponse(mappedRoles.ToArray()));
     }
     
-    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
+    protected override Task<(bool requestRead, GetRolesRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
+        var tag = req.Query["tag"];
+        return Task.FromResult<(bool requestRead, GetRolesRequest request)>((true, new GetRolesRequest(tag)));
     }
 }

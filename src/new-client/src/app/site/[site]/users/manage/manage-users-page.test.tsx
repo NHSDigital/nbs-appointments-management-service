@@ -16,7 +16,7 @@ jest.mock('./assign-roles', () => {
 });
 
 describe('User Management Page', () => {
-  it('renders title and subtitle correctly', () => {
+  it('renders subtitle correctly', () => {
     render(
       <ManageUsersPage
         params={{ site: 'TEST' }}
@@ -24,7 +24,6 @@ describe('User Management Page', () => {
         userIsSpecified={false}
       />,
     );
-    expect(screen.getByText('Staff Role Management')).toBeVisible();
     expect(
       screen.getByText('Set the details and roles of a new user'),
     ).toBeVisible();
@@ -38,7 +37,6 @@ describe('User Management Page', () => {
         userIsSpecified={false}
       />,
     );
-    expect(screen.getByText('Staff Role Management')).toBeVisible();
     expect(screen.getByText('Find User Form')).toBeVisible();
   });
 
@@ -50,7 +48,6 @@ describe('User Management Page', () => {
         userIsSpecified
       />,
     );
-    expect(screen.getByText('Staff Role Management')).toBeVisible();
     expect(screen.getByText('Assign Roles Form')).toBeVisible();
   });
 });

@@ -29,7 +29,7 @@ type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 interface ApiSuccessResponse<T> {
   success: true;
-  data: T;
+  data: T | null;
 }
 
 interface ApiErrorResponse {

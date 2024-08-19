@@ -8,6 +8,8 @@ type Props = {
 };
 
 export const UsersPage = ({ users, roles }: Props) => {
+  const isVisibleRole = (role: string) =>
+    roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
 
@@ -22,12 +24,14 @@ export const UsersPage = ({ users, roles }: Props) => {
         </span>
       </div>
       <Table
-        caption={`Manage your current site's staff roles`}
         headers={['Email', 'Roles', 'Manage']}
         rows={users.map(user => {
           return [
             user.id,
-            user.roleAssignments?.map(ra => getRoleName(ra.role))?.join(' | '),
+            user.roleAssignments
+              .filter(ra => isVisibleRole(ra.role))
+              ?.map(ra => getRoleName(ra.role))
+              ?.join(' | '),
             <EditRoleAssignmentsButton key={user.id} user={user.id} />,
           ];
         })}

@@ -36,7 +36,9 @@ export const fetchSite = async (siteId: string) => {
 };
 
 export async function fetchRoles() {
-  const response = await appointmentsApi.get<{ roles: Role[] }>('roles');
+  const response = await appointmentsApi.get<{ roles: Role[] }>(
+    'roles?tag=canned',
+  );
 
   return handleResponse(response);
 }
@@ -55,7 +57,8 @@ function handleResponse<T>(
   suppress401Errors = false,
 ) {
   if (response.success) {
-    return transformData(response.data);
+    if (response.data) return transformData(response.data);
+    else return undefined;
   }
 
   if (response.httpStatusCode === 404) {

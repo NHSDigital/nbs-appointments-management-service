@@ -14,7 +14,9 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "test": "jest",
-    "test:ci": "jest --reporters=jest-junit --reporters=default"
+    "test:ci": "jest --reporters=jest-junit --reporters=default",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@next/env": "^14.2.5",
@@ -26,6 +28,7 @@
     "react-hook-form": "^7.52.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.46.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
@@ -67,3 +70,4 @@
     ]
   }
 }
+

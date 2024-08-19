@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import AssignRolesPage from './page';
+import { ManageUsersPage } from './manage-users-page';
 
 jest.mock('./find-user-form', () => {
   const MockFindUserForm = () => {
@@ -17,7 +17,13 @@ jest.mock('./assign-roles', () => {
 
 describe('User Management Page', () => {
   it('renders title and subtitle correctly', () => {
-    render(<AssignRolesPage params={{ site: 'TEST' }} searchParams={{}} />);
+    render(
+      <ManageUsersPage
+        params={{ site: 'TEST' }}
+        searchParams={{}}
+        userIsSpecified={false}
+      />,
+    );
     expect(screen.getByText('Staff Role Management')).toBeVisible();
     expect(
       screen.getByText('Set the details and roles of a new user'),
@@ -25,16 +31,23 @@ describe('User Management Page', () => {
   });
 
   it('renders search form when no user in search params', () => {
-    render(<AssignRolesPage params={{ site: 'TEST' }} searchParams={{}} />);
+    render(
+      <ManageUsersPage
+        params={{ site: 'TEST' }}
+        searchParams={{}}
+        userIsSpecified={false}
+      />,
+    );
     expect(screen.getByText('Staff Role Management')).toBeVisible();
     expect(screen.getByText('Find User Form')).toBeVisible();
   });
 
   it('renders assign roles form when user in search params', () => {
     render(
-      <AssignRolesPage
+      <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{ user: 'test@nhs.net' }}
+        userIsSpecified
       />,
     );
     expect(screen.getByText('Staff Role Management')).toBeVisible();

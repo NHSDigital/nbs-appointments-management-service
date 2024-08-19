@@ -25,4 +25,17 @@ type Role = {
   description: string;
 };
 
-export type { UserProfile, Site, User, RoleAssignment, Role };
+type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+interface ApiSuccessResponse<T> {
+  success: true;
+  data: T;
+}
+
+interface ApiErrorResponse {
+  success: false;
+  httpStatusCode: number;
+  errorMessage: string;
+}
+
+export type { UserProfile, Site, User, RoleAssignment, Role, ApiResponse };

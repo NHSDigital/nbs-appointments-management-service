@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import AssignRoles from './assign-roles';
-import { fetchRoles } from '../../../../lib/roles';
-import { fetchUsers } from '../../../../lib/users';
 import { Role, RoleAssignment, User } from '@types';
 import { getMockUserAssignments, mockRoles } from '../../../../testing/data';
+import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
 jest.mock('./assign-roles-form', () => {
   const MockForm = ({
@@ -34,17 +33,16 @@ jest.mock('./assign-roles-form', () => {
   return MockForm;
 });
 
-jest.mock('../../../../lib/roles');
-jest.mock('../../../../lib/users');
+jest.mock('@services/appointmentsService');
 
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
-const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
+const fetchRolesMock = fetchRoles as jest.Mock<Promise<{ roles: Role[] }>>;
 const mockSiteId = 'TEST';
 
 describe('AssignRoles', () => {
   beforeEach(() => {
     fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
-    fetchRolesMock.mockResolvedValue(mockRoles);
+    fetchRolesMock.mockResolvedValue({ roles: mockRoles });
   });
   it('throws error when rendered without user', async () => {
     await expect(

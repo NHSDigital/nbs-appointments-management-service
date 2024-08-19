@@ -1,4 +1,3 @@
-import NhsPageTitle from '@components/nhs-page-title';
 import AssignRoles from './assign-roles';
 import FindUserForm from './find-user-form';
 import { When } from '@components/when';

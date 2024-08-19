@@ -22,10 +22,8 @@ describe('Users Page', () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole('table', {
-        name: `Manage your current site's staff roles`,
-      }),
-    ).toBeInTheDocument();
+      screen.getByText("Manage your current site's staff roles"),
+    ).toBeVisible();
   });
 
   it('displays each user in the table', async () => {

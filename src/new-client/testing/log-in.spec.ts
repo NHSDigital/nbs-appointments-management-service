@@ -1,12 +1,7 @@
 import { test, expect } from '@playwright/test';
+import env from './testEnvironment';
 
-// TODO: Get this from .env
-const config = {
-  testUser: {
-    username: 'CC',
-    password: '1234abc',
-  },
-};
+const { TEST_USER_USERNAME, TEST_USER_PASSWORD } = env;
 
 test('Loads the site', async ({ page }) => {
   await page.goto('/');
@@ -27,8 +22,8 @@ test('logs in', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Log In' }).click();
 
-  await page.getByLabel('Username').fill(config.testUser.username);
-  await page.getByLabel('Password').fill(config.testUser.password);
+  await page.getByLabel('Username').fill(TEST_USER_USERNAME);
+  await page.getByLabel('Password').fill(TEST_USER_PASSWORD);
 
   await page.getByLabel('Password').press('Enter');
 
@@ -40,8 +35,8 @@ test('logs in', async ({ page }) => {
 test('logs out', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Log In' }).click();
-  await page.getByLabel('Username').fill(config.testUser.username);
-  await page.getByLabel('Password').fill(config.testUser.password);
+  await page.getByLabel('Username').fill(TEST_USER_USERNAME);
+  await page.getByLabel('Password').fill(TEST_USER_PASSWORD);
   await page.getByLabel('Password').press('Enter');
 
   await expect(
@@ -67,8 +62,8 @@ test('Creates a token cookie upon sign in', async ({ browser }) => {
 
   await page.goto('/');
   await page.getByRole('button', { name: 'Log In' }).click();
-  await page.getByLabel('Username').fill(config.testUser.username);
-  await page.getByLabel('Password').fill(config.testUser.password);
+  await page.getByLabel('Username').fill(TEST_USER_USERNAME);
+  await page.getByLabel('Password').fill(TEST_USER_PASSWORD);
   await page.getByLabel('Password').press('Enter');
 
   await expect(

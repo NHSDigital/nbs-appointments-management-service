@@ -1,15 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({
+  path: path.resolve(__dirname, 'testing', 'playwright.env'),
+});
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   testDir: './testing',
   fullyParallel: true,
@@ -22,15 +18,11 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // TODO: Playwright init defaults to opt out of parallel tests on CI. We should confirm if we agree with that
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
@@ -49,7 +41,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run build && npm run start',
-      url: 'http://127.0.0.1:3000',
+      url: process.env.BASE_URL,
       reuseExistingServer: !process.env.CI,
     },
     // TODO: Also start dotnet and docker services if not already running

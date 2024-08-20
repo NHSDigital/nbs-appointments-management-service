@@ -170,6 +170,8 @@ stages:
 
   - stage: DeployDev
     condition: and(succeeded(), eq(variables.isMain, true))
+    variables:
+      - group: 'nbs-ams-dev'
     displayName: Deploy Dev
     jobs:
       - job: RunTerraformPlan

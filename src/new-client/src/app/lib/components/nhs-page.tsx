@@ -1,8 +1,11 @@
-import Breadcrumbs, { Breadcrumb } from '@components/nhs-breadcrumbs';
+import {
+  Breadcrumbs,
+  Breadcrumb,
+  WarningCallout,
+} from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
 import { NhsHeader } from './nhs-header';
 import { fetchUserProfile } from '@services/appointmentsService';
-import NhsWarning from './nhs-warning';
 
 type Props = {
   title: string;
@@ -29,12 +32,12 @@ const NhsPage = async ({ title, children = null, breadcrumbs }: Props) => {
                 <div className="app-pane__main-content">
                   <h1 className="app-page-heading">{title}</h1>
                   {userProfile === undefined ? (
-                    <NhsWarning title="You cannot access this site">
+                    <WarningCallout title="You cannot access this site">
                       <p>
                         You are currently not signed in. To use this site,
                         please sign in.
                       </p>
-                    </NhsWarning>
+                    </WarningCallout>
                   ) : (
                     children
                   )}

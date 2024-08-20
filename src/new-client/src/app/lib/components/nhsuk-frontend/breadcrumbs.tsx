@@ -10,6 +10,11 @@ type Props = {
   trail?: Breadcrumb[];
 };
 
+/**
+ * A breadcrumbs component adhering to the NHS UK Frontend design system.
+ * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
+ * @see https://service-manual.nhs.uk/design-system/components/breadcrumbs
+ */
 const Breadcrumbs = ({ trail = [] }: Props) => {
   const trailWithHome = [{ name: 'Home', href: '/' }, ...trail];
 

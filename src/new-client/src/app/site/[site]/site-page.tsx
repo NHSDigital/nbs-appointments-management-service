@@ -1,4 +1,4 @@
-import NhsNavCard from '@components/nhs-nav-card';
+import { Card } from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 interface SitePageProps {
@@ -16,7 +16,7 @@ export const SitePage = ({ site }: SitePageProps) => {
       </div>
       <ul className="nhsuk-grid-row nhsuk-card-group">
         <li className="nhsuk-grid-column-two-thirds nhsuk-card-group__item">
-          <NhsNavCard
+          <Card
             href={`${site.id}/users`}
             title="User Management"
             description="Assign roles to users to give them access to features at this site"

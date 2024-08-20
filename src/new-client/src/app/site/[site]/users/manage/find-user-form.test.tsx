@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 import FindUserForm from './find-user-form';
 import { usePathname, useRouter } from 'next/navigation';
+import render from '@testing/render';
 
 jest.mock('next/navigation');
 
@@ -17,9 +17,9 @@ describe('FindUserForm', () => {
     });
   });
   it('shows a validation error when no data is submitted', async () => {
-    render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" />);
     const searchButton = screen.getByRole('button', { name: 'Search user' });
-    await userEvent.click(searchButton);
+    await user.click(searchButton);
 
     expect(
       await screen.findByText('You have not entered a valid NHS email address'),
@@ -27,15 +27,15 @@ describe('FindUserForm', () => {
   });
 
   it('shows a validation error when an none nhs.net email address is submitted', async () => {
-    render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" />);
 
     const searchButton = screen.getByRole('button', { name: 'Search user' });
     const emailInput = screen.getByRole('textbox', {
       name: 'enter an email address',
     });
 
-    await userEvent.type(emailInput, 'test@test.com');
-    await userEvent.click(searchButton);
+    await user.type(emailInput, 'test@test.com');
+    await user.click(searchButton);
 
     expect(
       await screen.findByText('You have not entered a valid NHS email address'),
@@ -43,24 +43,24 @@ describe('FindUserForm', () => {
   });
 
   it('takes the user to the main user page when they cancel', async () => {
-    render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" />);
 
     const cancelButton = screen.getByRole('button', { name: 'cancel' });
-    await userEvent.click(cancelButton);
+    await user.click(cancelButton);
 
     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
   });
 
   it('initiates the user edit when a valid email address is submitted', async () => {
-    render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" />);
 
     const searchButton = screen.getByRole('button', { name: 'Search user' });
     const emailInput = screen.getByRole('textbox', {
       name: 'enter an email address',
     });
 
-    await userEvent.type(emailInput, 'test@nhs.net');
-    await userEvent.click(searchButton);
+    await user.type(emailInput, 'test@nhs.net');
+    await user.click(searchButton);
 
     expect(
       await screen.queryByText(

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Site } from '@types';
-import NhsCard from '@components/nhs-card';
+import { Card } from '@nhsuk-frontend-components';
 
 type Props = {
   sites: Site[];
@@ -8,7 +8,7 @@ type Props = {
 
 const SiteList = ({ sites }: Props) => {
   return (
-    <NhsCard title="Choose a site">
+    <Card title="Choose a site">
       <ul className="nhsuk-list nhsuk-list--border">
         {sites.map(s => (
           <li key={s.id}>
@@ -22,7 +22,7 @@ const SiteList = ({ sites }: Props) => {
           </li>
         ))}
       </ul>
-    </NhsCard>
+    </Card>
   );
 };
 

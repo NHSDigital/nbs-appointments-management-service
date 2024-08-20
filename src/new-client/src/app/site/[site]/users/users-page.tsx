@@ -1,4 +1,4 @@
-import { Table } from '@components/table';
+import { Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { Role, User } from '@types';
 

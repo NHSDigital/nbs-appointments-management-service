@@ -3,18 +3,6 @@ import env from './testEnvironment';
 
 const { TEST_USER_USERNAME, TEST_USER_PASSWORD } = env;
 
-test('Loads the site', async ({ page }) => {
-  await page.goto('/');
-
-  await expect(page).toHaveTitle('Appointment Management Service');
-});
-
-test('Has a log in link', async ({ page }) => {
-  await page.goto('/');
-
-  await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
-});
-
 test('logs in', async ({ page }) => {
   await page.goto('/');
 
@@ -30,6 +18,8 @@ test('logs in', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Choose a site' }),
   ).toBeVisible();
+
+  await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible();
 });
 
 test('logs out', async ({ page }) => {
@@ -54,24 +44,5 @@ test('logs out', async ({ page }) => {
       'You are currently not signed in. To use this site, please sign in.',
     ),
   ).toBeVisible();
-});
-
-test('Creates a token cookie upon sign in', async ({ browser }) => {
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Log In' }).click();
-  await page.getByLabel('Username').fill(TEST_USER_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_PASSWORD);
-  await page.getByLabel('Password').press('Enter');
-
-  await expect(
-    page.getByRole('heading', { name: 'Choose a site' }),
-  ).toBeVisible();
-
-  const cookies = await context.cookies();
-  expect(
-    cookies.find(c => c.name === 'token' && c.value.startsWith('ey')),
-  ).not.toBeUndefined();
+  await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
 });

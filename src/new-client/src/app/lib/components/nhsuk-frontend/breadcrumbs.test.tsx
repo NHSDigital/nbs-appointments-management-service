@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Breadcrumbs, { Breadcrumb } from './nhs-breadcrumbs';
+import { Breadcrumb, Breadcrumbs } from '@nhsuk-frontend-components';
 
 const breadcrumbTrail: Breadcrumb[] = [
   { name: 'Page 1', href: '/page1' },

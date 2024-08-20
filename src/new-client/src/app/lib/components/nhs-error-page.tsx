@@ -1,4 +1,4 @@
-import Breadcrumbs, { Breadcrumb } from '@components/nhs-breadcrumbs';
+import { Breadcrumbs, Breadcrumb } from '@nhsuk-frontend-components';
 import { NhsHeader } from './nhs-header';
 
 type Props = {

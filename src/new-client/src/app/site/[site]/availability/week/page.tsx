@@ -1,6 +1,7 @@
 'use client';
 
 import { AvailabilityBlock, WeekInfo } from '@types';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
@@ -8,7 +9,7 @@ import WeekView from './week-view';
 import { useAvailability } from '../blocks';
 
 const AvailabilityPage = () => {
-  const { blocks } = useAvailability();
+  const { blocks, copyDay, pasteDay, copyWeek, pasteWeek } = useAvailability();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -38,7 +39,15 @@ const AvailabilityPage = () => {
       <div className="nhsuk-grid-row">
         <BreadCrumb link={link} />
       </div>
-      <WeekView onAddBlock={editSessionUrl} blocks={blocks} week={weekInfo} />
+      <WeekView
+        onAddBlock={editSessionUrl}
+        blocks={blocks}
+        week={weekInfo}
+        copyDay={copyDay}
+        pasteDay={pasteDay}
+        copyWeek={copyWeek}
+        pasteWeek={pasteWeek}
+      />
     </div>
   );
 };

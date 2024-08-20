@@ -1,25 +1,43 @@
 import { AvailabilityBlock, WeekInfo } from '@types';
 import { timeSort } from './common';
-import dayjs from 'dayjs';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import dayjs, { Dayjs } from 'dayjs';
 import { DaySummary } from '../day-summary';
 import NhsPaging from '../pager';
 import { usePathname } from 'next/navigation';
 import { When } from '@components/when';
+import React from 'react';
 
 type WeekViewProps = {
   onAddBlock: (block: AvailabilityBlock) => void;
-  blocks: AvailabilityBlock[];
   week: WeekInfo;
+  blocks: AvailabilityBlock[];
+  copyDay: (day: Dayjs) => void;
+  pasteDay: (day: Dayjs) => void;
+  copyWeek: (day: Dayjs) => void;
+  pasteWeek: (day: Dayjs) => void;
 };
 
-const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
+const WeekView = ({
+  onAddBlock,
+  week,
+  blocks,
+  copyDay,
+  pasteDay,
+  copyWeek,
+  pasteWeek,
+}: WeekViewProps) => {
+  const [copyWeekText, setCopyWeekText] = React.useState('Copy week');
   const pathname = usePathname();
+
+  const wrappedCopy = () => {
+    copyWeek(week.commencing);
+    setCopyWeekText('Week copied');
+    setTimeout(() => setCopyWeekText('Copy week'), 1000);
+  };
 
   const days = [];
   for (let i = 0; i < 7; i++) days.push(week.commencing.add(i, 'day'));
-
-  const dayBlocks = (d: dayjs.Dayjs) =>
-    blocks.filter(b => b.day.isSame(d)).sort(timeSort);
 
   const weekUrl = (i: number) => {
     const params = new URLSearchParams();
@@ -30,9 +48,21 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
 
   return (
     <>
-      <h2>
-        Availability for Week Commencing {week.commencing.format('MMMM DD')}
-      </h2>
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <h2>
+          Availability for Week Commencing {week.commencing.format('MMMM DD')}
+        </h2>
+        <a href="#" onClick={wrappedCopy} style={{ marginLeft: '24px' }}>
+          {copyWeekText}
+        </a>
+        <a
+          href="#"
+          onClick={() => pasteWeek(week.commencing)}
+          style={{ marginLeft: '24px' }}
+        >
+          Paste week
+        </a>
+      </div>
       <NhsPaging
         nextLink={weekUrl(1)}
         nextText="Next week"
@@ -49,7 +79,13 @@ const WeekView = ({ onAddBlock, blocks, week }: WeekViewProps) => {
               key={d.format('DD ddd')}
               className="nhsuk-grid-column-one-third nhsuk-card-group__item"
             >
-              <DayCard day={d} blocks={dayBlocks(d)} action={onAddBlock} />
+              <DayCard
+                day={d}
+                action={onAddBlock}
+                blocks={blocks}
+                copyDay={copyDay}
+                pasteDay={pasteDay}
+              />
             </li>
           ))}
         </ul>
@@ -62,10 +98,25 @@ type DayCardProps = {
   day: dayjs.Dayjs;
   action: (block: AvailabilityBlock) => void;
   blocks: AvailabilityBlock[];
+  copyDay: (day: Dayjs) => void;
+  pasteDay: (day: Dayjs) => void;
 };
 
-const DayCard = ({ day, action, blocks }: DayCardProps) => {
+const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
+  const [copyLinkText, setCopyLinkText] = React.useState('Copy day');
+
+  const copyDayWrapper = () => {
+    copyDay(day);
+    setCopyLinkText('Day copied');
+    setTimeout(() => setCopyLinkText('Copy day'), 1000);
+  };
+
   const canEdit = dayjs().isBefore(day);
+
+  const filteredBlocks = React.useMemo(
+    () => blocks.filter(b => b.day.isSame(day)).toSorted(timeSort),
+    [blocks, day],
+  );
 
   const defaultBlock = {
     day,
@@ -82,10 +133,20 @@ const DayCard = ({ day, action, blocks }: DayCardProps) => {
         <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {day.format('DD ddd')}
         </h2>
-        <DaySummary blocks={blocks} hasError={() => false} />
+        <DaySummary blocks={filteredBlocks} hasError={() => false} />
         <When condition={canEdit}>
           <a href="#" onClick={() => action(defaultBlock)}>
             Edit
+          </a>
+          <a href="#" onClick={copyDayWrapper} style={{ marginLeft: '16px' }}>
+            {copyLinkText}
+          </a>
+          <a
+            href="#"
+            onClick={() => pasteDay(day)}
+            style={{ marginLeft: '16px' }}
+          >
+            Paste Day
           </a>
         </When>
       </div>

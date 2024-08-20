@@ -43,7 +43,7 @@ const Card = ({
           <p className="nhsuk-card__description">{description}</p>
         ) : null}
 
-        {children}
+        {children ? children : null}
 
         {href ? <RightChevron /> : null}
       </div>

@@ -313,7 +313,7 @@ stages:
   - stage: DeployEXP
     condition: succeeded()
     variables:
-      - group: 'nbs-ems-exp'
+      - group: 'nbs-ams-exp'
     displayName: "Deploy EXP"
     jobs:
       - job: RunTerraformPlan

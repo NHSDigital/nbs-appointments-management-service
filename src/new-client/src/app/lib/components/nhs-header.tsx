@@ -1,8 +1,7 @@
-import Link from 'next/link';
 import { When } from '@components/when';
 import NhsHeaderLogIn from '@components/nhs-header-log-in';
 import NhsHeaderLogOut from '@components/nhs-header-log-out';
-import NhsLogo from '@components/nhs-logo';
+import { Header } from '@nhsuk-frontend-components';
 
 type NhsHeaderProps = {
   userEmail?: string;
@@ -17,53 +16,40 @@ export const NhsHeader = ({
   showAuthControls = true,
 }: NhsHeaderProps) => {
   return (
-    <header className="nhsuk-header nhsuk-header__transactional" role="banner">
-      <div className="nhsuk-header__container">
-        <div className="nhsuk-header__logo nhsuk-header__transactional--logo">
-          <NhsLogo />
-        </div>
-        <div className="nhsuk-header__transactional-service-name">
-          <Link
-            className="nhsuk-header__transactional-service-name--link"
-            href="/"
-          >
-            NHS Appointment Book
-          </Link>
-        </div>
-        <When condition={showAuthControls}>
-          <When condition={userEmail !== undefined}>
-            <div className="header__content" id="content-header">
-              <div
-                className="header__user-control"
-                role="navigation"
-                aria-label="Primary navigation"
-              >
-                <ul className="header__user-control-list">
-                  <li className="header__user-control-item">{userEmail}</li>
-                  <li className="header__user-control-item">
-                    <NhsHeaderLogOut />
-                  </li>
-                </ul>
-              </div>
+    <Header>
+      <When condition={showAuthControls}>
+        <When condition={userEmail !== undefined}>
+          <div className="header__content" id="content-header">
+            <div
+              className="header__user-control"
+              role="navigation"
+              aria-label="Primary navigation"
+            >
+              <ul className="header__user-control-list">
+                <li className="header__user-control-item">{userEmail}</li>
+                <li className="header__user-control-item">
+                  <NhsHeaderLogOut />
+                </li>
+              </ul>
             </div>
-          </When>
-          <When condition={userEmail === undefined}>
-            <div className="header__content" id="content-header">
-              <div
-                className="header__user-control"
-                role="navigation"
-                aria-label="Primary navigation"
-              >
-                <ul className="header__user-control-list">
-                  <li className="header__user-control-item">
-                    <NhsHeaderLogIn />
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </When>
+          </div>
         </When>
-      </div>
-    </header>
+        <When condition={userEmail === undefined}>
+          <div className="header__content" id="content-header">
+            <div
+              className="header__user-control"
+              role="navigation"
+              aria-label="Primary navigation"
+            >
+              <ul className="header__user-control-list">
+                <li className="header__user-control-item">
+                  <NhsHeaderLogIn />
+                </li>
+              </ul>
+            </div>
+          </div>
+        </When>
+      </When>
+    </Header>
   );
 };

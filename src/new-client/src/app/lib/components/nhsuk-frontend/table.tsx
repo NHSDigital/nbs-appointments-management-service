@@ -8,11 +8,14 @@ type TableProps = {
 
 type Cell = string | ReactNode;
 
-// This delineation is derived from the nhsuk-frontend guidance:
-// https://service-manual.nhs.uk/design-system/components/table
 type TableCardinality = 'two-column' | 'three-or-more-column';
 
-export const Table = ({ caption, headers, rows }: TableProps) => {
+/**
+ * A table component adhering to the NHS UK Frontend design system.
+ * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
+ * @see https://service-manual.nhs.uk/design-system/components/table
+ */
+const Table = ({ caption, headers, rows }: TableProps) => {
   const cardinality =
     headers.length > 2 ? 'three-or-more-column' : 'two-column';
 
@@ -79,3 +82,5 @@ const renderRow = (
     </tr>
   );
 };
+
+export default Table;

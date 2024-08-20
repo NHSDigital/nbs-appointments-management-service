@@ -1,4 +1,4 @@
-const NhsIcon = () => {
+const RightChevron = () => {
   return (
     <svg
       className="nhsuk-icon"
@@ -24,4 +24,4 @@ const NhsIcon = () => {
   );
 };
 
-export default NhsIcon;
+export default RightChevron;

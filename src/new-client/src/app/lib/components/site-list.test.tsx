@@ -15,9 +15,9 @@ describe('<SiteList>', () => {
 
   it('renders sites in ascending alphabetical order', async () => {
     const testSites: Site[] = [
-      { id: '1001', name: 'Site Zulu', address: 'Alpha Street' },
-      { id: '1002', name: 'Site Lima', address: 'Beta Street' },
-      { id: '1003', name: 'Site November', address: 'Beta Street' },
+      { id: '1001', name: 'Site Zulu', address: 'Zulu Street' },
+      { id: '1002', name: 'Site Lima', address: 'Lima Street' },
+      { id: '1003', name: 'Site November', address: 'November Street' },
       { id: '1004', name: 'Site Beta', address: 'Beta Street' },
     ];
     render(<SiteList sites={testSites} />);

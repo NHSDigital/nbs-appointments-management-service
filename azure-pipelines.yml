@@ -169,9 +169,9 @@ stages:
             condition: succeededOrFailed()
 
   - stage: DeployDev
-    condition: succeeded()
+    condition: and(succeeded(), eq(variables.isMain, true))
     variables:
-      - group: 'nbs-ems-dev'
+      - group: 'nbs-ams-dev'
     displayName: Deploy Dev
     jobs:
       - job: RunTerraformPlan

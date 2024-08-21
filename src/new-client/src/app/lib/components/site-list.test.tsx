@@ -22,7 +22,7 @@ describe('<SiteList>', () => {
     ];
     render(<SiteList sites={testSites} />);
     const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames.length).toBe(4);
+    expect(siteNames).toHaveLength(4);
     expect(siteNames[0]?.textContent).toEqual('Site Beta');
     expect(siteNames[1]?.textContent).toEqual('Site Lima');
     expect(siteNames[2]?.textContent).toEqual('Site November');

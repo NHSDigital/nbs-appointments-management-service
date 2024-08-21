@@ -1,6 +1,6 @@
 import { HomePage } from './home-page';
 import { render, screen } from '@testing-library/react';
-import { mockSites } from './testing/data';
+import { mockSites } from '@testing/data';
 
 describe('Home Page', () => {
   it('should render the home page', () => {

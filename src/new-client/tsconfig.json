@@ -23,7 +23,9 @@
         "./src/app/lib/components/nhsuk-frontend/index"
       ],
       "@types": ["./src/app/lib/types/index"],
-      "@services/*": ["./src/app/lib/services/*"]
+      "@services/*": ["./src/app/lib/services/*"],
+      "@testing/*": ["./src/app/testing/*"],
+      "@sorting": ["./src/app/lib/sorting/index"]
     }
   },
   "include": [

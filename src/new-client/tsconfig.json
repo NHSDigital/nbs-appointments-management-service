@@ -24,7 +24,8 @@
       ],
       "@types": ["./src/app/lib/types/index"],
       "@services/*": ["./src/app/lib/services/*"],
-      "@testing/*": ["./src/app/testing/*"]
+      "@testing/*": ["./src/app/testing/*"],
+      "@sorting": ["./src/app/lib/sorting/index"]
     }
   },
   "include": [

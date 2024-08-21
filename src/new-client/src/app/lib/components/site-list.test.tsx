@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import SiteList from '@components/site-list';
 import { Site } from '@types';
 
@@ -21,13 +21,12 @@ describe('<SiteList>', () => {
       { id: '1004', name: 'Site Beta', address: 'Beta Street' },
     ];
     render(<SiteList sites={testSites} />);
-    const list = screen.getByRole('list');
-    const siteNames = list.children;
+    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
     expect(siteNames.length).toBe(4);
-    expect(siteNames.item(0)?.textContent).toEqual('Site Beta');
-    expect(siteNames.item(1)?.textContent).toEqual('Site Lima');
-    expect(siteNames.item(2)?.textContent).toEqual('Site November');
-    expect(siteNames.item(3)?.textContent).toEqual('Site Zulu');
+    expect(siteNames[0]?.textContent).toEqual('Site Beta');
+    expect(siteNames[1]?.textContent).toEqual('Site Lima');
+    expect(siteNames[2]?.textContent).toEqual('Site November');
+    expect(siteNames[3]?.textContent).toEqual('Site Zulu');
   });
 
   it('links to the correct page', async () => {

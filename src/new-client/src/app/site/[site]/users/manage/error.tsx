@@ -17,7 +17,6 @@ export default function Error({
       breadcrumbs={[
         { name: `Site ${site}`, href: `/site/${site}` },
         { name: 'Users', href: `/site/${site}/users` },
-        { name: 'Manage Staff Roles' },
       ]}
     />
   );

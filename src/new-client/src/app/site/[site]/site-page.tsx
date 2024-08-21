@@ -2,10 +2,12 @@ import { Card } from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 interface SitePageProps {
-  site: Site;
+  site: Site | undefined;
 }
 
 export const SitePage = ({ site }: SitePageProps) => {
+  if (site === undefined) throw new Error('You cannot access this site.');
+
   return (
     <>
       <div className="nhsuk-card">

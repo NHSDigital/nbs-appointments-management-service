@@ -5,13 +5,21 @@ type Props = {
   title: string;
   message: string;
   breadcrumbs?: Breadcrumb[];
+  omitTitleFromBreadcrumb?: boolean;
 };
 
-const NhsErrorPage = ({ title, message, breadcrumbs }: Props) => {
+const NhsErrorPage = ({
+  title,
+  message,
+  breadcrumbs,
+  omitTitleFromBreadcrumb,
+}: Props) => {
+  const breadcrumbsWithTitle = [...(breadcrumbs ?? [])];
+  if (!omitTitleFromBreadcrumb) breadcrumbsWithTitle.push({ name: title });
   return (
     <>
       <NhsHeader showAuthControls={false} />
-      <Breadcrumbs trail={breadcrumbs} />
+      <Breadcrumbs trail={breadcrumbsWithTitle} />
       <div className="nhsuk-width-container app-width-container">
         <main
           className="govuk-main-wrapper app-main-wrapper"

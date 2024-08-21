@@ -11,15 +11,22 @@ type Props = {
   title: string;
   children: ReactNode;
   breadcrumbs?: Breadcrumb[];
+  omitTitleFromBreadcrumb?: boolean;
 };
 
-const NhsPage = async ({ title, children = null, breadcrumbs }: Props) => {
+const NhsPage = async ({
+  title,
+  children = null,
+  breadcrumbs,
+  omitTitleFromBreadcrumb,
+}: Props) => {
   const userProfile = await fetchUserProfile();
-
+  const breadcrumbsWithTitle = [...(breadcrumbs ?? [])];
+  if (!omitTitleFromBreadcrumb) breadcrumbsWithTitle.push({ name: title });
   return (
     <>
       <NhsHeader userEmail={userProfile?.emailAddress} />
-      <Breadcrumbs trail={breadcrumbs} />
+      <Breadcrumbs trail={breadcrumbsWithTitle} />
       <div className="nhsuk-width-container app-width-container">
         <main
           className="govuk-main-wrapper app-main-wrapper"

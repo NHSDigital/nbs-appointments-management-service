@@ -24,7 +24,6 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
       breadcrumbs={[
         { name: siteMoniker, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
-        { name: 'Manage Staff Roles' },
       ]}
     >
       <ManageUsersPage

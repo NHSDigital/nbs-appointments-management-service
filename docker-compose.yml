@@ -39,13 +39,23 @@ services:
       USERS_CONFIGURATION_INLINE: |
         [
             {
-            "SubjectId":"cc.agent@nhs.uk",
+            "SubjectId":"cc.agent@nhs.net",
             "Username":"CC",
             "Password":"1234abc",
             "Claims": [
                 {
                   "Type": "email",
-                  "Value": "cc.agent@nhs.uk"
+                  "Value": "cc.agent@nhs.net"
+                },
+            ]},
+        {
+            "SubjectId":"cc2.agent@nhs.net",
+            "Username":"CC2",
+            "Password":"1234abc",
+            "Claims": [
+                {
+                  "Type": "email",
+                  "Value": "cc2.agent@nhs.net"
                 },
             ]}
         ]

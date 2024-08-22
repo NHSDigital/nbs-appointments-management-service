@@ -1,7 +1,10 @@
-import { Table } from '@components/table';
-import { fetchUsers } from '../../../lib/users';
-import { fetchRoles } from '../../../lib/roles';
-import NhsPageTitle from '@components/nhs-page-title';
+import {
+  fetchUsers,
+  fetchRoles,
+  fetchSite,
+} from '@services/appointmentsService';
+import NhsPage from '@components/nhs-page';
+import { UsersPage } from './users-page';
 
 type PageProps = {
   params: {
@@ -9,26 +12,20 @@ type PageProps = {
   };
 };
 
-const UsersPage = async ({ params }: PageProps) => {
-  const users = await fetchUsers(params.site);
-  const roles = await fetchRoles();
-  const getRoleName = (role: string) =>
-    roles.find(r => r.id === role)?.displayName;
+const Page = async ({ params }: PageProps) => {
+  const users = (await fetchUsers(params.site)) ?? [];
+  const rolesResponse = await fetchRoles();
+  const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
+
   return (
-    <>
-      <NhsPageTitle title="Manage Staff Roles" />
-      <Table
-        caption={`Manage your current site's staff roles`}
-        headers={['Email', 'Roles']}
-        rows={users.map(user => {
-          return [
-            user.id,
-            user.roleAssignments?.map(ra => getRoleName(ra.role))?.join(' | '),
-          ];
-        })}
-      />
-    </>
+    <NhsPage
+      title="Manage Staff Roles"
+      breadcrumbs={[{ name: siteMoniker, href: `/site/${params.site}` }]}
+    >
+      <UsersPage users={users} roles={rolesResponse?.roles ?? []} />
+    </NhsPage>
   );
 };
 
-export default UsersPage;
+export default Page;

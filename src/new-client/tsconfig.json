@@ -18,11 +18,14 @@
       }
     ],
     "paths": {
-      "@components/*": ["./src/app/components/*"],
+      "@components/*": ["./src/app/lib/components/*"],
       "@nhsuk-frontend-components": [
-        "./src/app/components/nhsuk-frontend/index"
+        "./src/app/lib/components/nhsuk-frontend/index"
       ],
-      "@types": ["./src/app/types/index"]
+      "@types": ["./src/app/lib/types/index"],
+      "@services/*": ["./src/app/lib/services/*"],
+      "@testing/*": ["./src/app/testing/*"],
+      "@sorting": ["./src/app/lib/sorting/index"]
     }
   },
   "include": [

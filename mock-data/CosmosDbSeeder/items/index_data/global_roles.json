@@ -34,10 +34,10 @@
       "id": "canned:user-manager",
       "name": "User manager",
       "description": "A user can view and manage user role assignments.",
-      "permissions": ["users:manage"]
+      "permissions": ["users:manage", "users:view"]
     },
     {
-      "id": "canned:api-user",
+      "id": "system:api-user",
       "name": "Api User",
       "description": "This is a dedicated NBS role",
       "permissions": [
@@ -49,7 +49,7 @@
       ]
     },
     {
-      "id": "all-permissions",
+      "id": "system:all-permissions",
       "name": "All Permissions",
       "permissions": [
         "site:get-config",
@@ -62,11 +62,12 @@
         "booking:query",
         "booking:cancel",
         "booking:set-status",
-        "users:manage"
+        "users:manage",
+        "user:view"
       ]
     },
     {
-      "id": "integration-test:api-user",
+      "id": "system:integration-test-user",
       "name": "Integration Test Api User Role",
       "description": "Role for integration test user",
       "permissions": [

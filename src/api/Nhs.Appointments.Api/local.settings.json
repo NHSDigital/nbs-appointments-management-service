@@ -2,12 +2,13 @@
     "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsServiceBus": "CONNECTION STRING TBC",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "COSMOS_ENDPOINT": "https://localhost:8081",
     "COSMOS_TOKEN": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
     "APIM_ENDPOINT": "http://localhost:4011",
     "LEASE_MANAGER_CONNECTION": "local",
-    "API_KEYS": "12345",    
+    "API_KEYS": "12345",
     "AuthProvider_ProviderUri": "http://localhost:8020",
     "AuthProvider_Issuer": "http://localhost:8020",
     "AuthProvider_AuthorizePath": "connect/authorize",
@@ -15,7 +16,9 @@
     "AuthProvider_JwksPath": ".well-known/openid-configuration/jwks",
     "AuthProvider_ChallengePhrase": "ThisIsntRandomButItNeedsToBe43CharactersLong",
     "AuthProvider_ClientId": "nhs-appts-local",
-    "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return"
+    "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
+    "GovNotifyApiKey": "dev-402590d1-889d-487f-8f60-38f78ea50a61-a07045a9-f79b-419d-bb45-0b1ac771b566",
+    "UserRolesChangedEmailTemplateId": "742e84b2-5d93-4d03-92f0-27252174c342"
   },  
   "Host": {"CORS": "*"}
 }

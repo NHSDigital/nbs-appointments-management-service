@@ -11,10 +11,21 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Api.Auth;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
+using MassTransit;
+using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Consumers;
+using Nhs.Appointments.Api.Events;
+using Nhs.Appointments.Api.Notifications;
+using Notify.Client;
+using Notify.Models;
+using Notify.Models.Responses;
+using Nhs.Appointments.Api.Messaging;
+using Notify.Interfaces;
 
 namespace Nhs.Appointments.Api;
 
@@ -68,7 +79,9 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
-            .AddSingleton<TimeProvider>(TimeProvider.System)
+            .AddTransient<IUserRolesChangedNotifier>(x => new UserRolesChangedNotifier(x.GetService<NotificationClient>(), Environment.GetEnvironmentVariable("UserRolesChangedEmailTemplateId")))
+            .AddScoped<IMessageBus, MassTransitBusWrapper>()
+            .AddSingleton(TimeProvider.System)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
     var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
@@ -100,6 +113,18 @@ public static class FunctionConfigurationExtensions
     builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
     SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();
+
+    // configuration for MassTransit and Notifications
+    builder.Services.AddScoped<NotifyUserRolesChangedFunction>();
+    builder.Services.AddMassTransitForAzureFunctions(cfg =>
+    {
+        cfg.AddConsumer<UserRolesChangedConsumer>();
+        cfg.AddRequestClient<UserRolesChanged>(new Uri("queue:user-role-change"));
+    });
+
+        // Gov Notify config:
+        builder.Services.AddTransient<IAsyncNotificationClient>(x => new NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")));
+
 
     return builder;
     }

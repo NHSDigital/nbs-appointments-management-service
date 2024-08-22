@@ -13,12 +13,20 @@ using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Api.Events;
+using Nhs.Appointments.Api.Messaging;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) 
+public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMessageBus bus) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
+    protected readonly IUserService userService = userService;
+    protected readonly IValidator<SetUserRolesRequest> validator = validator;
+    protected readonly IUserContextProvider userContextProvider = userContextProvider;
+    protected readonly ILogger<SetUserRolesFunction> logger = logger;
+    protected readonly IMessageBus bus = bus;
+
     [OpenApiOperation(operationId: "SetUserRoles", tags: new[] { "User Roles" }, Summary = "Set user roles for a site")]
     [OpenApiRequestBody("text/json", typeof(SetUserRolesRequest))]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
@@ -46,8 +54,10 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
             .ToList();
 
         await userService.SaveUserAsync(request.User, request.Scope, roleAssignments);
+        await bus.Send(new UserRolesChanged { User = request.User, Roles = request.Roles});
         
         return Success(new EmptyResponse());
     }
-    
 }
+
+

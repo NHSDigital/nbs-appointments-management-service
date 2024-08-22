@@ -1,50 +1,37 @@
-export type CheckBoxProps = {
-  fieldValue: string;
-  fieldId: string;
-  fieldName: string;
-  prompt: string;
-};
+import { ReactNode } from 'react';
 
 type Props = {
-  checkboxes: CheckBoxProps[];
+  children: ReactNode;
+  prompt?: {
+    legend: string;
+    hint: string;
+    id: string;
+  };
 };
 
-const CheckBoxes = ({ checkboxes }: Props) => {
+/**
+ * A checkbox component adhering to the NHS UK Frontend design system.
+ * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
+ * @see https://service-manual.nhs.uk/design-system/components/checkboxes
+ */
+const CheckBoxes = ({ children, prompt }: Props) => {
   return (
-    <div className="nhsuk-checkboxes">
-      {checkboxes.map((checkbox, index) => {
-        return (
-          <CheckBox
-            key={`checkbox-item-${index}`}
-            fieldValue={checkbox.fieldValue}
-            fieldId={checkbox.fieldId}
-            fieldName={checkbox.fieldName}
-            prompt={checkbox.prompt}
-          />
-        );
-      })}
-    </div>
-  );
-};
+    <div className="nhsuk-form-group">
+      <fieldset className="nhsuk-fieldset" aria-describedby={prompt?.id}>
+        {prompt && (
+          <>
+            <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--1">
+              <h1 className="nhsuk-fieldset__heading">{prompt.legend}</h1>
+            </legend>
 
-const CheckBox = ({
-  fieldValue,
-  fieldId,
-  fieldName,
-  prompt,
-}: CheckBoxProps) => {
-  return (
-    <div className="nhsuk-checkboxes__item">
-      <input
-        className="nhsuk-checkboxes__input"
-        id={fieldId}
-        name={fieldName}
-        type="checkbox"
-        value={fieldValue}
-      />
-      <label className="nhsuk-label nhsuk-checkboxes__label" htmlFor={fieldId}>
-        {prompt}
-      </label>
+            <div className="nhsuk-hint" id={prompt.id}>
+              {prompt.hint}
+            </div>
+          </>
+        )}
+
+        <div className="nhsuk-checkboxes">{children}</div>
+      </fieldset>
     </div>
   );
 };

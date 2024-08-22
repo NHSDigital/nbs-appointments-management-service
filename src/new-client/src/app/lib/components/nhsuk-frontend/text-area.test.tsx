@@ -1,11 +1,11 @@
 import { screen } from '@testing-library/react';
 import render from '../../../testing/render';
-import { TextInput } from '@nhsuk-frontend-components';
+import { TextArea } from '@nhsuk-frontend-components';
 
-describe('Text Input', () => {
+describe('Text Area', () => {
   it('renders', () => {
     render(
-      <TextInput
+      <TextArea
         id={'123'}
         name={'test-field'}
         label={'Enter some text, please:'}
@@ -19,7 +19,7 @@ describe('Text Input', () => {
 
   it('permits user input', async () => {
     const { user } = render(
-      <TextInput
+      <TextArea
         id={'123'}
         name={'test-field'}
         label={'Enter some text, please:'}

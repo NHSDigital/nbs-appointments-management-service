@@ -1,31 +1,16 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
-import { CheckBoxes, CheckBoxProps } from '@nhsuk-frontend-components';
-
-const mockCheckboxes: CheckBoxProps[] = [
-  {
-    prompt: 'Apples',
-    fieldValue: 'apples',
-    fieldId: 'checkbox-1',
-    fieldName: 'apples',
-  },
-  {
-    prompt: 'Oranges',
-    fieldValue: 'oranges',
-    fieldId: 'checkbox-2',
-    fieldName: 'oranges',
-  },
-  {
-    prompt: 'Bananas',
-    fieldValue: 'bananas',
-    fieldId: 'checkbox-3',
-    fieldName: 'bananas',
-  },
-];
+import { CheckBox, CheckBoxes } from '@nhsuk-frontend-components';
 
 describe('Checkboxes', () => {
   it('renders', () => {
-    render(<CheckBoxes checkboxes={mockCheckboxes} />);
+    render(
+      <CheckBoxes>
+        <CheckBox label={'Apples'} value={'apples'} id="apples"></CheckBox>
+        <CheckBox label={'Oranges'} value={'oranges'} id="oranges"></CheckBox>
+        <CheckBox label={'Bananas'} value={'bananas'} id="bananas"></CheckBox>
+      </CheckBoxes>,
+    );
 
     expect(
       screen.getByRole('checkbox', { name: 'Apples' }),
@@ -39,7 +24,13 @@ describe('Checkboxes', () => {
   });
 
   it('alters input when clicked', async () => {
-    const { user } = render(<CheckBoxes checkboxes={mockCheckboxes} />);
+    const { user } = render(
+      <CheckBoxes>
+        <CheckBox label={'Apples'} value={'apples'} id="apples"></CheckBox>
+        <CheckBox label={'Oranges'} value={'oranges'} id="oranges"></CheckBox>
+        <CheckBox label={'Bananas'} value={'bananas'} id="bananas"></CheckBox>
+      </CheckBoxes>,
+    );
 
     const checkBoxOne = screen.getByRole('checkbox', { name: 'Apples' });
 

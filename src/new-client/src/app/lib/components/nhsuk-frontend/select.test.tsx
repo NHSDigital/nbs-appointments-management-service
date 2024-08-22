@@ -10,13 +10,17 @@ const mockOptions = [
 
 describe('Select', () => {
   it('renders', () => {
-    render(<Select options={mockOptions} />);
+    render(
+      <Select label="Which fruit would you like?" options={mockOptions} />,
+    );
 
     expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
 
   it('allows the user to select an option', async () => {
-    const { user } = render(<Select options={mockOptions} />);
+    const { user } = render(
+      <Select label="Which fruit would you like?" options={mockOptions} />,
+    );
 
     const selectElement = screen.getByRole('combobox');
     expect(selectElement).toHaveValue('apples');

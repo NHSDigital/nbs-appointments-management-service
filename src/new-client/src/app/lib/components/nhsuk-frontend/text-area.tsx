@@ -2,28 +2,29 @@ import { forwardRef, HTMLProps } from 'react';
 
 type Props = {
   label: string;
-} & HTMLProps<HTMLInputElement>;
-type Ref = HTMLInputElement;
+} & HTMLProps<HTMLTextAreaElement>;
+type Ref = HTMLTextAreaElement;
 
 /**
- * A text input component adhering to the NHS UK Frontend design system.
+ * A text area component adhering to the NHS UK Frontend design system.
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
- * @see https://service-manual.nhs.uk/design-system/components/text-input
+ * @see https://service-manual.nhs.uk/design-system/components/text-area
  */
-export const TextInput = forwardRef<Ref, Props>((props, ref) => (
+export const TextArea = forwardRef<Ref, Props>((props, ref) => (
   <div className="nhsuk-form-group">
     <label className="nhsuk-label" htmlFor={props.id}>
       {props.label}
     </label>
-    <input
-      className="nhsuk-input"
+    <textarea
+      className="nhsuk-textarea"
       type="text"
       ref={ref}
+      rows={props.rows ?? 5}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
   </div>
 ));
-TextInput.displayName = 'TextInput';
+TextArea.displayName = 'TextArea';
 
-export default TextInput;
+export default TextArea;

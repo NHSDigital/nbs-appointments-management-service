@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import AssignRolesForm from './assign-roles-form';
 import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
-import userEvent from '@testing-library/user-event';
 import { mockRoles } from '@testing/data';
+import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
 
 jest.mock('next/navigation');
@@ -51,7 +51,7 @@ describe('Assign Roles Form', () => {
     expect(screen.getByRole('checkbox', { name: 'Role 3' })).toBeChecked();
   });
   it('display a validation error when attempting to submit the form with no roles selected', async () => {
-    render(
+    const { user } = render(
       <AssignRolesForm
         site="TEST"
         user="test@nhs.net"
@@ -59,15 +59,17 @@ describe('Assign Roles Form', () => {
         roles={mockRoles}
       />,
     );
-    const submitButton = screen.getByRole('button', { name: 'save user' });
-    await userEvent.click(submitButton);
+    const submitButton = screen.getByRole('button', {
+      name: 'Confirm and save',
+    });
+    await user.click(submitButton);
 
     expect(
       screen.getByText('You have not selected any roles for this user'),
     ).toBeVisible();
   });
   it('returns the user to the users list when they cancel', async () => {
-    render(
+    const { user } = render(
       <AssignRolesForm
         site="TEST"
         user="test@nhs.net"
@@ -75,13 +77,13 @@ describe('Assign Roles Form', () => {
         roles={mockRoles}
       />,
     );
-    const cancelButton = screen.getByRole('button', { name: 'cancel' });
-    await userEvent.click(cancelButton);
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await user.click(cancelButton);
 
     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
   });
   it('calls the save function when saved', async () => {
-    render(
+    const { user } = render(
       <AssignRolesForm
         site="TEST"
         user="test@nhs.net"
@@ -90,9 +92,9 @@ describe('Assign Roles Form', () => {
       />,
     );
     const checkBox = screen.getByRole('checkbox', { name: 'Role 1' });
-    await userEvent.click(checkBox);
-    const saveButton = screen.getByRole('button', { name: 'save user' });
-    await userEvent.click(saveButton);
+    await user.click(checkBox);
+    const saveButton = screen.getByRole('button', { name: 'Confirm and save' });
+    await user.click(saveButton);
 
     expect(mockSaveUserRoleAssignments).toHaveBeenCalledWith(
       'TEST',

@@ -52,7 +52,7 @@ describe('Nhs Page', () => {
         { name: 'Level One', href: '/' },
         { name: 'Level Two', href: '/' },
       ],
-      omitTitleFromBreadcrumb: true,
+      omitTitleFromBreadcrumbs: true,
     });
     render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();

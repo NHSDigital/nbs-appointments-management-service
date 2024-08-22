@@ -3,7 +3,7 @@ import AssignRolesForm from './assign-roles-form';
 import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import userEvent from '@testing-library/user-event';
-import { mockRoles } from '../../../../testing/data';
+import { mockRoles } from '@testing/data';
 import * as appointmentsService from '@services/appointmentsService';
 
 jest.mock('next/navigation');

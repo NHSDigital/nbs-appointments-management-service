@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { SitePage } from './site-page';
-import { mockSites } from '../../testing/data';
+import { mockSites } from '@testing/data';
 
 describe('Site Page', () => {
   it('should render the appropriate site information', async () => {

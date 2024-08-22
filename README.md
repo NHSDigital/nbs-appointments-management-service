@@ -125,3 +125,24 @@ Alternatively, you can upload these files one at a time yourself through the [em
 
 REST calls using an API user must be signed (via HMAC) using the key associated with the api user.
 The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls
+
+## Tests
+
+### Frontend Unit Tests (using Jest)
+
+From `~/src/new-client`:
+
+- Ensure you have ran `npm i`
+- Simply run `npm run test`
+
+If running the workspace in VS Code, the Jest tests should be automatically discovered in the test explorer window. You should be able to run and debug them via the UI.
+
+### Frontend E2E Tests (using Playwright)
+
+From `~/src/new-client`:
+
+- Ensure you have ran `npm i`
+- The very first time you run the tests you will need to run `npx playwright install`. This instructs Playwright to download and instantiate the latest version of the browsers it requires.
+- Ensure the Docker and .NET services are running following their respective setup commands (In the future we hope to be set these up automatically)
+- Optionally run the frontend app (If you're not already running it, Playwright will start it up for you)
+- Run `npm run test:e2e`. Optionally if you wish to view a step-by-step visual output of each test, run `npm run test:e2e:ui`.

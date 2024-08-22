@@ -14,7 +14,7 @@ const Page = async () => {
   return (
     <NhsPage
       title="Appointment Management Service"
-      omitTitleFromBreadcrumb={true}
+      omitTitleFromBreadcrumbs={true}
     >
       <HomePage sites={userProfile?.availableSites ?? []} />
     </NhsPage>

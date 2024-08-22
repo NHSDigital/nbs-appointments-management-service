@@ -15,6 +15,7 @@ export default function Error({
       title="Appointment Management Service - Site"
       message={error.message}
       breadcrumbs={[{ name: `Site ${site}` }]}
+      omitTitleFromBreadcrumbs={true}
     />
   );
 }

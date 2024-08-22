@@ -11,6 +11,7 @@ export default function Error({
     <NhsErrorPage
       title="Appointment Management Service"
       message={error.message}
+      omitTitleFromBreadcrumbs={true}
     />
   );
 }

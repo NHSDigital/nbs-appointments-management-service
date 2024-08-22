@@ -21,10 +21,7 @@ const Page = async ({ params }: PageProps) => {
   return (
     <NhsPage
       title="Manage Staff Roles"
-      breadcrumbs={[
-        { name: siteMoniker, href: `/site/${params.site}` },
-        { name: 'Users' },
-      ]}
+      breadcrumbs={[{ name: siteMoniker, href: `/site/${params.site}` }]}
     >
       <UsersPage users={users} roles={rolesResponse?.roles ?? []} />
     </NhsPage>

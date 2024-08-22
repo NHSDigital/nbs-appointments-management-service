@@ -14,10 +14,7 @@ export default function Error({
     <NhsErrorPage
       title="Manage Staff Roles"
       message={error.message}
-      breadcrumbs={[
-        { name: `Site ${site}`, href: `/site/${site}` },
-        { name: `Users` },
-      ]}
+      breadcrumbs={[{ name: `Site ${site}`, href: `/site/${site}` }]}
     />
   );
 }

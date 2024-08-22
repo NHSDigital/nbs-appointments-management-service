@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { EMAIL_REGEX } from '../../../../../constants';
+import { TextInput, FormGroup, Button } from '@nhsuk-frontend-components';
 
 type FormFields = {
   email: string;
@@ -37,47 +38,31 @@ const FindUserForm = ({ site }: { site: string }) => {
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <div
-        className={`nhsuk-form-group ${errors.email ? 'nhsuk-form-group--error' : ''}`}
+      <FormGroup
+        error={
+          errors.email
+            ? 'You have not entered a valid NHS email address'
+            : undefined
+        }
       >
-        <div className="nhsuk-form-group">
-          {errors.email && (
-            <span className="nhsuk-error-message">
-              <span className="nhsuk-u-visually-hidden">Error:</span> You have
-              not entered a valid NHS email address
-            </span>
-          )}
-          <label htmlFor="email" className="nhsuk-label">
-            Email
-          </label>
-          <input
-            id="email"
-            aria-label="enter an email address"
-            className="nhsuk-input nhsuk-input--width-20"
-            type="text"
-            {...register('email', {
-              required: true,
-              pattern: EMAIL_REGEX,
-            })}
-          />
-        </div>
+        <TextInput
+          id="email"
+          label="Enter an email address"
+          {...register('email', {
+            required: true,
+            pattern: EMAIL_REGEX,
+          })}
+        ></TextInput>
+      </FormGroup>
 
-        <div className="nhsuk-navigation">
-          <button
-            type="submit"
-            aria-label="Search user"
-            className="nhsuk-button nhsuk-u-margin-bottom-0"
-          >
-            Search user
-          </button>
-          <button
-            type="button"
-            aria-label="cancel"
-            className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
-            onClick={cancel}
-          >
+      <div className="nhsuk-grid-row">
+        <div className="nhsuk-grid-column-one-half">
+          <Button type="submit">Search user</Button>
+        </div>
+        <div className="nhsuk-grid-column-one-quarter">
+          <Button styleType="secondary" onClick={cancel}>
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </form>

@@ -1,9 +1,10 @@
 import { HTMLProps } from 'react';
 
-type ButtonType = 'primary' | 'secondary' | 'reverse' | 'warning';
+type ButtonStyleType = 'primary' | 'secondary' | 'reverse' | 'warning';
 
 type Props = HTMLProps<HTMLButtonElement> & {
-  type?: ButtonType;
+  styleType?: ButtonStyleType;
+  type?: 'submit' | 'reset' | 'button';
 };
 
 /**
@@ -11,20 +12,28 @@ type Props = HTMLProps<HTMLButtonElement> & {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/buttons
  */
-const Button = ({ type = 'primary', onClick, children }: Props) => {
+const Button = ({
+  styleType = 'primary',
+  onClick,
+  children,
+  type = 'button',
+  ...rest
+}: Props) => {
   return (
     <button
-      className={getClassForType(type)}
+      className={getClassForType(styleType)}
       data-module="nhsuk-button"
-      type="submit"
       onClick={onClick}
+      type={type}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...rest}
     >
       {children}
     </button>
   );
 };
 
-const getClassForType = (type: ButtonType): string => {
+const getClassForType = (type: ButtonStyleType): string => {
   switch (type) {
     case 'secondary':
       return 'nhsuk-button nhsuk-button--secondary';

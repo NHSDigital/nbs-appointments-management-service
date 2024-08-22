@@ -1,6 +1,7 @@
 import Breadcrumbs, { Breadcrumb } from './breadcrumbs';
 import Button from './button';
 import Fieldset from './fieldset';
+import FormGroup from './form-group';
 import Header from './header';
 import NhsLogo from './icons/nhs-logo';
 import CheckBox from './checkbox';
@@ -18,6 +19,7 @@ export {
   Breadcrumbs,
   Button,
   Fieldset,
+  FormGroup,
   Card,
   CheckBox,
   CheckBoxes,

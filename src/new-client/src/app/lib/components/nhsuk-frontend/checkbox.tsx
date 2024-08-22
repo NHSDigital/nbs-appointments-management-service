@@ -2,6 +2,7 @@ import { forwardRef, HTMLProps } from 'react';
 
 type Props = {
   label: string;
+  hint?: string;
 } & HTMLProps<HTMLInputElement>;
 type Ref = HTMLInputElement;
 
@@ -16,12 +17,19 @@ export const CheckBox = forwardRef<Ref, Props>((props, ref) => (
       className="nhsuk-checkboxes__input"
       type="checkbox"
       ref={ref}
+      aria-describedby={props.hint ? `${props.id}-item-hint` : undefined}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
     <label className="nhsuk-label nhsuk-checkboxes__label" htmlFor={props.id}>
       {props.label}
     </label>
+    <div
+      className="nhsuk-hint nhsuk-checkboxes__hint"
+      id={`${props.id}-item-hint`}
+    >
+      {props.hint}
+    </div>
   </div>
 ));
 CheckBox.displayName = 'CheckBox';

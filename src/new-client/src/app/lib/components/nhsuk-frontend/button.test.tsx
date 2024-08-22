@@ -29,7 +29,9 @@ describe('Button', () => {
     'uses the appropriate class for button type $type',
     ({ type, expectedClass }) => {
       render(
-        <Button type={type as 'primary' | 'secondary' | 'reverse' | 'warning'}>
+        <Button
+          styleType={type as 'primary' | 'secondary' | 'reverse' | 'warning'}
+        >
           Click me!
         </Button>,
       );

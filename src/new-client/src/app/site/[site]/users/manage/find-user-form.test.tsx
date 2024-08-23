@@ -31,7 +31,7 @@ describe('FindUserForm', () => {
 
     const searchButton = screen.getByRole('button', { name: 'Search user' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'enter an email address',
+      name: 'Enter an email address',
     });
 
     await user.type(emailInput, 'test@test.com');
@@ -45,7 +45,7 @@ describe('FindUserForm', () => {
   it('takes the user to the main user page when they cancel', async () => {
     const { user } = render(<FindUserForm site="TEST" />);
 
-    const cancelButton = screen.getByRole('button', { name: 'cancel' });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await user.click(cancelButton);
 
     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
@@ -56,7 +56,7 @@ describe('FindUserForm', () => {
 
     const searchButton = screen.getByRole('button', { name: 'Search user' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'enter an email address',
+      name: 'Enter an email address',
     });
 
     await user.type(emailInput, 'test@nhs.net');

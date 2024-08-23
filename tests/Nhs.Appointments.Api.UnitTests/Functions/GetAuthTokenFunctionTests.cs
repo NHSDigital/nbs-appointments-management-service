@@ -16,14 +16,13 @@ public class GetAuthTokenFunctionTests
     {
         _options.Setup(x => x.Value).Returns(new AuthOptions
         {
-            ProviderUri = "https://test.oauth.com",
-            AuthorizePath = "auth",
+            AuthorizeUri = "https://test.oauth.com/auth",
             ReturnUri = "http://localhost",
             ClientId = "123",
             ChallengePhrase = "123",
-            JwksPath = "jwks",
+            JwksUri = "https://test.oauth.com/jwks",
             Issuer = "123",
-            TokenPath = "token"
+            TokenUri = "https://test.oauth.com/token"
         });
 
         _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object);

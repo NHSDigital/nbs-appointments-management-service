@@ -16,7 +16,7 @@ public class BearerTokenRequestAuthenticatorTests
 
     public BearerTokenRequestAuthenticatorTests()
     {
-        _options.Setup(x => x.Value).Returns(new AuthOptions { ProviderUri = "https://test.oauth.com", JwksPath = "jwks" });
+        _options.Setup(x => x.Value).Returns(new AuthOptions { JwksUri = "https://test.oauth.com/jwks" });
         _sut = new BearerTokenRequestAuthenticator(_validator.Object, _jwksRetriever.Object, _options.Object);
     }
 

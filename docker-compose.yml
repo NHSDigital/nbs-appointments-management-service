@@ -2,11 +2,14 @@ version: '3.4'
 
 services:
   cosmos:
-    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    image: ghcr.io/pikami/cosmium
     ports:
       - "8081:8081"
-      - "10250-10255:10250-10255"
-
+    volumes:
+      - "./save.json:/save.json"
+    environment:
+      Persist: /save.json
+  
   mock-api:
     image: xmlsolutions/mock-api:3.18
     environment:
@@ -16,6 +19,47 @@ services:
       - "./mock-api:/app/config"
     ports:
       - "4011:80"
+  
+  next-app:
+    container_name: next-app
+    build:
+      context: .
+      dockerfile: src/new-client/web.Dockerfile
+
+    environment:
+      NBS_API_BASE_URL: http://api:80
+      AUTH_HOST: http://localhost:7071
+
+    volumes:
+      - ./src/new-client/src:/app/src
+      - ./src/new-client/public:/app/public
+    restart: always
+    ports:
+      - 3000:3000
+  
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: src/api/api.Dockerfile
+    ports:
+      - 7071:80
+    environment:
+      - AzureWebJobsStorage="UseDevelopmentStorage=true"
+      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - COSMOS_ENDPOINT=https://cosmos:8081
+      - COSMOS_TOKEN=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+      - COSMOS_IGNORE_SSL_CERT=true
+      - APIM_ENDPOINT=http://mock-api
+      - LEASE_MANAGER_CONNECTION=local
+      - API_KEYS=12345
+      - AuthProvider_Issuer=http://oidc-server
+      - AuthProvider_AuthorizeUri=http://localhost:8020/connect/authorize
+      - AuthProvider_TokenUri=http://oidc-server/connect/token
+      - AuthProvider_JwksUri=http://oidc-server/.well-known/openid-configuration/jwks
+      - AuthProvider_ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
+      - AuthProvider_ClientId=nhs-appts-local
+      - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
 
   oidc-server:
     image: soluto/oidc-server-mock:latest

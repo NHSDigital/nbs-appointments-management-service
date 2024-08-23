@@ -1,5 +1,6 @@
 import Breadcrumbs, { Breadcrumb } from './breadcrumbs';
 import Button from './button';
+import ButtonGroup from './button-group';
 import Fieldset from './fieldset';
 import FormGroup from './form-group';
 import Header from './header';
@@ -18,6 +19,7 @@ export type { Breadcrumb };
 export {
   Breadcrumbs,
   Button,
+  ButtonGroup,
   Fieldset,
   FormGroup,
   Card,

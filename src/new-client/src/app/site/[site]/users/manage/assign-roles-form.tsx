@@ -10,6 +10,7 @@ import {
   FormGroup,
   CheckBoxes,
   CheckBox,
+  ButtonGroup,
 } from '@nhsuk-frontend-components';
 
 type FormFields = {
@@ -68,18 +69,12 @@ const AssignRolesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      <div className="nhsuk-grid-row">
-        <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-one-half">
-            <Button type="submit">Confirm and save</Button>
-          </div>
-          <div className="nhsuk-grid-column-one-half">
-            <Button styleType="secondary" onClick={cancel}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ButtonGroup>
+        <Button type="submit">Confirm and save</Button>
+        <Button styleType="secondary" onClick={cancel}>
+          Cancel
+        </Button>
+      </ButtonGroup>
     </form>
   );
 };

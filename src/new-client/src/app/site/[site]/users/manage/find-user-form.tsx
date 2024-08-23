@@ -4,7 +4,12 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { EMAIL_REGEX } from '../../../../../constants';
-import { TextInput, FormGroup, Button } from '@nhsuk-frontend-components';
+import {
+  TextInput,
+  FormGroup,
+  Button,
+  ButtonGroup,
+} from '@nhsuk-frontend-components';
 
 type FormFields = {
   email: string;
@@ -55,16 +60,12 @@ const FindUserForm = ({ site }: { site: string }) => {
         ></TextInput>
       </FormGroup>
 
-      <div className="nhsuk-grid-row">
-        <div className="nhsuk-grid-column-one-half">
-          <Button type="submit">Search user</Button>
-        </div>
-        <div className="nhsuk-grid-column-one-quarter">
-          <Button styleType="secondary" onClick={cancel}>
-            Cancel
-          </Button>
-        </div>
-      </div>
+      <ButtonGroup>
+        <Button type="submit">Search user</Button>
+        <Button styleType="secondary" onClick={cancel}>
+          Cancel
+        </Button>
+      </ButtonGroup>
     </form>
   );
 };

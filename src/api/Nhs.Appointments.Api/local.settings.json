@@ -17,7 +17,8 @@
     "AuthProvider_ChallengePhrase": "ThisIsntRandomButItNeedsToBe43CharactersLong",
     "AuthProvider_ClientId": "nhs-appts-local",
     "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
-    "GovNotifyApiKey": "dev-402590d1-889d-487f-8f60-38f78ea50a61-a07045a9-f79b-419d-bb45-0b1ac771b566",
+    "Notifications_Provider": "local",
+    "GovNotifyApiKey": "test",
     "UserRolesChangedEmailTemplateId": "742e84b2-5d93-4d03-92f0-27252174c342"
   },  
   "Host": {"CORS": "*"}

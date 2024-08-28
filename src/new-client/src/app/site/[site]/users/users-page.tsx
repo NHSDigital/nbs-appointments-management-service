@@ -13,6 +13,7 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
     roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
+  const canSeeAdminControls = permissions.includes('users:manage');
 
   return (
     <>
@@ -20,18 +21,14 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
         <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
           Manage your current site's staff roles
         </span>
-        {permissions.includes('users:manage') && (
+        {canSeeAdminControls === true && (
           <span>
             <AddRoleAssignmentsButton />
           </span>
         )}
       </div>
       <Table
-        headers={[
-          'Email',
-          'Roles',
-          ...[permissions.includes('users:manage') ? ['Manage'] : []],
-        ]}
+        headers={['Email', 'Roles', ...[canSeeAdminControls ? ['Manage'] : []]]}
         rows={users.map(user => {
           return [
             user.id,
@@ -40,7 +37,7 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
               ?.map(ra => getRoleName(ra.role))
               ?.join(' | '),
             ...[
-              permissions.includes('users:manage')
+              canSeeAdminControls
                 ? [<EditRoleAssignmentsButton key={user.id} user={user.id} />]
                 : [],
             ],

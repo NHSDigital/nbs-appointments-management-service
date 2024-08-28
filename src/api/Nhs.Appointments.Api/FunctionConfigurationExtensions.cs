@@ -78,53 +78,40 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
-            .AddTransient<IPermissionChecker, PermissionChecker>()
-            .AddTransient<IUserRolesChangedNotifier>(x => new UserRolesChangedNotifier(x.GetService<NotificationClient>(), Environment.GetEnvironmentVariable("UserRolesChangedEmailTemplateId")))
-            .AddScoped<IMessageBus, MassTransitBusWrapper>()
+            .AddTransient<IPermissionChecker, PermissionChecker>()            
             .AddSingleton(TimeProvider.System)
+            .AddUserNotifications()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
-    var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
-    if (leaseManagerConnection == "local")
-        builder.Services.AddInMemoryLeasing();
-    else
-        builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
+        var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
+        if (leaseManagerConnection == "local")
+            builder.Services.AddInMemoryLeasing();
+        else
+            builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
 
-    builder.Services.AddHttpClient("APIM", builder =>
-    {
-        builder.BaseAddress = new Uri(Environment.GetEnvironmentVariable("APIM_ENDPOINT"));
-        var subscriptionKey = Environment.GetEnvironmentVariable("APIM_SUBSCRIPTION_KEY");
-        if (subscriptionKey is not null)
+        builder.Services.AddHttpClient("APIM", builder =>
         {
-            builder.DefaultRequestHeaders.Add("Subscription-Key", subscriptionKey);
-        }
-    });
+            builder.BaseAddress = new Uri(Environment.GetEnvironmentVariable("APIM_ENDPOINT"));
+            var subscriptionKey = Environment.GetEnvironmentVariable("APIM_SUBSCRIPTION_KEY");
+            if (subscriptionKey is not null)
+            {
+                builder.DefaultRequestHeaders.Add("Subscription-Key", subscriptionKey);
+            }
+        });
 
-    var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
-    var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
-    var cosmosOptions = GetCosmosOptions(cosmosEndpoint);
+        var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
+        var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
+        var cosmosOptions = GetCosmosOptions(cosmosEndpoint);
 
-    var cosmosClient = new CosmosClient(
-            accountEndpoint: cosmosEndpoint,
-            authKeyOrResourceToken: cosmosToken,
-            clientOptions: cosmosOptions);
+        var cosmosClient = new CosmosClient(
+                accountEndpoint: cosmosEndpoint,
+                authKeyOrResourceToken: cosmosToken,
+                clientOptions: cosmosOptions);
 
-    builder.Services.AddSingleton(cosmosClient);
-    builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddSingleton(cosmosClient);
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-    SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();
-
-    // configuration for MassTransit and Notifications
-    builder.Services.AddScoped<NotifyUserRolesChangedFunction>();
-    builder.Services.AddMassTransitForAzureFunctions(cfg =>
-    {
-        cfg.AddConsumer<UserRolesChangedConsumer>();
-        cfg.AddRequestClient<UserRolesChanged>(new Uri("queue:user-role-change"));
-    });
-
-        // Gov Notify config:
-        builder.Services.AddTransient<IAsyncNotificationClient>(x => new NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")));
-
+        SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();    
 
     return builder;
     }

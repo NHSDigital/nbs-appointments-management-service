@@ -1,13 +1,13 @@
 {
-  "id": "zzz_test_user_2@nhs.net",
+  "id": "zzz_test_user_3@nhs.net",
   "docType": "user",
   "roleAssignments": [
     {
-      "role": "canned:auditer",
+      "role": "canned:check-in",
       "scope": "site:1000"
     },
     {
-      "role": "system:integration-test-user",
+      "role": "canned:check-in",
       "scope": "site:1001"
     }
   ]

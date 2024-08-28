@@ -71,6 +71,10 @@ describe('Users Page', () => {
 
     expect(screen.getByRole('columnheader', { name: 'Manage' })).toBeVisible();
     expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
+
+    expect(
+      screen.getByRole('link', { name: 'Assign staff roles' }),
+    ).toBeVisible();
   });
 
   it('omits the edit button for each user if they may not see it', async () => {
@@ -84,5 +88,9 @@ describe('Users Page', () => {
 
     expect(screen.queryByRole('columnheader', { name: 'Manage' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Edit' })).toBeNull();
+
+    expect(
+      screen.queryByRole('link', { name: 'Assign staff roles' }),
+    ).toBeNull();
   });
 });

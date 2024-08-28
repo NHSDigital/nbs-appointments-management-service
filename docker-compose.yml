@@ -85,6 +85,18 @@ services:
                 "Value": "zzz_test_user_2@nhs.net"
               },
             ]
+          },
+          {
+            "SubjectId":"zzz_test_user_3@nhs.net",
+            "Username":"testuser3",
+            "Password":"t35tP@ssw0rd_3",
+            "Claims": 
+            [
+              {
+                "Type": "email",
+                "Value": "zzz_test_user_3@nhs.net"
+              },
+            ]
           }
         ]
       CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json

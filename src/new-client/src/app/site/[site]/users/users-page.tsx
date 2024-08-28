@@ -20,9 +20,11 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
         <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
           Manage your current site's staff roles
         </span>
-        <span>
-          <AddRoleAssignmentsButton />
-        </span>
+        {permissions.includes('users:manage') && (
+          <span>
+            <AddRoleAssignmentsButton />
+          </span>
+        )}
       </div>
       <Table
         headers={[

@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Api.Messaging;
+﻿using Nhs.Appointments.Core.Messaging;
 using System;
 using System.Threading.Tasks;
 

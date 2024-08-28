@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Events;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Api.Messaging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
@@ -17,30 +15,29 @@ public class SetUserRolesFunctionTests
     private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<ILogger<SetUserRolesFunction>> _logger = new();
-    private readonly Mock<IMessageBus> _bus = new();
     public SetUserRolesFunctionTests()
     {
-        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object, _bus.Object);
+        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object);
     }
 
     [Fact]
-    public async Task RaisesEventWhenRolesChange()
+    public async Task InvokesUserServiceWhenRolesChange()
     {
         const string User = "test@user.com";
         string[] roles = ["role1"];
         const string scope = "any";
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
-        
-        _bus.Setup(b => b.Send(It.Is<UserRolesChanged>(e => e.User == User && Enumerable.SequenceEqual(e.Roles, roles)))).Verifiable();
+
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))));
         
         await _sut.Invoke(request);
-        
-        _bus.Verify();
+
+        _userService.Verify();
     }
 
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
-        public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMessageBus bus) : base(userService, validator, userContextProvider, logger, bus)
+        public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) : base(userService, validator, userContextProvider, logger)
         {
         }
 

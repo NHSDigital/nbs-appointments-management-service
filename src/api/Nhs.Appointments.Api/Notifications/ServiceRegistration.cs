@@ -1,10 +1,9 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Consumers;
-using Nhs.Appointments.Api.Events;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Api.Messaging;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 using Notify.Client;
 using Notify.Interfaces;
 using System;

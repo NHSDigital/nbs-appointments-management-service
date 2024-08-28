@@ -1,12 +1,7 @@
 ﻿using MassTransit;
-using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api.Messaging
+namespace Nhs.Appointments.Core.Messaging
 {
-    public interface IMessageBus
-    {
-        Task Send<T> (T message);
-    }
     public class MassTransitBusWrapper : IMessageBus
     {
         private readonly IBus _bus;

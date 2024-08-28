@@ -18,7 +18,7 @@ public class NotifyUserRolesChangedFunction
     }
 
     [FunctionName("NotifyUserRolesChanged")]
-    public Task SubmitOrderAsync([ServiceBusTrigger(UserRolesChangedQueueName)] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+    public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(UserRolesChangedQueueName)] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
         return _receiver.HandleConsumer<UserRolesChangedConsumer>(UserRolesChangedQueueName, message, cancellationToken);
     }

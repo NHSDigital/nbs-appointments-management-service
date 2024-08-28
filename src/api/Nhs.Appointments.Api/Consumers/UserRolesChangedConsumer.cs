@@ -1,6 +1,6 @@
 ﻿using MassTransit;
-using Nhs.Appointments.Api.Events;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Core.Messaging.Events;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Consumers
@@ -16,8 +16,7 @@ namespace Nhs.Appointments.Api.Consumers
 
         public Task Consume(ConsumeContext<UserRolesChanged> context)
         {
-            return _notifier.Notify(context.Message.User, context.Message.Roles);
-
+            return _notifier.Notify(context.Message.User, context.Message.Added, context.Message.Removed);
         }
     }
 

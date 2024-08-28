@@ -11,21 +11,11 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Api.Auth;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
-using MassTransit;
-using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Api.Consumers;
-using Nhs.Appointments.Api.Events;
 using Nhs.Appointments.Api.Notifications;
-using Notify.Client;
-using Notify.Models;
-using Notify.Models.Responses;
-using Nhs.Appointments.Api.Messaging;
-using Notify.Interfaces;
 
 namespace Nhs.Appointments.Api;
 

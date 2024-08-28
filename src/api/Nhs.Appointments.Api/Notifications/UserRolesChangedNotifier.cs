@@ -7,10 +7,6 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications
 {
-    public interface IUserRolesChangedNotifier
-    {
-        Task Notify(string user, params string[] roles);
-    }
 
     public class UserRolesChangedNotifier : IUserRolesChangedNotifier
     {
@@ -23,12 +19,13 @@ namespace Nhs.Appointments.Api.Notifications
             _emailTemplateId = options.Value.EmailTemplateId;
         }
 
-        public async Task Notify(string user, params string[] roles)
+        public async Task Notify(string user, string[] rolesAdded, string[] rolesRemoved)
         {
             var templateValues = new Dictionary<string, dynamic>
             {
                 {"user", user},
-                {"roles", string.Join(", ", roles)}
+                {"rolesAdded", string.Join(", ", rolesAdded)},
+                {"rolesRemoved", string.Join(", ", rolesRemoved)}
             };
 
             await _notificationClient.SendEmailAsync(user, _emailTemplateId, templateValues);

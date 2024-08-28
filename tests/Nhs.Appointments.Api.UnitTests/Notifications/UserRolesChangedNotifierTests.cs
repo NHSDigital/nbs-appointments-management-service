@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Options;
+using Moq;
 using Nhs.Appointments.Api.Notifications;
 using Notify.Interfaces;
 
@@ -12,14 +13,17 @@ namespace Nhs.Appointments.Api.Tests.Notifications
         private const string Email = "test@user";
         public UserRolesChangedNotifierTests()
         {
-            _sut = new UserRolesChangedNotifier(_notificationClient.Object, TemplateId);
+            var opts = new Mock<IOptions<UserRolesChangedNotifier.Options>>();
+            opts.SetupGet(x => x.Value).Returns(new UserRolesChangedNotifier.Options { EmailTemplateId = TemplateId});
+            _sut = new UserRolesChangedNotifier(_notificationClient.Object, opts.Object);
         }
 
         [Fact]
-        public async Task SendsEmailUsingGovNotify()
+        public async Task PassesValuesToGovNotifyService()
         {
-            _notificationClient.Setup(x => x.SendEmailAsync(Email, TemplateId, It.IsAny<Dictionary<string, dynamic>>(), null, null, null)).Verifiable();
-            await _sut.Notify(Email, ["role1"]);
+            _notificationClient.Setup(x => x.SendEmailAsync(Email, TemplateId, It.Is<Dictionary<string, dynamic>>(dic => dic.ContainsKey("rolesAdded") && dic.ContainsKey("rolesRemoved")), null, null, null)).Verifiable();
+
+            await _sut.Notify(Email, ["newRole"], ["removedRole"]);
             _notificationClient.Verify();
         }
     }

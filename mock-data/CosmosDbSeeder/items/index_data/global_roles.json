@@ -38,7 +38,7 @@
     },
     {
       "id": "canned:auditer",
-      "name": "Auditer (read only)",
+      "name": "Auditer",
       "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
       "permissions": [
         "site:get-config",

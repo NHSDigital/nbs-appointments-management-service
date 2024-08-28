@@ -1,0 +1,14 @@
+{
+  "id": "zzz_test_user_2@nhs.net",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "canned:auditer",
+      "scope": "site:1000"
+    },
+    {
+      "role": "canned:auditer",
+      "scope": "site:1001"
+    }
+  ]
+}

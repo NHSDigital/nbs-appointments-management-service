@@ -13,7 +13,7 @@ export default class OAuthLoginPage extends RootPage {
   }
 
   async signIn(
-    user: { username: string; password: string } = env.TEST_USERS.default,
+    user: { username: string; password: string } = env.TEST_USERS.testUser1,
   ) {
     await this.page.getByLabel('Username').fill(user.username);
     await this.page.getByLabel('Password').fill(user.password);

@@ -5,9 +5,10 @@ import { Role, User } from '@types';
 type Props = {
   users: User[];
   roles: Role[];
+  permissions: string[];
 };
 
-export const UsersPage = ({ users, roles }: Props) => {
+export const UsersPage = ({ users, roles, permissions }: Props) => {
   const isVisibleRole = (role: string) =>
     roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
@@ -24,7 +25,11 @@ export const UsersPage = ({ users, roles }: Props) => {
         </span>
       </div>
       <Table
-        headers={['Email', 'Roles', 'Manage']}
+        headers={[
+          'Email',
+          'Roles',
+          ...[permissions.includes('users:manage') ? ['Manage'] : []],
+        ]}
         rows={users.map(user => {
           return [
             user.id,
@@ -32,7 +37,11 @@ export const UsersPage = ({ users, roles }: Props) => {
               .filter(ra => isVisibleRole(ra.role))
               ?.map(ra => getRoleName(ra.role))
               ?.join(' | '),
-            <EditRoleAssignmentsButton key={user.id} user={user.id} />,
+            ...[
+              permissions.includes('users:manage')
+                ? [<EditRoleAssignmentsButton key={user.id} user={user.id} />]
+                : [],
+            ],
           ];
         })}
       />

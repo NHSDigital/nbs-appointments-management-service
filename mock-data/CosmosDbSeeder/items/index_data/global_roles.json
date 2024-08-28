@@ -37,6 +37,19 @@
       "permissions": ["users:manage", "users:view"]
     },
     {
+      "id": "canned:auditer",
+      "name": "Auditer (read only)",
+      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
+      "permissions": [
+        "site:get-config",
+        "site:get-meta-data",
+        "availability:get-setup",
+        "availability:query",
+        "booking:query",
+        "users:view"
+      ]
+    },
+    {
       "id": "system:api-user",
       "name": "Api User",
       "description": "This is a dedicated NBS role",
@@ -63,7 +76,7 @@
         "booking:cancel",
         "booking:set-status",
         "users:manage",
-        "user:view"
+        "users:view"
       ]
     },
     {
@@ -78,7 +91,8 @@
         "booking:cancel",
         "site:set-config",
         "availability:get-setup",
-        "users:manage"
+        "users:manage",
+        "users:view"
       ]
     }
   ]

@@ -40,15 +40,15 @@ export async function fetchRoles() {
     'roles?tag=canned',
   );
 
-  return handleResponse(response);
+  return handleResponse(response)?.roles ?? [];
 }
 
 export async function fetchPermissions(site: string) {
-  const response = await appointmentsApi.get<string[]>(
+  const response = await appointmentsApi.get<{ permissions: string[] }>(
     `user/permissions?site=${site}`,
   );
 
-  return handleResponse(response) ?? [];
+  return handleResponse(response)?.permissions ?? [];
 }
 
 function handleResponse<T>(

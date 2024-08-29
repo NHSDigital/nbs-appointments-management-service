@@ -18,7 +18,6 @@ variables:
   amsWebServerName: 'nbs-appts-wa-dev-uks'
   resourceGroupName: 'nbs-appts-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
-  PR_BUILD_ID: '$(Build.SourceVersion)'
 
 stages:
   - stage: Build
@@ -113,6 +112,10 @@ stages:
       - job: "RunIntegrationAndE2ETests"
         displayName: Run integration and E2E tests
         steps:
+          - powershell: |
+              $shortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
+              Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$shortCommitHash"
+            displayName: Set Short Hash
           - task: AzureCLI@2
             displayName: 'Create cosmos account'
             inputs:
@@ -131,7 +134,7 @@ stages:
             displayName: "Print env var"
           - script: |
               docker compose up --build --detach
-            displayName: "Start docker containers" 
+            displayName: "Start docker containers"
           - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:
@@ -145,14 +148,8 @@ stages:
               testRunTitle: NBS Appointments Management Service Integration Tests
               testResultsFormat: 'VSTest'
               publishRunAttachments: true
-              searchFolder: '$(System.DefaultWorkingDirectory)\tests\Nhs.Appointments.Api.Integration\TestResults'
+              searchFolder: 'tests/Nhs.Appointments.Api.Integration/TestResults'
             condition: succeededOrFailed()
-          - task: DotNetCoreCLI@2
-            displayName: "Run Integration Tests"
-            inputs:
-              command: "test"
-              projects: "$(integrationTestProjectPath)"
-              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
           - task: DotNetCoreCLI@2
             displayName: "Reset and seed cosmos containers"
             inputs:
@@ -163,20 +160,21 @@ stages:
             inputs:
               version: 20.x
           - script: |
-              cd /src/new-client
+              cd ./src/new-client
               npm ci
               npm run test:e2e
             displayName: "Run E2E tests"
+            env:
+              CI: "true"
           - task: AzureCLI@2
             displayName: 'Delete cosmos account'
+            condition: or(succeeded(), canceled())
             inputs:
               azureSubscription: $(azure_devops_subscription_name)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
-              condition: always()
-          
-              
+
   - stage: DeployDev
     condition: and(succeeded(), eq(variables.isMain, true))
     variables:

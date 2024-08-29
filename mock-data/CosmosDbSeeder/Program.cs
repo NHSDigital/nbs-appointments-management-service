@@ -16,11 +16,11 @@ class Program
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
 
-        //TODO Add ability to use local and CI config for endpoint and token
-        var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT");
-        var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN");
+        var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
+        var cosmosToken = configuration["COSMOS_TOKEN"];
         var databaseName = configuration["CosmosSettings:DatabaseName"];
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
 

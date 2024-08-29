@@ -21,6 +21,3 @@ $cosmosPrimaryKey = $NameValue.AccountKey
 
 Write-Host "##vso[task.setvariable variable=COSMOS_ENDPOINT]$cosmosEndpoint"
 Write-Host "##vso[task.setvariable variable=COSMOS_TOKEN;issecret=true]$cosmosPrimaryKey"
-
-#$Env:COSMOS_ENDPOINT = $cosmosEndpoint
-#$Env:COSMOS_TOKEN = $cosmosPrimaryKey

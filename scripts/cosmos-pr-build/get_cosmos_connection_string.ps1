@@ -3,12 +3,12 @@
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$PrBuildId = $ENV:PR_BUILD_ID
+$shortCommitHash = $ENV:SHORT_COMMIT_HASH
 $PRBuildResourceGroup = "nbs-appts-prbuild-rg-dev-uks"
-$CosmosAccountName = "nbs-appts-prbuild-$PrBuildId-cdb-dev-uks"
+$CosmosAccountName = "nbs-appts-prbuild-$shortCommitHash-cdb-dev-uks"
 
 $connectionString =
-    az cosmosdb keys list `
+az cosmosdb keys list `
         --name $CosmosAccountName `
         --resource-group $PRBuildResourceGroup `
         --type connection-strings `
@@ -20,4 +20,4 @@ $cosmosEndpoint = $NameValue.AccountEndpoint
 $cosmosPrimaryKey = $NameValue.AccountKey
 
 Write-Host "##vso[task.setvariable variable=COSMOS_ENDPOINT]$cosmosEndpoint"
-Write-Host "##vso[task.setvariable variable=COSMOS_TOKEN;issecret=true]$cosmosPrimaryKey"
+Write-Host "##vso[task.setvariable variable=COSMOS_TOKEN]$cosmosPrimaryKey"

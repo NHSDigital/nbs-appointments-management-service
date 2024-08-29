@@ -1,177 +1,103 @@
 import { test, expect } from '@playwright/test';
 import env from './testEnvironment';
+import RootPage from './page-objects/root';
+import OAuthLoginPage from './page-objects/oauth';
+import SiteSelectionPage from './page-objects/site-selection';
+import SitePage from './page-objects/site';
+import UsersPage from './page-objects/users';
+import UserManagementPage from './page-objects/user-management';
 
-const {
-  TEST_USER_1_USERNAME,
-  TEST_USER_1_PASSWORD,
-  TEST_USER_2_USERNAME,
-  TEST_USER_2_PASSWORD,
-  TEST_USER_3_USERNAME,
-  TEST_USER_3_PASSWORD,
-} = env;
+const { TEST_USERS } = env;
 
-test('A user with the appropriate permission can view other users at a site but not edit them', async ({
-  page,
-}) => {
-  await page.goto('/');
+let rootPage: RootPage;
+let oAuthPage: OAuthLoginPage;
+let siteSelectionPage: SiteSelectionPage;
+let sitePage: SitePage;
+let usersPage: UsersPage;
+let userManagementPage: UserManagementPage;
 
-  await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
-
-  await page.getByRole('button', { name: 'Log In' }).click();
-
-  await page.getByLabel('Username').fill(TEST_USER_2_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_2_PASSWORD);
-
-  await page.getByLabel('Password').press('Enter');
-
-  await page
-    .getByRole('link', {
-      name: 'Robin Lane Medical Centre',
-    })
-    .click();
-
-  await page
-    .getByRole('link', {
-      name: 'User Management',
-    })
-    .click();
-
-  await expect(
-    page.getByRole('columnheader', { name: 'Manage' }),
-  ).not.toBeVisible();
-
-  await expect(
-    page.getByRole('link', { name: 'Assign staff roles' }),
-  ).not.toBeVisible();
+test.beforeEach(async ({ page }) => {
+  rootPage = new RootPage(page);
+  oAuthPage = new OAuthLoginPage(page);
+  siteSelectionPage = new SiteSelectionPage(page);
+  sitePage = new SitePage(page);
+  usersPage = new UsersPage(page);
+  userManagementPage = new UserManagementPage(page);
 });
 
-test('A user with the appropriate permission can view other users at a site and also edit them', async ({
-  page,
-}) => {
-  await page.goto('/');
+test('A user with the appropriate permission can view other users at a site but not edit them', async () => {
+  await rootPage.goto();
+  await rootPage.logInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser2);
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.userManagementCard.click();
 
-  await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
+  await expect(usersPage.title).toBeVisible();
+  await expect(usersPage.emailColumn).toBeVisible();
 
-  await page.getByRole('button', { name: 'Log In' }).click();
+  await expect(usersPage.manageColumn).not.toBeVisible();
+  await expect(usersPage.assignStaffRolesLink).not.toBeVisible();
+});
 
-  await page.getByLabel('Username').fill(TEST_USER_1_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_1_PASSWORD);
+test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
+  await rootPage.goto();
+  await rootPage.logInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser1);
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.userManagementCard.click();
 
-  await page.getByLabel('Password').press('Enter');
-
-  await page
-    .getByRole('link', {
-      name: 'Robin Lane Medical Centre',
-    })
-    .click();
-
-  await page
-    .getByRole('link', {
-      name: 'User Management',
-    })
-    .click();
-
-  await expect(
-    page.getByRole('columnheader', { name: 'Manage' }),
-  ).toBeVisible();
-
-  await expect(page.getByRole('link', { name: 'Edit' })).toHaveCount(5);
+  await expect(usersPage.manageColumn).toBeVisible();
+  await expect(usersPage.page.getByRole('link', { name: 'Edit' })).toHaveCount(
+    5,
+  );
 });
 
 test('Navigating straight to the user management page works as expected', async ({
   page,
 }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Log In' }).click();
-  await page.getByLabel('Username').fill(TEST_USER_1_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_1_PASSWORD);
-  await page.getByLabel('Password').press('Enter');
+  await rootPage.goto();
+  await rootPage.logInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser1);
 
   await page.goto('/site/1000/users');
-  await expect(
-    page.getByRole('heading', { name: 'Manage Staff Roles' }),
-  ).toBeVisible();
+  await expect(usersPage.title).toBeVisible();
 });
 
 test('Navigating straight to the user management page displays an appropriate error if the permission is missing', async ({
   page,
 }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Log In' }).click();
-  await page.getByLabel('Username').fill(TEST_USER_3_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_3_PASSWORD);
-  await page.getByLabel('Password').press('Enter');
+  await rootPage.goto();
+  await rootPage.logInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser3);
 
   await page.goto('/site/1000/users');
-
-  await expect(
-    page.getByRole('columnheader', { name: 'Email' }),
-  ).not.toBeVisible();
-
+  await expect(usersPage.emailColumn).not.toBeVisible();
   await expect(
     page.getByText('Forbidden: You lack the necessary permissions'),
   ).toBeVisible();
 
   await page.goto('/site/1000/users/manage');
-
-  await expect(
-    page.getByText('Set the details and roles of a new user'),
-  ).not.toBeVisible();
-
+  await expect(userManagementPage.title).not.toBeVisible();
   await expect(
     page.getByText('Forbidden: You lack the necessary permissions'),
   ).toBeVisible();
 });
 
 test('permissions are applied per site', async ({ page }) => {
-  await page.goto('/');
-
-  await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
-
-  await page.getByRole('button', { name: 'Log In' }).click();
-
-  await page.getByLabel('Username').fill(TEST_USER_2_USERNAME);
-  await page.getByLabel('Password').fill(TEST_USER_2_PASSWORD);
-
-  await page.getByLabel('Password').press('Enter');
+  await rootPage.goto();
+  await rootPage.logInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser2);
 
   // First check Edit column exists at Church Lane
-  await page
-    .getByRole('link', {
-      name: 'Church Lane Surgery',
-    })
-    .click();
-
-  await page
-    .getByRole('link', {
-      name: 'User Management',
-    })
-    .click();
-
-  await expect(
-    page.getByRole('columnheader', { name: 'Manage' }),
-  ).toBeVisible();
+  await siteSelectionPage.selectSite('Church Lane Surgery');
+  await sitePage.userManagementCard.click();
+  await expect(usersPage.manageColumn).toBeVisible();
 
   // Then check it does NOT exist at Robin Lane
-  await page
-    .getByRole('link', {
-      name: 'Home',
-    })
-    .click();
+  await rootPage.homeBreadcrumb.click();
 
-  await page
-    .getByRole('link', {
-      name: 'Robin Lane Medical Centre',
-    })
-    .click();
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
 
-  await page
-    .getByRole('link', {
-      name: 'User Management',
-    })
-    .click();
-
-  await expect(
-    page.getByRole('columnheader', { name: 'Manage' }),
-  ).not.toBeVisible();
+  await sitePage.userManagementCard.click();
+  await expect(usersPage.manageColumn).not.toBeVisible();
 });

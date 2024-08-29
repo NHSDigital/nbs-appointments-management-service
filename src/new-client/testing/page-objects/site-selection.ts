@@ -1,7 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from './root';
 
-export default class SiteSelection extends RootPage {
+export default class SiteSelectionPage extends RootPage {
   readonly title: Locator;
   readonly siteSelectionCardHeading: Locator;
 

@@ -5,12 +5,16 @@ export default class RootPage {
   readonly logInButton: Locator;
   readonly logOutButton: Locator;
   readonly serviceName: Locator;
+  readonly homeBreadcrumb: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.serviceName = page.getByRole('link', { name: 'NHS Appointment Book' });
     this.logInButton = page.getByRole('button', { name: 'Log In' });
     this.logOutButton = page.getByRole('button', { name: 'Log Out' });
+    this.homeBreadcrumb = page.getByRole('link', {
+      name: 'Home',
+    });
   }
 
   async goto() {

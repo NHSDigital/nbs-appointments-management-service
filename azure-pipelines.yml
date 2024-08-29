@@ -18,7 +18,7 @@ variables:
   amsWebServerName: 'nbs-appts-wa-dev-uks'
   resourceGroupName: 'nbs-appts-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
-  PR_BUILD_ID: '$(Build.BuildNumber)'
+  PR_BUILD_ID: '$(Build.SourceVersion)'
 
 stages:
   - stage: Build

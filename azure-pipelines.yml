@@ -10,12 +10,15 @@ variables:
   apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
   coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
   persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+  integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+  cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
   azure_devops_subscription_name: 'nbs-appts-rg-dev'
   azure_subscription_id: '07748954-52d6-46ce-95e6-2701bfc715b4'
   amsApiServerName: 'nbs-appts-func-dev-uks'
   amsWebServerName: 'nbs-appts-wa-dev-uks'
   resourceGroupName: 'nbs-appts-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  PR_BUILD_ID: '$(Build.BuildNumber)'
 
 stages:
   - stage: Build
@@ -105,61 +108,38 @@ stages:
               PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
-      - job: "RunIntegrationTests"
-        displayName: Run integration tests
-        pool:
-          vmImage: windows-latest
+
+
+      - job: "RunIntegrationAndE2ETests"
+        displayName: Run integration and E2E tests
         steps:
-          - task: Powershell@2
-            displayName: 'Install Azure Functions Core Tools'
+          - task: AzureCLI@2
+            displayName: 'Create cosmos account'
             inputs:
-              targetType: 'inline'
-              pwsh: true
-              script: |
-                choco install azure-functions-core-tools --params "'/x64'"
-          - task: PowerShell@2
-            displayName: 'Starting Cosmos Emulator'
+              azureSubscription: $(azure_devops_subscription_name)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
+          - task: AzureCLI@2
+            displayName: 'Get cosmos account connection string'
             inputs:
-              targetType: 'inline'
-              pwsh: true
-              script: |
-                Write-Host "Starting CosmosDB Emulator"
-                Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-                $startEmulatorCmd = "Start-CosmosDbEmulator -NoFirewall -NoUI -Timeout 900"
-                Invoke-Expression -Command $startEmulatorCmd
-          - task: PowerShell@2
-            displayName: Run integration tests
+              azureSubscription: $(azure_devops_subscription_name)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+          - script: printenv
+            displayName: "Print env var"
+          - script: |
+              docker compose up --build --detach
+            displayName: "Start docker containers" 
+          - task: DotNetCoreCLI@2
+            displayName: "Run Integration Tests"
             inputs:
-              targetType: inline
-              pwsh: true
-              script: |
-                cd .\src\api\Nhs.Appointments.Api\
-                Write-Host "Starting function host"
-                $job = Start-Job -ScriptBlock {func start}
-                Start-Sleep -Seconds 10
-
-                $timeout = 0
-                do {
-                  [string[]]$jobConsole = $job | Receive-Job -ErrorAction SilentlyContinue
-                  if ($jobConsole)
-                  {
-                    $funcStarted = $jobConsole -match "For detailed output, run func with --verbose flag."
-                  }
-                  $jobConsole
-                  Start-Sleep -Seconds 5
-                  $timeout++
-                  if ($timeout -gt 60) {
-                    throw "Timeout waiting for function to start"
-                  }
-                } until ($funcStarted)
-
-                Write-Host "Web host started successfully"
-
-                cd ..\..\..\tests\Nhs.Appointments.Api.Integration\
-                Write-Host "Running integration tests..."
-                dotnet test --logger:"trx;logfilename=apptsServiceTests.trx"    
+              command: "test"
+              projects: "$(integrationTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
           - task: PublishTestResults@2
-            displayName: 'Publish API Test Results'
+            displayName: 'Publish Integration Test Results'
             inputs:
               testResultsFiles: 'apptsServiceTests.trx'
               testRunTitle: NBS Appointments Management Service Integration Tests
@@ -167,7 +147,36 @@ stages:
               publishRunAttachments: true
               searchFolder: '$(System.DefaultWorkingDirectory)\tests\Nhs.Appointments.Api.Integration\TestResults'
             condition: succeededOrFailed()
-
+          - task: DotNetCoreCLI@2
+            displayName: "Run Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(integrationTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
+          - task: DotNetCoreCLI@2
+            displayName: "Reset and seed cosmos containers"
+            inputs:
+              command: "run"
+              projects: "$(cosmosDbSeederProjectPath)"
+          - task: UseNode@1
+            displayName: "Install Node"
+            inputs:
+              version: 20.x
+          - script: |
+              cd /src/new-client
+              npm ci
+              npm run test:e2e
+            displayName: "Run E2E tests"
+          - task: AzureCLI@2
+            displayName: 'Delete cosmos account'
+            inputs:
+              azureSubscription: $(azure_devops_subscription_name)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
+              condition: always()
+          
+              
   - stage: DeployDev
     condition: and(succeeded(), eq(variables.isMain, true))
     variables:

@@ -1,11 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
-using Nhs.Appointments.Core.Messaging;
+﻿using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Core.UnitTests
 {

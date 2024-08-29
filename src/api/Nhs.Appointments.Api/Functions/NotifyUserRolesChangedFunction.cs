@@ -7,20 +7,14 @@ using Nhs.Appointments.Api.Consumers;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class NotifyUserRolesChangedFunction
+public class NotifyUserRolesChangedFunction(IMessageReceiver receiver)
 {
     const string UserRolesChangedQueueName = "user-role-change";
-    readonly IMessageReceiver _receiver;
-
-    public NotifyUserRolesChangedFunction(IMessageReceiver receiver)
-    {
-        _receiver = receiver;
-    }
 
     [FunctionName("NotifyUserRolesChanged")]
     public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(UserRolesChangedQueueName)] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
-        return _receiver.HandleConsumer<UserRolesChangedConsumer>(UserRolesChangedQueueName, message, cancellationToken);
+        return receiver.HandleConsumer<UserRolesChangedConsumer>(UserRolesChangedQueueName, message, cancellationToken);
     }
 }
 

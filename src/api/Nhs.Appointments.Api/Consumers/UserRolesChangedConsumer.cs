@@ -3,30 +3,22 @@ using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core.Messaging.Events;
 using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api.Consumers
+namespace Nhs.Appointments.Api.Consumers;
+
+public class UserRolesChangedConsumer(IUserRolesChangedNotifier notifier) : IConsumer<UserRolesChanged>
 {
-    public class UserRolesChangedConsumer : IConsumer<UserRolesChanged>
+    public Task Consume(ConsumeContext<UserRolesChanged> context)
     {
-        private readonly IUserRolesChangedNotifier _notifier;
-
-        public UserRolesChangedConsumer(IUserRolesChangedNotifier notifier)
-        {
-            _notifier = notifier;
-        }
-
-        public Task Consume(ConsumeContext<UserRolesChanged> context)
-        {
-            return _notifier.Notify(context.Message.User, context.Message.Added, context.Message.Removed);
-        }
+        return notifier.Notify(context.Message.User, context.Message.Added, context.Message.Removed);
     }
+}
 
-    public class UserRolesChangedConsumerDefinition :
-        ConsumerDefinition<UserRolesChangedConsumer>
+public class UserRolesChangedConsumerDefinition :
+    ConsumerDefinition<UserRolesChangedConsumer>
+{
+    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
+        IConsumerConfigurator<UserRolesChangedConsumer> consumerConfigurator)
     {
-        protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-            IConsumerConfigurator<UserRolesChangedConsumer> consumerConfigurator)
-        {
-            consumerConfigurator.UseMessageRetry(x => x.Intervals(10, 100, 500, 1000));
-        }
+        consumerConfigurator.UseMessageRetry(x => x.Intervals(10, 100, 500, 1000));
     }
 }

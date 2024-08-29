@@ -8,7 +8,6 @@ public interface IUserService
     Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId);
     Task<string> GetApiUserSigningKey(string clientId);
     Task UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
-    Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<IEnumerable<User>> GetUsersAsync(string site);
 }
 
@@ -34,11 +33,6 @@ public class UserService(IUserStore store, IMessageBus bus) : IUserService
         await bus.Send(new UserRolesChanged { User = userId, Added = rolesAdded.Select(r => r.Role).ToArray(), Removed = rolesRemoved.Select(r => r.Role).ToArray()});
     }
 
-    public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-    {
-        await store.SaveUserAsync(userId, scope, roleAssignments);
-    }
-    
     public Task<IEnumerable<User>> GetUsersAsync(string site) 
     { 
         return store.GetUsersAsync(site);

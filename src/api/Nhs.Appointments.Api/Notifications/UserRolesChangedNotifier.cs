@@ -1,39 +1,34 @@
-﻿using MassTransit.Configuration;
-using Microsoft.Extensions.Options;
-using Notify.Client;
+﻿using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core;
 using Notify.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api.Notifications
+namespace Nhs.Appointments.Api.Notifications;
+
+
+public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClient, IRolesStore rolesStore, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
 {
-
-    public class UserRolesChangedNotifier : IUserRolesChangedNotifier
+    public async Task Notify(string user, string[] rolesAdded, string[] rolesRemoved)
     {
-        private readonly IAsyncNotificationClient _notificationClient;
-        private readonly string _emailTemplateId;
+        var roles = await rolesStore.GetRoles();
 
-        public UserRolesChangedNotifier(IAsyncNotificationClient notificationClient, IOptions<UserRolesChangedNotifier.Options> options)
+        var rolesAddedNames = roles.Where(r => rolesAdded.Contains(r.Id)).Select(r => r.Name).ToArray();
+        var rolesRemovedNames = roles.Where(r => rolesRemoved.Contains(r.Id)).Select(r => r.Name).ToArray();
+
+        var templateValues = new Dictionary<string, dynamic>
         {
-            _notificationClient = notificationClient;
-            _emailTemplateId = options.Value.EmailTemplateId;
-        }
+            {"user", user},
+            {"rolesAdded", string.Join(", ", rolesAddedNames)},
+            {"rolesRemoved", string.Join(", ", rolesRemovedNames)}
+        };
 
-        public async Task Notify(string user, string[] rolesAdded, string[] rolesRemoved)
-        {
-            var templateValues = new Dictionary<string, dynamic>
-            {
-                {"user", user},
-                {"rolesAdded", string.Join(", ", rolesAdded)},
-                {"rolesRemoved", string.Join(", ", rolesRemoved)}
-            };
+        await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+    }
 
-            await _notificationClient.SendEmailAsync(user, _emailTemplateId, templateValues);
-        }
-
-        public class Options
-        {
-            public string EmailTemplateId { get; set; }
-        }
+    public class Options
+    {
+        public string EmailTemplateId { get; set; }
     }
 }

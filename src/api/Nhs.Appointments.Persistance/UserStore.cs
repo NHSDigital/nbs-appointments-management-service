@@ -35,7 +35,13 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         var originalDocument = await GetOrDefault(userId);
         if (originalDocument == null)
         {
-            throw new Exception($"Cannot update role assignments: user '{userId}' not found");
+            var user = new User
+            {
+                Id = userId,
+                RoleAssignments = roleAssignments.ToArray()
+            };
+            await InsertAsync(user);
+            return [];
         }
         else
         {
@@ -46,9 +52,8 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 .Concat(roleAssignments);
             var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
             await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
+            return originalDocument.RoleAssignments;
         }
-
-        return originalDocument.RoleAssignments;
     }
 
     public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)

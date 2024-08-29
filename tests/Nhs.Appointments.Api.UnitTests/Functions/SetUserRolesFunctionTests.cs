@@ -37,13 +37,15 @@ public class SetUserRolesFunctionTests
 
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
+        private ILogger<SetUserRolesFunction> _logger;
         public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) : base(userService, validator, userContextProvider, logger)
         {
+            _logger = logger;
         }
 
         public async Task Invoke(SetUserRolesRequest request)
         {
-            await HandleRequest(request, logger);
+            await HandleRequest(request, _logger);
         }
     }
 }

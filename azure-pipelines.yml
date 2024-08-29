@@ -140,16 +140,7 @@ stages:
             inputs:
               command: "test"
               projects: "$(integrationTestProjectPath)"
-              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
-          - task: PublishTestResults@2
-            displayName: 'Publish Integration Test Results'
-            inputs:
-              testResultsFiles: 'apptsServiceTests.trx'
-              testRunTitle: NBS Appointments Management Service Integration Tests
-              testResultsFormat: 'VSTest'
-              publishRunAttachments: true
-              searchFolder: 'tests/Nhs.Appointments.Api.Integration/TestResults'
-            condition: succeededOrFailed()
+              testRunTitle: "NBS Appointments Management Service Integration Tests"
           - task: DotNetCoreCLI@2
             displayName: "Reset and seed cosmos containers"
             inputs:
@@ -166,6 +157,16 @@ stages:
             displayName: "Run E2E tests"
             env:
               CI: "true"
+          - task: PublishTestResults@2
+            displayName: 'Publish E2E test results'
+            inputs:
+              searchFolder: 'test-results'
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'e2e-junit-results.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: 'NBS Appointments Management Service End-To-End Tests'
+            condition: succeededOrFailed()
           - task: AzureCLI@2
             displayName: 'Delete cosmos account'
             condition: or(succeeded(), canceled())

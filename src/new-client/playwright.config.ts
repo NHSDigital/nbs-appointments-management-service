@@ -10,7 +10,10 @@ export default defineConfig({
   testDir: './testing',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  reporter: [['html', { outputFolder: 'testing/playwright-report' }]],
+  reporter: [
+    ['junit', { outputFile: 'testing/e2e-junit-results.xml' }],
+    ['html', { outputFolder: 'testing/playwright-report' }],
+  ],
   outputDir: 'testing/playwright-report',
 
   // TODO: Playwright init defaults to 0 retries locally.
@@ -42,7 +45,7 @@ export default defineConfig({
     {
       command: 'npm run build && npm run start',
       url: process.env.BASE_URL,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
     },
     // TODO: Also start dotnet and docker services if not already running
     // {

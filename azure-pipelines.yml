@@ -130,8 +130,6 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
-          - script: printenv
-            displayName: "Print env var"
           - script: |
               docker compose up --build --detach
             displayName: "Start docker containers"
@@ -153,6 +151,7 @@ stages:
           - script: |
               cd ./src/new-client
               npm ci
+              npx playwright install --with-deps
               npm run test:e2e
             displayName: "Run E2E tests"
             env:

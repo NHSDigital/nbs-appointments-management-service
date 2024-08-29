@@ -37,7 +37,7 @@
       "permissions": ["users:manage", "users:view"]
     },
     {
-      "id": "canned:auditer",
+      "id": "system:auditer",
       "name": "Auditer",
       "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
       "permissions": [

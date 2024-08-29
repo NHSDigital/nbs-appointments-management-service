@@ -77,7 +77,7 @@ test('Navigating straight to the user management page displays an appropriate er
   ).toBeVisible();
 
   await page.goto('/site/1000/users/manage');
-  await expect(userManagementPage.title).not.toBeVisible();
+  await expect(userManagementPage.emailInput).not.toBeVisible();
   await expect(
     page.getByText('Forbidden: You lack the necessary permissions'),
   ).toBeVisible();

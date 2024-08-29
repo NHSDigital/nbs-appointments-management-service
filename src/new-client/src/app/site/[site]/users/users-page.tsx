@@ -1,6 +1,7 @@
 import { Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { Role, User } from '@types';
+import { useMemo } from 'react';
 
 type Props = {
   users: User[];
@@ -13,7 +14,10 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
     roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
-  const canSeeAdminControls = permissions.includes('users:manage');
+
+  const canSeeAdminControls = useMemo(() => {
+    return permissions.includes('users:manage');
+  }, [permissions]);
 
   return (
     <>

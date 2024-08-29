@@ -138,7 +138,16 @@ stages:
             inputs:
               command: "test"
               projects: "$(integrationTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
+          - task: PublishTestResults@2
+            displayName: "Publish Integration Test Results"
+            inputs:
+              searchFolder: "$(Agent.TempDirectory)"
+              testResultsFormat: "VSTest"
+              testResultsFiles: "apptsServiceTests.trx"
               testRunTitle: "NBS Appointments Management Service Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
           - task: DotNetCoreCLI@2
             displayName: "Reset and seed cosmos containers"
             inputs:
@@ -159,7 +168,7 @@ stages:
           - task: PublishTestResults@2
             displayName: 'Publish E2E test results'
             inputs:
-              searchFolder: 'test-results'
+              searchFolder: 'testing'
               testResultsFormat: 'JUnit'
               testResultsFiles: 'e2e-junit-results.xml'
               mergeTestResults: true

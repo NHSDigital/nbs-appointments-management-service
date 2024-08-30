@@ -10,9 +10,6 @@ public record SetUserRolesRequest
     [JsonProperty("user")]
     public string User { get; set; }
 
-    [JsonProperty("site")]
-    public string Site { get; set; }
-
     [JsonProperty("roles")]
     public string[] Roles { get; set; }
 }

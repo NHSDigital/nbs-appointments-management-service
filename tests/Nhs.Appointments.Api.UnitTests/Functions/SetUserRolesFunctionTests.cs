@@ -25,11 +25,11 @@ public class SetUserRolesFunctionTests
     {
         const string User = "test@user.com";
         string[] roles = ["role1"];
-        const string scope = "any";
+        const string scope = "site:some-site";
         const string site = "site1";
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 
-        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == site), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))));
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))));
         
         await _sut.Invoke(request);
 

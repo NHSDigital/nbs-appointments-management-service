@@ -15,13 +15,13 @@ public class UserService(IUserStore store, IMessageBus bus) : IUserService
         return store.GetApiUserSigningKey(clientId);
     }
 
-    public async Task UpdateUserRoleAssignmentsAsync(string userId, string site, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    public async Task UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
         var oldRoles = await store.UpdateUserRoleAssignments(userId, scope, roleAssignments);
 
         var rolesRemoved = oldRoles.Where(old => !roleAssignments.Any(r => r.Role == old.Role));
         var rolesAdded = roleAssignments.Where(newRole => !oldRoles.Any(r => r.Role == newRole.Role));
-
+        var site = Scope.GetValue("site", scope);
         await bus.Send(new UserRolesChanged { User = userId, Site = site, Added = rolesAdded.Select(r => r.Role).ToArray(), Removed = rolesRemoved.Select(r => r.Role).ToArray()});
     }
 

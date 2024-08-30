@@ -102,4 +102,4 @@ services:
 
     volumes:
       - ./mock-oidc:/tmp/config:ro
-      - ~/.aspnet/https:/https:ro
+      - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro

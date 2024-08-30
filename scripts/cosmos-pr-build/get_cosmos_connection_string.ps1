@@ -3,9 +3,9 @@
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$shortCommitHash = $ENV:SHORT_COMMIT_HASH
+$ShortCommitHash = $ENV:SHORT_COMMIT_HASH
 $PRBuildResourceGroup = "nbs-appts-prbuild-rg-dev-uks"
-$CosmosAccountName = "nbs-appts-prbuild-$shortCommitHash-cdb-dev-uks"
+$CosmosAccountName = "nbs-appts-prbuild-$ShortCommitHash-cdb-dev-uks"
 
 $connectionString =
 az cosmosdb keys list `

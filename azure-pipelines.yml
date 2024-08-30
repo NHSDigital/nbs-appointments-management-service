@@ -18,6 +18,7 @@ variables:
   amsWebServerName: 'nbs-appts-wa-dev-uks'
   resourceGroupName: 'nbs-appts-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
 
 stages:
   - stage: Build
@@ -113,8 +114,8 @@ stages:
         displayName: Run integration and E2E tests
         steps:
           - powershell: |
-              $shortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
-              Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$shortCommitHash"
+              $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
+              Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$ShortCommitHash"
             displayName: Set Short Hash
           - task: AzureCLI@2
             displayName: 'Create cosmos account'
@@ -130,6 +131,9 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+          - script: |
+              dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
+            displayName: "Create aspnet developer certificate"
           - script: |
               docker compose up --build --detach
             displayName: "Start docker containers"
@@ -168,13 +172,19 @@ stages:
           - task: PublishTestResults@2
             displayName: 'Publish E2E test results'
             inputs:
-              searchFolder: 'testing'
+              searchFolder: 'src/new-client/testing'
               testResultsFormat: 'JUnit'
               testResultsFiles: 'e2e-junit-results.xml'
               mergeTestResults: true
               failTaskOnFailedTests: true
               testRunTitle: 'NBS Appointments Management Service End-To-End Tests'
-            condition: succeededOrFailed()
+              condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish test artifacts"
+            inputs:
+              PathtoPublish: 'src/new-client/test-artifacts'
+              ArtifactName: 'E2E Test-results'
+              condition: succeededOrFailed()
           - task: AzureCLI@2
             displayName: 'Delete cosmos account'
             condition: or(succeeded(), canceled())

@@ -14,7 +14,7 @@ export default defineConfig({
     ['junit', { outputFile: 'testing/e2e-junit-results.xml' }],
     ['html', { outputFolder: 'testing/playwright-report' }],
   ],
-  outputDir: 'testing/playwright-report',
+  outputDir: './test-artifacts',
 
   // TODO: Playwright init defaults to 0 retries locally.
   // Let's try this for a bit with the goal of eliminating flakiness, but add in retries if we have to.
@@ -24,6 +24,10 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',
+    screenshot: {
+      mode: 'only-on-failure',
+      fullPage: true,
+    },
   },
 
   projects: [

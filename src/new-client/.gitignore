@@ -40,3 +40,4 @@ testing/playwright-report/
 testing/*.xml
 /blob-report/
 /playwright/.cache/
+test-artifacts/

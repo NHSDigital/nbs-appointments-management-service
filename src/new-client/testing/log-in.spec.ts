@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 import OAuthLoginPage from './page-objects/oauth';
 import RootPage from './page-objects/root';
-import SiteSelection from './page-objects/site-selection';
+import SiteSelectionPage from './page-objects/site-selection';
 
 test('User visits the site origin, signs in and see the Site Selection menu', async ({
   page,
 }) => {
   const rootPage = new RootPage(page);
   const oAuthPage = new OAuthLoginPage(page);
-  const siteSelection = new SiteSelection(page);
+  const siteSelectionPage = new SiteSelectionPage(page);
 
   await rootPage.goto();
   await rootPage.logInButton.click();
@@ -16,7 +16,7 @@ test('User visits the site origin, signs in and see the Site Selection menu', as
   await oAuthPage.signIn();
 
   await expect(rootPage.logOutButton).toBeVisible();
-  await expect(siteSelection.siteSelectionCardHeading).toBeVisible();
+  await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
 });
 
 test('User visits the site origin, signs in, then signs out again', async ({
@@ -24,17 +24,17 @@ test('User visits the site origin, signs in, then signs out again', async ({
 }) => {
   const rootPage = new RootPage(page);
   const oAuthPage = new OAuthLoginPage(page);
-  const siteSelection = new SiteSelection(page);
+  const siteSelectionPage = new SiteSelectionPage(page);
 
   await rootPage.goto();
   await rootPage.logInButton.click();
   await oAuthPage.signIn();
 
   await expect(rootPage.logOutButton).toBeVisible();
-  await expect(siteSelection.siteSelectionCardHeading).toBeVisible();
+  await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
 
-  await expect(siteSelection.logOutButton).toBeVisible();
-  await siteSelection.logOutButton.click();
+  await expect(siteSelectionPage.logOutButton).toBeVisible();
+  await siteSelectionPage.logOutButton.click();
 
   await expect(
     page.getByRole('heading', { name: 'You cannot access this site' }),

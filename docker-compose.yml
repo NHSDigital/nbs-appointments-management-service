@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 
 services:
   cosmos:
@@ -36,29 +36,7 @@ services:
             "CheckSessionCookieSameSiteMode": "Lax"
           }
         }
-      USERS_CONFIGURATION_INLINE: |
-        [
-            {
-            "SubjectId":"cc.agent@nhs.net",
-            "Username":"CC",
-            "Password":"1234abc",
-            "Claims": [
-                {
-                  "Type": "email",
-                  "Value": "cc.agent@nhs.net"
-                },
-            ]},
-        {
-            "SubjectId":"cc2.agent@nhs.net",
-            "Username":"CC2",
-            "Password":"1234abc",
-            "Claims": [
-                {
-                  "Type": "email",
-                  "Value": "cc2.agent@nhs.net"
-                },
-            ]}
-        ]
+      USERS_CONFIGURATION_PATH: /tmp/config/users.json
       CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json
 
     volumes:

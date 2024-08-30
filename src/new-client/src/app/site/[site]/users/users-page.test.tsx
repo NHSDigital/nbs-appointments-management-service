@@ -1,6 +1,11 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
 import { UsersPage } from './users-page';
-import { getMockUserAssignments, mockRoles } from '@testing/data';
+import {
+  getMockUserAssignments,
+  mockAllPermissions,
+  mockAuditerPermissions,
+  mockRoles,
+} from '@testing/data';
 
 const mockSiteId = 'TEST';
 
@@ -12,6 +17,7 @@ describe('Users Page', () => {
       <UsersPage
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
+        permissions={mockAllPermissions}
       />,
     );
 
@@ -31,6 +37,7 @@ describe('Users Page', () => {
       <UsersPage
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
+        permissions={mockAllPermissions}
       />,
     );
 
@@ -51,5 +58,39 @@ describe('Users Page', () => {
       screen.getByRole('cell', { name: 'test.two@nhs.net' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Role 3' })).toBeInTheDocument();
+  });
+
+  it('displays the edit button for each user if they may see it', async () => {
+    render(
+      <UsersPage
+        users={getMockUserAssignments(mockSiteId)}
+        roles={mockRoles}
+        permissions={mockAllPermissions}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', { name: 'Manage' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
+
+    expect(
+      screen.getByRole('link', { name: 'Assign staff roles' }),
+    ).toBeVisible();
+  });
+
+  it('omits the edit button for each user if they may not see it', async () => {
+    render(
+      <UsersPage
+        users={getMockUserAssignments(mockSiteId)}
+        roles={mockRoles}
+        permissions={mockAuditerPermissions}
+      />,
+    );
+
+    expect(screen.queryByRole('columnheader', { name: 'Manage' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Edit' })).toBeNull();
+
+    expect(
+      screen.queryByRole('link', { name: 'Assign staff roles' }),
+    ).toBeNull();
   });
 });

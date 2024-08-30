@@ -1,17 +1,23 @@
 import { Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { Role, User } from '@types';
+import { useMemo } from 'react';
 
 type Props = {
   users: User[];
   roles: Role[];
+  permissions: string[];
 };
 
-export const UsersPage = ({ users, roles }: Props) => {
+export const UsersPage = ({ users, roles, permissions }: Props) => {
   const isVisibleRole = (role: string) =>
     roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
     roles.find(r => r.id === role)?.displayName;
+
+  const canSeeAdminControls = useMemo(() => {
+    return permissions.includes('users:manage');
+  }, [permissions]);
 
   return (
     <>
@@ -19,12 +25,14 @@ export const UsersPage = ({ users, roles }: Props) => {
         <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
           Manage your current site's staff roles
         </span>
-        <span>
-          <AddRoleAssignmentsButton />
-        </span>
+        {canSeeAdminControls === true && (
+          <span>
+            <AddRoleAssignmentsButton />
+          </span>
+        )}
       </div>
       <Table
-        headers={['Email', 'Roles', 'Manage']}
+        headers={['Email', 'Roles', ...[canSeeAdminControls ? ['Manage'] : []]]}
         rows={users.map(user => {
           return [
             user.id,
@@ -32,7 +40,11 @@ export const UsersPage = ({ users, roles }: Props) => {
               .filter(ra => isVisibleRole(ra.role))
               ?.map(ra => getRoleName(ra.role))
               ?.join(' | '),
-            <EditRoleAssignmentsButton key={user.id} user={user.id} />,
+            ...[
+              canSeeAdminControls
+                ? [<EditRoleAssignmentsButton key={user.id} user={user.id} />]
+                : [],
+            ],
           ];
         })}
       />

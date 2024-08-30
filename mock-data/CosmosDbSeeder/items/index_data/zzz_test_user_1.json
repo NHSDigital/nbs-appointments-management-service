@@ -1,0 +1,14 @@
+{
+  "id": "zzz_test_user_1@nhs.net",
+  "docType": "user",
+  "roleAssignments": [
+    {
+      "role": "system:integration-test-user",
+      "scope": "site:1000"
+    },
+    {
+      "role": "system:integration-test-user",
+      "scope": "site:1001"
+    }
+  ]
+}

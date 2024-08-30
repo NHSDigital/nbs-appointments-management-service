@@ -8,6 +8,20 @@ const fetchUserProfileMock = fetchUserProfile as jest.Mock<
   Promise<UserProfile | undefined>
 >;
 
+jest.mock('@components/nhs-header-log-in', () => {
+  const MockNhsHeaderLogIn = () => {
+    return <button type="submit">log in</button>;
+  };
+  return MockNhsHeaderLogIn;
+});
+
+jest.mock('@components/nhs-header-log-out', () => {
+  const MockNhsHeaderLogOut = () => {
+    return <button type="submit">log out</button>;
+  };
+  return MockNhsHeaderLogOut;
+});
+
 describe('Nhs Page', () => {
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue({

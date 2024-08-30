@@ -1,5 +1,5 @@
 import NhsPage from '@components/nhs-page';
-import { fetchSite } from '@services/appointmentsService';
+import { fetchPermissions, fetchSite } from '@services/appointmentsService';
 import { SitePage } from './site-page';
 import { Metadata } from 'next/types';
 
@@ -18,6 +18,7 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
+  const sitePermissions = await fetchPermissions(params.site);
 
   // TODO: Because we rely on fetchUserProfile() to get the site,
   // we can't differentiate between being logged out and the site not being found.
@@ -26,7 +27,7 @@ const Page = async ({ params }: PageProps) => {
   const siteMoniker = site?.name ?? `Site ${params.site}`;
   return (
     <NhsPage title={siteMoniker}>
-      <SitePage site={site} />
+      <SitePage site={site} permissions={sitePermissions} />
     </NhsPage>
   );
 };

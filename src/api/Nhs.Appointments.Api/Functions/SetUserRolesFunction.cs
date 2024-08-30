@@ -44,7 +44,9 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
                 })
             .ToList();
 
-        await userService.UpdateUserRoleAssignmentsAsync(request.User, request.Scope, roleAssignments);
+       
+
+        await userService.UpdateUserRoleAssignmentsAsync(request.User, request.Site, request.Scope, roleAssignments);
         
         return Success(new EmptyResponse());
     }

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api.Notifications
+namespace Nhs.Appointments.Api.Notifications;
+
+public interface IUserRolesChangedNotifier
 {
-    public interface IUserRolesChangedNotifier
-    {
-        Task Notify(string user, string[] rolesAdded, string[] rolesRemoved);
-    }
+    Task Notify(string user, string site, string[] rolesAdded, string[] rolesRemoved);
 }

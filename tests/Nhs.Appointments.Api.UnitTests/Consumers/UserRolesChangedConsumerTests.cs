@@ -19,11 +19,12 @@ namespace Nhs.Appointments.Api.Tests.Consumers
         public async Task NotifiesUserOnEventReceipt()
         {
             const string user = "test@tempuri.org";
+            const string site = "site1";
             string[] rolesAdded = ["role1"];
             string[] rolesRemoved = ["role2"];
-            _notifier.Setup(x => x.Notify(user, It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesAdded)), It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesRemoved)))).Verifiable();
+            _notifier.Setup(x => x.Notify(user, site, It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesAdded)), It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesRemoved)))).Verifiable();
             var ctx = new Mock<ConsumeContext<UserRolesChanged>>();
-            ctx.SetupGet(x => x.Message).Returns(new UserRolesChanged { User = user, Added = rolesAdded, Removed = rolesRemoved });
+            ctx.SetupGet(x => x.Message).Returns(new UserRolesChanged { User = user, Site = site, Added = rolesAdded, Removed = rolesRemoved });
 
             await _sut.Consume(ctx.Object);
 

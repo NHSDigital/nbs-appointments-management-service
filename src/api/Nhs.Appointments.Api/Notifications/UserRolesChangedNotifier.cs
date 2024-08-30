@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-
-public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClient, IRolesStore rolesStore, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
+// Depends on an email template hosted in Gov Notify. See template.txt for details 
+public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClient, IRolesStore rolesStore, ISiteSearchService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
 {
-    public async Task Notify(string user, string[] rolesAdded, string[] rolesRemoved)
+    public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
         var roles = await rolesStore.GetRoles();
+        var site = await siteService.GetSiteByIdAsync(siteId);
 
         var rolesAddedNames = roles.Where(r => rolesAdded.Contains(r.Id)).Select(r => r.Name).ToArray();
         var rolesRemovedNames = roles.Where(r => rolesRemoved.Contains(r.Id)).Select(r => r.Name).ToArray();
@@ -21,7 +22,8 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
         {
             {"user", user},
             {"rolesAdded", string.Join(", ", rolesAddedNames)},
-            {"rolesRemoved", string.Join(", ", rolesRemovedNames)}
+            {"rolesRemoved", string.Join(", ", rolesRemovedNames)},
+            {"site", site?.Name }
         };
 
         await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);

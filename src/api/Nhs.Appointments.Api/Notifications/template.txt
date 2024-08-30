@@ -1,0 +1,19 @@
+﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+Template name: User Roles Changed
+
+Template Subject: Your NHS Appointments Service permissions have changed
+
+Template Body:
+
+Dear ((user))
+
+Your permissions for ((site)) have been updated on the NHS Appointments Service. 
+
+You have been added to: ((rolesAdded)).
+You have been removed from: ((rolesRemoved)).
+
+Log into your account now: https://appointment.service.nhs.uk/sign-in
+

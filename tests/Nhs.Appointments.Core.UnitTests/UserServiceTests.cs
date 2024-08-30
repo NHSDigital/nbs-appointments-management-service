@@ -19,12 +19,13 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             string userId = "user1";
             string scope = "scope1";
+            string site = "site1";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
 
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole"}]));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.Added.Contains(newRoles[0].Role)))).Verifiable();
 
-            await _sut.UpdateUserRoleAssignmentsAsync(userId, scope, newRoles);
+            await _sut.UpdateUserRoleAssignmentsAsync(userId, site, scope, newRoles);
 
             _messageBus.Verify();
         }
@@ -34,12 +35,45 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             string userId = "user1";
             string scope = "scope1";
+            string site = "site1";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
 
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.Removed.Contains("someoldrole")))).Verifiable();
 
-            await _sut.UpdateUserRoleAssignmentsAsync(userId, scope, newRoles);
+            await _sut.UpdateUserRoleAssignmentsAsync(userId, site, scope, newRoles);
+
+            _messageBus.Verify();
+        }
+
+        [Fact]
+        public async void IncludesSiteIdInEvent()
+        {
+            string userId = "user1";
+            string scope = "scope1";
+            string site = "site1";
+            RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
+
+            _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
+            _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.Site == site))).Verifiable();
+
+            await _sut.UpdateUserRoleAssignmentsAsync(userId, site, scope, newRoles);
+
+            _messageBus.Verify();
+        }
+
+        [Fact]
+        public async void IncludesUserIdInEvent()
+        {
+            string userId = "user1";
+            string scope = "scope1";
+            string site = "site1";
+            RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
+
+            _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
+            _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.User == userId))).Verifiable();
+
+            await _sut.UpdateUserRoleAssignmentsAsync(userId, site, scope, newRoles);
 
             _messageBus.Verify();
         }

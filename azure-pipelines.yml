@@ -111,21 +111,21 @@ stages:
 
 
       - job: "RunIntegrationAndE2ETests"
-        displayName: Run integration and E2E tests
+        displayName: "Run integration and E2E tests"
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$ShortCommitHash"
-            displayName: Set Short Hash
+            displayName: Set short commit hash
           - task: AzureCLI@2
-            displayName: 'Create cosmos account'
+            displayName: "Create Cosmos DB account"
             inputs:
               azureSubscription: $(azure_devops_subscription_name)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
           - task: AzureCLI@2
-            displayName: 'Get cosmos account connection string'
+            displayName: "Get Cosmos DB account connection string"
             inputs:
               azureSubscription: $(azure_devops_subscription_name)
               scriptType: pscore
@@ -144,7 +144,7 @@ stages:
               projects: "$(integrationTestProjectPath)"
               arguments: '--logger:"trx;logfilename=apptsServiceTests.trx"'
           - task: PublishTestResults@2
-            displayName: "Publish Integration Test Results"
+            displayName: "Publish integration test results"
             inputs:
               searchFolder: "$(Agent.TempDirectory)"
               testResultsFormat: "VSTest"
@@ -153,7 +153,7 @@ stages:
               publishRunAttachments: true
             condition: succeededOrFailed()
           - task: DotNetCoreCLI@2
-            displayName: "Reset and seed cosmos containers"
+            displayName: "Reset and seed Cosmos DB containers"
             inputs:
               command: "run"
               projects: "$(cosmosDbSeederProjectPath)"
@@ -180,13 +180,13 @@ stages:
               testRunTitle: 'NBS Appointments Management Service End-To-End Tests'
               condition: succeededOrFailed()
           - task: PublishBuildArtifacts@1
-            displayName: "Publish test artifacts"
+            displayName: "Publish E2E test artifacts"
             inputs:
-              PathtoPublish: 'src/new-client/test-artifacts'
-              ArtifactName: 'E2E Test-results'
+              PathtoPublish: "src/new-client/test-artifacts"
+              ArtifactName: "E2E Test-results"
               condition: succeededOrFailed()
           - task: AzureCLI@2
-            displayName: 'Delete cosmos account'
+            displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
               azureSubscription: $(azure_devops_subscription_name)

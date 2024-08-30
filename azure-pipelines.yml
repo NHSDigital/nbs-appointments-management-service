@@ -164,7 +164,7 @@ stages:
           - script: |
               cd ./src/new-client
               npm ci
-              npx playwright install --with-deps
+              npx playwright install --with-deps chromium
               npm run test:e2e
             displayName: "Run E2E tests"
             env:

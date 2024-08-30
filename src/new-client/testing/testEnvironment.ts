@@ -4,13 +4,18 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, 'playwright.env') });
 
 const testUsers = {
-  default: {
-    username: process.env.TEST_USER_USERNAME ?? '',
-    password: process.env.TEST_USER_PASSWORD ?? '',
+  testUser1: {
+    username: process.env.TEST_USER_1_USERNAME ?? '',
+    password: process.env.TEST_USER_1_PASSWORD ?? '',
   },
-  // TODO: Expand with multiple users for different roles
-  // auditer: { username: 'auditer', password: '1234abc' },
-  // checkIn: { username: 'checkin', password: '1234abc' },
+  testUser2: {
+    username: process.env.TEST_USER_2_USERNAME ?? '',
+    password: process.env.TEST_USER_2_PASSWORD ?? '',
+  },
+  testUser3: {
+    username: process.env.TEST_USER_3_USERNAME ?? '',
+    password: process.env.TEST_USER_3_PASSWORD ?? '',
+  },
 };
 
 const environment = {

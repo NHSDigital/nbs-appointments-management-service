@@ -10,7 +10,7 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
   if (user === undefined || !user.endsWith('@nhs.net'))
     throw Error('You must specify a valid NHS email address');
 
-  const rolesResponse = await fetchRoles();
+  const roles = await fetchRoles();
   const users = await fetchUsers(params.site);
 
   const currentUserAssignments =
@@ -26,7 +26,7 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
       </div>
       <AssignRolesForm
         user={user}
-        roles={rolesResponse?.roles ?? []}
+        roles={roles}
         assignments={currentUserAssignments}
         site={params.site}
       />

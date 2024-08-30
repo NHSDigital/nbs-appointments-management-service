@@ -41,4 +41,37 @@ const mockSites: Site[] = [
   { id: '1003', name: 'Site Gamma', address: 'Gamma Street' },
 ];
 
-export { getMockUserAssignments, mockRoles, mockSites };
+const mockAllPermissions = [
+  'site:get-config',
+  'site:set-config',
+  'site:get-meta-data',
+  'availability:get-setup',
+  'availability:set-setup',
+  'availability:query',
+  'booking:make',
+  'booking:query',
+  'booking:cancel',
+  'booking:set-status',
+  'users:manage',
+  'users:view',
+];
+
+const mockAuditerPermissions = [
+  'site:get-config',
+  'site:get-meta-data',
+  'availability:get-setup',
+  'availability:query',
+  'booking:query',
+  'users:view',
+];
+
+const mockNonManagerPermissions = ['booking:query', 'booking:set-status'];
+
+export {
+  getMockUserAssignments,
+  mockRoles,
+  mockSites,
+  mockAllPermissions,
+  mockAuditerPermissions,
+  mockNonManagerPermissions,
+};

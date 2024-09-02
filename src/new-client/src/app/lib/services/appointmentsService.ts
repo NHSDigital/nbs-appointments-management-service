@@ -92,3 +92,17 @@ export const saveUserRoleAssignments = async (
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };
+
+export const removeUserFromSite = async (site: string, user: string) => {
+  const response = await appointmentsApi.post(
+    `user/remove`,
+    JSON.stringify({
+      site,
+      user,
+    }),
+  );
+
+  handleResponse(response);
+  revalidatePath(`/site/${site}/users`);
+  redirect(`/site/${site}/users`);
+};

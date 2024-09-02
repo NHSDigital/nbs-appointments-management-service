@@ -8,8 +8,8 @@ services:
   next-app:
     container_name: next-app
     build:
-      context: .
-      dockerfile: src/new-client/web.Dockerfile
+      context: src/new-client/
+      dockerfile: web.Dockerfile
 
     environment:
       NBS_API_BASE_URL: http://api:80
@@ -25,8 +25,8 @@ services:
   api:
     container_name: api
     build:
-      context: .
-      dockerfile: src/api/api.Dockerfile
+      context: src/api/
+      dockerfile: api.Dockerfile
     ports:
       - 7071:80
     environment:

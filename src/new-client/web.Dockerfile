@@ -2,14 +2,14 @@
 
 WORKDIR /app
 
-COPY src/new-client/package.json ./
-COPY src/new-client/package-lock.json ./
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm ci;
 
-COPY src/new-client/src ./src
-COPY src/new-client/public ./public
-COPY src/new-client/next.config.mjs .
-COPY src/new-client/tsconfig.json .
+COPY src ./src
+COPY public ./public
+COPY next.config.mjs .
+COPY tsconfig.json .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 

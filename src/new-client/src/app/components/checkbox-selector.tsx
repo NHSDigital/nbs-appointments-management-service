@@ -6,17 +6,23 @@ type SelectorProps = {
   defaultMessage: string;
   selectAllMessage?: string;
   options: { key: string; value: string }[];
+  defaultOptions?: string[];
   summarise: (opts: string[]) => string | undefined;
+  onChange: (opts: string[]) => void;
 };
 
 const CheckboxSelector = ({
   defaultMessage,
   options,
+  defaultOptions,
   summarise,
+  onChange,
   selectAllMessage,
 }: SelectorProps) => {
   const [isVisible, setIsVisible] = React.useState(false);
-  const [selectedOptions, setSelectedOptions] = React.useState([] as string[]);
+  const [selectedOptions, setSelectedOptions] = React.useState(
+    defaultOptions ?? ([] as string[]),
+  );
   const containerRef = React.useRef<HTMLDivElement>(null);
   const hasError = false;
   const uniqueId = 'test';
@@ -46,6 +52,10 @@ const CheckboxSelector = ({
     () => selectedOptions.length === options.length,
     [selectedOptions, options],
   );
+
+  React.useEffect(() => {
+    onChange(selectedOptions);
+  }, [selectedOptions, onChange]);
 
   React.useEffect(() => {
     const handleEventOutside = (event: Event) => {

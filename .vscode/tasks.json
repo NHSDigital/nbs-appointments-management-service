@@ -8,9 +8,10 @@
       "type": "docker-compose",
       "dockerCompose": {
         "up": {
+          "profile": "local",
           "detached": true,
           "build": true,
-          "services": ["cosmos", "mock-api", "oidc-server"]
+          "services": ["cosmos", "mock-api", "oidc-server", "next-app", "api"]
         },
         "files": ["docker-compose.yml"]
       }

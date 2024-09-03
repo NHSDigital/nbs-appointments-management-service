@@ -23,7 +23,7 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
     {
         var tokenValidationParams = new TokenValidationParameters
         {
-            IssuerSigningKeys = await _jwksRetriever.GetKeys($"{_options.ProviderUri}/{_options.JwksPath}"),
+            IssuerSigningKeys = await _jwksRetriever.GetKeys($"{_options.JwksUri}"),
             ValidAudience = _options.ClientId,
             ValidateAudience = true,
             ValidIssuer = _options.Issuer,

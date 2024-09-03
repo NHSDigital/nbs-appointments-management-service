@@ -38,7 +38,7 @@ public class AuthenticateFunction
             { "state", redirectUri },
         };
 
-        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{_authOptions.ProviderUri}/{_authOptions.AuthorizePath}", queryStringValues);
+        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{_authOptions.AuthorizeUri}", queryStringValues);
         return new RedirectResult(oidcAuthorizeUrl);
     }
 

@@ -16,10 +16,11 @@ class Program
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
 
-        var cosmosEndpoint = configuration["CosmosSettings:Endpoint"];
-        var cosmosToken = configuration["CosmosSettings:Token"];
+        var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
+        var cosmosToken = configuration["COSMOS_TOKEN"];
         var databaseName = configuration["CosmosSettings:DatabaseName"];
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
 
@@ -34,6 +35,7 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
+            await DeleteContainers(container.Name);
             await AddItemsToContainerAsync(container.Name, container.PartitionKey);
         }
 
@@ -52,6 +54,24 @@ class Program
             : $"Skipped creating database {databaseId} as it already exists");
 
         return response.Database;
+    }
+    
+    private static async Task DeleteContainers(string containerId)
+    {
+        if (_database is null)
+            throw new Exception("Database was not initialised");
+        
+        var container = _database.GetContainer(containerId);
+        
+        try
+        { 
+            await container.DeleteContainerAsync();
+            Console.WriteLine($"Deleted container {containerId}");
+        }
+        catch (CosmosException ex) when ( ex.StatusCode == HttpStatusCode.NotFound )
+        {
+            Console.WriteLine($"Skipped deleting container {containerId} as it does not exist");
+        }
     }
 
     private static async Task<Container> CreateContainerAsync(string containerId, string partitionKeyPath)

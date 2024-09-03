@@ -28,11 +28,10 @@ namespace Nhs.Appointments.Api.Auth
              })
             .Configure<AuthOptions>(opts =>
             {
-                opts.ProviderUri = Environment.GetEnvironmentVariable("AuthProvider_ProviderUri");
                 opts.Issuer = Environment.GetEnvironmentVariable("AuthProvider_Issuer");
-                opts.AuthorizePath = Environment.GetEnvironmentVariable("AuthProvider_AuthorizePath");
-                opts.TokenPath = Environment.GetEnvironmentVariable("AuthProvider_TokenPath");
-                opts.JwksPath = Environment.GetEnvironmentVariable("AuthProvider_JwksPath");
+                opts.AuthorizeUri = Environment.GetEnvironmentVariable("AuthProvider_AuthorizeUri");
+                opts.TokenUri = Environment.GetEnvironmentVariable("AuthProvider_TokenUri");
+                opts.JwksUri = Environment.GetEnvironmentVariable("AuthProvider_JwksUri");
                 opts.ChallengePhrase = Environment.GetEnvironmentVariable("AuthProvider_ChallengePhrase");
                 opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
                 opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");

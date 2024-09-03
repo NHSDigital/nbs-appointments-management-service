@@ -33,6 +33,7 @@ export const useAvailability = () => {
       sessionHolders: cb.sessionHolders,
       services: [...cb.services],
       isPreview: false,
+      isBreak: cb.isBreak,
     }));
     setBlocks([
       ...blocks.filter(
@@ -59,6 +60,7 @@ export const useAvailability = () => {
       sessionHolders: cb.sessionHolders,
       services: cb.services,
       isPreview: false,
+      isBreak: cb.isBreak,
     }));
 
     const modifiedBlocks = [

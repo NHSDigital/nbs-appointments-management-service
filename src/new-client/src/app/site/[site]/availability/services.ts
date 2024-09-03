@@ -41,8 +41,8 @@ const services = [
   },
 ];
 
-const serviceSummary = (selectedServices: string[]) => {
-  if (selectedServices.length === 0) return 'Break period';
+const serviceSummary = (selectedServices: string[], emptyMessage?: string) => {
+  if (selectedServices.length === 0) return emptyMessage ?? 'Break period';
   let serviceString = '',
     latestEnd: string,
     latestType: string;

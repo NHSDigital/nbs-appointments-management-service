@@ -21,7 +21,16 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
     setSelectedBlock({ ...selectedBlock, end: time });
   };
 
-  const numbers = [4, 5, 6, 10, 12, 15];
+  const sessionHoldersChanged = (holders: number) => {
+    setSelectedBlock({ ...selectedBlock, sessionHolders: holders });
+  };
+
+  const appointmentLengthChanged = (length: number) => {
+    setSelectedBlock({ ...selectedBlock, appointmentLength: length });
+  };
+
+  const sessionHolders = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const appointmentLength = [4, 5, 6, 10, 12, 15];
 
   return (
     <tr role="row" className="nhsuk-table__row">
@@ -64,8 +73,10 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
           className="nhsuk-select"
           name="max-simul"
           style={{ width: '120px' }}
+          defaultValue={selectedBlock.sessionHolders}
+          onChange={e => sessionHoldersChanged(parseInt(e.target.value))}
         >
-          {numbers.map(n => (
+          {sessionHolders.map(n => (
             <option key={n} value={n}>
               {n}
             </option>
@@ -79,8 +90,10 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
             className="nhsuk-select"
             name="max-simul"
             style={{ width: '64px' }}
+            defaultValue={selectedBlock.appointmentLength}
+            onChange={e => appointmentLengthChanged(parseInt(e.target.value))}
           >
-            {numbers.map(n => (
+            {appointmentLength.map(n => (
               <option key={n} value={n}>
                 {n}
               </option>
@@ -93,7 +106,10 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
       </td>
       <td className="nhsuk-table__cell">
         <button className="nhsuk-button--link" type="button">
-          Remove
+          Save
+        </button>
+        <button className="nhsuk-button--link" type="button">
+          Cancel
         </button>
       </td>
     </tr>

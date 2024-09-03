@@ -4,7 +4,7 @@ import { serviceSummary } from './services';
 import { AvailabilityBlock } from '@types';
 import dayjs from 'dayjs';
 import React from 'react';
-import { isWithin } from './week/common';
+import { calculateNumberOfAppointments, isWithin } from './week/common';
 
 type SummaryAction = {
   title: string;
@@ -27,34 +27,6 @@ export const DaySummary = ({
   hasError,
   showBreaks,
 }: DaySummaryProps) => {
-  const calculateNumberOfAppointments = (block: AvailabilityBlock): number => {
-    const startDateTime = block.day.format('YYYY-MM-DD ') + block.start;
-    const start = dayjs(startDateTime);
-
-    const endDateTime = block.day.format('YYYY-MM-DD ') + block.end;
-    const end = dayjs(endDateTime);
-    const minutes = end.diff(start, 'minute');
-    const unadjusted =
-      (minutes / block.appointmentLength) * block.sessionHolders;
-
-    if (!block.isBreak) {
-      const breaks = blocks
-        .filter(b => b.isBreak && isWithin(b, block))
-        .map(b => {
-          return calculateNumberOfAppointments({
-            ...b,
-            sessionHolders: block.sessionHolders,
-            appointmentLength: block.appointmentLength,
-          });
-        });
-
-      const reduction = breaks?.reduce((a, b) => a + b, 0) ?? 0;
-      return unadjusted - reduction;
-    }
-
-    return unadjusted;
-  };
-
   const blocksToShow = React.useMemo(
     () => blocks.filter(b => showBreaks || !b.isBreak),
     [blocks, showBreaks],
@@ -68,6 +40,7 @@ export const DaySummary = ({
             key={i}
             className="nhsuk-summary-list__row"
             style={{
+              backgroundColor: b.isPreview ? '#CAD7F5' : 'white',
               color: b.isBreak ? 'gray' : 'black',
               fontStyle: b.isBreak ? 'italic' : 'normal',
             }}
@@ -77,7 +50,7 @@ export const DaySummary = ({
               style={{ paddingLeft: b.isBreak ? '24px' : '0px' }}
             >
               <div
-                className={`${b.isPreview ? 'selected' : ''} ${
+                className={`${
                   hasError(b)
                     ? 'nhsuk-form-group--error nhsuk-error-message'
                     : ''
@@ -87,17 +60,20 @@ export const DaySummary = ({
               </div>
             </dt>
             <dd className="nhsuk-summary-list__value">
-              {serviceSummary(b.services)}
+              {b.isBreak
+                ? 'Break Period'
+                : serviceSummary(b.services, 'No services selected')}
             </dd>
             <dd className="nhsuk-summary-list__value">
               <When condition={!b.isBreak}>
-                {calculateNumberOfAppointments(b)} appointments
+                {calculateNumberOfAppointments(b, blocks)} appointments
               </When>
             </dd>
-            <When
-              condition={primaryAction !== undefined && primaryAction.test(b)}
-            >
-              <dd className="nhsuk-summary-list__actions">
+
+            <dd className="nhsuk-summary-list__actions">
+              <When
+                condition={primaryAction !== undefined && primaryAction.test(b)}
+              >
                 <a
                   href="#"
                   onClick={() => primaryAction?.action(b)}
@@ -106,14 +82,15 @@ export const DaySummary = ({
                   {primaryAction?.title}
                   <span className="nhsuk-u-visually-hidden"> name</span>
                 </a>
-              </dd>
-            </When>
-            <When
-              condition={
-                secondaryAction !== undefined && secondaryAction.test(b)
-              }
-            >
-              <dd className="nhsuk-summary-list__actions">
+              </When>
+            </dd>
+
+            <dd className="nhsuk-summary-list__actions">
+              <When
+                condition={
+                  secondaryAction !== undefined && secondaryAction.test(b)
+                }
+              >
                 <a
                   href="#"
                   onClick={() => secondaryAction?.action(b)}
@@ -122,8 +99,8 @@ export const DaySummary = ({
                   {secondaryAction?.title}
                   <span className="nhsuk-u-visually-hidden"> name</span>
                 </a>
-              </dd>
-            </When>
+              </When>
+            </dd>
           </div>
         );
       })}

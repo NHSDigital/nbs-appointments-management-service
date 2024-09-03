@@ -27,33 +27,28 @@ export const DaySummary = ({
   hasError,
   showBreaks,
 }: DaySummaryProps) => {
-  const calculateNumberOfAppointments = (
-    block: AvailabilityBlock,
-    overrideAppointmentLength?: number,
-    overrideSessionHolders?: number,
-  ): number => {
-    const apptLength = overrideAppointmentLength ?? block.appointmentLength;
-    const holders = overrideSessionHolders ?? block.sessionHolders;
+  const calculateNumberOfAppointments = (block: AvailabilityBlock): number => {
     const startDateTime = block.day.format('YYYY-MM-DD ') + block.start;
     const start = dayjs(startDateTime);
 
     const endDateTime = block.day.format('YYYY-MM-DD ') + block.end;
     const end = dayjs(endDateTime);
     const minutes = end.diff(start, 'minute');
-    const unadjusted = (minutes / apptLength) * holders;
+    const unadjusted =
+      (minutes / block.appointmentLength) * block.sessionHolders;
 
     if (!block.isBreak) {
       const breaks = blocks
         .filter(b => b.isBreak && isWithin(b, block))
-        .map(b =>
-          calculateNumberOfAppointments(
-            b,
-            block.appointmentLength,
-            block.sessionHolders,
-          ),
-        );
+        .map(b => {
+          return calculateNumberOfAppointments({
+            ...b,
+            sessionHolders: block.sessionHolders,
+            appointmentLength: block.appointmentLength,
+          });
+        });
 
-      const reduction = breaks.reduce((a, b) => a + b);
+      const reduction = breaks?.reduce((a, b) => a + b, 0) ?? 0;
       return unadjusted - reduction;
     }
 

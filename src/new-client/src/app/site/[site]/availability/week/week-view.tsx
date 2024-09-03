@@ -122,6 +122,7 @@ const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
     day,
     start: '09:00',
     end: '12:00',
+    appointmentLength: 5,
     sessionHolders: 1,
     services: [],
     isPreview: true,
@@ -133,7 +134,11 @@ const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
         <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {day.format('DD ddd')}
         </h2>
-        <DaySummary blocks={filteredBlocks} hasError={() => false} />
+        <DaySummary
+          blocks={filteredBlocks}
+          hasError={() => false}
+          showBreaks={false}
+        />
         <When condition={canEdit}>
           <a href="#" onClick={() => action(defaultBlock)}>
             Edit

@@ -8,6 +8,7 @@ import { useAvailability } from '../../blocks';
 import { AvailabilityBlock } from '@types';
 import { timeSort, timeAsInt, conflictsWith } from '../common';
 import { When } from '@components/when';
+import TimeBlockRow from './time-block-row';
 
 type Errors = {
   time?: string;
@@ -252,143 +253,6 @@ const SessionPage = () => {
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <div>
-          <When condition={targetBlock !== null}>
-            <div
-              className={`nhsuk-form-group ${errors.time ? 'nhsuk-form-group--error' : ''}`}
-            >
-              {errors.time && (
-                <span className="nhsuk-error-message">
-                  <span className="nhsuk-u-visually-hidden">Error:</span>{' '}
-                  {errors.time}
-                </span>
-              )}
-              <label htmlFor="email" className="nhsuk-label">
-                Start time
-              </label>
-              <input
-                type="time"
-                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                aria-label="enter start time"
-              />
-              <label
-                htmlFor="email"
-                className="nhsuk-label"
-                style={{ marginTop: '24px' }}
-              >
-                End time
-              </label>
-              <input
-                type="time"
-                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5 ${errors.time ? 'nhsuk-input--error' : ''}`}
-                value={endTime}
-                onChange={e => setEndTime(e.target.value)}
-                aria-label="enter start time"
-              />
-            </div>
-            <When condition={!targetBlock?.isBreak}>
-              <div className="nhsuk-form-group">
-                <label htmlFor="email" className="nhsuk-label">
-                  Maximum simultaneous appointments
-                </label>
-                <input
-                  type="number"
-                  className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5`}
-                  value={sessionHolders}
-                  onChange={e => setSessionHolders(parseInt(e.target.value))}
-                  aria-label="enter maximum number of simultaneous appointments"
-                />
-              </div>
-              <div className="nhsuk-form-group">
-                <label className="nhsuk-label" htmlFor="appointment-length">
-                  Appointment Length
-                </label>
-                <select
-                  className="nhsuk-select"
-                  id="appointment-length"
-                  name="appointment-length"
-                  defaultValue={appointmentLength}
-                  onChange={e => setAppointmentLength(parseInt(e.target.value))}
-                >
-                  <option value="5">5 minutes</option>
-                  <option value="10">10 minutes</option>
-                  <option value="15">15 minutes</option>
-                </select>
-              </div>
-              <div className="nhsuk-form-group">
-                <label htmlFor="email" className="nhsuk-label">
-                  Services
-                </label>
-                <div className="nhsuk-checkboxes">
-                  <div className="nhsuk-checkboxes__item">
-                    <input
-                      id="all"
-                      type="checkbox"
-                      className="nhsuk-checkboxes__input"
-                      checked={selectedServices.length === services.length}
-                      onChange={toggleAllServices}
-                    />
-                    <label
-                      htmlFor="all"
-                      className="nhsuk-label nhsuk-checkboxes__label"
-                    >
-                      All services
-                    </label>
-                  </div>
-                  {services.map(svc => (
-                    <div key={svc.key} className="nhsuk-checkboxes__item">
-                      <input
-                        id={svc.key}
-                        type="checkbox"
-                        className="nhsuk-checkboxes__input"
-                        value={svc.key}
-                        checked={selectedServices.includes(svc.key)}
-                        onChange={() => toggleService(svc.key)}
-                      />
-                      <label
-                        htmlFor={svc.key}
-                        className="nhsuk-label nhsuk-checkboxes__label"
-                      >
-                        {svc.value}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </When>
-            <div style={{ marginTop: '20px', width: '600px' }}>
-              <div className="nhsuk-navigation">
-                <button
-                  type="button"
-                  aria-label="save user"
-                  className="nhsuk-button nhsuk-u-margin-bottom-0"
-                  onClick={save}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  aria-label="cancel"
-                  className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
-                  onClick={cancelChanges}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </When>
-          <When condition={targetBlock === null}>
-            <div style={{ width: '600px' }}>
-              <span className="nhsuk-caption-l nhsuk-caption--bottom">
-                <span className="nhsuk-u-visually-hidden">-</span>
-                No session is selected. Select on from the day preview or add a
-                new session.
-              </span>
-            </div>
-          </When>
-        </div>
-        <div>
           <div className="nhsuk-card nhsuk-card">
             <div className="nhsuk-card__content nhsuk-card__content--primary">
               <h2 className="nhsuk-card__heading nhsuk-heading-m">
@@ -423,6 +287,9 @@ const SessionPage = () => {
                 Back to week view
               </a>
             </div>
+          </div>
+          <div>
+            <TimeBlockRow block={targetBlock!} />
           </div>
           <When condition={showUnsavedChangesMessage}>
             <div

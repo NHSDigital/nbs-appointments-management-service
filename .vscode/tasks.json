@@ -10,8 +10,7 @@
         "up": {
           "profile": "local",
           "detached": true,
-          "build": true,
-          "services": ["cosmos", "mock-api", "oidc-server", "next-app", "api"]
+          "build": true
         },
         "files": ["docker-compose.yml"]
       }

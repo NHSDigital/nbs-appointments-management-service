@@ -29,6 +29,7 @@ const SessionPage = () => {
   const [startTime, setStartTime] = React.useState('09:00');
   const [endTime, setEndTime] = React.useState('12:00');
   const [sessionHolders, setSessionHolders] = React.useState(1);
+  const [appointmentLength, setAppointmentLength] = React.useState(5);
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
   const [previewBlocks, setPreviewBlocks] = React.useState<AvailabilityBlock[]>(
     [],
@@ -38,10 +39,36 @@ const SessionPage = () => {
   const [showUnsavedChangesMessage, setShowUnsavedChangesMessage] =
     React.useState(false);
 
+  const toggleAllServices = () => {
+    if (selectedServices.length === services.length) {
+      setSelectedServices([]);
+    } else {
+      setSelectedServices(services.map(svc => svc.key));
+    }
+  };
+
   const toggleService = (svc: string) => {
     if (selectedServices.includes(svc))
       setSelectedServices(selectedServices.filter(s => s !== svc));
     else setSelectedServices([...selectedServices, svc]);
+  };
+
+  const addBreak = () => {
+    if (checkForUnsavedChanges()) {
+      setShowUnsavedChangesMessage(true);
+    } else {
+      setShowUnsavedChangesMessage(false);
+      setTargetBlock({
+        day,
+        start: '09:00',
+        end: '10:00',
+        appointmentLength: 5,
+        sessionHolders: 0,
+        services: [],
+        isBreak: true,
+        isPreview: true,
+      });
+    }
   };
 
   const addSession = () => {
@@ -53,9 +80,11 @@ const SessionPage = () => {
         day,
         start: '09:00',
         end: '10:00',
+        appointmentLength: 5,
         sessionHolders: 1,
         services: [],
         isPreview: true,
+        isBreak: false,
       });
     }
   };
@@ -89,6 +118,10 @@ const SessionPage = () => {
     const st = timeAsInt(startTime);
     const et = timeAsInt(endTime);
 
+    // if(targetBlock?.isBreak) {
+    //   const hit = blocks.find(b => is )
+    // }
+
     if (et !== 0 && et <= st) {
       err.time = 'The start time must be earlier than the end time.';
     } else if (conflictBlock) {
@@ -108,8 +141,10 @@ const SessionPage = () => {
           day,
           start: startTime,
           end: endTime,
+          appointmentLength,
           sessionHolders,
           services: selectedServices,
+          isBreak: targetBlock?.isBreak,
         },
         targetBlock !== null && !targetBlock.isPreview
           ? targetBlock
@@ -166,9 +201,11 @@ const SessionPage = () => {
 
   React.useEffect(() => {
     const test = { start: startTime, end: endTime };
-    const hit = dayBlocks.find(b => conflictsWith(b, test));
+    const hit = dayBlocks.find(
+      b => b.isBreak === targetBlock?.isBreak && conflictsWith(b, test),
+    );
     setConflictBlock(hit?.start);
-  }, [startTime, endTime, blocks]);
+  }, [startTime, endTime, targetBlock, blocks]);
 
   React.useEffect(() => {
     const pbs: AvailabilityBlock[] = [
@@ -179,9 +216,11 @@ const SessionPage = () => {
         day,
         start: startTime,
         end: endTime,
+        appointmentLength: appointmentLength,
         sessionHolders: sessionHolders,
         services: selectedServices,
         isPreview: true,
+        isBreak: targetBlock.isBreak,
       });
     }
     pbs.sort(timeSort);
@@ -191,6 +230,7 @@ const SessionPage = () => {
     targetBlock,
     startTime,
     endTime,
+    appointmentLength,
     selectedServices,
     sessionHolders,
   ]);
@@ -247,93 +287,94 @@ const SessionPage = () => {
                 aria-label="enter start time"
               />
             </div>
-            <div className="nhsuk-form-group">
-              <label htmlFor="email" className="nhsuk-label">
-                Maximum simultaneous appointments
-              </label>
-              <input
-                type="number"
-                className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5`}
-                value={sessionHolders}
-                onChange={e => setSessionHolders(parseInt(e.target.value))}
-                aria-label="enter maximum number of simultaneous appointments"
-              />
-            </div>
-            <div className="nhsuk-form-group">
-              <label htmlFor="email" className="nhsuk-label">
-                Services
-              </label>
-              <div className="nhsuk-checkboxes">
-                <div className="nhsuk-checkboxes__item">
-                  <input
-                    id="break"
-                    type="checkbox"
-                    className="nhsuk-checkboxes__input"
-                    checked={selectedServices.length === 0}
-                    onChange={() => setSelectedServices([])}
-                  />
-                  <label
-                    htmlFor="break"
-                    className="nhsuk-label nhsuk-checkboxes__label"
-                  >
-                    No services - this is a break period
-                  </label>
-                </div>
-                <div className="nhsuk-checkboxes__item">
-                  <input
-                    id="all"
-                    type="checkbox"
-                    className="nhsuk-checkboxes__input"
-                    checked={selectedServices.length === services.length}
-                    onChange={() =>
-                      setSelectedServices(services.map(svc => svc.key))
-                    }
-                  />
-                  <label
-                    htmlFor="all"
-                    className="nhsuk-label nhsuk-checkboxes__label"
-                  >
-                    All services
-                  </label>
-                </div>
-                {services.map(svc => (
-                  <div key={svc.key} className="nhsuk-checkboxes__item">
+            <When condition={!targetBlock?.isBreak}>
+              <div className="nhsuk-form-group">
+                <label htmlFor="email" className="nhsuk-label">
+                  Maximum simultaneous appointments
+                </label>
+                <input
+                  type="number"
+                  className={`nhsuk-input nhsuk-date-input nhsuk-input--width-5`}
+                  value={sessionHolders}
+                  onChange={e => setSessionHolders(parseInt(e.target.value))}
+                  aria-label="enter maximum number of simultaneous appointments"
+                />
+              </div>
+              <div className="nhsuk-form-group">
+                <label className="nhsuk-label" htmlFor="appointment-length">
+                  Appointment Length
+                </label>
+                <select
+                  className="nhsuk-select"
+                  id="appointment-length"
+                  name="appointment-length"
+                  defaultValue={appointmentLength}
+                  onChange={e => setAppointmentLength(parseInt(e.target.value))}
+                >
+                  <option value="5">5 minutes</option>
+                  <option value="10">10 minutes</option>
+                  <option value="15">15 minutes</option>
+                </select>
+              </div>
+              <div className="nhsuk-form-group">
+                <label htmlFor="email" className="nhsuk-label">
+                  Services
+                </label>
+                <div className="nhsuk-checkboxes">
+                  <div className="nhsuk-checkboxes__item">
                     <input
-                      id={svc.key}
+                      id="all"
                       type="checkbox"
                       className="nhsuk-checkboxes__input"
-                      value={svc.key}
-                      checked={selectedServices.includes(svc.key)}
-                      onChange={() => toggleService(svc.key)}
+                      checked={selectedServices.length === services.length}
+                      onChange={toggleAllServices}
                     />
                     <label
-                      htmlFor={svc.key}
+                      htmlFor="all"
                       className="nhsuk-label nhsuk-checkboxes__label"
                     >
-                      {svc.value}
+                      All services
                     </label>
                   </div>
-                ))}
-              </div>
-              <div style={{ marginTop: '20px', width: '600px' }}>
-                <div className="nhsuk-navigation">
-                  <button
-                    type="button"
-                    aria-label="save user"
-                    className="nhsuk-button nhsuk-u-margin-bottom-0"
-                    onClick={save}
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="cancel"
-                    className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
-                    onClick={cancelChanges}
-                  >
-                    Cancel
-                  </button>
+                  {services.map(svc => (
+                    <div key={svc.key} className="nhsuk-checkboxes__item">
+                      <input
+                        id={svc.key}
+                        type="checkbox"
+                        className="nhsuk-checkboxes__input"
+                        value={svc.key}
+                        checked={selectedServices.includes(svc.key)}
+                        onChange={() => toggleService(svc.key)}
+                      />
+                      <label
+                        htmlFor={svc.key}
+                        className="nhsuk-label nhsuk-checkboxes__label"
+                      >
+                        {svc.value}
+                      </label>
+                    </div>
+                  ))}
                 </div>
+              </div>
+            </When>
+            <div style={{ marginTop: '20px', width: '600px' }}>
+              <div className="nhsuk-navigation">
+                <button
+                  type="button"
+                  aria-label="save user"
+                  className="nhsuk-button nhsuk-u-margin-bottom-0"
+                  onClick={save}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  aria-label="cancel"
+                  className="nhsuk-button nhsuk-button--secondary nhsuk-u-margin-left-3 nhsuk-u-margin-bottom-0"
+                  onClick={cancelChanges}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </When>
@@ -355,6 +396,7 @@ const SessionPage = () => {
               </h2>
               <DaySummary
                 blocks={previewBlocks}
+                showBreaks={true}
                 hasError={b =>
                   errors.time !== undefined &&
                   b.start === conflictBlock &&
@@ -365,6 +407,13 @@ const SessionPage = () => {
               />
               <a href="#" onClick={() => addSession()}>
                 Add a session
+              </a>
+              <a
+                href="#"
+                onClick={() => addBreak()}
+                style={{ marginLeft: '20px' }}
+              >
+                Add a break
               </a>
               <a
                 href="#"

@@ -14,6 +14,16 @@ const isBefore = (lhs: string, rhs: string) => {
 
 const timeAsInt = (time: string) => parseInt(time.replace(':', ''));
 
+const isWithin = (
+  a: { start: string; end: string },
+  b: { start: string; end: string },
+) => {
+  const boundsOfA = { start: timeAsInt(a.start), end: timeAsInt(a.end) };
+  const boundsOfB = { start: timeAsInt(b.start), end: timeAsInt(b.end) };
+
+  return boundsOfA.start >= boundsOfB.start && boundsOfA.end <= boundsOfB.end;
+};
+
 const conflictsWith = (
   a: { start: string; end: string },
   b: { start: string; end: string },
@@ -28,4 +38,4 @@ const conflictsWith = (
   return false;
 };
 
-export { timeSort, isBefore, conflictsWith, timeAsInt };
+export { timeSort, isBefore, conflictsWith, timeAsInt, isWithin };

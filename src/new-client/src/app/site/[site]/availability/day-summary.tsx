@@ -1,6 +1,10 @@
+'use client';
 import { When } from '@components/when';
 import { serviceSummary } from './services';
 import { AvailabilityBlock } from '@types';
+import dayjs from 'dayjs';
+import React from 'react';
+import { isWithin } from './week/common';
 
 type SummaryAction = {
   title: string;
@@ -13,6 +17,7 @@ export type DaySummaryProps = {
   secondaryAction?: SummaryAction;
   hasError: (block: AvailabilityBlock) => boolean;
   blocks: AvailabilityBlock[];
+  showBreaks: boolean;
 };
 
 export const DaySummary = ({
@@ -20,13 +25,62 @@ export const DaySummary = ({
   primaryAction,
   secondaryAction,
   hasError,
+  showBreaks,
 }: DaySummaryProps) => {
+  const calculateNumberOfAppointments = (
+    block: AvailabilityBlock,
+    overrideAppointmentLength?: number,
+    overrideSessionHolders?: number,
+  ): number => {
+    const apptLength = overrideAppointmentLength ?? block.appointmentLength;
+    const holders = overrideSessionHolders ?? block.sessionHolders;
+    const startDateTime = block.day.format('YYYY-MM-DD ') + block.start;
+    const start = dayjs(startDateTime);
+
+    const endDateTime = block.day.format('YYYY-MM-DD ') + block.end;
+    const end = dayjs(endDateTime);
+    const minutes = end.diff(start, 'minute');
+    const unadjusted = (minutes / apptLength) * holders;
+
+    if (!block.isBreak) {
+      const breaks = blocks
+        .filter(b => b.isBreak && isWithin(b, block))
+        .map(b =>
+          calculateNumberOfAppointments(
+            b,
+            block.appointmentLength,
+            block.sessionHolders,
+          ),
+        );
+
+      const reduction = breaks.reduce((a, b) => a + b);
+      return unadjusted - reduction;
+    }
+
+    return unadjusted;
+  };
+
+  const blocksToShow = React.useMemo(
+    () => blocks.filter(b => showBreaks || !b.isBreak),
+    [blocks, showBreaks],
+  );
+
   return (
     <dl className="nhsuk-summary-list">
-      {blocks.map((b, i) => {
+      {blocksToShow.map((b, i) => {
         return (
-          <div key={i} className="nhsuk-summary-list__row">
-            <dt className={`nhsuk-summary-list__key `}>
+          <div
+            key={i}
+            className="nhsuk-summary-list__row"
+            style={{
+              color: b.isBreak ? 'gray' : 'black',
+              fontStyle: b.isBreak ? 'italic' : 'normal',
+            }}
+          >
+            <dt
+              className={`nhsuk-summary-list__key`}
+              style={{ paddingLeft: b.isBreak ? '24px' : '0px' }}
+            >
               <div
                 className={`${b.isPreview ? 'selected' : ''} ${
                   hasError(b)
@@ -40,11 +94,20 @@ export const DaySummary = ({
             <dd className="nhsuk-summary-list__value">
               {serviceSummary(b.services)}
             </dd>
+            <dd className="nhsuk-summary-list__value">
+              <When condition={!b.isBreak}>
+                {calculateNumberOfAppointments(b)} appointments
+              </When>
+            </dd>
             <When
               condition={primaryAction !== undefined && primaryAction.test(b)}
             >
               <dd className="nhsuk-summary-list__actions">
-                <a href="#" onClick={() => primaryAction?.action(b)}>
+                <a
+                  href="#"
+                  onClick={() => primaryAction?.action(b)}
+                  style={{ fontStyle: 'normal' }}
+                >
                   {primaryAction?.title}
                   <span className="nhsuk-u-visually-hidden"> name</span>
                 </a>
@@ -56,7 +119,11 @@ export const DaySummary = ({
               }
             >
               <dd className="nhsuk-summary-list__actions">
-                <a href="#" onClick={() => secondaryAction?.action(b)}>
+                <a
+                  href="#"
+                  onClick={() => secondaryAction?.action(b)}
+                  style={{ fontStyle: 'normal' }}
+                >
                   {secondaryAction?.title}
                   <span className="nhsuk-u-visually-hidden"> name</span>
                 </a>

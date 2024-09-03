@@ -41,13 +41,18 @@ interface ApiErrorResponse {
   errorMessage: string;
 }
 
-type AvailabilityBlock = {
+type TimePeriod = {
   day: dayjs.Dayjs;
   start: string;
   end: string;
+};
+
+type AvailabilityBlock = TimePeriod & {
+  appointmentLength: number;
   sessionHolders: number;
   services: string[];
   isPreview?: boolean;
+  isBreak?: boolean;
 };
 
 type WeekInfo = {

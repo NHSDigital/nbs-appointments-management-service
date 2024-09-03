@@ -29,6 +29,7 @@ export const useAvailability = () => {
       day: day.add(cb.day.day() === 0 ? 6 : cb.day.day() - 1, 'day'),
       start: cb.start,
       end: cb.end,
+      appointmentLength: cb.appointmentLength,
       sessionHolders: cb.sessionHolders,
       services: [...cb.services],
       isPreview: false,
@@ -54,6 +55,7 @@ export const useAvailability = () => {
       day,
       start: cb.start,
       end: cb.end,
+      appointmentLength: cb.appointmentLength,
       sessionHolders: cb.sessionHolders,
       services: cb.services,
       isPreview: false,
@@ -96,15 +98,19 @@ export const useAvailability = () => {
         day: string;
         start: string;
         end: string;
+        appointmentLength: number;
         sessionHolders: number;
         services: string[];
+        isBreak: boolean;
       }[];
       return temp.map(t => ({
         day: dayjs(t.day),
         start: t.start,
         end: t.end,
+        appointmentLength: t.appointmentLength,
         sessionHolders: t.sessionHolders,
         services: t.services,
+        isBreak: t.isBreak,
       }));
     } else return [];
   };

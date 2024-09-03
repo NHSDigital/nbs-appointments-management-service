@@ -48,6 +48,10 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     AuthProvider_ClientId                 = var.auth_provider_client_id
     AuthProvider_ReturnUri                = var.auth_provider_return_uri
     HMAC_SIGNING_KEY                      = var.hmac_signing_key
+    Notifications_Provider                = "azure"
+    UserRolesChangedEmailTemplateId       = var.user_roles_changed_email_template_id
+    GovNotifyApiKey                       = var.gov_notify_api_key
+    ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_appts_sb.default_primary_connection_string
   }
 
   identity {
@@ -114,4 +118,20 @@ resource "azurerm_cosmosdb_account" "nbs_appts_cdb" {
   consistency_policy {
     consistency_level = "Session"
   }
+}
+
+## Service Bus
+
+resource "azurerm_servicebus_namespace" "nbs_appts_sb" {
+  name                = "${var.application}-sb-${var.environment}-${var.loc}
+  location            = data.azurerm_resource_group.nbs_appts_rg.location
+  resource_group_name = data.azurerm_resource_group.nbs_appts_rg.name
+  sku                 = "Standard"
+}
+
+resource "azurerm_servicebus_queue" "nbs_appts_sbq_userroles" {
+  name         = "user-role-change"
+  namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
+
+  partitioning_enabled = true
 }

@@ -81,3 +81,13 @@ variable "hmac_signing_key" {
   type      = string
   sensitive = true
 }
+
+variable "user_roles_changed_email_template_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "gov_notify_api_key" {
+  type      = string
+  sensitive = true
+}

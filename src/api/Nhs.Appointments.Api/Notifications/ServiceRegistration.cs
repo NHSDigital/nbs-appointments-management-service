@@ -34,6 +34,10 @@ namespace Nhs.Appointments.Api.Notifications
                     .AddScoped<NotifyUserRolesChangedFunction>()
                     .AddMassTransitForAzureFunctions(cfg =>
                     {
+                        cfg.UsingAzureServiceBus((context, c) =>
+                        {
+                            c.Host(Environment.GetEnvironmentVariable("ServiceBusConnectionString"));
+                        });
                         cfg.AddConsumer<UserRolesChangedConsumer>();
                         cfg.AddRequestClient<UserRolesChanged>(new Uri("queue:user-role-change"));
                     })

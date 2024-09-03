@@ -1,0 +1,61 @@
+.dropdown-check-list {
+  display: inline-block;
+  position: relative;
+}
+
+.dropdown-check-list .anchor {
+  background: #fff;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  padding: 5px 30px 5px 10px;
+  border: 2px solid #4c6272;
+  min-width: 30em;
+}
+
+.dropdown-check-list .anchor.error {
+  border: 2px solid #d5281b;
+}
+
+.dropdown-check-list .anchor::after {
+  position: absolute;
+  content: '';
+  border-left: 2px solid #000;
+  border-top: 2px solid #000;
+  padding: 5px;
+  right: 10px;
+  top: 10px;
+  transform: rotate(-135deg);
+  transform: rotate(-135deg);
+  transform: rotate(-135deg);
+  transform: rotate(-135deg);
+  transform: rotate(-135deg);
+}
+
+.dropdown-check-list .anchor:active::after {
+  right: 8px;
+  top: 21%;
+}
+
+.dropdown-check-list .items {
+  padding: 8px;
+  display: none;
+  margin: 0;
+  border: 0 2px 2px 2px solid #4c6272;
+  position: absolute;
+  background: #fff;
+  width: 100%;
+  z-index: 10;
+}
+
+.dropdown-check-list.visible .items {
+  display: block;
+}
+
+.dropdown-check-list .items li {
+  list-style: none;
+}
+
+.items li label {
+  margin-left: 3px;
+}

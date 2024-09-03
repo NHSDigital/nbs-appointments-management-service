@@ -2,17 +2,26 @@
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { services } from '../../services';
+import { services, serviceSummary } from '../../services';
 import { DaySummary } from '../../day-summary';
 import { useAvailability } from '../../blocks';
 import { AvailabilityBlock } from '@types';
-import { timeSort, timeAsInt, conflictsWith } from '../common';
+import {
+  timeSort,
+  timeAsInt,
+  conflictsWith,
+  calculateNumberOfAppointments,
+} from '../common';
 import { When } from '@components/when';
-import TimeBlockRow from './time-block-row';
+import CheckboxSelector from '@components/checkbox-selector';
 
 type Errors = {
   time?: string;
+  services?: string;
 };
+
+const sessionHolderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const appointmentLengthOptions = [4, 5, 6, 10, 12, 15];
 
 const SessionPage = () => {
   const { blocks, saveBlock, removeBlock } = useAvailability();
@@ -40,19 +49,10 @@ const SessionPage = () => {
   const [showUnsavedChangesMessage, setShowUnsavedChangesMessage] =
     React.useState(false);
 
-  const toggleAllServices = () => {
-    if (selectedServices.length === services.length) {
-      setSelectedServices([]);
-    } else {
-      setSelectedServices(services.map(svc => svc.key));
-    }
-  };
-
-  const toggleService = (svc: string) => {
-    if (selectedServices.includes(svc))
-      setSelectedServices(selectedServices.filter(s => s !== svc));
-    else setSelectedServices([...selectedServices, svc]);
-  };
+  const hasErrors = React.useMemo(
+    () => errors.time !== undefined || errors.services !== undefined,
+    [errors],
+  );
 
   const addBreak = () => {
     if (checkForUnsavedChanges()) {
@@ -119,10 +119,6 @@ const SessionPage = () => {
     const st = timeAsInt(startTime);
     const et = timeAsInt(endTime);
 
-    // if(targetBlock?.isBreak) {
-    //   const hit = blocks.find(b => is )
-    // }
-
     if (et !== 0 && et <= st) {
       err.time = 'The start time must be earlier than the end time.';
     } else if (conflictBlock) {
@@ -131,8 +127,12 @@ const SessionPage = () => {
         err.time = `A conflicting session already exists between ${hit.start} and ${hit.end}`;
     }
 
+    if (selectedServices.length == 0 && !targetBlock?.isBreak) {
+      err.services = 'You must select at least one service.';
+    }
+
     setErrors(err);
-    return err.time === undefined;
+    return err.time === undefined && err.services === undefined;
   };
 
   const save = () => {
@@ -191,12 +191,30 @@ const SessionPage = () => {
     test: (b: AvailabilityBlock) => !b.isPreview,
   };
 
+  const targetBlockAppointments = React.useMemo(
+    () =>
+      calculateNumberOfAppointments(
+        {
+          day,
+          start: startTime,
+          end: endTime,
+          appointmentLength,
+          services: [],
+          sessionHolders,
+          isBreak: false,
+        },
+        blocks,
+      ),
+    [startTime, endTime, appointmentLength, sessionHolders, day, blocks],
+  );
+
   React.useEffect(() => {
     if (targetBlock) {
       setStartTime(targetBlock.start);
       setEndTime(targetBlock.end);
       setSessionHolders(targetBlock.sessionHolders);
       setSelectedServices(targetBlock.services);
+      setAppointmentLength(targetBlock.appointmentLength);
     }
   }, [targetBlock]);
 
@@ -289,8 +307,160 @@ const SessionPage = () => {
             </div>
           </div>
           <div>
-            <TimeBlockRow block={targetBlock!} />
+            <When condition={targetBlock !== null}>
+              <div className="nhsuk-card nhsuk-card">
+                <div className="nhsuk-card__content nhsuk-card__content--primary">
+                  <h2 className="nhsuk-card__heading nhsuk-heading-m">
+                    Edit session details
+                  </h2>
+                  <table>
+                    <thead className="nhsuk-table__head">
+                      <tr role="row">
+                        <th role="columnheader" scope="col">
+                          Start Time
+                        </th>
+                        <th role="columnheader" scope="col">
+                          End Time
+                        </th>
+                        <th role="columnheader" scope="col">
+                          Services
+                        </th>
+                        <th>Max Concurrent Appts.</th>
+                        <th>Appointment Length</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr role="row" className="nhsuk-table__row">
+                        <td className="nhsuk-table__cell">
+                          <div className="nhsuk-date-input__item">
+                            <input
+                              type="time"
+                              className="nhsuk-input nhsuk-date-input nhsuk-input--width-5"
+                              value={startTime}
+                              onChange={e => setStartTime(e.target.value)}
+                              aria-label="enter start time"
+                            />
+                          </div>
+                        </td>
+                        <td className="nhsuk-table__cell ">
+                          <div className="nhsuk-date-input__item">
+                            <input
+                              type="time"
+                              className="nhsuk-input nhsuk-date-input nhsuk-input--width-5"
+                              value={endTime}
+                              onChange={e => setEndTime(e.target.value)}
+                              aria-label="enter end time"
+                            />
+                          </div>
+                        </td>
+                        <td className="nhsuk-table__cell ">
+                          <When condition={!targetBlock?.isBreak}>
+                            <CheckboxSelector
+                              defaultMessage="Select services for the clinic"
+                              options={services}
+                              defaultOptions={targetBlock?.services}
+                              summarise={opts =>
+                                serviceSummary(
+                                  opts,
+                                  'Select services for the clinic',
+                                )
+                              }
+                              onChange={opts => setSelectedServices(opts)}
+                            />
+                          </When>
+                          <When condition={targetBlock?.isBreak ?? false}>
+                            Break period
+                          </When>
+                        </td>
+                        <td className="nhsuk-table__cell">
+                          <When condition={!targetBlock?.isBreak}>
+                            <select
+                              key="b"
+                              className="nhsuk-select"
+                              name="max-simul"
+                              style={{ width: '120px' }}
+                              defaultValue={sessionHolders}
+                              onChange={e =>
+                                setSessionHolders(parseInt(e.target.value))
+                              }
+                            >
+                              {sessionHolderOptions.map(n => (
+                                <option key={n} value={n}>
+                                  {n}
+                                </option>
+                              ))}
+                            </select>
+                          </When>
+                        </td>
+                        <td className="nhsuk-table__cell">
+                          <When condition={!targetBlock?.isBreak}>
+                            <div>
+                              <select
+                                key="c"
+                                className="nhsuk-select"
+                                name="max-simul"
+                                style={{ width: '64px' }}
+                                defaultValue={appointmentLength}
+                                onChange={e =>
+                                  setAppointmentLength(parseInt(e.target.value))
+                                }
+                              >
+                                {appointmentLengthOptions.map(n => (
+                                  <option key={n} value={n}>
+                                    {n}
+                                  </option>
+                                ))}
+                              </select>
+                              <span style={{ marginLeft: '32px' }}>
+                                <b>{targetBlockAppointments}</b> appointments
+                              </span>
+                            </div>
+                          </When>
+                        </td>
+                        <td className="nhsuk-table__cell">
+                          <a href="#" onClick={() => save()}>
+                            Save
+                          </a>
+                          <a
+                            href="#"
+                            onClick={() => cancelChanges()}
+                            style={{ marginLeft: '20px' }}
+                          >
+                            Cancel
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </When>
           </div>
+          <When condition={hasErrors}>
+            <div
+              className="nhsuk-error-summary"
+              aria-labelledby="error-summary-title"
+              role="alert"
+            >
+              <h2
+                className="nhsuk-error-summary__title"
+                id="error-summary-title"
+              >
+                There are problems with the clinic settings
+              </h2>
+              <When condition={errors.time !== undefined}>
+                <div className="nhsuk-error-summary__body">
+                  <p>{errors.time}</p>
+                </div>
+              </When>
+              <When condition={errors.services !== undefined}>
+                <div className="nhsuk-error-summary__body">
+                  <p>{errors.services}</p>
+                </div>
+              </When>
+            </div>
+          </When>
           <When condition={showUnsavedChangesMessage}>
             <div
               className="nhsuk-error-summary"

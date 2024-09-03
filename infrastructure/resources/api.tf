@@ -123,7 +123,7 @@ resource "azurerm_cosmosdb_account" "nbs_appts_cdb" {
 ## Service Bus
 
 resource "azurerm_servicebus_namespace" "nbs_appts_sb" {
-  name                = "${var.application}-sb-${var.environment}-${var.loc}
+  name                = "${var.application}-sb-${var.environment}-${var.loc}"
   location            = data.azurerm_resource_group.nbs_appts_rg.location
   resource_group_name = data.azurerm_resource_group.nbs_appts_rg.name
   sku                 = "Standard"

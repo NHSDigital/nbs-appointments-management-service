@@ -12,13 +12,3 @@ public class UserRolesChangedConsumer(IUserRolesChangedNotifier notifier) : ICon
         return notifier.Notify(context.Message.User, context.Message.Site, context.Message.Added, context.Message.Removed);
     }
 }
-
-public class UserRolesChangedConsumerDefinition :
-    ConsumerDefinition<UserRolesChangedConsumer>
-{
-    protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-        IConsumerConfigurator<UserRolesChangedConsumer> consumerConfigurator)
-    {
-        consumerConfigurator.UseMessageRetry(x => x.Intervals(10, 100, 500, 1000));
-    }
-}

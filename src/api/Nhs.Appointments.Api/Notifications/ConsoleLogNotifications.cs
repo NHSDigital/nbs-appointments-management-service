@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using System;
@@ -12,7 +11,7 @@ namespace Nhs.Appointments.Api.Notifications;
 
 public class ConsoleLogNotifications : IMessageBus
 {
-    public Task Send<T>(T message)
+    public Task Send<T>(T message) where T : class
     {
         Console.WriteLine(Json.JsonResponseWriter.Serialize(message));
         ProcessMessage(message);

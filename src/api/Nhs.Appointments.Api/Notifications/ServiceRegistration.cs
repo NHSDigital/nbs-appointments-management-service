@@ -21,7 +21,7 @@ public static class ServiceRegistration
         });
 
         services.AddScoped<IAsyncNotificationClient>(x => new Notify.Client.NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")));
-
+   
         if (userNotificationsProvider == "local")
         {
             services
@@ -37,10 +37,12 @@ public static class ServiceRegistration
                 .AddScoped<NotifyUserRolesChangedFunction>()
                 .AddMassTransitForAzureFunctions(cfg =>
                 {
-                    cfg.AddConsumer<UserRolesChangedConsumer>();
-                    cfg.AddRequestClient<UserRolesChanged>(new Uri("queue:user-role-change"));
+                    EndpointConvention.Map<UserRolesChanged>(new Uri("queue:user-roles-changed"));
+                    cfg
+                    .AddConsumer<UserRolesChangedConsumer>();
                 },
                 connectionStringConfigurationKey: "ServiceBusConnectionString");
+
         }
         else
         {

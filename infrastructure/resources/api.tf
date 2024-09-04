@@ -130,7 +130,7 @@ resource "azurerm_servicebus_namespace" "nbs_appts_sb" {
 }
 
 resource "azurerm_servicebus_queue" "nbs_appts_sbq_userroles" {
-  name         = "user-role-change"
+  name         = "user-roles-changed"
   namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
 
   partitioning_enabled = true

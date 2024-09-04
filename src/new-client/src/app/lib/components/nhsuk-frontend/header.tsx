@@ -20,7 +20,7 @@ const Header = ({ children }: Props) => {
           <Link
             className="nhsuk-header__link nhsuk-header__link--service"
             href="/"
-            aria-label="NHS homepage"
+            aria-label="NHS Appointment Book"
           >
             <NhsLogo />
 

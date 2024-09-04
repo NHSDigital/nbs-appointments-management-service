@@ -7,10 +7,11 @@ import { DaySummary } from '../../day-summary';
 import { useAvailability } from '../../blocks';
 import { AvailabilityBlock } from '@types';
 import {
-  timeSort,
   timeAsInt,
   conflictsWith,
   calculateNumberOfAppointments,
+  isWithin,
+  timeSort,
 } from '../common';
 import { When } from '@components/when';
 import CheckboxSelector from '@components/checkbox-selector';
@@ -18,6 +19,7 @@ import CheckboxSelector from '@components/checkbox-selector';
 type Errors = {
   time?: string;
   services?: string;
+  break?: string;
 };
 
 const sessionHolderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -41,16 +43,16 @@ const SessionPage = () => {
   const [sessionHolders, setSessionHolders] = React.useState(1);
   const [appointmentLength, setAppointmentLength] = React.useState(5);
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
-  const [previewBlocks, setPreviewBlocks] = React.useState<AvailabilityBlock[]>(
-    [],
-  );
   const [targetBlock, setTargetBlock] =
     React.useState<AvailabilityBlock | null>(null);
   const [showUnsavedChangesMessage, setShowUnsavedChangesMessage] =
     React.useState(false);
 
   const hasErrors = React.useMemo(
-    () => errors.time !== undefined || errors.services !== undefined,
+    () =>
+      errors.time !== undefined ||
+      errors.services !== undefined ||
+      errors.break !== undefined,
     [errors],
   );
 
@@ -131,8 +133,20 @@ const SessionPage = () => {
       err.services = 'You must select at least one service.';
     }
 
+    if (targetBlock?.isBreak) {
+      if (
+        blocks.filter(b => !b.isBreak && isWithin(targetBlock, b)).length == 0
+      ) {
+        err.break = 'Breaks must exist within a session.';
+      }
+    }
+
     setErrors(err);
-    return err.time === undefined && err.services === undefined;
+    return (
+      err.time === undefined &&
+      err.services === undefined &&
+      err.break === undefined
+    );
   };
 
   const save = () => {
@@ -175,9 +189,8 @@ const SessionPage = () => {
   };
 
   const dayBlocks = React.useMemo(() => {
-    const timeFilter = targetBlock?.isPreview ? 'na' : targetBlock?.start;
-    return blocks.filter(b => b.day.isSame(day) && b.start !== timeFilter);
-  }, [blocks, day, targetBlock]);
+    return blocks.filter(b => b.day.isSame(day)).toSorted(timeSort);
+  }, [blocks, day]);
 
   const editAction = {
     title: 'Edit',
@@ -226,34 +239,6 @@ const SessionPage = () => {
     setConflictBlock(hit?.start);
   }, [startTime, endTime, targetBlock, blocks]);
 
-  React.useEffect(() => {
-    const pbs: AvailabilityBlock[] = [
-      ...dayBlocks.filter(b => b.day.isSame(day)),
-    ];
-    if (targetBlock) {
-      pbs.push({
-        day,
-        start: startTime,
-        end: endTime,
-        appointmentLength: appointmentLength,
-        sessionHolders: sessionHolders,
-        services: selectedServices,
-        isPreview: true,
-        isBreak: targetBlock.isBreak,
-      });
-    }
-    pbs.sort(timeSort);
-    setPreviewBlocks(pbs);
-  }, [
-    blocks,
-    targetBlock,
-    startTime,
-    endTime,
-    appointmentLength,
-    selectedServices,
-    sessionHolders,
-  ]);
-
   return (
     <>
       <div className="nhsuk-grid-row">
@@ -277,7 +262,7 @@ const SessionPage = () => {
                 Day Preview
               </h2>
               <DaySummary
-                blocks={previewBlocks}
+                blocks={dayBlocks}
                 showBreaks={true}
                 hasError={b =>
                   errors.time !== undefined &&
@@ -457,6 +442,11 @@ const SessionPage = () => {
               <When condition={errors.services !== undefined}>
                 <div className="nhsuk-error-summary__body">
                   <p>{errors.services}</p>
+                </div>
+              </When>
+              <When condition={errors.break !== undefined}>
+                <div className="nhsuk-error-summary__body">
+                  <p>{errors.break}</p>
                 </div>
               </When>
             </div>

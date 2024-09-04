@@ -5,7 +5,7 @@ const NhsHeaderLogOut = () => {
     <form action={signOut}>
       <button
         aria-label="log out"
-        className="header__user-control-link"
+        className="nhsuk-header-custom__user-control nhsuk-header-custom__user-control-link"
         type="submit"
       >
         Log out

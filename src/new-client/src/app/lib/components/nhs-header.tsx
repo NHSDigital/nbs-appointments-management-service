@@ -19,35 +19,11 @@ export const NhsHeader = ({
     <Header>
       <When condition={showAuthControls}>
         <When condition={userEmail !== undefined}>
-          <div className="header__content" id="content-header">
-            <div
-              className="header__user-control"
-              role="navigation"
-              aria-label="Primary navigation"
-            >
-              <ul className="header__user-control-list">
-                <li className="header__user-control-item">{userEmail}</li>
-                <li className="header__user-control-item">
-                  <NhsHeaderLogOut />
-                </li>
-              </ul>
-            </div>
-          </div>
+          <span className="nhsuk-header-custom__user-control">{userEmail}</span>
+          <NhsHeaderLogOut />
         </When>
         <When condition={userEmail === undefined}>
-          <div className="header__content" id="content-header">
-            <div
-              className="header__user-control"
-              role="navigation"
-              aria-label="Primary navigation"
-            >
-              <ul className="header__user-control-list">
-                <li className="header__user-control-item">
-                  <NhsHeaderLogIn />
-                </li>
-              </ul>
-            </div>
-          </div>
+          <NhsHeaderLogIn />
         </When>
       </When>
     </Header>

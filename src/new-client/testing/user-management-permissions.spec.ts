@@ -83,7 +83,7 @@ test('Navigating straight to the user management page displays an appropriate er
   ).toBeVisible();
 });
 
-test('permissions are applied per site', async ({ page }) => {
+test('permissions are applied per site', async () => {
   await rootPage.goto();
   await rootPage.logInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser2);

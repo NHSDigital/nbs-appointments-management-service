@@ -23,7 +23,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     }
 
     /// <summary>
-    /// Updates the roles assigned to the user
+    /// Updates the roles assigned to the user by replacing them with the roles provided to this function.
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="scope"></param>
@@ -47,11 +47,15 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         {
             var documentType = cosmosStore.GetDocumentType();
             var originalRoleAssignments = originalDocument.RoleAssignments;
-            var newRoleAssignments = originalRoleAssignments
-                .Where(ra => ra.Scope != scope)
-                .Concat(roleAssignments);
-            var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
-            await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
+
+            var newRoleAssignments = roleAssignments.Where(ar => !originalRoleAssignments.Any(og => og.Role == ar.Role && og.Scope == ar.Scope)).ToList();
+            var rolesToKeep = originalRoleAssignments.Where(og => roleAssignments.Any(ar => ar.Role == og.Role && ar.Scope == og.Scope));
+            newRoleAssignments.AddRange(rolesToKeep);
+
+            var addRolesPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
+            await cosmosStore.PatchDocument(documentType, userId, addRolesPatch);
+
+
             return originalDocument.RoleAssignments;
         }
     }

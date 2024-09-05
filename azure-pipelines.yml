@@ -171,6 +171,7 @@ stages:
               CI: "true"
           - task: PublishTestResults@2
             displayName: 'Publish E2E test results'
+            condition: succeededOrFailed()
             inputs:
               searchFolder: 'src/new-client/testing'
               testResultsFormat: 'JUnit'
@@ -178,13 +179,12 @@ stages:
               mergeTestResults: true
               failTaskOnFailedTests: true
               testRunTitle: 'NBS Appointments Management Service End-To-End Tests'
-              condition: succeededOrFailed()
           - task: PublishBuildArtifacts@1
             displayName: "Publish E2E test artifacts"
+            condition: succeededOrFailed()
             inputs:
               PathtoPublish: "src/new-client/test-artifacts"
               ArtifactName: "E2E Test-results"
-              condition: succeededOrFailed()
           - task: AzureCLI@2
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())

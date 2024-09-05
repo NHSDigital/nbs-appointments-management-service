@@ -80,6 +80,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
         return IterateResults<TDocument, TModel>(queryFeed, rs => _mapper.Map<TModel>(rs));
     }
+
+    public async Task DeleteDocument(string documentId, string partitionKey)
+    {
+        var container = GetContainer();
+        await container.DeleteItemAsync<UserDocument>(
+            id: documentId,
+            partitionKey: new PartitionKey(partitionKey));
+    }
     
     public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
     {

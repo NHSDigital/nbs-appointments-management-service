@@ -6,4 +6,5 @@ public interface IUserService
     Task<string> GetApiUserSigningKey(string clientId);
     Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<IEnumerable<User>> GetUsersAsync(string site);
+    Task RemoveUserAsync(string userId, string site);
 }

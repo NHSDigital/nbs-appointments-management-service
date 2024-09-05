@@ -81,6 +81,28 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
         }
     }
+
+    public async Task RemoveUserAsync(string userId, string siteId)
+    {
+        var user = await GetOrDefault(userId);
+        if (user is not null)
+        {
+            var documentType = cosmosStore.GetDocumentType();
+            var roleAssignmentsWithSiteRemoved = user.RoleAssignments
+                .Where(ra => ra.Scope != $"site:{siteId}")
+                .ToList();
+
+            if (roleAssignmentsWithSiteRemoved.Count == 0)
+            {
+                await cosmosStore.DeleteDocument(userId, documentType);
+            }
+            else
+            {
+                var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
+                await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
+            }
+        }
+    }
     
     public Task<IEnumerable<User>> GetUsersAsync(string site)
     {
@@ -93,7 +115,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return cosmosStore.WriteAsync(document);
     }
     
-    public async Task<User> GetOrDefaultAsync(string userId)
+    public async Task<User?> GetOrDefaultAsync(string userId)
     {
         try
         {

@@ -1,0 +1,13 @@
+﻿{
+  "id": "FTN12",
+  "docType": "site",
+  "name": "ELTHAM PHARMACY",
+  "address": "560 WESTHORNE AVENUE, ELTHAM, LONDON, SE9 6DR",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.040992272,
+      51.455788
+    ]
+  }
+}

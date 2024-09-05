@@ -61,7 +61,6 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(_documentType.Value));
         return _mapper.Map<TModel>(readResponse.Resource);
     }
-
     public Task<TModel> GetDocument<TModel>(string documentId)
     {
         return GetDocument<TModel>(documentId, _documentType.Value);
@@ -76,9 +75,22 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
-    public async Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
+    public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+        return IterateResults<TModel>(queryFeed);
+    }
+    
+    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    {
+        var queryFeed = GetContainer().GetItemQueryIterator<TDocument>(
+            queryDefinition: query);
+        
+        return IterateResults<TModel>(queryFeed);
+    }
+
+    private async Task<IEnumerable<TModel>> IterateResults<TModel>(FeedIterator<TDocument> queryFeed)
+    {
         var results = new List<TModel>();
         using (queryFeed)
         {

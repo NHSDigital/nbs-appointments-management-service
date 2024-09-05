@@ -1,0 +1,13 @@
+﻿{
+  "id": "FTL72",
+  "docType": "site",
+  "name": "WHINCHAT PHARMACY",
+  "address": "1 WHINCHAT ROAD, BROADWATER GREEN THAMESMEAD, LONDON, GREATER LONDON, SE28 0DZ",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.082750916,
+      51.494056
+    ]
+  }
+}

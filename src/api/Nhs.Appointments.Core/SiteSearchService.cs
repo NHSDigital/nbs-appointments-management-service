@@ -10,36 +10,16 @@ public interface ISiteSearchService
     Task<Site> GetSiteByIdAsync(string siteId);
 }
 
-public record Site(string  Id, string Name, string Address);
-
-public class SiteSearchService : ISiteSearchService
+public class SiteSearchService(ISiteStore siteStore, IHttpClientFactory httpClientFactory, IOptions<SiteSearchService.Options> options) : ISiteSearchService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly Options _options;
-
-    public SiteSearchService(IHttpClientFactory httpClientFactory, IOptions<Options> options)
-    {
-        _httpClientFactory = httpClientFactory;
-        _options = options.Value;
-    }
+    private readonly Options _options = options.Value;
 
     public async Task<IEnumerable<Site>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords)
     {
-        var searchRequest = new
-        {
-            filter = $"geo.distance(Geocode, geography'POINT({longitude} {latitude})') le {searchRadius}",
-            orderby = $"geo.distance(Geocode, geography'POINT({longitude} {latitude})') asc",
-            select = "UnitID, OrganisationName, Address, Latitude, Longitude",
-            top = maximumRecords
-        };
-        using var httpClient = _httpClientFactory.CreateClient(_options.ServiceName);
-        var response = await httpClient.PostAsJsonAsync("/covid-sites/search?api-version=1", searchRequest);
-        response.EnsureSuccessStatusCode();
-        var responseContent = await response.Content.ReadAsStringAsync();
-        var siteSearchResponse = JsonConvert.DeserializeObject<SiteSearchResponse>(responseContent);
-
-        return siteSearchResponse.Sites.Select(s => new Site(s.UnitId.ToString(), s.SiteName, s.SiteAddress));
+        var sites = await siteStore.GetSitesByArea(longitude, latitude, searchRadius);
+        return sites;
     }
+
 
     public async Task<Site> GetSiteByIdAsync(string siteId)
     {
@@ -49,7 +29,7 @@ public class SiteSearchService : ISiteSearchService
             select = "UnitID, OrganisationName, Address, Latitude, Longitude",
             top = 1
         };
-        using var httpClient = _httpClientFactory.CreateClient(_options.ServiceName);
+        using var httpClient = httpClientFactory.CreateClient(_options.ServiceName);
         var response = await httpClient.PostAsJsonAsync("/covid-sites/search?api-version=1", searchRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();

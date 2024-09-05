@@ -4,19 +4,19 @@
   "roleAssignments": [
     {
       "role": "canned:site-configuration-manager",
-      "scope": "site:1000"
+      "scope": "site:FTL72"
     },
     {
       "role": "canned:user-manager",
-      "scope":  "site:1000"
+      "scope":  "site:FTL72"
     },
     {
       "role": "canned:site-configuration-manager",
-      "scope": "site:1001"
+      "scope": "site:FTM56"
     },
     {
       "role": "canned:availability-manager",
-      "scope": "site:1001"
+      "scope": "site:FTM56"
     }
   ]
 }

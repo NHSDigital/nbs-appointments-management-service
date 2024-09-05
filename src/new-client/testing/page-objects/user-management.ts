@@ -6,6 +6,7 @@ export default class UserManagementPage extends RootPage {
   readonly emailInput: Locator;
   readonly searchUserButton: Locator;
   readonly cancelButton: Locator;
+  readonly confirmAndSaveButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -20,6 +21,15 @@ export default class UserManagementPage extends RootPage {
     });
     this.cancelButton = page.getByRole('button', {
       name: 'Cancel',
+    });
+    this.confirmAndSaveButton = page.getByRole('button', {
+      name: 'Confirm and save',
+    });
+  }
+
+  async selectRoles(roles: string[]) {
+    roles.forEach(async role => {
+      await this.page.getByRole('checkbox', { name: role }).check();
     });
   }
 }

@@ -78,35 +78,26 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-        return IterateResults<TModel>(queryFeed);
+        return IterateResults<TDocument, TModel>(queryFeed, rs => _mapper.Map<TModel>(rs));
     }
     
-    public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
     {
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
 
-        var results = new List<TModel>();
-        using (queryFeed)
-        {
-            while (queryFeed.HasMoreResults)
-            {
-                var resultSet = await queryFeed.ReadNextAsync();
-                results.AddRange(resultSet.Select(rs => _mapper.Map<TModel>(rs)));
-            }
-        }
-        return results;
+        return IterateResults<TModel, TModel>(queryFeed, item => item);
     }
 
-    private async Task<IEnumerable<TModel>> IterateResults<TModel>(FeedIterator<TDocument> queryFeed)
+    private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed, Func<TSource, TOutput> map)
     {
-        var results = new List<TModel>();
+        var results = new List<TOutput>();
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
             {
                 var resultSet = await queryFeed.ReadNextAsync();
-                results.AddRange(resultSet.Select(rs => _mapper.Map<TModel>(rs)));
+                results.AddRange(resultSet.Select(map));
             }
         }
         return results;

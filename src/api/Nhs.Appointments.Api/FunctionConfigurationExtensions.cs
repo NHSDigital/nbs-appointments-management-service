@@ -91,7 +91,9 @@ public static class FunctionConfigurationExtensions
 
         var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
         var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
-        var cosmosOptions = GetCosmosOptions(cosmosEndpoint);
+        var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
+        bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
+        var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
 
         var cosmosClient = new CosmosClient(
                 accountEndpoint: cosmosEndpoint,
@@ -113,9 +115,9 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
 
-    private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint)
+    private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
     {
-        if(cosmosEndpoint.StartsWith("https://localhost"))
+        if(ignoreSslCert)
         {
             return new CosmosClientOptions()
             {

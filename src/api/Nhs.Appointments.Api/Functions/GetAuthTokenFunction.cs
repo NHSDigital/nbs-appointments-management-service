@@ -26,10 +26,10 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")] HttpRequest req)
+    {
+        var code = await req.ReadAsStringAsync();
+        var formValues = new Dictionary<string, string>()
         {
-            var code = await req.ReadAsStringAsync();
-            var formValues = new Dictionary<string, string>()
-            {
             { "client_id", _authOptions.ClientId },
             { "code", code },
             { "redirect_uri", _authOptions.ReturnUri },
@@ -40,11 +40,9 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
 
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.PostAsync($" {_authOptions.ProviderUri}/{_authOptions.TokenPath}", form);
+        var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
         var rawResponse = await response.Content.ReadAsStringAsync();
         var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
         return new OkObjectResult(new { token = tokenResponse.IdToken });
     }
 }
-
-

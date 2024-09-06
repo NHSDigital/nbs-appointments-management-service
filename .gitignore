@@ -234,6 +234,7 @@ FakesAssemblies/
 *.crt
 /src/api/AppointmentsDataLoader
 /src/api/Nhs.Appointments.Api/jon.settings.json
+/src/api/Nhs.Appointments.Api/Properties/launchSettings.jon.json
 
 
 # terraform files

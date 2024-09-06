@@ -6,7 +6,7 @@ namespace Nhs.Appointments.Core;
 
 public interface ISiteSearchService
 {
-    Task<IEnumerable<Site>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords);
+    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords);
     Task<Site> GetSiteByIdAsync(string siteId);
 }
 
@@ -14,7 +14,7 @@ public class SiteSearchService(ISiteStore siteStore, IHttpClientFactory httpClie
 {
     private readonly Options _options = options.Value;
 
-    public async Task<IEnumerable<Site>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords)
+    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords)
     {
         var sites = await siteStore.GetSitesByArea(longitude, latitude, searchRadius);
         return sites;

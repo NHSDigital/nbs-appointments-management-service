@@ -81,12 +81,21 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return IterateResults<TModel>(queryFeed);
     }
     
-    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
     {
-        var queryFeed = GetContainer().GetItemQueryIterator<TDocument>(
+        var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
-        
-        return IterateResults<TModel>(queryFeed);
+
+        var results = new List<TModel>();
+        using (queryFeed)
+        {
+            while (queryFeed.HasMoreResults)
+            {
+                var resultSet = await queryFeed.ReadNextAsync();
+                results.AddRange(resultSet.Select(rs => _mapper.Map<TModel>(rs)));
+            }
+        }
+        return results;
     }
 
     private async Task<IEnumerable<TModel>> IterateResults<TModel>(FeedIterator<TDocument> queryFeed)

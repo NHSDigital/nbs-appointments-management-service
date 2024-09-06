@@ -20,3 +20,11 @@ public record Location
     [JsonProperty("coordinates")]
     double[] Coordinates
 );
+
+public record SiteWithDistance
+(
+    [JsonProperty("site")]
+    Site Site,
+    [JsonProperty("distance")]
+    double Distance 
+);

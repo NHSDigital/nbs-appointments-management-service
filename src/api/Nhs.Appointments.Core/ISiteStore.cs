@@ -2,5 +2,5 @@
 
 public interface ISiteStore
 {
-    Task<IEnumerable<Site>> GetSitesByArea(double longitude, double latitude, int searchRadius);
+    Task<IEnumerable<SiteWithDistance>> GetSitesByArea(double longitude, double latitude, int searchRadius);
 }

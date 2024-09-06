@@ -12,7 +12,7 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetSitesFunction(ISiteSearchService siteSearchService, IValidator<GetSitesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesFunction> logger)
-    : BaseApiFunction<GetSitesRequest, IEnumerable<Site>>(validator, userContextProvider, logger)
+    : BaseApiFunction<GetSitesRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger)
 {
     [Function("GetSitesFunction")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req)
@@ -20,10 +20,10 @@ public class GetSitesFunction(ISiteSearchService siteSearchService, IValidator<G
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<IEnumerable<Site>>> HandleRequest(GetSitesRequest request, ILogger logger)
+    protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesRequest request, ILogger logger)
     {
         var sites = await siteSearchService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maxiumRecords);
-        return ApiResult<IEnumerable<Site>>.Success(sites);
+        return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
     
     protected override Task<(bool requestRead, GetSitesRequest request)> ReadRequestAsync(HttpRequest req)

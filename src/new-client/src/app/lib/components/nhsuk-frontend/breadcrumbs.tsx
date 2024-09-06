@@ -16,16 +16,13 @@ type Props = {
  * @see https://service-manual.nhs.uk/design-system/components/breadcrumbs
  */
 const Breadcrumbs = ({ trail = [] }: Props) => {
-  const trailWithHome = [{ name: 'Home', href: '/' }, ...trail];
-
-  const previousCrumb =
-    trailWithHome.length > 1 ? trailWithHome.slice(-2)[0] : undefined;
+  const previousCrumb = trail.length > 1 ? trail.slice(-2)[0] : undefined;
 
   return (
     <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
       <div className="nhsuk-width-container">
-        <ol className="nhsuk-breadcrumbs__list">
-          {trailWithHome.map((breadcrumb, index) => {
+        <ol className="nhsuk-breadcrumb__list">
+          {trail.map((breadcrumb, index) => {
             return (
               <li
                 key={`$breadcrumb_${index}`}

@@ -7,18 +7,17 @@ namespace Nhs.Appointments.Persistance;
 
 public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMapper mapper) : ISiteStore
 {
-    public async Task<IEnumerable<Site>> GetSitesByArea(double longitude, double latitude, int searchRadius)
+    public async Task<IEnumerable<SiteWithDistance>> GetSitesByArea(double longitude, double latitude, int searchRadius)
     {
         var query = new QueryDefinition(
-                query: "SELECT * " + 
+                query: "SELECT site, ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) as distance " + 
                        "FROM index_data site " + 
                        "WHERE ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) < @searchRadius")
                         .WithParameter("@longitude", longitude)
                         .WithParameter("@latitude", latitude)
                         .WithParameter("@searchRadius", searchRadius);
-        var sites = await cosmosStore.RunSqlQueryAsync<SiteDocument>(query);
+        var sites = await cosmosStore.RunSqlQueryAsync<SiteWithDistance>(query);
         
-        return sites.Select(mapper.Map<Site>);
+        return sites.Select(mapper.Map<SiteWithDistance>);
     }
 }
-

@@ -48,13 +48,15 @@ const NhsPage = async ({
         </main>
       </div>
       <Footer
-        supportLinks={[
-          { text: 'Accessibility statement', href: '/accessibility-statement' },
-          { text: 'Contact us', href: '/contact-us' },
-          { text: 'Cookies', href: '/cookies' },
-          { text: 'Privacy policy', href: '/privacy-policy' },
-          { text: 'Terms and conditions', href: '/terms-and-conditions' },
-        ]}
+        supportLinks={
+          [
+            // { text: 'Accessibility statement', href: '/accessibility-statement' },
+            // { text: 'Contact us', href: '/contact-us' },
+            // { text: 'Cookies', href: '/cookies' },
+            // { text: 'Privacy policy', href: '/privacy-policy' },
+            // { text: 'Terms and conditions', href: '/terms-and-conditions' },
+          ]
+        }
       />
     </>
   );

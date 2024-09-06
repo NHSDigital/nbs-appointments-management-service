@@ -26,7 +26,7 @@ const Page = async ({ params }: PageProps) => {
   // before it renders we need to know what to pass as title and breadcrumbs
   const siteMoniker = site?.name ?? `Site ${params.site}`;
   return (
-    <NhsPage title={siteMoniker}>
+    <NhsPage breadcrumbs={[{ name: 'Home', href: '/' }]} title={siteMoniker}>
       <SitePage site={site} permissions={sitePermissions} />
     </NhsPage>
   );

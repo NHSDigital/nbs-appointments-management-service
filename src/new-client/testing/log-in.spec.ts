@@ -11,7 +11,23 @@ test('User visits the site origin, signs in and see the Site Selection menu', as
   const siteSelectionPage = new SiteSelectionPage(page);
 
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
+
+  await oAuthPage.signIn();
+
+  await expect(rootPage.logOutButton).toBeVisible();
+  await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
+});
+
+test('User signs in using the log in button in the header', async ({
+  page,
+}) => {
+  const rootPage = new RootPage(page);
+  const oAuthPage = new OAuthLoginPage(page);
+  const siteSelectionPage = new SiteSelectionPage(page);
+
+  await rootPage.goto();
+  await rootPage.headerLogInButton.click();
 
   await oAuthPage.signIn();
 
@@ -27,7 +43,7 @@ test('User visits the site origin, signs in, then signs out again', async ({
   const siteSelectionPage = new SiteSelectionPage(page);
 
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
 
   await expect(rootPage.logOutButton).toBeVisible();
@@ -37,14 +53,14 @@ test('User visits the site origin, signs in, then signs out again', async ({
   await siteSelectionPage.logOutButton.click();
 
   await expect(
-    page.getByRole('heading', { name: 'You cannot access this site' }),
+    page.getByRole('heading', { name: 'Appointment Management Service' }),
   ).toBeVisible();
 
   await expect(
     page.getByText(
-      'You are currently not signed in. To use this site, please sign in.',
+      'You are currently not signed in. You must sign in to access this service.',
     ),
   ).toBeVisible();
 
-  await expect(rootPage.logInButton).toBeVisible();
+  await expect(rootPage.pageContentLogInButton).toBeVisible();
 });

@@ -12,8 +12,8 @@ Dear ((user))
 
 Your permissions for ((site)) have been updated on the NHS Appointments Service. 
 
-You have been added to: ((rolesAdded)).
-You have been removed from: ((rolesRemoved)).
+((rolesAdded))
+((rolesRemoved))
 
 Log into your account now: https://appointment.service.nhs.uk/sign-in
 

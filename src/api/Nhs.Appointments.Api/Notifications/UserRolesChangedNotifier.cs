@@ -12,6 +12,12 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
 {
     public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
+        if(rolesAdded.Length == 0 && rolesRemoved.Length == 0)
+        {
+            // avoid sending pointless notifications when nothing has actually changed:
+            return;
+        }
+
         var roles = await rolesStore.GetRoles();
         var site = await siteService.GetSiteByIdAsync(siteId);
         var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
@@ -21,12 +27,27 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
         var templateValues = new Dictionary<string, dynamic>
         {
             {"user", user},
-            {"rolesAdded", string.Join(", ", rolesAddedNames)},
-            {"rolesRemoved", string.Join(", ", rolesRemovedNames)},
+            {"rolesAdded", GetRolesAddedText(rolesAdded)},
+            {"rolesRemoved", GetRolesRemovedText(rolesRemoved)},
             {"site", siteName }
         };
 
         await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+    }
+
+    // we assemble some text here because the Gov Notify templating engine doesn't quite do what we need:
+    private static string GetRolesAddedText(string[] rolesAdded)
+    {
+        if (rolesAdded.Length == 0) return "";
+
+        return $"You have been added to: {string.Join(", ", rolesAdded)}.";
+    }
+
+    private static string GetRolesRemovedText(string[] rolesRemoved)
+    {
+        if (rolesRemoved.Length == 0) return "";
+
+        return $"You have been removed from: {string.Join(", ", rolesRemoved)}.";
     }
 
     public class Options

@@ -12,25 +12,37 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
 {
     public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
-        if(rolesAdded.Length == 0 && rolesRemoved.Length == 0)
+        var roles = await rolesStore.GetRoles();
+        var rolesAddedNames = GetRoleNames(roles, rolesAdded);
+        var rolesRemovedNames = GetRoleNames(roles, rolesRemoved);
+
+        if (rolesAddedNames.Length == 0 && rolesRemovedNames.Length == 0)
         {
             // avoid sending pointless notifications when nothing has actually changed:
             return;
         }
 
-        var roles = await rolesStore.GetRoles();
         var site = await siteService.GetSiteByIdAsync(siteId);
         var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
 
         var templateValues = new Dictionary<string, dynamic>
         {
             {"user", user},
-            {"rolesAdded", GetRolesAddedText(rolesAdded)},
-            {"rolesRemoved", GetRolesRemovedText(rolesRemoved)},
+            {"rolesAdded", GetRolesAddedText(rolesAddedNames)},
+            {"rolesRemoved", GetRolesRemovedText(rolesRemovedNames)},
             {"site", siteName }
         };
 
         await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+    }
+
+    private string[] GetRoleNames(IEnumerable<Role> roles, IEnumerable<string> roleIds)
+    {
+        return roles.Where(role => 
+            roleIds.Contains(role.Id) ||
+            roleIds.Select(GetRoleIdPortion).Contains(role.Id)
+
+        ).Select(role => role.Name).ToArray();
     }
 
     // we assemble some text here because the Gov Notify templating engine doesn't quite do what we need:
@@ -38,17 +50,17 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
     {
         if (rolesAdded.Length == 0) return "";
 
-        return $"You have been added to: {string.Join(", ", rolesAdded.Select(GetFriendlyRoleName))}.";
+        return $"You have been added to: {string.Join(", ", rolesAdded)}.";
     }
 
     private static string GetRolesRemovedText(string[] rolesRemoved)
     {
         if (rolesRemoved.Length == 0) return "";
 
-        return $"You have been removed from: {string.Join(", ", rolesRemoved.Select(GetFriendlyRoleName))}.";
+        return $"You have been removed from: {string.Join(", ", rolesRemoved)}.";
     }
 
-    private static string GetFriendlyRoleName(string roleName)
+    private static string GetRoleIdPortion(string roleName)
     {
         if(roleName.Contains(':')) return roleName.Split(':')[1];
 

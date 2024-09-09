@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using FluentAssertions;
+using MassTransit.Serialization;
+using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
@@ -53,5 +55,46 @@ public class UserRolesChangedNotifierTests
 
         await _sut.Notify(Email, Site, ["newRole"], ["removedRole"]);
         _rolesStore.Verify();
+    }
+
+    [Fact]
+    public async Task DoesNotSendNotificationIfNoChanges()
+    {
+        _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult<IEnumerable<Role>>([new Role { Id = "newRole", Name = "New Role" }, new Role { Id = "removedRole", Name = "Removed Role" }]));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site))).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street")));
+
+        await _sut.Notify(Email, Site, [], []);
+        _notificationClient.Verify(x => 
+            x.SendEmailAsync(Email, TemplateId, It.IsAny<Dictionary<string, dynamic>>(), null, null, null),
+            Times.Never());
+    }
+
+    [Fact]
+    public async Task UsesFriendlyNamesForRoles()
+    {
+        _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult<IEnumerable<Role>>([new Role { Id = "newRole", Name = "New Role" }, new Role { Id = "removedRole", Name = "Removed Role" }]));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site))).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street")));
+
+        _notificationClient.Setup(x => x.SendEmailAsync(Email, TemplateId, It.Is<Dictionary<string, dynamic>>(dic => GetValue(dic, "rolesAdded").Contains("New Role") && GetValue(dic, "rolesRemoved").Contains("Removed Role")), null, null, null)).Verifiable();
+
+        await _sut.Notify(Email, Site, ["newRole"], ["removedRole"]);
+        _notificationClient.Verify();
+    }
+
+    [Fact]
+    public async Task GetsFriendlyRoleNameWhenIdContainsScopePrefixButDatabaseValuesDont()
+    {
+        _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult<IEnumerable<Role>>([new Role { Id = "newRole", Name = "New Role" }, new Role { Id = "removedRole", Name = "Removed Role" }]));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site))).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street")));
+
+        _notificationClient.Setup(x => x.SendEmailAsync(Email, TemplateId, It.Is<Dictionary<string, dynamic>>(dic => GetValue(dic, "rolesAdded").Contains("New Role") && GetValue(dic, "rolesRemoved").Contains("Removed Role")), null, null, null)).Verifiable();
+
+        await _sut.Notify(Email, Site, ["canned:newRole"], ["canned:removedRole"]);
+        _notificationClient.Verify();
+    }
+
+    private static string GetValue(Dictionary<string, dynamic> dic, string key)
+    {
+        return dic.TryGetValue(key, out string result) ? result : "";
     }
 }

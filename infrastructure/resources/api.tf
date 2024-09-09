@@ -40,9 +40,9 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.nbs_appts_ai.connection_string
     API_KEYS                              = var.api_keys
     AuthProvider_Issuer                   = var.auth_provider_issuer
-    AuthProvider_AuthorizePath            = var.auth_provider_authorize_uri
-    AuthProvider_TokenPath                = var.auth_provider_token_uri
-    AuthProvider_JwksPath                 = var.auth_provider_jwks_uri
+    AuthProvider_AuthorizeUri             = var.auth_provider_authorize_uri
+    AuthProvider_TokenUri                 = var.auth_provider_token_uri
+    AuthProvider_JwksUri                  = var.auth_provider_jwks_uri
     AuthProvider_ChallengePhrase          = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                 = var.auth_provider_client_id
     AuthProvider_ReturnUri                = var.auth_provider_return_uri

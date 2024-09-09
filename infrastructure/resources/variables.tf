@@ -67,16 +67,6 @@ variable "api_keys" {
   sensitive = true
 }
 
-variable "apim_uri" {
-  type      = string
-  sensitive = false
-}
-
-variable "apim_subscription_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "hmac_signing_key" {
   type      = string
   sensitive = true

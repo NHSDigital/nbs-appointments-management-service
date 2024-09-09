@@ -20,12 +20,12 @@ public class GetSitesRequestValidator : AbstractValidator<GetSitesRequest>
         RuleFor(x => x.searchRadius)
             .NotEmpty()
             .LessThanOrEqualTo(100000)
-            .GreaterThanOrEqualTo(0)
-            .Configure(rule => rule.MessageBuilder = _ => "Provide a search radius in meters (between 0 - 100,000m).");
-        RuleFor(x => x.maxiumRecords)
-            .NotEmpty()
+            .GreaterThanOrEqualTo(1000)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a search radius in meters (between 1000 - 100,000m).");
+        RuleFor(x => x.maximumRecords)
+            .NotNull()
             .LessThanOrEqualTo(50)
-            .GreaterThanOrEqualTo(0)
-            .Configure(rule => rule.MessageBuilder = _ => "Provide a number of maximum records (between 0 - 50 records).");
+            .GreaterThan(0)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a number of maximum records (between 1 - 50 records).");
     }
 }

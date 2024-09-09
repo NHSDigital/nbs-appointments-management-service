@@ -22,7 +22,7 @@ public class GetSitesFunction(ISiteSearchService siteSearchService, IValidator<G
 
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesRequest request, ILogger logger)
     {
-        var sites = await siteSearchService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maxiumRecords);
+        var sites = await siteSearchService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maximumRecords);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
     

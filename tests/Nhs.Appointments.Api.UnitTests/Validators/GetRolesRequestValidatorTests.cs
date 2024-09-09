@@ -4,7 +4,7 @@ using Nhs.Appointments.Api.Validators;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
-public class GetRolesValidatorTests
+public class GetRolesRequestValidatorTests
 {
     private readonly GetRolesRequestValidator _sut = new();
 

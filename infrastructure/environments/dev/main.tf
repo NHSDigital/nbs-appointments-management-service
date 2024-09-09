@@ -13,7 +13,7 @@ terraform {
     key                  = "dev.tfstate"
   }
 
-  required_version = "1.9.5"
+  required_version = ">= 1.6.5"
 }
 
 provider "azurerm" {

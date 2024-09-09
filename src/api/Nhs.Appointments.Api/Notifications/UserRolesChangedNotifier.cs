@@ -21,8 +21,6 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
         var roles = await rolesStore.GetRoles();
         var site = await siteService.GetSiteByIdAsync(siteId);
         var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
-        var rolesAddedNames = roles.Where(r => rolesAdded.Contains(r.Id)).Select(r => r.Name).ToArray();
-        var rolesRemovedNames = roles.Where(r => rolesRemoved.Contains(r.Id)).Select(r => r.Name).ToArray();
 
         var templateValues = new Dictionary<string, dynamic>
         {
@@ -40,14 +38,21 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
     {
         if (rolesAdded.Length == 0) return "";
 
-        return $"You have been added to: {string.Join(", ", rolesAdded)}.";
+        return $"You have been added to: {string.Join(", ", rolesAdded.Select(GetFriendlyRoleName))}.";
     }
 
     private static string GetRolesRemovedText(string[] rolesRemoved)
     {
         if (rolesRemoved.Length == 0) return "";
 
-        return $"You have been removed from: {string.Join(", ", rolesRemoved)}.";
+        return $"You have been removed from: {string.Join(", ", rolesRemoved.Select(GetFriendlyRoleName))}.";
+    }
+
+    private static string GetFriendlyRoleName(string roleName)
+    {
+        if(roleName.Contains(':')) return roleName.Split(':')[1];
+
+        return roleName;
     }
 
     public class Options

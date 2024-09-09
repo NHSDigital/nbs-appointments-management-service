@@ -20,4 +20,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
         
         return sites.Select(mapper.Map<SiteWithDistance>);
     }
+    
+    public async Task<Site> GetSiteById(string siteId)
+    {
+        var site = await cosmosStore.GetDocument<Site>(siteId);
+        
+        return site;
+    }
 }

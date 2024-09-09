@@ -8,12 +8,24 @@ public class GetSitesRequestValidator : AbstractValidator<GetSitesRequest>
     public GetSitesRequestValidator()
     {
         RuleFor(x => x.longitude)
-            .NotEmpty().WithMessage("Provide a longitude value");
+            .NotEmpty()
+            .LessThanOrEqualTo(180)
+            .GreaterThanOrEqualTo(-180)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a valid longitude value (between -180 <-> 180 degrees).");
         RuleFor(x => x.latitude)
-            .NotEmpty().WithMessage("Provide a latitude value");
+            .NotEmpty()
+            .LessThanOrEqualTo(90)
+            .GreaterThanOrEqualTo(-90)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a valid latitude value (between -90 <-> 90 degrees).");
         RuleFor(x => x.searchRadius)
-            .NotEmpty().WithMessage("Provide a search radius");
+            .NotEmpty()
+            .LessThanOrEqualTo(100000)
+            .GreaterThanOrEqualTo(0)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a search radius in meters (between 0 - 100,000m).");
         RuleFor(x => x.maxiumRecords)
-            .NotEmpty().WithMessage("Provide a number of maximum records");
+            .NotEmpty()
+            .LessThanOrEqualTo(50)
+            .GreaterThanOrEqualTo(0)
+            .Configure(rule => rule.MessageBuilder = _ => "Provide a number of maximum records (between 0 - 50 records).");
     }
 }

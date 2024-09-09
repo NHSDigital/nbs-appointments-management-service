@@ -15,9 +15,8 @@ public class SiteSearchService(ISiteStore siteStore) : ISiteSearchService
         return orderedSites;
     }
     
-    public async Task<Site> GetSiteByIdAsync(string siteId)
+    public Task<Site> GetSiteByIdAsync(string siteId)
     {
-        var site = await siteStore.GetSiteById(siteId);
-        return site;
+        return siteStore.GetSiteById(siteId);
     }
 }

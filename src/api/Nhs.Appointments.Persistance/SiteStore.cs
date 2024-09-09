@@ -13,18 +13,24 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
                 query: "SELECT site, ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) as distance " + 
                        "FROM index_data site " + 
                        "WHERE ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) < @searchRadius")
-                        .WithParameter("@longitude", longitude)
-                        .WithParameter("@latitude", latitude)
-                        .WithParameter("@searchRadius", searchRadius);
+            .WithParameter("@longitude", longitude)
+            .WithParameter("@latitude", latitude)
+            .WithParameter("@searchRadius", searchRadius);
         var sites = await cosmosStore.RunSqlQueryAsync<SiteWithDistance>(query);
-        
-        return sites.Select(mapper.Map<SiteWithDistance>);
+    
+        return sites;
     }
     
     public async Task<Site> GetSiteById(string siteId)
     {
-        var site = await cosmosStore.GetDocument<Site>(siteId);
-        
-        return site;
+        try
+        {
+            var site = await cosmosStore.GetDocument<Site>(siteId);
+            return site;
+        }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return default;
+        }
     }
 }

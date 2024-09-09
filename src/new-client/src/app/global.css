@@ -1,54 +1,51 @@
-.nhsuk-button--link:hover,
-.nhsuk-header__transactional .header__user-control-link:hover {
-  text-decoration: none;
+.nhsuk-header-custom__user-controls {
+  position: relative;
+  text-align: right;
 }
 
-.nhsuk-button--link:focus,
-.nhsuk-header__transactional .header__user-control-link:focus {
-  background-color: #ffeb3b;
-  box-shadow:
-    0 -2px #ffeb3b,
-    0 4px #212b32;
-  color: #212b32;
-  outline: 4px solid transparent;
-}
-
-.nhsuk-header__container {
-  max-width: 100%;
-  margin: 0 32px;
-}
-
-.nhsuk-header__transactional .header__content {
-  margin-left: auto;
-}
-
-.nhsuk-header__transactional .header__user-control-list {
-  display: flex;
-  column-gap: 2rem;
-  list-style: none;
-  padding-top: 3px;
-  align-items: baseline;
-}
-
-.nhsuk-header__transactional .header__user-control-item {
-  color: #fff;
-}
-
-.nhsuk-header__transactional .header__user-control-link {
+.nhsuk-header-custom__user-control {
   background: none;
-  border: none;
-  color: inherit;
-  text-decoration: underline;
-  cursor: pointer;
+  border: 0;
+  color: #fff;
+  text-decoration: none;
   font-size: 1.1875rem;
+  padding-right: 16px;
+  line-height: normal;
 }
 
-.nhsuk-width-container {
-  margin: 0 auto;
-  max-width: 960px;
+@media (max-width: 40.0625em) {
+  .nhsuk-header-custom__user-control {
+    font-size: 1.1875rem;
+  }
 }
 
-.nhsuk-list--border li:first-of-type {
-  border-top: 1px solid #d8dde0;
-  padding: 16px 0;
+.nhsuk-header-custom__user-control-link {
+  cursor: pointer;
+  padding-inline-start: inherit;
+  padding-inline-end: inherit;
+  padding-block-start: inherit;
+  padding-block-end: inherit;
+}
+
+.nhsuk-header-custom__user-control-link:hover {
+  box-shadow: 'none';
+  text-decoration: underline;
+}
+
+.nhsuk-header-custom__user-control-wrap {
+  text-align: left;
+}
+
+@media (min-width: 40.0625em) {
+  .nhsuk-header-custom__user-control-wrap {
+    display: flex;
+    text-align: right;
+  }
+}
+
+@media (max-width: 40.0525em) {
+  .nhsuk-header-custom__user-control-wrap::after {
+    display: block;
+    text-align: left;
+  }
 }

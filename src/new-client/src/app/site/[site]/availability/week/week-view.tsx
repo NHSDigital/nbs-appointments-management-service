@@ -3,7 +3,7 @@ import { timeSort } from './common';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs, { Dayjs } from 'dayjs';
 import { DaySummary } from '../day-summary';
-import NhsPaging from '../pager';
+import { Pagination } from '@nhsuk-frontend-components';
 import { usePathname } from 'next/navigation';
 import { When } from '@components/when';
 import React from 'react';
@@ -39,13 +39,6 @@ const WeekView = ({
   const days = [];
   for (let i = 0; i < 7; i++) days.push(week.commencing.add(i, 'day'));
 
-  const weekUrl = (i: number) => {
-    const params = new URLSearchParams();
-
-    params.set('wn', (week.weekNumber + i).toString());
-    return `${pathname}?${params.toString()}`;
-  };
-
   return (
     <>
       <div>
@@ -63,11 +56,9 @@ const WeekView = ({
           Paste week
         </a>
       </div>
-      <NhsPaging
-        nextLink={weekUrl(1)}
-        nextText="Next week"
-        prevLink={weekUrl(-1)}
-        prevText="Previous week"
+      <Pagination
+        previous={{ title: 'Previous week', href: './' }}
+        next={{ title: 'Next week', href: './' }}
       />
       <ul className="nhsuk-grid-row nhsuk-card-group">
         {days.map(d => (

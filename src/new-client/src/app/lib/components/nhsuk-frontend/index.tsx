@@ -10,6 +10,7 @@ import CheckBox from './checkbox';
 import CheckBoxes from './checkboxes';
 import Card from './card';
 import RightChevron from './icons/right-chevron';
+import Pagination from './pagination';
 import Select from './select';
 import Table from './table';
 import TextArea from './text-area';
@@ -30,6 +31,7 @@ export {
   Header,
   NhsLogo,
   RightChevron,
+  Pagination,
   Select,
   TextArea,
   Table,

@@ -78,3 +78,10 @@
   border-left: 4px solid #005eb8;
   padding-left: 4px;
 }
+
+.nhsuk-grid-column-custom__one-eighth {
+  width: 12.5%;
+  float: left;
+  padding: 0;
+  box-sizing: border-box;
+}

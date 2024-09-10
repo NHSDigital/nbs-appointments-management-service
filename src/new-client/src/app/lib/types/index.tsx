@@ -75,6 +75,17 @@ type WeekInfo = {
   commencing: dayjs.Dayjs;
 };
 
+const daysOfTheWeek = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+
+export { daysOfTheWeek };
 export type {
   UserProfile,
   Site,

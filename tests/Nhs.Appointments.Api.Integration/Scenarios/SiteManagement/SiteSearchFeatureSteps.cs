@@ -37,12 +37,6 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
         }
     }
 
-    [Given("Sites exist in the system")]
-    public Task Sites()
-    {
-        return Task.CompletedTask;
-    }
-
     [When("I make the following request")]
     public async Task RequestSites(Gherkin.Ast.DataTable dataTable)
     {

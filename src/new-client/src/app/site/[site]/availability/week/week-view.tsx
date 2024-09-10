@@ -69,27 +69,22 @@ const WeekView = ({
         prevLink={weekUrl(-1)}
         prevText="Previous week"
       />
-      <div className="nhsuk-width-container-fluid">
-        <ul
-          className="nhsuk-grid-row nhsuk-card-group"
-          style={{ padding: '20px' }}
-        >
-          {days.map(d => (
-            <li
-              key={d.format('DD ddd')}
-              className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-            >
-              <DayCard
-                day={d}
-                action={onAddBlock}
-                blocks={blocks}
-                copyDay={copyDay}
-                pasteDay={pasteDay}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul className="nhsuk-grid-row nhsuk-card-group">
+        {days.map(d => (
+          <li
+            key={d.format('DD ddd')}
+            className="nhsuk-grid-column-one-third nhsuk-card-group__item"
+          >
+            <DayCard
+              day={d}
+              action={onAddBlock}
+              blocks={blocks}
+              copyDay={copyDay}
+              pasteDay={pasteDay}
+            />
+          </li>
+        ))}
+      </ul>
     </>
   );
 };

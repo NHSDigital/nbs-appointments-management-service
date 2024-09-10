@@ -30,7 +30,7 @@ const Page = async ({ params }: PageProps) => {
       >
         <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
           <NhsNavCard
-            href={`${params.site}/availability`}
+            href={`${params.site}/availability/month`}
             title="Availability"
             description="Configure availability and open appointments for your site"
           />

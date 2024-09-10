@@ -1,104 +1,68 @@
-const MonthOverviewPage = () => {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+import { daysOfTheWeek, Site } from '@types';
+import MonthViewCard from './month-view-card';
+import dayjs from 'dayjs';
+import { getWeeksOfTheMonth } from '@services/timeService';
+import { Pagination } from '@components/nhsuk-frontend';
 
-  const dates = [
-    [30, 7, 14, 21, 28],
-    [1, 8, 15, 22, 29],
-    [2, 9, 16, 23, 30],
-    [3, 10, 17, 24, 31],
-    [4, 11, 18, 25, 1],
-    [5, 12, 19, 26, 2],
-    [6, 13, 20, 27, 3],
-  ];
-
-  return (
-    <div
-      style={{
-        flexDirection: 'column',
-        margin: 'auto',
-        display: 'flex',
-        width: '960px',
-        justifyContent: 'space-evenly',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'flex-start',
-        }}
-      >
-        <h2 style={{ flexGrow: 1 }}>October 2024</h2>
-        <div>70% - 6750 / 9000 capacity</div>
-        <div style={{ marginLeft: '30px' }}>2250 free slots available</div>
-      </div>
-      <div
-        style={{
-          margin: 'auto',
-          display: 'flex',
-          width: '960px',
-          justifyContent: 'space-evenly',
-        }}
-      >
-        {days.map((d, i) => (
-          <DayColumn key={d} day={d} dates={dates[i]} />
-        ))}
-      </div>
-    </div>
-  );
+type MonthViewProps = {
+  referenceDate: dayjs.Dayjs;
+  site: Site;
 };
 
-const DayColumn = ({ day, dates }: { day: string; dates: number[] }) => {
+const MonthOverviewPage = ({ referenceDate, site }: MonthViewProps) => {
+  const datesInMonth = getWeeksOfTheMonth(referenceDate);
+
+  const lastMonth = referenceDate.subtract(1, 'month');
+  const nextMonth = referenceDate.add(1, 'month');
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        margin: '2px',
-      }}
-    >
-      <div>
-        <h4>{day}</h4>
-      </div>
-      {dates.map(d => (
-        <div
-          key={d}
-          className="nhsuk-card-group__item"
-          style={{ width: '100%', marginTop: '5px' }}
-        >
-          <div className="nhsuk-card nhsuk-card" style={{ padding: '8px' }}>
-            <div
-              className="nhsuk-card__content"
-              style={{
-                padding: '2px',
-                display: 'flex',
-                justifyContent: 'flex-start',
-                flexDirection: 'column',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <span>
-                  <b>{d}</b>
-                </span>
-                <span style={{ flexGrow: 1, textAlign: 'right' }}>78%</span>
-              </div>
+    <>
+      <Pagination
+        previous={{
+          title: lastMonth.format('MMMM YYYY'),
+          href: `/site/${site.id}/availability/month?date=${lastMonth.format('DD-MM-YYYY')}`,
+        }}
+        next={{
+          title: nextMonth.format('MMMM YYYY'),
+          href: `/site/${site.id}/availability/month?date=${nextMonth.format('DD-MM-YYYY')}`,
+        }}
+      />
+      <div
+        className="nhsuk-grid-row"
+        style={{ marginLeft: 0, marginRight: 0, marginTop: 16 }}
+      >
+        <div className="nhsuk-grid-column-full">
+          <div className="nhsuk-grid-row">
+            {daysOfTheWeek.map((day, dayIndex) => (
               <div
-                style={{
-                  flexGrow: 1,
-                  background: 'grey',
-                  height: '50px',
-                  borderBottom: '39px solid darkblue',
-                }}
+                className="nhsuk-grid-column-custom__one-eighth"
+                key={`day-of-the-week-${dayIndex}`}
               >
-                &nbsp;
+                <h6>{day}</h6>
               </div>
-              <div style={{ textWrap: 'nowrap' }}>200 / 300</div>
-            </div>
+            ))}
           </div>
+
+          {datesInMonth.map((week, weekIndex) => (
+            <div
+              className="nhsuk-grid-row"
+              id={`week-${weekIndex}`}
+              key={`week-${weekIndex}`}
+            >
+              {week.map((day, dayIndex) => (
+                <div
+                  className="nhsuk-grid-column-custom__one-eighth"
+                  id={`week-${weekIndex}-day-${dayIndex}`}
+                  key={`week-${weekIndex}-day-${dayIndex}`}
+                >
+                  <MonthViewCard date={day} />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
 };
 

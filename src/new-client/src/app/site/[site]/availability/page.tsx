@@ -1,67 +1,28 @@
-'use client';
+import { fetchSite } from '@services/appointmentsService';
+import NhsPage from '@components/nhs-page';
+import AvailabilityOverviewPage from './availability-overview-page';
 
-import { WeekInfo } from '@types';
-import dayjs from 'dayjs';
-import MonthBlock from './month-block';
-import { useRouter } from 'next/navigation';
+type PageProps = {
+  params: {
+    site: string;
+  };
+};
 
-const AvailabilityOverviewPage = () => {
-  const { refresh } = useRouter();
-  let cursor = dayjs('2024-01-01');
-  const weeks = [] as WeekInfo[];
-
-  let weekNumber = 1;
-  while (cursor.year() === 2024) {
-    weeks.push({
-      weekNumber,
-      month: cursor.format('MMMM'),
-      commencing: cursor,
-    });
-    weekNumber++;
-    cursor = cursor.add(1, 'week');
-  }
-
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
+const Page = async ({ params }: PageProps) => {
+  const site = await fetchSite(params.site);
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   return (
-    <div className="nhsuk-width-container-fluid">
-      <div>Availability Overview</div>
-      <button
-        onClick={() => {
-          localStorage.removeItem('availability');
-          refresh();
-        }}
-      >
-        Clear Availability
-      </button>
-      <ul
-        className="nhsuk-grid-row nhsuk-card-group"
-        style={{ padding: '20px' }}
-      >
-        {months.map(m => (
-          <li
-            key={m}
-            className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-          >
-            <MonthBlock month={m} weeks={weeks.filter(w => w.month === m)} />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <NhsPage
+      title="Availability Overview"
+      breadcrumbs={[
+        { name: 'Home', href: '/' },
+        { name: siteMoniker, href: `/site/${params.site}` },
+      ]}
+    >
+      <AvailabilityOverviewPage />
+    </NhsPage>
   );
 };
 
-export default AvailabilityOverviewPage;
+export default Page;

@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -14,9 +16,29 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 [FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
 public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
 {
-    private  HttpResponseMessage _response;
+    private HttpResponseMessage? _response;
     private HttpStatusCode _statusCode;
-    private IEnumerable<SiteWithDistance> _actualResponse;
+    private IEnumerable<SiteWithDistance>? _actualResponse;
+
+    public SiteSearchFeatureSteps()
+    {
+        DeleteSiteData(Client).GetAwaiter().GetResult();
+    }
+    
+    private static async Task DeleteSiteData(CosmosClient cosmosClient)
+    {
+        const string partitionKey = "site";
+        var container = cosmosClient.GetContainer("appts", "index_data");
+        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.DocumentType == partitionKey).ToFeedIterator();        
+        while (feed.HasMoreResults)
+        {
+            var documentsResponse = await feed.ReadNextAsync();
+            foreach (var document in documentsResponse)
+            {
+                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
+            }
+        }
+    }
     
     [Given("The following sites")]
     public async Task SetUpSites(Gherkin.Ast.DataTable dataTable)

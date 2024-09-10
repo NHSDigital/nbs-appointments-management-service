@@ -237,7 +237,7 @@ const SessionPage = () => {
       b => b.isBreak === targetBlock?.isBreak && conflictsWith(b, test),
     );
     setConflictBlock(hit?.start);
-  }, [startTime, endTime, targetBlock, blocks]);
+  }, [startTime, endTime, targetBlock, blocks, dayBlocks]);
 
   return (
     <>

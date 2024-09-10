@@ -2,9 +2,8 @@
 import { When } from '@components/when';
 import { serviceSummary } from './services';
 import { AvailabilityBlock } from '@types';
-import dayjs from 'dayjs';
 import React from 'react';
-import { calculateNumberOfAppointments, isWithin } from './week/common';
+import { calculateNumberOfAppointments } from './week/common';
 
 type SummaryAction = {
   title: string;

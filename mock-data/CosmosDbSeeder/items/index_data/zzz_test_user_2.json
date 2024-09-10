@@ -4,11 +4,11 @@
   "roleAssignments": [
     {
       "role": "system:auditer",
-      "scope": "site:FTL72"
+      "scope": "site:ABC01"
     },
     {
       "role": "system:integration-test-user",
-      "scope": "site:FTM56"
+      "scope": "site:ABC02"
     }
   ]
 }

@@ -241,7 +241,7 @@ public abstract class BaseFeatureSteps : Feature
                         Id = "system:integration-test-user", 
                         Name = "Integration Test Api User Role",
                         Description = "Role for integration test user.",
-                        Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view" ] 
+                        Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view", "sites:query" ] 
                     }
             ]
         };        

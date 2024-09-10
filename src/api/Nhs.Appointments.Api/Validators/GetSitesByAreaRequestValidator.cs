@@ -3,9 +3,9 @@ using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class GetSitesRequestValidator : AbstractValidator<GetSitesRequest>
+public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesRequest>
 {
-    public GetSitesRequestValidator()
+    public GetSitesByAreaRequestValidator()
     {
         RuleFor(x => x.longitude)
             .NotEmpty()
@@ -18,7 +18,7 @@ public class GetSitesRequestValidator : AbstractValidator<GetSitesRequest>
             .GreaterThanOrEqualTo(-90)
             .Configure(rule => rule.MessageBuilder = _ => "Provide a valid latitude value (between -90 <-> 90 degrees).");
         RuleFor(x => x.searchRadius)
-            .NotEmpty()
+            .NotNull()
             .LessThanOrEqualTo(100000)
             .GreaterThanOrEqualTo(1000)
             .Configure(rule => rule.MessageBuilder = _ => "Provide a search radius in meters (between 1000 - 100,000m).");

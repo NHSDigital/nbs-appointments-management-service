@@ -4,9 +4,9 @@ using Nhs.Appointments.Api.Validators;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
-public class GetSitesRequestValidatorTests
+public class GetSitesByAreaRequestValidatorTests
 {
-    private readonly GetSitesRequestValidator _sut = new();
+    private readonly GetSitesByAreaRequestValidator _sut = new();
 
     [Theory]
     [InlineData(null)]

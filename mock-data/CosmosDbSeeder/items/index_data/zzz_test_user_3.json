@@ -4,11 +4,11 @@
   "roleAssignments": [
     {
       "role": "canned:check-in",
-      "scope": "site:FTL72"
+      "scope": "site:ABC01"
     },
     {
       "role": "canned:check-in",
-      "scope": "site:FTM56"
+      "scope": "site:ABC02"
     }
   ]
 }

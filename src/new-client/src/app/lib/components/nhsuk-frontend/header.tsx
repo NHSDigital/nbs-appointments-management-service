@@ -14,20 +14,32 @@ type Props = {
  */
 const Header = ({ children }: Props) => {
   return (
-    <header className="nhsuk-header nhsuk-header__transactional" role="banner">
+    <header className="nhsuk-header" role="banner">
       <div className="nhsuk-header__container">
-        <div className="nhsuk-header__logo nhsuk-header__transactional--logo">
-          <NhsLogo />
-        </div>
-        <div className="nhsuk-header__transactional-service-name">
+        <div className="nhsuk-header__logo">
           <Link
-            className="nhsuk-header__transactional-service-name--link"
+            className="nhsuk-header__link nhsuk-header__link--service"
             href="/"
+            aria-label="NHS Appointment Book"
           >
-            NHS Appointment Book
+            <NhsLogo />
+
+            <span className="nhsuk-header__service-name">
+              NHS Appointment Book
+            </span>
           </Link>
         </div>
-        {children}
+
+        <div className="nhsuk-header__content" id="content-header">
+          <div className="nhsuk-header-custom__user-controls">
+            <div
+              className="nhsuk-header-custom__user-control-wrap"
+              id="wrap-user-controls"
+            >
+              {children}
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );

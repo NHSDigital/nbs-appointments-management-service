@@ -27,7 +27,7 @@ test.beforeEach(async ({ page }) => {
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async () => {
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser2);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
@@ -41,7 +41,7 @@ test('A user with the appropriate permission can view other users at a site but 
 
 test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
@@ -56,7 +56,7 @@ test('Navigating straight to the user management page works as expected', async 
   page,
 }) => {
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
 
   await page.goto('/site/ABC01/users');
@@ -67,7 +67,7 @@ test('Navigating straight to the user management page displays an appropriate er
   page,
 }) => {
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser3);
 
   await page.goto('/site/ABC01/users');
@@ -83,9 +83,9 @@ test('Navigating straight to the user management page displays an appropriate er
   ).toBeVisible();
 });
 
-test('permissions are applied per site', async ({ page }) => {
+test('permissions are applied per site', async () => {
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser2);
 
   // First check Edit column exists at Church Lane

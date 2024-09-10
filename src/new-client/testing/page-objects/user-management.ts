@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import RootPage from './root';
 
 export default class UserManagementPage extends RootPage {
@@ -27,9 +28,15 @@ export default class UserManagementPage extends RootPage {
     });
   }
 
-  async selectRoles(roles: string[]) {
-    roles.forEach(async role => {
-      await this.page.getByRole('checkbox', { name: role }).check();
-    });
+  async selectRole(role: string) {
+    await this.page.getByRole('checkbox', { name: role }).click();
+  }
+
+  async userExists(email: string) {
+    expect(this.page.getByRole('cell', { name: email })).toBeVisible();
+  }
+
+  async userDoesNotExist(email: string) {
+    expect(this.page.getByRole('cell', { name: email })).not.toBeVisible();
   }
 }

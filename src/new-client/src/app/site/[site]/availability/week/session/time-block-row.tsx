@@ -65,6 +65,7 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
           defaultMessage="Select the current site available services, or add a break"
           options={services}
           summarise={serviceSummary}
+          onChange={() => {}}
         />
       </td>
       <td className="nhsuk-table__cell">

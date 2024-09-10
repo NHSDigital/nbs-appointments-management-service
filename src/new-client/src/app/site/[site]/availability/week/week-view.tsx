@@ -48,11 +48,11 @@ const WeekView = ({
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+      <div>
         <h2>
           Availability for Week Commencing {week.commencing.format('MMMM DD')}
         </h2>
-        <a href="#" onClick={wrappedCopy} style={{ marginLeft: '24px' }}>
+        <a href="#" onClick={wrappedCopy}>
           {copyWeekText}
         </a>
         <a

@@ -46,7 +46,14 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
           <li className="nhsuk-grid-column-two-thirds nhsuk-card-group__item">
             <Card
               href={`${site.id}/availability`}
-              title="Availability"
+              title="Availability (straight to year)"
+              description="Configure availability and open appointments for your site"
+            />
+          </li>
+          <li className="nhsuk-grid-column-two-thirds nhsuk-card-group__item">
+            <Card
+              href={`${site.id}/availability/month`}
+              title="Availability (straight to month)"
               description="Configure availability and open appointments for your site"
             />
           </li>

@@ -1,5 +1,5 @@
 import NhsPage from '@components/nhs-page';
-import { RemoveUserPage } from './remove-user-page';
+import RemoveUserPage from './remove-user-page';
 import { fetchPermissions, fetchSite } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 

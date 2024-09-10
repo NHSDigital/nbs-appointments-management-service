@@ -41,6 +41,8 @@ const mockSites: Site[] = [
   { id: '1003', name: 'Site Gamma', address: 'Gamma Street' },
 ];
 
+const mockSite = mockSites[0];
+
 const mockAllPermissions = [
   'site:get-config',
   'site:set-config',
@@ -70,6 +72,7 @@ const mockNonManagerPermissions = ['booking:query', 'booking:set-status'];
 export {
   getMockUserAssignments,
   mockRoles,
+  mockSite,
   mockSites,
   mockAllPermissions,
   mockAuditerPermissions,

@@ -1,14 +1,26 @@
+/* eslint-disable react/jsx-props-no-spreading */
+'use client';
+import React from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { removeUserFromSite } from '@services/appointmentsService';
+import { Button, ButtonGroup } from '@nhsuk-frontend-components';
 import { Site } from '@types';
-import ConfirmRemoveUserForm from './confirm-remove-user-form';
 
-type Props = {
-  user: string;
-  site: Site;
-};
+const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
+  const { replace } = useRouter();
+  const { handleSubmit } = useForm();
 
-export const RemoveUserPage = ({ user, site }: Props) => {
+  const cancel = () => {
+    replace(`/site/${site.id}/users`);
+  };
+
+  const submitForm: SubmitHandler<object> = async () => {
+    await removeUserFromSite(site.id, user);
+  };
+
   return (
-    <>
+    <form onSubmit={handleSubmit(submitForm)}>
       <p>
         Are you sure you wish to remove {user} from {site.name}?
       </p>
@@ -22,7 +34,16 @@ export const RemoveUserPage = ({ user, site }: Props) => {
         <li>This will not remove their access from any other sites</li>
       </ul>
 
-      <ConfirmRemoveUserForm user={user} site={site.id} />
-    </>
+      <ButtonGroup>
+        <Button type="submit" styleType="warning">
+          Yes, remove this account
+        </Button>
+        <Button styleType="secondary" onClick={cancel}>
+          Cancel
+        </Button>
+      </ButtonGroup>
+    </form>
   );
 };
+
+export default RemoveUserPage;

@@ -121,3 +121,33 @@ test('Can remove a user', async ({ newUserName }) => {
 
   await userManagementPage.userDoesNotExist(newUserName);
 });
+
+test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
+  newUserName,
+}) => {
+  await usersPage.assignStaffRolesLink.click();
+
+  await userManagementPage.emailInput.fill(newUserName);
+  await userManagementPage.searchUserButton.click();
+  await userManagementPage.selectRole('Check-in');
+  await userManagementPage.confirmAndSaveButton.click();
+
+  await userManagementPage.page
+    .getByRole('row')
+    .filter({
+      has: userManagementPage.page.getByText(newUserName),
+    })
+    .getByRole('link', { name: 'Remove from this site' })
+    .click();
+
+  await expect(
+    confirmRemoveUserPage.page.getByText(
+      `Are you sure you wish to remove ${newUserName} from Robin Lane Medical Centre?`,
+    ),
+  ).toBeVisible();
+
+  await confirmRemoveUserPage.confirmRemoveButton.click();
+  await confirmRemoveUserPage.page.waitForURL('**/site/1000/users');
+
+  await userManagementPage.userDoesNotExist(newUserName);
+});

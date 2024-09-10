@@ -1,5 +1,5 @@
 'use client';
-import { removeNotification } from './remove-notification';
+import CloseNotificationForm from '@components/close-notification-form';
 
 type Props = {
   notification?: string;
@@ -16,14 +16,7 @@ const NotificationBanner = ({ notification }: Props) => {
     <div className="nhsuk-warning-callout-custom">
       <div className="nhsuk-warning-callout-custom__container">
         {notification}
-        <form action={removeNotification}>
-          <button
-            type="submit"
-            className="nhsuk-warning-callout-custom__close-button"
-          >
-            Close
-          </button>
-        </form>
+        <CloseNotificationForm />
       </div>
     </div>
   ) : null;

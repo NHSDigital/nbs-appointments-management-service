@@ -31,8 +31,6 @@ module "api" {
   auth_provider_client_id        = var.AUTH_PROVIDER_CLIENT_ID
   auth_provider_return_uri       = var.AUTH_PROVIDER_RETURN_URI
   api_keys                       = var.API_KEYS
-  apim_uri                       = var.APIM_URI
-  apim_subscription_key          = var.APIM_SUBSCRIPTION_KEY
   hmac_signing_key               = var.HMAC_SIGNING_KEY
 }
 
@@ -72,16 +70,6 @@ variable "AUTH_PROVIDER_RETURN_URI" {
 }
 
 variable "API_KEYS" {
-  type      = string
-  sensitive = true
-}
-
-variable "APIM_URI" {
-  type      = string
-  sensitive = false
-}
-
-variable "APIM_SUBSCRIPTION_KEY" {
   type      = string
   sensitive = true
 }

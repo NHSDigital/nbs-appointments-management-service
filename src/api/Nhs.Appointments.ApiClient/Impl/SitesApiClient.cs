@@ -10,9 +10,6 @@ namespace Nhs.Appointments.ApiClient.Impl
         public SitesApiClient([FromKeyedServices(ContainerConfiguration.HttpClientKey)] Func<HttpClient> httpClientFactory, ILogger<SitesApiClient> logger) : base(httpClientFactory, logger)
         {
         }
-
-        public Task<IEnumerable<Site>> FindSitesByPostcode(string postcode) => Get<IEnumerable<Site>>($"api/sites?postcode={postcode}");
-
         public Task<SiteConfiguration> GetSiteConfiguration(string site) => Get<SiteConfiguration>($"api/site-configuration?site={site}");
 
         public Task<GetSiteMetaDataResponse> GetSiteMetaData(string site) => Get<GetSiteMetaDataResponse>($"api/site/meta?site={site}");

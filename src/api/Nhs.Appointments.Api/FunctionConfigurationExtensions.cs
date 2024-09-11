@@ -54,14 +54,12 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
+            .AddTransient<ISiteStore, SiteStore>()
             .AddCosmosDataStores()
-            .Configure<SiteSearchService.Options>(opts => opts.ServiceName = "APIM")
-            .Configure<PostcodeLookupService.Options>(opts => opts.ServiceName = "APIM")
             .AddTransient<ITemplateService, TemplateService>()
             .AddTransient<IScheduleService, ScheduleService>()
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteConfigurationService, SiteConfigurationService>()
-            .AddTransient<IPostcodeLookupService, PostcodeLookupService>()
             .AddTransient<ISiteSearchService, SiteSearchService>()
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
@@ -77,15 +75,7 @@ public static class FunctionConfigurationExtensions
     else
         builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
 
-    builder.Services.AddHttpClient("APIM", builder =>
-    {
-        builder.BaseAddress = new Uri(Environment.GetEnvironmentVariable("APIM_ENDPOINT"));
-        var subscriptionKey = Environment.GetEnvironmentVariable("APIM_SUBSCRIPTION_KEY");
-        if (subscriptionKey is not null)
-        {
-            builder.DefaultRequestHeaders.Add("Subscription-Key", subscriptionKey);
-        }
-    });
+    builder.Services.AddHttpClient();
 
     var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
     var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);

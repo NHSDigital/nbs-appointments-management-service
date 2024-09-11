@@ -34,8 +34,6 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     WEBSITE_RUN_FROM_PACKAGE              = 1
     COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.nbs_appts_cdb.endpoint
     COSMOS_TOKEN                          = azurerm_cosmosdb_account.nbs_appts_cdb.primary_key
-    APIM_ENDPOINT                         = var.apim_uri
-    APIM_SUBSCRIPTION_KEY                 = var.apim_subscription_key
     LEASE_MANAGER_CONNECTION              = azurerm_storage_account.nbs_appts_leases_stacc.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.nbs_appts_ai.connection_string
     API_KEYS                              = var.api_keys

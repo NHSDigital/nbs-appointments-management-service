@@ -58,7 +58,8 @@
         "availability:query",
         "booking:make",
         "booking:query",
-        "booking:cancel"
+        "booking:cancel",
+        "sites:query"
       ]
     },
     {
@@ -76,7 +77,8 @@
         "booking:cancel",
         "booking:set-status",
         "users:manage",
-        "users:view"
+        "users:view",
+        "sites:query"
       ]
     },
     {
@@ -92,7 +94,8 @@
         "site:set-config",
         "availability:get-setup",
         "users:manage",
-        "users:view"
+        "users:view",
+        "sites:query"
       ]
     }
   ]

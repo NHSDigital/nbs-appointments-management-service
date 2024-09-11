@@ -26,14 +26,30 @@ public class SetUserRolesFunctionTests
         const string User = "test@user.com";
         string[] roles = ["role1"];
         const string scope = "site:some-site";
-        const string site = "site1";
+
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 
-        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))));
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])))).Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         
         await _sut.Invoke(request);
 
         _userService.Verify();
+    }
+
+    [Fact]
+    public async Task ReturnsBadRequestWhenUserNotFound()
+    {
+        const string User = "test@user.com";
+        string[] roles = ["role1"];
+        const string scope = "site:some-site";
+
+        var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
+
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])))).Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(false, User, null)));
+
+        var result = await _sut.Invoke(request);
+
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
@@ -44,9 +60,9 @@ public class SetUserRolesFunctionTests
             _logger = logger;
         }
 
-        public async Task Invoke(SetUserRolesRequest request)
+        public async Task<ApiResult<EmptyResponse>> Invoke(SetUserRolesRequest request)
         {
-            await HandleRequest(request, _logger);
+            return await HandleRequest(request, _logger);
         }
     }
 }

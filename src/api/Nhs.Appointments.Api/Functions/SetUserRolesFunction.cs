@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -44,11 +46,30 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
                 })
             .ToList();
 
-       
+        var result = await userService.UpdateUserRoleAssignmentsAsync(request.User, request.Scope, roleAssignments);
 
-        await userService.UpdateUserRoleAssignmentsAsync(request.User, request.Scope, roleAssignments);
+        if(!result.Success)
+        {
+            return Failed(HttpStatusCode.BadRequest, FormatError(result));
+        }
         
         return Success(new EmptyResponse());
+    }
+
+    private static string FormatError(UpdateUserRoleAssignmentsResult result)
+    {
+        if (result.Success)
+        {
+            throw new Exception("The User Service operation succeeded so there is no error message to generate.");
+        }
+
+        if(string.IsNullOrEmpty(result.ErrorUser) && !result.ErrorRoles.Any())
+        {
+            throw new Exception("The User Service returned an error but did not provide further information");
+        }
+
+        // we could provide more detail here, but it might be best to hide this info from attackers
+        return string.Empty;
     }
 }
 

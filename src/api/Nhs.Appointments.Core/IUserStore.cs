@@ -7,4 +7,5 @@ public interface IUserStore
     Task<RoleAssignment[]> UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<IEnumerable<User>> GetUsersAsync(string site);
+    Task<User> GetOrDefaultAsync(string userId);
 }

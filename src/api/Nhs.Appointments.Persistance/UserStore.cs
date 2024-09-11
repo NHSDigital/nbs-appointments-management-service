@@ -32,7 +32,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     /// <exception cref="Exception"></exception>
     public async Task<RoleAssignment[]> UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var originalDocument = await GetOrDefault(userId);
+        var originalDocument = await GetOrDefaultAsync(userId);
         if (originalDocument == null)
         {
             var user = new User
@@ -62,7 +62,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var originalDocument = await GetOrDefault(userId);
+        var originalDocument = await GetOrDefaultAsync(userId);
         if (originalDocument == null)
         {
             var user = new User
@@ -95,7 +95,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return cosmosStore.WriteAsync(document);
     }
     
-    private async Task<User> GetOrDefault(string userId)
+    public async Task<User> GetOrDefaultAsync(string userId)
     {
         try
         {
@@ -103,7 +103,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
         catch (CosmosException ex) when ( ex.StatusCode == System.Net.HttpStatusCode.NotFound )
         {
-            return default;
+            return null;
         }
     }
 }

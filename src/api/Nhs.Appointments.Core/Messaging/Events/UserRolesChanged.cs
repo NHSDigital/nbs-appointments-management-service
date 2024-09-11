@@ -2,8 +2,8 @@
 
 public class UserRolesChanged
 {
-    public string User { get; set; }
-    public string Site { get; set; }
-    public string[] Added { get; set; }
-    public string[] Removed { get; set; }
+    public string UserId { get; set; }
+    public string SiteId { get; set; }
+    public string[] AddedRoleIds { get; set; }
+    public string[] RemovedRoleIds { get; set; }
 }

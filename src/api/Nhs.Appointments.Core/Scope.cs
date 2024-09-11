@@ -6,7 +6,7 @@ public class Scope
     {
         if(!scope.StartsWith(scopeType + ":"))
         {
-            return null;
+            return string.Empty;
         }
 
         return scope.Split(':')[1];

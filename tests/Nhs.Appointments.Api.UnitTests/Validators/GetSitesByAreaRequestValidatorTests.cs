@@ -9,7 +9,6 @@ public class GetSitesByAreaRequestValidatorTests
     private readonly GetSitesByAreaRequestValidator _sut = new();
 
     [Theory]
-    [InlineData(null)]
     [InlineData(181)]
     [InlineData(-181)]
     public void Validate_ReturnsError_WhenLongitudeIsInvalid(double longitude)
@@ -28,7 +27,6 @@ public class GetSitesByAreaRequestValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(91)]
     [InlineData(-91)]
     public void Validate_ReturnsError_WhenLatitudeIsInvalid(double latitude)
@@ -47,7 +45,6 @@ public class GetSitesByAreaRequestValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(999)]
     [InlineData(100001)]
     public void Validate_ReturnsError_WhenSearchRadiusIsInvalid(int searchRadius)
@@ -66,7 +63,6 @@ public class GetSitesByAreaRequestValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(0)]
     [InlineData(51)]
     public void Validate_ReturnsError_WhenMaxRecordsIsInvalid(int maxRecords)

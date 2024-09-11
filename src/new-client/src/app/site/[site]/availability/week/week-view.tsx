@@ -1,16 +1,15 @@
-import { AvailabilityBlock, WeekInfo } from '@types';
-import { timeSort } from './common';
+import { AvailabilityBlock } from '@types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs, { Dayjs } from 'dayjs';
-import { DaySummary } from '../day-summary';
-import { Pagination } from '@nhsuk-frontend-components';
-import { usePathname } from 'next/navigation';
+import { DaySummary } from '../../../../lib/components/day-summary';
 import { When } from '@components/when';
 import React from 'react';
+import { timeSort } from '@services/availabilityService';
+import { formatDateForUrl } from '@services/timeService';
+import Link from 'next/link';
 
 type WeekViewProps = {
-  onAddBlock: (block: AvailabilityBlock) => void;
-  week: WeekInfo;
+  week: dayjs.Dayjs[];
   blocks: AvailabilityBlock[];
   copyDay: (day: Dayjs) => void;
   pasteDay: (day: Dayjs) => void;
@@ -19,7 +18,6 @@ type WeekViewProps = {
 };
 
 const WeekView = ({
-  onAddBlock,
   week,
   blocks,
   copyDay,
@@ -28,38 +26,30 @@ const WeekView = ({
   pasteWeek,
 }: WeekViewProps) => {
   const [copyWeekText, setCopyWeekText] = React.useState('Copy week');
-  const pathname = usePathname();
 
   const wrappedCopy = () => {
-    copyWeek(week.commencing);
+    copyWeek(week[0]);
     setCopyWeekText('Week copied');
     setTimeout(() => setCopyWeekText('Copy week'), 1000);
   };
 
   const days = [];
-  for (let i = 0; i < 7; i++) days.push(week.commencing.add(i, 'day'));
+  for (let i = 0; i < 7; i++) days.push(week[0].add(i, 'day'));
 
   return (
     <>
       <div>
-        <h2>
-          Availability for Week Commencing {week.commencing.format('MMMM DD')}
-        </h2>
         <a href="#" onClick={wrappedCopy}>
           {copyWeekText}
         </a>
         <a
           href="#"
-          onClick={() => pasteWeek(week.commencing)}
+          onClick={() => pasteWeek(week[0])}
           style={{ marginLeft: '24px' }}
         >
           Paste week
         </a>
       </div>
-      <Pagination
-        previous={{ title: 'Previous week', href: './' }}
-        next={{ title: 'Next week', href: './' }}
-      />
       <ul className="nhsuk-grid-row nhsuk-card-group">
         {days.map(d => (
           <li
@@ -68,7 +58,6 @@ const WeekView = ({
           >
             <DayCard
               day={d}
-              action={onAddBlock}
               blocks={blocks}
               copyDay={copyDay}
               pasteDay={pasteDay}
@@ -82,13 +71,12 @@ const WeekView = ({
 
 type DayCardProps = {
   day: dayjs.Dayjs;
-  action: (block: AvailabilityBlock) => void;
   blocks: AvailabilityBlock[];
   copyDay: (day: Dayjs) => void;
   pasteDay: (day: Dayjs) => void;
 };
 
-const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
+const DayCard = ({ day, blocks, copyDay, pasteDay }: DayCardProps) => {
   const [copyLinkText, setCopyLinkText] = React.useState('Copy day');
 
   const copyDayWrapper = () => {
@@ -104,15 +92,15 @@ const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
     [blocks, day],
   );
 
-  const defaultBlock = {
-    day,
-    start: '09:00',
-    end: '12:00',
-    appointmentLength: 5,
-    sessionHolders: 1,
-    services: [],
-    isPreview: true,
-  };
+  // const defaultBlock = {
+  //   day,
+  //   start: '09:00',
+  //   end: '12:00',
+  //   appointmentLength: 5,
+  //   sessionHolders: 1,
+  //   services: [],
+  //   isPreview: true,
+  // };
 
   return (
     <div className="nhsuk-card nhsuk-card">
@@ -126,9 +114,11 @@ const DayCard = ({ day, blocks, action, copyDay, pasteDay }: DayCardProps) => {
           showBreaks={false}
         />
         <When condition={canEdit}>
-          <a href="#" onClick={() => action(defaultBlock)}>
+          <Link
+            href={`/site/1000/availability/week?date=${formatDateForUrl(day)}`}
+          >
             Edit
-          </a>
+          </Link>
           <a href="#" onClick={copyDayWrapper} style={{ marginLeft: '16px' }}>
             {copyLinkText}
           </a>

@@ -2,19 +2,22 @@
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { services, serviceSummary } from '../../services';
-import { DaySummary } from '../../day-summary';
-import { useAvailability } from '../../blocks';
-import { AvailabilityBlock } from '@types';
-import {
-  timeAsInt,
-  conflictsWith,
-  calculateNumberOfAppointments,
-  isWithin,
-  timeSort,
-} from '../common';
+import { AvailabilityBlock, Site } from '@types';
 import { When } from '@components/when';
 import CheckboxSelector from '@components/checkbox-selector';
+import {
+  calculateNumberOfAppointments,
+  conflictsWith,
+  isWithin,
+  services,
+  summariseServices,
+  timeAsInt,
+  timeSort,
+} from '@services/availabilityService';
+import { DaySummary } from '@components/day-summary';
+import { useAvailability } from '@hooks/useAvailability';
+import { Pagination } from '@components/nhsuk-frontend';
+import { formatDateForUrl, parseDate } from '@services/timeService';
 
 type Errors = {
   time?: string;
@@ -25,7 +28,13 @@ type Errors = {
 const sessionHolderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const appointmentLengthOptions = [4, 5, 6, 10, 12, 15];
 
-const SessionPage = () => {
+type DayViewProps = {
+  referenceDate: string;
+  site: Site;
+};
+
+const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
+  const parsedDate = parseDate(referenceDate);
   const { blocks, saveBlock, removeBlock } = useAvailability();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -239,13 +248,25 @@ const SessionPage = () => {
     setConflictBlock(hit?.start);
   }, [startTime, endTime, targetBlock, blocks, dayBlocks]);
 
+  const yesterday = parsedDate.subtract(1, 'day');
+  const tomorrow = parsedDate.add(1, 'day');
+
   return (
     <>
+      <Pagination
+        previous={{
+          title: yesterday.format('DD MMMM YYYY'),
+          href: `/site/${site.id}/availability/day?date=${formatDateForUrl(yesterday)}`,
+        }}
+        next={{
+          title: tomorrow.format('DD MMMM YYYY'),
+          href: `/site/${site.id}/availability/day?date=${formatDateForUrl(tomorrow)}`,
+        }}
+      />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">
           <h2>
             <span>
-              {day.format('MMM DD dddd')}
               <span className="nhsuk-caption-xl nhsuk-caption--bottom">
                 <span className="nhsuk-u-visually-hidden">-</span>
                 Manage sessions for this day
@@ -346,7 +367,7 @@ const SessionPage = () => {
                               options={services}
                               defaultOptions={targetBlock?.services}
                               summarise={opts =>
-                                serviceSummary(
+                                summariseServices(
                                   opts,
                                   'Select services for the clinic',
                                 )
@@ -476,4 +497,4 @@ const SessionPage = () => {
   );
 };
 
-export default SessionPage;
+export default DayViewPage;

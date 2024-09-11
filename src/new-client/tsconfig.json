@@ -24,6 +24,7 @@
       ],
       "@types": ["./src/app/lib/types/index"],
       "@services/*": ["./src/app/lib/services/*"],
+      "@hooks/*": ["./src/app/lib/hooks/*"],
       "@testing/*": ["./src/app/testing/*"],
       "@sorting": ["./src/app/lib/sorting/index"]
     }

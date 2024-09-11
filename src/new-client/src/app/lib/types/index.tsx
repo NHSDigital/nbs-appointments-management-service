@@ -85,7 +85,22 @@ const daysOfTheWeek = [
   'Sunday',
 ];
 
-export { daysOfTheWeek };
+const monthsOfTheYear = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+export { daysOfTheWeek, monthsOfTheYear };
 export type {
   UserProfile,
   Site,

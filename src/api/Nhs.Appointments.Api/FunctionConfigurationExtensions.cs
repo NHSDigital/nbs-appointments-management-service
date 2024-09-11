@@ -60,7 +60,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IScheduleService, ScheduleService>()
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteConfigurationService, SiteConfigurationService>()
-            .AddTransient<ISiteSearchService, SiteSearchService>()
+            .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()

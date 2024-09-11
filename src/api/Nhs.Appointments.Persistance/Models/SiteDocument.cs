@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Nhs.Appointments.Core;
+using Attribute = Nhs.Appointments.Core.Attribute;
 
 namespace Nhs.Appointments.Persistance.Models;
 
@@ -14,6 +15,9 @@ public class SiteDocument : IndexDataCosmosDocument
     
     [JsonProperty("location")]
     public Location Location { get; set; }
+
+    [JsonProperty("attributes")]
+    public IEnumerable<Attribute> Attributes { get; set; }
 }
 
 

@@ -9,6 +9,8 @@ public record Site(
     string Name,
     [JsonProperty("address")]
     string Address,
+    [JsonProperty("attributes")]
+    IEnumerable<Attribute> Attributes,
     [JsonProperty("location")]
     Location? Location = null
 );
@@ -19,6 +21,14 @@ public record Location
     string Type, 
     [property:JsonProperty("coordinates")]
     double[] Coordinates
+);
+
+public record Attribute
+(
+    [property:JsonProperty("id")]
+    string Id, 
+    [property:JsonProperty("value")]
+    string Value
 );
 
 public record SiteWithDistance

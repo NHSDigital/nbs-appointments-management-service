@@ -10,12 +10,13 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Security.Principal;
+using Attribute = Nhs.Appointments.Core.Attribute;
 
 namespace Nhs.Appointments.Api.Tests.Functions
 {
     public class GetUserProfileFunctionTests
     {
-        private readonly Mock<ISiteSearchService> _siteSearchService = new();
+        private readonly Mock<ISiteService> _siteSearchService = new();
         private readonly Mock<IUserService> _userSiteAssignmentService = new();
         private readonly Mock<IValidator<EmptyRequest>> _validator = new();
         private readonly Mock<IUserContextProvider> _userContextProvider = new();
@@ -71,8 +72,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere"),
-                new Site("2", "Beta", "elsewhere"),
+                new Site("1", "Alpha", "somewhere", new List<Attribute>() {new (Id: "Attribute 1", Value: "true")}),
+                new Site("2", "Beta", "elsewhere", new List<Attribute>() {new ("Attribute-1", "true")})
             };
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
@@ -100,7 +101,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere"),
+                new Site("1", "Alpha", "somewhere", new List<Attribute>() {new (Id: "Attribute 1", Value: "true")}),
             };
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);

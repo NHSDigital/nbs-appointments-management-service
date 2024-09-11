@@ -15,7 +15,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSitesByAreaFunction(ISiteSearchService siteSearchService, IValidator<GetSitesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger)
+public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger)
     : BaseApiFunction<GetSitesRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "GetSitesByArea", tags: new [] {"Sites"}, Summary = "Get sites by area")]
@@ -31,7 +31,7 @@ public class GetSitesByAreaFunction(ISiteSearchService siteSearchService, IValid
 
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesRequest request, ILogger logger)
     {
-        var sites = await siteSearchService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maximumRecords);
+        var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maximumRecords);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
     

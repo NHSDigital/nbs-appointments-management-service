@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserProfileFunction(ISiteSearchService siteSearchService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger)
+    public class GetUserProfileFunction(ISiteService siteService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger)
     : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger)
     {
 
@@ -39,7 +39,7 @@ namespace Nhs.Appointments.Api.Functions
 
             foreach (var site in siteIdsForUser.Distinct())
             {
-                var siteInfo = await siteSearchService.GetSiteByIdAsync(site);
+                var siteInfo = await siteService.GetSiteByIdAsync(site);
                 if(siteInfo != null)
                     siteInfoList.Add(siteInfo);
             }

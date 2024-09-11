@@ -1,11 +1,8 @@
-import {
-  Breadcrumbs,
-  Breadcrumb,
-  WarningCallout,
-} from '@nhsuk-frontend-components';
+import { Breadcrumbs, Breadcrumb, Footer } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
 import { NhsHeader } from './nhs-header';
 import { fetchUserProfile } from '@services/appointmentsService';
+import LogInButton from './log-in-button';
 
 type Props = {
   title: string;
@@ -30,33 +27,37 @@ const NhsPage = async ({
           ...(!omitTitleFromBreadcrumbs ? [{ name: title }] : []),
         ]}
       />
-      <div className="nhsuk-width-container app-width-container">
-        <main
-          className="govuk-main-wrapper app-main-wrapper"
-          id="main-content"
-          role="main"
-        >
+      <div className="nhsuk-width-container">
+        <main className="nhsuk-main-wrapper" id="main-content" role="main">
           <div className="nhsuk-grid-row">
-            <div className="nhsuk-grid-column-full app-component-reading-width">
-              <div className="app-pane">
-                <div className="app-pane__main-content">
-                  <h1 className="app-page-heading">{title}</h1>
-                  {userProfile === undefined ? (
-                    <WarningCallout title="You cannot access this site">
-                      <p>
-                        You are currently not signed in. To use this site,
-                        please sign in.
-                      </p>
-                    </WarningCallout>
-                  ) : (
-                    children
-                  )}
-                </div>
-              </div>
+            <div className="nhsuk-grid-column-full">
+              <h1 className="app-page-heading">{title}</h1>
+              {userProfile === undefined ? (
+                <>
+                  <p>
+                    You are currently not signed in. You must sign in to access
+                    this service.
+                  </p>
+                  <LogInButton />
+                </>
+              ) : (
+                children
+              )}
             </div>
           </div>
         </main>
       </div>
+      <Footer
+        supportLinks={
+          [
+            // { text: 'Accessibility statement', href: '/accessibility-statement' },
+            // { text: 'Contact us', href: '/contact-us' },
+            // { text: 'Cookies', href: '/cookies' },
+            // { text: 'Privacy policy', href: '/privacy-policy' },
+            // { text: 'Terms and conditions', href: '/terms-and-conditions' },
+          ]
+        }
+      />
     </>
   );
 };

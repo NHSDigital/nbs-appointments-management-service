@@ -5,7 +5,7 @@ const NhsHeaderLogIn = () => {
     <form action={redirectToIdServer.bind(null, undefined)}>
       <button
         aria-label="log in"
-        className="header__user-control-link"
+        className="nhsuk-header-custom__user-control nhsuk-header-custom__user-control-link"
         type="submit"
       >
         Log in

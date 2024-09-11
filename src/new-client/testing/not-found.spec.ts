@@ -7,7 +7,7 @@ test('Invalid roots yield a styled 404 page', async ({ page }) => {
   const rootPage = new RootPage(page);
   const oAuthPage = new OAuthLoginPage(page);
   await rootPage.goto();
-  await rootPage.logInButton.click();
+  await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
 
   await page.goto('/this-route-does-not-exist');

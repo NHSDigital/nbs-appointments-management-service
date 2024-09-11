@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { Breadcrumb, Breadcrumbs } from '@nhsuk-frontend-components';
 
 const breadcrumbTrail: Breadcrumb[] = [
+  { name: 'Home', href: '/' },
   { name: 'Page 1', href: '/page1' },
   { name: 'Page 2', href: '/page1/page2' },
   { name: 'Page 3' },
@@ -14,16 +15,6 @@ describe('NHSBreadcrumbs', () => {
     expect(
       screen.getByRole('navigation', { name: 'Breadcrumb' }),
     ).toBeInTheDocument();
-  });
-
-  it('always renders the home crumb by default', () => {
-    render(<Breadcrumbs />);
-
-    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
-      'href',
-      '/',
-    );
   });
 
   it('constructs a trail of breadcrumbs', () => {
@@ -60,7 +51,9 @@ describe('NHSBreadcrumbs', () => {
   });
 
   it('renders an invisible back to home button if only one page away from home', () => {
-    render(<Breadcrumbs trail={[{ name: 'Page 1' }]} />);
+    render(
+      <Breadcrumbs trail={[{ name: 'Home', href: '/' }, { name: 'Page 1' }]} />,
+    );
     expect(screen.getByRole('link', { name: /Back to Home/ })).toHaveAttribute(
       'href',
       '/',

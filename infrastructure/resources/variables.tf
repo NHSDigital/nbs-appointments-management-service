@@ -22,27 +22,22 @@ variable "loc" {
   default = "uks"
 }
 
-variable "auth_provider_provider_uri" {
-  type      = string
-  sensitive = false
-}
-
 variable "auth_provider_issuer" {
   type      = string
   sensitive = false
 }
 
-variable "auth_provider_authorize_path" {
+variable "auth_provider_authorize_uri" {
   type      = string
   sensitive = false
 }
 
-variable "auth_provider_token_path" {
+variable "auth_provider_token_uri" {
   type      = string
   sensitive = false
 }
 
-variable "auth_provider_jwks_path" {
+variable "auth_provider_jwks_uri" {
   type      = string
   sensitive = false
 }

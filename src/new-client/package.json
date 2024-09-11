@@ -19,9 +19,9 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@next/env": "^14.2.8",
+    "@next/env": "^14.2.9",
     "appointments-booking-service": "file:",
-    "next": "14.2.8",
+    "next": "14.2.9",
     "nhsuk-frontend": "^8.3.0",
     "react": "^18",
     "react-dom": "^18",
@@ -40,7 +40,7 @@
     "@typescript-eslint/parser": "^5.61.0",
     "dotenv": "^16.4.5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.8",
+    "eslint-config-next": "14.2.9",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.30.0",

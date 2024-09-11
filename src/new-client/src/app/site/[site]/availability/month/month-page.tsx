@@ -35,7 +35,7 @@ const MonthOverviewPage = ({ referenceDate, site }: MonthViewProps) => {
           <div className="nhsuk-grid-row">
             {daysOfTheWeek.map((day, dayIndex) => (
               <div
-                className="nhsuk-grid-column-custom__one-eighth"
+                className="nhsuk-grid-column-custom__one-seventh"
                 key={`day-of-the-week-${dayIndex}`}
               >
                 <h6>{day}</h6>
@@ -51,11 +51,11 @@ const MonthOverviewPage = ({ referenceDate, site }: MonthViewProps) => {
             >
               {week.map((day, dayIndex) => (
                 <div
-                  className="nhsuk-grid-column-custom__one-eighth"
+                  className="nhsuk-grid-column-custom__one-seventh"
                   id={`week-${weekIndex}-day-${dayIndex}`}
                   key={`week-${weekIndex}-day-${dayIndex}`}
                 >
-                  <MonthViewCard date={day} />
+                  <MonthViewCard date={day} site={site} />
                 </div>
               ))}
             </div>

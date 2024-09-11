@@ -1,9 +1,11 @@
 'use client';
 import { When } from '@components/when';
-import { serviceSummary } from './services';
+import {
+  calculateNumberOfAppointments,
+  summariseServices,
+} from '@services/availabilityService';
 import { AvailabilityBlock } from '@types';
 import React from 'react';
-import { calculateNumberOfAppointments } from './week/common';
 
 type SummaryAction = {
   title: string;
@@ -61,7 +63,7 @@ export const DaySummary = ({
             <dd className="nhsuk-summary-list__value">
               {b.isBreak
                 ? 'Break Period'
-                : serviceSummary(b.services, 'No services selected')}
+                : summariseServices(b.services, 'No services selected')}
             </dd>
             <dd className="nhsuk-summary-list__value">
               <When condition={!b.isBreak}>

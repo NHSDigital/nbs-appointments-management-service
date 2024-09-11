@@ -1,10 +1,14 @@
+import { formatDateForUrl } from '@services/timeService';
+import { Site } from '@types';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 
 type Props = {
   date: dayjs.Dayjs;
+  site: Site;
 };
 
-const MonthViewCard = ({ date }: Props) => {
+const MonthViewCard = ({ date, site }: Props) => {
   const appointsmentsBooked = Math.floor(Math.random() * 301);
   const percentageBooked = Math.round((appointsmentsBooked / 300) * 100);
   const percentageOfPixels = Math.round((percentageBooked / 100) * 50);
@@ -13,7 +17,7 @@ const MonthViewCard = ({ date }: Props) => {
 
   return (
     <div
-      className={`nhsuk-card nhsuk-card--primary`}
+      className={`nhsuk-card nhs-card--clickable nhsuk-card--primary`}
       style={{ padding: 10, marginBottom: 0 }}
     >
       <div
@@ -59,6 +63,29 @@ const MonthViewCard = ({ date }: Props) => {
                 &nbsp;
               </div>
               <div style={{ textWrap: 'nowrap' }}>Site is closed</div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  marginBottom: 5,
+                }}
+              >
+                {!isWeekend && (
+                  <Link
+                    href={`/site/${site.id}/availability/day?date=${formatDateForUrl(date)}`}
+                  >
+                    Day
+                  </Link>
+                )}
+
+                <span style={{ flexGrow: 1, textAlign: 'right' }}>
+                  <Link
+                    href={`/site/${site.id}/availability/week?date=${formatDateForUrl(date)}`}
+                  >
+                    Week
+                  </Link>
+                </span>
+              </div>
             </>
           ) : (
             <>
@@ -76,6 +103,28 @@ const MonthViewCard = ({ date }: Props) => {
               </div>
               <div style={{ textWrap: 'nowrap' }}>
                 {appointsmentsBooked} / 300
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  marginBottom: 5,
+                }}
+              >
+                <Link
+                  href={`/site/${site.id}/availability/day?date=${formatDateForUrl(date)}`}
+                >
+                  Day
+                </Link>
+                {!isWeekend && (
+                  <span style={{ flexGrow: 1, textAlign: 'right' }}>
+                    <Link
+                      href={`/site/${site.id}/availability/week?date=${formatDateForUrl(date)}`}
+                    >
+                      Week
+                    </Link>
+                  </span>
+                )}
               </div>
             </>
           )}

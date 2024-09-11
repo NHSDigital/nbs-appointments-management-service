@@ -3,6 +3,12 @@ import { AvailabilityBlock } from '@types';
 import dayjs from 'dayjs';
 import React from 'react';
 
+import isoWeek from 'dayjs/plugin/isoWeek';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(isoWeek);
+dayjs.extend(customParseFormat);
+
 export const useAvailability = () => {
   const [blocks, setBlocks] = React.useState<AvailabilityBlock[]>(
     [] as AvailabilityBlock[],

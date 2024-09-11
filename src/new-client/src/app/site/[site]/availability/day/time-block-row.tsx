@@ -1,7 +1,7 @@
 import CheckboxSelector from '@components/checkbox-selector';
+import { services, summariseServices } from '@services/availabilityService';
 import { AvailabilityBlock } from '@types';
 import React from 'react';
-import { services, serviceSummary } from '../../services';
 
 type TimeBlockRowProps = {
   block: AvailabilityBlock;
@@ -64,7 +64,7 @@ const TimeBlockRow = ({ block }: TimeBlockRowProps) => {
         <CheckboxSelector
           defaultMessage="Select the current site available services, or add a break"
           options={services}
-          summarise={serviceSummary}
+          summarise={summariseServices}
           onChange={() => {}}
         />
       </td>

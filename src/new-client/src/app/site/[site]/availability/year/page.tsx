@@ -1,6 +1,6 @@
 import { fetchSite } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
-import MonthPage from './month-page';
+import YearPage from './year-page';
 import { notFound } from 'next/navigation';
 import { formatDateForUrl, parseDate } from '@services/timeService';
 
@@ -24,20 +24,16 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={`Availability for ${parsedDate.format('MMMM YYYY')}`}
+      title={`Availability for ${parsedDate.format('YYYY')}`}
       breadcrumbs={[
         { name: 'Home', href: '/' },
         { name: siteMoniker, href: `/site/${params.site}` },
         {
           name: 'Availability',
         },
-        {
-          name: 'Year',
-          href: `/site/${params.site}/availability/year?date=${formatDateForUrl(parsedDate)}`,
-        },
       ]}
     >
-      <MonthPage referenceDate={parsedDate} site={site} />
+      <YearPage referenceDate={formatDateForUrl(parsedDate)} site={site} />
     </NhsPage>
   );
 };

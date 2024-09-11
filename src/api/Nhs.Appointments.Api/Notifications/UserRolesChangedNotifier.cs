@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
-using Notify.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,24 +7,22 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Notifications;
 
 // Depends on an email template hosted in Gov Notify. See template.txt for details 
-public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClient, IRolesStore rolesStore, ISiteSearchService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
+public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStore rolesStore, ISiteSearchService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
 {
     public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
-        var roles = await rolesStore.GetRoles();
-        var rolesAddedNames = GetRoleNames(roles, rolesAdded);
-        var rolesRemovedNames = GetRoleNames(roles, rolesRemoved);
+        var hasRoleChanges = rolesAdded.Any() || rolesRemoved.Any();
 
-        if (rolesAddedNames.Length == 0 && rolesRemovedNames.Length == 0)
+        if (hasRoleChanges)
         {
-            // avoid sending pointless notifications when nothing has actually changed:
-            return;
-        }
+            var roles = await rolesStore.GetRoles();
+            var rolesAddedNames = GetRoleNames(roles, rolesAdded);
+            var rolesRemovedNames = GetRoleNames(roles, rolesRemoved);
 
-        var site = await siteService.GetSiteByIdAsync(siteId);
-        var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
+            var site = await siteService.GetSiteByIdAsync(siteId);
+            var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
 
-        var templateValues = new Dictionary<string, dynamic>
+            var templateValues = new Dictionary<string, dynamic>
         {
             {"user", user},
             {"rolesAdded", GetRolesAddedText(rolesAddedNames)},
@@ -33,7 +30,8 @@ public class UserRolesChangedNotifier(IAsyncNotificationClient notificationClien
             {"site", siteName }
         };
 
-        await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+            await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+        }
     }
 
     private string[] GetRoleNames(IEnumerable<Role> roles, IEnumerable<string> roleIds)

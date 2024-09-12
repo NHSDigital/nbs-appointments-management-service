@@ -19,12 +19,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
         return cosmosStore.RunSqlQueryAsync<SiteWithDistance>(query);
     }
     
-    public async Task<Site> GetSiteById(string siteId)
+    public Task<Site> GetSiteById(string siteId)
     {
         try
         {
-            var site = await cosmosStore.GetDocument<Site>(siteId);
-            return site;
+            return cosmosStore.GetDocument<Site>(siteId);
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {

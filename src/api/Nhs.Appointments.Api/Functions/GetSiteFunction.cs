@@ -12,8 +12,9 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteFunction> logger) : SiteBasedResourceFunction<Site>(validator, userContextProvider, logger)
 {
+    [RequiresPermission("site:get-config", typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
-    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "site")] HttpRequest req)
+    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
     {
         return base.RunAsync(req);
     }

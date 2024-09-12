@@ -10,7 +10,6 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Security.Principal;
-using Attribute = Nhs.Appointments.Core.Attribute;
 
 namespace Nhs.Appointments.Api.Tests.Functions
 {
@@ -72,8 +71,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", new [] {new Attribute(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
-                new Site("2", "Beta", "elsewhere", new [] {new Attribute(Id: "Attribute 2", Value: "false")}, new Location("point", new []{-0.1, -10}))
+                new Site("1", "Alpha", "somewhere", new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
+                new Site("2", "Beta", "elsewhere", new [] {new AttributeValue(Id: "Attribute 2", Value: "false")}, new Location("point", new []{-0.1, -10}))
             };
             
             var expectedUserProfileSiteDetails = new[]
@@ -107,7 +106,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", new [] {new Attribute(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10}))
+                new Site("1", "Alpha", "somewhere", new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10}))
             };
             
             var expectedUserProfileSiteDetails = new[]

@@ -4,7 +4,7 @@
   "sets": [
     {
       "id": "accessibility",
-      "attributes": [
+      "attributeDefinitions": [
         {
           "id": "accessible_toilet",
           "displayName": "Accessible toilet"

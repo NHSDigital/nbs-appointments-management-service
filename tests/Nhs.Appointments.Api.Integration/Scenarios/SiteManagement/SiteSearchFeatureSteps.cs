@@ -51,7 +51,7 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
                 Address = row.Cells.ElementAt(2).Value,
                 DocumentType = "site",
                 Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(3).Value), double.Parse(row.Cells.ElementAt(4).Value) }),
-                Attributes = [new Attribute("attr_1", "false")]
+                AttributeValues = [new AttributeValue("attr_1", "false")]
             });
 
         foreach (var site in sites)
@@ -82,7 +82,7 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
                 Name: row.Cells.ElementAt(1).Value,
                 Address: row.Cells.ElementAt(2).Value,
                 Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(3).Value), double.Parse(row.Cells.ElementAt(4).Value) }),
-                Attributes: new List<Attribute>(){ new Attribute("attr_1", "false")}
+                AttributeValues: new List<AttributeValue>(){ new AttributeValue("attr_1", "false")}
                 ), Distance: int.Parse(row.Cells.ElementAt(5).Value)
             )).ToList();
 

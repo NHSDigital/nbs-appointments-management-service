@@ -20,21 +20,21 @@ public class SiteServiceTests
                 Name: "Site 2", 
                 Address: "2 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]), 
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 5000),
             new SiteWithDistance(new Site(
                 Id: "ABC03", 
                 Name: "Site 3", 
                 Address: "3 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [1.0, 60.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 3000),
             new SiteWithDistance(new Site(
                 Id: "ABC01", 
                 Name: "Site 1", 
                 Address: "1 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}),
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}),
                 Distance: 1000)
         };
         
@@ -45,21 +45,21 @@ public class SiteServiceTests
                 Name: "Site 1", 
                 Address: "1 Park Row",
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}),
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}),
                 Distance: 1000),
             new SiteWithDistance(new Site(
                 Id: "ABC03", 
                 Name: "Site 3", 
                 Address: "3 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [1.0, 60.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}),
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}),
                 Distance: 3000),
             new SiteWithDistance(new Site(
                 Id: "ABC02", 
                 Name: "Site 2", 
                 Address: "2 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}),
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}),
                 Distance: 5000)
         };
         
@@ -79,21 +79,21 @@ public class SiteServiceTests
                 Name: "Site 2", 
                 Address: "2 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 5000),
             new SiteWithDistance(new Site(
                 Id: "ABC03", 
                 Name: "Site 3", 
                 Address: "3 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [1.0, 60.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 3000),
             new SiteWithDistance(new Site(
                 Id: "ABC01", 
                 Name: "Site 1", 
                 Address: "1 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 1000)
         };
         
@@ -104,14 +104,14 @@ public class SiteServiceTests
                 Name: "Site 1", 
                 Address: "1 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}),
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}),
                 Distance: 1000),
             new SiteWithDistance(new Site(
                 Id: "ABC03", 
                 Name: "Site 3", 
                 Address: "3 Park Row", 
                 Location: new Location(Type: "Point", Coordinates: [1.0, 60.0]),
-                Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")}), 
+                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")}), 
                 Distance: 3000)
         };
         
@@ -141,14 +141,14 @@ public class SiteServiceTests
             Name: "Site 1", 
             Address: "1 Park Row", 
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")});
+            AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")});
         
         var expectedSite = new Site(
             Id: siteId, 
             Name: "Site 1", 
             Address: "1 Park Row", 
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            Attributes: new List<Attribute>() {new Attribute(Id: "Attribute 1", Value: "true")});        
+            AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")});        
         _siteStore.Setup(x => x.GetSiteById("ABC01")).ReturnsAsync(site);
         
         var result = await _sut.GetSiteByIdAsync(siteId);

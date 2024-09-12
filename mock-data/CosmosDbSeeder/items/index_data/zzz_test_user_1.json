@@ -4,11 +4,11 @@
   "roleAssignments": [
     {
       "role": "system:integration-test-user",
-      "scope": "site:1000"
+      "scope": "site:ABC01"
     },
     {
       "role": "system:integration-test-user",
-      "scope": "site:1001"
+      "scope": "site:ABC02"
     }
   ]
 }

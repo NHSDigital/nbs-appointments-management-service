@@ -1,0 +1,13 @@
+﻿{
+  "id": "ABC01",
+  "docType": "site",
+  "name": "Robin Lane Medical Centre",
+  "address": "Pudsey, Leeds, LS28 7BR",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -1.6610648,
+      53.795467
+    ]
+  }
+}

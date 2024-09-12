@@ -40,7 +40,8 @@ namespace Nhs.Appointments.Api.Functions
             foreach (var site in siteIdsForUser.Distinct())
             {
                 var siteInfo = await siteSearchService.GetSiteByIdAsync(site);
-                siteInfoList.Add(siteInfo);
+                if(siteInfo != null)
+                    siteInfoList.Add(siteInfo);
             }
 
             return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList));

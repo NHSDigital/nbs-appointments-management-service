@@ -4,11 +4,11 @@
   "roleAssignments": [
     {
       "role": "canned:check-in",
-      "scope": "site:1000"
+      "scope": "site:ABC01"
     },
     {
       "role": "canned:check-in",
-      "scope": "site:1001"
+      "scope": "site:ABC02"
     }
   ]
 }

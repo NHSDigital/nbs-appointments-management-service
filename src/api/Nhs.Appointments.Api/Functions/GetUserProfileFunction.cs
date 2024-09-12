@@ -35,13 +35,13 @@ namespace Nhs.Appointments.Api.Functions
             var userEmail = Principal.Claims.GetUserEmail();
             var roleAssignments = await userService.GetUserRoleAssignments(userEmail);
             var siteIdsForUser = roleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
-            var siteInfoList = new List<Site>();
+            var siteInfoList = new List<UserProfileSite>();
 
             foreach (var site in siteIdsForUser.Distinct())
             {
                 var siteInfo = await siteService.GetSiteByIdAsync(site);
                 if(siteInfo != null)
-                    siteInfoList.Add(siteInfo);
+                    siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
             }
 
             return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList));

@@ -12,7 +12,7 @@ public record Site(
     [JsonProperty("attributes")]
     IEnumerable<Attribute> Attributes,
     [JsonProperty("location")]
-    Location? Location = null
+    Location Location
 );
 
 public record Location

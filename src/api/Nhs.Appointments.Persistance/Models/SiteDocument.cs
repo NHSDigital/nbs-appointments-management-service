@@ -17,7 +17,7 @@ public class SiteDocument : IndexDataCosmosDocument
     public Location Location { get; set; }
 
     [JsonProperty("attributes")]
-    public IEnumerable<Attribute> Attributes { get; set; }
+    public Attribute[] Attributes { get; set; }
 }
 
 

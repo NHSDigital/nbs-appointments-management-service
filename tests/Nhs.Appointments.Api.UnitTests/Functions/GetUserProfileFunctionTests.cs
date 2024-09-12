@@ -72,8 +72,14 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", new List<Attribute>() {new (Id: "Attribute 1", Value: "true")}),
-                new Site("2", "Beta", "elsewhere", new List<Attribute>() {new ("Attribute-1", "true")})
+                new Site("1", "Alpha", "somewhere", new [] {new Attribute(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
+                new Site("2", "Beta", "elsewhere", new [] {new Attribute(Id: "Attribute 2", Value: "false")}, new Location("point", new []{-0.1, -10}))
+            };
+            
+            var expectedUserProfileSiteDetails = new[]
+            {
+                new UserProfileSite("1", "Alpha", "somewhere"),
+                new UserProfileSite("2", "Beta", "elsewhere")
             };
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
@@ -82,7 +88,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var result = await _sut.RunAsync(request) as ContentResult;
 
             var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
-            actualResponse.AvailableSites.Should().BeEquivalentTo(siteDetails);
+            actualResponse.AvailableSites.Should().BeEquivalentTo(expectedUserProfileSiteDetails);
         }
         
         [Fact]
@@ -101,7 +107,12 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", new List<Attribute>() {new (Id: "Attribute 1", Value: "true")}),
+                new Site("1", "Alpha", "somewhere", new [] {new Attribute(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10}))
+            };
+            
+            var expectedUserProfileSiteDetails = new[]
+            {
+                new UserProfileSite("1", "Alpha", "somewhere")
             };
 
             _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
@@ -109,7 +120,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var result = await _sut.RunAsync(request) as ContentResult;
 
             var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
-            actualResponse.AvailableSites.Should().BeEquivalentTo(siteDetails);
+            actualResponse.AvailableSites.Should().BeEquivalentTo(expectedUserProfileSiteDetails);
         }
         
         private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)

@@ -18,10 +18,6 @@
           "displayName": "Disabled car parking on site"
         },
         {
-          "id": "disabled_car_parking_on_site",
-          "displayName": "Disabled car parking on site"
-        },
-        {
           "id": "car_parking_on_site",
           "displayName": "Car parking on site"
         },
@@ -36,10 +32,6 @@
         {
           "id": "step_free_access",
           "displayName": "Step free access"
-        },
-        {
-          "id": "sign_language_service",
-          "displayName": "Sign language service"
         },
         {
           "id": "text_relay",

@@ -9,5 +9,43 @@
       -1.6610648,
       53.795467
     ]
-  }
+  },
+  "attributes": [
+    {
+      "id": "accessible_toilet",
+      "value": "true"
+    },
+    {
+      "id": "braille_translation_service",
+      "value": "false"
+    },
+    {
+      "id": "disabled_car_parking_on_site",
+      "value": "true"
+    },
+    {
+      "id": "car_parking_on_site",
+      "value": "true"
+    },
+    {
+      "id": "induction_loop",
+      "value": "false"
+    },
+    {
+      "id": "sign_language_service",
+      "value": "false"
+    },
+    {
+      "id": "step_free_access",
+      "value": "true"
+    },
+    {
+      "id": "text_relay",
+      "value": "false"
+    },
+    {
+      "id": "wheelchair_access",
+      "value": "true"
+    }
+  ]
 }

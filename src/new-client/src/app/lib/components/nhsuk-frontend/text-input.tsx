@@ -2,6 +2,7 @@ import { forwardRef, HTMLProps } from 'react';
 
 type Props = {
   label: string;
+  hint?: string;
 } & HTMLProps<HTMLInputElement>;
 type Ref = HTMLInputElement;
 
@@ -15,6 +16,11 @@ export const TextInput = forwardRef<Ref, Props>((props, ref) => (
     <label className="nhsuk-label" htmlFor={props.id}>
       {props.label}
     </label>
+    {props.hint && (
+      <div className="nhsuk-hint" id={`${props.id}-hint`}>
+        {props.hint}
+      </div>
+    )}
     <input
       className="nhsuk-input"
       type="text"

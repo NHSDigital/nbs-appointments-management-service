@@ -13,6 +13,7 @@ import RightChevron from './icons/right-chevron';
 import Pagination from './pagination';
 import Select from './select';
 import Table from './table';
+import Tabs from './tabs';
 import TextArea from './text-area';
 import TextInput from './text-input';
 import WarningCallout from './warning-callout';
@@ -35,6 +36,7 @@ export {
   Select,
   TextArea,
   Table,
+  Tabs,
   TextInput,
   WarningCallout,
 };

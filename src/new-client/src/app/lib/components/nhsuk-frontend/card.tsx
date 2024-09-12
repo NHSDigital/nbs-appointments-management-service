@@ -5,7 +5,7 @@ import Link from 'next/link';
 type CardType = 'primary' | 'secondary' | 'feature';
 
 type Props = {
-  title: string;
+  title?: string;
   type?: CardType;
   description?: string;
   href?: string;
@@ -29,15 +29,17 @@ const Card = ({
       className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
-        <h2 className="nhsuk-card__heading-m">
-          {href ? (
-            <Link className="nhsuk-card__link" href={href}>
-              {title}
-            </Link>
-          ) : (
-            title
-          )}
-        </h2>
+        {title && (
+          <h2 className="nhsuk-card__heading-m">
+            {href ? (
+              <Link className="nhsuk-card__link" href={href}>
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
+          </h2>
+        )}
 
         {description ? (
           <p className="nhsuk-card__description">{description}</p>

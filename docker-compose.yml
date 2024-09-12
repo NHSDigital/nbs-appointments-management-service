@@ -46,6 +46,7 @@ services:
       - AuthProvider_ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - AuthProvider_ClientId=nhs-appts-local
       - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
+      - Notifications_Provider=local
 
   mock-api:
     image: xmlsolutions/mock-api:3.18

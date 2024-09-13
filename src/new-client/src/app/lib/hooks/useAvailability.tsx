@@ -17,13 +17,14 @@ export const useAvailability = () => {
   const dayBlocks = (day: dayjs.Dayjs) => blocks.filter(b => b.day.isSame(day));
 
   const copyWeek = (day: dayjs.Dayjs) => {
+    const weekStart = day.startOf('isoWeek');
     localStorage.setItem(
       'clip_week',
       JSON.stringify(
         blocks.filter(
           av =>
-            av.day.isAfter(day.add(-1, 'day')) &&
-            av.day.isBefore(day.add(6, 'day')),
+            av.day.isAfter(weekStart.add(-1, 'day')) &&
+            av.day.isBefore(weekStart.add(7, 'day')),
         ),
       ),
     );

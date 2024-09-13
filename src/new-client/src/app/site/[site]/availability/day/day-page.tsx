@@ -40,8 +40,7 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const date = searchParams.get('date');
-  const day = dayjs(date);
+  const day = dayjs(parsedDate);
 
   const [conflictBlock, setConflictBlock] = React.useState<
     string | undefined

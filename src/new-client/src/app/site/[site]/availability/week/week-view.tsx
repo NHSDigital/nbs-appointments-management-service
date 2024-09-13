@@ -1,4 +1,4 @@
-import { AvailabilityBlock } from '@types';
+import { AvailabilityBlock, Site } from '@types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import dayjs, { Dayjs } from 'dayjs';
 import { DaySummary } from '../../../../lib/components/day-summary';
@@ -9,6 +9,7 @@ import { formatDateForUrl } from '@services/timeService';
 import Link from 'next/link';
 
 type WeekViewProps = {
+  site: Site;
   week: dayjs.Dayjs[];
   blocks: AvailabilityBlock[];
   copyDay: (day: Dayjs) => void;
@@ -18,6 +19,7 @@ type WeekViewProps = {
 };
 
 const WeekView = ({
+  site,
   week,
   blocks,
   copyDay,
@@ -54,9 +56,10 @@ const WeekView = ({
         {days.map(d => (
           <li
             key={d.format('DD ddd')}
-            className="nhsuk-grid-column-one-third nhsuk-card-group__item"
+            className="nhsuk-grid-column-full nhsuk-card-group__item"
           >
             <DayCard
+              site={site}
               day={d}
               blocks={blocks}
               copyDay={copyDay}
@@ -70,13 +73,14 @@ const WeekView = ({
 };
 
 type DayCardProps = {
+  site: Site;
   day: dayjs.Dayjs;
   blocks: AvailabilityBlock[];
   copyDay: (day: Dayjs) => void;
   pasteDay: (day: Dayjs) => void;
 };
 
-const DayCard = ({ day, blocks, copyDay, pasteDay }: DayCardProps) => {
+const DayCard = ({ site, day, blocks, copyDay, pasteDay }: DayCardProps) => {
   const [copyLinkText, setCopyLinkText] = React.useState('Copy day');
 
   const copyDayWrapper = () => {
@@ -115,7 +119,7 @@ const DayCard = ({ day, blocks, copyDay, pasteDay }: DayCardProps) => {
         />
         <When condition={canEdit}>
           <Link
-            href={`/site/1000/availability/week?date=${formatDateForUrl(day)}`}
+            href={`/site/${site.id}/availability/day?date=${formatDateForUrl(day)}`}
           >
             Edit
           </Link>

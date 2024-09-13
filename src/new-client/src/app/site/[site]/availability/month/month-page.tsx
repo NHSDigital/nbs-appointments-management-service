@@ -1,7 +1,7 @@
 import { daysOfTheWeek, Site } from '@types';
 import MonthViewCard from './month-view-card';
 import dayjs from 'dayjs';
-import { getWeeksOfTheMonth } from '@services/timeService';
+import { formatDateForUrl, getWeeksOfTheMonth } from '@services/timeService';
 import { Pagination } from '@components/nhsuk-frontend';
 
 type MonthViewProps = {
@@ -54,8 +54,14 @@ const MonthOverviewPage = ({ referenceDate, site }: MonthViewProps) => {
                   className="nhsuk-grid-column-custom__one-seventh"
                   id={`week-${weekIndex}-day-${dayIndex}`}
                   key={`week-${weekIndex}-day-${dayIndex}`}
+                  style={{
+                    opacity: day.month() === referenceDate.month() ? 1 : 0.35,
+                  }}
                 >
-                  <MonthViewCard date={day} site={site} />
+                  <MonthViewCard
+                    dateString={formatDateForUrl(day)}
+                    site={site}
+                  />
                 </div>
               ))}
             </div>

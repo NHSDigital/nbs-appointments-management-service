@@ -19,7 +19,7 @@ const formatDateForUrl = (date: dayjs.Dayjs) => {
 
 const getWeeksOfTheMonth = (dateInMonth: dayjs.Dayjs) => {
   const startOfWeek = dateInMonth.startOf('month').startOf('isoWeek');
-  const endOfMonth = dateInMonth.endOf('month');
+  const endOfMonth = dateInMonth.endOf('month').endOf('isoWeek');
 
   const dates: dayjs.Dayjs[][] = [];
   let currentWeek: dayjs.Dayjs[] = [];

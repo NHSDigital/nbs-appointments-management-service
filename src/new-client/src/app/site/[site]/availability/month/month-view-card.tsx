@@ -1,19 +1,53 @@
-import { formatDateForUrl } from '@services/timeService';
+'use client';
+import { When } from '@components/when';
+import { useAvailability } from '@hooks/useAvailability';
+import { calculateNumberOfAppointments } from '@services/availabilityService';
+import { formatDateForUrl, parseDate } from '@services/timeService';
 import { Site } from '@types';
-import dayjs from 'dayjs';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 type Props = {
-  date: dayjs.Dayjs;
+  dateString: string;
   site: Site;
 };
 
-const MonthViewCard = ({ date, site }: Props) => {
-  const appointsmentsBooked = Math.floor(Math.random() * 301);
-  const percentageBooked = Math.round((appointsmentsBooked / 300) * 100);
-  const percentageOfPixels = Math.round((percentageBooked / 100) * 50);
+const MonthViewCard = ({ dateString, site }: Props) => {
+  const date = parseDate(dateString);
+  const { blocks } = useAvailability();
 
-  const isWeekend = date.day() === 0 || date.day() === 6;
+  const slotCount = useMemo(() => {
+    let slots = 0;
+    blocks
+      .filter(b => b.day.isSame(date))
+      .forEach(b => {
+        const slotsInBlock = calculateNumberOfAppointments(b, []);
+        if (b.isBreak) slots -= slotsInBlock;
+        else slots += slotsInBlock;
+      });
+    return slots;
+  }, [blocks, date]);
+
+  const appointsmentsBooked = useMemo(() => {
+    if (Math.random() < 0.15) return slotCount;
+    else return Math.floor(Math.random() * slotCount);
+  }, [slotCount]);
+
+  const percentageBooked = useMemo(
+    () =>
+      slotCount > 0 ? Math.round((appointsmentsBooked / slotCount) * 100) : 0,
+    [slotCount, appointsmentsBooked],
+  );
+
+  const percentageOfPixels = useMemo(
+    () => Math.round((percentageBooked / 100) * 50),
+    [percentageBooked],
+  );
+
+  const isFull = useMemo(
+    () => appointsmentsBooked === slotCount,
+    [appointsmentsBooked, slotCount],
+  );
 
   return (
     <div
@@ -41,28 +75,29 @@ const MonthViewCard = ({ date, site }: Props) => {
             <span>
               <b>{date.format('DD')}</b>
             </span>
-            {!isWeekend && (
+            {slotCount > 0 && (
               <span style={{ flexGrow: 1, textAlign: 'right' }}>
                 {percentageBooked}%
               </span>
             )}
           </div>
-          {isWeekend ? (
+          {slotCount === 0 ? (
             <>
               <div
                 style={{
                   flexGrow: 1,
-                  background: 'grey',
-                  opacity: 0,
                   height: '50px',
-                  borderBottom: `${percentageOfPixels}px solid darkblue`,
                   marginBottom: 5,
                   borderRadius: 5,
                 }}
               >
-                &nbsp;
+                <svg height="50" width="100" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke="lightgray">
+                    <path strokeWidth="2" d="M42 35 l24 0" />
+                  </g>
+                </svg>
               </div>
-              <div style={{ textWrap: 'nowrap' }}>Site is closed</div>
+              <div>&nbsp;</div>
               <div
                 style={{
                   display: 'flex',
@@ -70,13 +105,11 @@ const MonthViewCard = ({ date, site }: Props) => {
                   marginBottom: 5,
                 }}
               >
-                {!isWeekend && (
-                  <Link
-                    href={`/site/${site.id}/availability/day?date=${formatDateForUrl(date)}`}
-                  >
-                    Day
-                  </Link>
-                )}
+                <Link
+                  href={`/site/${site.id}/availability/day?date=${formatDateForUrl(date)}`}
+                >
+                  Day
+                </Link>
 
                 <span style={{ flexGrow: 1, textAlign: 'right' }}>
                   <Link
@@ -92,17 +125,25 @@ const MonthViewCard = ({ date, site }: Props) => {
               <div
                 style={{
                   flexGrow: 1,
-                  background: 'grey',
+                  background: '#d8dde0',
                   height: '50px',
-                  borderBottom: `${percentageOfPixels}px solid darkblue`,
+                  borderBottom: `${percentageOfPixels}px solid #005eb8`,
                   marginBottom: 5,
-                  borderRadius: 5,
+                  borderRadius: 3,
+                  textAlign: 'center',
+                  color: 'lightgray',
+                  verticalAlign: 'center',
                 }}
               >
-                &nbsp;
+                <When condition={isFull}>
+                  <div style={{ marginTop: '14px', fontWeight: 'bold' }}>
+                    Full
+                  </div>
+                </When>
+                <When condition={!isFull}>&nbsp;</When>
               </div>
               <div style={{ textWrap: 'nowrap' }}>
-                {appointsmentsBooked} / 300
+                {appointsmentsBooked} / {slotCount}
               </div>
               <div
                 style={{
@@ -116,15 +157,14 @@ const MonthViewCard = ({ date, site }: Props) => {
                 >
                   Day
                 </Link>
-                {!isWeekend && (
-                  <span style={{ flexGrow: 1, textAlign: 'right' }}>
-                    <Link
-                      href={`/site/${site.id}/availability/week?date=${formatDateForUrl(date)}`}
-                    >
-                      Week
-                    </Link>
-                  </span>
-                )}
+
+                <span style={{ flexGrow: 1, textAlign: 'right' }}>
+                  <Link
+                    href={`/site/${site.id}/availability/week?date=${formatDateForUrl(date)}`}
+                  >
+                    Week
+                  </Link>
+                </span>
               </div>
             </>
           )}

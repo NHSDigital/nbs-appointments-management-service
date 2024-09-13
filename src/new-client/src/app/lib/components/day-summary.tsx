@@ -70,38 +70,41 @@ export const DaySummary = ({
                 {calculateNumberOfAppointments(b, blocks)} appointments
               </When>
             </dd>
-
-            <dd className="nhsuk-summary-list__actions">
-              <When
-                condition={primaryAction !== undefined && primaryAction.test(b)}
-              >
-                <a
-                  href="#"
-                  onClick={() => primaryAction?.action(b)}
-                  style={{ fontStyle: 'normal' }}
+            <When condition={showBreaks}>
+              <dd className="nhsuk-summary-list__actions">
+                <When
+                  condition={
+                    primaryAction !== undefined && primaryAction.test(b)
+                  }
                 >
-                  {primaryAction?.title}
-                  <span className="nhsuk-u-visually-hidden"> name</span>
-                </a>
-              </When>
-            </dd>
+                  <a
+                    href="#"
+                    onClick={() => primaryAction?.action(b)}
+                    style={{ fontStyle: 'normal' }}
+                  >
+                    {primaryAction?.title}
+                    <span className="nhsuk-u-visually-hidden"> name</span>
+                  </a>
+                </When>
+              </dd>
 
-            <dd className="nhsuk-summary-list__actions">
-              <When
-                condition={
-                  secondaryAction !== undefined && secondaryAction.test(b)
-                }
-              >
-                <a
-                  href="#"
-                  onClick={() => secondaryAction?.action(b)}
-                  style={{ fontStyle: 'normal' }}
+              <dd className="nhsuk-summary-list__actions">
+                <When
+                  condition={
+                    secondaryAction !== undefined && secondaryAction.test(b)
+                  }
                 >
-                  {secondaryAction?.title}
-                  <span className="nhsuk-u-visually-hidden"> name</span>
-                </a>
-              </When>
-            </dd>
+                  <a
+                    href="#"
+                    onClick={() => secondaryAction?.action(b)}
+                    style={{ fontStyle: 'normal' }}
+                  >
+                    {secondaryAction?.title}
+                    <span className="nhsuk-u-visually-hidden"> name</span>
+                  </a>
+                </When>
+              </dd>
+            </When>
           </div>
         );
       })}

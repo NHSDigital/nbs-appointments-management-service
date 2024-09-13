@@ -28,15 +28,16 @@ const WeekPage = ({ referenceDate, site }: WeekViewProps) => {
     <>
       <Pagination
         previous={{
-          title: `wk/c ${lastWeek.format('MMMM DD')}`,
+          title: `wk/c ${lastWeek.startOf('isoWeek').format('MMMM DD')}`,
           href: `/site/${site.id}/availability/week?date=${formatDateForUrl(lastWeek)}`,
         }}
         next={{
-          title: `wk/c ${nextWeek.format('MMMM DD')}`,
-          href: `/site/${site.id}/availability/week?date=${formatDateForUrl(lastWeek)}`,
+          title: `wk/c ${nextWeek.startOf('isoWeek').format('MMMM DD')}`,
+          href: `/site/${site.id}/availability/week?date=${formatDateForUrl(nextWeek)}`,
         }}
       />
       <WeekView
+        site={site}
         blocks={blocks}
         week={getDaysOfTheWeek(parsedDate)}
         copyDay={copyDay}

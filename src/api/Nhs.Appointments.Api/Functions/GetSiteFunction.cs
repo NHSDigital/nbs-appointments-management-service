@@ -18,7 +18,7 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
 {
     [OpenApiOperation(operationId: "GetSite", tags: new [] {"Site"}, Summary = "Get single site by Id")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(AttributeSets), Description = "Information for a single site")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(Site), Description = "Information for a single site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [RequiresPermission("site:get-config", typeof(SiteFromPathInspector))]

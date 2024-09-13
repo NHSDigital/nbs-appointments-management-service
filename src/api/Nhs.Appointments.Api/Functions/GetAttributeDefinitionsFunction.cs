@@ -16,26 +16,26 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAttributeSetsFunction(IAttributeSetsService attributeSetsService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAttributeSetsFunction> logger ) 
-: BaseApiFunction<EmptyRequest, AttributeSets>(validator, userContextProvider, logger)
+public class GetAttributeSetsFunction(IAttributeDefinitionsService attributeDefinitionsService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAttributeSetsFunction> logger ) 
+: BaseApiFunction<EmptyRequest, IEnumerable<AttributeDefinition>>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "GetAttributeSets", tags: new [] {"AttributeSets"}, Summary = "Get system attribute sets")]
+    [OpenApiOperation(operationId: "GetAttributeDefinitions", tags: new [] {"AttributeDefinitions"}, Summary = "Get system attribute sets")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(AttributeSets), Description = "List of attribute sets used by the system")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(IEnumerable<AttributeDefinition>), Description = "List of attribute definitions used by the system")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [RequiresPermission("site:get-config", typeof(NoSiteRequestInspector))]
-    [Function("GetAttributeSetsFunction")]
+    [Function("GetAttributeDefinitionsFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "attributeSets")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "attributeDefinitions")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
     
-    protected override async Task<ApiResult<AttributeSets>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<IEnumerable<AttributeDefinition>>> HandleRequest(EmptyRequest request, ILogger logger)
     {        
-        var attributeSets = await attributeSetsService.GetAttributeSets();
-        return ApiResult<AttributeSets>.Success(attributeSets);
+        var attributeDefinitions = await attributeDefinitionsService.GetAttributeDefinitions();
+        return ApiResult<IEnumerable<AttributeDefinition>>.Success(attributeDefinitions);
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

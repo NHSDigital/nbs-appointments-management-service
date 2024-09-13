@@ -14,9 +14,10 @@ public sealed class AssignRolesToAUserFeatureSteps(ITestOutputHelper output) : U
 {
     private  HttpResponseMessage _response;
     
-    [Given(@"There are no role assignments for user '.+'")]
-    public Task NoRoleAssignments()
+    [Given(@"There are no role assignments for user '(.+)'")]
+    public Task NoRoleAssignments(string userId)
     {
+        SetupBasicUser(GetUserId(userId));
         return Task.CompletedTask;
     }
 

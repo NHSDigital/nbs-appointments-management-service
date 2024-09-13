@@ -18,7 +18,6 @@
       | B    | canned:availability-manager |
     Then user 'test-two' would have the following role assignments
       | Site | Roles                             |
-      | A    | canned:site-configuration-manager |
       | B    | canned:availability-manager       |
 
   Scenario: Change existing role assignments at a site

@@ -57,7 +57,7 @@ public abstract class BaseFeatureSteps : Feature
         });
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles();
-        SetUpIntegrationTestUserRoleAssignments();
+        SetUpUserRoleAssignments("api@test");
     }
 
     [Given(@"The following service configuration")]
@@ -248,12 +248,12 @@ public abstract class BaseFeatureSteps : Feature
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
     }
     
-    private void SetUpIntegrationTestUserRoleAssignments()
+    protected void SetUpUserRoleAssignments(string userId)
     {
         var userAssignments = new UserDocument()
         {
             
-            Id = "api@test",
+            Id = userId,
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [
@@ -261,6 +261,18 @@ public abstract class BaseFeatureSteps : Feature
                     { Role = "system:integration-test-user", Scope = "global" }
             ]
         };        
+        Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
+    }
+
+    protected void SetupBasicUser(string userId)
+    {
+        var userAssignments = new UserDocument()
+        {
+
+            Id = userId,
+            ApiSigningKey = ApiSigningKey,
+            DocumentType = "user"
+        };
         Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
     }
 }

@@ -68,8 +68,12 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
             throw new Exception("The User Service returned an error but did not provide further information");
         }
 
-        // we could provide more detail here, but it might be best to hide this info from attackers
-        return string.Empty;
+        if (!string.IsNullOrEmpty(result.ErrorUser))
+        {
+            return $"Invalid user: '{result.ErrorUser}'";
+        }
+
+        return $"Invalid role(s): {string.Join(", ", result.ErrorRoles)}";
     }
 }
 

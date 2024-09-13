@@ -4,12 +4,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Persistance.Models;
+using Xunit.Abstractions;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
-public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
+public sealed class AssignRolesToAUserFeatureSteps(ITestOutputHelper output) : UserManagementBaseFeatureSteps
 {
     private  HttpResponseMessage _response;
     
@@ -40,6 +41,7 @@ public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSt
     [Then(@"user '(.+)' would have the following role assignments")] 
     public async Task Assert(string user, Gherkin.Ast.DataTable dataTable)
     {
+        output.WriteLine($"Http response: {_response.StatusCode} {await _response.Content.ReadAsStreamAsync()}");
         _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var userId = GetUserId(user);

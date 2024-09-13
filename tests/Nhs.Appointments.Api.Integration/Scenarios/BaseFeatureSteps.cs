@@ -264,7 +264,7 @@ public abstract class BaseFeatureSteps : Feature
         Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
     }
 
-    protected void SetupBasicUser(string userId)
+    protected async Task SetupBasicUser(string userId)
     {
         var userAssignments = new UserDocument()
         {
@@ -273,6 +273,6 @@ public abstract class BaseFeatureSteps : Feature
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user"
         };
-        Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
+        await Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class FakeEmailClient(ILogger logger) : ISendEmails
+public class FakeEmailClient(ILogger<FakeEmailClient> logger) : ISendEmails
 {
     public Task SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues)
     {

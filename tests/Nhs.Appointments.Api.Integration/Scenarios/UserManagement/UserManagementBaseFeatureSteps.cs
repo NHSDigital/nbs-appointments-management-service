@@ -11,7 +11,6 @@ public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
     [And(@"the following role assignments for '(.+)' exist")]
     public async Task AddRoleAssignments(string user, Gherkin.Ast.DataTable dataTable)
     {
-        SetUpUserRoleAssignments(user);
         var roleAssignments = dataTable.Rows.Skip(1).Select(
             row => new RoleAssignment()
             {

@@ -89,24 +89,6 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void ReturnsFailureWhenUserNotFound()
-        {
-            string userId = "user1";
-            string scope = "site:some-site";
-            RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
-            IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
-
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(null));
-            _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
-            _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
-
-            var result = await _sut.UpdateUserRoleAssignmentsAsync(userId, scope, newRoles);
-
-            Assert.False(result.Success);
-            Assert.Equal(userId, result.ErrorUser);
-        }
-
-        [Fact]
         public async void ReturnsFailureWhenRoleNotFound()
         {
             string userId = "user1";
@@ -123,7 +105,5 @@ namespace Nhs.Appointments.Core.UnitTests
             Assert.False(result.Success);
             Assert.Equal("not a role", result.ErrorRoles[0]);
         }
-
-
     }
 }

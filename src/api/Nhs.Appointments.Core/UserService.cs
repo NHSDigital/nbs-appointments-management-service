@@ -17,13 +17,6 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
 
     public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var user = await userStore.GetOrDefaultAsync(userId);
-
-        if(user == null)
-        {
-            return new UpdateUserRoleAssignmentsResult(false, userId, []);
-        }
-
         var allRoles = await rolesStore.GetRoles();
         var invalidRoles = roleAssignments.Where(ra => !allRoles.Any(r => r.Id == ra.Role));
         if (invalidRoles.Any())

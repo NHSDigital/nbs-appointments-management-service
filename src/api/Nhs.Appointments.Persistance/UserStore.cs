@@ -47,13 +47,11 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         {
             var documentType = cosmosStore.GetDocumentType();
             var originalRoleAssignments = originalDocument.RoleAssignments;
-
-            var newRoleAssignments = roleAssignments.Where(ar => !originalRoleAssignments.Any(og => og.Role == ar.Role && og.Scope == ar.Scope)).ToList();
-            var rolesToKeep = originalRoleAssignments.Where(og => roleAssignments.Any(ar => ar.Role == og.Role && ar.Scope == og.Scope));
-            newRoleAssignments.AddRange(rolesToKeep);
-
-            var addRolesPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
-            await cosmosStore.PatchDocument(documentType, userId, addRolesPatch);
+            var newRoleAssignments = originalRoleAssignments
+                .Where(ra => ra.Scope != scope)
+                .Concat(roleAssignments);
+            var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
+            await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
 
 
             return originalDocument.RoleAssignments;

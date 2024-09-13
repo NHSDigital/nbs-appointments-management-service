@@ -36,22 +36,6 @@ public class SetUserRolesFunctionTests
         _userService.Verify();
     }
 
-    [Fact]
-    public async Task ReturnsBadRequestWhenUserNotFound()
-    {
-        const string User = "test@user.com";
-        string[] roles = ["role1"];
-        const string scope = "site:some-site";
-
-        var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
-
-        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])))).Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(false, User, null)));
-
-        var result = await _sut.Invoke(request);
-
-        Assert.Equal(System.Net.HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
         private ILogger<SetUserRolesFunction> _logger;

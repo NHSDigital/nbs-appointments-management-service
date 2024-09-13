@@ -4,20 +4,19 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Persistance.Models;
-using Xunit.Abstractions;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
-public sealed class AssignRolesToAUserFeatureSteps(ITestOutputHelper output) : UserManagementBaseFeatureSteps
+public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
 {
     private  HttpResponseMessage _response;
     
-    [Given(@"There are no role assignments for user '(.+)'")]
-    public async Task NoRoleAssignments(string userId)
+    [Given(@"There are no role assignments for user '.+'")]
+    public Task NoRoleAssignments()
     {
-        await SetupBasicUser(GetUserId(userId));
+        return Task.CompletedTask;
     }
 
     [When(@"I assign the following roles to user '(.+)'")]
@@ -41,7 +40,6 @@ public sealed class AssignRolesToAUserFeatureSteps(ITestOutputHelper output) : U
     [Then(@"user '(.+)' would have the following role assignments")] 
     public async Task Assert(string user, Gherkin.Ast.DataTable dataTable)
     {
-        output.WriteLine($"Http response: {_response.StatusCode} {await _response.Content.ReadAsStreamAsync()}");
         _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var userId = GetUserId(user);

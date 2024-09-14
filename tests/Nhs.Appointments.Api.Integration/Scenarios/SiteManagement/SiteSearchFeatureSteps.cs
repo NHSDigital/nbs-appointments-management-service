@@ -19,26 +19,6 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
     private HttpResponseMessage? _response;
     private HttpStatusCode _statusCode;
     private IEnumerable<SiteWithDistance>? _actualResponse;
-
-    public SiteSearchFeatureSteps()
-    {
-        DeleteSiteData(Client).GetAwaiter().GetResult();
-    }
-    
-    private static async Task DeleteSiteData(CosmosClient cosmosClient)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "index_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.DocumentType == partitionKey).ToFeedIterator();        
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
-    }
     
     [Given("The following sites")]
     public async Task SetUpSites(Gherkin.Ast.DataTable dataTable)
@@ -46,7 +26,7 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
         var sites = dataTable.Rows.Skip(1).Select(
             row => new SiteDocument()
             {
-                Id = GetSiteId(row.Cells.ElementAt(0).Value),
+                Id = row.Cells.ElementAt(0).Value,
                 Name = row.Cells.ElementAt(1).Value,
                 Address = row.Cells.ElementAt(2).Value,
                 DocumentType = "site",
@@ -56,7 +36,7 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
 
         foreach (var site in sites)
         {
-            await Client.GetContainer("appts", "index_data").CreateItemAsync(site);
+            await Client.GetContainer("appts", "index_data").UpsertItemAsync(site);
         }
     }
 
@@ -78,7 +58,7 @@ public sealed class SiteSearchFeatureSteps : BaseFeatureSteps
     {
         var expectedSites = dataTable.Rows.Skip(1).Select(row => new SiteWithDistance(
             new Site(
-                Id: GetSiteId(row.Cells.ElementAt(0).Value), 
+                Id: row.Cells.ElementAt(0).Value, 
                 Name: row.Cells.ElementAt(1).Value,
                 Address: row.Cells.ElementAt(2).Value,
                 Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(3).Value), double.Parse(row.Cells.ElementAt(4).Value) }),

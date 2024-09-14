@@ -229,7 +229,7 @@ public abstract class BaseFeatureSteps : Feature
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
     
-    private void SetUpRoles()
+    private async Task SetUpRoles()
     {
         var roles = new RolesDocument()
         {
@@ -241,14 +241,26 @@ public abstract class BaseFeatureSteps : Feature
                         Id = "system:integration-test-user", 
                         Name = "Integration Test Api User Role",
                         Description = "Role for integration test user.",
-                        Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view", "sites:query" ] 
+                        Permissions = [
+                            "site:get-meta-data", 
+                            "availability:query", 
+                            "booking:make", 
+                            "booking:query", 
+                            "booking:cancel", 
+                            "site:get-config", 
+                            "site:set-config", 
+                            "availability:get-setup", 
+                            "users:manage", 
+                            "users:view", 
+                            "sites:query" 
+                        ] 
                     }
             ]
         };        
-        Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
+        await Client.GetContainer("appts", "index_data").UpsertItemAsync(roles);
     }
     
-    private void SetUpIntegrationTestUserRoleAssignments()
+    private async Task SetUpIntegrationTestUserRoleAssignments()
     {
         var userAssignments = new UserDocument()
         {
@@ -261,6 +273,6 @@ public abstract class BaseFeatureSteps : Feature
                     { Role = "system:integration-test-user", Scope = "global" }
             ]
         };        
-        Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
+        await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
     }
 }

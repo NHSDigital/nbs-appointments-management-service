@@ -3,8 +3,8 @@
 namespace Nhs.Appointments.Core;
 
 public record AttributeDefinition(
-    [JsonProperty("id")]
+    [property:JsonProperty("id")]
     string Id,
-    [JsonProperty("displayName")]
+    [property:JsonProperty("displayName")]
     string DisplayName
 );

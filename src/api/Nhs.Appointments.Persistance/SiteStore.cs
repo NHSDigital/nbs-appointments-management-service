@@ -21,13 +21,32 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
     
     public Task<Site> GetSiteById(string siteId)
     {
+        return GetOrDefault(siteId);
+    }
+    
+    public async Task<bool> UpdateSiteAttributes(string siteId, IEnumerable<AttributeValue> attributeValues)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return false;
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        var siteDocumentPatch = PatchOperation.Add("/attributeValues", attributeValues);
+        await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
+        return true;
+    }
+    
+    private async Task<Site> GetOrDefault(string siteId)
+    {
         try
         {
-            return cosmosStore.GetDocument<Site>(siteId);
+            return await cosmosStore.GetDocument<Site>(siteId);
         }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (CosmosException ex) when ( ex.StatusCode == System.Net.HttpStatusCode.NotFound )
         {
             return default;
         }
     }
+    
 }

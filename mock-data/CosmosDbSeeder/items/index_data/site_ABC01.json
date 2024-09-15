@@ -13,7 +13,7 @@
   "attributeValues": [
     {
       "id": "accessible_toilet",
-      "value": "true"
+      "value": "false"
     },
     {
       "id": "braille_translation_service",
@@ -21,11 +21,11 @@
     },
     {
       "id": "disabled_car_parking_on_site",
-      "value": "true"
+      "value": "false"
     },
     {
       "id": "car_parking_on_site",
-      "value": "true"
+      "value": "false"
     },
     {
       "id": "induction_loop",
@@ -37,7 +37,7 @@
     },
     {
       "id": "step_free_access",
-      "value": "true"
+      "value": "false"
     },
     {
       "id": "text_relay",
@@ -45,7 +45,7 @@
     },
     {
       "id": "wheelchair_access",
-      "value": "true"
+      "value": "false"
     }
   ]
 }

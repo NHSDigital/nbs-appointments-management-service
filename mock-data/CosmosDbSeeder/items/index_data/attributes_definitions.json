@@ -15,8 +15,8 @@
       "displayName": "Disabled car parking on site"
     },
     {
-      "id": "accessibility/disabled_car_parking_on_site",
-      "displayName": "Disabled car parking on site"
+      "id": "accessibility/car_parking_on_site",
+      "displayName": "Car parking on site"
     },
     {
       "id": "accessibility/induction_loop",

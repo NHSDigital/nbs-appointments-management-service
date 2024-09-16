@@ -252,7 +252,9 @@ public abstract class BaseFeatureSteps : Feature
                             "availability:get-setup", 
                             "users:manage", 
                             "users:view", 
-                            "sites:query" 
+                            "sites:query",
+                            "site:view",
+                            "site:manage"
                         ] 
                     }
             ]

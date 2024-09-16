@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +22,8 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(Site), Description = "Information for a single site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [RequiresPermission("site:get-config", typeof(SiteFromPathInspector))]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [RequiresPermission("site:view", typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
     {

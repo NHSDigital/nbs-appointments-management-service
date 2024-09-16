@@ -25,6 +25,9 @@ public class PermissionSnapShotTest
     [InlineData("post", "template", "availability:set-setup")]
     [InlineData("post", "user/roles", "users:manage")]
     [InlineData("get", "users", "users:view")]
+    [InlineData("get", "sites", "sites:query")]
+    [InlineData("get", "sites/{site}", "site:view")]
+    [InlineData("post", "sites/{site}/attributes", "site:manage")]
     public void Permissions_AreApplied_ToCorrectEndpoints(string method, string path, string permission)
     {
         var functionTypes = typeof(BaseApiFunction<,>).Assembly.GetTypes().Where(t => t.GetMethod("RunAsync") != null);

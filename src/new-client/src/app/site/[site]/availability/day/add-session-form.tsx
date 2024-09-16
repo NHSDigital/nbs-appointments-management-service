@@ -9,6 +9,7 @@ import {
   TextInput,
   Card,
   Select,
+  FormGroup,
 } from '@nhsuk-frontend-components';
 import AppointmentsSummaryText from './appointments-summary-text';
 import {
@@ -18,7 +19,7 @@ import {
   pneumoniaServices,
   rsvServices,
 } from '@services/availabilityService';
-import { hoursBetween, parseDate } from '@services/timeService';
+import { hoursBetween, minutesBetween, parseDate } from '@services/timeService';
 import { AvailabilityBlock } from '@types';
 import { FormFields } from './day-page';
 
@@ -28,8 +29,15 @@ type Props = {
 };
 
 const AddSessionForm = ({ saveBlock, date }: Props) => {
-  const { register, handleSubmit, control, watch, setValue } =
-    useFormContext<FormFields>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState,
+    trigger,
+  } = useFormContext<FormFields>();
 
   const covidWatch = watch('services.covid');
   const covidAgesWatch = watch('services.covidAges');
@@ -76,18 +84,36 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
         >
           <h4>Session Details</h4>
           <div className="nhsuk-grid-column-one-half">
-            <TextInput
-              label="Start time"
-              {...register('startTime')}
-              type="time"
-              style={{ width: '250px' }}
-            ></TextInput>
-            <TextInput
-              label="End time"
-              {...register('endTime')}
-              type="time"
-              style={{ width: '250px' }}
-            ></TextInput>
+            <FormGroup
+              error={
+                formState.errors.startTime?.message ||
+                formState.errors.endTime?.message
+              }
+            >
+              <TextInput
+                label="Start time"
+                id={'startTime'}
+                {...register('startTime', {
+                  validate: (startTime: string) => {
+                    const timeDiff = minutesBetween(startTime, endTimeWatch);
+                    return timeDiff > 0 || 'Start time must be before end time';
+                  },
+                })}
+                type="time"
+                style={{ width: '250px' }}
+              ></TextInput>
+              <TextInput
+                label="End time"
+                {...register('endTime', {
+                  validate: (endTime: string) => {
+                    const timeDiff = minutesBetween(startTimeWatch, endTime);
+                    return timeDiff > 0 || 'End time must be before start time';
+                  },
+                })}
+                type="time"
+                style={{ width: '250px' }}
+              ></TextInput>
+            </FormGroup>
             <Select
               label="Max simultaneous appointments"
               hint="This could be based on the number of vaccinators or spaces you have available"
@@ -121,279 +147,339 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
             ></Select>
           </div>
           <div className="nhsuk-grid-column-one-half">
-            <label
-              className="nhsuk-label nhsuk-checkboxes__label"
-              htmlFor="services"
-              style={{ paddingLeft: 0 }}
+            <FormGroup
+              error={
+                formState.errors.services?.covidAges?.message ??
+                formState.errors.services?.fluAges?.message ??
+                formState.errors.services?.shinglesAges?.message ??
+                formState.errors.services?.pneumoniaAges?.message ??
+                formState.errors.services?.rsvAges?.message
+              }
             >
-              Services available
-            </label>
-            <CheckBox
-              label={'Covid'}
-              {...register('services.covid')}
-            ></CheckBox>
-            {covidWatch && (
-              <Controller
-                name="services.covidAges"
-                control={control}
-                render={({ field }) => (
-                  <div className="nhsuk-checkboxes-custom__conditional">
-                    <CheckBoxes>
-                      <CheckBox
-                        value="select-all"
-                        label="Select All"
-                        checked={field.value.includes('select-all')}
-                        onChange={() => {
-                          if (covidAgesWatch.length >= covidServices.length) {
-                            setValue('services.covidAges', []);
-                          } else {
-                            setValue('services.covidAges', [
-                              ...covidServices.map(service => service.id),
-                              'select-all',
-                            ]);
-                          }
-                        }}
-                      />
-                      {covidServices.map((service, index) => {
-                        return (
-                          <CheckBox
-                            key={`covid-services-${index}`}
-                            value={service.id}
-                            label={service.displayName}
-                            checked={field.value.includes(service.id)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, service.id]
-                                : field.value.filter(
-                                    val =>
-                                      val !== service.id &&
-                                      val !== 'select-all',
-                                  );
-                              field.onChange(newValue);
-                            }}
-                          />
-                        );
-                      })}
-                    </CheckBoxes>
-                  </div>
-                )}
-              />
-            )}
+              <label
+                className="nhsuk-label nhsuk-checkboxes__label"
+                htmlFor="services"
+                id={'services-offered-in-session'}
+                style={{ paddingLeft: 0 }}
+              >
+                Services available
+              </label>
+              <CheckBox
+                label={'Covid'}
+                {...register('services.covid')}
+              ></CheckBox>
+              {covidWatch && (
+                <Controller
+                  name="services.covidAges"
+                  control={control}
+                  rules={{
+                    validate: covidAges => {
+                      if (covidWatch && covidAges.length === 0) {
+                        return 'A clinic must serve at least one age group for each service offered (covid)';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="nhsuk-checkboxes-custom__conditional">
+                      <CheckBoxes>
+                        <CheckBox
+                          value="select-all"
+                          label="Select All"
+                          checked={field.value.includes('select-all')}
+                          onChange={() => {
+                            if (covidAgesWatch.length >= covidServices.length) {
+                              setValue('services.covidAges', []);
+                            } else {
+                              setValue('services.covidAges', [
+                                ...covidServices.map(service => service.id),
+                                'select-all',
+                              ]);
+                            }
+                            trigger('services.covidAges');
+                          }}
+                        />
+                        {covidServices.map((service, index) => {
+                          return (
+                            <CheckBox
+                              key={`covid-services-${index}`}
+                              value={service.id}
+                              label={service.displayName}
+                              checked={field.value.includes(service.id)}
+                              onChange={e => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, service.id]
+                                  : field.value.filter(
+                                      val =>
+                                        val !== service.id &&
+                                        val !== 'select-all',
+                                    );
+                                field.onChange(newValue);
+                              }}
+                            />
+                          );
+                        })}
+                      </CheckBoxes>
+                    </div>
+                  )}
+                />
+              )}
 
-            <CheckBox label={'Flu'} {...register('services.flu')}></CheckBox>
-            {fluWatch && (
-              <Controller
-                name="services.fluAges"
-                control={control}
-                render={({ field }) => (
-                  <div className="nhsuk-checkboxes-custom__conditional">
-                    <CheckBoxes>
-                      <CheckBox
-                        value="select-all"
-                        label="Select All"
-                        checked={field.value.includes('select-all')}
-                        onChange={() => {
-                          if (fluAgesWatch.length >= fluServices.length) {
-                            setValue('services.fluAges', []);
-                          } else {
-                            setValue('services.fluAges', [
-                              ...fluServices.map(service => service.id),
-                              'select-all',
-                            ]);
-                          }
-                        }}
-                      />
-                      {fluServices.map((service, index) => {
-                        return (
-                          <CheckBox
-                            key={`flu-services-${index}`}
-                            value={service.id}
-                            label={service.displayName}
-                            checked={field.value.includes(service.id)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, service.id]
-                                : field.value.filter(
-                                    val =>
-                                      val !== service.id &&
-                                      val !== 'select-all',
-                                  );
-                              field.onChange(newValue);
-                            }}
-                          />
-                        );
-                      })}
-                    </CheckBoxes>
-                  </div>
-                )}
-              />
-            )}
+              <CheckBox label={'Flu'} {...register('services.flu')}></CheckBox>
+              {fluWatch && (
+                <Controller
+                  name="services.fluAges"
+                  control={control}
+                  rules={{
+                    validate: fluAges => {
+                      if (fluWatch && fluAges.length === 0) {
+                        return 'A clinic must serve at least one age group for each service offered (flu)';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="nhsuk-checkboxes-custom__conditional">
+                      <CheckBoxes>
+                        <CheckBox
+                          value="select-all"
+                          label="Select All"
+                          checked={field.value.includes('select-all')}
+                          onChange={() => {
+                            if (fluAgesWatch.length >= fluServices.length) {
+                              setValue('services.fluAges', []);
+                            } else {
+                              setValue('services.fluAges', [
+                                ...fluServices.map(service => service.id),
+                                'select-all',
+                              ]);
+                            }
+                            trigger('services.fluAges');
+                          }}
+                        />
+                        {fluServices.map((service, index) => {
+                          return (
+                            <CheckBox
+                              key={`flu-services-${index}`}
+                              value={service.id}
+                              label={service.displayName}
+                              checked={field.value.includes(service.id)}
+                              onChange={e => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, service.id]
+                                  : field.value.filter(
+                                      val =>
+                                        val !== service.id &&
+                                        val !== 'select-all',
+                                    );
+                                field.onChange(newValue);
+                              }}
+                            />
+                          );
+                        })}
+                      </CheckBoxes>
+                    </div>
+                  )}
+                />
+              )}
 
-            <CheckBox
-              label={'Shingles'}
-              {...register('services.shingles')}
-            ></CheckBox>
-            {shinglesWatch && (
-              <Controller
-                name="services.shinglesAges"
-                control={control}
-                render={({ field }) => (
-                  <div className="nhsuk-checkboxes-custom__conditional">
-                    <CheckBoxes>
-                      <CheckBox
-                        value="select-all"
-                        label="Select All"
-                        checked={field.value.includes('select-all')}
-                        onChange={() => {
-                          if (
-                            shinglesAgesWatch.length >= shinglesServices.length
-                          ) {
-                            setValue('services.shinglesAges', []);
-                          } else {
-                            setValue('services.shinglesAges', [
-                              ...shinglesServices.map(service => service.id),
-                              'select-all',
-                            ]);
-                          }
-                        }}
-                      />
-                      {shinglesServices.map((service, index) => {
-                        return (
-                          <CheckBox
-                            key={`shingles-services-${index}`}
-                            value={service.id}
-                            label={service.displayName}
-                            checked={field.value.includes(service.id)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, service.id]
-                                : field.value.filter(
-                                    val =>
-                                      val !== service.id &&
-                                      val !== 'select-all',
-                                  );
-                              field.onChange(newValue);
-                            }}
-                          />
-                        );
-                      })}
-                    </CheckBoxes>
-                  </div>
-                )}
-              />
-            )}
+              <CheckBox
+                label={'Shingles'}
+                {...register('services.shingles')}
+              ></CheckBox>
+              {shinglesWatch && (
+                <Controller
+                  name="services.shinglesAges"
+                  control={control}
+                  rules={{
+                    validate: shinglesAges => {
+                      if (shinglesWatch && shinglesAges.length === 0) {
+                        return 'A clinic must serve at least one age group for each service offered (shingles)';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="nhsuk-checkboxes-custom__conditional">
+                      <CheckBoxes>
+                        <CheckBox
+                          value="select-all"
+                          label="Select All"
+                          checked={field.value.includes('select-all')}
+                          onChange={() => {
+                            if (
+                              shinglesAgesWatch.length >=
+                              shinglesServices.length
+                            ) {
+                              setValue('services.shinglesAges', []);
+                            } else {
+                              setValue('services.shinglesAges', [
+                                ...shinglesServices.map(service => service.id),
+                                'select-all',
+                              ]);
+                            }
+                            trigger('services.shinglesAges');
+                          }}
+                        />
+                        {shinglesServices.map((service, index) => {
+                          return (
+                            <CheckBox
+                              key={`shingles-services-${index}`}
+                              value={service.id}
+                              label={service.displayName}
+                              checked={field.value.includes(service.id)}
+                              onChange={e => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, service.id]
+                                  : field.value.filter(
+                                      val =>
+                                        val !== service.id &&
+                                        val !== 'select-all',
+                                    );
+                                field.onChange(newValue);
+                              }}
+                            />
+                          );
+                        })}
+                      </CheckBoxes>
+                    </div>
+                  )}
+                />
+              )}
 
-            <CheckBox
-              label={'Pneumonia'}
-              {...register('services.pneumonia')}
-            ></CheckBox>
-            {pneumoniaWatch && (
-              <Controller
-                name="services.pneumoniaAges"
-                control={control}
-                render={({ field }) => (
-                  <div className="nhsuk-checkboxes-custom__conditional">
-                    <CheckBoxes>
-                      <CheckBox
-                        value="select-all"
-                        label="Select All"
-                        checked={field.value.includes('select-all')}
-                        onChange={() => {
-                          if (
-                            pneumoniaAgesWatch.length >=
-                            pneumoniaServices.length
-                          ) {
-                            setValue('services.pneumoniaAges', []);
-                          } else {
-                            setValue('services.pneumoniaAges', [
-                              ...pneumoniaServices.map(service => service.id),
-                              'select-all',
-                            ]);
-                          }
-                        }}
-                      />
-                      {pneumoniaServices.map((service, index) => {
-                        return (
-                          <CheckBox
-                            key={`pneumonia-services-${index}`}
-                            value={service.id}
-                            label={service.displayName}
-                            checked={field.value.includes(service.id)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, service.id]
-                                : field.value.filter(
-                                    val =>
-                                      val !== service.id &&
-                                      val !== 'select-all',
-                                  );
-                              field.onChange(newValue);
-                            }}
-                          />
-                        );
-                      })}
-                    </CheckBoxes>
-                  </div>
-                )}
-              />
-            )}
+              <CheckBox
+                label={'Pneumonia'}
+                {...register('services.pneumonia')}
+              ></CheckBox>
+              {pneumoniaWatch && (
+                <Controller
+                  name="services.pneumoniaAges"
+                  control={control}
+                  rules={{
+                    validate: pneumoniaAges => {
+                      if (pneumoniaWatch && pneumoniaAges.length === 0) {
+                        return 'A clinic must serve at least one age group for each service offered (pneumonia)';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="nhsuk-checkboxes-custom__conditional">
+                      <CheckBoxes>
+                        <CheckBox
+                          value="select-all"
+                          label="Select All"
+                          checked={field.value.includes('select-all')}
+                          onChange={() => {
+                            if (
+                              pneumoniaAgesWatch.length >=
+                              pneumoniaServices.length
+                            ) {
+                              setValue('services.pneumoniaAges', []);
+                            } else {
+                              setValue('services.pneumoniaAges', [
+                                ...pneumoniaServices.map(service => service.id),
+                                'select-all',
+                              ]);
+                            }
+                            trigger('services.pneumoniaAges');
+                          }}
+                        />
+                        {pneumoniaServices.map((service, index) => {
+                          return (
+                            <CheckBox
+                              key={`pneumonia-services-${index}`}
+                              value={service.id}
+                              label={service.displayName}
+                              checked={field.value.includes(service.id)}
+                              onChange={e => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, service.id]
+                                  : field.value.filter(
+                                      val =>
+                                        val !== service.id &&
+                                        val !== 'select-all',
+                                    );
+                                field.onChange(newValue);
+                              }}
+                            />
+                          );
+                        })}
+                      </CheckBoxes>
+                    </div>
+                  )}
+                />
+              )}
 
-            <CheckBox label={'RSV'} {...register('services.rsv')}></CheckBox>
-            {rsvWatch && (
-              <Controller
-                name="services.rsvAges"
-                control={control}
-                render={({ field }) => (
-                  <div className="nhsuk-checkboxes-custom__conditional">
-                    <CheckBoxes>
-                      <CheckBox
-                        value="select-all"
-                        label="Select All"
-                        checked={field.value.includes('select-all')}
-                        onChange={() => {
-                          if (rsvAgesWatch.length >= rsvServices.length) {
-                            setValue('services.rsvAges', []);
-                          } else {
-                            setValue('services.rsvAges', [
-                              ...rsvServices.map(service => service.id),
-                              'select-all',
-                            ]);
-                          }
-                        }}
-                      />
-                      {rsvServices.map((service, index) => {
-                        return (
-                          <CheckBox
-                            key={`rsv-services-${index}`}
-                            value={service.id}
-                            label={service.displayName}
-                            checked={field.value.includes(service.id)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, service.id]
-                                : field.value.filter(
-                                    val =>
-                                      val !== service.id &&
-                                      val !== 'select-all',
-                                  );
-                              field.onChange(newValue);
-                            }}
-                          />
-                        );
-                      })}
-                    </CheckBoxes>
-                  </div>
-                )}
-              />
-            )}
+              <CheckBox label={'RSV'} {...register('services.rsv')}></CheckBox>
+              {rsvWatch && (
+                <Controller
+                  name="services.rsvAges"
+                  control={control}
+                  rules={{
+                    validate: rsvAges => {
+                      if (rsvWatch && rsvAges.length === 0) {
+                        return 'A clinic must serve at least one age group for each service offered (rsv)';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="nhsuk-checkboxes-custom__conditional">
+                      <CheckBoxes>
+                        <CheckBox
+                          value="select-all"
+                          label="Select All"
+                          checked={field.value.includes('select-all')}
+                          onChange={() => {
+                            if (rsvAgesWatch.length >= rsvServices.length) {
+                              setValue('services.rsvAges', []);
+                            } else {
+                              setValue('services.rsvAges', [
+                                ...rsvServices.map(service => service.id),
+                                'select-all',
+                              ]);
+                            }
+                            trigger('services.rsvAges');
+                          }}
+                        />
+                        {rsvServices.map((service, index) => {
+                          return (
+                            <CheckBox
+                              key={`rsv-services-${index}`}
+                              value={service.id}
+                              label={service.displayName}
+                              checked={field.value.includes(service.id)}
+                              onChange={e => {
+                                const newValue = e.target.checked
+                                  ? [...field.value, service.id]
+                                  : field.value.filter(
+                                      val =>
+                                        val !== service.id &&
+                                        val !== 'select-all',
+                                    );
+                                field.onChange(newValue);
+                              }}
+                            />
+                          );
+                        })}
+                      </CheckBoxes>
+                    </div>
+                  )}
+                />
+              )}
+            </FormGroup>
           </div>
         </div>
 
         <AppointmentsSummaryText
-          total={Math.floor(
-            (60 / appointmentLengthWatch) *
-              maxSimultaneousAppointmentsWatch *
-              hoursBetween(startTimeWatch, endTimeWatch),
+          total={Math.max(
+            Math.floor(
+              (60 / appointmentLengthWatch) *
+                maxSimultaneousAppointmentsWatch *
+                hoursBetween(startTimeWatch, endTimeWatch),
+            ),
+            0,
           )}
           perHour={Math.floor(
             (60 / appointmentLengthWatch) * maxSimultaneousAppointmentsWatch,

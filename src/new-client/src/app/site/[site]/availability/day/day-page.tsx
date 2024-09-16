@@ -113,6 +113,41 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
       });
     }
 
+    if (methods.formState.errors.services?.covidAges?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.covidAges?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
+    if (methods.formState.errors.services?.fluAges?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.fluAges?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
+    if (methods.formState.errors.services?.shinglesAges?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.shinglesAges?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
+    if (methods.formState.errors.services?.pneumoniaAges?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.pneumoniaAges?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
+    if (methods.formState.errors.services?.rsvAges?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.rsvAges?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
     if (errors.length > 0) {
       return errors;
     }

@@ -118,3 +118,27 @@
     margin-bottom: 24px;
   }
 }
+
+.nhsuk-warning-callout-custom {
+  margin-bottom: 40px;
+  margin-top: 40px;
+  padding: 16px;
+  background-color: #fff9c4;
+  color: #212b32;
+  border: 1px solid #ffeb3b;
+}
+
+.nhsuk-warning-callout-custom__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nhsuk-warning-callout-custom__close-button {
+  border: 0;
+  background: none;
+  text-decoration: underline;
+  cursor: pointer;
+  line-height: normal;
+  font-size: 1rem;
+}

@@ -9,6 +9,7 @@ import AvailabilityTabs from './availabilityTabs';
 import CardWithBlueHeader from '@components/card-with-blue-header';
 import Link from 'next/link';
 import AppointmentsSummaryText from './appointments-summary-text';
+import { confirmSchedule } from './confirm-schedule';
 
 // const sessionHolderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 // const appointmentLengthOptions = [4, 5, 6, 10, 12, 15];
@@ -270,7 +271,16 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
         <AppointmentsSummaryText total={84} />
       </CardWithBlueHeader>
       <ButtonGroup>
-        <Button type="submit">Confirm schedule</Button>
+        <form
+          action={confirmSchedule.bind(
+            null,
+            site.id,
+            formatDateForUrl(parsedDate),
+          )}
+        >
+          <Button type="submit">Confirm schedule</Button>
+        </form>
+
         <Button type="button" styleType="secondary">
           Cancel
         </Button>

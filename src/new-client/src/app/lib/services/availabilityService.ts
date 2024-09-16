@@ -41,6 +41,43 @@ const services = [
   },
 ];
 
+const covidServices = [
+  { id: 'COVID:5_11_10', displayName: 'Covid 5-11' },
+  { id: 'COVID:12_15', displayName: 'Covid 12-15' },
+  { id: 'COVID:16_17', displayName: 'Covid 16-17' },
+  { id: 'COVID:18_74', displayName: 'Covid 18-74' },
+  { id: 'COVID:75', displayName: 'Covid 75+' },
+];
+
+const fluServices = [
+  { id: 'FLU:18_64', displayName: 'Flu 18-64' },
+  { id: 'FLU:65', displayName: 'Flu 65+' },
+];
+
+const shinglesServices = [
+  { id: 'SHINGLES:5_11_10', displayName: 'Shingles 5-11' },
+  { id: 'SHINGLES:12_15', displayName: 'Shingles 12-15' },
+  { id: 'SHINGLES:16_17', displayName: 'Shingles 16-17' },
+  { id: 'SHINGLES:18_74', displayName: 'Shingles 18-74' },
+  { id: 'SHINGLES:75', displayName: 'Shingles 75+' },
+];
+
+const pneumoniaServices = [
+  { id: 'PNEUMONIA:5_11_10', displayName: 'Pneumonia 5-11' },
+  { id: 'PNEUMONIA:12_15', displayName: 'Pneumonia 12-15' },
+  { id: 'PNEUMONIA:16_17', displayName: 'Pneumonia 16-17' },
+  { id: 'PNEUMONIA:18_74', displayName: 'Pneumonia 18-74' },
+  { id: 'PNEUMONIA:75', displayName: 'Pneumonia 75+' },
+];
+
+const rsvServices = [
+  { id: 'RSV:5_11_10', displayName: 'RSV 5-11' },
+  { id: 'RSV:12_15', displayName: 'RSV 12-15' },
+  { id: 'RSV:16_17', displayName: 'RSV 16-17' },
+  { id: 'RSV:18_74', displayName: 'RSV 18-74' },
+  { id: 'RSV:75', displayName: 'RSV 75+' },
+];
+
 const summariseServices = (
   selectedServices: string[],
   emptyMessage?: string,
@@ -200,5 +237,10 @@ export {
   summariseServices,
   summariseDays,
   services,
+  covidServices,
+  fluServices,
+  shinglesServices,
+  pneumoniaServices,
+  rsvServices,
   days,
 };

@@ -56,6 +56,7 @@ export const DaySummary = ({
                     ? 'nhsuk-form-group--error nhsuk-error-message'
                     : ''
                 }`}
+                style={{ textWrap: 'nowrap' }}
               >
                 {b.start} - {b.end}
               </div>

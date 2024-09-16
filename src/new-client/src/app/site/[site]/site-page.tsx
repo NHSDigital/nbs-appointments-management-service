@@ -11,8 +11,11 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
 
   // TODO: Improve this as we add more cards gated by permissions.
   // We want to avoid rendering the card-group if there are no cards to show.
-  const permissionsRelevantToCards = permissions.filter(
-    p => p === 'users:view' || p === 'site:manage',
+
+  const cardPermissions = ['users:view', 'site:view', 'availability:set-setup'];
+
+  const permissionsRelevantToCards = permissions.filter(p =>
+    cardPermissions.includes(p),
   );
 
   return (

@@ -56,8 +56,8 @@ public abstract class BaseFeatureSteps : Feature
             cfg.AddProfile<CosmosAutoMapperProfile>();
         });
         Mapper = new Mapper(mapperConfiguration);
-        SetUpRoles();
-        SetUpIntegrationTestUserRoleAssignments();
+        SetUpRoles().GetAwaiter().GetResult();
+        SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
     }
 
     [Given(@"The following service configuration")]

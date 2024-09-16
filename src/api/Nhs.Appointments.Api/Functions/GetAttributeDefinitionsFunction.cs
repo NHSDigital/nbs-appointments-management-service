@@ -19,7 +19,7 @@ namespace Nhs.Appointments.Api.Functions;
 public class GetAttributeSetsFunction(IAttributeDefinitionsService attributeDefinitionsService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAttributeSetsFunction> logger ) 
 : BaseApiFunction<EmptyRequest, IEnumerable<AttributeDefinition>>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "GetAttributeDefinitions", tags: new [] {"AttributeDefinitions"}, Summary = "Get system attribute sets")]
+    [OpenApiOperation(operationId: "GetAttributeDefinitions", tags: ["AttributeDefinitions"], Summary = "Get system attribute sets")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(IEnumerable<AttributeDefinition>), Description = "List of attribute definitions used by the system")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]

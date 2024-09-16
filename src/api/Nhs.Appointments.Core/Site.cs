@@ -9,7 +9,7 @@ public record Site(
     string Name,
     [JsonProperty("address")]
     string Address,
-    [JsonProperty("attributes")]
+    [JsonProperty("attributeValues")]
     IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]
     Location Location

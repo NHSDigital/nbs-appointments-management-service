@@ -12,39 +12,39 @@
   },
   "attributeValues": [
     {
-      "id": "accessible_toilet",
+      "id": "accessibility/accessible_toilet",
       "value": "false"
     },
     {
-      "id": "braille_translation_service",
+      "id": "accessibility/braille_translation_service",
       "value": "false"
     },
     {
-      "id": "disabled_car_parking_on_site",
+      "id": "accessibility/disabled_car_parking_on_site",
       "value": "false"
     },
     {
-      "id": "car_parking_on_site",
+      "id": "accessibility/car_parking_on_site",
       "value": "false"
     },
     {
-      "id": "induction_loop",
+      "id": "accessibility/induction_loop",
       "value": "false"
     },
     {
-      "id": "sign_language_service",
+      "id": "accessibility/sign_language_service",
       "value": "false"
     },
     {
-      "id": "step_free_access",
+      "id": "accessibility/step_free_access",
       "value": "false"
     },
     {
-      "id": "text_relay",
+      "id": "accessibility/text_relay",
       "value": "false"
     },
     {
-      "id": "wheelchair_access",
+      "id": "accessibility/wheelchair_access",
       "value": "false"
     }
   ]

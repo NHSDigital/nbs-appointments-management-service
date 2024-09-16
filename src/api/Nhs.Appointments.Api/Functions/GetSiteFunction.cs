@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteFunction> logger) : SiteBasedResourceFunction<Site>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "GetSite", tags: new [] {"Site"}, Summary = "Get single site by Id")]
+    [OpenApiOperation(operationId: "GetSite", tags: ["Site"], Summary = "Get single site by Id")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(Site), Description = "Information for a single site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
@@ -35,6 +35,6 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
         {            
             return ApiResult<Site>.Success(site);
         }  
-        return Failed(System.Net.HttpStatusCode.NotFound, "The specified site was not found.");
+        return Failed(HttpStatusCode.NotFound, "The specified site was not found.");
     }
 };

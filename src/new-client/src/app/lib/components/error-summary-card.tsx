@@ -1,4 +1,4 @@
-type ErrorWithLink = {
+export type ErrorWithLink = {
   message: string;
   link: string;
 };

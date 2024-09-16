@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
 import React from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useFormContext } from 'react-hook-form';
 import {
   Button,
   CheckBoxes,
@@ -20,53 +20,16 @@ import {
 } from '@services/availabilityService';
 import { hoursBetween, parseDate } from '@services/timeService';
 import { AvailabilityBlock } from '@types';
+import { FormFields } from './day-page';
 
 type Props = {
   saveBlock: (block: AvailabilityBlock, oldBlock?: AvailabilityBlock) => void;
   date: string;
 };
 
-type FormFields = {
-  startTime: string;
-  endTime: string;
-  maxSimultaneousAppointments: number;
-  appointmentLength: number;
-  services: {
-    covid: boolean;
-    covidAges: string[];
-    flu: boolean;
-    fluAges: string[];
-    shingles: boolean;
-    shinglesAges: string[];
-    pneumonia: boolean;
-    pneumoniaAges: string[];
-    rsv: boolean;
-    rsvAges: string[];
-  };
-};
-
 const AddSessionForm = ({ saveBlock, date }: Props) => {
   const { register, handleSubmit, control, watch, setValue } =
-    useForm<FormFields>({
-      defaultValues: {
-        startTime: '09:00',
-        endTime: '17:00',
-        maxSimultaneousAppointments: 1,
-        appointmentLength: 5,
-        services: {
-          covid: false,
-          covidAges: [],
-          flu: false,
-          fluAges: [],
-          shingles: false,
-          shinglesAges: [],
-          pneumonia: false,
-          pneumoniaAges: [],
-          rsv: false,
-          rsvAges: [],
-        },
-      },
-    });
+    useFormContext<FormFields>();
 
   const covidWatch = watch('services.covid');
   const covidAgesWatch = watch('services.covidAges');

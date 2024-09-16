@@ -97,6 +97,14 @@ const hoursBetween = (startTime: string, endTime: string) => {
   return durationInHours;
 };
 
+const minutesBetween = (startTime: string, endTime: string) => {
+  const start = dayjs(startTime, 'HH:mm');
+  const end = dayjs(endTime, 'HH:mm');
+  const durationInMinutes = end.diff(start, 'minute');
+
+  return durationInMinutes;
+};
+
 export {
   getWeeksOfTheMonth,
   getMonthsOfTheYear,
@@ -106,5 +114,6 @@ export {
   parseDate,
   formatDateForUrl,
   hoursBetween,
+  minutesBetween,
 };
 export type { Month };

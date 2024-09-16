@@ -237,12 +237,40 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                    { 
-                        Id = "system:integration-test-user", 
-                        Name = "Integration Test Api User Role",
-                        Description = "Role for integration test user.",
-                        Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view", "sites:query" ] 
-                    }
+                { 
+                    Id = "system:integration-test-user", 
+                    Name = "Integration Test Api User Role",
+                    Description = "Role for integration test user.",
+                    Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view", "sites:query" ] 
+                },
+                new Role
+                { 
+                    Id = "canned:site-configuration-manager", 
+                    Name = "Site configuration manager",
+                    Description = "A user can view and manage site information, such as access needs.",
+                    Permissions = ["site:get-config", "site:set-config" ] 
+                },
+                new Role
+                { 
+                    Id = "canned:availability-manager", 
+                    Name = "Availability manager",
+                    Description = "A user can create, view, and manage site availability.",
+                    Permissions = ["availability:get-setup", "availability:set-setup", "availability:query"] 
+                },
+                new Role
+                { 
+                    Id = "canned:appointment-manager", 
+                    Name = "Appointment manager",
+                    Description = "A user can create, edit, and cancel bookings.",
+                    Permissions = ["booking:make", "booking:query", "booking:cancel"] 
+                },
+                new Role
+                { 
+                    Id = "canned:check-in", 
+                    Name = "Check-in",
+                    Description = "A user can check in/undo check in patients for their bookings.",
+                    Permissions = ["booking:query", "booking:set-status"] 
+                }
             ]
         };        
         Client.GetContainer("appts", "index_data").CreateItemAsync(roles);

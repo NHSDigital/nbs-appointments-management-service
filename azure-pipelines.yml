@@ -68,9 +68,12 @@ stages:
             displayName: "Install Node"
             inputs:
               version: 20.x
+          - task: Npm@1
+            displayName: "Install node modules"
+            inputs:
+              command: "install"
+              workingDir: "$(Build.SourcesDirectory)/src/new-client"
           - script: |
-              cd ./src/new-client
-              npm ci 
               npm run lint
               npm run format:check
               npm run test:ci

@@ -24,7 +24,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={`${parsedDate.format('DD MMMM YYYY')}`}
+      title={`${parsedDate.format('DD MMMM YYYY')} - ${parsedDate.format('dddd')}`}
       breadcrumbs={[
         { name: 'Home', href: '/' },
         { name: siteMoniker, href: `/site/${params.site}` },

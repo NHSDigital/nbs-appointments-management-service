@@ -8,6 +8,7 @@ import {
   CheckBox,
   TextInput,
   Card,
+  Select,
 } from '@nhsuk-frontend-components';
 import AppointmentsSummaryText from './appointments-summary-text';
 import {
@@ -124,19 +125,37 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
               type="time"
               style={{ width: '250px' }}
             ></TextInput>
-            <TextInput
+            <Select
               label="Max simultaneous appointments"
               hint="This could be based on the number of vaccinators or spaces you have available"
               {...register('maxSimultaneousAppointments')}
-              type="number"
+              options={[
+                { value: 1, label: '1' },
+                { value: 2, label: '2' },
+                { value: 3, label: '3' },
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+                { value: 6, label: '6' },
+                { value: 7, label: '7' },
+                { value: 8, label: '8' },
+                { value: 9, label: '9' },
+                { value: 10, label: '10' },
+              ]}
               style={{ width: '250px' }}
-            ></TextInput>
-            <TextInput
+            ></Select>
+            <Select
               label="Appointment length (Minutes)"
               {...register('appointmentLength')}
-              type="number"
+              options={[
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+                { value: 6, label: '6' },
+                { value: 10, label: '10' },
+                { value: 12, label: '12' },
+                { value: 15, label: '15' },
+              ]}
               style={{ width: '250px' }}
-            ></TextInput>
+            ></Select>
           </div>
           <div className="nhsuk-grid-column-one-half">
             <label
@@ -408,14 +427,14 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
         </div>
 
         <AppointmentsSummaryText
-          total={
+          total={Math.floor(
             (60 / appointmentLengthWatch) *
-            maxSimultaneousAppointmentsWatch *
-            hoursBetween(startTimeWatch, endTimeWatch)
-          }
-          perHour={
-            (60 / appointmentLengthWatch) * maxSimultaneousAppointmentsWatch
-          }
+              maxSimultaneousAppointmentsWatch *
+              hoursBetween(startTimeWatch, endTimeWatch),
+          )}
+          perHour={Math.floor(
+            (60 / appointmentLengthWatch) * maxSimultaneousAppointmentsWatch,
+          )}
         />
 
         <Button

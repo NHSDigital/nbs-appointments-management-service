@@ -227,6 +227,27 @@ const calculateNumberOfAppointments = (
   return unadjusted;
 };
 
+const calculateAvailabilityInBlock = (block: AvailabilityBlock) => {
+  const minutesInBlock = dayjs(block.end, 'HH:mm').diff(
+    dayjs(block.start, 'HH:mm'),
+    'minute',
+  );
+
+  const maxAppointments =
+    Math.floor(minutesInBlock / block.appointmentLength) * block.sessionHolders;
+  return maxAppointments;
+};
+
+const calculateAvailabilityInBlocks = (blocks: AvailabilityBlock[]) => {
+  let total = 0;
+  blocks
+    .filter(block => !block.isBreak)
+    .forEach(block => {
+      total += calculateAvailabilityInBlock(block);
+    });
+  return total;
+};
+
 export {
   timeSort,
   isBefore,
@@ -234,6 +255,8 @@ export {
   timeAsInt,
   isWithin,
   calculateNumberOfAppointments,
+  calculateAvailabilityInBlock,
+  calculateAvailabilityInBlocks,
   summariseServices,
   summariseDays,
   services,

@@ -8,7 +8,7 @@ export const confirmSchedule = async (site: string, date: string) => {
     'ams-notification',
     `You have successfully saved the schedule for ${date}.`,
     {
-      maxAge: 15, // 15 seconds
+      maxAge: 5,
     },
   );
 

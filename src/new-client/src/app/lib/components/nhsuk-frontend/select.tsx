@@ -1,13 +1,14 @@
 import { forwardRef, HTMLProps } from 'react';
 
 type Option = {
-  value: string;
+  value: string | number;
   label: string;
 };
 
 type Props = {
   label: string;
   options?: Option[];
+  hint?: string;
 } & HTMLProps<HTMLSelectElement>;
 type Ref = HTMLSelectElement;
 
@@ -21,7 +22,11 @@ export const Select = forwardRef<Ref, Props>((props, ref) => (
     <label className="nhsuk-label" htmlFor={props.id}>
       {props.label}
     </label>
-
+    {props.hint && (
+      <div className="nhsuk-hint" id={`${props.id}-hint`}>
+        {props.hint}
+      </div>
+    )}
     <select
       className="nhsuk-select"
       ref={ref}

@@ -33,6 +33,13 @@ export const DaySummary = ({
     [blocks, showBreaks],
   );
 
+  // TODO: Don't use the tabs class, but one with the same font size styling
+  if (blocksToShow.length === 0) {
+    return (
+      <div className="nhsuk-tabs__title">No availability set for this day</div>
+    );
+  }
+
   return (
     <dl className="nhsuk-summary-list">
       {blocksToShow.map((b, i) => {

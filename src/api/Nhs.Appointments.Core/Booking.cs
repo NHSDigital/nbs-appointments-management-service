@@ -27,6 +27,9 @@ public class Booking
     
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
+
+    [JsonProperty("contactDetails")]
+    public ContactDetails ContactDetails { get; set; }
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
@@ -42,4 +45,16 @@ public class AttendeeDetails
     public string LastName { get; set; }
     [JsonProperty("dateOfBirth")]
     public DateOnly DateOfBirth { get; set; }
+}
+
+public class ContactDetails
+{ 
+    [JsonProperty("email")]
+    public string Email { get; set; }
+    [JsonProperty("phoneNumber")]
+    public string PhoneNumber { get; set; }
+    [JsonProperty("emailContactConsent")]
+    public bool EmailContactConsent { get; set; }
+    [JsonProperty("phoneContactConsent")]
+    public bool PhoneContactConsent { get; set; }
 }

@@ -35,3 +35,15 @@ public record AttendeeDetails(
 {
     public DateOnly BirthDate => DateOnly.ParseExact(DateOfBirth, "yyyy-MM-dd");
 };
+
+public record ContactDetails(
+    [JsonProperty("email")]
+    string Email,
+    [JsonProperty("phoneNumber")]
+    string PhoneNumber,
+    [JsonProperty("emailContactConsent")]
+    bool EmailContactConsent,
+    [JsonProperty("phoneContactConsent")]
+    bool PhoneContactConsent
+    )
+{ }

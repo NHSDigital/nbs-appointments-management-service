@@ -94,6 +94,21 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
     test: (b: AvailabilityBlock) => !b.isPreview,
   };
 
+  const editAction = {
+    title: 'Edit',
+    action: (bl: AvailabilityBlock) => {
+      methods.setValue('startTime', bl.start);
+      methods.setValue('endTime', bl.end);
+      methods.setValue('maxSimultaneousAppointments', bl.sessionHolders);
+      methods.setValue('appointmentLength', bl.appointmentLength);
+      methods.setValue(
+        'services.covid',
+        bl.services.some(s => s.startsWith('COVID')),
+      );
+    },
+    test: (b: AvailabilityBlock) => !b.isPreview,
+  };
+
   const yesterday = parsedDate.subtract(1, 'day');
   const tomorrow = parsedDate.add(1, 'day');
 
@@ -148,6 +163,13 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
       });
     }
 
+    if (methods.formState.errors.services?.message) {
+      errors.push({
+        message: methods.formState.errors.services?.message,
+        link: '#services-offered-in-session',
+      });
+    }
+
     if (errors.length > 0) {
       return errors;
     }
@@ -195,7 +217,7 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
             blocks={filteredBlocks}
             showBreaks={true}
             hasError={() => false}
-            // primaryAction={editAction}
+            primaryAction={editAction}
             secondaryAction={removeAction}
           />
           <AppointmentsSummaryText total={totalAppointments} />

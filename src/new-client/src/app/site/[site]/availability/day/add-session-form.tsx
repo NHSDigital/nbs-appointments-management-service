@@ -37,6 +37,7 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
     setValue,
     formState,
     trigger,
+    setError,
   } = useFormContext<FormFields>();
 
   const covidWatch = watch('services.covid');
@@ -56,6 +57,16 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
   const endTimeWatch = watch('endTime');
 
   const submitForm: SubmitHandler<FormFields> = async form => {
+    if (
+      !form.services.covid &&
+      !form.services.flu &&
+      !form.services.shingles &&
+      !form.services.pneumonia &&
+      !form.services.rsv
+    ) {
+      setError('services', { message: 'You must select at least one service' });
+      return;
+    }
     const collapsedServices = [
       ...form.services.covidAges,
       ...form.services.fluAges,
@@ -153,7 +164,8 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
                 formState.errors.services?.fluAges?.message ??
                 formState.errors.services?.shinglesAges?.message ??
                 formState.errors.services?.pneumoniaAges?.message ??
-                formState.errors.services?.rsvAges?.message
+                formState.errors.services?.rsvAges?.message ??
+                formState.errors.services?.message
               }
             >
               <label

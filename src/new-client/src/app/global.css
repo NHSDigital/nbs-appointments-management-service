@@ -85,3 +85,36 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.nhsuk-card-custom__content-row {
+  border-top-style: solid !important;
+  border-top-width: medium !important;
+  border-top-color: #d3d3d3 !important;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (min-width: 40.0625em) {
+  .nhsuk-card-custom__content-row {
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 19px;
+    font-size: 1.1875rem;
+    line-height: 1.47368;
+  }
+}
+
+.nhsuk-checkboxes-custom__conditional {
+  margin-bottom: 16px;
+  border-left: 4px solid #4c6272;
+  margin-left: 18px;
+  padding-left: 30px;
+}
+
+@media (min-width: 40.0625em) {
+  .nhsuk-checkboxes-custom__conditional {
+    margin-bottom: 24px;
+  }
+}

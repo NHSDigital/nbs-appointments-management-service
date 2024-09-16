@@ -1,30 +1,28 @@
 'use client';
 
-import { Card, Tabs } from '@components/nhsuk-frontend';
+import { Tabs } from '@components/nhsuk-frontend';
 import dynamic from 'next/dynamic';
 import AddBreakForm from './add-break-form';
 import AddSessionForm from './add-session-form';
+import { AvailabilityBlock } from '@types';
 
-const AvailabilityTabs = () => {
+type Props = {
+  saveBlock: (block: AvailabilityBlock, oldBlock?: AvailabilityBlock) => void;
+  date: string;
+};
+
+const AvailabilityTabs = ({ saveBlock, date }: Props) => {
   return (
     <Tabs
       title="Manage your current site's daily availability."
       tabs={[
         {
           title: 'Add session',
-          content: (
-            <Card>
-              <AddSessionForm />
-            </Card>
-          ),
+          content: <AddSessionForm saveBlock={saveBlock} date={date} />,
         },
         {
           title: 'Add break',
-          content: (
-            <Card>
-              <AddBreakForm />
-            </Card>
-          ),
+          content: <AddBreakForm saveBlock={saveBlock} date={date} />,
         },
       ]}
     />

@@ -88,6 +88,15 @@ const getDaysOfTheWeek = (dateInWeek: dayjs.Dayjs) => {
   return days;
 };
 
+// Assuming startTime and endTime are of the format 'HH:mm'
+const hoursBetween = (startTime: string, endTime: string) => {
+  const start = dayjs(startTime, 'HH:mm');
+  const end = dayjs(endTime, 'HH:mm');
+  const durationInHours = end.diff(start, 'hour', true); // true to get fractional hours
+
+  return durationInHours;
+};
+
 export {
   getWeeksOfTheMonth,
   getMonthsOfTheYear,
@@ -96,5 +105,6 @@ export {
   getNextMonthName,
   parseDate,
   formatDateForUrl,
+  hoursBetween,
 };
 export type { Month };

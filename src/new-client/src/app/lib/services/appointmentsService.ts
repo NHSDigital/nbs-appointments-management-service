@@ -124,4 +124,5 @@ export const saveSiteAttributeValues = async (
   );
 
   handleResponse(response);
+  revalidatePath(`/site/${site}/attributes`);
 };

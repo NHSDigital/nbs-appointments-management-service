@@ -52,7 +52,10 @@ const AddAttributesForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup>
+      <FormGroup legend="Access needs">
+        <div className="nhsuk-hint" id="example-hint">
+          Select all options that the current site offers
+        </div>
         <CheckBoxes>
           {attributeDefinitions.map(ad => (
             <CheckBox

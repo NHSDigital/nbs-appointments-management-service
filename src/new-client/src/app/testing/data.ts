@@ -1,4 +1,4 @@
-import { Role, Site, User } from '@types';
+import { AttributeDefinition, AttributeValue, Role, Site, User } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -54,6 +54,8 @@ const mockAllPermissions = [
   'booking:set-status',
   'users:manage',
   'users:view',
+  'site:view',
+  'site:manage',
 ];
 
 const mockAuditerPermissions = [
@@ -67,6 +69,24 @@ const mockAuditerPermissions = [
 
 const mockNonManagerPermissions = ['booking:query', 'booking:set-status'];
 
+const mockAttributeDefinitions: AttributeDefinition[] = [
+  {
+    id: 'accessibility/attr_1',
+    displayName: 'Accessibility attribute 1',
+  },
+  {
+    id: 'accessibility/attr_2',
+    displayName: 'Accessibility attribute 2',
+  },
+];
+
+const mockAttributeValues: AttributeValue[] = [
+  {
+    id: 'accessibility/attr_1',
+    value: 'true',
+  },
+];
+
 export {
   getMockUserAssignments,
   mockRoles,
@@ -74,4 +94,6 @@ export {
   mockAllPermissions,
   mockAuditerPermissions,
   mockNonManagerPermissions,
+  mockAttributeDefinitions,
+  mockAttributeValues,
 };

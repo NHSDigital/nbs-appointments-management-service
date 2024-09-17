@@ -26,7 +26,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('users:view') && (
-            <li className="nhsuk-grid-column-two-thirds nhsuk-card-group__item">
+            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
               <Card
                 href={`${site.id}/users`}
                 title="User Management"
@@ -34,6 +34,13 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
               />
             </li>
           )}
+          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <Card
+              href={`${site.id}/attributes`}
+              title="Site Management"
+              description="Assign accessibility attributes to this site"
+            />
+          </li>
         </ul>
       )}
     </>

@@ -1,7 +1,14 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Role, User, UserProfile } from '@types';
+import {
+  AttributeDefinition,
+  AttributeValue,
+  Role,
+  Site,
+  User,
+  UserProfile,
+} from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 
@@ -34,6 +41,20 @@ export const fetchSite = async (siteId: string) => {
   const userProfile = await fetchUserProfile();
   return userProfile?.availableSites.find(s => s.id === siteId);
 };
+
+export const fetchSiteAttributeValues = async (siteId: string) => {
+  const response = await appointmentsApi.get<Site>(`sites/${siteId}`);
+
+  return handleResponse(response)?.attributeValues ?? [];
+};
+
+export async function fetchAttributeDefinitions() {
+  const response = await appointmentsApi.get<AttributeDefinition[]>(
+    'attributeDefinitions',
+  );
+
+  return handleResponse(response) ?? [];
+}
 
 export async function fetchRoles() {
   const response = await appointmentsApi.get<{ roles: Role[] }>(
@@ -91,4 +112,16 @@ export const saveUserRoleAssignments = async (
   handleResponse(response);
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
+};
+
+export const saveSiteAttributeValues = async (
+  site: string,
+  attributeValues: AttributeValue[],
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/attributes`,
+    JSON.stringify(attributeValues),
+  );
+
+  handleResponse(response);
 };

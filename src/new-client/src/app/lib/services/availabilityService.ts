@@ -217,7 +217,7 @@ const calculateAvailabilityInBlocks = (blocks: AvailabilityBlock[]) => {
   blocks
     .filter(block => !block.isBreak)
     .forEach(block => {
-      total += calculateAvailabilityInBlock(block);
+      total += calculateNumberOfAppointments(block, blocks);
     });
   return total;
 };

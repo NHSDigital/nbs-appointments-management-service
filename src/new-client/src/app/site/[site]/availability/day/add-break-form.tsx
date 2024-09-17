@@ -54,7 +54,6 @@ const AddBreakForm = ({ saveBlock, date }: Props) => {
           style={{ marginLeft: 0, marginRight: 0 }}
         >
           <FormGroup
-            legend="Break Details"
             error={
               formState.errors.startTime?.message ||
               formState.errors.endTime?.message

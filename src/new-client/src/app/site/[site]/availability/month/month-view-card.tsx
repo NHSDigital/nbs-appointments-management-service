@@ -25,7 +25,7 @@ const MonthViewCard = ({ dateString, site }: Props) => {
         if (b.isBreak) slots -= slotsInBlock;
         else slots += slotsInBlock;
       });
-    return slots;
+    return Math.max(slots, 0);
   }, [blocks, date]);
 
   const appointsmentsBooked = useMemo(() => {

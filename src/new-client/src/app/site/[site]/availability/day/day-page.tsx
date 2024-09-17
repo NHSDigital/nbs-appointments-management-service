@@ -15,11 +15,16 @@ import ErrorSummaryCard, {
 } from '@components/error-summary-card';
 import {
   calculateAvailabilityInBlocks,
+  fluServices,
+  pneumoniaServices,
+  rsvServices,
+  shinglesServices,
   timeSort,
 } from '@services/availabilityService';
 import { useRouter } from 'next/navigation';
 import ConfirmRemoveBlock from './confirm-remove-block';
 import { FormProvider, useForm } from 'react-hook-form';
+import { covidServices } from '@services/availabilityService';
 
 type DayViewProps = {
   referenceDate: string;
@@ -101,10 +106,71 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
       methods.setValue('endTime', bl.end);
       methods.setValue('maxSimultaneousAppointments', bl.sessionHolders);
       methods.setValue('appointmentLength', bl.appointmentLength);
-      methods.setValue(
-        'services.covid',
-        bl.services.some(s => s.startsWith('COVID')),
-      );
+
+      const covidServicesToRepopulate = [
+        ...covidServices
+          .filter(service => bl.services.includes(service.id))
+          .map(_ => _.id),
+      ];
+      if (covidServicesToRepopulate.length === covidServices.length) {
+        covidServicesToRepopulate.push('select-all');
+      }
+      methods.setValue('services.covidAges', covidServicesToRepopulate);
+      if (covidServicesToRepopulate.length > 0) {
+        methods.setValue('services.covid', true);
+      }
+
+      const fluServicesToRepopulate = [
+        ...fluServices
+          .filter(service => bl.services.includes(service.id))
+          .map(_ => _.id),
+      ];
+      if (fluServicesToRepopulate.length === fluServices.length) {
+        fluServicesToRepopulate.push('select-all');
+      }
+      methods.setValue('services.fluAges', fluServicesToRepopulate);
+      if (fluServicesToRepopulate.length > 0) {
+        methods.setValue('services.flu', true);
+      }
+
+      const shinglesServicesToRepopulate = [
+        ...shinglesServices
+          .filter(service => bl.services.includes(service.id))
+          .map(_ => _.id),
+      ];
+      if (shinglesServicesToRepopulate.length === shinglesServices.length) {
+        shinglesServicesToRepopulate.push('select-all');
+      }
+      methods.setValue('services.shinglesAges', shinglesServicesToRepopulate);
+      if (shinglesServicesToRepopulate.length > 0) {
+        methods.setValue('services.shingles', true);
+      }
+
+      const pneumoniaServicesToRepopulate = [
+        ...pneumoniaServices
+          .filter(service => bl.services.includes(service.id))
+          .map(_ => _.id),
+      ];
+      if (pneumoniaServicesToRepopulate.length === pneumoniaServices.length) {
+        pneumoniaServicesToRepopulate.push('select-all');
+      }
+      methods.setValue('services.pneumoniaAges', pneumoniaServicesToRepopulate);
+      if (pneumoniaServicesToRepopulate.length > 0) {
+        methods.setValue('services.pneumonia', true);
+      }
+
+      const rsvServicesToRepopulate = [
+        ...rsvServices
+          .filter(service => bl.services.includes(service.id))
+          .map(_ => _.id),
+      ];
+      if (rsvServicesToRepopulate.length === rsvServices.length) {
+        rsvServicesToRepopulate.push('select-all');
+      }
+      methods.setValue('services.rsvAges', rsvServicesToRepopulate);
+      if (rsvServicesToRepopulate.length > 0) {
+        methods.setValue('services.rsv', true);
+      }
     },
     test: (b: AvailabilityBlock) => !b.isPreview,
   };

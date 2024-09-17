@@ -277,6 +277,9 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
               removeBlock(blockToDelete);
               setBlockToDelete(null);
             }}
+            cancel={() => {
+              setBlockToDelete(null);
+            }}
           />
         )}
 

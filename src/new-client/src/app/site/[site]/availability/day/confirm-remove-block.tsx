@@ -8,7 +8,7 @@ type Props = {
 
 const ConfirmRemoveBlock = ({ block, removeBlock }: Props) => {
   return (
-    <div className="nhsuk-warning-callout-custom">
+    <div className="nhsuk-warning-callout-custom" id="confirm-remove-block">
       <form>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {block.isBreak ? (

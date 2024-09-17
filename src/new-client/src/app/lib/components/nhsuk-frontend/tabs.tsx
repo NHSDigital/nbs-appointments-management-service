@@ -55,7 +55,7 @@ const Tabs = ({ tabs, title }: TabsProps) => {
         })}
       </ol>
 
-      <div className="nhsuk-tabs__panel" role="tab">
+      <div className="nhsuk-tabs__panel" id="configuration-tabs" role="tab">
         {tabsWithIds.find(tab => tab.id === selectedTab)?.content}
       </div>
     </div>

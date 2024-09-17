@@ -86,7 +86,7 @@ export const DaySummary = ({
                   }
                 >
                   <a
-                    href="#"
+                    href="#configuration-tabs"
                     onClick={() => primaryAction?.action(b)}
                     style={{ fontStyle: 'normal' }}
                   >
@@ -103,7 +103,7 @@ export const DaySummary = ({
                   }
                 >
                   <a
-                    href="#"
+                    href="#confirm-remove-block"
                     onClick={() => secondaryAction?.action(b)}
                     style={{ fontStyle: 'normal' }}
                   >

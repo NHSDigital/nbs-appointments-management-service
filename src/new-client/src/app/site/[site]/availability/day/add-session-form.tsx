@@ -38,6 +38,7 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
     formState,
     trigger,
     setError,
+    reset,
   } = useFormContext<FormFields>();
 
   const covidWatch = watch('services.covid');
@@ -84,6 +85,8 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
       isPreview: false,
       isBreak: false,
     });
+
+    reset();
   };
 
   return (

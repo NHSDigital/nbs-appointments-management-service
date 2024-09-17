@@ -17,7 +17,7 @@ type FormFields = {
 };
 
 const AddBreakForm = ({ saveBlock, date }: Props) => {
-  const { register, handleSubmit, watch, formState, trigger } =
+  const { register, handleSubmit, watch, formState, trigger, reset } =
     useFormContext<FormFields>();
 
   const submitForm: SubmitHandler<FormFields> = async form => {
@@ -31,6 +31,8 @@ const AddBreakForm = ({ saveBlock, date }: Props) => {
       isPreview: false,
       isBreak: true,
     });
+
+    reset();
   };
 
   const startTimeWatch = watch('startTime');

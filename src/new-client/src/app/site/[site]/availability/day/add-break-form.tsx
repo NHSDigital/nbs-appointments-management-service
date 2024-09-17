@@ -7,7 +7,7 @@ import { AvailabilityBlock } from '@types';
 import { minutesBetween, parseDate } from '@services/timeService';
 
 type Props = {
-  saveBlock: (block: AvailabilityBlock, oldBlock?: AvailabilityBlock) => void;
+  saveBlock: (block: AvailabilityBlock, oldBlockStart?: string) => void;
   date: string;
 };
 
@@ -21,16 +21,19 @@ const AddBreakForm = ({ saveBlock, date }: Props) => {
     useFormContext<FormFields>();
 
   const submitForm: SubmitHandler<FormFields> = async form => {
-    saveBlock({
-      day: parseDate(date),
-      start: form.startTime,
-      end: form.endTime,
-      appointmentLength: 5,
-      sessionHolders: 1,
-      services: [],
-      isPreview: false,
-      isBreak: true,
-    });
+    saveBlock(
+      {
+        day: parseDate(date),
+        start: form.startTime,
+        end: form.endTime,
+        appointmentLength: 5,
+        sessionHolders: 1,
+        services: [],
+        isPreview: false,
+        isBreak: true,
+      },
+      form.startTime,
+    );
 
     reset();
   };

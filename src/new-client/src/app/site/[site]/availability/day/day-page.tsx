@@ -49,6 +49,7 @@ export type FormFields = {
     rsvAges: string[];
   };
   isBreak?: boolean;
+  oldStartTime?: string;
 };
 
 const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
@@ -106,6 +107,7 @@ const DayViewPage = ({ referenceDate, site }: DayViewProps) => {
       methods.setValue('endTime', bl.end);
       methods.setValue('maxSimultaneousAppointments', bl.sessionHolders);
       methods.setValue('appointmentLength', bl.appointmentLength);
+      methods.setValue('oldStartTime', bl.start);
 
       const covidServicesToRepopulate = [
         ...covidServices

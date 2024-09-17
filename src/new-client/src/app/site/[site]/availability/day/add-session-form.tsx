@@ -24,7 +24,7 @@ import { AvailabilityBlock } from '@types';
 import { FormFields } from './day-page';
 
 type Props = {
-  saveBlock: (block: AvailabilityBlock, oldBlock?: AvailabilityBlock) => void;
+  saveBlock: (block: AvailabilityBlock, oldBlockStart?: string) => void;
   date: string;
 };
 
@@ -75,16 +75,19 @@ const AddSessionForm = ({ saveBlock, date }: Props) => {
       ...form.services.shinglesAges,
       ...form.services.rsvAges,
     ];
-    saveBlock({
-      day: parseDate(date),
-      start: form.startTime,
-      end: form.endTime,
-      appointmentLength: form.appointmentLength,
-      sessionHolders: form.maxSimultaneousAppointments,
-      services: collapsedServices,
-      isPreview: false,
-      isBreak: false,
-    });
+    saveBlock(
+      {
+        day: parseDate(date),
+        start: form.startTime,
+        end: form.endTime,
+        appointmentLength: form.appointmentLength,
+        sessionHolders: form.maxSimultaneousAppointments,
+        services: collapsedServices,
+        isPreview: false,
+        isBreak: false,
+      },
+      form.startTime,
+    );
 
     reset();
   };

@@ -7,7 +7,7 @@ import AddSessionForm from './add-session-form';
 import { AvailabilityBlock } from '@types';
 
 type Props = {
-  saveBlock: (block: AvailabilityBlock, oldBlock?: AvailabilityBlock) => void;
+  saveBlock: (block: AvailabilityBlock, oldBlockStart?: string) => void;
   date: string;
 };
 

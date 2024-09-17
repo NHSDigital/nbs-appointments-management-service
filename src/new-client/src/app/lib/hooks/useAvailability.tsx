@@ -77,13 +77,10 @@ export const useAvailability = () => {
     setBlocks(modifiedBlocks);
   };
 
-  const saveBlock = (
-    block: AvailabilityBlock,
-    oldBlock?: AvailabilityBlock,
-  ) => {
+  const saveBlock = (block: AvailabilityBlock, oldBlockStart?: string) => {
     setBlocks([
       ...blocks.filter(
-        b => !(b.day.isSame(block.day) && b.start === oldBlock?.start),
+        b => !(b.day.isSame(block.day) && b.start === oldBlockStart),
       ),
       block,
     ]);

@@ -3,14 +3,14 @@
   Scenario: Assign a role to a user
     Given There are no role assignments for user 'test-one'
     When I assign the following roles to user 'test-one'
-        | Site | Roles                             |
-        | A    | canned:site-configuration-manager |
+      | Site | Roles                             |
+      | A    | canned:site-configuration-manager |
     Then user 'test-one' would have the following role assignments
-        | Site | Roles                             |
-        | A    | canned:site-configuration-manager |
+      | Site | Roles                             |
+      | A    | canned:site-configuration-manager |
 
   Scenario: Assign a role to a user for a different site
-    Given The following role assignments for 'test-two' exist 
+    Given The following role assignments for 'test-two' exist
       | Site | Roles                             |
       | A    | canned:site-configuration-manager |
     When I assign the following roles to user 'test-two'

@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
+using Nhs.Appointments.Api.Notifications;
 
 namespace Nhs.Appointments.Api;
 
@@ -67,33 +68,34 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
-            .AddTransient<IPermissionChecker, PermissionChecker>()
-            .AddSingleton<TimeProvider>(TimeProvider.System)
+            .AddTransient<IPermissionChecker, PermissionChecker>()            
+            .AddSingleton(TimeProvider.System)
+            .AddUserNotifications()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
-    var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
-    if (leaseManagerConnection == "local")
-        builder.Services.AddInMemoryLeasing();
-    else
-        builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
+        var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
+        if (leaseManagerConnection == "local")
+            builder.Services.AddInMemoryLeasing();
+        else
+            builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
 
-    builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient();
 
-    var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
-    var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
-    var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
-    bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
-    var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
+        var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
+        var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
+        var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
+        bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
+        var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
 
-    var cosmosClient = new CosmosClient(
-            accountEndpoint: cosmosEndpoint,
-            authKeyOrResourceToken: cosmosToken,
-            clientOptions: cosmosOptions);
+        var cosmosClient = new CosmosClient(
+                accountEndpoint: cosmosEndpoint,
+                authKeyOrResourceToken: cosmosToken,
+                clientOptions: cosmosOptions);
 
-    builder.Services.AddSingleton(cosmosClient);
-    builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddSingleton(cosmosClient);
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-    SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();
+        SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();    
 
     return builder;
     }

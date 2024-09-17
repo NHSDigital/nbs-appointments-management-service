@@ -34,6 +34,8 @@ module "api" {
   hmac_signing_key                     = var.HMAC_SIGNING_KEY
   gov_notify_api_key                   = var.GOV_NOTIFY_API_KEY
   user_roles_changed_email_template_id = var.USER_ROLES_CHANGED_EMAIL_TEMPLATE_ID
+  booking_made_email_template_id       = var.BOOKING_MADE_EMAIL_TEMPLATE_ID
+  booking_made_sms_template_id       = var.BOOKING_MADE_SMS_TEMPLATE_ID
 }
 
 variable "AUTH_PROVIDER_ISSUER" {
@@ -87,6 +89,16 @@ variable "GOV_NOTIFY_API_KEY" {
 }
 
 variable "USER_ROLES_CHANGED_EMAIL_TEMPLATE_ID" {
+  type      = string
+  sensitive = false
+}
+
+variable "BOOKING_MADE_EMAIL_TEMPLATE_ID" {
+  type      = string
+  sensitive = false
+}
+
+variable "BOOKING_MADE_SMS_TEMPLATE_ID" {
   type      = string
   sensitive = false
 }

@@ -76,3 +76,13 @@ variable "gov_notify_api_key" {
   type      = string
   sensitive = true
 }
+
+variable "booking_made_email_template_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "booking_made_sms_template_id" {
+  type      = string
+  sensitive = true
+}

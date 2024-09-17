@@ -18,7 +18,8 @@ public class MakeBookingRequestValidatorTests
             "2077-01-01 09:00",
             "COVID",
             "SessionHolder",
-            GetAttendeeDetails()
+            GetAttendeeDetails(),
+            GetContactDetails()
         );
         
         var result = _sut.Validate(request);
@@ -43,7 +44,8 @@ public class MakeBookingRequestValidatorTests
             from,
             "COVID",
             "SessionHolder",
-            GetAttendeeDetails()
+            GetAttendeeDetails(),
+            GetContactDetails()
         );
         
         var result = _sut.Validate(request);
@@ -62,7 +64,8 @@ public class MakeBookingRequestValidatorTests
             "2077-01-01 09:00",
             service,
             "SessionHolder",
-            GetAttendeeDetails()
+            GetAttendeeDetails(),
+            GetContactDetails()
         );
         
         var result = _sut.Validate(request);
@@ -81,7 +84,8 @@ public class MakeBookingRequestValidatorTests
             "2077-01-01 09:00",
             "COVID",
             sessionHolder,
-            GetAttendeeDetails()
+            GetAttendeeDetails(),
+            GetContactDetails()
         );
         
         var result = _sut.Validate(request);
@@ -98,7 +102,8 @@ public class MakeBookingRequestValidatorTests
             "2077-01-01 09:00",
             "COVID",
             "SessionHolder",
-            null
+            null,
+            GetContactDetails()
         );
         
         var result = _sut.Validate(request);
@@ -106,7 +111,25 @@ public class MakeBookingRequestValidatorTests
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.AttendeeDetails));
     }
-    
+
+    [Fact]
+    public void Validate_ReturnsError_WhenContactDetailsIsNull()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            "COVID",
+            "SessionHolder",
+            GetAttendeeDetails(),
+            null
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
+    }
+
     [Fact]
     public void Validate_ReturnsError_WhenRequestIsEmpty()
     {
@@ -125,7 +148,8 @@ public class MakeBookingRequestValidatorTests
             "2077-01-01 09:00",
             "COVID",
             "SessionHolder",
-            GetAttendeeDetails()
+            GetAttendeeDetails(),
+            GetContactDetails()
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();
@@ -141,5 +165,11 @@ public class MakeBookingRequestValidatorTests
             "1980-01-01"
         );
         return attendeeDetails;
+    }
+
+    private ContactDetails GetContactDetails()
+    {
+        var contactDetails = new ContactDetails("test@tempuri.org", "0123456789", true, true);
+        return contactDetails;
     }
 }

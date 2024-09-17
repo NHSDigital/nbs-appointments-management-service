@@ -4,13 +4,14 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Notify.Models;
 
 namespace Nhs.Appointments.Api.Tests.Notifications;
 
 public class UserRolesChangedNotifierTests
 {
     private UserRolesChangedNotifier _sut;
-    private Mock<ISendEmails> _notificationClient = new ();
+    private Mock<ISendNotifications> _notificationClient = new ();
     private Mock<IRolesStore> _rolesStore = new ();
     private Mock<ISiteSearchService> _siteService = new();
     private const string TemplateId = "my-template";

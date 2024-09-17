@@ -47,6 +47,8 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     HMAC_SIGNING_KEY                      = var.hmac_signing_key
     Notifications_Provider                = "azure"
     UserRolesChangedEmailTemplateId       = var.user_roles_changed_email_template_id
+    BookingMadeEmailTemplateId            = var.booking_made_email_template_id
+    BookingMadeSmsTemplateId              = var.booking_made_sms_template_id
     GovNotifyApiKey                       = var.gov_notify_api_key
     ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_appts_sb.default_primary_connection_string
   }
@@ -128,6 +130,13 @@ resource "azurerm_servicebus_namespace" "nbs_appts_sb" {
 
 resource "azurerm_servicebus_queue" "nbs_appts_sbq_userroles" {
   name         = "user-roles-changed"
+  namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
+
+  partitioning_enabled = true
+}
+
+resource "azurerm_servicebus_queue" "nbs_appts_sbq_bookingmade" {
+  name         = "booking-made"
   namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
 
   partitioning_enabled = true

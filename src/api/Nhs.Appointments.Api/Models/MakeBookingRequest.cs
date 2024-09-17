@@ -14,7 +14,9 @@ public record MakeBookingRequest(
     [JsonProperty("sessionHolder")]
     string SessionHolder,
     [JsonProperty("attendeeDetails")]
-    AttendeeDetails AttendeeDetails
+    AttendeeDetails AttendeeDetails,
+    [JsonProperty("contactDetails")]
+    ContactDetails ContactDetails
 )
 
 {

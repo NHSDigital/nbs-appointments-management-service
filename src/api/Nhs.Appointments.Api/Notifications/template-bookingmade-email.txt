@@ -1,0 +1,46 @@
+﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+Template name: Booking Made
+
+Template Subject: Your appointment for a COVID-19 vaccine
+
+Template Body:
+
+Hello ((firstName)),
+
+Thank you for booking your COVID-19 vaccination appointment.
+
+# Your appointment
+
+Booking reference: ((reference))
+((siteName))
+((address))
+Date and time: ((date))
+((time))
+
+# If you need to cancel or change your appointment:
+
+* visit https://www.nhs.uk/book-vaccine
+* if you can't get online, call 119
+
+# If you booked an appointment for people with a weakened immune system:
+
+A healthcare professional will need to confirm that you have a weakened immune system before they can vaccinate you. They will ask about your health condition or treatment.
+
+# It will help to bring either:
+
+* an NHS letter describing the health condition that weakens your immune system
+* or a repeat prescription or medicine box for the treatment that weakens your immune system
+* or you can show your health record or medication history in the NHS App
+
+You can check the summary of eligible health conditions and treatments at https://www.nhs.uk/book-vaccine
+
+# What to do if you have had COVID-19 or symptoms of COVID-19:
+
+If you have COVID-19, wait until you feel better before getting vaccinated.
+
+You should also wait if you have a high temperature or feel particularly unwell with any illness. If you have recently got better from COVID-19, there is no need to delay getting vaccinated.
+
+Please tell us about your experience of using the online booking system: https://feedback.digital.nhs.uk/jfe/form/SV_eg1sVnlCFcypebl?Source=booster-confirmation-Email

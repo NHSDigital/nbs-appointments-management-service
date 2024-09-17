@@ -77,6 +77,13 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
                 FirstName = bookingRequest.AttendeeDetails.FirstName,
                 LastName = bookingRequest.AttendeeDetails.LastName,
                 NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
+            },
+            ContactDetails = new Core.ContactDetails
+            {
+                Email = bookingRequest.ContactDetails.Email,
+                EmailContactConsent = bookingRequest.ContactDetails.EmailContactConsent,
+                PhoneNumber = bookingRequest.ContactDetails.PhoneNumber,
+                PhoneContactConsent = bookingRequest.ContactDetails.PhoneContactConsent
             }
         };
 

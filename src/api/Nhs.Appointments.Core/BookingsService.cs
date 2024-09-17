@@ -71,8 +71,26 @@ public class BookingsService : IBookingsService
         }            
     }
 
+    public Task CancelBooking(string site, string bookingReference)
+    {
+        return _bookingDocumentStore
+            .BeginUpdate(site, bookingReference)
+            .UpdateProperty(b => b.Outcome, "Cancelled")                
+            .ApplyAsync();
+    }
+
+    public Task<bool> SetBookingStatus(string bookingReference, string status)
+    {
+        return _bookingDocumentStore.UpdateStatus(bookingReference, status);
+    }
+
     private static BookingMade BuildEvent(Booking booking)
     {
+        if(booking.ContactDetails == null)
+        {
+            throw new ArgumentException("The booking must include contact details");
+        }
+
         return new BookingMade
         {
             Email = booking.ContactDetails.Email,
@@ -86,18 +104,5 @@ public class BookingsService : IBookingsService
             Service = booking.Service,
             Site = booking.Site
         };
-    }
-
-    public Task CancelBooking(string site, string bookingReference)
-    {
-        return _bookingDocumentStore
-            .BeginUpdate(site, bookingReference)
-            .UpdateProperty(b => b.Outcome, "Cancelled")                
-            .ApplyAsync();
-    }
-
-    public Task<bool> SetBookingStatus(string bookingReference, string status)
-    {
-        return _bookingDocumentStore.UpdateStatus(bookingReference, status);
     }
 }

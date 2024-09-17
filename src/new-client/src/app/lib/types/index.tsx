@@ -16,14 +16,14 @@ type SiteWithAttributes = Site & {
   attributeValues: AttributeValue[];
 };
 
-type AttributeDefinition = {
-  id: string;
-  displayName: string;
-};
-
 type AttributeValue = {
   id: string;
   value: string;
+};
+
+type Service = {
+  id: string;
+  displayName: string;
 };
 
 type User = {
@@ -104,12 +104,12 @@ export { daysOfTheWeek, monthsOfTheYear };
 export type {
   UserProfile,
   Site,
+  Service,
   User,
   RoleAssignment,
   SiteWithAttributes,
   Role,
   ApiResponse,
-  AttributeDefinition,
   AvailabilityBlock,
   WeekInfo,
 };

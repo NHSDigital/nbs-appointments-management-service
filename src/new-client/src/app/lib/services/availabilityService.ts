@@ -1,46 +1,3 @@
-const services = [
-  {
-    key: 'COVID:5_11_10',
-    value: 'Covid 5-11',
-  },
-  {
-    key: 'COVID:12_15',
-    value: 'Covid 12-15',
-  },
-  {
-    key: 'COVID:16_17',
-    value: 'Covid 16-17',
-  },
-  {
-    key: 'COVID:18_74',
-    value: 'Covid 18-74',
-  },
-  {
-    key: 'COVID:75',
-    value: 'Covid 75+',
-  },
-  {
-    key: 'FLU:18_64',
-    value: 'Flu 18-64',
-  },
-  {
-    key: 'FLU:65',
-    value: 'Flu 65+',
-  },
-  {
-    key: 'COVID_FLU:18_64',
-    value: 'Flu and Covid 18-64',
-  },
-  {
-    key: 'COVID_FLU:65_74',
-    value: 'Flu and Covid 65-74',
-  },
-  {
-    key: 'COVID_FLU:75',
-    value: 'Flu and Covid 75+',
-  },
-];
-
 const covidServices = [
   { id: 'COVID:5_11_10', displayName: 'Covid 5-11' },
   { id: 'COVID:12_15', displayName: 'Covid 12-15' },
@@ -78,17 +35,34 @@ const rsvServices = [
   { id: 'RSV:75', displayName: 'RSV 75+' },
 ];
 
-const summariseServices = (
-  selectedServices: string[],
-  emptyMessage?: string,
-) => {
-  if (selectedServices.length === 0) return emptyMessage ?? 'Break period';
+const allServices = [
+  ...covidServices,
+  ...fluServices,
+  ...shinglesServices,
+  ...pneumoniaServices,
+  ...rsvServices,
+  {
+    id: 'COVID_FLU:18_64',
+    displayName: 'Flu and Covid 18-64',
+  },
+  {
+    id: 'COVID_FLU:65_74',
+    displayName: 'Flu and Covid 65-74',
+  },
+  {
+    id: 'COVID_FLU:75',
+    displayName: 'Flu and Covid 75+',
+  },
+];
+
+const summariseServices = (idsToSummarise: string[], emptyMessage?: string) => {
+  if (idsToSummarise.length === 0) return emptyMessage ?? 'Break period';
   let serviceString = '',
     latestEnd: string,
     latestType: string;
-  const names = services
-    .filter(svc => selectedServices.includes(svc.key))
-    .map(svc => svc.value);
+  const names = allServices
+    .filter(svc => idsToSummarise.includes(svc.id))
+    .map(svc => svc.displayName);
   names
     ?.sort((a, b) => {
       const regex = /(^.*?(?=\d))(\d*)/;
@@ -259,7 +233,7 @@ export {
   calculateAvailabilityInBlocks,
   summariseServices,
   summariseDays,
-  services,
+  allServices,
   covidServices,
   fluServices,
   shinglesServices,

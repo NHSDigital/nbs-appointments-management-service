@@ -11,6 +11,8 @@ public class BookingMadeConsumer(IBookingMadeNotifier notifier) : IConsumer<Book
     public Task Consume(ConsumeContext<BookingMade> context)
     {
         return notifier.Notify(
+            nameof(BookingMade),
+            context.Message.Service,
             context.Message.Reference,
             context.Message.Site,
             context.Message.FirstName,

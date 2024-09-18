@@ -14,17 +14,6 @@ public static class ServiceRegistration
     {
         var userNotificationsProvider = Environment.GetEnvironmentVariable("Notifications_Provider");
 
-        services.Configure<UserRolesChangedNotifier.Options>(opts =>
-        {
-            opts.EmailTemplateId = Environment.GetEnvironmentVariable("UserRolesChangedEmailTemplateId");
-        });
-
-        services.Configure<BookingMadeNotifier.Options>(opts =>
-        {
-            opts.EmailTemplateId = Environment.GetEnvironmentVariable("BookingMadeEmailTemplateId");
-            opts.SmsTemplateId = Environment.GetEnvironmentVariable("BookingMadeSmsTemplateId");
-        });
-
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingMadeNotifier, BookingMadeNotifier>();
 

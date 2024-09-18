@@ -56,6 +56,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddTransient<ISiteStore, SiteStore>()
+            .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddCosmosDataStores()
             .AddTransient<ITemplateService, TemplateService>()
             .AddTransient<IScheduleService, ScheduleService>()

@@ -1,14 +1,13 @@
-﻿using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core;
+﻿using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class BookingMadeNotifier(ISendNotifications notificationClient, ISiteSearchService siteService, IOptions<BookingMadeNotifier.Options> options) : IBookingMadeNotifier
+public class BookingMadeNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, ISiteSearchService siteService) : IBookingMadeNotifier
 {
-    public async Task Notify(string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, bool emailConsent, string email, bool phoneConsent, string phoneNumber)
+    public async Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, bool emailConsent, string email, bool phoneConsent, string phoneNumber)
     {
         var site = await siteService.GetSiteByIdAsync(siteId);
 
@@ -27,19 +26,16 @@ public class BookingMadeNotifier(ISendNotifications notificationClient, ISiteSea
             {"address", site.Address }
         };
 
+        var notificationConfig = await notificationConfigurationStore.GetNotificationConfigurationForService(service, eventType);
+
         if(emailConsent && !string.IsNullOrEmpty(email))
         {
-            await notificationClient.SendEmailAsync(email, options.Value.EmailTemplateId, templateValues);
+            await notificationClient.SendEmailAsync(email, notificationConfig.EmailTemplateId, templateValues);
         }
 
         if(phoneConsent && !string.IsNullOrEmpty(phoneNumber)) 
         {
-            await notificationClient.SendSmsAsync(phoneNumber, options.Value.SmsTemplateId, templateValues);
+            await notificationClient.SendSmsAsync(phoneNumber, notificationConfig.SmsTemplateId, templateValues);
         }
-    }
-    public class Options
-    {
-        public string EmailTemplateId { get; set; }
-        public string SmsTemplateId { get; set; }
     }
 }

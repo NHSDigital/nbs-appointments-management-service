@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core;
+﻿using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,9 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Notifications;
 
 // Depends on an email template hosted in Gov Notify. See template.txt for details 
-public class UserRolesChangedNotifier(ISendNotifications notificationClient, IRolesStore rolesStore, ISiteSearchService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
+public class UserRolesChangedNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, IRolesStore rolesStore, ISiteSearchService siteService) : IUserRolesChangedNotifier
 {
-    public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
+    public async Task Notify(string eventType, string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
         var hasRoleChanges = rolesAdded.Any() || rolesRemoved.Any();
 
@@ -31,7 +30,9 @@ public class UserRolesChangedNotifier(ISendNotifications notificationClient, IRo
             {"site", siteName }
         };
 
-            await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+            var templateConfig = await notificationConfigurationStore.GetNotificationConfiguration(eventType);
+
+            await notificationClient.SendEmailAsync(user, templateConfig.EmailTemplateId, templateValues);
         }
     }
 
@@ -64,10 +65,5 @@ public class UserRolesChangedNotifier(ISendNotifications notificationClient, IRo
         if(roleName.Contains(':')) return roleName.Split(':')[1];
 
         return roleName;
-    }
-
-    public class Options
-    {
-        public string EmailTemplateId { get; set; }
     }
 }

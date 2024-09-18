@@ -84,7 +84,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task RemoveUserAsync(string userId, string siteId)
     {
-        var user = await GetOrDefault(userId);
+        var user = await GetOrDefaultAsync(userId);
         if (user is not null)
         {
             var documentType = cosmosStore.GetDocumentType();

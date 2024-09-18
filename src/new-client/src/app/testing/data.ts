@@ -78,6 +78,10 @@ const mockAttributeDefinitions: AttributeDefinition[] = [
     id: 'accessibility/attr_2',
     displayName: 'Accessibility attribute 2',
   },
+  {
+    id: 'different_attribute_set/attr_1',
+    displayName: 'Different attribute set attribute 1',
+  },
 ];
 
 const mockAttributeValues: AttributeValue[] = [

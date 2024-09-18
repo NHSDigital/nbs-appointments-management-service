@@ -8,17 +8,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public abstract class SiteBasedResourceFunction<TResponse> : BaseApiFunction<SiteBasedResourceRequest, TResponse>
+public abstract class SiteBasedResourceFunction<TResponse>(IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger logger) : BaseApiFunction<SiteBasedResourceRequest, TResponse>(validator, userContextProvider, logger)
 {
-    
-    protected SiteBasedResourceFunction(
-        IValidator<SiteBasedResourceRequest> validator, 
-        IUserContextProvider userContextProvider,
-        ILogger logger) : base(validator, userContextProvider, logger)
-    {
-        
-    }
-
     protected override Task<(bool requestRead, SiteBasedResourceRequest request)> ReadRequestAsync(HttpRequest req)
     {
         if (req.Query.Keys.Contains("site"))

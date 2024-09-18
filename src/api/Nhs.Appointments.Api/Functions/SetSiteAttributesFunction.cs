@@ -39,7 +39,7 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
     {
         var result = await siteService.UpdateSiteAttributesAsync(request.Site, request.AttributeValues);
         return result ? Success(new EmptyResponse()) :
-        Failed(System.Net.HttpStatusCode.NotFound, "The specified site was not found.");
+        Failed(HttpStatusCode.NotFound, "The specified site was not found.");
     }
 
     protected override async Task<(bool requestRead, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)

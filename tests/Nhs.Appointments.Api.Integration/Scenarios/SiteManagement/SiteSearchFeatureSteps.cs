@@ -38,9 +38,9 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps
                 Id: row.Cells.ElementAt(0).Value, 
                 Name: row.Cells.ElementAt(1).Value,
                 Address: row.Cells.ElementAt(2).Value,
-                AttributeValues: new AttributeValue[]{ new(row.Cells.ElementAt(3).Value, row.Cells.ElementAt(4).Value)},
-                Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value) })
-                ), Distance: int.Parse(row.Cells.ElementAt(7).Value)
+                AttributeValues: ParseAttributes(row.Cells.ElementAt(3).Value),
+                Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(4).Value), double.Parse(row.Cells.ElementAt(5).Value) })
+                ), Distance: int.Parse(row.Cells.ElementAt(6).Value)
             )).ToList();
 
         _statusCode.Should().Be(HttpStatusCode.OK);

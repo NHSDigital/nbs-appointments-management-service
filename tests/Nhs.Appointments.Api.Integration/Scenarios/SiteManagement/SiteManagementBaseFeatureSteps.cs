@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -8,6 +9,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
 {
+    [Given("The site '(.+)' does not exist in the system")]
+    public Task NoSite()
+    {
+        return Task.CompletedTask;
+    }
+    
     [Given("The following sites exist in the system")]
     public async Task SetUpSites(Gherkin.Ast.DataTable dataTable)
     {
@@ -18,8 +25,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Name = row.Cells.ElementAt(1).Value,
                 Address = row.Cells.ElementAt(2).Value,
                 DocumentType = "site",
-                AttributeValues = [new AttributeValue(row.Cells.ElementAt(3).Value, row.Cells.ElementAt(4).Value)],
-                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value) }),
+                AttributeValues = ParseAttributes(row.Cells.ElementAt(3).Value),
+                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(4).Value), double.Parse(row.Cells.ElementAt(5).Value) }),
             });
         
         foreach (var site in sites)
@@ -28,4 +35,13 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         }
     }
     
+    protected static AttributeValue[] ParseAttributes(string attributes)
+    {
+        if (attributes == "__empty__")
+        {
+            return Array.Empty<AttributeValue>();
+        }
+        var pairs = attributes.Split(",");
+        return pairs.Select(p => p.Split("=")).Select(kvp => new AttributeValue(kvp[0], kvp[1])).ToArray();
+    }
 }

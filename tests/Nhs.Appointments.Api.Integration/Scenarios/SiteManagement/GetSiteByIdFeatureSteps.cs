@@ -18,8 +18,9 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
     private ErrorMessageResponseItem? _errorResponse;
     
     [When("I request site details for site '(.+)'")]
-    public async Task RequestSites(string siteId)
+    public async Task RequestSites(string siteDesignation)
     {
+        var siteId = GetSiteId(siteDesignation);
         _response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
     }
     
@@ -28,7 +29,7 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
     {
         var row = dataTable.Rows.ElementAt(1);
         var expectedSite = new Site(
-            Id: row.Cells.ElementAt(0).Value,
+            Id: GetSiteId(row.Cells.ElementAt(0).Value),
             Name: row.Cells.ElementAt(1).Value,
             Address: row.Cells.ElementAt(2).Value,
             AttributeValues: ParseAttributes(row.Cells.ElementAt(3).Value),

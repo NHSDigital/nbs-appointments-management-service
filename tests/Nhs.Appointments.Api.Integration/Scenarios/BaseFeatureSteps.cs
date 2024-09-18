@@ -225,6 +225,7 @@ public abstract class BaseFeatureSteps : Feature
     }
 
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
+    protected string GetTestId => $"{_testId}";
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";

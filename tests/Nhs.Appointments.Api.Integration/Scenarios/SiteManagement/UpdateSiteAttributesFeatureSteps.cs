@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Newtonsoft.Json;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -18,12 +17,19 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
     private Site? _actualResponse;
     private ErrorMessageResponseItem? _errorResponse;
     
-    [When("I update the following attributes for site '(.+)'")]
-    public async Task UpdateSiteAttributes(string siteId, Gherkin.Ast.DataTable dataTable)
+    [When("I request site details for site '(.+)'")]
+    public async Task RequestSites(string siteDesignation)
     {
+        var siteId = GetSiteId(siteDesignation);
+        _response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
+    }
+    
+    [When("I update the following attributes for site '(.+)'")]
+    public async Task UpdateSiteAttributes(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+    {
+        var siteId = GetSiteId(siteDesignation);
         var row = dataTable.Rows.ElementAt(1);
         var attributeValues = ParseAttributes(row.Cells.ElementAt(0).Value);
-        var payload = JsonConvert.SerializeObject(attributeValues, Formatting.Indented);
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", attributeValues);
     }
     
@@ -33,7 +39,7 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         var row = dataTable.Rows.ElementAt(1);
         var siteId = row.Cells.ElementAt(0).Value;
         var expectedSite = new Site(
-            Id: siteId,
+            Id: GetSiteId(siteId),
             Name: row.Cells.ElementAt(1).Value,
             Address: row.Cells.ElementAt(2).Value,
             AttributeValues: ParseAttributes(row.Cells.ElementAt(3).Value),
@@ -43,7 +49,7 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         );
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<Site>(siteId, new Microsoft.Azure.Cosmos.PartitionKey("site"));
+        var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<Site>(GetSiteId(siteId), new Microsoft.Azure.Cosmos.PartitionKey("site"));
         actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
     

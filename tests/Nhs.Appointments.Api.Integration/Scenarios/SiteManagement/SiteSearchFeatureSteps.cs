@@ -1,17 +1,21 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 [FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
-public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps
+public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDisposable
 {
     private HttpResponseMessage? _response;
     private HttpStatusCode _statusCode;
@@ -35,7 +39,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps
     {
         var expectedSites = dataTable.Rows.Skip(1).Select(row => new SiteWithDistance(
             new Site(
-                Id: row.Cells.ElementAt(0).Value, 
+                Id: GetSiteId(row.Cells.ElementAt(0).Value), 
                 Name: row.Cells.ElementAt(1).Value,
                 Address: row.Cells.ElementAt(2).Value,
                 AttributeValues: ParseAttributes(row.Cells.ElementAt(3).Value),
@@ -46,5 +50,27 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps
         _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Should().BeEquivalentTo(expectedSites);
     }
+    
+    public void Dispose()
+    {
+        var testId = GetTestId;
+        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
+    }
+    
+    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
+    {
+        const string partitionKey = "site";
+        var container = cosmosClient.GetContainer("appts", "index_data");
+        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId)).ToFeedIterator();        
+        while (feed.HasMoreResults)
+        {
+            var documentsResponse = await feed.ReadNextAsync();
+            foreach (var document in documentsResponse)
+            {
+                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
+            }
+        }
+    }
+    
 }
 

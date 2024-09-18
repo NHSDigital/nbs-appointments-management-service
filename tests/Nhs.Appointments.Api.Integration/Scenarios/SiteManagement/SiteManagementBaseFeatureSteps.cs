@@ -21,7 +21,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         var sites = dataTable.Rows.Skip(1).Select(
             row => new SiteDocument()
             {
-                Id = row.Cells.ElementAt(0).Value,
+                Id = GetSiteId(row.Cells.ElementAt(0).Value),
                 Name = row.Cells.ElementAt(1).Value,
                 Address = row.Cells.ElementAt(2).Value,
                 DocumentType = "site",

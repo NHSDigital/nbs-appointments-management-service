@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Nhs.Appointments.Api.Models;
 using Xunit.Gherkin.Quick;
 using System.Text;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
@@ -68,11 +70,20 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
     private async Task<UserDocument?> GetUserDocument(CosmosClient cosmosClient, string user)
     {
         var container = cosmosClient.GetContainer("appts", "index_data");
-        var document = container.GetItemLinqQueryable<UserDocument>(true)
-            .Where(d => d.Id == GetUserId(user))
-            .AsEnumerable()
-            .FirstOrDefault();
 
-        return document;
+        using(ResponseMessage response = await container.ReadItemStreamAsync(GetUserId(user), new PartitionKey("user")))
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            using (StreamReader streamReader = new StreamReader(response.Content))
+            {
+                string content = await streamReader.ReadToEndAsync();
+                var userDocument = JsonConvert.DeserializeObject<UserDocument>(content);
+                return userDocument;
+            }
+        }
     }
 }

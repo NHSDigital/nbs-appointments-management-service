@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -9,6 +14,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
 {
+    private ErrorMessageResponseItem? ErrorResponse { get; set; }
+    protected HttpResponseMessage? Response { get; set; }
+    protected Site? ActualResponse { get; set; }
+
     [Given("The site '(.+)' does not exist in the system")]
     public Task NoSite()
     {
@@ -33,6 +42,14 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         {
             await Client.GetContainer("appts", "index_data").UpsertItemAsync(site);
         }
+    }
+    
+    [Then("a message is returned saying the site is not found")]
+    public async Task Assert()
+    {
+        Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        ErrorResponse = await JsonRequestReader.ReadRequestAsync<ErrorMessageResponseItem>(await Response.Content.ReadAsStreamAsync());
+        ErrorResponse.Message.Should().Be("The specified site was not found.");
     }
     
     protected static AttributeValue[] ParseAttributes(string attributes)

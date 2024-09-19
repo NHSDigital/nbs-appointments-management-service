@@ -4,7 +4,7 @@
     Given The following sites exist in the system
       | Site | Name   | Address     | Attributes | Longitude | Latitude |
       | A    | Site-A | 1A New Lane | __empty__  | -60       | -60      |
-    When I update the following attributes for site 'A'
+    When I update the attributes for site 'A'
       | Attributes                                                           |
       | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true |
     Then the correct information for site 'A' is returned
@@ -15,8 +15,8 @@
     Given The following sites exist in the system
       | Site | Name   | Address      | Attributes                                                           | Longitude | Latitude |
       | B    | Site-B | 1B Park Lane | def_one/attr_one=true, def_one/attr_two=true, def_two/attr_one=true  | -60       | -60      |
-    When I update the following attributes for site 'B'
-      | Attributes                                                           |
+    When I update the attributes for site 'B'
+      | Attributes                                                             |
       | def_one/attr_one=false, def_one/attr_two=false, def_two/attr_one=false |
     Then the correct information for site 'B' is returned
       | Site | Name   | Address      | Attributes                                                             | Longitude | Latitude |
@@ -24,5 +24,7 @@
 
   Scenario: Returns site not found message when site does not exist
     Given The site 'zero' does not exist in the system
-    When I request site details for site 'zero'
+    When I update the attributes for site 'zero'
+      | Attributes                                                           |
+      | def_one/attr_one=false |
     Then a message is returned saying the site is not found

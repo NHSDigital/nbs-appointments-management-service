@@ -89,6 +89,7 @@ describe('Add Attributes Form', () => {
     expect(mockSaveSiteAttributeValues).toHaveBeenCalledWith('TEST', [
       { id: 'accessibility/attr_1', value: 'true' },
       { id: 'accessibility/attr_2', value: 'true' },
+      { id: 'different_attribute_set/attr_1', value: 'false' },
     ]);
   });
 });

@@ -17,7 +17,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class BaseFeatureSteps : Feature
 {
-    protected const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
+    private const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;

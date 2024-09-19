@@ -24,7 +24,7 @@ public class RemoveUserFunctionTests
 
     public RemoveUserFunctionTests()
     {
-        _sut = new RemoveUserFunction(_userService.Object,  new RemoveUserValidator(), _userContextProvider.Object, _logger.Object);
+        _sut = new RemoveUserFunction(_userService.Object,  new RemoveUserRequestValidator(), _userContextProvider.Object, _logger.Object);
     }
 
     [Fact]

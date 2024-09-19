@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
 
-  await page.waitForURL('**/site/1000/users');
+  await page.waitForURL('**/site/ABC01/users');
 });
 
 // TODO: Maybe something like this to clear up all the users created along the way?
@@ -87,7 +87,7 @@ test('Cannot create a user without any roles', async ({ newUserName }) => {
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
-  await userManagementPage.page.waitForURL('**/site/1000/users');
+  await userManagementPage.page.waitForURL('**/site/ABC01/users');
   await userManagementPage.userExists(newUserName);
 });
 
@@ -117,7 +117,7 @@ test('Can remove a user', async ({ newUserName }) => {
   ).toBeVisible();
 
   await confirmRemoveUserPage.confirmRemoveButton.click();
-  await confirmRemoveUserPage.page.waitForURL('**/site/1000/users');
+  await confirmRemoveUserPage.page.waitForURL('**/site/ABC01/users');
 
   await userManagementPage.userDoesNotExist(newUserName);
 });
@@ -147,7 +147,7 @@ test('Displays a notification banner after removing a user, which disappears whe
   ).toBeVisible();
 
   await confirmRemoveUserPage.confirmRemoveButton.click();
-  await confirmRemoveUserPage.page.waitForURL('**/site/1000/users');
+  await confirmRemoveUserPage.page.waitForURL('**/site/ABC01/users');
 
   await userManagementPage.userDoesNotExist(newUserName);
 });

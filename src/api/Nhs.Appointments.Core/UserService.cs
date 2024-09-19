@@ -39,7 +39,7 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
         return userStore.GetUsersAsync(site);
     }
 
-    public Task RemoveUserAsync(string userId, string site)
+    public Task<OperationResult> RemoveUserAsync(string userId, string site)
     {
         return userStore.RemoveUserAsync(userId, site);
     }

@@ -8,5 +8,5 @@ public interface IUserStore
     Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<IEnumerable<User>> GetUsersAsync(string site);
     Task<User?> GetOrDefaultAsync(string userId);
-    Task RemoveUserAsync(string userId, string siteId);
+    Task<OperationResult> RemoveUserAsync(string userId, string siteId);
 }

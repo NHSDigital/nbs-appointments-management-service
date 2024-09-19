@@ -82,26 +82,32 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
     }
 
-    public async Task RemoveUserAsync(string userId, string siteId)
+    public async Task<OperationResult> RemoveUserAsync(string userId, string siteId)
     {
         var user = await GetOrDefaultAsync(userId);
-        if (user is not null)
+        if (user is null)
         {
-            var documentType = cosmosStore.GetDocumentType();
-            var roleAssignmentsWithSiteRemoved = user.RoleAssignments
-                .Where(ra => ra.Scope != $"site:{siteId}")
-                .ToList();
-
-            if (roleAssignmentsWithSiteRemoved.Count == 0)
-            {
-                await cosmosStore.DeleteDocument(userId, documentType);
-            }
-            else
-            {
-                var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
-                await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
-            }
+            return new OperationResult(false, "User not found");
         }
+
+        if (user.RoleAssignments.All(role => role.Scope != $"site:{siteId}"))
+        {
+            return new OperationResult(false, $"User has no roles at site {siteId}");
+        }
+
+        var roleAssignmentsWithSiteRemoved = user.RoleAssignments
+            .Where(ra => ra.Scope != $"site:{siteId}")
+            .ToList();
+
+        if (roleAssignmentsWithSiteRemoved.Count == 0)
+        {
+            await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
+            return new OperationResult(true);
+        }
+
+        var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, userDocumentPatch);
+        return new OperationResult(true);
     }
     
     public Task<IEnumerable<User>> GetUsersAsync(string site)

@@ -20,7 +20,7 @@ public class RemoveUserFunction(
     IValidator<RemoveUserRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<RemoveUserFunction> logger)
-    : BaseApiFunction<RemoveUserRequest, EmptyResponse>(validator, userContextProvider, logger)
+    : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "RemoveUser", tags: new [] {"Users"}, Summary = "Remove a User")]
     [OpenApiRequestBody("text/json", typeof(RemoveUserRequest))]
@@ -36,10 +36,10 @@ public class RemoveUserFunction(
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(RemoveUserRequest request, ILogger logger)
+    protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request, ILogger logger)
     {
-        await userService.RemoveUserAsync(request.User, request.Site);
+        var result = await userService.RemoveUserAsync(request.User, request.Site);
 
-        return Success();
+        return result.Success ? Success(new RemoveUserResponse(request.User, request.Site)) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 }

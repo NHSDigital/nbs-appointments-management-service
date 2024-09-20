@@ -5,8 +5,8 @@ namespace Nhs.Appointments.Api.Models;
 public record RemoveUserRequest
 {
     [JsonProperty("user")]
-    public string User { get; set; }
+    public string User { get; init; }
 
     [JsonProperty("site")]
-    public string Site { get; set; }
+    public string Site { get; init; }
 }

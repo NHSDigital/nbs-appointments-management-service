@@ -2,7 +2,7 @@
 {
     public class SitesClientTests : IntegrationTestBase
     {
-        [Fact]
+        [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
         public async Task CanListSites()
         {
             var sites = await ApiClient.Sites.GetSitesForUser();

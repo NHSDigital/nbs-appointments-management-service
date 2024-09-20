@@ -38,6 +38,11 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
     { 
         return userStore.GetUsersAsync(site);
     }
+
+    public Task<OperationResult> RemoveUserAsync(string userId, string site)
+    {
+        return userStore.RemoveUserAsync(userId, site);
+    }
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

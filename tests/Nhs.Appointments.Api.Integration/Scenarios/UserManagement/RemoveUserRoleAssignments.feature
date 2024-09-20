@@ -5,7 +5,7 @@
       | Site | Roles                             |
       | A    | canned:availability-manager       |
     When I remove user 'test-one' from site 'A'
-    Then 'test-one' does not exist in the database
+    Then 'test-one' is no longer in the system
 
   Scenario: Remove a user from one site, leaving them at others
     Given The following role assignments for 'test-two' exist

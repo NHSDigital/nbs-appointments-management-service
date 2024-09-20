@@ -43,7 +43,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         _actualResponse = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
     
-    [Then(@"'(.+)' does not exist in the database")]
+    [Then(@"'(.+)' is no longer in the system")]
     public async Task Assert(string user)
     {
         var document = await GetUserDocument(Client, user);

@@ -8,10 +8,12 @@ public class SetSiteAttributeValuesValidator : AbstractValidator<SetSiteAttribut
     public SetSiteAttributeValuesValidator()
     {
         RuleFor(x => x.Site)
-            .NotEmpty().WithMessage("Provide a valid site");
+            .NotEmpty()
+            .WithMessage("Provide a valid site");
         RuleFor(x => x.AttributeValues)
-            .NotEmpty().WithMessage("One or more attribute values must be provided");
+            .NotEmpty()
+            .WithMessage("Attribute values must be provided");
         RuleForEach(x => x.AttributeValues)
-            .NotEmpty().WithMessage("Provide at least one valid attribute and value");
+            .SetValidator(new AttributeValueValidator());
     }
 }

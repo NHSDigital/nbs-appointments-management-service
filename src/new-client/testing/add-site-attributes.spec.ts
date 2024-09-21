@@ -30,7 +30,7 @@ test.beforeEach(async ({ page }) => {
   await page.waitForURL('**/site/ABC02/attributes');
 });
 
-test.only('Update access attributes for a site', async () => {
+test('Update access attributes for a site', async () => {
   // Check start state
   await siteManagementPage.attributeNotChecked('Accessible toilet');
   await siteManagementPage.attributeChecked('Step free access');

@@ -125,6 +125,15 @@ export const saveSiteAttributeValues = async (
   );
 
   handleResponse(response);
+
+  cookies().set(
+    'ams-notification',
+    'You have successfully updated the access needs for the current site.',
+    {
+      maxAge: 15, // 15 seconds
+    },
+  );
+
   revalidatePath(`/site/${site}/attributes`);
 };
 

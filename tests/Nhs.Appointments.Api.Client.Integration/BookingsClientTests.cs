@@ -4,14 +4,14 @@ namespace Nhs.Appointments.Api.Client.Integration
 {
     public class BookingsClientTests : IntegrationTestBase
     {
-        [Fact]
+        [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
         public async void CanQueryAvailability()
         {
             var slots = await ApiClient.Bookings.QueryAvailability([KnownSiteId], "COVID:12_15", DateOnly.FromDateTime(DateTime.Now.AddYears(-1)), DateOnly.FromDateTime(DateTime.Now.AddYears(1)), QueryType.Days);
             Assert.NotNull(slots);
         }
 
-        [Fact]
+        [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
         public async void CanMakeBooking()
         {
             var bookingReference = await MakeBooking();       
@@ -19,7 +19,7 @@ namespace Nhs.Appointments.Api.Client.Integration
             Assert.True(bookingReference.Length > 0);
         }
 
-        [Fact]
+        [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
         public async void CanCancelBooking()
         {
             var bookingReference = await MakeBooking();

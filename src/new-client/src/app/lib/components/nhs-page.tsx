@@ -3,6 +3,8 @@ import { ReactNode } from 'react';
 import { NhsHeader } from './nhs-header';
 import { fetchUserProfile } from '@services/appointmentsService';
 import LogInButton from './log-in-button';
+import NotificationBanner from './notification-banner';
+import { cookies } from 'next/headers';
 
 type Props = {
   title: string;
@@ -18,6 +20,8 @@ const NhsPage = async ({
   omitTitleFromBreadcrumbs,
 }: Props) => {
   const userProfile = await fetchUserProfile();
+  const notification = cookies().get('ams-notification')?.value;
+
   return (
     <>
       <NhsHeader userEmail={userProfile?.emailAddress} />
@@ -32,6 +36,7 @@ const NhsPage = async ({
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
               <h1 className="app-page-heading">{title}</h1>
+              <NotificationBanner notification={notification} />
               {userProfile === undefined ? (
                 <>
                   <p>

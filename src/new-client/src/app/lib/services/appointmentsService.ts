@@ -11,6 +11,7 @@ import {
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
+import { cookies } from 'next/headers';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -125,4 +126,27 @@ export const saveSiteAttributeValues = async (
 
   handleResponse(response);
   revalidatePath(`/site/${site}/attributes`);
+};
+
+export const removeUserFromSite = async (site: string, user: string) => {
+  const response = await appointmentsApi.post(
+    `user/remove`,
+    JSON.stringify({
+      site,
+      user,
+    }),
+  );
+
+  handleResponse(response);
+
+  cookies().set(
+    'ams-notification',
+    `You have successfully removed ${user} from the current site.`,
+    {
+      maxAge: 15, // 15 seconds
+    },
+  );
+
+  revalidatePath(`/site/${site}/users`);
+  redirect(`/site/${site}/users`);
 };

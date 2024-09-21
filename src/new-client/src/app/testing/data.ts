@@ -41,6 +41,8 @@ const mockSites: Site[] = [
   { id: '1003', name: 'Site Gamma', address: 'Gamma Street' },
 ];
 
+const mockSite = mockSites[0];
+
 const mockAllPermissions = [
   'site:get-config',
   'site:set-config',
@@ -94,6 +96,7 @@ const mockAttributeValues: AttributeValue[] = [
 export {
   getMockUserAssignments,
   mockRoles,
+  mockSite,
   mockSites,
   mockAllPermissions,
   mockAuditerPermissions,

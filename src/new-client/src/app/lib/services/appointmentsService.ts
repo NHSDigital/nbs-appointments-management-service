@@ -5,7 +5,7 @@ import {
   AttributeDefinition,
   AttributeValue,
   Role,
-  Site,
+  SiteWithAttributes,
   User,
   UserProfile,
 } from '@types';
@@ -44,7 +44,9 @@ export const fetchSite = async (siteId: string) => {
 };
 
 export const fetchSiteAttributeValues = async (siteId: string) => {
-  const response = await appointmentsApi.get<Site>(`sites/${siteId}`);
+  const response = await appointmentsApi.get<SiteWithAttributes>(
+    `sites/${siteId}`,
+  );
 
   return handleResponse(response)?.attributeValues ?? [];
 };

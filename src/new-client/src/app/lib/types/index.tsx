@@ -7,6 +7,9 @@ type Site = {
   id: string;
   name: string;
   address: string;
+};
+
+type SiteWithAttributes = Site & {
   attributeValues: AttributeValue[];
 };
 
@@ -52,6 +55,7 @@ interface ApiErrorResponse {
 export type {
   UserProfile,
   Site,
+  SiteWithAttributes,
   AttributeDefinition,
   AttributeValue,
   User,

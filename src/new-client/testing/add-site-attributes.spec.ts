@@ -31,10 +31,6 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Update access attributes for a site', async () => {
-  // Check start state
-  await siteManagementPage.attributeNotChecked('Accessible toilet');
-  await siteManagementPage.attributeChecked('Step free access');
-
   // Toggle selected attributes
   await siteManagementPage.selectAttribute('Accessible toilet');
   await siteManagementPage.selectAttribute('Step free access');

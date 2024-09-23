@@ -4,7 +4,7 @@ public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords);
     Task<Site> GetSiteByIdAsync(string siteId);
-    Task<bool> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues);
+    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues);
 }
 
 public class SiteService(ISiteStore siteStore) : ISiteService
@@ -21,7 +21,7 @@ public class SiteService(ISiteStore siteStore) : ISiteService
         return siteStore.GetSiteById(siteId);
     }
     
-    public Task<bool> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues)
+    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues)
     {
         return siteStore.UpdateSiteAttributes(siteId, attributeValues);
     }

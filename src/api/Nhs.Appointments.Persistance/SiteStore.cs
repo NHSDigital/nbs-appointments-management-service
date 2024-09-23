@@ -24,17 +24,17 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
         return GetOrDefault(siteId);
     }
     
-    public async Task<bool> UpdateSiteAttributes(string siteId, IEnumerable<AttributeValue> attributeValues)
+    public async Task<OperationResult> UpdateSiteAttributes(string siteId, IEnumerable<AttributeValue> attributeValues)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
         {
-            return false;
+            return new OperationResult(false, "The specified site was not found.");;
         }
         var documentType = cosmosStore.GetDocumentType();
         var siteDocumentPatch = PatchOperation.Add("/attributeValues", attributeValues);
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
-        return true;
+        return new OperationResult(true);
     }
     
     private async Task<Site> GetOrDefault(string siteId)

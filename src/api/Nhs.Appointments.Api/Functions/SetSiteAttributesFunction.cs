@@ -38,8 +38,7 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAttributesRequest request, ILogger logger)
     {
         var result = await siteService.UpdateSiteAttributesAsync(request.Site, request.AttributeValues);
-        return result ? Success(new EmptyResponse()) :
-        Failed(HttpStatusCode.NotFound, "The specified site was not found.");
+        return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
     protected override async Task<(bool requestRead, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)

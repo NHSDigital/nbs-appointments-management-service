@@ -11,12 +11,12 @@
       "displayName": "Braille translation service"
     },
     {
-      "id": "accessibility/disabled_car_parking_on_site",
-      "displayName": "Disabled car parking on site"
+      "id": "accessibility/disabled_car_parking",
+      "displayName": "Disabled car parking"
     },
     {
-      "id": "accessibility/car_parking_on_site",
-      "displayName": "Car parking on site"
+      "id": "accessibility/car_parking",
+      "displayName": "Car parking"
     },
     {
       "id": "accessibility/induction_loop",

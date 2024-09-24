@@ -1,12 +1,13 @@
 ﻿namespace Nhs.Appointments.Core;
 
-public interface ISiteSearchService
+public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords);
     Task<Site> GetSiteByIdAsync(string siteId);
+    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues);
 }
 
-public class SiteSearchService(ISiteStore siteStore) : ISiteSearchService
+public class SiteService(ISiteStore siteStore) : ISiteService
 {
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords)
     {
@@ -18,5 +19,10 @@ public class SiteSearchService(ISiteStore siteStore) : ISiteSearchService
     public Task<Site> GetSiteByIdAsync(string siteId)
     {
         return siteStore.GetSiteById(siteId);
+    }
+    
+    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues)
+    {
+        return siteStore.UpdateSiteAttributes(siteId, attributeValues);
     }
 }

@@ -37,6 +37,23 @@
       "permissions": ["users:manage", "users:view"]
     },
     {
+      "id": "canned:site-attributes-viewer",
+      "name": "Site attribute viewer",
+      "description": "A user can view site attributes. This is a read-only role.",
+      "permissions": [
+        "site:view"
+      ]
+    },
+    {
+      "id": "canned:site-attributes-editor",
+      "name": "Site attribute editor",
+      "description": "A user can view and edit site attributes.",
+      "permissions": [
+        "site:view",
+        "site:manage"
+      ]
+    },
+    {
       "id": "system:auditer",
       "name": "Auditer",
       "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
@@ -78,7 +95,9 @@
         "booking:set-status",
         "users:manage",
         "users:view",
-        "sites:query"
+        "sites:query",
+        "site:view",
+        "site:manage"
       ]
     },
     {
@@ -95,7 +114,9 @@
         "availability:get-setup",
         "users:manage",
         "users:view",
-        "sites:query"
+        "sites:query",
+        "site:view",
+        "site:manage"
       ]
     }
   ]

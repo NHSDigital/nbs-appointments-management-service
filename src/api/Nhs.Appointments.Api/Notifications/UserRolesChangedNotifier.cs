@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Notifications;
 
 // Depends on an email template hosted in Gov Notify. See template.txt for details 
-public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStore rolesStore, ISiteSearchService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
+public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStore rolesStore, ISiteService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
 {
     public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {

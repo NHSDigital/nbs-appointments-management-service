@@ -17,7 +17,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class BaseFeatureSteps : Feature
 {
-    protected const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
+    private const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
@@ -56,8 +56,8 @@ public abstract class BaseFeatureSteps : Feature
             cfg.AddProfile<CosmosAutoMapperProfile>();
         });
         Mapper = new Mapper(mapperConfiguration);
-        SetUpRoles();
-        SetUpIntegrationTestUserRoleAssignments();
+        SetUpRoles().GetAwaiter().GetResult();
+        SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
     }
 
     [Given(@"The following service configuration")]
@@ -225,11 +225,12 @@ public abstract class BaseFeatureSteps : Feature
     }
 
     private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
+    protected string GetTestId => $"{_testId}";
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
     
-    private void SetUpRoles()
+    private async Task SetUpRoles()
     {
         var roles = new RolesDocument()
         {
@@ -237,12 +238,26 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "roles",
             Roles = [
                 new Role
-                { 
-                    Id = "system:integration-test-user", 
-                    Name = "Integration Test Api User Role",
-                    Description = "Role for integration test user.",
-                    Permissions = ["site:get-meta-data", "availability:query", "booking:make", "booking:query", "booking:cancel", "site:set-config", "availability:get-setup", "users:manage", "users:view", "sites:query" ] 
-                },
+                    { 
+                        Id = "system:integration-test-user", 
+                        Name = "Integration Test Api User Role",
+                        Description = "Role for integration test user.",
+                        Permissions = [
+                            "site:get-meta-data", 
+                            "availability:query", 
+                            "booking:make", 
+                            "booking:query", 
+                            "booking:cancel", 
+                            "site:get-config", 
+                            "site:set-config", 
+                            "availability:get-setup", 
+                            "users:manage", 
+                            "users:view", 
+                            "sites:query",
+                            "site:view",
+                            "site:manage"
+                        ] 
+                    },
                 new Role
                 { 
                     Id = "canned:site-configuration-manager", 
@@ -273,10 +288,10 @@ public abstract class BaseFeatureSteps : Feature
                 }
             ]
         };        
-        Client.GetContainer("appts", "index_data").CreateItemAsync(roles);
+        await Client.GetContainer("appts", "index_data").UpsertItemAsync(roles);
     }
     
-    private void SetUpIntegrationTestUserRoleAssignments()
+    private async Task SetUpIntegrationTestUserRoleAssignments()
     {
         var userAssignments = new UserDocument()
         {
@@ -289,6 +304,6 @@ public abstract class BaseFeatureSteps : Feature
                     { Role = "system:integration-test-user", Scope = "global" }
             ]
         };        
-        Client.GetContainer("appts", "index_data").CreateItemAsync(userAssignments);
+        await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
     }
 }

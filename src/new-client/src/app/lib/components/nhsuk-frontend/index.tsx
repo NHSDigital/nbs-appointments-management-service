@@ -11,6 +11,7 @@ import CheckBoxes from './checkboxes';
 import Card from './card';
 import RightChevron from './icons/right-chevron';
 import Select from './select';
+import SummaryList from './summary-list';
 import Table from './table';
 import TextArea from './text-area';
 import TextInput from './text-input';
@@ -31,6 +32,7 @@ export {
   NhsLogo,
   RightChevron,
   Select,
+  SummaryList,
   TextArea,
   Table,
   TextInput,

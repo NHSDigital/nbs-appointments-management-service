@@ -11,7 +11,7 @@ import {
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
-import { raiseNotification } from './notificationService';
+import { raiseNotification } from '@services/notificationService';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);

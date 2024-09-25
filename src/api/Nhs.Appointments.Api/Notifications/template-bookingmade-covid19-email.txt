@@ -2,7 +2,7 @@
 
 This template is stored at https://www.notifications.service.gov.uk/
 
-Template name: Booking Made
+Template name: Booking Made (C19)
 
 Template Subject: Your appointment for a COVID-19 vaccine
 

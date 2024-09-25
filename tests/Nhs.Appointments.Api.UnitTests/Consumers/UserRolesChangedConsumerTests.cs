@@ -22,7 +22,7 @@ public class UserRolesChangedConsumerTests
         const string site = "site1";
         string[] rolesAdded = ["role1"];
         string[] rolesRemoved = ["role2"];
-        _notifier.Setup(x => x.Notify(user, site, It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesAdded)), It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesRemoved)))).Verifiable();
+        _notifier.Setup(x => x.Notify(nameof(UserRolesChanged), user, site, It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesAdded)), It.Is<string[]>(r => Enumerable.SequenceEqual(r, rolesRemoved)))).Verifiable();
         var ctx = new Mock<ConsumeContext<UserRolesChanged>>();
         ctx.SetupGet(x => x.Message).Returns(new UserRolesChanged { UserId = user, SiteId = site, AddedRoleIds = rolesAdded, RemovedRoleIds = rolesRemoved });
 

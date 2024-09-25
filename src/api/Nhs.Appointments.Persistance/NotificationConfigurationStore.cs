@@ -1,31 +1,27 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using AutoMapper;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class NotificationConfigurationStore(ITypedDocumentCosmosStore<NotificationConfiguration> cosmosStore) : INotificationConfigurationStore
+public class NotificationConfigurationStore(ITypedDocumentCosmosStore<NotificationConfigurationDocument> cosmosStore, IMapper mapper) : INotificationConfigurationStore
 {
-    public Task<NotificationConfiguration> GetNotificationConfiguration(string eventType)
+    private const string DocumentId = "notification_config";
+    public async Task<NotificationConfiguration> GetNotificationConfiguration(string eventType)
     {
-        try
-        {
-            throw new NotImplementedException("cosmos query todo");
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            throw new Exception($"Could not locate a notification configuration for event type '{eventType}'", ex);
-        }
+        var globalDocument = await cosmosStore.GetByIdAsync<NotificationConfigurationDocument>(DocumentId);
+
+        var items = globalDocument.Configs.Select(mapper.Map<Core.NotificationConfiguration>);
+
+        return items.Single(config => config.EventType == eventType);
     }
 
     public async Task<NotificationConfiguration> GetNotificationConfigurationForService(string serviceId, string eventType)
     {
-        try
-        {
-            throw new NotImplementedException("cosmos query todo");
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            throw new Exception($"Could not locate a notification configuration for service type '{serviceId}' with event type '{eventType}'", ex);
-        }
+        var globalDocument = await cosmosStore.GetByIdAsync<NotificationConfigurationDocument>(DocumentId);
+
+        var items = globalDocument.Configs.Select(mapper.Map<Core.NotificationConfiguration>);
+
+        return items.Single(config => config.EventType == eventType && config.Services.Any(s => s == serviceId));
     }
 }

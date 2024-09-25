@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Nhs.Appointments.Core.Messaging.Events;
+﻿namespace Nhs.Appointments.Core.Messaging.Events;
 
 public class BookingMade
 {

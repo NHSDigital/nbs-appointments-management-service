@@ -50,7 +50,7 @@ public class UserRolesChangedNotifier(ISendNotifications notificationClient, INo
     {
         if (rolesAdded.Length == 0) return "";
 
-        return $"You have been added to: {string.Join(", ", rolesAdded)}.";
+        return $"You have been given the permissions of: {string.Join(", ", rolesAdded)}.";
     }
 
     private static string GetRolesRemovedText(string[] rolesRemoved)

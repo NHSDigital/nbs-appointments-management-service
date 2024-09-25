@@ -1,0 +1,35 @@
+﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+Template name: Booking Made (Flu)
+
+Template Subject: Booking confirmation - Flu vaccination appointment
+
+Template Body:
+
+Hello ((firstName)),
+
+Thank you for booking your flu vaccination appointment.
+
+# Your appointment
+
+Booking reference: ((reference))
+((siteName))
+((address))
+Date and time: ((date))
+((time))
+
+# If you need to cancel or rearrange your appointment:
+
+* visit https://www.nhs.uk/book-vaccine
+* if you can't get online, call 119
+
+Please cancel your appointment if you have had a flu vaccine somewhere else. It helps the pharmacy to let them know if you can no longer attend.
+
+You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.
+
+## More ways to feel your best this autumn and winter
+
+The NHS Better Health [website](https://www.nhs.uk/better-health/) provides free guidance and tips to help you get active, lose weight, quit smoking and drink less alcohol.
+

@@ -1,8 +1,15 @@
 ﻿using Newtonsoft.Json;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Persistance.Models;
 
-public class NotificationConfiguration
+[CosmosDocumentType("notification_configuration")]
+public class NotificationConfigurationDocument : IndexDataCosmosDocument
+{
+    [JsonProperty("configs")]
+    public Role[] Configs { get; set; }
+}
+
+public class NotificationConfigurationItem
 {
     [JsonProperty("services")]
     public string[] Services { get; set; }
@@ -16,4 +23,5 @@ public class NotificationConfiguration
     [JsonProperty("eventType")]
     public string EventType { get; set; }
 }
+
 

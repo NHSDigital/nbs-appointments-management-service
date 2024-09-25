@@ -46,9 +46,6 @@ export const fetchSite = async (siteId: string) => {
 export const fetchSiteAttributeValues = async (siteId: string) => {
   const response = await appointmentsApi.get<SiteWithAttributes>(
     `sites/${siteId}`,
-    {
-      cache: 'force-cache',
-    },
   );
 
   return handleResponse(response)?.attributeValues ?? [];
@@ -57,6 +54,9 @@ export const fetchSiteAttributeValues = async (siteId: string) => {
 export async function fetchAttributeDefinitions() {
   const response = await appointmentsApi.get<AttributeDefinition[]>(
     'attributeDefinitions',
+    {
+      cache: 'force-cache',
+    },
   );
 
   return handleResponse(response) ?? [];

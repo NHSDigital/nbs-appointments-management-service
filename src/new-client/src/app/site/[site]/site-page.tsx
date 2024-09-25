@@ -12,7 +12,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
   // TODO: Improve this as we add more cards gated by permissions.
   // We want to avoid rendering the card-group if there are no cards to show.
   const permissionsRelevantToCards = permissions.filter(
-    p => p === 'users:view' || p === 'site:manage',
+    p => p === 'users:view' || p === 'site:manage' || p === 'site:view',
   );
 
   return (
@@ -34,7 +34,8 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
               />
             </li>
           )}
-          {permissionsRelevantToCards.includes('site:manage') && (
+          {(permissionsRelevantToCards.includes('site:manage') ||
+            permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
               <Card
                 href={`${site.id}/attributes`}

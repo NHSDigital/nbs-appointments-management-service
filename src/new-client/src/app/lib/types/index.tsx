@@ -21,6 +21,11 @@ type AttributeValue = {
   value: string;
 };
 
+type AttributeDefinition = {
+  id: string;
+  displayName: string;
+};
+
 type Service = {
   id: string;
   displayName: string;
@@ -102,6 +107,8 @@ const monthsOfTheYear = [
 
 export { daysOfTheWeek, monthsOfTheYear };
 export type {
+  AttributeValue,
+  AttributeDefinition,
   UserProfile,
   Site,
   Service,

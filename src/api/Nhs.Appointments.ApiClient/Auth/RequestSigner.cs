@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -10,12 +9,13 @@ namespace Nhs.Appointments.ApiClient.Auth
     {
         public async Task SignRequestAsync(HttpRequestMessage request)
         {           
-            string method = request.Method.ToString();
-            string path = request.RequestUri!.AbsolutePath;
-            string content = "";
+            var method = request.Method.ToString();
+            var path = request.RequestUri!.AbsolutePath;
+            var queryString = request.RequestUri.Query;
+            var content = "";
             if (request.Content != null)
                 content = await request.Content.ReadAsStringAsync();
-            content += GetCanonicalQueryParameters(request.RequestUri.ParseQueryString());
+            content += DecodeQueryString(queryString);
 
             using var hash = SHA256.Create();
             var hashedContentBytes = hash.ComputeHash(Encoding.UTF8.GetBytes(content));
@@ -30,7 +30,9 @@ namespace Nhs.Appointments.ApiClient.Auth
             request.Headers.Add("RequestTimestamp", requestTimestamp);
         }
 
-        private static string GetCanonicalQueryParameters(NameValueCollection queryParameters) => 
-            string.Join("&", queryParameters.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(queryParameters[key])}"));
+        private static string DecodeQueryString(string queryString)
+        {
+            return queryString.Contains('?') ? HttpUtility.UrlDecode(queryString.Substring(1)) : string.Empty;
+        }
     }
 }

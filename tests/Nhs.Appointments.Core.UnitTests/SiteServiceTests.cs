@@ -65,7 +65,7 @@ public class SiteServiceTests
         
         _siteStore.Setup(x => x.GetSitesByArea(0.5, 65, 50000)).ReturnsAsync(sites);
         
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50);
+        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, ["access_need_1"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
     
@@ -117,7 +117,7 @@ public class SiteServiceTests
         
         _siteStore.Setup(x => x.GetSitesByArea(0.5, 65, 50000)).ReturnsAsync(sites);
         
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2);
+        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, ["access_need_1"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
     
@@ -128,7 +128,7 @@ public class SiteServiceTests
         
         _siteStore.Setup(x => x.GetSitesByArea(0.5, 65, 50000)).ReturnsAsync(sites);
         
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2);
+        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, ["access_need_1"]);
         result.Should().BeEmpty();
     }
     

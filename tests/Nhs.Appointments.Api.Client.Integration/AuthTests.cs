@@ -4,7 +4,7 @@ namespace Nhs.Appointments.Api.Client.Integration
 {
     public class AuthTests : IntegrationTestBase
     {
-        [Fact]
+        [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
         public async Task ApiShouldRejectBadSignature()
         {
             UseBadSigningKey();

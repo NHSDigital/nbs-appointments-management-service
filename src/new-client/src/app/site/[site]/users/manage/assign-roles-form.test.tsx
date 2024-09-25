@@ -22,6 +22,7 @@ describe('Assign Roles Form', () => {
       replace: mockReplace,
     });
   });
+
   it('displays a check box for each available role', () => {
     render(
       <AssignRolesForm

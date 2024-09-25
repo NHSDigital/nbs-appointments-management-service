@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import RootPage from './root';
 
 export default class UserManagementPage extends RootPage {
@@ -6,6 +7,7 @@ export default class UserManagementPage extends RootPage {
   readonly emailInput: Locator;
   readonly searchUserButton: Locator;
   readonly cancelButton: Locator;
+  readonly confirmAndSaveButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -21,5 +23,20 @@ export default class UserManagementPage extends RootPage {
     this.cancelButton = page.getByRole('button', {
       name: 'Cancel',
     });
+    this.confirmAndSaveButton = page.getByRole('button', {
+      name: 'Confirm and save',
+    });
+  }
+
+  async selectRole(role: string) {
+    await this.page.getByRole('checkbox', { name: role }).click();
+  }
+
+  async userExists(email: string) {
+    expect(this.page.getByRole('cell', { name: email })).toBeVisible();
+  }
+
+  async userDoesNotExist(email: string) {
+    expect(this.page.getByRole('cell', { name: email })).not.toBeVisible();
   }
 }

@@ -14,6 +14,9 @@ public class SiteDocument : IndexDataCosmosDocument
     
     [JsonProperty("location")]
     public Location Location { get; set; }
+
+    [JsonProperty("attributeValues")]
+    public AttributeValue[] AttributeValues { get; set; }
 }
 
 

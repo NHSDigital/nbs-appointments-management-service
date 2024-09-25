@@ -3,7 +3,7 @@ using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesRequest>
+public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRequest>
 {
     public GetSitesByAreaRequestValidator()
     {

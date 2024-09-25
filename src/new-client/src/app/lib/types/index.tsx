@@ -9,6 +9,20 @@ type Site = {
   address: string;
 };
 
+type SiteWithAttributes = Site & {
+  attributeValues: AttributeValue[];
+};
+
+type AttributeDefinition = {
+  id: string;
+  displayName: string;
+};
+
+type AttributeValue = {
+  id: string;
+  value: string;
+};
+
 type User = {
   id: string;
   roleAssignments: RoleAssignment[];
@@ -38,4 +52,14 @@ interface ApiErrorResponse {
   errorMessage: string;
 }
 
-export type { UserProfile, Site, User, RoleAssignment, Role, ApiResponse };
+export type {
+  UserProfile,
+  Site,
+  SiteWithAttributes,
+  AttributeDefinition,
+  AttributeValue,
+  User,
+  RoleAssignment,
+  Role,
+  ApiResponse,
+};

@@ -13,7 +13,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData(-181)]
     public void Validate_ReturnsError_WhenLongitudeIsInvalid(double longitude)
     {
-        var request = new GetSitesRequest(
+        var request = new GetSitesByAreaRequest(
             longitude,
             0.123,
             50000,
@@ -23,7 +23,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesRequest.longitude));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.longitude));
     }
     
     [Theory]
@@ -31,7 +31,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData(-91)]
     public void Validate_ReturnsError_WhenLatitudeIsInvalid(double latitude)
     {
-        var request = new GetSitesRequest(
+        var request = new GetSitesByAreaRequest(
             0.123,
             latitude,
             50000,
@@ -41,7 +41,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesRequest.latitude));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.latitude));
     }
     
     [Theory]
@@ -49,7 +49,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData(100001)]
     public void Validate_ReturnsError_WhenSearchRadiusIsInvalid(int searchRadius)
     {
-        var request = new GetSitesRequest(
+        var request = new GetSitesByAreaRequest(
             0.123,
             0.456,
             searchRadius,
@@ -59,7 +59,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesRequest.searchRadius));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.searchRadius));
     }
     
     [Theory]
@@ -67,7 +67,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData(51)]
     public void Validate_ReturnsError_WhenMaxRecordsIsInvalid(int maxRecords)
     {
-        var request = new GetSitesRequest(
+        var request = new GetSitesByAreaRequest(
             0.123,
             0.456,
             50000,
@@ -77,7 +77,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesRequest.maximumRecords));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.maximumRecords));
     }
 
     [Theory]
@@ -85,7 +85,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData(-180, -90, 1000, 1)]
     public void Validate_ReturnsSuccess_WhenRequestIsValid(double longitude, double latitude, int searchRadius, int maxRecords)
     {
-        var request = new GetSitesRequest(
+        var request = new GetSitesByAreaRequest(
             longitude,
             latitude,
             searchRadius,

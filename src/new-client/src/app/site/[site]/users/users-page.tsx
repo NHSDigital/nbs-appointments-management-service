@@ -32,7 +32,11 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
         )}
       </div>
       <Table
-        headers={['Email', 'Roles', ...[canSeeAdminControls ? ['Manage'] : []]]}
+        headers={[
+          'Email',
+          'Roles',
+          ...(canSeeAdminControls ? ['Manage', 'Remove'] : []),
+        ]}
         rows={users.map(user => {
           return [
             user.id,
@@ -40,11 +44,15 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
               .filter(ra => isVisibleRole(ra.role))
               ?.map(ra => getRoleName(ra.role))
               ?.join(' | '),
-            ...[
-              canSeeAdminControls
-                ? [<EditRoleAssignmentsButton key={user.id} user={user.id} />]
-                : [],
-            ],
+            ...(canSeeAdminControls
+              ? [
+                  <EditRoleAssignmentsButton
+                    key={`edit-${user.id}`}
+                    user={user.id}
+                  />,
+                  <RemoveUserButton key={`remove-${user.id}`} user={user.id} />,
+                ]
+              : []),
           ];
         })}
       />
@@ -64,6 +72,14 @@ const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
   <div>
     <Link href={`users/manage?user=${user}`} className="nhsuk-link">
       Edit
+    </Link>
+  </div>
+);
+
+const RemoveUserButton = ({ user }: { user: string }) => (
+  <div>
+    <Link href={`users/remove?user=${user}`} className="nhsuk-link">
+      Remove from this site
     </Link>
   </div>
 );

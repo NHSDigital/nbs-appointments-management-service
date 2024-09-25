@@ -47,9 +47,13 @@ test('A user with the appropriate permission can view other users at a site and 
   await sitePage.userManagementCard.click();
 
   await expect(usersPage.manageColumn).toBeVisible();
-  await expect(usersPage.page.getByRole('link', { name: 'Edit' })).toHaveCount(
-    5,
-  );
+
+  await expect(
+    userManagementPage.page.getByRole('row').filter({
+      hasNot: userManagementPage.page.getByText(/int-test-user/),
+      has: userManagementPage.page.getByRole('link', { name: 'Edit' }),
+    }),
+  ).toHaveCount(5);
 });
 
 test('Navigating straight to the user management page works as expected', async ({

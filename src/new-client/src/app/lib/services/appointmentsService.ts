@@ -1,9 +1,17 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Role, User, UserProfile } from '@types';
+import {
+  AttributeDefinition,
+  AttributeValue,
+  Role,
+  SiteWithAttributes,
+  User,
+  UserProfile,
+} from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
+import { raiseNotification } from '@services/notificationService';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -20,7 +28,7 @@ export const fetchUserProfile = async () => {
 
 export async function fetchUsers(site: string) {
   const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
-    cache: 'no-cache',
+    cache: 'no-store',
   });
 
   return (
@@ -34,6 +42,25 @@ export const fetchSite = async (siteId: string) => {
   const userProfile = await fetchUserProfile();
   return userProfile?.availableSites.find(s => s.id === siteId);
 };
+
+export const fetchSiteAttributeValues = async (siteId: string) => {
+  const response = await appointmentsApi.get<SiteWithAttributes>(
+    `sites/${siteId}`,
+    {
+      cache: 'force-cache',
+    },
+  );
+
+  return handleResponse(response)?.attributeValues ?? [];
+};
+
+export async function fetchAttributeDefinitions() {
+  const response = await appointmentsApi.get<AttributeDefinition[]>(
+    'attributeDefinitions',
+  );
+
+  return handleResponse(response) ?? [];
+}
 
 export async function fetchRoles() {
   const response = await appointmentsApi.get<{ roles: Role[] }>(
@@ -89,6 +116,44 @@ export const saveUserRoleAssignments = async (
   );
 
   handleResponse(response);
+  revalidatePath(`/site/${site}/users`);
+  redirect(`/site/${site}/users`);
+};
+
+export const saveSiteAttributeValues = async (
+  site: string,
+  attributeValues: AttributeValue[],
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/attributes`,
+    JSON.stringify(attributeValues),
+  );
+
+  handleResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully updated the access needs for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidatePath(`/site/${site}/attributes`);
+};
+
+export const removeUserFromSite = async (site: string, user: string) => {
+  const response = await appointmentsApi.post(
+    `user/remove`,
+    JSON.stringify({
+      site,
+      user,
+    }),
+  );
+
+  handleResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage = `You have successfully removed ${user} from the current site.`;
+  raiseNotification(notificationType, notificationMessage);
+
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };

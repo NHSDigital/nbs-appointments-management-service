@@ -10,6 +10,7 @@ public interface ITypedDocumentCosmosStore<TDocument>
     Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query);
     Task<TModel> GetDocument<TModel>(string documentId);
     Task<TModel> GetDocument<TModel>(string documentId, string partitionKey);
+    Task DeleteDocument(string documentId, string partitionKey);
     Task WriteAsync(TDocument document);
     TDocument NewDocument();
     TDocument ConvertToDocument<TModel>(TModel model);

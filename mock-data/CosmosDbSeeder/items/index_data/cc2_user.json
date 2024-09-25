@@ -7,7 +7,11 @@
       "scope": "site:ABC01"
     },
     {
-      "role": "canned:site-configuration-manager",
+      "role": "canned:user-manager",
+      "scope": "site:ABC01"
+    },
+    {
+      "role": "canned:site-attributes-editor",
       "scope": "site:ABC01"
     },
     {

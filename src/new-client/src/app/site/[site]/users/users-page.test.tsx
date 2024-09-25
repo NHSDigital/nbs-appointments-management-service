@@ -60,7 +60,7 @@ describe('Users Page', () => {
     expect(screen.getByRole('cell', { name: 'Role 3' })).toBeInTheDocument();
   });
 
-  it('displays the edit button for each user if they may see it', async () => {
+  it('displays the edit and remove buttons for each user if they may see it', async () => {
     render(
       <UsersPage
         users={getMockUserAssignments(mockSiteId)}
@@ -71,13 +71,16 @@ describe('Users Page', () => {
 
     expect(screen.getByRole('columnheader', { name: 'Manage' })).toBeVisible();
     expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
+    expect(
+      screen.getAllByRole('link', { name: 'Remove from this site' }).length,
+    ).toBe(2);
 
     expect(
       screen.getByRole('link', { name: 'Assign staff roles' }),
     ).toBeVisible();
   });
 
-  it('omits the edit button for each user if they may not see it', async () => {
+  it('omits the edit and remove buttons for each user if they may not see it', async () => {
     render(
       <UsersPage
         users={getMockUserAssignments(mockSiteId)}
@@ -88,6 +91,9 @@ describe('Users Page', () => {
 
     expect(screen.queryByRole('columnheader', { name: 'Manage' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Edit' })).toBeNull();
+    expect(
+      screen.queryByRole('link', { name: 'Remove from this site' }),
+    ).toBeNull();
 
     expect(
       screen.queryByRole('link', { name: 'Assign staff roles' }),

@@ -93,16 +93,13 @@ public class BookingsService : IBookingsService
 
         return new BookingMade
         {
-            Email = booking.ContactDetails.Email,
-            EmailContactConsent = booking.ContactDetails.EmailContactConsent,
             FirstName = booking.AttendeeDetails.FirstName,
             From = booking.From,
             LastName = booking.AttendeeDetails.LastName,
-            PhoneContactConsent = booking.ContactDetails.PhoneContactConsent,
-            PhoneNumber = booking.ContactDetails.PhoneNumber,
             Reference = booking.Reference,
             Service = booking.Service,
-            Site = booking.Site
+            Site = booking.Site,
+            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
         };
     }
 }

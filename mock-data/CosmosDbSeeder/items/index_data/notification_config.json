@@ -1,6 +1,6 @@
 {
-  "id": "notification_config",
-  "docType": "notification_configuration",
+  "id": "notification_configuration",
+  "docType": "system",
   "configs": [
     {
       "services": [],

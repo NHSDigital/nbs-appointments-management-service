@@ -6,7 +6,7 @@ namespace Nhs.Appointments.Persistance;
 
 public class NotificationConfigurationStore(ITypedDocumentCosmosStore<NotificationConfigurationDocument> cosmosStore, IMapper mapper) : INotificationConfigurationStore
 {
-    private const string DocumentId = "notification_config";
+    private const string DocumentId = "notification_configuration";
     public async Task<NotificationConfiguration> GetNotificationConfiguration(string eventType)
     {
         var globalDocument = await cosmosStore.GetByIdAsync<NotificationConfigurationDocument>(DocumentId);
@@ -16,7 +16,7 @@ public class NotificationConfigurationStore(ITypedDocumentCosmosStore<Notificati
         return items.Single(config => config.EventType == eventType);
     }
 
-    public async Task<NotificationConfiguration> GetNotificationConfigurationForService(string serviceId, string eventType)
+    public async Task<NotificationConfiguration> GetNotificationConfigurationForService(string eventType, string serviceId)
     {
         var globalDocument = await cosmosStore.GetByIdAsync<NotificationConfigurationDocument>(DocumentId);
 

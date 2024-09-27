@@ -149,13 +149,18 @@ public class MakeBookingFunctionTests
                 NhsNumber = "9999999999",
                 DateOfBirth = new DateOnly(1958,6,8)
             },
-            ContactDetails = new Core.ContactDetails
+            ContactDetails = [
+            new Core.ContactItem
             {
-                Email = "test@tempuri.org",
-                PhoneNumber = "0123456789",
-                EmailContactConsent = true,
-                PhoneContactConsent = true
+                Value = "test@tempuri.org",
+                Type = "email"
+            },
+            new Core.ContactItem
+            {
+                Value = "0123456789",
+                Type = "phone"
             }
+            ]
         };
         _sut.RunAsync(request);
         _bookingService.Invocations.Should().HaveCount(1);
@@ -170,7 +175,10 @@ public class MakeBookingFunctionTests
 
         var dto = new MakeBookingRequest(site, from, service, sessionHolder,
             new Models.AttendeeDetails(nhsNumber, firstName, lastName, dateOfBirth),
-            new Models.ContactDetails(email, phoneNumber, emailContactConsent, phoneContactConsent));
+            [
+                new Models.ContactItem ("email", email ),
+                new Models.ContactItem ("phone", phoneNumber)
+            ]);
 
         var body = JsonConvert.SerializeObject(dto);
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));

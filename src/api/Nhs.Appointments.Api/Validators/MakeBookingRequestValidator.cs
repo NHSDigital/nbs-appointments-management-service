@@ -23,8 +23,7 @@ public class MakeBookingRequestValidator : AbstractValidator<MakeBookingRequest>
             .NotEmpty().WithMessage("Provide attendee details")
             .SetValidator(new AttendeeDetailsValidator());
         RuleFor(x => x.ContactDetails)
-            .NotEmpty().WithMessage("Provide contact details")
-            .SetValidator(new ContactDetailsValidator());
+            .NotEmpty().WithMessage("Provide contact details");
     }
     
     protected override bool PreValidate(ValidationContext<MakeBookingRequest> requestBody, ValidationResult result) 

@@ -28,7 +28,7 @@ public interface IRolesStore
 public interface INotificationConfigurationStore
 {
     Task<NotificationConfiguration> GetNotificationConfiguration(string eventType);
-    Task<NotificationConfiguration> GetNotificationConfigurationForService(string serviceId, string eventType);
+    Task<NotificationConfiguration> GetNotificationConfigurationForService(string eventType, string serviceId);
 }
 
 public interface IDocumentUpdate<TModel>

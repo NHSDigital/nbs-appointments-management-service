@@ -16,7 +16,7 @@ public record MakeBookingRequest(
     [JsonProperty("attendeeDetails")]
     AttendeeDetails AttendeeDetails,
     [JsonProperty("contactDetails")]
-    ContactDetails ContactDetails
+    ContactItem[] ContactDetails
 )
 
 {
@@ -38,14 +38,9 @@ public record AttendeeDetails(
     public DateOnly BirthDate => DateOnly.ParseExact(DateOfBirth, "yyyy-MM-dd");
 };
 
-public record ContactDetails(
-    [JsonProperty("email")]
-    string Email,
-    [JsonProperty("phoneNumber")]
-    string PhoneNumber,
-    [JsonProperty("emailContactConsent")]
-    bool EmailContactConsent,
-    [JsonProperty("phoneContactConsent")]
-    bool PhoneContactConsent
-    )
-{ }
+public record ContactItem(
+    [JsonProperty("type")]
+    string Type,
+    [JsonProperty("value")]
+    string Value
+    ) { }

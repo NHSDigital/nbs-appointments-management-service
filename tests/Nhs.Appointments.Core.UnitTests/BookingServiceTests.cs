@@ -69,7 +69,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var expectedUntil = expectedFrom.AddDays(1);
             var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0)) };
 
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = new ContactDetails(), AttendeeDetails = new AttendeeDetails()  };
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails()  };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);

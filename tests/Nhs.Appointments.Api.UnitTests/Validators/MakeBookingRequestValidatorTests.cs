@@ -167,9 +167,11 @@ public class MakeBookingRequestValidatorTests
         return attendeeDetails;
     }
 
-    private ContactDetails GetContactDetails()
+    private ContactItem[] GetContactDetails()
     {
-        var contactDetails = new ContactDetails("test@tempuri.org", "0123456789", true, true);
-        return contactDetails;
+        return [
+            new ContactItem("email", "test@tempuri.org"),
+            new ContactItem("phone", "0123456789")
+            ];
     }
 }

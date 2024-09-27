@@ -78,13 +78,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
                 LastName = bookingRequest.AttendeeDetails.LastName,
                 NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
             },
-            ContactDetails = new Core.ContactDetails
-            {
-                Email = bookingRequest.ContactDetails.Email,
-                EmailContactConsent = bookingRequest.ContactDetails.EmailContactConsent,
-                PhoneNumber = bookingRequest.ContactDetails.PhoneNumber,
-                PhoneContactConsent = bookingRequest.ContactDetails.PhoneContactConsent
-            }
+            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
         };
 
         var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,

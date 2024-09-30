@@ -62,7 +62,7 @@ namespace Nhs.Appointments.Api.Client.Integration
                 ServiceConfiguration = [new ServiceConfiguration("COVID:12_15", "Covid Vaccination", 10, true)]
             });
 
-            var result = await ApiClient.Bookings.MakeBooking(KnownSiteId, DateTime.Now.AddDays(1), "COVID:12_15", "default", new Appointments.ApiClient.Models.AttendeeDetails("1234678890", "David", "Testpatient", "1980-01-01"));
+            var result = await ApiClient.Bookings.MakeBooking(KnownSiteId, DateTime.Now.AddDays(1), "COVID:12_15", "default", new Appointments.ApiClient.Models.AttendeeDetails("1234678890", "David", "Testpatient", "1980-01-01"),  [new ContactItem ("email", "test@tempuri.org") ]);
             return result.BookingReference;
         }
     }

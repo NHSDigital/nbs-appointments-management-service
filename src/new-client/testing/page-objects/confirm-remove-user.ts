@@ -12,7 +12,7 @@ export default class ConfirmRemoverUserPage extends RootPage {
       name: 'Staff Role Management',
     });
     this.confirmRemoveButton = page.getByRole('button', {
-      name: 'Yes, remove this account',
+      name: 'Remove this account',
     });
     this.cancelButton = page.getByRole('button', {
       name: 'Cancel',

@@ -21,8 +21,22 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
     private HttpStatusCode _statusCode;
     private IEnumerable<SiteWithDistance>? _actualResponse;
     
-    [When("I make the following request")]
-    public async Task RequestSites(Gherkin.Ast.DataTable dataTable)
+    [When("I make the following request with access needs")]
+    public async Task RequestSitesWithAccessNeeds(Gherkin.Ast.DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+        var accessNeeds = row.Cells.ElementAt(4).Value;
+        _response = await Http.GetAsync($"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}");
+        _statusCode = _response.StatusCode;
+        _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(await _response.Content.ReadAsStreamAsync());
+    }
+
+    [When("I make the following request without access needs")]
+    public async Task RequestSitesWithoutAccessNeeds(Gherkin.Ast.DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -71,6 +85,5 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
             }
         }
     }
-    
 }
 

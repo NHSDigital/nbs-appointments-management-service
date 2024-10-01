@@ -11,7 +11,7 @@ public class SiteService(ISiteStore siteStore) : ISiteService
 {
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds)
     {
-        var attributeIds = accessNeeds.Where(an => String.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
+        var attributeIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
         var sites = await siteStore.GetSitesByArea(longitude, latitude, searchRadius);
         Func<SiteWithDistance, bool> filterPredicate = attributeIds.Any() ?
             s => attributeIds.All(attr => s.Site.AttributeValues.SingleOrDefault(a => a.Id == attr)?.Value == "true") :

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -37,11 +39,13 @@ public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSite
     
     protected override Task<(bool requestRead, GetSitesByAreaRequest request)> ReadRequestAsync(HttpRequest req)
     {
+        var accessNeeds = req.Query.ContainsKey("accessNeeds") ? req.Query["accessNeeds"].ToString().Split(',') : Array.Empty<string>();
+        if (accessNeeds.Any(string.IsNullOrEmpty))
+            return Task.FromResult<(bool requestRead, GetSitesByAreaRequest request)>((false, null));
         var longitude = double.Parse(req.Query["long"]);
         var latitude = double.Parse(req.Query["lat"]);
         var searchRadius = int.Parse(req.Query["searchRadius"]);
         var maximumRecords = int.Parse(req.Query["maxRecords"]);
-        var accessNeeds = req.Query["accessNeeds"].ToString().Split(',');
         return Task.FromResult<(bool requestRead, GetSitesByAreaRequest request)>((true, new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds)));
     }
 }

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core;
+﻿using Nhs.Appointments.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Notifications;
 
 // Depends on an email template hosted in Gov Notify. See template.txt for details 
-public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStore rolesStore, ISiteService siteService, IOptions<UserRolesChangedNotifier.Options> options) : IUserRolesChangedNotifier
+public class UserRolesChangedNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, IRolesStore rolesStore, ISiteService siteService) : IUserRolesChangedNotifier
 {
-    public async Task Notify(string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
+    public async Task Notify(string eventType, string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
         var hasRoleChanges = rolesAdded.Any() || rolesRemoved.Any();
 
@@ -30,7 +30,9 @@ public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStor
             {"site", siteName }
         };
 
-            await notificationClient.SendEmailAsync(user, options.Value.EmailTemplateId, templateValues);
+            var templateConfig = await notificationConfigurationStore.GetNotificationConfiguration(eventType);
+
+            await notificationClient.SendEmailAsync(user, templateConfig.EmailTemplateId, templateValues);
         }
     }
 
@@ -48,7 +50,7 @@ public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStor
     {
         if (rolesAdded.Length == 0) return "";
 
-        return $"You have been added to: {string.Join(", ", rolesAdded)}.";
+        return $"You have been given the permissions of: {string.Join(", ", rolesAdded)}.";
     }
 
     private static string GetRolesRemovedText(string[] rolesRemoved)
@@ -63,10 +65,5 @@ public class UserRolesChangedNotifier(ISendEmails notificationClient, IRolesStor
         if(roleName.Contains(':')) return roleName.Split(':')[1];
 
         return roleName;
-    }
-
-    public class Options
-    {
-        public string EmailTemplateId { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace Nhs.Appointments.ApiClient.Impl
 
         public Task<CancelBookingResponse> CancelBooking(string bookingReference, string site) => Post<CancelBookingRequest, CancelBookingResponse>("api/booking/cancel", new CancelBookingRequest(bookingReference, site));
 
-        public Task<MakeBookingResponse> MakeBooking(string site, DateTime from, string service, string sessionHolder, AttendeeDetails attendeeDetails) => Post<MakeBookingRequest, MakeBookingResponse>("api/booking", new MakeBookingRequest(site, from.ToString("yyyy-MM-dd HH:mm"), service, sessionHolder, attendeeDetails));
+        public Task<MakeBookingResponse> MakeBooking(string site, DateTime from, string service, string sessionHolder, AttendeeDetails attendeeDetails, IEnumerable<ContactItem> contactDetails) => Post<MakeBookingRequest, MakeBookingResponse>("api/booking", new MakeBookingRequest(site, from.ToString("yyyy-MM-dd HH:mm"), service, sessionHolder, attendeeDetails, contactDetails.ToArray()));
 
         public Task<QueryAvailabilityResponse> QueryAvailability(string[] sites, string service, DateOnly from, DateOnly until, QueryType queryType) => Post<QueryAvailabilityRequest, QueryAvailabilityResponse>("api/availability/query", new QueryAvailabilityRequest(sites, service, from.ToString("yyyy-MM-dd"), until.ToString("yyyy-MM-dd"), queryType));
 

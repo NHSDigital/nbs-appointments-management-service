@@ -35,5 +35,7 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<UserDocument, User>()
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
         CreateMap<SiteDocument, Site>();
+
+        CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
     }
 }

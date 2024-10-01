@@ -33,7 +33,13 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     firstName = "Bill", 
                     lastName = "Builder", 
                     dateOfBirth = "2000-02-01"
-                }
+                },
+                contactDetails = 
+                     new[] { 
+                         new { type = "email", value = "test@tempuri.org" },
+                         new { type = "phone", value = "0123456789" }
+                     }
+                    
             };
             _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
         }

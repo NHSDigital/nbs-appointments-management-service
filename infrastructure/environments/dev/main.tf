@@ -33,7 +33,6 @@ module "api" {
   api_keys                             = var.API_KEYS
   hmac_signing_key                     = var.HMAC_SIGNING_KEY
   gov_notify_api_key                   = var.GOV_NOTIFY_API_KEY
-  user_roles_changed_email_template_id = var.USER_ROLES_CHANGED_EMAIL_TEMPLATE_ID
 }
 
 variable "AUTH_PROVIDER_ISSUER" {
@@ -84,10 +83,5 @@ variable "HMAC_SIGNING_KEY" {
 variable "GOV_NOTIFY_API_KEY" {
   type      = string
   sensitive = true
-}
-
-variable "USER_ROLES_CHANGED_EMAIL_TEMPLATE_ID" {
-  type      = string
-  sensitive = false
 }
 

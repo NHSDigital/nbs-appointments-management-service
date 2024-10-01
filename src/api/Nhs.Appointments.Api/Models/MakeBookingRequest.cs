@@ -14,7 +14,9 @@ public record MakeBookingRequest(
     [JsonProperty("sessionHolder")]
     string SessionHolder,
     [JsonProperty("attendeeDetails")]
-    AttendeeDetails AttendeeDetails
+    AttendeeDetails AttendeeDetails,
+    [JsonProperty("contactDetails")]
+    ContactItem[] ContactDetails
 )
 
 {
@@ -35,3 +37,10 @@ public record AttendeeDetails(
 {
     public DateOnly BirthDate => DateOnly.ParseExact(DateOfBirth, "yyyy-MM-dd");
 };
+
+public record ContactItem(
+    [JsonProperty("type")]
+    string Type,
+    [JsonProperty("value")]
+    string Value
+    ) { }

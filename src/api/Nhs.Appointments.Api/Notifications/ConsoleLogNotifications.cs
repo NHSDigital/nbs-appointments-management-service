@@ -21,21 +21,28 @@ public class ConsoleLogNotifications : IMessageBus
     protected virtual void ProcessMessage<T>(T message) { }
 }
 
-public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> consumer) : ConsoleLogNotifications
+public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer) : ConsoleLogNotifications
 {
     protected override void ProcessMessage<T>(T message)
     {
-        var typedMessage = message as UserRolesChanged;
+        var userRolesChanged = message as UserRolesChanged;
 
-        if(typedMessage != null)
+        if(userRolesChanged != null)
         {
-            consumer.Consume(new MyConsumeContext() { Message = typedMessage });
+            userRolesChangedConsumer.Consume(new DummyConsumeContext<UserRolesChanged>() { Message = userRolesChanged });
+        }
+
+        var bookingMade = message as BookingMade;
+
+        if (bookingMade != null)
+        {
+            bookingMadeConsumer.Consume(new DummyConsumeContext<BookingMade>() { Message = bookingMade });
         }
     }
 
-    private class MyConsumeContext: ConsumeContext<UserRolesChanged>
+    private class DummyConsumeContext<T>: ConsumeContext<T> where T : class
     {
-        public UserRolesChanged Message { get; set; }
+        public T Message { get; set; }
 
         public ReceiveContext ReceiveContext => throw new NotImplementedException();
 

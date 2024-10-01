@@ -14,31 +14,30 @@ public static class ServiceRegistration
     {
         var userNotificationsProvider = Environment.GetEnvironmentVariable("Notifications_Provider");
 
-        services.Configure<UserRolesChangedNotifier.Options>(opts =>
-        {
-            opts.EmailTemplateId = Environment.GetEnvironmentVariable("UserRolesChangedEmailTemplateId");
-        });
-   
+        services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
+                .AddTransient<IBookingMadeNotifier, BookingMadeNotifier>();
+
         if (userNotificationsProvider == "local")
         {
             services
-                .AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddScoped<IConsumer<UserRolesChanged>, UserRolesChangedConsumer>()
+                .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
-                .AddScoped<ISendEmails, FakeEmailClient>();
+                .AddScoped<ISendNotifications, FakeNotificationClient>();
         }
         else if(userNotificationsProvider == "azure")
         {
             services
-                .AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
-                .AddScoped<ISendEmails>(x => new GovNotifyEmailClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped<ISendNotifications>(x => new GovNotifyEmailClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()
+                .AddScoped<NotifyBookingMadeFunction>()
                 .AddMassTransitForAzureFunctions(cfg =>
                 {
                     EndpointConvention.Map<UserRolesChanged>(new Uri("queue:user-roles-changed"));
-                    cfg
-                    .AddConsumer<UserRolesChangedConsumer>();
+                    EndpointConvention.Map<BookingMade>(new Uri("queue:booking-made"));
+                    cfg.AddConsumer<UserRolesChangedConsumer>();
+                    cfg.AddConsumer<BookingMadeConsumer>();
                 },
                 connectionStringConfigurationKey: "ServiceBusConnectionString");
         }

@@ -9,6 +9,6 @@ public class UserRolesChangedConsumer(IUserRolesChangedNotifier notifier) : ICon
 {
     public Task Consume(ConsumeContext<UserRolesChanged> context)
     {
-        return notifier.Notify(context.Message.UserId, context.Message.SiteId, context.Message.AddedRoleIds, context.Message.RemovedRoleIds);
+        return notifier.Notify(nameof(UserRolesChanged), context.Message.UserId, context.Message.SiteId, context.Message.AddedRoleIds, context.Message.RemovedRoleIds);
     }
 }

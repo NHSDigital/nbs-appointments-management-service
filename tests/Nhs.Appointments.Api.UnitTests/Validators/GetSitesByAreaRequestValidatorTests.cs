@@ -18,7 +18,7 @@ public class GetSitesByAreaRequestValidatorTests
             0.123,
             50000,
             50,
-            ["access_need_a", "access_meed_b"]
+            ["access_need_a", "access_need_b"]
         );
         
         var result = _sut.Validate(request);
@@ -37,7 +37,7 @@ public class GetSitesByAreaRequestValidatorTests
             latitude,
             50000,
             50,
-            ["access_need_a", "access_meed_b"]
+            ["access_need_a", "access_need_b"]
         );
         
         var result = _sut.Validate(request);
@@ -56,7 +56,7 @@ public class GetSitesByAreaRequestValidatorTests
             0.456,
             searchRadius,
             50,
-            ["access_need_a", "access_meed_b"]
+            ["access_need_a", "access_need_b"]
         );
         
         var result = _sut.Validate(request);
@@ -75,7 +75,7 @@ public class GetSitesByAreaRequestValidatorTests
             0.456,
             50000,
             maxRecords,
-            ["access_need_a", "access_meed_b"]
+            ["access_need_a", "access_need_b"]
         );
         
         var result = _sut.Validate(request);
@@ -94,7 +94,7 @@ public class GetSitesByAreaRequestValidatorTests
             latitude,
             searchRadius,
             maxRecords,
-            ["access_need_a", "access_meed_b"]
+            ["access_need_a", "access_need_b"]
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();

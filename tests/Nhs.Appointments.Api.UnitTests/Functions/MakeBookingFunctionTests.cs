@@ -44,7 +44,7 @@ public class MakeBookingFunctionTests
             .ReturnsAsync(siteConfiguration);
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder","9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
@@ -63,7 +63,7 @@ public class MakeBookingFunctionTests
             .ReturnsAsync(siteConfiguration);
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((false, string.Empty));
 
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder", "9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(500);        
@@ -78,7 +78,7 @@ public class MakeBookingFunctionTests
         _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
             .ThrowsAsync(new CosmosException("Resource not found", HttpStatusCode.NotFound, 0, "1", 1));
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -96,7 +96,7 @@ public class MakeBookingFunctionTests
         _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
             .ReturnsAsync(siteConfiguration);
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -114,7 +114,7 @@ public class MakeBookingFunctionTests
         _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
             .ReturnsAsync(siteConfiguration);
         
-        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "Default","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -134,7 +134,7 @@ public class MakeBookingFunctionTests
             .ReturnsAsync(siteConfiguration);
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder","9999999999", "FirstName", "LastName", "1958-06-08");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "SessionHolder","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
         var expectedBooking = new Booking
         {
             Site = "1001",
@@ -148,7 +148,19 @@ public class MakeBookingFunctionTests
                 LastName = "LastName",
                 NhsNumber = "9999999999",
                 DateOfBirth = new DateOnly(1958,6,8)
+            },
+            ContactDetails = [
+            new Core.ContactItem
+            {
+                Value = "test@tempuri.org",
+                Type = "email"
+            },
+            new Core.ContactItem
+            {
+                Value = "0123456789",
+                Type = "phone"
             }
+            ]
         };
         _sut.RunAsync(request);
         _bookingService.Invocations.Should().HaveCount(1);
@@ -156,21 +168,20 @@ public class MakeBookingFunctionTests
         actualArgument.Should().BeEquivalentTo(expectedBooking);
     }
 
-    private static HttpRequest CreateRequest(string site, string from, string service, string sessionHolder, string nhsNumber, string firstName, string lastName, string dateOfBirth)
+    private static HttpRequest CreateRequest(string site, string from, string service, string sessionHolder, string nhsNumber, string firstName, string lastName, string dateOfBirth, string email, string phoneNumber, bool emailContactConsent = true, bool phoneContactConsent = true)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var body = $"{{ \"from\":\"{from}\"," +
-                   $"\"service\":\"{service}\"," +
-                   $"\"site\":\"{site}\"," +
-                   $"\"sessionHolder\":\"{sessionHolder}\"," +
-                   $"\"attendeeDetails\":" +
-                   $"{{\"nhsNumber\":\"{nhsNumber}\"," +
-                   $"\"firstName\":\"{firstName}\"," +
-                   $"\"lastName\":\"{lastName}\"," +
-                   $"\"dateOfBirth\":\"{dateOfBirth}\"}}" +
-                   $"}}";
-        request.Body =  new MemoryStream(Encoding.UTF8.GetBytes(body));
+
+        var dto = new MakeBookingRequest(site, from, service, sessionHolder,
+            new Models.AttendeeDetails(nhsNumber, firstName, lastName, dateOfBirth),
+            [
+                new Models.ContactItem ("email", email ),
+                new Models.ContactItem ("phone", phoneNumber)
+            ]);
+
+        var body = JsonConvert.SerializeObject(dto);
+        request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Add("Authorization", "Test 123");
         return request;
     }

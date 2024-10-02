@@ -36,7 +36,7 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
 
       <ButtonGroup>
         <Button type="submit" styleType="warning">
-          Yes, remove this account
+          Remove this account
         </Button>
         <Button styleType="secondary" onClick={cancel}>
           Cancel

@@ -1,5 +1,6 @@
-﻿using Azure.Core;
-using Nhs.Appointments.Core.Concurrency;
+﻿using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
@@ -19,17 +20,20 @@ public class BookingsService : IBookingsService
     private readonly IReferenceNumberProvider _referenceNumberProvider;
     private readonly IBookingsDocumentStore _bookingDocumentStore;
     private readonly ISiteLeaseManager _siteLeaseManager;
+    private readonly IMessageBus _bus;
     
     public BookingsService(
         IBookingsDocumentStore bookingDocumentStore, 
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager, 
-        IAvailabilityCalculator availabilityCalculator) 
+        IAvailabilityCalculator availabilityCalculator,
+        IMessageBus bus) 
     {
         _bookingDocumentStore = bookingDocumentStore;
         _referenceNumberProvider = referenceNumberProvider;
         _availabilityCalculator = availabilityCalculator;
         _siteLeaseManager = siteLeaseManager;
+        _bus = bus;
     }
 
     public Task<IEnumerable<Booking>> GetBookings(string site, DateTime from, DateTime to)
@@ -57,14 +61,16 @@ public class BookingsService : IBookingsService
             if (canBook)
             {
                 booking.Reference = await _referenceNumberProvider.GetReferenceNumber(booking.Site);
-                await _bookingDocumentStore.InsertAsync(booking);             
+                await _bookingDocumentStore.InsertAsync(booking);
+                var bookingMadeEvent = BuildEvent(booking);
+                await _bus.Send(bookingMadeEvent);
                 return (true, booking.Reference);
             }
 
             return (false, string.Empty);
         }            
     }
-    
+
     public Task CancelBooking(string site, string bookingReference)
     {
         return _bookingDocumentStore
@@ -76,5 +82,24 @@ public class BookingsService : IBookingsService
     public Task<bool> SetBookingStatus(string bookingReference, string status)
     {
         return _bookingDocumentStore.UpdateStatus(bookingReference, status);
+    }
+
+    private static BookingMade BuildEvent(Booking booking)
+    {
+        if(booking.ContactDetails == null)
+        {
+            throw new ArgumentException("The booking must include contact details");
+        }
+
+        return new BookingMade
+        {
+            FirstName = booking.AttendeeDetails.FirstName,
+            From = booking.From,
+            LastName = booking.AttendeeDetails.LastName,
+            Reference = booking.Reference,
+            Service = booking.Service,
+            Site = booking.Site,
+            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
+        };
     }
 }

@@ -49,7 +49,7 @@ describe('Remove User Page', () => {
     );
 
     await user.click(
-      screen.getByRole('button', { name: 'Yes, remove this account' }),
+      screen.getByRole('button', { name: 'Remove this account' }),
     );
 
     expect(mockSaveUserRoleAssignments).toHaveBeenCalledWith(

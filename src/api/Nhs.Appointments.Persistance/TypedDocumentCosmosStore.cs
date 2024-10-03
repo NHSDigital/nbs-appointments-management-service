@@ -47,18 +47,29 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return document;
     }
 
-    public Task WriteAsync(TDocument document)
+    public async Task WriteAsync(TDocument document, Action<TDocument>? OnConcurrencyError = null)
     {
         if (document.DocumentType != _documentType.Value)
             throw new InvalidOperationException("Document type does not match the supported type for this writer");
+        
         var container = GetContainer();
         try
         {
-            return container.UpsertItemAsync(document, requestOptions: !string.IsNullOrEmpty(document.ETag) ? new ItemRequestOptions() { IfMatchEtag = document.ETag } : null);
+            await container.UpsertItemAsync(document, requestOptions: !string.IsNullOrEmpty(document.ETag) ? new ItemRequestOptions() { IfMatchEtag = document.ETag } : null);
         }
         catch (CosmosException cosmosException) when (cosmosException.StatusCode == HttpStatusCode.PreconditionFailed)
         {
-            throw new ConcurrencyException($"The document could not be written because it has changed", cosmosException);
+            if(OnConcurrencyError == null)
+            {
+                throw new ConcurrencyException($"The document could not be written because it has changed", cosmosException);
+            }
+
+            var newVersionResponse = await container.ReadItemAsync<TDocument>(
+                 id: document.Id, partitionKey: new PartitionKey(_documentType.Value));
+
+            var newVersion = newVersionResponse.Resource;
+            OnConcurrencyError(newVersion);
+            await WriteAsync(newVersion);
         }
     }
 

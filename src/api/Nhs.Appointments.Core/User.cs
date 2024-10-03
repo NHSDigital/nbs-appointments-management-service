@@ -2,13 +2,16 @@
 
 namespace Nhs.Appointments.Core;
 
-public class User
+public class User : IHaveETag
 {
     [JsonProperty("id")]
     public string Id { get; set; }
 
     [JsonProperty("roleAssignments")]
     public RoleAssignment[] RoleAssignments { get; set; }
+
+    [JsonProperty("_etag")]
+    public string ETag { get; set; }
 }
 
 public class RoleAssignment

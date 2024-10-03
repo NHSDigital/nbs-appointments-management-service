@@ -26,7 +26,7 @@ public class SessionInstance : TimePeriod
     public string SessionHolder { get; set; }
 }
 
-public class WeekTemplate
+public class WeekTemplate : IHaveETag
 {
     [JsonProperty("id")]
     [JsonPropertyName("id")]
@@ -43,6 +43,9 @@ public class WeekTemplate
     [JsonProperty("items")]
     [JsonPropertyName("items")]
     public Schedule[] Items { get; set; }
+
+    [JsonProperty("_etag")]
+    public string ETag { get; set; }
 }
 
 public class Schedule

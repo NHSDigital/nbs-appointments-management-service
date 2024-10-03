@@ -2,7 +2,7 @@
 
 namespace Nhs.Appointments.Core;
 
-public record Site(
+public record Site (
     [JsonProperty("id")]
     string Id,
     [JsonProperty("name")]
@@ -13,7 +13,7 @@ public record Site(
     IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]
     Location Location
-);
+) : DomainRoot;
 
 public record Location
 (
@@ -37,4 +37,4 @@ public record SiteWithDistance
     Site Site,
     [JsonProperty("distance")]
     int Distance 
-);
+) : DomainRoot;

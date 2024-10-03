@@ -2,7 +2,7 @@
 
 namespace Nhs.Appointments.Core;
 
-public class Booking
+public class Booking : IHaveETag
 {
     [JsonProperty("reference")]
     public string Reference { get; set; }
@@ -33,6 +33,9 @@ public class Booking
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
+
+    [JsonProperty("_etag")]
+    public string ETag { get; set; }
 }
 
 public class AttendeeDetails

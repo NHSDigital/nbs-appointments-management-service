@@ -2,8 +2,10 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 
 namespace Nhs.Appointments.Persistance;
@@ -38,7 +40,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return document;
     }
 
-    public TDocument ConvertToDocument<TModel>(TModel model)
+    public TDocument ConvertToDocument<TModel>(TModel model) where TModel : IHaveETag
     {            
         var document = _mapper.Map<TDocument>(model);
         document.DocumentType = _documentType.Value;
@@ -50,10 +52,17 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         if (document.DocumentType != _documentType.Value)
             throw new InvalidOperationException("Document type does not match the supported type for this writer");
         var container = GetContainer();
-        return container.UpsertItemAsync(document);
+        try
+        {
+            return container.UpsertItemAsync(document, requestOptions: !string.IsNullOrEmpty(document.ETag) ? new ItemRequestOptions() { IfMatchEtag = document.ETag } : null);
+        }
+        catch (CosmosException cosmosException) when (cosmosException.StatusCode == HttpStatusCode.PreconditionFailed)
+        {
+            throw new ConcurrencyException($"The document could not be written because it has changed", cosmosException);
+        }
     }
 
-    public async Task<TModel> GetByIdAsync<TModel>(string documentId)
+    public async Task<TModel> GetByIdAsync<TModel>(string documentId) where TModel : IHaveETag
     {
         var container = GetContainer();
         var readResponse = await container.ReadItemAsync<TDocument>(
@@ -61,12 +70,12 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(_documentType.Value));
         return _mapper.Map<TModel>(readResponse.Resource);
     }
-    public Task<TModel> GetDocument<TModel>(string documentId)
+    public Task<TModel> GetDocument<TModel>(string documentId) where TModel : IHaveETag
     {
         return GetDocument<TModel>(documentId, _documentType.Value);
     }
     
-    public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
+    public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey) where TModel : IHaveETag
     {
         var container = GetContainer();
         var readResponse = await container.ReadItemAsync<TDocument>(
@@ -75,7 +84,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
-    public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
+    public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate) where TModel : IHaveETag
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
         return IterateResults<TDocument, TModel>(queryFeed, rs => _mapper.Map<TModel>(rs));
@@ -89,7 +98,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(partitionKey));
     }
     
-    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query) where TModel : IHaveETag
     {
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
@@ -128,4 +137,11 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public string GetDocumentType() => typeof(TDocument).GetCustomAttribute<CosmosDocumentTypeAttribute>()!.Value;
 
     protected Container GetContainer() => _cosmosClient.GetContainer(_databaseName, _containerName);
+}
+
+public class ConcurrencyException : Exception
+{
+    public ConcurrencyException(string? message, Exception? innerException) : base(message, innerException)
+    {
+    }
 }

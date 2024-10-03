@@ -2,7 +2,7 @@
 
 namespace Nhs.Appointments.Core;
 
-public class SiteConfiguration
+public class SiteConfiguration : IHaveETag 
 {
     [JsonProperty("site")]
     public string Site { get; set; }
@@ -15,5 +15,8 @@ public class SiteConfiguration
 
     [JsonProperty("serviceConfiguration")]
     public IEnumerable<ServiceConfiguration> ServiceConfiguration { get; set; }
+
+    [JsonProperty("_etag")]
+    public string ETag { get; set; }
 }
 

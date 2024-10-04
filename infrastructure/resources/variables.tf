@@ -1,11 +1,11 @@
 variable "application" {
   type    = string
-  default = "nbs-appts"
+  default = "nbs-mya"
 }
 
 variable "application_short" {
   type    = string
-  default = "nbsappts"
+  default = "nbsmya"
 }
 
 variable "environment" {

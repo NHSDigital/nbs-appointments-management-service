@@ -19,16 +19,16 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@next/env": "^14.2.14",
+    "@next/env": "^14.2.15",
     "appointments-booking-service": "file:",
-    "next": "14.2.14",
+    "next": "14.2.15",
     "nhsuk-frontend": "^8.3.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.47.2",
+    "@playwright/test": "^1.48.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -40,7 +40,7 @@
     "@typescript-eslint/parser": "^5.61.0",
     "dotenv": "^16.4.5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.14",
+    "eslint-config-next": "14.2.15",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.31.0",

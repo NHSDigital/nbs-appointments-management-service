@@ -22,6 +22,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
     private readonly IBookingsService _bookingService;
     private readonly ISiteConfigurationService _siteConfigurationService;
     private readonly IAvailabilityCalculator _availabilityCalculator;
+    private const bool DisableAvailabilityCheck = true;
 
     public MakeBookingFunction(
         IBookingsService bookingService,         
@@ -81,10 +82,15 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
             ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
         };
 
-        var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,
-            bookingDate.AddDays(1));
-        var canBook = blocks.Any(bl => bl.SessionHolder == requestedBooking.SessionHolder && bl.Contains(requestedBooking.TimePeriod));
+        bool canBook = true;
 
+        if (!DisableAvailabilityCheck)
+        {
+            var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,
+            bookingDate.AddDays(1));
+            canBook = blocks.Any(bl => bl.SessionHolder == requestedBooking.SessionHolder && bl.Contains(requestedBooking.TimePeriod));
+        }
+        
         if (canBook)
         {
             var bookingResult = await _bookingService.MakeBooking(requestedBooking);
@@ -96,5 +102,5 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         }
 
         return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
-    }       
+    }    
 }

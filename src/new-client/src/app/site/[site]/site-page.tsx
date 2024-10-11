@@ -2,13 +2,11 @@ import { Card } from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 interface SitePageProps {
-  site: Site | undefined;
+  site: Site;
   permissions: string[];
 }
 
 export const SitePage = ({ site, permissions }: SitePageProps) => {
-  if (site === undefined) throw new Error('You cannot access this site.');
-
   // TODO: Improve this as we add more cards gated by permissions.
   // We want to avoid rendering the card-group if there are no cards to show.
   const permissionsRelevantToCards = permissions.filter(

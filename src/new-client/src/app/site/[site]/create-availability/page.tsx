@@ -9,14 +9,13 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   return (
     <NhsPage
       title="Create Availability"
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
       ]}
     >
       {/* This will be covered in APPT-240 */}

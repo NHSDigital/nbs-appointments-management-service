@@ -86,7 +86,7 @@ variable "GOV_NOTIFY_API_KEY" {
   sensitive = true
 }
 
-variable "disable_availability_check" {
+variable "DISABLE_AVAILABILITY_CHECK" {
   type      = bool
   sensitive = false
   default = false

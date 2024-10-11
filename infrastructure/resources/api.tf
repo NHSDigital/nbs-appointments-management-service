@@ -48,6 +48,7 @@ resource "azurerm_windows_function_app" "nbs_appts_func_app" {
     Notifications_Provider                = "azure"
     GovNotifyApiKey                       = var.gov_notify_api_key
     ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_appts_sb.default_primary_connection_string
+    DisableAvailabilityCheck              = var.disable_availability_check
   }
 
   identity {

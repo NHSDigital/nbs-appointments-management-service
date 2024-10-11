@@ -4,9 +4,8 @@ import {
   fetchPermissions,
   fetchSite,
   fetchUserProfile,
-  fetchUsers,
 } from '@services/appointmentsService';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export type UserPageProps = {
   params: {
@@ -18,22 +17,11 @@ export type UserPageProps = {
 };
 
 const Page = async ({ params, searchParams }: UserPageProps) => {
-  // TODO: Clean up these checks after appt-202 is merged and site/users results can be relied upon
   if (searchParams?.user === undefined) {
-    notFound();
+    redirect(`/site/${params.site}/users`);
   }
 
   const site = await fetchSite(params.site);
-  if (site === undefined) {
-    notFound();
-  }
-
-  const users = await fetchUsers(params.site);
-  if (users === undefined || !users.some(u => u.id === searchParams?.user)) {
-    notFound();
-  }
-
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   const permissions = await fetchPermissions(params.site);
   if (!permissions.includes('users:manage')) {
@@ -52,7 +40,7 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
     <NhsPage
       title="Remove User"
       breadcrumbs={[
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}
     >

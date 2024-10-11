@@ -11,19 +11,13 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
 
-  // TODO: remove these checks after 202 is merged as the checks will become implicit
-  if (site === undefined) {
-    throw new Error('Site not found');
-  }
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
-
   return (
     <NhsPage
       title="Availability periods"
-      caption={siteMoniker}
+      caption={site.name}
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
       ]}
     >
       <CreateAvailabilityPage site={site} />

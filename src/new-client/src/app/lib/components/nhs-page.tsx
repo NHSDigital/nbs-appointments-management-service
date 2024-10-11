@@ -1,16 +1,16 @@
 import { Breadcrumbs, Breadcrumb, Footer } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
 import { NhsHeader } from './nhs-header';
-import { fetchUserProfile } from '@services/appointmentsService';
-import LogInButton from './log-in-button';
 import NotificationBanner from './notification-banner';
 import { cookies } from 'next/headers';
+import { UserProfile } from '@types';
 
 type Props = {
   title: string;
   children: ReactNode;
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
+  userProfile?: UserProfile;
 };
 
 const NhsPage = async ({
@@ -18,8 +18,8 @@ const NhsPage = async ({
   children = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
+  userProfile,
 }: Props) => {
-  const userProfile = await fetchUserProfile();
   const notification = cookies().get('ams-notification')?.value;
 
   return (
@@ -37,17 +37,7 @@ const NhsPage = async ({
             <div className="nhsuk-grid-column-full">
               <h1 className="app-page-heading">{title}</h1>
               <NotificationBanner notification={notification} />
-              {userProfile === undefined ? (
-                <>
-                  <p>
-                    You are currently not signed in. You must sign in to access
-                    this service.
-                  </p>
-                  <LogInButton />
-                </>
-              ) : (
-                children
-              )}
+              {children}
             </div>
           </div>
         </main>

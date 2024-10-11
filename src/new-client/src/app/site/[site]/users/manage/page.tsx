@@ -16,7 +16,6 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
     (searchParams && 'user' in searchParams) ?? false;
 
   const site = await fetchSite(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   const permissions = await fetchPermissions(params.site);
   if (!permissions.includes('users:manage')) {
@@ -28,7 +27,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
       title="Staff Role Management"
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}
     >

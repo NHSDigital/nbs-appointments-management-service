@@ -20,7 +20,6 @@ const Page = async ({ params }: PageProps) => {
   const rolesResponse = await fetchRoles();
   const site = await fetchSite(params.site);
   const permissions = await fetchPermissions(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   // TODO: This check will be unnecessary after APPT-202 is merged
   if (userProfile === undefined) {
@@ -32,7 +31,7 @@ const Page = async ({ params }: PageProps) => {
       title="Manage Staff Roles"
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
       ]}
     >
       <UsersPage

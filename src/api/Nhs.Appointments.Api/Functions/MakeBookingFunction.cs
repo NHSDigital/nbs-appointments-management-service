@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Bookings;
+using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,9 +24,9 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
     private readonly IBookingsService _bookingService;
     private readonly ISiteConfigurationService _siteConfigurationService;
     private readonly IAvailabilityCalculator _availabilityCalculator;
-    private readonly MakeBookingOptions _options;
+    private readonly IOptions<MakeBookingOptions> _options;
     public MakeBookingFunction(
-        MakeBookingOptions options,
+        IOptions<MakeBookingOptions> options,
         IBookingsService bookingService,         
         ISiteConfigurationService siteConfigurationService,
         IAvailabilityCalculator availabilityCalculator,
@@ -86,7 +87,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
 
         bool canBook = true;
 
-        if (!_options.DisableAvailabilityCheck)
+        if (!_options.Value.DisableAvailabilityCheck)
         {
             var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,
             bookingDate.AddDays(1));

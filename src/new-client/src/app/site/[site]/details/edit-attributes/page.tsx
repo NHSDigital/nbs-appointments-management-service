@@ -1,6 +1,6 @@
 import NhsPage from '@components/nhs-page';
 import { fetchPermissions, fetchSite } from '@services/appointmentsService';
-import { SiteAttributesPage } from './edit-attributes-page';
+import { EditAttributesPage } from './edit-attributes-page';
 
 export type PageProps = {
   params: {
@@ -25,7 +25,7 @@ const Page = async ({ params }: PageProps) => {
         { name: siteMoniker, href: `/site/${params.site}` },
       ]}
     >
-      <SiteAttributesPage site={params.site} permissions={sitePermissions} />
+      <EditAttributesPage site={params.site} permissions={sitePermissions} />
     </NhsPage>
   );
 };

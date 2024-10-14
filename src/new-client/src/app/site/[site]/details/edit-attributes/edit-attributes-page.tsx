@@ -9,7 +9,7 @@ type Props = {
   permissions: string[];
 };
 
-export const SiteAttributesPage = async ({ site }: Props) => {
+export const EditAttributesPage = async ({ site }: Props) => {
   const attributeDefinitions = await fetchAttributeDefinitions();
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),

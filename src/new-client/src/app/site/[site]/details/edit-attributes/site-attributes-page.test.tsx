@@ -1,5 +1,5 @@
 ﻿import { render, screen } from '@testing-library/react';
-import { SiteAttributesPage } from './edit-attributes-page';
+import { EditAttributesPage } from './edit-attributes-page';
 import { AttributeDefinition, AttributeValue } from '@types';
 import {
   fetchAttributeDefinitions,
@@ -56,7 +56,7 @@ describe('Manage Attributes Page', () => {
   });
 
   it('renders', async () => {
-    const jsx = await SiteAttributesPage({
+    const jsx = await EditAttributesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });
@@ -67,7 +67,7 @@ describe('Manage Attributes Page', () => {
   });
 
   it('calls fetch attribute values with correct site id', async () => {
-    const jsx = await SiteAttributesPage({
+    const jsx = await EditAttributesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });
@@ -76,7 +76,7 @@ describe('Manage Attributes Page', () => {
   });
 
   it('passes props to form component', async () => {
-    const jsx = await SiteAttributesPage({
+    const jsx = await EditAttributesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });

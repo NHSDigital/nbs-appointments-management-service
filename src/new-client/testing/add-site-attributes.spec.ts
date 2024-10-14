@@ -5,6 +5,7 @@ import OAuthLoginPage from './page-objects/oauth';
 import SiteSelectionPage from './page-objects/site-selection';
 import SitePage from './page-objects/site';
 import SiteManagementPage from './page-objects/site-management';
+import SiteDetailsPage from './page-objects/site-details';
 
 const { TEST_USERS } = env;
 
@@ -13,6 +14,7 @@ let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let siteManagementPage: SiteManagementPage;
+let siteDetailsPage: SiteDetailsPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -20,17 +22,19 @@ test.beforeEach(async ({ page }) => {
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   siteManagementPage = new SiteManagementPage(page);
+  siteDetailsPage = new SiteDetailsPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
+  await siteDetailsPage.editSiteAttributesButton.click();
 
-  await page.waitForURL('**/site/ABC02/attributes');
+  await page.waitForURL('**/site/ABC02/details/edit-attributes');
 });
 
-test('Update access attributes for a site', async () => {
+test('Update access attributes for a site', async ({ page }) => {
   // Toggle selected attributes
   await siteManagementPage.selectAttribute('Accessible toilet');
   await siteManagementPage.selectAttribute('Step free access');
@@ -41,7 +45,10 @@ test('Update access attributes for a site', async () => {
   await siteManagementPage.closeNotificationBannerButton.click();
   await expect(siteManagementPage.updateNotificationBanner).not.toBeVisible();
 
-  // Check selected attributes have been toggled
+  // Go back into edit UI to assert on checkbox state:
+  await siteDetailsPage.editSiteAttributesButton.click();
+  await page.waitForURL('**/site/ABC02/details/edit-attributes');
+
   await siteManagementPage.attributeChecked('Accessible toilet');
   await siteManagementPage.attributeNotChecked('Step free access');
 

@@ -1,6 +1,6 @@
-import { fetchSite } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { CreateAvailabilityPage } from './create-availability-page';
+import { fetchSite } from '@services/appointmentsService';
 
 type PageProps = {
   params: {

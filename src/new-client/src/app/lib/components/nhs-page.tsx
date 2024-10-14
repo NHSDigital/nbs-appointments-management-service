@@ -13,7 +13,7 @@ type Props = {
   userProfile?: UserProfile;
 };
 
-const NhsPage = async ({
+const NhsPage = ({
   title,
   children = null,
   breadcrumbs = [],

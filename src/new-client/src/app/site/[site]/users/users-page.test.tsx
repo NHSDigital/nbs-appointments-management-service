@@ -77,7 +77,7 @@ describe('Users Page', () => {
     expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
     expect(
       screen.getAllByRole('link', { name: 'Remove from this site' }).length,
-    ).toBe(2);
+    ).toBe(1);
 
     expect(
       screen.getByRole('link', { name: 'Assign staff roles' }),

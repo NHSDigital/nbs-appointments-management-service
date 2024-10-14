@@ -9,6 +9,7 @@ type SummaryListItem = {
 
 type Props = {
   items: SummaryListItem[];
+  borders?: boolean;
 };
 
 /**
@@ -16,9 +17,11 @@ type Props = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/summary-list
  */
-const SummaryList = ({ items }: Props) => {
+const SummaryList = ({ items, borders = true }: Props) => {
   return (
-    <dl className="nhsuk-summary-list">
+    <dl
+      className={`nhsuk-summary-list ${borders ? '' : 'nhsuk-summary-list--no-border'}`}
+    >
       {items.map((item, index) => {
         return (
           <div

@@ -1,5 +1,5 @@
 ﻿import { render, screen } from '@testing-library/react';
-import { SiteAttributesPage } from './site-attributes-page';
+import { SiteAttributesPage } from './edit-attributes-page';
 import { AttributeDefinition, AttributeValue } from '@types';
 import {
   fetchAttributeDefinitions,

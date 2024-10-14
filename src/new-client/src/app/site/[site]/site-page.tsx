@@ -38,7 +38,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
             permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
               <Card
-                href={`${site.id}/attributes`}
+                href={`${site.id}/details`}
                 title="Site Management"
                 description="Assign accessibility attributes to this site"
               />

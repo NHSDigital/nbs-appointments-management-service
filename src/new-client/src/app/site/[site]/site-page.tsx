@@ -23,29 +23,34 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
           <p className="nhsuk-card__description">{site.address}</p>
         </div>
       </div>
-      {permissionsRelevantToCards.length > 0 && (
-        <ul className="nhsuk-grid-row nhsuk-card-group">
-          {permissionsRelevantToCards.includes('users:view') && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-              <Card
-                href={`${site.id}/users`}
-                title="User Management"
-                description="Assign roles to users to give them access to features at this site"
-              />
-            </li>
-          )}
-          {(permissionsRelevantToCards.includes('site:manage') ||
-            permissionsRelevantToCards.includes('site:view')) && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-              <Card
-                href={`${site.id}/details`}
-                title="Site Management"
-                description="Assign accessibility attributes to this site"
-              />
-            </li>
-          )}
-        </ul>
-      )}
+      <ul className="nhsuk-grid-row nhsuk-card-group">
+        <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+          <Card
+            href={`${site.id}/create-availability`}
+            title="Create Availability"
+            description="Create and publish availability for appointments at this site"
+          />
+        </li>
+        {permissionsRelevantToCards.includes('users:view') && (
+          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <Card
+              href={`${site.id}/users`}
+              title="User Management"
+              description="Assign roles to users to give them access to features at this site"
+            />
+          </li>
+        )}
+        {(permissionsRelevantToCards.includes('site:manage') ||
+          permissionsRelevantToCards.includes('site:view')) && (
+          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <Card
+              href={`${site.id}/details`}
+              title="Site Management"
+              description="Assign accessibility attributes to this site"
+            />
+          </li>
+        )}
+      </ul>
     </>
   );
 };

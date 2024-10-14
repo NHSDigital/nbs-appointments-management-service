@@ -151,3 +151,11 @@ test('Displays a notification banner after removing a user, which disappears whe
 
   await userManagementPage.userDoesNotExist(newUserName);
 });
+
+test('Receives 403 error when trying to remove self', async ({ page }) => {
+  await page.goto(`/site/ABC01/users/remove?user=zzz_test_user_1@nhs.net`);
+
+  await expect(
+    page.getByText('Forbidden: You lack the necessary permissions'),
+  ).toBeVisible();
+});

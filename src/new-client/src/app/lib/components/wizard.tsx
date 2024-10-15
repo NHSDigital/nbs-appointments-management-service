@@ -15,6 +15,7 @@ export interface InjectedWizardProps {
   setCurrentStep(step: number, task?: () => Promise<void>): void;
   goToNextStep(task?: () => Promise<void>): void;
   goToPreviousStep(task?: () => Promise<void>): void;
+  transitionToOnCancel?: string;
 }
 
 interface Props {
@@ -22,19 +23,18 @@ interface Props {
   currentStep?: number;
   initialStep?: number;
   id: string;
-  scrollOnMount?: boolean;
-  onStepChange?: (
-    nextStep: number,
-    previousStep: number,
-  ) => number | Promise<number>;
+  onCancelOutOfWizard: () => void;
+  transitionToOnCancel: string;
+  onCompleteFinalStep: () => void;
 }
 
 const Wizard = ({
   children,
-  currentStep,
   initialStep = 1,
   id,
-  onStepChange,
+  onCancelOutOfWizard,
+  transitionToOnCancel,
+  onCompleteFinalStep,
 }: Props) => {
   const [activeStep, setActiveStepState] = useState(initialStep);
 
@@ -43,62 +43,43 @@ const Wizard = ({
   ) as FunctionComponentElement<WizardStepProps & InjectedWizardProps>[];
   const lastStep = filteredChildren.length;
 
-  const setActiveStep = async (
-    nextStep: number,
-    task?: () => Promise<void>,
-  ) => {
-    if (nextStep > lastStep || nextStep < 1) {
+  const setActiveStep = async (incomingStep: number) => {
+    if (incomingStep < 1) {
+      onCancelOutOfWizard();
       return;
     }
 
-    const current = activeStep;
-    let next = nextStep;
-
-    if (onStepChange) {
-      next = await onStepChange(nextStep, activeStep);
+    if (incomingStep > lastStep) {
+      onCompleteFinalStep();
+      return;
     }
 
-    const stepElement = filteredChildren[next - 1];
-
-    if (next < current && stepElement?.props?.onBack) {
-      await stepElement.props.onBack();
-    }
-
-    // if (task) {
-    //   await task();
-    // }
-
-    setActiveStepState(next);
+    setActiveStepState(incomingStep);
   };
 
-  useEffect(() => {
-    if (currentStep) {
-      setActiveStepState(currentStep);
-    }
-  }, [currentStep]);
-
   return (
-    <ol id={id} style={{ listStyle: 'none', paddingLeft: 0 }}>
+    <div id={id}>
       {filteredChildren.map((child, index) => {
         const stepNumber = index + 1;
 
         return cloneElement<WizardStepProps & InjectedWizardProps>(child, {
           stepNumber,
+          transitionToOnCancel:
+            stepNumber === 1 ? transitionToOnCancel : undefined,
           currentStep: activeStep,
           setCurrentStep: setActiveStep,
-          id: child.props.id || `${id}-step-${stepNumber}`,
-          async goToPreviousStep(task) {
-            await setActiveStep(stepNumber - 1 < 1 ? 1 : stepNumber - 1, task);
+          id: `${id}-step-${stepNumber}`,
+          async goToPreviousStep() {
+            await setActiveStep(stepNumber - 1);
           },
           async goToNextStep(task) {
             await setActiveStep(
               stepNumber + 1 > lastStep ? lastStep : stepNumber + 1,
-              task,
             );
           },
         });
       })}
-    </ol>
+    </div>
   );
 };
 

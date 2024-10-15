@@ -1,5 +1,6 @@
 'use client';
 import {
+  BackLink,
   BackLinkClient,
   Button,
   DateInput,
@@ -13,12 +14,27 @@ import { InjectedWizardProps } from '@components/wizard';
 const StartAndEndDateStep = ({
   goToNextStep,
   goToPreviousStep,
+  transitionToOnCancel,
 }: InjectedWizardProps) => {
   const { register } = useFormContext<AvailabilityPeriodFormValues>();
 
+  const onContinue = () => {
+    // TODO: trigger field validation
+    // if (validationPassed) {
+    goToNextStep();
+  };
+
   return (
     <>
-      <BackLinkClient onClick={goToPreviousStep} />
+      {transitionToOnCancel ? (
+        <BackLink href={transitionToOnCancel} />
+      ) : (
+        <BackLinkClient
+          onClick={() => {
+            goToPreviousStep();
+          }}
+        />
+      )}
       <h1 className="app-page-heading">
         <span className="nhsuk-caption-l">Create availability period</span>
         Add start and end dates for your availability period
@@ -75,7 +91,7 @@ const StartAndEndDateStep = ({
       <Button
         type="button"
         onClick={() => {
-          goToNextStep;
+          onContinue();
         }}
       >
         Continue

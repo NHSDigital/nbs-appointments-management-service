@@ -7,6 +7,7 @@ import { AvailabilityPeriod, Site, UserProfile } from '@types';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import saveAvailabilityPeriod from './save-availability-period';
+import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 
 export type AvailabilityPeriodFormValues = {
   startDateDay: number;
@@ -39,33 +40,28 @@ const AvailabilityPeriodWizard = ({ site }: Props) => {
     const availabilityPeriod = mapFormValuesToAvailabilityPeriod(form);
     saveAvailabilityPeriod(availabilityPeriod);
   };
-
-  const { replace } = useRouter();
-  const cancel = () => {
-    replace(`/site/${site}/create-availability`);
-  };
+  const { push } = useRouter();
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(submitForm)}>
-        {/* <StartAndEndDateStep
-          userProfile={userProfile}
-          stepNumber={0}
-          currentStep={0}
-          isActive={false}
-          setCurrentStep={function (step: number): void {
-            throw new Error('Function not implemented.');
+        <Wizard
+          id="create-availability-wizard"
+          initialStep={1}
+          onCancelOutOfWizard={() => {
+            console.log('Cancelled');
+            push(`/site/${site}/create-availability`);
           }}
-          goToNextStep={function (): void {
-            throw new Error('Function not implemented.');
+          transitionToOnCancel={`/site/${site.id}/create-availability`}
+          onCompleteFinalStep={() => {
+            methods.handleSubmit(submitForm);
           }}
-          goToPreviousStep={function (): void {
-            throw new Error('Function not implemented.');
-          }}
-        /> */}
-        <Wizard initialStep={1} id="create-availability-wizard">
-          <WizardStep onBack={cancel}>
+        >
+          <WizardStep>
             {stepProps => <StartAndEndDateStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
           </WizardStep>
         </Wizard>
       </form>

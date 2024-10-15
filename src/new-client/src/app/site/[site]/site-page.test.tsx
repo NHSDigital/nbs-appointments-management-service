@@ -74,4 +74,19 @@ describe('Site Page', () => {
       screen.queryByRole('link', { name: 'Site Management' }),
     ).not.toBeInTheDocument();
   });
+
+  // TODO: Maybe parameterise these tests over permission/card pairs
+  // once we have more cards (i.e. during APPT-62 which adds in permission checking for this card)
+  it('shows the create availability page', () => {
+    const mockSite = mockSites[0];
+
+    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
+
+    expect(
+      screen.getByRole('link', { name: 'Create Availability' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Create Availability' }),
+    ).toHaveAttribute('href', `${mockSite.id}/create-availability`);
+  });
 });

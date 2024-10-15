@@ -1,17 +1,15 @@
-type UserProfile = {
-  emailAddress: string;
-  availableSites: Site[];
+type ApiErrorResponse = {
+  success: false;
+  httpStatusCode: number;
+  errorMessage: string;
 };
 
-type Site = {
-  id: string;
-  name: string;
-  address: string;
-};
+type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
-type SiteWithAttributes = Site & {
-  attributeValues: AttributeValue[];
-};
+interface ApiSuccessResponse<T> {
+  success: true;
+  data: T | null;
+}
 
 type AttributeDefinition = {
   id: string;
@@ -23,14 +21,12 @@ type AttributeValue = {
   value: string;
 };
 
-type User = {
-  id: string;
-  roleAssignments: RoleAssignment[];
-};
-
-type RoleAssignment = {
-  scope: string;
-  role: string;
+type AvailabilityPeriod = {
+  // TODO: Replace with DayJS
+  startDate: Date;
+  endDate: Date;
+  services: ServiceType[];
+  status: 'Published' | 'Unpublished';
 };
 
 type Role = {
@@ -39,27 +35,45 @@ type Role = {
   description: string;
 };
 
-type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+type RoleAssignment = {
+  scope: string;
+  role: string;
+};
 
-interface ApiSuccessResponse<T> {
-  success: true;
-  data: T | null;
-}
+type ServiceType = 'Covid' | 'Flu';
 
-interface ApiErrorResponse {
-  success: false;
-  httpStatusCode: number;
-  errorMessage: string;
-}
+type Site = {
+  id: string;
+  name: string;
+  address: string;
+};
+
+type SiteWithAttributes = Site & {
+  attributeValues: AttributeValue[];
+};
+
+type User = {
+  id: string;
+  roleAssignments: RoleAssignment[];
+};
+
+type UserProfile = {
+  emailAddress: string;
+  availableSites: Site[];
+};
 
 export type {
-  UserProfile,
-  Site,
-  SiteWithAttributes,
+  AvailabilityPeriod,
+  ApiErrorResponse,
+  ApiResponse,
+  ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
-  User,
-  RoleAssignment,
   Role,
-  ApiResponse,
+  RoleAssignment,
+  ServiceType,
+  Site,
+  SiteWithAttributes,
+  User,
+  UserProfile,
 };

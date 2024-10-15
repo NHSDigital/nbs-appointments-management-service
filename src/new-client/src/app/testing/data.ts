@@ -1,11 +1,27 @@
 import {
   AttributeDefinition,
   AttributeValue,
+  AvailabilityPeriod,
   Role,
   Site,
   User,
   UserProfile,
 } from '@types';
+
+const mockAvailabilityPeriods: AvailabilityPeriod[] = [
+  {
+    startDate: new Date('2025-04-21'),
+    endDate: new Date('2025-06-15'),
+    services: ['Covid', 'Flu'],
+    status: 'Published',
+  },
+  {
+    startDate: new Date('2025-06-15'),
+    endDate: new Date('2025-010-05'),
+    services: ['Flu'],
+    status: 'Unpublished',
+  },
+];
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -106,6 +122,7 @@ const mockUserProfile: UserProfile = {
 };
 
 export {
+  mockAvailabilityPeriods,
   getMockUserAssignments,
   mockRoles,
   mockSite,

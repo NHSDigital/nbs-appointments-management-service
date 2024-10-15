@@ -1,4 +1,5 @@
 import BackLink from './back-link';
+import BackLinkClient from './back-link-client';
 import Breadcrumbs, { Breadcrumb } from './breadcrumbs';
 import Button from './button';
 import ButtonGroup from './button-group';
@@ -24,6 +25,7 @@ import WarningCallout from './warning-callout';
 export type { Breadcrumb };
 export {
   BackLink,
+  BackLinkClient,
   Breadcrumbs,
   Button,
   ButtonGroup,

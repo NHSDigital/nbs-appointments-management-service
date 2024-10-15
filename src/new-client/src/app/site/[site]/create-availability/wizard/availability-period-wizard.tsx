@@ -3,11 +3,10 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import StartAndEndDateStep from './start-and-end-date-step';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { AvailabilityPeriod, Site, UserProfile } from '@types';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { AvailabilityPeriod, Site } from '@types';
 import saveAvailabilityPeriod from './save-availability-period';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
+import dayjs from 'dayjs';
 
 export type AvailabilityPeriodFormValues = {
   startDateDay: number;
@@ -18,20 +17,11 @@ export type AvailabilityPeriodFormValues = {
   endDateYear: number;
 };
 
-type AvailabilityPeriodWizardState = {
-  initialStep: number;
-  activeStep: number;
-};
-
 type Props = {
   site: Site;
 };
 
 const AvailabilityPeriodWizard = ({ site }: Props) => {
-  //   const wizardState = useState<AvailabilityPeriodWizardState>({
-  //     initialStep: 1,
-  //     activeStep: 1,
-  //   });
   const methods = useForm<AvailabilityPeriodFormValues>();
 
   const submitForm: SubmitHandler<AvailabilityPeriodFormValues> = (
@@ -40,7 +30,6 @@ const AvailabilityPeriodWizard = ({ site }: Props) => {
     const availabilityPeriod = mapFormValuesToAvailabilityPeriod(form);
     saveAvailabilityPeriod(availabilityPeriod);
   };
-  const { push } = useRouter();
 
   return (
     <FormProvider {...methods}>
@@ -48,11 +37,7 @@ const AvailabilityPeriodWizard = ({ site }: Props) => {
         <Wizard
           id="create-availability-wizard"
           initialStep={1}
-          onCancelOutOfWizard={() => {
-            console.log('Cancelled');
-            push(`/site/${site}/create-availability`);
-          }}
-          transitionToOnCancel={`/site/${site.id}/create-availability`}
+          returnRouteUponCancellation={`/site/${site.id}/create-availability`}
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);
           }}
@@ -74,15 +59,19 @@ const mapFormValuesToAvailabilityPeriod = (
 ): AvailabilityPeriod => {
   // TODO: Implement this properly and use DayJS, plus validation etc. etc.
   return {
-    startDate: new Date(
-      formValues.startDateYear,
-      formValues.startDateMonth,
-      formValues.startDateDay,
+    startDate: new dayjs.Dayjs(
+      new Date(
+        formValues.startDateYear,
+        formValues.startDateMonth - 1,
+        formValues.startDateDay,
+      ),
     ),
-    endDate: new Date(
-      formValues.endDateYear,
-      formValues.endDateMonth,
-      formValues.endDateDay,
+    endDate: new dayjs.Dayjs(
+      new Date(
+        formValues.endDateYear,
+        formValues.endDateMonth,
+        formValues.endDateDay,
+      ),
     ),
     services: [],
     status: 'Unpublished',

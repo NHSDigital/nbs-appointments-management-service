@@ -21,7 +21,7 @@ export const CreateAvailabilityPage = async ({ site }: Props) => {
         headers={['Dates', 'Services', 'Status', 'Actions']}
         rows={availabilityPeriods.map((period, index) => {
           return [
-            `${period.startDate.toDateString()} - ${period.endDate.toDateString()}`,
+            `${period.startDate.format('DD MMM YYYY')} - ${period.endDate.format('DD MMM YYYY')}`,
             period.services.join('/'),
             <Tag
               text={period.status}

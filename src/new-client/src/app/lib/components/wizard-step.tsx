@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode, useRef } from 'react';
+import React, { ReactNode } from 'react';
 import { InjectedWizardProps } from './wizard';
 
 export interface WizardStepProps {
@@ -9,24 +9,19 @@ export interface WizardStepProps {
 }
 
 const WizardStep = ({ children, id, ...rest }: WizardStepProps) => {
-  const ref = useRef<HTMLLIElement>(null);
   const injectedWizardProps = rest as InjectedWizardProps;
   const { stepNumber, currentStep } = injectedWizardProps;
 
+  if (stepNumber !== currentStep) {
+    return null;
+  }
+
   return (
-    <li
-      id={id}
-      ref={ref}
-      tabIndex={-1}
-      hidden={stepNumber > currentStep}
-      style={{ listStyle: 'none', paddingLeft: 0 }}
-    >
-      <div>
-        {typeof children === 'function'
-          ? children(injectedWizardProps)
-          : children}
-      </div>
-    </li>
+    <div>
+      {typeof children === 'function'
+        ? children(injectedWizardProps)
+        : children}
+    </div>
   );
 };
 

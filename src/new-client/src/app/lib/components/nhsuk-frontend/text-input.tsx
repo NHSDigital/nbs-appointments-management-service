@@ -11,7 +11,7 @@ type Ref = HTMLInputElement;
  * @see https://service-manual.nhs.uk/design-system/components/text-input
  */
 export const TextInput = forwardRef<Ref, Props>((props, ref) => (
-  <div className="nhsuk-form-group">
+  <>
     <label className="nhsuk-label" htmlFor={props.id}>
       {props.label}
     </label>
@@ -22,7 +22,7 @@ export const TextInput = forwardRef<Ref, Props>((props, ref) => (
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
-  </div>
+  </>
 ));
 TextInput.displayName = 'TextInput';
 

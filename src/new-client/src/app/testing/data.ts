@@ -1,4 +1,11 @@
-import { AttributeDefinition, AttributeValue, Role, Site, User } from '@types';
+import {
+  AttributeDefinition,
+  AttributeValue,
+  Role,
+  Site,
+  User,
+  UserProfile,
+} from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -93,6 +100,11 @@ const mockAttributeValues: AttributeValue[] = [
   },
 ];
 
+const mockUserProfile: UserProfile = {
+  emailAddress: 'test.one@nhs.net',
+  availableSites: mockSites,
+};
+
 export {
   getMockUserAssignments,
   mockRoles,
@@ -103,4 +115,5 @@ export {
   mockNonManagerPermissions,
   mockAttributeDefinitions,
   mockAttributeValues,
+  mockUserProfile,
 };

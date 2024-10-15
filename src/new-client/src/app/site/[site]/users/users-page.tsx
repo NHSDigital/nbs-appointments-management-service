@@ -1,15 +1,21 @@
 import { Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
-import { Role, User } from '@types';
+import { Role, User, UserProfile } from '@types';
 import { useMemo } from 'react';
 
 type Props = {
+  userProfile: UserProfile;
   users: User[];
   roles: Role[];
   permissions: string[];
 };
 
-export const UsersPage = ({ users, roles, permissions }: Props) => {
+export const UsersPage = ({
+  userProfile,
+  users,
+  roles,
+  permissions,
+}: Props) => {
   const isVisibleRole = (role: string) =>
     roles.find(r => r.id === role) !== undefined;
   const getRoleName = (role: string) =>
@@ -50,7 +56,14 @@ export const UsersPage = ({ users, roles, permissions }: Props) => {
                     key={`edit-${user.id}`}
                     user={user.id}
                   />,
-                  <RemoveUserButton key={`remove-${user.id}`} user={user.id} />,
+                  ...(userProfile.emailAddress === user.id
+                    ? []
+                    : [
+                        <RemoveUserButton
+                          key={`remove-${user.id}`}
+                          user={user.id}
+                        />,
+                      ]),
                 ]
               : []),
           ];

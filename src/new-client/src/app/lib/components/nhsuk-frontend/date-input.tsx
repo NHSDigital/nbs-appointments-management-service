@@ -22,7 +22,7 @@ const DateInput = ({ heading, hint, id, children }: Props) => {
       aria-describedby={`${id}-hint`}
       role="group"
     >
-      <legend className="nhsuk-fieldset__legend nhsuk-label--l">
+      <legend className="nhsuk-fieldset__legend nhsuk-label--m">
         <h1 className="nhsuk-fieldset__heading">{heading}</h1>
       </legend>
       <div className="nhsuk-hint" id={`${id}-hint`}>

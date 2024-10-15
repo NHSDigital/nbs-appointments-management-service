@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 
 type Props = {
   title: string;
+  caption?: string;
   children: ReactNode;
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
@@ -15,6 +16,7 @@ type Props = {
 
 const NhsPage = async ({
   title,
+  caption,
   children = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
@@ -35,7 +37,12 @@ const NhsPage = async ({
         <main className="nhsuk-main-wrapper" id="main-content" role="main">
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
-              <h1 className="app-page-heading">{title}</h1>
+              <span></span>
+              <h1 className="app-page-heading">
+                {caption && <span className="nhsuk-caption-l">{caption}</span>}
+                {title}
+              </h1>
+
               <NotificationBanner notification={notification} />
               {userProfile === undefined ? (
                 <>

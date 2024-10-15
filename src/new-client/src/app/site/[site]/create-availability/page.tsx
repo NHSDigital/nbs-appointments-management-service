@@ -1,5 +1,6 @@
 import { fetchSite } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
+import { CreateAvailabilityPage } from './create-availability-page';
 
 type PageProps = {
   params: {
@@ -11,16 +12,20 @@ const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const siteMoniker = site?.name ?? `Site ${params.site}`;
 
+  if (site === undefined) {
+    throw new Error('Site not found');
+  }
+
   return (
     <NhsPage
-      title="Create Availability"
+      title="Availability periods"
+      caption={siteMoniker}
       breadcrumbs={[
         { name: 'Home', href: '/' },
         { name: siteMoniker, href: `/site/${params.site}` },
       ]}
     >
-      {/* This will be covered in APPT-240 */}
-      <span></span>
+      <CreateAvailabilityPage site={site} />
     </NhsPage>
   );
 };

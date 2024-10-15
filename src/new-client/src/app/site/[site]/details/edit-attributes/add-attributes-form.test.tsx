@@ -66,7 +66,7 @@ describe('Add Attributes Form', () => {
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await user.click(cancelButton);
 
-    expect(mockReplace).toHaveBeenCalledWith('/site/TEST');
+    expect(mockReplace).toHaveBeenCalledWith('/site/TEST/details');
   });
 
   it('calls the save function when saved', async () => {

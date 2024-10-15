@@ -36,7 +36,7 @@ const AddAttributesForm = ({
   });
 
   const cancel = () => {
-    replace(`/site/${site}`);
+    replace(`/site/${site}/details`);
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
@@ -48,6 +48,8 @@ const AddAttributesForm = ({
           : 'false',
     }));
     await saveSiteAttributeValues(site, payload);
+
+    replace(`/site/${site}/details`);
   };
 
   return (

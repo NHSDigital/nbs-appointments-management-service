@@ -60,7 +60,7 @@ describe('Site Page', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Site Management' }),
-    ).toHaveAttribute('href', `${mockSite.id}/attributes`);
+    ).toHaveAttribute('href', `${mockSite.id}/details`);
   });
 
   it('does not show the site management page if the user may not see it', () => {

@@ -1,14 +1,15 @@
-﻿import AddAttributesForm from './add-attributes-form';
 import {
   fetchAttributeDefinitions,
   fetchSiteAttributeValues,
 } from '@services/appointmentsService';
+import AddAttributesForm from './add-attributes-form';
 
 type Props = {
   site: string;
+  permissions: string[];
 };
 
-export const ManageAttributesPage = async ({ site }: Props) => {
+export const EditAttributesPage = async ({ site }: Props) => {
   const attributeDefinitions = await fetchAttributeDefinitions();
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),

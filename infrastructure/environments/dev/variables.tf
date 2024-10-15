@@ -38,11 +38,6 @@ variable "API_KEYS" {
   sensitive = true
 }
 
-variable "HMAC_SIGNING_KEY" {
-  type      = string
-  sensitive = true
-}
-
 variable "GOV_NOTIFY_API_KEY" {
   type      = string
   sensitive = true

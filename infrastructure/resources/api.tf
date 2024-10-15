@@ -3,7 +3,7 @@ data "azurerm_resource_group" "nbs_mya_rg" {
 }
 
 resource "azurerm_service_plan" "nbs_mya_func_asp" {
-  name                = "${var.application}-sp-${var.environment}-${var.loc}"
+  name                = "${var.application}-fsp-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_rg.name
   location            = data.azurerm_resource_group.nbs_mya_rg.location
   os_type             = "Windows"
@@ -44,7 +44,6 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     AuthProvider_ChallengePhrase          = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                 = var.auth_provider_client_id
     AuthProvider_ReturnUri                = var.auth_provider_return_uri
-    HMAC_SIGNING_KEY                      = var.hmac_signing_key
     Notifications_Provider                = "azure"
     GovNotifyApiKey                       = var.gov_notify_api_key
     ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_mya_sb.default_primary_connection_string
@@ -63,15 +62,10 @@ resource "azurerm_storage_account" "nbs_mya_func_strg" {
   account_tier             = "Standard"
 }
 
-resource "azurerm_storage_container" "nbs_mya_func_strg_container" {
-  name                 = "${var.application_short}func${var.environment}${var.loc}"
-  storage_account_name = azurerm_storage_account.nbs_mya_func_strg.name
-}
-
 ## Storage account and container for concurrency leases
 
 resource "azurerm_storage_account" "nbs_mya_leases_strg" {
-  name                     = "${var.application_short}strgleases${var.environment}${var.loc}"
+  name                     = "${var.application_short}strglease${var.environment}${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_rg.name
   location                 = data.azurerm_resource_group.nbs_mya_rg.location
   account_replication_type = "LRS"
@@ -79,7 +73,7 @@ resource "azurerm_storage_account" "nbs_mya_leases_strg" {
 }
 
 resource "azurerm_storage_container" "nbs_mya_leases_container" {
-  name                 = "${var.application_short}leases${var.environment}${var.loc}"
+  name                 = "leases"
   storage_account_name = azurerm_storage_account.nbs_mya_leases_strg.name
 }
 

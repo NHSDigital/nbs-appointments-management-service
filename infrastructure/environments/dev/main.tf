@@ -31,6 +31,5 @@ module "api" {
   auth_provider_client_id        = var.AUTH_PROVIDER_CLIENT_ID
   auth_provider_return_uri       = var.AUTH_PROVIDER_RETURN_URI
   api_keys                       = var.API_KEYS
-  hmac_signing_key               = var.HMAC_SIGNING_KEY
   gov_notify_api_key             = var.GOV_NOTIFY_API_KEY
 }

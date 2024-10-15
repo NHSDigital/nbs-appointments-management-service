@@ -4,7 +4,6 @@ import { InjectedWizardProps } from './wizard';
 
 export interface WizardStepProps {
   children: ((props: InjectedWizardProps) => ReactNode) | ReactNode;
-  onBack?: () => void;
   id?: string;
 }
 
@@ -17,7 +16,7 @@ const WizardStep = ({ children, id, ...rest }: WizardStepProps) => {
   }
 
   return (
-    <div>
+    <div id={id}>
       {typeof children === 'function'
         ? children(injectedWizardProps)
         : children}

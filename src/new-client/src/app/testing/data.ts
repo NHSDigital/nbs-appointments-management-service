@@ -7,17 +7,18 @@ import {
   User,
   UserProfile,
 } from '@types';
+import dayjs from 'dayjs';
 
 const mockAvailabilityPeriods: AvailabilityPeriod[] = [
   {
-    startDate: new Date('2025-04-21'),
-    endDate: new Date('2025-06-15'),
+    startDate: dayjs(new Date('2025-04-21')),
+    endDate: dayjs(new Date('2025-06-15')),
     services: ['Covid', 'Flu'],
     status: 'Published',
   },
   {
-    startDate: new Date('2025-06-15'),
-    endDate: new Date('2025-010-05'),
+    startDate: dayjs(new Date('2025-06-15')),
+    endDate: dayjs(new Date('2025-010-05')),
     services: ['Flu'],
     status: 'Unpublished',
   },

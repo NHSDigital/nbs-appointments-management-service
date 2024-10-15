@@ -14,7 +14,7 @@ type Props = {
 const BackLinkClient = ({ onClick }: Props) => {
   return (
     <div className="nhsuk-back-link">
-      <Link className="nhsuk-back-link__link" href="#" onClick={onClick}>
+      <Link className="nhsuk-back-link__link" href="" onClick={onClick}>
         <LeftChevron />
         Go back
       </Link>

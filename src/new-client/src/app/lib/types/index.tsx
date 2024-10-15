@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 type ApiErrorResponse = {
   success: false;
   httpStatusCode: number;
@@ -22,9 +24,8 @@ type AttributeValue = {
 };
 
 type AvailabilityPeriod = {
-  // TODO: Replace with DayJS
-  startDate: Date;
-  endDate: Date;
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
   services: ServiceType[];
   status: 'Published' | 'Unpublished';
 };

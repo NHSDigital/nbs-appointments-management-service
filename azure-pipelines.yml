@@ -195,7 +195,8 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
 
   - stage: DeployDev
-    condition: and(succeeded(), eq(variables.isMain, true))
+#    condition: and(succeeded(), eq(variables.isMain, true))
+    condition: succeeded()
     variables:
       - group: 'nbs-mya-dev'
     displayName: Deploy Dev

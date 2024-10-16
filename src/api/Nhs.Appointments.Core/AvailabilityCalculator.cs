@@ -23,7 +23,7 @@ public class AvailabilityCalculator : IAvailabilityCalculator
         {
             var blockDict = sessions.GroupBy(s => s.SessionHolder).ToDictionary(g => g.Key, g => g.ToList());
 
-            var bookings = await _bookingDocumentStore.GetInDateRangeAsync(site, from.ToDateTime(new TimeOnly(0,0)) , until.ToDateTime(new TimeOnly(23,59)));
+            var bookings = await _bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0,0)) , until.ToDateTime(new TimeOnly(23,59)), site);
             var isNotCancelled = (Booking b) => b.Outcome?.ToLower() != "cancelled";
             var liveBookings = bookings.Where(isNotCancelled);
         

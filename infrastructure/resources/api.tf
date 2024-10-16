@@ -135,3 +135,8 @@ resource "azurerm_servicebus_queue" "nbs_appts_sbq_bookingmade" {
   name         = "booking-made"
   namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
 }
+
+resource "azurerm_servicebus_queue" "nbs_appts_sbq_bookingreminder" {
+  name         = "booking-reminder"
+  namespace_id = azurerm_servicebus_namespace.nbs_appts_sb.id
+}

@@ -57,7 +57,7 @@ public class AvailabilityCalculatorTests
         };
         _scheduleService.Setup(x => x.GetSessions(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(booking);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>())).ReturnsAsync(booking);
 
         var result = await _sut.CalculateAvailability(site, service, DateOnly.FromDateTime(sessionFromDateTime) , DateOnly.FromDateTime(sessionUntilDateTime));
         result.Should().BeEquivalentTo(expectedResult);
@@ -91,7 +91,7 @@ public class AvailabilityCalculatorTests
         };
         _scheduleService.Setup(x => x.GetSessions(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(booking);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>())).ReturnsAsync(booking);
 
         var result = await _sut.CalculateAvailability(site, service, DateOnly.FromDateTime(sessionFromDateTime) , DateOnly.FromDateTime(sessionUntilDateTime));
         result.Should().BeEquivalentTo(expectedResult);

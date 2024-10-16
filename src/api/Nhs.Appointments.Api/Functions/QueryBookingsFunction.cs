@@ -42,7 +42,7 @@ public class QueryBookingsFunction : BaseApiFunction<QueryBookingsRequest, IEnum
     
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request, ILogger logger)
     {
-        var booking = await _bookingsService.GetBookings(request.site, request.from, request.to);
+        var booking = await _bookingsService.GetBookings(request.from, request.to, request.site);
         return Success(booking);
     }
 }

@@ -1,5 +1,6 @@
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core.UnitTests
 {
@@ -19,7 +20,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
                 _availabilityCalculator.Object,
-                _messageBus.Object);
+                _messageBus.Object,
+                TimeProvider.System);
         }
 
         [Fact (Skip = "flakey test. needs investigation")]
@@ -36,7 +38,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
             var leaseManager = new FakeLeaseManager();
-            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, _messageBus.Object);
+            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             var taskCompleted = task.Wait(100);
@@ -60,6 +62,44 @@ namespace Nhs.Appointments.Core.UnitTests
             var result = await _bookingsService.MakeBooking(booking);
 
             _availabilityCalculator.Verify(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil));
+        }
+
+        [Fact]
+        public async Task MakeBooking_RaisesNotificationEvent_WhenBooking()
+        {
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+
+            var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0)) };
+
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails() };
+
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+            var result = await _bookingsService.MakeBooking(booking);
+
+            _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)));
+        }
+
+        [Fact]
+        public async Task MakeBooking_FlagsBookingForReminder_WhenBooking()
+        {
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+
+            var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0)) };
+
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails() };
+
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+            var result = await _bookingsService.MakeBooking(booking);
+
+            Assert.False(booking.ReminderSent);
         }
 
         [Fact]

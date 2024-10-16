@@ -8,7 +8,7 @@ terraform {
 
   backend "azurerm" {
     resource_group_name  = "nbs-mya-rg-dev-uks"
-    storage_account_name = "nbsmyatfdevuks"
+    storage_account_name = "myatfdevuks"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
   }

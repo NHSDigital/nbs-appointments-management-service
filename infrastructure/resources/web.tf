@@ -3,16 +3,16 @@
 
 resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
   name                = "${var.application}-asp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_rg.name
-  location            = data.azurerm_resource_group.nbs_mya_rg.location
+  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
   os_type             = "Linux"
   sku_name            = "B1"
 }
 
 resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   name                = "${var.application}-app-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_rg.name
-  location            = data.azurerm_resource_group.nbs_mya_rg.location
+  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
   service_plan_id     = azurerm_service_plan.nbs_mya_web_app_service_plan.id
   https_only          = true
 

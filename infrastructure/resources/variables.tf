@@ -70,5 +70,5 @@ variable "gov_notify_api_key" {
 variable "disable_availability_check" {
   type      = bool
   sensitive = false
-  default = false
+  default   = false
 }

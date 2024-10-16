@@ -27,15 +27,15 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
         <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
           <Card
             href={`${site.id}/create-availability`}
-            title="Create Availability"
-            description="Create and publish availability for appointments at this site"
+            title="Create availability"
+            description="Create and edit available dates and sessions for your site"
           />
         </li>
         {permissionsRelevantToCards.includes('users:view') && (
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`${site.id}/users`}
-              title="User Management"
+              title="User management"
               description="Assign roles to users to give them access to features at this site"
             />
           </li>
@@ -45,7 +45,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`${site.id}/details`}
-              title="Site Management"
+              title="Site management"
               description="Assign accessibility attributes to this site"
             />
           </li>

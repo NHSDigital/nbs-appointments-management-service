@@ -7,7 +7,7 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class ScheduledBookingRemindersFunction(IBookingsService bookingService)
 {
-    private const string EveryMorningAtEight = "0 0 10 * * *";
+    private const string EveryMorningAtEight = "0 0 8 * * *";
     [Function("SendBookingReminders")]
     [AllowAnonymous]
     public Task SendBookingRemindersAsync([TimerTrigger(EveryMorningAtEight)] TimerInfo timerInfo)

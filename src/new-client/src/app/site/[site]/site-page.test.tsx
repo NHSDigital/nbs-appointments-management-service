@@ -31,10 +31,10 @@ describe('Site Page', () => {
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
 
     expect(
-      screen.getByRole('link', { name: 'User Management' }),
+      screen.getByRole('link', { name: 'User management' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'User Management' }),
+      screen.getByRole('link', { name: 'User management' }),
     ).toHaveAttribute('href', `${mockSite.id}/users`);
   });
 
@@ -46,7 +46,7 @@ describe('Site Page', () => {
     );
 
     expect(
-      screen.queryByRole('link', { name: 'User Management' }),
+      screen.queryByRole('link', { name: 'User management' }),
     ).not.toBeInTheDocument();
   });
 
@@ -56,10 +56,10 @@ describe('Site Page', () => {
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
 
     expect(
-      screen.getByRole('link', { name: 'Site Management' }),
+      screen.getByRole('link', { name: 'Site management' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Site Management' }),
+      screen.getByRole('link', { name: 'Site management' }),
     ).toHaveAttribute('href', `${mockSite.id}/details`);
   });
 
@@ -83,10 +83,10 @@ describe('Site Page', () => {
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
 
     expect(
-      screen.getByRole('link', { name: 'Create Availability' }),
+      screen.getByRole('link', { name: 'Create availability' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Create Availability' }),
+      screen.getByRole('link', { name: 'Create availability' }),
     ).toHaveAttribute('href', `${mockSite.id}/create-availability`);
   });
 });

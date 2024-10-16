@@ -40,18 +40,13 @@
       "id": "canned:site-attributes-viewer",
       "name": "Site attribute viewer",
       "description": "A user can view site attributes. This is a read-only role.",
-      "permissions": [
-        "site:view"
-      ]
+      "permissions": ["site:view"]
     },
     {
       "id": "canned:site-attributes-editor",
       "name": "Site attribute editor",
       "description": "A user can view and edit site attributes.",
-      "permissions": [
-        "site:view",
-        "site:manage"
-      ]
+      "permissions": ["site:view", "site:manage"]
     },
     {
       "id": "system:auditer",
@@ -63,7 +58,8 @@
         "availability:get-setup",
         "availability:query",
         "booking:query",
-        "users:view"
+        "users:view",
+        "site:view"
       ]
     },
     {

@@ -1,5 +1,5 @@
 ﻿import { render, screen } from '@testing-library/react';
-import { ManageAttributesPage } from './manage-attributes-page';
+import { EditAttributesPage } from './edit-attributes-page';
 import { AttributeDefinition, AttributeValue } from '@types';
 import {
   fetchAttributeDefinitions,
@@ -47,6 +47,8 @@ jest.mock('./add-attributes-form', () => {
   return MockForm;
 });
 
+const mockPermissions = ['site:manage', 'site:view'];
+
 describe('Manage Attributes Page', () => {
   beforeEach(() => {
     fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
@@ -54,7 +56,10 @@ describe('Manage Attributes Page', () => {
   });
 
   it('renders', async () => {
-    const jsx = await ManageAttributesPage({ site: 'TEST' });
+    const jsx = await EditAttributesPage({
+      site: 'TEST',
+      permissions: mockPermissions,
+    });
     render(jsx);
     expect(
       screen.getByText('Configure your current site details'),
@@ -62,13 +67,19 @@ describe('Manage Attributes Page', () => {
   });
 
   it('calls fetch attribute values with correct site id', async () => {
-    const jsx = await ManageAttributesPage({ site: 'TEST' });
+    const jsx = await EditAttributesPage({
+      site: 'TEST',
+      permissions: mockPermissions,
+    });
     render(jsx);
     expect(fetchSiteAttributeValues).toHaveBeenCalledWith('TEST');
   });
 
   it('passes props to form component', async () => {
-    const jsx = await ManageAttributesPage({ site: 'TEST' });
+    const jsx = await EditAttributesPage({
+      site: 'TEST',
+      permissions: mockPermissions,
+    });
     render(jsx);
 
     expect(

@@ -1,25 +1,26 @@
-﻿import NhsPage from '@components/nhs-page';
 import { fetchSite } from '@services/appointmentsService';
-import { ManageAttributesPage } from './manage-attributes-page';
+import NhsPage from '@components/nhs-page';
 
-export type PageProps = {
+type PageProps = {
   params: {
     site: string;
   };
 };
+
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   return (
     <NhsPage
-      title="Site management"
+      title="Create Availability"
       breadcrumbs={[
         { name: 'Home', href: '/' },
         { name: siteMoniker, href: `/site/${params.site}` },
       ]}
     >
-      <ManageAttributesPage site={params.site} />
+      {/* This will be covered in APPT-240 */}
+      <span></span>
     </NhsPage>
   );
 };

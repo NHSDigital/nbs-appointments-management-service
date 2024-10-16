@@ -5,6 +5,7 @@ import {
   mockAllPermissions,
   mockAuditerPermissions,
   mockRoles,
+  mockUserProfile,
 } from '@testing/data';
 
 const mockSiteId = 'TEST';
@@ -15,6 +16,7 @@ describe('Users Page', () => {
   it('renders', async () => {
     render(
       <UsersPage
+        userProfile={mockUserProfile}
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
@@ -35,6 +37,7 @@ describe('Users Page', () => {
   it('displays each user in the table', async () => {
     render(
       <UsersPage
+        userProfile={mockUserProfile}
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
@@ -63,6 +66,7 @@ describe('Users Page', () => {
   it('displays the edit and remove buttons for each user if they may see it', async () => {
     render(
       <UsersPage
+        userProfile={mockUserProfile}
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
@@ -73,7 +77,7 @@ describe('Users Page', () => {
     expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
     expect(
       screen.getAllByRole('link', { name: 'Remove from this site' }).length,
-    ).toBe(2);
+    ).toBe(1);
 
     expect(
       screen.getByRole('link', { name: 'Assign staff roles' }),
@@ -83,6 +87,7 @@ describe('Users Page', () => {
   it('omits the edit and remove buttons for each user if they may not see it', async () => {
     render(
       <UsersPage
+        userProfile={mockUserProfile}
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAuditerPermissions}
@@ -98,5 +103,29 @@ describe('Users Page', () => {
     expect(
       screen.queryByRole('link', { name: 'Assign staff roles' }),
     ).toBeNull();
+  });
+
+  it('Does not display the remove button for the current user', async () => {
+    render(
+      <UsersPage
+        userProfile={mockUserProfile}
+        users={getMockUserAssignments(mockSiteId)}
+        roles={mockRoles}
+        permissions={mockAllPermissions}
+      />,
+    );
+
+    expect(
+      screen.queryAllByRole('link', { name: 'Remove from this site' }),
+    ).toHaveLength(1);
+
+    expect(
+      screen.getByRole('link', { name: 'Remove from this site' }),
+    ).toHaveAttribute('href', 'users/remove?user=test.two@nhs.net');
+
+    // Guard against changes in mock data by providing the current user is included in the list of mock users
+    expect(getMockUserAssignments(mockSiteId).map(_ => _.id)).toContain(
+      mockUserProfile.emailAddress,
+    );
   });
 });

@@ -33,7 +33,6 @@ module "api" {
   api_keys                             = var.API_KEYS
   hmac_signing_key                     = var.HMAC_SIGNING_KEY
   gov_notify_api_key                   = var.GOV_NOTIFY_API_KEY
-  disable_availability_check           = var.DISABLE_AVAILABILITY_CHECK
 }
 
 variable "AUTH_PROVIDER_ISSUER" {
@@ -84,11 +83,5 @@ variable "HMAC_SIGNING_KEY" {
 variable "GOV_NOTIFY_API_KEY" {
   type      = string
   sensitive = true
-}
-
-variable "DISABLE_AVAILABILITY_CHECK" {
-  type      = bool
-  sensitive = false
-  default = false
 }
 

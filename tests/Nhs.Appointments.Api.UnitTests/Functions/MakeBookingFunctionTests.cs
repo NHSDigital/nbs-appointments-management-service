@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Bookings;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -27,14 +26,12 @@ public class MakeBookingFunctionTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
-    private readonly Mock<IOptions<MakeBookingOptions>> _options = new();
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_options.Object, _bookingService.Object, _siteConfigurationService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new MakeBookingFunction(_bookingService.Object, _siteConfigurationService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _options.Setup(x => x.Value).Returns(new MakeBookingOptions { DisableAvailabilityCheck = false });
     }
 
     [Fact]

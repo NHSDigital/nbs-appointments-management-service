@@ -14,6 +14,8 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Bookings;
+using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -22,8 +24,9 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
     private readonly IBookingsService _bookingService;
     private readonly ISiteConfigurationService _siteConfigurationService;
     private readonly IAvailabilityCalculator _availabilityCalculator;
-
+    private readonly IOptions<MakeBookingOptions> _options;
     public MakeBookingFunction(
+        IOptions<MakeBookingOptions> options,
         IBookingsService bookingService,         
         ISiteConfigurationService siteConfigurationService,
         IAvailabilityCalculator availabilityCalculator,
@@ -31,6 +34,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         IUserContextProvider userContextProvider, 
         ILogger<MakeBookingFunction> logger) : base(validator, userContextProvider, logger)
     {
+        _options = options;
         _bookingService = bookingService;
         _siteConfigurationService = siteConfigurationService;
         _availabilityCalculator = availabilityCalculator;
@@ -81,10 +85,15 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
             ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
         };
 
-        var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,
-            bookingDate.AddDays(1));
-        var canBook = blocks.Any(bl => bl.SessionHolder == requestedBooking.SessionHolder && bl.Contains(requestedBooking.TimePeriod));
+        bool canBook = true;
 
+        if (!_options.Value.DisableAvailabilityCheck)
+        {
+            var blocks = await _availabilityCalculator.CalculateAvailability(bookingRequest.Site, bookingRequest.Service, bookingDate,
+            bookingDate.AddDays(1));
+            canBook = blocks.Any(bl => bl.SessionHolder == requestedBooking.SessionHolder && bl.Contains(requestedBooking.TimePeriod));
+        }
+        
         if (canBook)
         {
             var bookingResult = await _bookingService.MakeBooking(requestedBooking);
@@ -96,5 +105,5 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         }
 
         return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
-    }       
+    }    
 }

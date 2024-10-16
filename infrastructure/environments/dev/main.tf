@@ -32,4 +32,5 @@ module "api" {
   auth_provider_return_uri       = var.AUTH_PROVIDER_RETURN_URI
   api_keys                       = var.API_KEYS
   gov_notify_api_key             = var.GOV_NOTIFY_API_KEY
+  disable_availability_check     = var.DISABLE_AVAILABILITY_CHECK
 }

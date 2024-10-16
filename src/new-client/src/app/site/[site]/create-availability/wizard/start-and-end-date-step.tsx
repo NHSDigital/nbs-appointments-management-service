@@ -11,7 +11,11 @@ import { useFormContext } from 'react-hook-form';
 import { AvailabilityPeriodFormValues } from './availability-period-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import dayjs from 'dayjs';
-// type Props = { userProfile: UserProfile } & InjectedWizardProps;
+import {
+  isSameDayOrBefore,
+  isValidDate,
+  parseDateFromComponents,
+} from '@services/timeService';
 
 const StartAndEndDateStep = ({
   goToNextStep,
@@ -31,8 +35,8 @@ const StartAndEndDateStep = ({
     endDateYear,
   } = watch();
 
-  const onContinue = async () => {
-    const result = await trigger([
+  const validateFields = async () => {
+    const fieldsAreIndividuallyValid = await trigger([
       'startDateDay',
       'startDateMonth',
       'startDateYear',
@@ -40,35 +44,61 @@ const StartAndEndDateStep = ({
       'endDateMonth',
       'endDateYear',
     ]);
-    if (!result) {
-      return;
+    if (!fieldsAreIndividuallyValid) {
+      return false;
     }
 
-    console.dir({
+    const startDateIsValid = isValidDate(
       startDateDay,
       startDateMonth,
       startDateYear,
+    );
+    if (!startDateIsValid) {
+      setError('startDateDay', { message: 'Please enter a valid date' });
+      return false;
+    }
+
+    const endDateIsValid = isValidDate(endDateDay, endDateMonth, endDateYear);
+    if (!endDateIsValid) {
+      setError('endDateDay', { message: 'Please enter a valid date' });
+      return false;
+    }
+
+    const startDate = parseDateFromComponents(
+      startDateDay,
+      startDateMonth,
+      startDateYear,
+    );
+
+    const endDate = parseDateFromComponents(
       endDateDay,
       endDateMonth,
       endDateYear,
-    });
-    const potentialStartDate = dayjs(
-      new Date(startDateYear, Number(startDateMonth), startDateDay),
     );
-    if (!potentialStartDate.isValid()) {
-      setError('startDateDay', { message: 'Please enter a valid date' });
+
+    if (!startDate || !endDate) {
+      return false;
+    }
+
+    const endDateIsAfterStartDate = isSameDayOrBefore(startDate, endDate);
+    if (!endDateIsAfterStartDate) {
+      setError('endDateDay', {
+        message: 'End date must be after the start date',
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const onContinue = async () => {
+    const formIsValid = await validateFields();
+
+    if (!formIsValid) {
       return;
     }
 
-    const potentialEndDate = dayjs(
-      new Date(endDateYear, endDateMonth - 1, endDateDay),
-    );
-    if (!potentialEndDate.isValid()) {
-      setError('endDateDay', { message: 'Please enter a valid date' });
-      return;
-    }
-
-    //goToNextStep();
+    goToNextStep();
   };
 
   return (

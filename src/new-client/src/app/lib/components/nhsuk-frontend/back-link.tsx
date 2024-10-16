@@ -15,6 +15,7 @@ const BackLink = ({ href, onClick }: Props) => {
   return (
     <div className="nhsuk-back-link">
       <Link
+        role="link"
         className="nhsuk-back-link__link"
         href={onClick ? '' : href}
         onClick={onClick}

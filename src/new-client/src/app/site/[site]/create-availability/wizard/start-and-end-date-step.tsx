@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  BackLinkClient,
   Button,
   DateInput,
   FormGroup,
@@ -13,8 +12,7 @@ import { InjectedWizardProps } from '@components/wizard';
 import dayjs from 'dayjs';
 import {
   isSameDayOrBefore,
-  isValidDate,
-  parseDateFromComponents,
+  parseAndValidateDateFromComponents,
 } from '@services/timeService';
 
 const StartAndEndDateStep = ({
@@ -48,35 +46,23 @@ const StartAndEndDateStep = ({
       return false;
     }
 
-    const startDateIsValid = isValidDate(
+    const startDate = parseAndValidateDateFromComponents(
       startDateDay,
       startDateMonth,
       startDateYear,
     );
-    if (!startDateIsValid) {
+    if (startDate === undefined) {
       setError('startDateDay', { message: 'Please enter a valid date' });
       return false;
     }
 
-    const endDateIsValid = isValidDate(endDateDay, endDateMonth, endDateYear);
-    if (!endDateIsValid) {
-      setError('endDateDay', { message: 'Please enter a valid date' });
-      return false;
-    }
-
-    const startDate = parseDateFromComponents(
-      startDateDay,
-      startDateMonth,
-      startDateYear,
-    );
-
-    const endDate = parseDateFromComponents(
+    const endDate = parseAndValidateDateFromComponents(
       endDateDay,
       endDateMonth,
       endDateYear,
     );
-
-    if (!startDate || !endDate) {
+    if (endDate === undefined) {
+      setError('endDateDay', { message: 'Please enter a valid date' });
       return false;
     }
 
@@ -103,15 +89,10 @@ const StartAndEndDateStep = ({
 
   return (
     <>
-      {returnRouteUponCancellation ? (
-        <BackLink href={returnRouteUponCancellation} />
-      ) : (
-        <BackLinkClient
-          onClick={() => {
-            goToPreviousStep();
-          }}
-        />
-      )}
+      <BackLink
+        href={returnRouteUponCancellation ?? ''}
+        onClick={returnRouteUponCancellation ? undefined : goToPreviousStep}
+      />
       <h1 className="app-page-heading">
         <span className="nhsuk-caption-l">Create availability period</span>
         Add start and end dates for your availability period

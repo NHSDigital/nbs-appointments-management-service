@@ -1,7 +1,7 @@
 import { Button, Table, Tag } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { Site } from '@types';
-import { mockAvailabilityPeriods } from '@testing/data';
+import { fetchAvailabilityPeriods } from '@services/appointmentsService';
 
 type Props = {
   site: Site;
@@ -44,10 +44,4 @@ export const CreateAvailabilityPage = async ({ site }: Props) => {
       </Link>
     </>
   );
-};
-
-// TODO: get this from the appointmentsService once implemented
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const fetchAvailabilityPeriods = async (siteId: string) => {
-  return mockAvailabilityPeriods;
 };

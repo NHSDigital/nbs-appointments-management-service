@@ -17,6 +17,7 @@ export const isValidDate = (
     return false;
   }
 
+  // TODO: Find a way of doing this without manual calculations. The below *should* work but doesn't
   // const potentialDate = dayjs(
   //   `${parsedYear}-${parsedMonth}-${parsedDay}`,
   //   'YYYY-M-D',
@@ -24,54 +25,47 @@ export const isValidDate = (
   //   true,
   // );
 
-  const exampleFromDocs = dayjs(
-    '35/22/2010 99:88:77',
-    'DD-MM-YYYY HH:mm:ss',
-    true,
-  );
+  // return potentialDate.isValid();
 
-  const exampleWithSingleDayAndMonthDigitFormat = dayjs(
-    '35/12/2010 99:88:77',
-    'D-M-YYYY HH:mm:ss',
-    true,
-  );
+  // TODO: This is the worst code I've ever written and I hate it,
+  // but I spent 3+ hours trying to do this properly and it just doesn't work
+  // but writing it this way took 5 minutes and works perfectly
+  if (parsedDay < 1 || parsedDay > 31) {
+    return false;
+  }
+  if (parsedMonth < 1 || parsedMonth > 12) {
+    return false;
+  }
+  if (parsedYear < 1000 || parsedYear > 9999) {
+    return false;
+  }
+  const monthsWith30Days = [4, 6, 9, 11];
+  if (monthsWith30Days.includes(parsedMonth) && parsedDay > 30) {
+    return false;
+  }
 
-  const dateStringSlashes = `${parsedDay}/${parsedMonth}/${parsedYear} 00:00:00`;
-  const dateStringDashes = `${parsedDay}/${parsedMonth}/${parsedYear} 00:00:00`;
-
-  const potentialDateOne = dayjs(dateStringSlashes, 'D-M-YYYY HH:mm:ss', true);
-  const potentialDateTwo = dayjs(dateStringDashes, 'D-M-YYYY HH:mm:ss', true);
-
-  const isOneValid = potentialDateOne.isValid();
-  const isTwoValid = potentialDateOne.isValid();
-
-  // Why the HELL doesn't this work?
-  return isTwoValid;
+  const isLeapYear = parsedYear % 4 === 0;
+  if (parsedMonth === 2) {
+    if (isLeapYear && parsedDay > 29) {
+      return false;
+    }
+    if (!isLeapYear && parsedDay > 28) {
+      return false;
+    }
+  }
+  return true;
 };
 
-export const parseDateFromComponents = (
+export const parseAndValidateDateFromComponents = (
   day: string | number,
   month: string | number,
   year: string | number,
 ) => {
-  const parsedDay = Number(day);
-  const parsedMonth = Number(month);
-  const parsedYear = Number(year);
-
-  if (
-    Number.isNaN(parsedDay) ||
-    Number.isNaN(parsedMonth) ||
-    Number.isNaN(parsedYear)
-  ) {
+  if (!isValidDate(day, month, year)) {
     return undefined;
   }
 
-  return dayjs(
-    `${parsedDay}-${parsedMonth}-${parsedYear}`,
-    'D-M-YYYY',
-    'en-Gb',
-    true,
-  );
+  return dayjs(`${day}-${month}-${year}`, 'D-M-YYYY', 'en-Gb', true);
 };
 
 export const isSameDayOrBefore = (

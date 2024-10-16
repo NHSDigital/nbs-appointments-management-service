@@ -1,12 +1,6 @@
 import { isValidDate } from '@services/timeService';
 
 describe('Time Service', () => {
-  it('foo', () => {
-    const foobar = isValidDate(31, 1, 2020);
-
-    expect(foobar).toEqual(false);
-  });
-
   it.each([
     [1, 12, 2020, true],
     ['1', '12', '2020', true],
@@ -22,7 +16,7 @@ describe('Time Service', () => {
     [29, 2, 2023, false], // 29th Feb, not leap year
     [31, 11, 2023, false], // 31st Nov
   ])(
-    'can parse date components: day %p, month %p, year %p should be: %p',
+    'can validate date components: day %p, month %p, year %p should be: %p',
     (
       day: number | string,
       month: number | string,
@@ -34,4 +28,6 @@ describe('Time Service', () => {
       expect(result).toEqual(expectedResult);
     },
   );
+
+  it('can parse dates from components', () => {});
 });

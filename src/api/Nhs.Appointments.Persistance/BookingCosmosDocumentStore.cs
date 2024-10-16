@@ -16,11 +16,16 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         _indexStore = indexStore;
     }
            
-    public Task<IEnumerable<Booking>> GetInDateRangeAsync(string site, DateTime from, DateTime to)
+    public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
         return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
-    }       
-    
+    }
+
+    public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to)
+    {
+        return _bookingStore.RunQueryAsync<Booking>(b => b.From >= from && b.From <= to);
+    }
+
     public async Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference)
     {
         try
@@ -71,6 +76,15 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         var updateStatusPatch = PatchOperation.Replace("/outcome", status);
         await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
         return true;
+    }
+
+    public async Task SetReminderSent(Booking booking)
+    {
+        var bookingDocument = _bookingStore.ConvertToDocument(booking);
+
+        var patch = PatchOperation.Replace("/reminderSent", true);
+        await _bookingStore.PatchDocument(bookingDocument.Site, booking.Reference, patch);
+
     }
 
     public async Task InsertAsync(Booking booking)

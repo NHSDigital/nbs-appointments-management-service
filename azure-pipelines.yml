@@ -12,11 +12,11 @@ variables:
   persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
   integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
   cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-  azure_devops_subscription_name: 'nbs-appts-rg-dev'
   azure_subscription_id: '07748954-52d6-46ce-95e6-2701bfc715b4'
-  amsApiServerName: 'nbs-appts-func-dev-uks'
-  amsWebServerName: 'nbs-appts-wa-dev-uks'
-  resourceGroupName: 'nbs-appts-rg-dev-uks'
+  azure_devops_service_connection_name: 'nbs-mya-rg-dev'
+  apiServerName: 'nbs-mya-func-dev-uks'
+  webServerName: 'nbs-mya-app-dev-uks'
+  resourceGroupName: 'nbs-mya-rg-dev-uks'
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
   PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
 
@@ -56,7 +56,7 @@ stages:
               rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
               includeRootFolder: false
               archiveType: "zip"
-              archiveFile: "$(Build.ArtifactStagingDirectory)/out/appts-api-$(Build.BuildId).zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/out/mya-api-$(Build.BuildId).zip"
               replaceExistingArchive: true
           - task: PublishBuildArtifacts@1
             displayName: "Publish API Artifact"
@@ -120,14 +120,14 @@ stages:
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
-              azureSubscription: $(azure_devops_subscription_name)
+              azureSubscription: $(azure_devops_service_connection_name)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(azure_devops_subscription_name)
+              azureSubscription: $(azure_devops_service_connection_name)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
@@ -142,13 +142,13 @@ stages:
             inputs:
               command: "test"
               projects: "$(integrationTestProjectPath)"
-              arguments: '--logger:"trx;logfilename=apptsServiceTests.trx";verbosity=detailed'
+              arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
           - task: PublishTestResults@2
             displayName: "Publish integration test results"
             inputs:
               searchFolder: "$(Agent.TempDirectory)"
               testResultsFormat: "VSTest"
-              testResultsFiles: "apptsServiceTests.trx"
+              testResultsFiles: "myaServiceTests.trx"
               testRunTitle: "NBS Appointments Management Service Integration Tests"
               publishRunAttachments: true
             condition: succeededOrFailed()
@@ -189,7 +189,7 @@ stages:
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
-              azureSubscription: $(azure_devops_subscription_name)
+              azureSubscription: $(azure_devops_service_connection_name)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
@@ -197,7 +197,7 @@ stages:
   - stage: DeployDev
     condition: and(succeeded(), eq(variables.isMain, true))
     variables:
-      - group: 'nbs-ams-dev'
+      - group: 'nbs-mya-dev'
     displayName: Deploy Dev
     jobs:
       - job: RunTerraformPlan
@@ -217,7 +217,7 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               addSpnToEnvironment: true
-              azureSubscription: $(azure_devops_subscription_name)
+              azureSubscription: $(azure_devops_service_connection_name)
               inlineScript: |
                 $env:ARM_CLIENT_ID=$env:servicePrincipalId
                 $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
@@ -225,7 +225,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\dev
                 terraform init
-                terraform plan -no-color -input=false -var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="DISABLE_AVAILABILITY_CHECK=true"
+                terraform plan -no-color -input=false -var="API_KEYS=$(API_KEYS)" -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="DISABLE_AVAILABILITY_CHECK=true"
       - job: "ApproveTerraformPlan"
         dependsOn: RunTerraformPlan
         displayName: Approve Terraform Plan
@@ -239,7 +239,7 @@ stages:
       - deployment: ApplyTerraform
         dependsOn: ApproveTerraformPlan
         displayName: "Apply Terraform"
-        environment: nbs-appts-dev
+        environment: nbs-mya-dev
         strategy:
           runOnce:
             deploy:
@@ -259,7 +259,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: inlineScript
                     addSpnToEnvironment: true
-                    azureSubscription: $(azure_devops_subscription_name)
+                    azureSubscription: $(azure_devops_service_connection_name)
                     inlineScript: |
                       $env:ARM_CLIENT_ID=$env:servicePrincipalId
                       $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
@@ -267,7 +267,7 @@ stages:
                       $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                       cd $(Pipeline.Workspace)\drop_terraform\environments\dev
                       terraform init
-                      terraform apply -no-color -input=false -auto-approve `-var="HMAC_SIGNING_KEY=$(HMAC_SIGNING_KEY)" -var="API_KEYS=$(API_KEYS)" -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="DISABLE_AVAILABILITY_CHECK=true"
+                      terraform apply -no-color -input=false -auto-approve `-var="API_KEYS=$(API_KEYS)" -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="DISABLE_AVAILABILITY_CHECK=true"
       - job: "DeployWeb"
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp to Dev"
@@ -283,9 +283,9 @@ stages:
           - task: AzureWebApp@1
             displayName: "Deploy Web App"
             inputs:
-              azureSubscription: $(azure_devops_subscription_name)
+              azureSubscription: $(azure_devops_service_connection_name)
               appType: 'webAppLinux'
-              appName: $(amsWebServerName)
+              appName: '$(webServerName)'
               package: '$(Pipeline.Workspace)/drop_web/next.zip'
               deploymentMethod: 'auto'
               startUpCommand: 'node standalone/server.js'
@@ -304,8 +304,8 @@ stages:
           - task: AzureFunctionApp@2
             displayName: Deploy Api
             inputs:
-              connectedServiceNameARM: $(azure_devops_subscription_name)
+              connectedServiceNameARM: $(azure_devops_service_connection_name)
               appType: 'functionApp'
-              appName: '$(amsApiServerName)'
+              appName: '$(apiServerName)'
               package: '$(Pipeline.Workspace)/**/*.zip'
               deploymentMethod: 'auto'

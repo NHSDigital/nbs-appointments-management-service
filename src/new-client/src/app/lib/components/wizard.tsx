@@ -11,9 +11,9 @@ export interface InjectedWizardProps {
   stepNumber: number;
   currentStep: number;
   isActive: boolean;
-  setCurrentStep(step: number, task?: () => Promise<void>): void;
-  goToNextStep(task?: () => Promise<void>): void;
-  goToPreviousStep(task?: () => Promise<void>): void;
+  setCurrentStep(step: number): void;
+  goToNextStep(): void;
+  goToPreviousStep(): void;
   returnRouteUponCancellation?: string;
 }
 

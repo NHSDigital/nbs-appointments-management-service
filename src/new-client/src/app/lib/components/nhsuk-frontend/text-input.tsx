@@ -21,6 +21,7 @@ export const TextInput = forwardRef<Ref, Props>(
         className={`nhsuk-input ${inputType === 'date' ? 'nhsuk-date-input__input nhsuk-input--width-2' : ''}`}
         ref={ref}
         inputMode={inputType === 'date' ? 'numeric' : 'text'}
+        id={id}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...props}
       />

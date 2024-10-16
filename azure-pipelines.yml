@@ -198,7 +198,7 @@ stages:
 #    condition: and(succeeded(), eq(variables.isMain, true))
     condition: succeeded()
     variables:
-      - group: 'nbs-ams-dev'
+      - group: 'nbs-mya-dev'
     displayName: Deploy Dev
     jobs:
       - job: RunTerraformPlan
@@ -286,7 +286,7 @@ stages:
             inputs:
               azureSubscription: $(azure_devops_service_connection_name)
               appType: 'webAppLinux'
-              appName: $(amsWebServerName)
+              appName: '$(webServerName)'
               package: '$(Pipeline.Workspace)/drop_web/next.zip'
               deploymentMethod: 'auto'
               startUpCommand: 'node standalone/server.js'
@@ -307,6 +307,6 @@ stages:
             inputs:
               connectedServiceNameARM: $(azure_devops_service_connection_name)
               appType: 'functionApp'
-              appName: '$(amsApiServerName)'
+              appName: '$(apiServerName)'
               package: '$(Pipeline.Workspace)/**/*.zip'
               deploymentMethod: 'auto'

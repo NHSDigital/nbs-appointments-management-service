@@ -107,11 +107,12 @@ const StartAndEndDateStep = ({
         <DateInput
           heading="Start date"
           hint="For example, 15 3 1984"
-          id="date-of-birth-input"
+          id="start-date-input"
         >
           <TextInput
             label="Day"
-            id="date-of-birth-input-day"
+            type="number"
+            id="start-date-input-day"
             inputType="date"
             {...register('startDateDay', {
               required: 'Day is required',
@@ -125,7 +126,8 @@ const StartAndEndDateStep = ({
           />
           <TextInput
             label="Month"
-            id="date-of-birth-input-month"
+            type="number"
+            id="start-date-input-month"
             inputType="date"
             {...register('startDateMonth', {
               required: 'Month is required',
@@ -139,7 +141,8 @@ const StartAndEndDateStep = ({
           />
           <TextInput
             label="Year"
-            id="date-of-birth-input-year"
+            type="number"
+            id="start-date-input-year"
             inputType="date"
             {...register('startDateYear', {
               required: 'Year is required',
@@ -167,12 +170,12 @@ const StartAndEndDateStep = ({
         <DateInput
           heading="End date"
           hint="For example, 15 3 1984"
-          id="date-of-birth-input"
+          id="end-date-input"
         >
           <TextInput
             label="Day"
             type="number"
-            id="date-of-birth-input-day"
+            id="end-date-input-day"
             inputType="date"
             {...register('endDateDay', {
               required: 'Day is required',
@@ -186,7 +189,8 @@ const StartAndEndDateStep = ({
           />
           <TextInput
             label="Month"
-            id="date-of-birth-input-month"
+            type="number"
+            id="end-date-input-month"
             inputType="date"
             {...register('endDateMonth', {
               required: 'Month is required',
@@ -200,7 +204,8 @@ const StartAndEndDateStep = ({
           />
           <TextInput
             label="Year"
-            id="date-of-birth-input-year"
+            type="number"
+            id="end-date-input-year"
             inputType="date"
             {...register('endDateYear', {
               required: 'Year is required',

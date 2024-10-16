@@ -3,6 +3,7 @@ import LeftChevron from './icons/left-chevron';
 
 type Props = {
   href: string;
+  onClick?: () => void;
 };
 
 /**
@@ -10,10 +11,14 @@ type Props = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/back-link
  */
-const BackLink = ({ href }: Props) => {
+const BackLink = ({ href, onClick }: Props) => {
   return (
     <div className="nhsuk-back-link">
-      <Link className="nhsuk-back-link__link" href={href}>
+      <Link
+        className="nhsuk-back-link__link"
+        href={onClick ? '' : href}
+        onClick={onClick}
+      >
         <LeftChevron />
         Go back
       </Link>

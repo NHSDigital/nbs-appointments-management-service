@@ -12,6 +12,7 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
+import { mockAvailabilityPeriods } from '@testing/data';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -156,4 +157,10 @@ export const removeUserFromSite = async (site: string, user: string) => {
 
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
+};
+
+// TODO: get this from the appointmentsService once implemented
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const fetchAvailabilityPeriods = async (siteId: string) => {
+  return mockAvailabilityPeriods;
 };

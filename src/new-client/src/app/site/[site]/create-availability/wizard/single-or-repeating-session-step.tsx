@@ -1,5 +1,5 @@
 'use client';
-import { BackLinkClient } from '@components/nhsuk-frontend';
+import { BackLink } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 // type Props = { userProfile: UserProfile } & InjectedWizardProps;
 
@@ -8,7 +8,7 @@ const SingleOrRepeatingSessionStep = ({
 }: InjectedWizardProps) => {
   return (
     <>
-      <BackLinkClient onClick={goToPreviousStep} />
+      <BackLink onClick={goToPreviousStep} href="" />
       <h1 className="app-page-heading">
         <span className="nhsuk-caption-l">Create availability period</span>
         What type of session do you want to create?

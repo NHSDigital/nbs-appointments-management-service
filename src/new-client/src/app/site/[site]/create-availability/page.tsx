@@ -10,11 +10,12 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
+  // TODO: remove these checks after 202 is merged as the checks will become implicit
   if (site === undefined) {
     throw new Error('Site not found');
   }
+  const siteMoniker = site?.name ?? `Site ${params.site}`;
 
   return (
     <NhsPage

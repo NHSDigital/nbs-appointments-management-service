@@ -12,6 +12,7 @@
 
 stages: 
   - stage: Deploy{{parameters.env}}
+    displayName: Deploy {{parameters.env}}
     variables:
       - group: {{parameters.variable_group}}
     jobs:

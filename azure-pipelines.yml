@@ -196,13 +196,12 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
 
   - ${{ each env in parameters.environments }}:
-    displayName: Deploy {{env}}
     dependsOn: 'Build'
 #    condition: and(succeeded(), eq(variables.isMain, true))
     condition: succeeded()
   - template: deploy.yml
     parameters:
-      env: ${{env}}
+      env: {{env}}
       variable_group: 'nbs-mya-{{env}}'
       apiServerName: 'nbs-mya-func-{{env}}-uks'
       webServerName: 'nbs-mya-app-{{env}}-uks'

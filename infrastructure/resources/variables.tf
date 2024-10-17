@@ -1,11 +1,11 @@
 variable "application" {
   type    = string
-  default = "nbs-appts"
+  default = "nbs-mya"
 }
 
 variable "application_short" {
   type    = string
-  default = "nbsappts"
+  default = "nbsmya"
 }
 
 variable "environment" {
@@ -58,11 +58,6 @@ variable "auth_provider_return_uri" {
 }
 
 variable "api_keys" {
-  type      = string
-  sensitive = true
-}
-
-variable "hmac_signing_key" {
   type      = string
   sensitive = true
 }

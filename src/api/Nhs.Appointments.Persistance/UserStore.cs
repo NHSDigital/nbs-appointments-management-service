@@ -18,8 +18,8 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
-        var userDocument = await cosmosStore.GetByIdAsync<UserDocument>(userId);
-        return userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>);
+        var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId);
+        return userDocument is not null ? userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>) : Array.Empty<RoleAssignment>();
     }
 
     /// <summary>
@@ -123,13 +123,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     
     public async Task<User?> GetOrDefaultAsync(string userId)
     {
-        try
-        {
-            return await cosmosStore.GetByIdAsync<User>(userId);
-        }
-        catch (CosmosException ex) when ( ex.StatusCode == System.Net.HttpStatusCode.NotFound )
-        {
-            return null;
-        }
+        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
     }
 }

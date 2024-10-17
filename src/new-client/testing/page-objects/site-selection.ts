@@ -4,6 +4,7 @@ import RootPage from './root';
 export default class SiteSelectionPage extends RootPage {
   readonly title: Locator;
   readonly siteSelectionCardHeading: Locator;
+  readonly noSitesMessage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -13,6 +14,9 @@ export default class SiteSelectionPage extends RootPage {
     this.siteSelectionCardHeading = page.getByRole('heading', {
       name: 'Choose a site',
     });
+    this.noSitesMessage = page.getByText(
+      'You have not been assigned to any sites.',
+    );
   }
 
   async selectSite(siteName: string) {

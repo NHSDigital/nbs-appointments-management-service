@@ -13,6 +13,7 @@
 stages: 
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
+    dependsOn: Build
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -75,7 +76,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: inlineScript
                     addSpnToEnvironment: true
-                    azureSubscription: $(azure_devops_service_connection_name)
+                    azureSubscription: ${{parameters.azure_devops_service_connection_name}}
                     inlineScript: |
                       $env:ARM_CLIENT_ID=$env:servicePrincipalId
                       $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
@@ -86,7 +87,7 @@ stages:
                       terraform apply -no-color -input=false -auto-approve `-var="API_KEYS=$(API_KEYS)" -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)"
       - job: "DeployWeb"
         dependsOn: ApplyTerraform
-        displayName: "Deploy webapp to Dev"
+        displayName: "Deploy webapp"
         steps:
           - checkout: none
           - task: DownloadBuildArtifacts@0

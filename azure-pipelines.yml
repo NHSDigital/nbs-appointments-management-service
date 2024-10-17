@@ -10,19 +10,16 @@ parameters:
     default: ['dev','exp']
 
 variables:
-  azure_devops_service_connection_name: 'nbs-mya-rg-dev'
-  PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
-  apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-  apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-  coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-  persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
-  integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-  cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
   
 stages:
   - stage: Build
     displayName: Build
+    variables:
+      apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
+      apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
+      coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
+      persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
     jobs:
       - job: "Build"
         steps:
@@ -111,7 +108,13 @@ stages:
 
 
       - job: "RunIntegrationAndE2ETests"
+#        condition: false
         displayName: "Run integration and E2E tests"
+        variables:
+          azure_devops_service_connection_name: "nbs-mya-rg-dev"
+          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
+          integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+          cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
@@ -199,6 +202,6 @@ stages:
       parameters:
         env: ${{env}}
         variable_group: nbs-mya-${{env}}
-        apiServerName: nbs-mya-func-${{env}}-uks'
+        apiServerName: nbs-mya-func-${{env}}-uks
         webServerName: nbs-mya-app-${{env}}-uks
         azure_devops_service_connection_name: 'nbs-mya-rg-dev'

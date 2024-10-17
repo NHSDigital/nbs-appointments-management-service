@@ -4,6 +4,7 @@ import {
   fetchPermissions,
   fetchSite,
   fetchUserProfile,
+  fetchUsers,
 } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 
@@ -17,13 +18,18 @@ export type UserPageProps = {
 };
 
 const Page = async ({ params, searchParams }: UserPageProps) => {
-  // TODO: Should we throw these from the service itself? What side effects does have on other calls?
+  // TODO: Clean up these checks after appt-202 is merged and site/users reesults can be replied upon
   if (searchParams?.user === undefined) {
     notFound();
   }
 
   const site = await fetchSite(params.site);
   if (site === undefined) {
+    notFound();
+  }
+
+  const users = await fetchUsers(params.site);
+  if (users === undefined || !users.some(u => u.id === searchParams?.user)) {
     notFound();
   }
 

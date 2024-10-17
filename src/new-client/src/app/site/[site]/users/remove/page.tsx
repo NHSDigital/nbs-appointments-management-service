@@ -18,7 +18,7 @@ export type UserPageProps = {
 };
 
 const Page = async ({ params, searchParams }: UserPageProps) => {
-  // TODO: Clean up these checks after appt-202 is merged and site/users reesults can be replied upon
+  // TODO: Clean up these checks after appt-202 is merged and site/users results can be relied upon
   if (searchParams?.user === undefined) {
     notFound();
   }

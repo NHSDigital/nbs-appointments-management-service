@@ -10,20 +10,19 @@ parameters:
     default: ['dev','exp']
 
 variables:
+  azure_devops_service_connection_name: 'nbs-mya-rg-dev'
+  PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
+  apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
+  apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
+  coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
+  persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+  integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+  cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
   
 stages:
   - stage: Build
     displayName: Build
-    variables:
-      azure_devops_service_connection_name: 'nbs-mya-rg-dev'
-      PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
-      apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-      apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-      coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-      persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
-      integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-      cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
     jobs:
       - job: "Build"
         steps:

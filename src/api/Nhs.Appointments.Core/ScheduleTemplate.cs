@@ -16,6 +16,10 @@ public class ScheduleBlock
     [JsonProperty("services")]
     [JsonPropertyName("services")]
     public string[] Services { get; set; }
+
+    public int SlotLength { get; set; }
+
+    public int Capacity { get; set; }
     
 }
 
@@ -24,6 +28,9 @@ public class SessionInstance : TimePeriod
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
     public SessionInstance(DateTime from, DateTime until) : base(from, until) { }
     public string SessionHolder { get; set; }
+    public string[] Services { get; set; }
+    public int SlotLength { get; set; }
+    public int Capacity { get; set; }
 }
 
 public class WeekTemplate
@@ -54,11 +61,4 @@ public class Schedule
     [JsonProperty("scheduleBlocks")]
     [JsonPropertyName("scheduleBlocks")]
     public ScheduleBlock[] ScheduleBlocks { get; set; }
-}
-
-public class TemplateAssignment
-{    
-    public DateOnly From { get; set; }
-    public DateOnly Until { get; set; }
-    public string TemplateId { get; set; }  
 }

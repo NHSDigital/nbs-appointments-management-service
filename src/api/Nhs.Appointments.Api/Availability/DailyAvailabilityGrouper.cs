@@ -7,20 +7,17 @@ namespace Nhs.Appointments.Api.Availability;
 
 public class DailyAvailabilityGrouper : IAvailabilityGrouper
 {
-    public IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<TimePeriod> blocks, int slotDuration)
+    public IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<SessionInstance> slots)
     {
-        if (blocks == null) throw new ArgumentNullException(nameof(blocks));
-        if (slotDuration == 0) throw new ArgumentOutOfRangeException(nameof(slotDuration));
+        if (slots == null) throw new ArgumentNullException(nameof(slots));        
 
         var amCount = 0;
         var pmCount = 0;
 
-        if (blocks.Any())
+        if (slots.Any())
         {
-            var amPmLine = blocks.First().From.Date.AddHours(12);
-            var splitBlocks = blocks.SelectMany(b => b.Split(amPmLine));
-            amCount = splitBlocks.Where(b => b.From.Hour < 12).Sum(b => (int)b.Duration.TotalMinutes / slotDuration);
-            pmCount = splitBlocks.Where(b => b.From.Hour >= 12).Sum(b => (int)b.Duration.TotalMinutes / slotDuration);
+            amCount = slots.Where(b => b.From.Hour < 12).Sum(s => s.Capacity);
+            pmCount = slots.Where(b => b.From.Hour >= 12).Sum(s => s.Capacity);
         }
         return new List<QueryAvailabilityResponseBlock>
         {

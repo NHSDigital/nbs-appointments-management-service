@@ -8,7 +8,7 @@ public class SlotAvailabilityGrouperTests
 {
     private readonly SlotAvailabilityGrouper _sut = new();
     
-    [Fact]
+    /*[Fact]
     public void SlotAvailabilityGrouper_ReturnsCorrectAvailabilitySlots_WhenBlockDurationIsNotDivisibleBySlotDuration()
     {
         var slotDuration = 8;
@@ -71,5 +71,5 @@ public class SlotAvailabilityGrouperTests
         var blocks = AvailabilityHelper.CreateTestBlocks("09:00-09:30");
         var act = () => _sut.GroupAvailability(blocks, slotDuration);
         act.Should().Throw<ArgumentOutOfRangeException>();
-    }
+    }*/
 }

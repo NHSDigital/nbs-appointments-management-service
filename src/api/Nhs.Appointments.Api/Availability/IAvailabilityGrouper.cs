@@ -6,5 +6,5 @@ namespace Nhs.Appointments.Api.Availability;
 
 public interface IAvailabilityGrouper
 {
-    IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<TimePeriod> blocks, int slotDuration);
+    IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<SessionInstance> blocks);
 }

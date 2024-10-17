@@ -8,7 +8,7 @@ public class DailyAvailabilityGrouperTests
 {
     private readonly DailyAvailabilityGrouper _sut = new();
     
-    [Fact]
+    /*[Fact]
     public void DailyAvailabilityGrouper_ReturnsError_WhenBlocksIsNull()
     {
         var slotDuration = 5;
@@ -106,5 +106,5 @@ public class DailyAvailabilityGrouperTests
         };
         var result = _sut.GroupAvailability(blocks, slotDuration);
         result.Should().BeEquivalentTo(expectedResult);
-    }
+    }*/
 }

@@ -16,13 +16,7 @@ public class CosmosAutoMapperProfile : Profile
 
         CreateMap<SiteConfiguration, SiteConfigurationDocument>()
             .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Site));
-
-        CreateMap<WeekTemplate, WeekTemplateDocument>()
-            .ForMember(x => x.TemplateItems, opt => opt.MapFrom(src => src.Items));
-
-        CreateMap<WeekTemplateDocument, WeekTemplate>()
-            .ForMember(x => x.Items, opt => opt.MapFrom(src => src.TemplateItems));
-        
+      
         CreateMap<BookingDocument, Booking>();
         CreateMap<SiteConfigurationDocument, SiteConfiguration>();
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();

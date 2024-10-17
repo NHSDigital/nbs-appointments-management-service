@@ -1,55 +1,26 @@
 ﻿using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
-using Microsoft.Azure.Cosmos;
 
 namespace Nhs.Appointments.Persistance;
-public class WeekTemplateCosmosDocumentStore : ITemplateDocumentStore
+
+public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore) : IAvailabilityDocumentStore
 {
-    private readonly ITypedDocumentCosmosStore<WeekTemplateDocument> _templateStore;
-    private readonly ITypedDocumentCosmosStore<TemplateAssignmentDocument> _assignmentStore;
-
-    public WeekTemplateCosmosDocumentStore(
-        ITypedDocumentCosmosStore<WeekTemplateDocument> templateStore,
-        ITypedDocumentCosmosStore<TemplateAssignmentDocument> assignmentStore)
+    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
-        _templateStore = templateStore;
-        _assignmentStore = assignmentStore;
-    }
-
-    public Task<IEnumerable<WeekTemplate>> GetTemplates(string site)
-    {
-        var docType = _templateStore.GetDocumentType();
-        return _templateStore.RunQueryAsync<WeekTemplate>(sc => sc.Site == site && sc.DocumentType == docType);
-    }
-
-    public async Task<string> SaveTemplateAsync(WeekTemplate template)
-    {
-        var document = _templateStore.ConvertToDocument(template);
-        if(string.IsNullOrEmpty(document.Id))
-            document.Id = Guid.NewGuid().ToString();
-        await _templateStore.WriteAsync(document);
-        return document.Id;
-    }
-
-    public Task SaveTemplateAssignmentsAsync(string site, IEnumerable<TemplateAssignment> assignments)
-    {
-        var document = _assignmentStore.NewDocument();
-        document.Site = site;
-        document.Id = "default";
-        document.Assignments = assignments.ToArray();
-        return _assignmentStore.WriteAsync(document);
-    }
-
-    public async Task<IEnumerable<TemplateAssignment>> GetTemplateAssignmentsAsync(string site)
-    {
-        try
+        var results = new List<SessionInstance>();
+        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.Site == site);
+        foreach (var day in documents)
         {
-            var assignmentDoc = await _assignmentStore.GetDocument<TemplateAssignmentDocument>("default", site);
-            return assignmentDoc.Assignments;
+            results.AddRange(day.Sessions.Select(
+                s => new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
+                {
+                    Services = s.Services,
+                    SessionHolder = "default",
+                    SlotLength = s.SlotLength,
+                    Capacity = s.Capacity
+                }
+                ));
         }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            return Enumerable.Empty<TemplateAssignment>();
-        }
+        return results;
     }
 }

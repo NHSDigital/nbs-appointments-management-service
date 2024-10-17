@@ -5,7 +5,8 @@ namespace Nhs.Appointments.Persistance;
 
 public interface ITypedDocumentCosmosStore<TDocument> 
 {
-    Task<TModel> GetByIdAsync<TModel>(string documentId);    
+    Task<TModel> GetByIdAsync<TModel>(string documentId);
+    Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId);
     Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate);
     Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query);
     Task<TModel> GetDocument<TModel>(string documentId);

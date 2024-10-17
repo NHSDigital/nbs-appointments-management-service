@@ -2,13 +2,13 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.0.1"
+      version = ">= 4.5.0"
     }
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-appts-rg-dev-uks"
-    storage_account_name = "nbsapptstfdevuks"
+    resource_group_name  = "nbs-mya-rg-dev-uks"
+    storage_account_name = "myatfdevuks"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
   }

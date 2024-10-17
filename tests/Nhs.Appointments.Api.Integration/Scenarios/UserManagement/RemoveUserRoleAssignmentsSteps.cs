@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Persistance.Models;
+using System.Security.Claims;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
@@ -22,6 +23,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
     private RemoveUserResponse? _actualResponse;
     
     [When(@"I remove user '(.+)' from site '(.+)'")]
+    [And(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)
     {
         // Check user exists before removing them for assurance this method
@@ -42,7 +44,13 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         _statusCode = _response.StatusCode;
         _actualResponse = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
-    
+
+    [When(@"I'm logged in as user '(.+)'")]
+    public async Task LoggedIn(string user)
+    {
+        var claims = new Claim(ClaimTypes.Email, GetUserId(user));
+    }
+
     [Then(@"'(.+)' is no longer in the system")]
     public async Task Assert(string user)
     {
@@ -65,6 +73,16 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
             });
         var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
+    }
+
+    [Then(@"'(.+)' is not removed from the system")]
+    public async Task AssertNotRemoved(string user)
+    {
+        _response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        var document = await GetUserDocument(Client, user);
+
+        document.Should().NotBeNull();
     }
 
     private async Task<UserDocument?> GetUserDocument(CosmosClient cosmosClient, string user)

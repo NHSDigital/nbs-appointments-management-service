@@ -16,7 +16,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Notifications;
-using Nhs.Appointments.Api.Bookings;
 
 namespace Nhs.Appointments.Api;
 
@@ -49,7 +48,6 @@ public static class FunctionConfigurationExtensions
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
-            .Configure<MakeBookingOptions>(opts => opts.DisableAvailabilityCheck = Environment.GetEnvironmentVariable("DisableAvailabilityCheck") == "true")
             .AddTransient<ITemplateDocumentStore, WeekTemplateCosmosDocumentStore>()            
             .AddTransient<ISiteConfigurationStore, SiteConfigurationCosmosDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()

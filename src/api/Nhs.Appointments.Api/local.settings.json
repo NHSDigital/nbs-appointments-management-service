@@ -18,8 +18,7 @@
     "AuthProvider_ClientId": "nhs-appts-local",
     "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
     "Notifications_Provider": "local",
-    "GovNotifyApiKey": "test",
-    "DisableAvailabilityCheck": false
+    "GovNotifyApiKey": "test"
   },
   "Host": { "CORS": "*" }
 }

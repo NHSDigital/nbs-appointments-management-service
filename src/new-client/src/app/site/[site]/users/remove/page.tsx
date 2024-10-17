@@ -17,7 +17,6 @@ export type UserPageProps = {
 };
 
 const Page = async ({ params, searchParams }: UserPageProps) => {
-  const userProfile = await fetchUserProfile();
   if (searchParams?.user === undefined) {
     redirect(`/site/${params.site}/users`);
   }

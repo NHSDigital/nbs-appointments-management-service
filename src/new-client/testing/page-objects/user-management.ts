@@ -33,10 +33,12 @@ export default class UserManagementPage extends RootPage {
   }
 
   async userExists(email: string) {
-    expect(this.page.getByRole('cell', { name: email })).toBeVisible();
+    await expect(this.page.getByRole('cell', { name: email })).toBeVisible();
   }
 
   async userDoesNotExist(email: string) {
-    expect(this.page.getByRole('cell', { name: email })).not.toBeVisible();
+    await expect(
+      this.page.getByRole('cell', { name: email }),
+    ).not.toBeVisible();
   }
 }

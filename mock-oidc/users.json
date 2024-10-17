@@ -53,5 +53,16 @@
         "Value": "zzz_test_user_3@nhs.net"
       }
     ]
+  },
+  {
+    "SubjectId": "zzz_test_user_4@nhs.net",
+    "Username": "testuser4",
+    "Password": "t35tP@ssw0rd_4",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_4@nhs.net"
+      }
+    ]
   }
 ]

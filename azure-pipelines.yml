@@ -15,13 +15,13 @@ variables:
 stages:
   - stage: Build
     displayName: Build
-    variables:
-      apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-      apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-      coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-      persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
     jobs:
       - job: "Build"
+        variables:
+          apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
+          apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
+          coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
+          persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
         steps:
           - task: DotNetCoreCLI@2
             displayName: dotnet Publish

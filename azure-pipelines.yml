@@ -204,4 +204,4 @@ stages:
         apiServerName: nbs-mya-func-${{env}}-uks
         webServerName: nbs-mya-app-${{env}}-uks
         azure_devops_service_connection_name: nbs-mya-rg-dev
-        isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+        isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

@@ -28,6 +28,7 @@ public class RemoveUserFunction(
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/json", typeof(RemoveUserRequest), Description = "User successfully removed")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "User did not exist to be removed")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(string), Description = "Cannot remove currently logged in user")]
     [RequiresPermission("users:manage", typeof(SiteFromBodyInspector))]
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(

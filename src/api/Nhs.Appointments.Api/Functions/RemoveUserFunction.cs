@@ -38,8 +38,12 @@ public class RemoveUserFunction(
 
     protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request, ILogger logger)
     {
-        var result = await userService.RemoveUserAsync(request.User, request.Site);
+        if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
+        {
+            return Failed(HttpStatusCode.BadRequest, "You cannot remove the currently logged in user.");
+        }
 
+        var result = await userService.RemoveUserAsync(request.User, request.Site);
         return result.Success ? Success(new RemoveUserResponse(request.User, request.Site)) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 }

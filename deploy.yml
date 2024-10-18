@@ -16,15 +16,13 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-#    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
-    condition: succeeded()
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
       - job: RunTerraformPlan
         displayName: Run Terraform Plan
         steps:
-          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: Download Terraform Artifact
@@ -66,7 +64,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                - script: printenv
                 - download: none
                 - task: DownloadBuildArtifacts@0
                   displayName: Download Terraform Artifact
@@ -95,7 +92,6 @@ stages:
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"
         steps:
-          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: "Download Web App Artifact"
@@ -117,7 +113,6 @@ stages:
         dependsOn: ApplyTerraform
         displayName: Deploy Api
         steps:
-          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: Download Api Artifact

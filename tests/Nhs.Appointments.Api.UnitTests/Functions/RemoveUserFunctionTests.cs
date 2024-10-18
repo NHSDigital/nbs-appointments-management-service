@@ -30,6 +30,9 @@ public class RemoveUserFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenUserIsRemoved()
     {
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user3@nhs.net");
+        _userContextProvider.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
         _userService.Setup(service => service.RemoveUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new OperationResult(true));
         
         var request = CreateRequest( "test.user@nhs.net", "1001");
@@ -47,9 +50,12 @@ public class RemoveUserFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsNotFoundResponse_WhenUserDoesNotHaveRolesAtTheSite()
     {
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user3@nhs.net");
+        _userContextProvider.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
         _userService.Setup(service => service.RemoveUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new OperationResult(false, "User has no roles at site"));
 
-        var request = CreateRequest( "test.user@nhs.net", "1001");
+        var request = CreateRequest("test.user@nhs.net", "1001");
 
         var result = ParseResponse(await _sut.RunAsync(request));
         result.StatusCode.Should().Be(404);
@@ -66,6 +72,23 @@ public class RemoveUserFunctionTests
         result.StatusCode.Should().Be(400);
 
         _userService.Verify(service => service.RemoveUserAsync("", "1001"), Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsBadRequestResponse_WhenUserIsTryingToRemoveThemself()
+    {
+        const string testUser = "test.user@nhs.net";
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal(testUser);
+
+        _userContextProvider.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
+
+        var request = CreateRequest(testUser, "1001");
+
+        var result = ParseResponse(await _sut.RunAsync(request));
+        result.StatusCode.Should().Be(400);
+
+        _userService.Verify(service => service.RemoveUserAsync(testUser, "1001"), Times.Never);
     }
 
     private static HttpRequest CreateRequest(string user, string site)

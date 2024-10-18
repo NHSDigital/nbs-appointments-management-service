@@ -42,7 +42,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         _statusCode = _response.StatusCode;
         _actualResponse = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
-    
+
     [Then(@"'(.+)' is no longer in the system")]
     public async Task Assert(string user)
     {

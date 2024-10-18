@@ -7,6 +7,7 @@ import SitePage from './page-objects/site';
 import UsersPage from './page-objects/users';
 import UserManagementPage from './page-objects/user-management';
 import ConfirmRemoveUserPage from './page-objects/confirm-remove-user';
+import NotFoundPage from './page-objects/not-found';
 
 const { TEST_USERS } = env;
 
@@ -17,6 +18,7 @@ let sitePage: SitePage;
 let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
 let confirmRemoveUserPage: ConfirmRemoveUserPage;
+let notFoundPage: NotFoundPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -26,6 +28,7 @@ test.beforeEach(async ({ page }) => {
   usersPage = new UsersPage(page);
   userManagementPage = new UserManagementPage(page);
   confirmRemoveUserPage = new ConfirmRemoveUserPage(page);
+  notFoundPage = new NotFoundPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -158,4 +161,12 @@ test('Receives 403 error when trying to remove self', async ({ page }) => {
   await expect(
     page.getByText('Forbidden: You lack the necessary permissions'),
   ).toBeVisible();
+});
+
+test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
+  await page.goto(`/site/ABC01/users/remove?user=not-a-user`);
+
+  await expect(notFoundPage.title).toBeVisible();
+  await expect(notFoundPage.warningCalloutHeading).toBeVisible();
+  await expect(notFoundPage.warningCalloutText).toBeVisible();
 });

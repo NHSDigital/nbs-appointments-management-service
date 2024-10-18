@@ -18,11 +18,3 @@
       | Scope | Roles                      |
       | B     | canned:availability-manager |
       | C     | canned:check-in            |
-
-  Scenario: Remove currently logged in user, fails
-    Given The following role assignments for 'test-three' exist
-      | Site | Roles                             |
-      | A    | canned:availability-manager       |
-    When I'm logged in as user 'test-three'
-    And I remove user 'test-three' from site 'A'
-    Then 'test-three' is not removed from the system

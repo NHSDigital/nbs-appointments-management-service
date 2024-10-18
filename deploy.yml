@@ -8,7 +8,7 @@
   - name: azure_devops_service_connection_name
     type: string
   - name: isMain
-    type: boolean
+    type: string
   - name: variable_group
     type: string
 

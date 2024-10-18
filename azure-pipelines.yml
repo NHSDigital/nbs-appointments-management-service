@@ -18,8 +18,6 @@ stages:
     jobs:
       - job: "Build"
         variables:
-          azure_devops_service_connection_name: "nbs-mya-rg-dev"
-          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
@@ -114,7 +112,8 @@ stages:
 #        condition: false
         displayName: "Run integration and E2E tests"
         variables:
-          azure_devops_service_connection_name: 'nbs-mya-rg-dev'
+          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
+          azure_devops_service_connection_name: "nbs-mya-rg-dev"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
@@ -126,14 +125,14 @@ stages:
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: "$(azure_devops_service_connection_name)"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: "$(azure_devops_service_connection_name)"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
@@ -195,7 +194,7 @@ stages:
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: "$(azure_devops_service_connection_name)"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"

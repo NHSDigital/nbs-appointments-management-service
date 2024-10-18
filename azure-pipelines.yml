@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev","exp"]
+    default: ["dev"]
 
 variables:
   azure_devops_service_connection_name: "nbs-mya-rg-dev"
@@ -201,5 +201,5 @@ stages:
           variable_group: nbs-mya-${{env}}
           apiServerName: nbs-mya-func-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
-          azure_devops_service_connection_name: nbs-mya-rg-dev
+          azure_devops_service_connection_name: nbs-mya-rg-${{env}}
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

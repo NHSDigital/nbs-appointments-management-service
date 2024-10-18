@@ -16,7 +16,7 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    #    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:

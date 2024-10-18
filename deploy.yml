@@ -7,6 +7,8 @@
     type: string
   - name: azure_devops_service_connection_name
     type: string
+  - name: isMain
+    type: bool
   - name: variable_group
     type: string
 
@@ -14,6 +16,7 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:

@@ -10,7 +10,6 @@ parameters:
     default: ['dev','exp']
 
 variables:
-  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
   azure_devops_service_connection_name: "nbs-mya-rg-dev"
 
 stages:
@@ -108,9 +107,7 @@ stages:
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
 
-
       - job: "RunIntegrationAndE2ETests"
-#        condition: false
         displayName: "Run integration and E2E tests"
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
@@ -206,4 +203,5 @@ stages:
         variable_group: nbs-mya-${{env}}
         apiServerName: nbs-mya-func-${{env}}-uks
         webServerName: nbs-mya-app-${{env}}-uks
-        azure_devops_service_connection_name: 'nbs-mya-rg-dev-test'
+        azure_devops_service_connection_name: nbs-mya-rg-dev
+        isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]

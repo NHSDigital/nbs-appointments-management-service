@@ -21,8 +21,8 @@ public class DailyAvailabilityGrouper : IAvailabilityGrouper
         }
         return new List<QueryAvailabilityResponseBlock>
         {
-            new (new TimeOnly(0, 0), new TimeOnly(11, 59), amCount),
-            new (new TimeOnly(12, 0), new TimeOnly(23, 59), pmCount),
+            new (new TimeOnly(0, 0), new TimeOnly(12, 00), amCount),
+            new (new TimeOnly(12, 0), new TimeOnly(0, 0), pmCount),
         };
     }
 }

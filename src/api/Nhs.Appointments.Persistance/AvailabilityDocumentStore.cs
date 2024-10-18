@@ -16,7 +16,6 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
                 s => new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
                 {
                     Services = s.Services,
-                    SessionHolder = "default",
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
                 }

@@ -71,7 +71,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         
         var bookingResult = await _bookingService.MakeBooking(requestedBooking);
         if (bookingResult.Success == false)
-            return Failed(HttpStatusCode.InternalServerError, "Unable to make booking");
+            return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
         var response = new MakeBookingResponse(bookingResult.Reference);
         return Success(response);               

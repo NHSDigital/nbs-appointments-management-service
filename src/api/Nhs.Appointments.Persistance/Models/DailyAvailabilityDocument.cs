@@ -3,7 +3,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Persistance.Models;
 
-[CosmosDocumentType("availability")]
+[CosmosDocumentType("daily_availability")]
 public class DailyAvailabilityDocument : BookingDataCosmosDocument
 {
     [JsonProperty("date")]

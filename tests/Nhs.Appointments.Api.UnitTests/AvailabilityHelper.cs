@@ -4,23 +4,17 @@ namespace Nhs.Appointments.Api.Tests;
 
 public static class AvailabilityHelper
 {
-    public static List<SessionInstance> CreateTestBlocks(params string[] timesAndHolders)
+    public static List<SessionInstance> CreateTestSlots(DateOnly date, TimeOnly from, TimeOnly until, TimeSpan slotLength, int capacity = 1)
     {
-        var blocks = new List<SessionInstance>();
-        foreach (var item in timesAndHolders)
+        var slots = new List<SessionInstance>();
+        var cursor = from;
+
+        while(cursor < until)
         {
-            var sessionSplit = item.Split("|");
-            var sessionHolder = sessionSplit.Length > 1 ? sessionSplit[1] : "SessionHolder";
-            var limits= sessionSplit[0].Split("-");
-            var from = TimeSpan.ParseExact(limits[0], @"hh\:mm", null);
-            var until = TimeSpan.ParseExact(limits[1], @"hh\:mm", null);
-            DateTime date = new DateTime(2077, 1, 1);
-            
-            blocks.Add(new SessionInstance(date.Add(from), date.Add(until))
-            {
-                SessionHolder = sessionHolder
-            });
+            slots.Add(new SessionInstance(date.ToDateTime(cursor), date.ToDateTime(cursor.Add(slotLength))) { Capacity = capacity });
+            cursor = cursor.Add(slotLength);
         }
-        return blocks;
+               
+        return slots;
     }
 }

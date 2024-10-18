@@ -26,30 +26,10 @@ public class ScheduleBlock
 public class SessionInstance : TimePeriod
 {
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
-    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }
-    public string SessionHolder { get; set; }
+    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }    
     public string[] Services { get; set; }
     public int SlotLength { get; set; }
     public int Capacity { get; set; }
-}
-
-public class WeekTemplate
-{
-    [JsonProperty("id")]
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
-
-    [JsonProperty("name")]
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonProperty("site")]
-    [JsonPropertyName("site")]
-    public string Site { get; set; }
-
-    [JsonProperty("items")]
-    [JsonPropertyName("items")]
-    public Schedule[] Items { get; set; }
 }
 
 public class Schedule

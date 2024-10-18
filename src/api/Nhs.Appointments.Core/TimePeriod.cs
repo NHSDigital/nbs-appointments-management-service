@@ -91,6 +91,9 @@ public class TimePeriod
 
     public TimePeriod[] Divide(TimeSpan division)
     {
+        if (division == TimeSpan.Zero)
+            throw new DivideByZeroException();
+
         var blocks = new List<TimePeriod>();
         var block = new TimePeriod(From, Until);
 

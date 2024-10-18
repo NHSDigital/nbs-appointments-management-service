@@ -20,10 +20,9 @@ Booking reference: ((reference))
 Date and time: ((date))
 ((time))
 
-# If you need to cancel or rearrange your appointment:
+# If you need to change or cancel your appointment:
 
 * visit https://www.nhs.uk/book-rsv
 * if you can't get online, call 119
 
 You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.
-

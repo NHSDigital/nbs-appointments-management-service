@@ -12,7 +12,7 @@ Hello ((firstName)),
 
 Thank you for booking your appointment for your COVID-19 and flu vaccinations.
 
-# Your appointment
+Your appointment
 
 Booking reference: ((reference))
 ((siteName))
@@ -24,7 +24,7 @@ Date and time: ((date))
 
 If you have COVID-19 or flu, wait until you feel better before getting vaccinated.
 
-You should also wait if you have a high temperature or feel particularly unwell with any illness. If you have recently got better from COVID-19 or flu, there is no need to delay getting vaccinated.
+You should also wait if you have a high temperature or feel very unwell with any illness. If you have recently got better from COVID-19 or flu, there is no need to delay getting vaccinated.
 
 # If you need to cancel or rearrange your appointment:
 

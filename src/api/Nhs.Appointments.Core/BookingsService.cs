@@ -55,8 +55,8 @@ public class BookingsService : IBookingsService
     {            
         using (var leaseContent = _siteLeaseManager.Acquire(booking.Site))
         {                
-            var blocks = await _availabilityCalculator.CalculateAvailability(booking.Site, booking.Service, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
-            var canBook = blocks.Any(bl => bl.Contains(booking.TimePeriod));
+            var slots = await _availabilityCalculator.CalculateAvailability(booking.Site, booking.Service, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {

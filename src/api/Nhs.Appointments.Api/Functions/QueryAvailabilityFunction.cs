@@ -20,21 +20,18 @@ using Nhs.Appointments.Api.Auth;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>
-{
-    private readonly ISiteConfigurationService _siteConfigurationService;
+{    
     private readonly IAvailabilityCalculator _availabilityCalculator;
     private readonly IAvailabilityGrouperFactory _availabilityGrouperFactory;
     
     public QueryAvailabilityFunction(
         IAvailabilityCalculator availabilityCalculator, 
-        ISiteConfigurationService siteConfigurationService,
-        IValidator<QueryAvailabilityRequest> validator,
+         IValidator<QueryAvailabilityRequest> validator,
         IAvailabilityGrouperFactory availabilityGrouperFactory,
         IUserContextProvider userContextProvider,
         ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
     {
         _availabilityCalculator = availabilityCalculator;
-        _siteConfigurationService = siteConfigurationService;
         _availabilityGrouperFactory = availabilityGrouperFactory;
     }
 

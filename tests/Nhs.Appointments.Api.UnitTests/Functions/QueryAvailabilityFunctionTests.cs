@@ -1,11 +1,7 @@
-﻿using System.Net;
-using System.Text;
-using FluentAssertions;
+﻿using System.Text;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
@@ -21,8 +17,7 @@ public class QueryAvailabilityFunctionTests
 {
     private readonly QueryAvailabilityFunction _sut;
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
-    private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
-    private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
+        private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<IValidator<QueryAvailabilityRequest>> _validator = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
@@ -32,8 +27,7 @@ public class QueryAvailabilityFunctionTests
     {
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object, 
-            _siteConfigurationService.Object, 
-            _validator.Object, 
+                _validator.Object, 
             _availabilityGrouperFactory.Object, 
             _userContextProvider.Object,
             _logger.Object);
@@ -241,16 +235,7 @@ public class QueryAvailabilityFunctionTests
         request.Body =  new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Add("Authorization", "Test 123");
         return request;
-    }
-
-    private static SiteConfiguration CreateSiteConfiguration(string siteId, string serviceCode, string serviceName)
-    {
-        return new SiteConfiguration
-        {
-            Site = siteId,
-            ServiceConfiguration = new List<ServiceConfiguration> { new (serviceCode, serviceName, 5, true) }
-        };
-    }
+    }       
 
     private static IEnumerable<QueryAvailabilityResponseBlock> CreateAmPmResponseBlocks(int amCount, int pmCount)
     {

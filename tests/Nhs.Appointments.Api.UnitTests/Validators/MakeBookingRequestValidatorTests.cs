@@ -16,6 +16,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             site,
             "2077-01-01 09:00",
+            5,
             "COVID",
             "SessionHolder",
             GetAttendeeDetails(),
@@ -42,6 +43,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             from,
+            5,
             "COVID",
             "SessionHolder",
             GetAttendeeDetails(),
@@ -62,6 +64,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             service,
             "SessionHolder",
             GetAttendeeDetails(),
@@ -82,6 +85,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
             sessionHolder,
             GetAttendeeDetails(),
@@ -100,6 +104,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
             "SessionHolder",
             null,
@@ -118,6 +123,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
             "SessionHolder",
             GetAttendeeDetails(),
@@ -146,6 +152,7 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
             "SessionHolder",
             GetAttendeeDetails(),

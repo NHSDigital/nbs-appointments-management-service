@@ -17,6 +17,9 @@ public class SiteDocument : IndexDataCosmosDocument
 
     [JsonProperty("attributeValues")]
     public AttributeValue[] AttributeValues { get; set; }
+
+    [JsonProperty("referenceNumberGroup")]
+    public int ReferenceNumberGroup { get; set; }
 }
 
 

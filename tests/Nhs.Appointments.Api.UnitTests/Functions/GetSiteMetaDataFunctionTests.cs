@@ -16,14 +16,14 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class GetSiteMetaDataFunctionTests
 {
     private readonly GetSiteMetaDataFunction _sut;
-    private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
+    private readonly Mock<ISiteService> _siteService = new();
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
 
     public GetSiteMetaDataFunctionTests()
     {        
-        _sut = new GetSiteMetaDataFunction(_siteConfigurationService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -32,7 +32,7 @@ public class GetSiteMetaDataFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccess_WhenRequestedSiteIsConfigured()
     {
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationOrDefaultAsync("123")).ReturnsAsync(new SiteConfiguration { InformationForCitizen = "Test data" });
+        _siteService.Setup(x => x.GetSiteByIdAsync("123")).ReturnsAsync(new Site("ABC01", "TEST", "Test", Enumerable.Empty<AttributeValue>(), new Location("", new[] { 0.0, 0.0 })));
         var request = CreateRequest();
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);

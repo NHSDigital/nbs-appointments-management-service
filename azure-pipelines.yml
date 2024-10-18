@@ -132,10 +132,8 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
           - script: |
-              dotnet dev-certs https --check --trust
-              Write-Host "Cert checked"
               dotnet dev-certs https --clean
-#              dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
+              dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
               docker compose up --build --detach

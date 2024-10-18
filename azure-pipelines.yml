@@ -11,21 +11,21 @@ parameters:
 
 variables:
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
-  azure_devops_service_connection_name: "nbs-mya-rg-dev"
-  PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
-  integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-  cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-  apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
-  apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
-  coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
-  persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
   
 stages:
   - stage: Build
     displayName: Build
     jobs:
       - job: "Build"
+        variables:
+          azure_devops_service_connection_name: "nbs-mya-rg-dev"
+          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
+          apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
+          apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
+          coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
+          persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
         steps:
+          - script: printenv
           - task: DotNetCoreCLI@2
             displayName: dotnet Publish
             inputs:
@@ -113,7 +113,12 @@ stages:
       - job: "RunIntegrationAndE2ETests"
 #        condition: false
         displayName: "Run integration and E2E tests"
+        variables:
+          azure_devops_service_connection_name: 'nbs-mya-rg-dev'
+          integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+          cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
+          - script: printenv
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$ShortCommitHash"
@@ -202,4 +207,4 @@ stages:
         variable_group: nbs-mya-${{env}}
         apiServerName: nbs-mya-func-${{env}}-uks
         webServerName: nbs-mya-app-${{env}}-uks
-        azure_devops_service_connection_name: 'nbs-mya-rg-dev'
+        azure_devops_service_connection_name: 'nbs-mya-rg-dev-test'

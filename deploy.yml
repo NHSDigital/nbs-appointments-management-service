@@ -20,6 +20,7 @@ stages:
       - job: RunTerraformPlan
         displayName: Run Terraform Plan
         steps:
+          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: Download Terraform Artifact
@@ -48,6 +49,7 @@ stages:
         displayName: Approve Terraform Plan
         pool: server
         steps:
+          - script: printenv
           - task: ManualValidation@0
             displayName: 'Review Terraform Plan'
             inputs:
@@ -61,6 +63,7 @@ stages:
           runOnce:
             deploy:
               steps:
+                - script: printenv
                 - download: none
                 - task: DownloadBuildArtifacts@0
                   displayName: Download Terraform Artifact
@@ -89,6 +92,7 @@ stages:
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"
         steps:
+          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: "Download Web App Artifact"
@@ -110,6 +114,7 @@ stages:
         dependsOn: ApplyTerraform
         displayName: Deploy Api
         steps:
+          - script: printenv
           - checkout: none
           - task: DownloadBuildArtifacts@0
             displayName: Download Api Artifact

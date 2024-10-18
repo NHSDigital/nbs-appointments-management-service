@@ -49,7 +49,6 @@ stages:
         displayName: Approve Terraform Plan
         pool: server
         steps:
-          - script: printenv
           - task: ManualValidation@0
             displayName: 'Review Terraform Plan'
             inputs:

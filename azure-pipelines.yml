@@ -24,11 +24,11 @@ stages:
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
         steps:
           - task: DotNetCoreCLI@2
-            displayName: dotnet Publish
+            displayName: "dotnet Publish"
             inputs:
               command: publish
               publishWebProjects: false
-              projects: "$(apiProjectPath)"
+              projects: $(apiProjectPath)
               arguments: "--output $(Build.ArtifactStagingDirectory)"
               zipAfterPublish: false
               modifyOutputPath: false
@@ -41,16 +41,16 @@ stages:
             displayName: "Run Core Unit Tests"
             inputs:
               command: "test"
-              projects: "$(coreUnitTestProjectPath)"
+              projects: $(coreUnitTestProjectPath)
           - task: DotNetCoreCLI@2
             displayName: "Run Persistance Unit Tests"
             inputs:
               command: "test"
-              projects: "$(persistanceUnitTestProjectPath)"
+              projects: $(persistanceUnitTestProjectPath)
           - task: ArchiveFiles@2
             displayName: Zip Api
             inputs:
-              rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
+              rootFolderOrFile: $(Build.ArtifactStagingDirectory)
               includeRootFolder: false
               archiveType: "zip"
               archiveFile: "$(Build.ArtifactStagingDirectory)/out/mya-api-$(Build.BuildId).zip"
@@ -106,10 +106,9 @@ stages:
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
 
-      - job: "RunIntegrationAndE2ETests"
+      - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"
         variables:
-          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
@@ -132,7 +131,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
           - script: |
-              dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
+              dotnet dev-certs https -ep $(Build.SourcesDirectory)/.aspnet/https/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
               docker compose up --build --detach
@@ -146,7 +145,7 @@ stages:
           - task: PublishTestResults@2
             displayName: "Publish integration test results"
             inputs:
-              searchFolder: "$(Agent.TempDirectory)"
+              searchFolder: $(Agent.TempDirectory)
               testResultsFormat: "VSTest"
               testResultsFiles: "myaServiceTests.trx"
               testRunTitle: "NBS Appointments Management Service Integration Tests"
@@ -156,7 +155,7 @@ stages:
             displayName: "Reset and seed Cosmos DB containers"
             inputs:
               command: "run"
-              projects: "$(cosmosDbSeederProjectPath)"
+              projects: $(cosmosDbSeederProjectPath)
           - task: UseNode@1
             displayName: "Install Node"
             inputs:
@@ -195,11 +194,11 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
 
   - ${{ each env in parameters.environments }}:
-    - template: deploy.yml
-      parameters:
-        env: ${{env}}
-        variable_group: nbs-mya-${{env}}
-        apiServerName: nbs-mya-func-${{env}}-uks
-        webServerName: nbs-mya-app-${{env}}-uks
-        azure_devops_service_connection_name: nbs-mya-rg-dev
-        isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+      - template: 'scripts/deployment/deploy.yml'
+        parameters:
+          env: ${{env}}
+          variable_group: nbs-mya-${{env}}
+          apiServerName: nbs-mya-func-${{env}}-uks
+          webServerName: nbs-mya-app-${{env}}-uks
+          azure_devops_service_connection_name: nbs-mya-rg-dev
+          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

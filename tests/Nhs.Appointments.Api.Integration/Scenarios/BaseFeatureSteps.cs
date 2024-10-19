@@ -95,17 +95,25 @@ public abstract class BaseFeatureSteps : Feature
                 {
                     From = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
                     Until = TimeOnly.Parse(row.Cells.ElementAt(2).Value),
-                    Services = row.Cells.ElementAt(3).Value.Split(","),
+                    Services = row.Cells.ElementAt(3).Value.Split(",").Select(x => x.Trim()).ToArray(),
                     Capacity = int.Parse(row.Cells.ElementAt(5).Value),
                     SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
                 }
             }
         });
 
-        // TODO: Group together documents on the same day and make a single document with multiple sessions
-        foreach (var session in sessions)
+        var documents = sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument()
         {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(session);
+            Id = g.First().Id,
+            Date = g.Key,
+            Site = g.First().Site,
+            DocumentType = "daily_availability",
+            Sessions = g.SelectMany(s => s.Sessions).ToArray()
+        });
+        
+        foreach (var document in documents)
+        {
+            await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
         }
     }
 

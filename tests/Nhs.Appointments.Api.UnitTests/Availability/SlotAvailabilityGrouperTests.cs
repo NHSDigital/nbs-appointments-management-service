@@ -6,28 +6,13 @@ namespace Nhs.Appointments.Api.Tests.Availability;
 
 public class SlotAvailabilityGrouperTests
 {
+    private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly SlotAvailabilityGrouper _sut = new();
     
-    /*[Fact]
-    public void SlotAvailabilityGrouper_ReturnsCorrectAvailabilitySlots_WhenBlockDurationIsNotDivisibleBySlotDuration()
-    {
-        var slotDuration = 8;
-        var blocks = AvailabilityHelper.CreateTestBlocks("09:00-09:30");
-        var expectedResult = new List<QueryAvailabilityResponseBlock>
-        {
-            new (new TimeOnly(9, 0), new TimeOnly(9, 8), 1),
-            new (new TimeOnly(9, 8), new TimeOnly(9, 16), 1),
-            new (new TimeOnly(9, 16), new TimeOnly(9, 24), 1),
-        };
-        var result = _sut.GroupAvailability(blocks, slotDuration);
-        result.Should().BeEquivalentTo(expectedResult);
-    }
-    
     [Fact]
-    public void SlotAvailabilityGrouper_ReturnsCorrectAvailabilitySlots_WhenBlockDurationIsDivisibleBySlotDuration()
+    public void SlotAvailabilityGrouper_ReturnsCorrectAvailabilitySlots_SingleCapacitySlots()
     {
-        var slotDuration = 5;
-        var blocks = AvailabilityHelper.CreateTestBlocks("09:00-09:30");
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9,0), new TimeOnly(9,30), TimeSpan.FromMinutes(5));
         var expectedResult = new List<QueryAvailabilityResponseBlock>
         {
             new (new TimeOnly(9, 0), new TimeOnly(9, 5), 1),
@@ -37,39 +22,47 @@ public class SlotAvailabilityGrouperTests
             new (new TimeOnly(9, 20), new TimeOnly(9, 25), 1),
             new (new TimeOnly(9, 25), new TimeOnly(9, 30), 1),
         };
-        var result = _sut.GroupAvailability(blocks, slotDuration);
+        var result = _sut.GroupAvailability(slots);
         result.Should().BeEquivalentTo(expectedResult);
     }
     
-    [Fact] public void SlotAvailabilityGrouper_ReturnsCorrectSlotAvailabilityCount_WhenThereAreMultipleSessionHolders()
+    [Fact]
+    public void SlotAvailabilityGrouper_ReturnsCorrectAvailabilitySlots_MultiCapacitySlots()
     {
-        var slotDuration = 5;
-        var blocks = AvailabilityHelper.CreateTestBlocks("09:00-09:10|SessionHolder-One", "09:00-09:20|SessionHolder-Two");
+        var blocks = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(9, 30), TimeSpan.FromMinutes(5), 3);
         var expectedResult = new List<QueryAvailabilityResponseBlock>
         {
-            new (new TimeOnly(9, 0), new TimeOnly(9, 5), 2),
-            new (new TimeOnly(9, 5), new TimeOnly(9, 10), 2),
-            new (new TimeOnly(9, 10), new TimeOnly(9, 15), 1),
-            new (new TimeOnly(9, 15), new TimeOnly(9, 20), 1),
+            new (new TimeOnly(9, 0), new TimeOnly(9, 5), 3),
+            new (new TimeOnly(9, 5), new TimeOnly(9, 10), 3),
+            new (new TimeOnly(9, 10), new TimeOnly(9, 15), 3),
+            new (new TimeOnly(9, 15), new TimeOnly(9, 20), 3),
+            new (new TimeOnly(9, 20), new TimeOnly(9, 25), 3),
+            new (new TimeOnly(9, 25), new TimeOnly(9, 30), 3),
         };
-        var result = _sut.GroupAvailability(blocks, slotDuration);
+        var result = _sut.GroupAvailability(blocks);
+        result.Should().BeEquivalentTo(expectedResult);
+    }
+    
+    [Fact] public void SlotAvailabilityGrouper_AmalgamatesMatchingSlots()
+    {
+        var slots = new[]
+        {
+            new SessionInstance(Date.ToDateTime(new TimeOnly(9,0)), Date.ToDateTime(new TimeOnly(9,10))){Capacity = 1},
+            new SessionInstance(Date.ToDateTime(new TimeOnly(9,0)), Date.ToDateTime(new TimeOnly(9,10))){Capacity = 2},
+        };
+
+        var expectedResult = new List<QueryAvailabilityResponseBlock>
+        {
+            new (new TimeOnly(9, 0), new TimeOnly(9, 10), 3)            
+        };
+        var result = _sut.GroupAvailability(slots);
         result.Should().BeEquivalentTo(expectedResult);
     }
     
     [Fact]
     public void SlotAvailabilityGrouper_ReturnsError_WhenBlocksIsNull()
     {
-        var slotDuration = 5;
-        var act = () => _sut.GroupAvailability(null, slotDuration);
+        var act = () => _sut.GroupAvailability(null);
         act.Should().Throw<ArgumentNullException>();
     }
-    
-    [Fact]
-    public void SlotAvailabilityGrouper_ReturnsError_WhenSlotDurationIsOutOfRange()
-    {
-        var slotDuration = 0;
-        var blocks = AvailabilityHelper.CreateTestBlocks("09:00-09:30");
-        var act = () => _sut.GroupAvailability(blocks, slotDuration);
-        act.Should().Throw<ArgumentOutOfRangeException>();
-    }*/
 }

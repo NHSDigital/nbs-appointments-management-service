@@ -12,9 +12,7 @@ public record MakeBookingRequest(
     [JsonProperty("duration")]
     int Duration,
     [JsonProperty("service")]
-    string Service,
-    [JsonProperty("sessionHolder")]
-    string SessionHolder,
+    string Service,    
     [JsonProperty("attendeeDetails")]
     AttendeeDetails AttendeeDetails,
     [JsonProperty("contactDetails")]

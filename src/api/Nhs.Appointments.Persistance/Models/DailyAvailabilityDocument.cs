@@ -9,5 +9,5 @@ public class DailyAvailabilityDocument : BookingDataCosmosDocument
     [JsonProperty("date")]
     public DateOnly Date { get; set; }
     [JsonProperty("sessions")]
-    public ScheduleBlock[] Sessions { get; set; }
+    public Session[] Sessions { get; set; }
 }

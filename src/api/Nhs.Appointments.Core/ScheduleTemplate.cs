@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
 
-public class ScheduleBlock
+public class Session
 {
     [JsonProperty("from")]
     [JsonPropertyName("from")]
@@ -40,5 +40,5 @@ public class Schedule
 
     [JsonProperty("scheduleBlocks")]
     [JsonPropertyName("scheduleBlocks")]
-    public ScheduleBlock[] ScheduleBlocks { get; set; }
+    public Session[] Sessions { get; set; }
 }

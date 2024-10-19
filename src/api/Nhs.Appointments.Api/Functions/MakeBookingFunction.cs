@@ -55,7 +55,6 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         {
             From = bookingRequest.FromDateTime,
             Duration = bookingRequest.Duration,
-            SessionHolder = bookingRequest.SessionHolder,
             Service = bookingRequest.Service,
             Site = bookingRequest.Site,
             AttendeeDetails = new Core.AttendeeDetails

@@ -10,7 +10,8 @@ public class AvailabilityService(IAvailabilityStore availabilityStore) : IAvaila
         if (from > until)
             throw new ArgumentException("until date must be after from date");
 
-        ArgumentNullException.ThrowIfNull(template);
+        if (template == null)
+            throw new ArgumentException("template must be provided");
 
         if (template.Sessions?.Length == 0)
             throw new ArgumentException("template must contain one or more sessions");

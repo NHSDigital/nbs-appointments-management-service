@@ -17,8 +17,12 @@ public class Session
     [JsonPropertyName("services")]
     public string[] Services { get; set; }
 
+    [JsonProperty("slotLength")]
+    [JsonPropertyName("slotLength")]
     public int SlotLength { get; set; }
 
+    [JsonProperty("capacity")]
+    [JsonPropertyName("capacity")]
     public int Capacity { get; set; }
     
 }
@@ -32,13 +36,13 @@ public class SessionInstance : TimePeriod
     public int Capacity { get; set; }
 }
 
-public class Schedule
+public class Template
 {
     [JsonProperty("days")]
     [JsonPropertyName("days")]
     public DayOfWeek[] Days { get; set; }
 
-    [JsonProperty("scheduleBlocks")]
-    [JsonPropertyName("scheduleBlocks")]
+    [JsonProperty("sessions")]
+    [JsonPropertyName("sessions")]
     public Session[] Sessions { get; set; }
 }

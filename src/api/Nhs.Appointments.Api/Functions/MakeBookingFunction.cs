@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -49,8 +48,6 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
 
     protected override async Task<ApiResult<MakeBookingResponse>> HandleRequest(MakeBookingRequest bookingRequest, ILogger logger)
     {
-        var bookingDate = DateOnly.FromDateTime(bookingRequest.FromDateTime);
-
         var requestedBooking = new Booking
         {
             From = bookingRequest.FromDateTime,

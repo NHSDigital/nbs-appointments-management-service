@@ -5,11 +5,11 @@ public interface IAvailabilityCalculator
     Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
 }
 
-public class AvailabilityCalculator(IAvailabilityDocumentStore availabilityDocumentStore, IBookingsDocumentStore bookingDocumentStore) : IAvailabilityCalculator
+public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore) : IAvailabilityCalculator
 {
     public async Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until)
     {
-        var allSessions = await availabilityDocumentStore.GetSessions(site, from, until);
+        var allSessions = await availabilityStore.GetSessions(site, from, until);
         var sessionsForService = allSessions.Where(s => s.Services.Contains(service));   
 
         if (sessionsForService.Any())

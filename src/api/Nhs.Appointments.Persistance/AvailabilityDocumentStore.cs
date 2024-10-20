@@ -3,7 +3,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore) : IAvailabilityDocumentStore
+public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore) : IAvailabilityStore
 {
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
@@ -22,5 +22,19 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
                 ));
         }
         return results;
+    }
+
+    public async Task ApplyTemplate(string site, DateOnly date, Session[] sessions)
+    {
+        var documentType = documentStore.GetDocumentType();
+        var document = new DailyAvailabilityDocument()
+        {
+            Date = date,
+            DocumentType = documentType,
+            Id = date.ToString("yyyyMMdd"),
+            Sessions = sessions,
+            Site = site
+        };
+        await documentStore.WriteAsync(document);
     }
 }

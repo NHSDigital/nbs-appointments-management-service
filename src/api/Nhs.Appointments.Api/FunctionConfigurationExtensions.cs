@@ -48,7 +48,7 @@ public static class FunctionConfigurationExtensions
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
-            .AddTransient<IAvailabilityDocumentStore, AvailabilityDocumentStore>()
+            .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
             .AddTransient<IUserStore, UserStore>()
@@ -61,6 +61,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAttributeDefinitionsService, AttributeDefinitionsService>()
+            .AddTransient<IAvailabilityService, AvailabilityService>()
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()

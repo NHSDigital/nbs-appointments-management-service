@@ -4,7 +4,7 @@ public class AvailabilityCalculatorTests
 {
     private readonly AvailabilityCalculator _sut;
     private readonly Mock<IBookingsDocumentStore> _bookingDocumentStore = new();
-    private readonly Mock<IAvailabilityDocumentStore> _availabilityDocumentStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityDocumentStore = new();
 
     public AvailabilityCalculatorTests()
     {

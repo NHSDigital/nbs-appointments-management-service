@@ -16,13 +16,13 @@ Thank you for booking your flu vaccination appointment.
 
 Booking reference: ((reference))
 ((siteName))
-((address))
 Date and time: ((date))
 ((time))
+((address))
 
-# If you need to cancel or rearrange your appointment:
+# If you need to change or cancel your appointment:
 
-* visit https://www.nhs.uk/book-vaccine
+* visit https://www.nhs.uk/book-flu
 * if you can't get online, call 119
 
 Please cancel your appointment if you have had a flu vaccine somewhere else. It helps the pharmacy to let them know if you can no longer attend.

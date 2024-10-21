@@ -150,4 +150,43 @@ public class AvailabilityServiceTests
         };
         actualDates.Should().BeEquivalentTo(expectedDates);
     }
+
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("")]
+    [InlineData(null)]
+    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSiteIsInvalid(string? site)
+    {
+        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>()); };
+        await setAvailability.Should().ThrowAsync<ArgumentException>("Site must have a value.");
+    }
+
+    [Fact]
+    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSessionsArrayIsEmpty()
+    {
+        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), "test-site", Array.Empty<Session>()); };
+        await setAvailability.Should().ThrowAsync<ArgumentException>("Availability must contain one or more sessions.");
+    }
+
+    [Fact]
+    public async Task SetAvailability_CallsAvailabilityStore_WithSessions()
+    {
+        var sessions = new List<Session>
+        {
+            new()
+                {
+                    Capacity = 1,
+                    From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                    Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                    Services = ["RSV", "COVID"],
+                    SlotLength = 5
+                }
+        }.ToArray();
+        var date = new DateOnly(2024, 10, 10);
+        var site = "test-site";
+
+        await _sut.SetAvailabilityAsync(date, site, sessions);
+
+        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions), Times.Once);
+    }
 }

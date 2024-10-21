@@ -1,10 +1,6 @@
 ﻿import NhsPage from '@components/nhs-page';
 import { ManageUsersPage } from './manage-users-page';
-import {
-  fetchPermissions,
-  fetchSite,
-  fetchUserProfile,
-} from '@services/appointmentsService';
+import { fetchPermissions, fetchSite } from '@services/appointmentsService';
 
 export type UserPageProps = {
   params: {
@@ -16,7 +12,6 @@ export type UserPageProps = {
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
-  const userProfile = await fetchUserProfile();
   const userIsSpecified = () =>
     (searchParams && 'user' in searchParams) ?? false;
 
@@ -35,7 +30,6 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
         { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}
-      userProfile={userProfile}
     >
       <ManageUsersPage
         userIsSpecified={userIsSpecified()}

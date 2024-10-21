@@ -43,7 +43,6 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
         { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}
-      userProfile={userProfile}
     >
       <RemoveUserPage user={searchParams?.user} site={site} />
     </NhsPage>

@@ -21,11 +21,6 @@ const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const permissions = await fetchPermissions(params.site);
 
-  // TODO: This check will be unnecessary after APPT-202 is merged
-  if (userProfile === undefined) {
-    throw new Error('Not logged in');
-  }
-
   return (
     <NhsPage
       title="Manage Staff Roles"
@@ -33,7 +28,6 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
-      userProfile={userProfile}
     >
       <UsersPage
         userProfile={userProfile}

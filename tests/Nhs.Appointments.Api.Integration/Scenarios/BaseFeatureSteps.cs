@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
@@ -83,11 +86,22 @@ public abstract class BaseFeatureSteps : Feature
     [And(@"the following sessions for site '(\w)'")]
     public async Task SetupSessions(string siteDesignation, Gherkin.Ast.DataTable dataTable)
     {
+        var site = GetSiteId(siteDesignation);
+        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable); 
+        
+        foreach (var document in availabilityDocuments)
+        {
+            await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
+        }
+    }
+
+    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site, Gherkin.Ast.DataTable dataTable)
+    {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
             Id = row.Cells.ElementAt(0).Value.Replace("-", ""),
             Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
-            Site = GetSiteId(siteDesignation),
+            Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
             {
@@ -102,7 +116,7 @@ public abstract class BaseFeatureSteps : Feature
             }
         });
 
-        var documents = sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument()
+        return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument()
         {
             Id = g.First().Id,
             Date = g.Key,
@@ -110,11 +124,6 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
-        
-        foreach (var document in documents)
-        {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
-        }
     }
 
     [Given("the following bookings have been made")]
@@ -166,7 +175,7 @@ public abstract class BaseFeatureSteps : Feature
         }
     }
 
-    private DayOfWeek[] ParseDays(string pattern)
+    protected static DayOfWeek[] ParseDays(string pattern)
     {
         if (pattern == "All")
             return new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
@@ -214,7 +223,8 @@ public abstract class BaseFeatureSteps : Feature
                             "users:view", 
                             "sites:query",
                             "site:view",
-                            "site:manage"
+                            "site:manage",
+                            "availability:set-setup"
                         ] 
                     },
                 new Role
@@ -264,5 +274,20 @@ public abstract class BaseFeatureSteps : Feature
             ]
         };        
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
+    }
+
+    protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,  Expression<Func<TDocument, bool>> predicate)
+    {
+        var queryFeed = container.GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+        var results = new List<TDocument>();
+        using (queryFeed)
+        {
+            while (queryFeed.HasMoreResults)
+            {
+                var resultSet = await queryFeed.ReadNextAsync();
+                results.AddRange(resultSet);
+            }
+        }
+        return results;
     }
 }

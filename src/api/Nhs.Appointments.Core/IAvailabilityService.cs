@@ -2,5 +2,5 @@
 
 public interface IAvailabilityService
 {
-    Task ApplyTemplateAsync(string site, DateOnly from, DateOnly until, Template template);
+    Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template);
 }

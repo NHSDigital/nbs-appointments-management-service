@@ -2,7 +2,7 @@
 
 public class AvailabilityService(IAvailabilityStore availabilityStore) : IAvailabilityService
 {
-    public async Task ApplyTemplateAsync(string site, DateOnly from, DateOnly until, Template template)
+    public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template)
     {
         if (string.IsNullOrEmpty(site))
             throw new ArgumentException("site must have a value");
@@ -22,7 +22,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore) : IAvaila
         var dates = GetDatesBetween(from, until, template.Days);
         foreach (var date in dates)
         {
-            await availabilityStore.ApplyTemplate(site, date, template.Sessions);
+            await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions);
         }
     }
 

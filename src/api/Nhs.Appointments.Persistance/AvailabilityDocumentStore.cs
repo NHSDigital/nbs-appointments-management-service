@@ -24,7 +24,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         return results;
     }
 
-    public async Task ApplyTemplate(string site, DateOnly date, Session[] sessions)
+    public async Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions)
     {
         var documentType = documentStore.GetDocumentType();
         var document = new DailyAvailabilityDocument()

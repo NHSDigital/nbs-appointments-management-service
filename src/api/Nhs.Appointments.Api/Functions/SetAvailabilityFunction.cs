@@ -33,7 +33,7 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request, ILogger logger)
     {
         await availabilityService.SetAvailabilityAsync(request.AvailabilityDate, request.Site, request.Sessions);
-        return Success();
+        return Success(new EmptyResponse());
     }
 }
 

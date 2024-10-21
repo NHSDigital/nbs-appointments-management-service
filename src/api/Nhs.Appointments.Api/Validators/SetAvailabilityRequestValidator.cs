@@ -18,9 +18,11 @@ namespace Nhs.Appointments.Api.Validators
                 .NotEmpty()
                 .WithMessage("Provide a valid site.");
 
-            RuleForEach(x => x.Sessions)
+            RuleFor(x => x.Sessions)
                 .NotEmpty()
-                .WithMessage("Provide one or more valid sessions")
+                .WithMessage("Provide one or more valid sessions");
+
+            RuleForEach(x => x.Sessions)
                 .SetValidator(new SessionValidator());
         }
     }

@@ -1,5 +1,5 @@
 import NhsPage from '@components/nhs-page';
-import { fetchSite, fetchUserProfile } from '@services/appointmentsService';
+import { fetchSite } from '@services/appointmentsService';
 
 type PageProps = {
   params: {
@@ -9,7 +9,6 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
-  const userProfile = await fetchUserProfile();
 
   return (
     <NhsPage
@@ -18,7 +17,6 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
-      userProfile={userProfile}
     >
       {/* This will be covered in APPT-240 */}
       <span></span>

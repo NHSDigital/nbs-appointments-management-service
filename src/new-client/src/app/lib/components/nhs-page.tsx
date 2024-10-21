@@ -1,9 +1,8 @@
-import { Breadcrumbs, Breadcrumb, Footer } from '@nhsuk-frontend-components';
+import { Breadcrumbs, Breadcrumb } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
 import { NhsHeader } from './nhs-header';
 import NotificationBanner from './notification-banner';
 import { cookies } from 'next/headers';
-import { UserProfile } from '@types';
 import NhsFooter from './nhs-footer';
 
 type Props = {
@@ -11,7 +10,6 @@ type Props = {
   children: ReactNode;
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
-  userProfile?: UserProfile;
 };
 
 const NhsPage = ({
@@ -19,13 +17,12 @@ const NhsPage = ({
   children = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
-  userProfile,
 }: Props) => {
   const notification = cookies().get('ams-notification')?.value;
 
   return (
     <>
-      <NhsHeader userEmail={userProfile?.emailAddress} />
+      <NhsHeader />
       <Breadcrumbs
         trail={[
           ...breadcrumbs,

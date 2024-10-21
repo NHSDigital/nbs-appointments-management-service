@@ -26,6 +26,17 @@ public class AvailabilityService(IAvailabilityStore availabilityStore) : IAvaila
         }
     }
 
+    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions)
+    {
+        if (string.IsNullOrEmpty(site))
+            throw new ArgumentException("Site must have a value.");
+
+        if (sessions?.Length == 0)
+            throw new ArgumentException("Availability must contain one or more sessions.");
+
+        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions);
+    }
+
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {
         var cursor = start;

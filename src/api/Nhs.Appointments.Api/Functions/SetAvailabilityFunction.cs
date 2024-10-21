@@ -7,32 +7,33 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
-using System;
+using Nhs.Appointments.Core;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetAvailabilityFunction : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>
+public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger)
+    : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    public SetAvailabilityFunction(IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger logger)
-        : base(validator, userContextProvider, logger)
-    {
-    }
-
-    [OpenApiOperation(operationId: "SetAvailability", tags: new[] {"Appointment Availability"}, Summary = "Set appointment availability")]
+    [OpenApiOperation(operationId: "SetAvailability", tags: ["Appointment Availability"], Summary = "Set appointment availability")]
     [OpenApiRequestBody("text/json", typeof(SetAvailabilityRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
-    [RequiresPermission("availability:query", typeof(NoSiteRequestInspector))]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "text/plain", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [RequiresPermission("availability:set-setup", typeof(SiteFromBodyInspector))]
     [Function("SetAvailabilityFunction")]
-    public override Task<IActionResult> RunAsync(HttpRequest req)
+    public override Task<IActionResult> RunAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
-    protected override Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request, ILogger logger)
     {
-        throw new NotImplementedException();
+        await availabilityService.SetAvailabilityAsync(request.AvailabilityDate, request.Site, request.Sessions);
+        return Success();
     }
 }
 

@@ -82,7 +82,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     {
         var bookingDocument = _bookingStore.ConvertToDocument(booking);
 
-        var patch = PatchOperation.Replace("/reminderSent", true);
+        var patch = PatchOperation.Set("/reminderSent", true);
         await _bookingStore.PatchDocument(bookingDocument.Site, booking.Reference, patch);
 
     }

@@ -18,7 +18,8 @@
     "AuthProvider_ClientId": "nhs-appts-local",
     "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
     "Notifications_Provider": "local",
-    "GovNotifyApiKey": "test"
+    "GovNotifyApiKey": "test",
+    "BookingRemindersCronSchedule": "0 0 8 * * *"
   },
   "Host": { "CORS": "*" }
 }

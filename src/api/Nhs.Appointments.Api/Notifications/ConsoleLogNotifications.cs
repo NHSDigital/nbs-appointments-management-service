@@ -25,23 +25,17 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
 {
     protected override void ProcessMessage<T>(T message)
     {
-        var userRolesChanged = message as UserRolesChanged;
-
-        if(userRolesChanged != null)
+        if(message is UserRolesChanged userRolesChanged)
         {
             userRolesChangedConsumer.Consume(new DummyConsumeContext<UserRolesChanged>() { Message = userRolesChanged });
         }
 
-        var bookingMade = message as BookingMade;
-
-        if (bookingMade != null)
+        if (message is BookingMade bookingMade)
         {
             bookingMadeConsumer.Consume(new DummyConsumeContext<BookingMade>() { Message = bookingMade });
         }
 
-        var bookingReminder = message as BookingReminder;
-
-        if (bookingReminder != null)
+        if (message is BookingReminder bookingReminder)
         {
             bookingReminderConsumer.Consume(new DummyConsumeContext<BookingReminder>() { Message = bookingReminder });
         }

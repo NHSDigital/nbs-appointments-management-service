@@ -12,32 +12,17 @@ using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>
-{    
-    private readonly IAvailabilityCalculator _availabilityCalculator;
-    private readonly IAvailabilityGrouperFactory _availabilityGrouperFactory;
-    
-    public QueryAvailabilityFunction(
-        IAvailabilityCalculator availabilityCalculator, 
-         IValidator<QueryAvailabilityRequest> validator,
-        IAvailabilityGrouperFactory availabilityGrouperFactory,
-        IUserContextProvider userContextProvider,
-        ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _availabilityCalculator = availabilityCalculator;
-        _availabilityGrouperFactory = availabilityGrouperFactory;
-    }
+public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger)
+    : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger)
+{
 
-    [OpenApiOperation(operationId: "QueryAvailability", tags: new [] {"Appointment Availability"}, Summary = "Query appointment availability")]
+    [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by Days, Hours or Slots")]
     [OpenApiRequestBody("text/json", typeof(QueryAvailabilityRequest),Required = true)]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [RequiresPermission("availability:query", typeof(NoSiteRequestInspector))]
@@ -67,14 +52,14 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
     {
-        var slots = (await _availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
+        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;
         while (day <= until)
         {
             var slotsForDay = slots.Where(b => day == DateOnly.FromDateTime(b.From));
-            var availabilityGrouper = _availabilityGrouperFactory.Create(queryType);
+            var availabilityGrouper = availabilityGrouperFactory.Create(queryType);
             var groupedBlocks = availabilityGrouper.GroupAvailability(slotsForDay);
             availability.Add(new QueryAvailabilityResponseInfo(day, groupedBlocks));
             day = day.AddDays(1);

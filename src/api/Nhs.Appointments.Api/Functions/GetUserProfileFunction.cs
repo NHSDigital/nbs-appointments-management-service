@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -20,8 +18,7 @@ namespace Nhs.Appointments.Api.Functions
     : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger)
     {
 
-        [OpenApiOperation(operationId: "GetUserProfile", tags: new[] { "Utility" }, Summary = "Gets information about the signed in user")]        
-        [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
+        [OpenApiOperation(operationId: "GetUserProfile", tags: ["User"], Summary = "Gets information about the signed in user")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(UserProfile), Description = "Information about the signed in user")]
         [Function("GetUserProfileFunction")]
         public override Task<IActionResult> RunAsync(

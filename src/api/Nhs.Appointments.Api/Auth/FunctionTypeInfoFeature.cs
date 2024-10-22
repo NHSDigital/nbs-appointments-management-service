@@ -16,3 +16,12 @@ public class FunctionTypeInfoFeature(MethodInfo methodInfo) : IFunctionTypeInfoF
     public Type RequestInspector => _requiresPermissionAttribute.Value?.RequestInspector;
 }
 
+public class SkipInfoFeature : IFunctionTypeInfoFeature
+{
+
+    public MethodInfo EntryPointInfo => null;
+    public bool RequiresAuthentication => false;
+    public string RequiredPermission => String.Empty;
+    public Type RequestInspector => null;
+}
+

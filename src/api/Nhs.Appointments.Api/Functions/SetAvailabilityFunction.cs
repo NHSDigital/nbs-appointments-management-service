@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Functions;
 public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger)
     : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "SetAvailability", tags: ["Appointment Availability"], Summary = "Set appointment availability")]
+    [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability")]
     [OpenApiRequestBody("text/json", typeof(SetAvailabilityRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "text/plain", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]

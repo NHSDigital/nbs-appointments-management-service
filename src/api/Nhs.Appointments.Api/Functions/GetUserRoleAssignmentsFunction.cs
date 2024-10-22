@@ -9,13 +9,19 @@ using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 
 namespace Nhs.Appointments.Api.Functions
 {
     public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger)
         : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger)
     {
+        [OpenApiOperation(operationId: "Get_GetUserRoleAssignmentsFunction", tags: ["Users"], Summary = "Get user roles assignments for a site")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "List of user role assignments for a site")]
+        [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+        [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
         [RequiresPermission("users:view", typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]
         public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req)

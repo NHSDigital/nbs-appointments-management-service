@@ -8,8 +8,6 @@ using Nhs.Appointments.Api.Models;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -18,8 +16,7 @@ public class GetUserPermissionsFunction(IPermissionChecker permissionChecker, IV
     : SiteBasedResourceFunction<PermissionsResponse>(validator, userContextProvider, logger)
 {
 
-    [OpenApiOperation(operationId: "GetPermissionsForUser", tags: new[] { "Auth" }, Summary = "Gets the users for a given user and site")]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
+    [OpenApiOperation(operationId: "GetPermissionsForUser", tags: ["User"], Summary = "Gets the users for a given user and site")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(PermissionsResponse), Description = "List of permissions the user has at the specified site")]    
     [Function("GetPermissionsForUserFunction")]
     public override Task<IActionResult> RunAsync(

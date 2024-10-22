@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -18,9 +16,9 @@ namespace Nhs.Appointments.Api.Functions;
 public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger ) 
     : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "GetRoles", tags: new[] { "Auth" }, Summary = "Gets all existing roles")]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(GetRolesResponse), Description = "List of roles with name and id information")]    
+    [OpenApiOperation(operationId: "GetRoles", tags: ["Roles"], Summary = "Get user roles in the system")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(GetRolesResponse), Description = "List of roles with id and display name information")]  
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetRolesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles")] HttpRequest req)

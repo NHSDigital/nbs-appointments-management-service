@@ -8,8 +8,6 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -29,7 +27,6 @@ public class SetBookingStatusFunction : BaseApiFunction<SetBookingStatusRequest,
 
     [OpenApiOperation(operationId: "SetBookingStatus", tags: new [] {"Booking"}, Summary = "Set the status of a booking")]
     [OpenApiRequestBody("text/json", typeof(SetBookingStatusRequest))]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(SetBookingStatusResponse), Description = "Booking status successfully set")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [RequiresPermission("booking:set-status", typeof(SiteFromBodyInspector))]

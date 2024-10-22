@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import LogInButton from './log-in-button';
-import NhsAnonymousPage from '@components/nhs-anonymous-page';
+import NhsPage from '@components/nhs-page';
 
 export type LoginPageProps = {
   searchParams?: {
@@ -15,13 +15,13 @@ export const metadata: Metadata = {
 
 const Page = async ({ searchParams }: LoginPageProps) => {
   return (
-    <NhsAnonymousPage title="Appointment Management Service">
+    <NhsPage title="Appointment Management Service" omitTitleFromBreadcrumbs>
       <p>
         You are currently not signed in. You must sign in to access this
         service.
       </p>
       <LogInButton redirectUrl={searchParams?.redirectUrl ?? '/'} />
-    </NhsAnonymousPage>
+    </NhsPage>
   );
 };
 

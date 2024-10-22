@@ -13,7 +13,7 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -93,6 +93,12 @@ function handleBodyResponse<T>(
     if (response.httpStatusCode === 401) {
       const lastRequestedPath = headers().get('x-last-requested-path');
 
+      const token = cookies().get('token');
+      console.dir(token);
+      if (token) {
+        cookies().delete('token');
+      }
+
       redirect(
         lastRequestedPath
           ? `/login?redirectUrl=${lastRequestedPath}`
@@ -121,6 +127,12 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
 
   if (response.httpStatusCode === 401) {
     const lastRequestedPath = headers().get('x-last-requested-path');
+
+    const token = cookies().get('token');
+    console.dir(token);
+    if (token) {
+      cookies().delete('token');
+    }
 
     redirect(
       lastRequestedPath ? `/login?redirectUrl=${lastRequestedPath}` : '/login',

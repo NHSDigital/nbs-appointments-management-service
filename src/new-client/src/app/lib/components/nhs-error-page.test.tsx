@@ -21,6 +21,7 @@ describe('Nhs Page', () => {
       ],
     });
   });
+
   it('shows the correct title', async () => {
     const jsx = await NhsErrorPage({
       title: 'Test title',
@@ -30,6 +31,7 @@ describe('Nhs Page', () => {
     render(jsx);
     expect(screen.getByRole('heading', { name: /Test title/i })).toBeVisible();
   });
+
   it('shows the correct breadcrumbs including title', async () => {
     const jsx = await NhsErrorPage({
       title: 'Test title',
@@ -44,6 +46,7 @@ describe('Nhs Page', () => {
     expect(screen.getByRole('link', { name: 'Level Two' })).toBeVisible();
     expect(screen.getByRole('listitem', { name: /Test title/i })).toBeVisible();
   });
+
   it('shows the correct breadcrumbs without title', async () => {
     const jsx = await NhsErrorPage({
       title: 'Test title',
@@ -59,6 +62,7 @@ describe('Nhs Page', () => {
     expect(screen.getByRole('link', { name: 'Level Two' })).toBeVisible();
     expect(screen.queryByRole('listitem', { name: /Test title/i })).toBeNull();
   });
+
   it('displays the correct error message', async () => {
     const jsx = await NhsErrorPage({
       title: 'Test title',

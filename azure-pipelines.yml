@@ -113,24 +113,24 @@ stages:
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
-#          - powershell: |
-#              $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
-#              Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$ShortCommitHash"
-#            displayName: Set short commit hash
-#          - task: AzureCLI@2
-#            displayName: "Create Cosmos DB account"
-#            inputs:
-#              azureSubscription: $(azure_devops_service_connection_name)
-#              scriptType: pscore
-#              scriptLocation: scriptPath
-#              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
-#          - task: AzureCLI@2
-#            displayName: "Get Cosmos DB account connection string"
-#            inputs:
-#              azureSubscription: $(azure_devops_service_connection_name)
-#              scriptType: pscore
-#              scriptLocation: scriptPath
-#              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+          - powershell: |
+              $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
+              Write-Host "##vso[task.setvariable variable=SHORT_COMMIT_HASH]$ShortCommitHash"
+            displayName: Set short commit hash
+          - task: AzureCLI@2
+            displayName: "Create Cosmos DB account"
+            inputs:
+              azureSubscription: $(azure_devops_service_connection_name)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: $(azure_devops_service_connection_name)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
           - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password

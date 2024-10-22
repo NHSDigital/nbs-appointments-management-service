@@ -54,6 +54,27 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
           </Button>
         </Link>
       )}
+
+      <h3>Information for citizens</h3>
+      <p>Instructions to be show to people when they arrive</p>
+      {permissions.includes('site:manage') ? (
+        <ButtonGroup>
+          <Link href={`/site/${site.id}/details/edit-information-for-citizens`}>
+            <Button>Manage information for citizens</Button>
+          </Link>
+          <Link href={`/site/${site.id}`}>
+            <Button type="button" styleType="secondary">
+              Go back
+            </Button>
+          </Link>
+        </ButtonGroup>
+      ) : (
+        <Link href={`/site/${site.id}`}>
+          <Button type="button" styleType="secondary">
+            Go back
+          </Button>
+        </Link>
+      )}
     </>
   );
 };

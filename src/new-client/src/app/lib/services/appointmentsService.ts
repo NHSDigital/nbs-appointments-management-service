@@ -62,6 +62,10 @@ export async function fetchAttributeDefinitions() {
   return handleResponse(response) ?? [];
 }
 
+export async function fetchInformationForCitizens() {
+  return 'This is some placeholder information text before hooking it up to the API';
+}
+
 export async function fetchRoles() {
   const response = await appointmentsApi.get<{ roles: Role[] }>(
     'roles?tag=canned',

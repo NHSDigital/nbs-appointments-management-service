@@ -3,10 +3,10 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import StartAndEndDateStep from './start-and-end-date-step';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { AvailabilityPeriod, Site } from '@types';
+import { Site } from '@types';
 import saveAvailabilityPeriod from './save-availability-period';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
-import dayjs from 'dayjs';
+import SummaryStep from './summary-step';
 
 export type AvailabilityPeriodFormValues = {
   startDateDay: number;
@@ -24,11 +24,10 @@ type Props = {
 const AvailabilityPeriodWizard = ({ site }: Props) => {
   const methods = useForm<AvailabilityPeriodFormValues>();
 
-  const submitForm: SubmitHandler<AvailabilityPeriodFormValues> = (
+  const submitForm: SubmitHandler<AvailabilityPeriodFormValues> = async (
     form: AvailabilityPeriodFormValues,
   ) => {
-    const availabilityPeriod = mapFormValuesToAvailabilityPeriod(form);
-    saveAvailabilityPeriod(availabilityPeriod);
+    await saveAvailabilityPeriod(form, site);
   };
 
   return (
@@ -48,34 +47,35 @@ const AvailabilityPeriodWizard = ({ site }: Props) => {
           <WizardStep>
             {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
           </WizardStep>
+          <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
         </Wizard>
       </form>
     </FormProvider>
   );
 };
 
-const mapFormValuesToAvailabilityPeriod = (
-  formValues: AvailabilityPeriodFormValues,
-): AvailabilityPeriod => {
-  // TODO: Implement this properly and use DayJS, plus validation etc. etc.
-  return {
-    startDate: new dayjs.Dayjs(
-      new Date(
-        formValues.startDateYear,
-        formValues.startDateMonth - 1,
-        formValues.startDateDay,
-      ),
-    ),
-    endDate: new dayjs.Dayjs(
-      new Date(
-        formValues.endDateYear,
-        formValues.endDateMonth,
-        formValues.endDateDay,
-      ),
-    ),
-    services: [],
-    status: 'Unpublished',
-  };
-};
+// const mapFormValuesToAvailabilityPeriod = (
+//   formValues: AvailabilityPeriodFormValues,
+// ): AvailabilityPeriod => {
+//   // TODO: Implement this properly and use DayJS, plus validation etc. etc.
+//   return {
+//     startDate: new dayjs.Dayjs(
+//       new Date(
+//         formValues.startDateYear,
+//         formValues.startDateMonth - 1,
+//         formValues.startDateDay,
+//       ),
+//     ),
+//     endDate: new dayjs.Dayjs(
+//       new Date(
+//         formValues.endDateYear,
+//         formValues.endDateMonth,
+//         formValues.endDateDay,
+//       ),
+//     ),
+//     services: [],
+//     status: 'Unpublished',
+//   };
+// };
 
 export default AvailabilityPeriodWizard;

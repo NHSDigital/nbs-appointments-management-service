@@ -5,14 +5,13 @@ import { fetchUserProfile } from '@services/appointmentsService';
 import LogInButton from './log-in-button';
 import NotificationBanner from './notification-banner';
 import { cookies } from 'next/headers';
+import NhsHeading, { NhsHeadingProps } from '@components/nhs-heading';
 
 type Props = {
-  title: string;
-  caption?: string;
   children: ReactNode;
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
-};
+} & NhsHeadingProps;
 
 const NhsPage = async ({
   title,
@@ -38,11 +37,7 @@ const NhsPage = async ({
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
               <span></span>
-              <h1 className="app-page-heading">
-                {caption && <span className="nhsuk-caption-l">{caption}</span>}
-                {title}
-              </h1>
-
+              <NhsHeading title={title} caption={caption} />
               <NotificationBanner notification={notification} />
               {userProfile === undefined ? (
                 <>

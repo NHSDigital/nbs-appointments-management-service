@@ -14,6 +14,7 @@ import {
   isSameDayOrBefore,
   parseAndValidateDateFromComponents,
 } from '@services/timeService';
+import NhsHeading from '@components/nhs-heading';
 
 const StartAndEndDateStep = ({
   goToNextStep,
@@ -93,10 +94,10 @@ const StartAndEndDateStep = ({
         href={returnRouteUponCancellation ?? ''}
         onClick={returnRouteUponCancellation ? undefined : goToPreviousStep}
       />
-      <h1 className="app-page-heading">
-        <span className="nhsuk-caption-l">Create availability period</span>
-        Add start and end dates for your availability period
-      </h1>
+      <NhsHeading
+        title="Add start and end dates for your availability period"
+        caption="Create availability period"
+      />
       <FormGroup
         error={
           errors.startDateDay?.message ||

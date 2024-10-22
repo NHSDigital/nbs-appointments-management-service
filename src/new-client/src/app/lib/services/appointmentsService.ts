@@ -5,6 +5,7 @@ import {
   AttributeDefinition,
   AttributeValue,
   Role,
+  SaveAvailabilityRequest,
   SiteWithAttributes,
   User,
   UserProfile,
@@ -163,4 +164,21 @@ export const removeUserFromSite = async (site: string, user: string) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchAvailabilityPeriods = async (siteId: string) => {
   return mockAvailabilityPeriods;
+};
+
+export const saveAvailability = async (request: SaveAvailabilityRequest) => {
+  const response = await appointmentsApi.post(
+    `availability`,
+    JSON.stringify(request),
+  );
+
+  handleResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully created availability for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  // TODO: Once the fetch availability route is implemented, refresh the tag here
+  // revalidateTag(`fetchAvailability`);
 };

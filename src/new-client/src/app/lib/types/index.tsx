@@ -36,6 +36,28 @@ type Role = {
   description: string;
 };
 
+type SaveAvailabilityRequest = {
+  date: dayjs.Dayjs;
+  site: string;
+  sessions: Session[];
+};
+
+type Session = {
+  from: dayjs.Dayjs;
+  until: dayjs.Dayjs;
+  services: string[];
+  slotLength: number;
+  capacity: number;
+};
+
+// type FetchAvailabilityRequest = {
+//   sites: string[];
+//   service: string;
+//   from: dayjs.Dayjs;
+//   until: dayjs.Dayjs;
+//   queryType: 'days' | 'hours' | 'slots';
+// };
+
 type RoleAssignment = {
   scope: string;
   role: string;
@@ -72,6 +94,7 @@ export type {
   AttributeValue,
   Role,
   RoleAssignment,
+  SaveAvailabilityRequest,
   ServiceType,
   Site,
   SiteWithAttributes,

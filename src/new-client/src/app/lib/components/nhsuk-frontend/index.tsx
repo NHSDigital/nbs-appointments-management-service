@@ -14,14 +14,14 @@ import InsetText from './inset-text';
 import NhsLogo from './icons/nhs-logo';
 import RightChevron from './icons/right-chevron';
 import Select from './select';
-import SummaryList from './summary-list';
+import SummaryList, { SummaryListItem } from './summary-list';
 import Table from './table';
 import Tag from './tag';
 import TextArea from './text-area';
 import TextInput from './text-input';
 import WarningCallout from './warning-callout';
 
-export type { Breadcrumb };
+export type { Breadcrumb, SummaryListItem };
 export {
   BackLink,
   Breadcrumbs,

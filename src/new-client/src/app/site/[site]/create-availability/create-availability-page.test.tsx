@@ -26,7 +26,8 @@ describe('Create Availability Page', () => {
     ).toBeInTheDocument;
   });
 
-  it('renders a table of availability periods', async () => {
+  // TODO: Re-implement this once this page has gone back through design
+  it.skip('renders a table of availability periods', async () => {
     const jsx = await CreateAvailabilityPage({ site: mockSite });
 
     render(jsx);

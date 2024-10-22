@@ -4,123 +4,229 @@ public class AvailabilityCalculatorTests
 {
     private readonly AvailabilityCalculator _sut;
     private readonly Mock<IBookingsDocumentStore> _bookingDocumentStore = new();
-    private readonly Mock<IScheduleService> _scheduleService = new();
+    private readonly Mock<IAvailabilityStore> _availabilityDocumentStore = new();
 
     public AvailabilityCalculatorTests()
     {
-        _sut = new AvailabilityCalculator(_scheduleService.Object, _bookingDocumentStore.Object);
+        _sut = new AvailabilityCalculator(_availabilityDocumentStore.Object, _bookingDocumentStore.Object);
     }
 
     [Fact]
-    public async Task CalculateAvailability_ReturnsSessionInstancesForAllHolders_WhenMultipleSessionHolders()
+    public async Task CalculateAvailability_ReturnsEmpty_WhenSessionsAndServiceDoNotMatch()
     {
-        var site = "1";
-        var service = "COVID";
-        var requestFrom = new DateOnly(2077, 1, 1);
-        var requestUntil = new DateOnly(2077, 1, 4);
-        var sessions = new List<SessionInstance>()
+        var sessions = new[]
         {
-            CreateSessionInstance("holder1", new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0)),
-            CreateSessionInstance("holder1", new DateTime(2077, 1, 2, 9, 0, 0), new DateTime(2077, 1, 2, 12, 0, 0)),
-            CreateSessionInstance("holder2", new DateTime(2077, 1, 3, 9, 0, 0), new DateTime(2077, 1, 3, 12, 0, 0)),
-            CreateSessionInstance("holder2", new DateTime(2077, 1, 4, 9, 0, 0), new DateTime(2077, 1, 4, 12, 0, 0))
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), "COVID")
         };
-        _scheduleService.Setup(x => x.GetSessions(site, service, requestFrom, requestUntil))
-            .ReturnsAsync(sessions);
-        var result = await _sut.CalculateAvailability(site, service , requestFrom, requestUntil);
-
-        Assert.NotNull(result);
-        Assert.Equal(4, result.Count());
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        var results = await _sut.CalculateAvailability("ABC01", "FLU", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+        results.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task AvailabilityCalculator_SplitsBlocks_ForSessionsWithExistingBookings()
+    public async Task CalculateAvailability_ReturnsSlots_ByDividingSessions()
     {
-        var site = "1000";
-        var service = "COVID";
-        var sessionFromDateTime = new DateTime(2077, 1, 1, 9, 0, 0);
-        var sessionUntilDateTime = new DateTime(2077, 1, 1, 10, 0, 0);
-        var appointmentDateAndTime = new DateTime(2077, 1, 1, 9, 40, 0);
-        var appointmentDuration = 5;
-        var sessions = new List<SessionInstance>()
+        var sessions = new[]
         {
-            CreateSessionInstance("SessionHolder", sessionFromDateTime, sessionUntilDateTime),
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID")
         };
-        var booking = new List<Booking>
-        {
-            CreateTestBooking(appointmentDateAndTime, appointmentDuration, service, site)
-        };
-        var expectedResult = new List<SessionInstance>
-        {
-            new (new DateTime(2077, 1, 1, 9,0,0), new DateTime(2077, 1, 1, 9,40,0)){SessionHolder = "SessionHolder"},
-            new (new DateTime(2077, 1, 1, 9, 45, 0), new DateTime(2077, 1, 1,10,0,0)){SessionHolder = "SessionHolder"},
-        };
-        _scheduleService.Setup(x => x.GetSessions(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(booking);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
-        var result = await _sut.CalculateAvailability(site, service, DateOnly.FromDateTime(sessionFromDateTime) , DateOnly.FromDateTime(sessionUntilDateTime));
-        result.Should().BeEquivalentTo(expectedResult);
-    }
-    
-    [Fact]
-    public async Task AvailabilityCalculator_OnlySplitsBlocks_ForSessionsThatHaveBookings()
-    {
-        var site = "1000";
-        var service = "COVID";
-        var sessionHolderOne = "SessionHolder-One";
-        var sessionHolderTwo = "SessionHolder-Two";
-        var sessionFromDateTime = new DateTime(2077, 1, 1, 9, 0, 0);
-        var sessionUntilDateTime = new DateTime(2077, 1, 1, 10, 0, 0);
-        var appointmentDateAndTime = new DateTime(2077, 1, 1, 9, 40, 0);
-        var appointmentDuration = 5;
-        var sessions = new List<SessionInstance>()
+        var expectedResults = new[]
         {
-            CreateSessionInstance(sessionHolderOne, sessionFromDateTime, sessionUntilDateTime),
-            CreateSessionInstance(sessionHolderTwo, sessionFromDateTime, sessionUntilDateTime),
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 1 },
         };
-        var booking = new List<Booking>
-        {
-            CreateTestBooking(appointmentDateAndTime, appointmentDuration, service, site, sessionHolderOne)
-        };
-        var expectedResult = new List<SessionInstance>
-        {
-            new (new DateTime(2077, 1, 1, 9,0,0), new DateTime(2077, 1, 1, 9,40,0)){SessionHolder = sessionHolderOne},
-            new (new DateTime(2077, 1, 1, 9, 45, 0), new DateTime(2077, 1, 1, 10,0,0)){SessionHolder = sessionHolderOne},
-            new (new DateTime(2077, 1, 1, 9,0,0), new DateTime(2077, 1, 1, 10,0,0)){SessionHolder = sessionHolderTwo}
-        };
-        _scheduleService.Setup(x => x.GetSessions(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(booking);
 
-        var result = await _sut.CalculateAvailability(site, service, DateOnly.FromDateTime(sessionFromDateTime) , DateOnly.FromDateTime(sessionUntilDateTime));
-        result.Should().BeEquivalentTo(expectedResult);
+        results.Should().BeEquivalentTo(expectedResults);
     }
 
     [Fact]
-    public async Task AvailabilityCalculator_ReturnsEmptySessionInstance_WhenNoSessionsWereFound()
+    public async Task CalculateAvailability_AllowsOverlappingSessions()
     {
-        var site = "1000";
-        var service = "COVID";
-        var from = new DateOnly(2077, 1, 1);
-        var until = new DateOnly(2077, 1, 1);
-        var sessions = new List<SessionInstance>();
-        _scheduleService.Setup(x => x.GetSessions(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(sessions);
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
+            CreateSessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,10,30,0), 15, 1, "COVID")
+        };
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
-        var result = await _sut.CalculateAvailability(site, service, from , until);
-        result.Should().NotBeNull();
-        result.Count().Should().Be(0);
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,10,0,0), new DateTime(2077,1,1,10,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,10,15,0), new DateTime(2077,1,1,10,30,0)){ Services = new []{"COVID"}, Capacity = 1 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
     }
 
-    private static SessionInstance CreateSessionInstance(string holder, DateTime from, DateTime until)
+    [Fact]
+    public async Task CalculateAvailability_FiltersOutSessions_WithoutMatchingService()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "FLU")
+        };
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 1 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
+    public async Task CalculateAvailability_AsjustsSlotCapacity_BasedOnBookings()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 2, "COVID"),
+        };
+
+        var bookings = new[]
+        {
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01")
+        };
+
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
+    public async Task CalculateAvailability_AsjustsSlotCapacity_BasedOnBookings_IgnoresCancelledAppointments()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 2, "COVID"),
+        };
+
+        var bookings = new[]
+        {
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", "cancelled")
+        };
+
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
+    public async Task CalculateAvailability_FiltersSlots_WithNoRemainingCapacity()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 2, "COVID"),
+        };
+
+        var bookings = new[]
+        {
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01"),
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01")
+        };
+
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {            
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
+    public async Task CalculateAvailability_MatchesBookings_ToCorrectSession()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 2, "COVID"),
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 30, 2, "COVID"),
+        };
+
+        var bookings = new[]
+        {
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01"),            
+        };
+
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+
+    private static SessionInstance CreateSessionInstance(DateTime from, DateTime until, params string[] services)
+    {
+        return CreateSessionInstance(from, until, 5, 1, services);
+    }
+
+    private static SessionInstance CreateSessionInstance(DateTime from, DateTime until, int slotLength, int capacity, params string[] services)
     {
         var sessionInstance = new SessionInstance(from, until);
-        sessionInstance.SessionHolder = holder;
+        sessionInstance.Services = services;
+        sessionInstance.Capacity = capacity;
+        sessionInstance.SlotLength = slotLength;
         return sessionInstance;
     }
     
-    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, string sessionHolder = "SessionHolder")
+    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, string outcome = null)
     {
         var testBooking = new Booking
         {
@@ -128,9 +234,8 @@ public class AvailabilityCalculatorTests
             From = appointmentDateAndTime,
             Duration = appointmentDuration,
             Service = service,
-            Site = site,
-            SessionHolder = sessionHolder,
-            Outcome = null,
+            Site = site,            
+            Outcome = outcome,
             AttendeeDetails = new AttendeeDetails()
             {
                 NhsNumber = "999999999",

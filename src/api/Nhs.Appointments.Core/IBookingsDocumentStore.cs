@@ -12,14 +12,6 @@ public interface IBookingsDocumentStore
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);    
 }
 
-public interface ISiteConfigurationStore
-{
-    Task ReplaceOrCreate(SiteConfiguration siteConfiguration);
-    Task<SiteConfiguration> GetAsync(string site);
-    Task<SiteConfiguration> GetOrDefault(string site);
-    Task AssignPrefix(string site, int prefix);
-}
-
 public interface IRolesStore
 {
     Task<IEnumerable<Role>> GetRoles();

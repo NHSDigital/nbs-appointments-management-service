@@ -14,17 +14,7 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Reference))
             .ForMember(x => x.NhsNumber, opt => opt.MapFrom(src => src.AttendeeDetails.NhsNumber));
 
-        CreateMap<SiteConfiguration, SiteConfigurationDocument>()
-            .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Site));
-
-        CreateMap<WeekTemplate, WeekTemplateDocument>()
-            .ForMember(x => x.TemplateItems, opt => opt.MapFrom(src => src.Items));
-
-        CreateMap<WeekTemplateDocument, WeekTemplate>()
-            .ForMember(x => x.Items, opt => opt.MapFrom(src => src.TemplateItems));
-        
-        CreateMap<BookingDocument, Booking>();
-        CreateMap<SiteConfigurationDocument, SiteConfiguration>();
+        CreateMap<BookingDocument, Booking>();        
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Core.RoleAssignment, Models.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();

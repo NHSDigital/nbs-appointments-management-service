@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
@@ -60,108 +63,74 @@ public abstract class BaseFeatureSteps : Feature
         SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
     }
 
-    [Given(@"The following service configuration")]
-    public Task SetupServiceConfiguration(Gherkin.Ast.DataTable dataTable)
+    [Given("the site is configured for MYA")]
+    public Task SetupSite()
     {
-        return SetupServiceConfiguration("A", dataTable);
-    }
-    
-    [Given(@"The following service configuration for site '(\w)'")]
-    [And(@"the following service configuration for site '(\w)'")]
-    public Task SetupServiceConfiguration(string siteDesignation, Gherkin.Ast.DataTable dataTable)
-    {
-        var siteConfiguration = new SiteConfigurationDocument
+        var site = new SiteDocument
         {
-            Id = GetSiteId(siteDesignation),
-            DocumentType = "site_configuration",
-            SiteName = "TEST",
-            Site = GetSiteId(siteDesignation),
-            ServiceConfiguration = dataTable.Rows.Skip(1).Select(row => {
-                var isEnabled = int.TryParse(row.Cells.ElementAt(1).Value, out int duration);
-                return new ServiceConfiguration(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(0).Value, duration, isEnabled);
-            })
-        };        
-        return Client.GetContainer("appts", "index_data").CreateItemAsync(siteConfiguration);
+            Id = GetSiteId(),
+            DocumentType = "site",
+            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 } )
+        };
+        return Client.GetContainer("appts", "index_data").CreateItemAsync(site);
     }
-    
-    [Given(@"The following week templates")]
-    [And(@"the following week templates")]
-    public Task SetupWeekTemplates(Gherkin.Ast.DataTable dataTable)
+
+    [Given("the following sessions")]
+    [And("the following sessions")]
+    public Task SetupSessions(Gherkin.Ast.DataTable dataTable)
     {
-        return SetupWeekTemplates("A", dataTable);
+        return SetupSessions("A", dataTable);
     }
-    
-    [Given(@"The following week templates for site '(\w)'")]
-    [And(@"the following week templates for site '(\w)'")]
-    public async Task SetupWeekTemplates(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+
+    [Given(@"the following sessions for site '(\w)'")]
+    [And(@"the following sessions for site '(\w)'")]
+    public async Task SetupSessions(string siteDesignation, Gherkin.Ast.DataTable dataTable)
     {
-        var templateData = dataTable.Rows.Skip(1).Select(row => new
+        var site = GetSiteId(siteDesignation);
+        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable); 
+        
+        foreach (var document in availabilityDocuments)
         {
-            TemplateName = row.Cells.ElementAt(0).Value,
-            Days = ParseDays(row.Cells.ElementAt(1).Value),
-            Block = new ScheduleBlock
+            await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
+        }
+    }
+
+    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site, Gherkin.Ast.DataTable dataTable)
+    {
+        var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
+        {
+            Id = row.Cells.ElementAt(0).Value.Replace("-", ""),
+            Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
+            Site = site,
+            DocumentType = "daily_availability",
+            Sessions = new[]
             {
-                From = TimeOnly.Parse(row.Cells.ElementAt(2).Value),
-                Until = TimeOnly.Parse(row.Cells.ElementAt(3).Value),
-                Services = row.Cells.ElementAt(4).Value.Split(",")
+                new Session
+                {
+                    From = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
+                    Until = TimeOnly.Parse(row.Cells.ElementAt(2).Value),
+                    Services = row.Cells.ElementAt(3).Value.Split(",").Select(x => x.Trim()).ToArray(),
+                    Capacity = int.Parse(row.Cells.ElementAt(5).Value),
+                    SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
+                }
             }
         });
 
-        var daysOfWeek = new[] {DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday};
-
-        var templates = templateData.GroupBy(t => t.TemplateName).Select(tg => new WeekTemplateDocument
+        return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument()
         {
-            Id = $"{GetSiteId(siteDesignation)}-{tg.Key}",
-            Name = tg.Key,
-            Site = GetSiteId(siteDesignation),
-            DocumentType = "week_template",
-            TemplateItems = tg.Select(td => new Schedule
-            {
-                Days = td.Days,
-                ScheduleBlocks = new[] {td.Block} 
-            }).ToArray()
+            Id = g.First().Id,
+            Date = g.Key,
+            Site = g.First().Site,
+            DocumentType = "daily_availability",
+            Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
-
-        foreach(var template in templates)
-        {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(template);
-        }        
     }
 
-    [Given("the following template assignments")]
-    [And("the following template assignments")]
-    public Task SetupTemplateAssignments(Gherkin.Ast.DataTable dataTable)
-    {
-        return SetupTemplateAssignments("A", dataTable);
-    }
-
-    [Given("the following template assignments for site '(\\w)'")]
-    [And("the following template assignments for site '(\\w)'")]
-    public Task SetupTemplateAssignments(string siteDesignation, Gherkin.Ast.DataTable dataTable)
-    {
-        var assignments = dataTable.Rows.Skip(1).Select(row => new TemplateAssignment
-        {            
-            TemplateId = $"{GetSiteId(siteDesignation)}-{row.Cells.ElementAt(0).Value}",
-            From = DateOnly.FromDateTime(DateTime.ParseExact(row.Cells.ElementAt(1).Value, "yyyy-MM-dd", null)),
-            Until = DateOnly.FromDateTime(DateTime.ParseExact(row.Cells.ElementAt(2).Value, "yyyy-MM-dd", null)),
-        });
-
-        var templateAssignmentDoc = new TemplateAssignmentDocument
-        {
-            Id = "default",
-            DocumentType = "template_assignments",
-            Site = GetSiteId(siteDesignation),
-            Assignments = assignments.ToArray()
-        };
-
-        return Client.GetContainer("appts", "booking_data").CreateItemAsync(templateAssignmentDoc);        
-    }
-
-    [Given("The following bookings have been made")]
+    [Given("the following bookings have been made")]
     [And("the following bookings have been made")]
-    public async Task SetupBookings(Gherkin.Ast.DataTable dataTable)
+    public Task SetupBookings(Gherkin.Ast.DataTable dataTable)
     {
-        SetupBookings("A", dataTable);
+        return SetupBookings("A", dataTable);
     }
 
     [And(@"the following bookings have been made for site '(\w)'")]
@@ -175,9 +144,8 @@ public abstract class BaseFeatureSteps : Feature
             From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
-            SessionHolder = "default",
             Site = GetSiteId(siteDesignation),
-            AttendeeDetails = new AttendeeDetails
+            AttendeeDetails = new Core.AttendeeDetails
             {
                 NhsNumber = NhsNumber,
                 FirstName = "FirstName",
@@ -207,7 +175,7 @@ public abstract class BaseFeatureSteps : Feature
         }
     }
 
-    private DayOfWeek[] ParseDays(string pattern)
+    protected static DayOfWeek[] ParseDays(string pattern)
     {
         if (pattern == "All")
             return new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
@@ -229,7 +197,7 @@ public abstract class BaseFeatureSteps : Feature
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
     protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
-    
+
     private async Task SetUpRoles()
     {
         var roles = new RolesDocument()
@@ -255,7 +223,8 @@ public abstract class BaseFeatureSteps : Feature
                             "users:view", 
                             "sites:query",
                             "site:view",
-                            "site:manage"
+                            "site:manage",
+                            "availability:set-setup"
                         ] 
                     },
                 new Role
@@ -305,5 +274,20 @@ public abstract class BaseFeatureSteps : Feature
             ]
         };        
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
+    }
+
+    protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,  Expression<Func<TDocument, bool>> predicate)
+    {
+        var queryFeed = container.GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+        var results = new List<TDocument>();
+        using (queryFeed)
+        {
+            while (queryFeed.HasMoreResults)
+            {
+                var resultSet = await queryFeed.ReadNextAsync();
+                results.AddRange(resultSet);
+            }
+        }
+        return results;
     }
 }

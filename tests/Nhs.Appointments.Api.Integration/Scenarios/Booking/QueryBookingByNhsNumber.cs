@@ -38,7 +38,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
-                    SessionHolder = "default",
                     Site = GetSiteId(),
                     AttendeeDetails = new AttendeeDetails
                     {

@@ -35,4 +35,10 @@
 		</Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Nhs.Appointments.Api.Integration\**" />
+	  <EmbeddedResource Remove="Nhs.Appointments.Api.Integration\**" />
+	  <None Remove="Nhs.Appointments.Api.Integration\**" />
+	</ItemGroup>
+
 </Project>

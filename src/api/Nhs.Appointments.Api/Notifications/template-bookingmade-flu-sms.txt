@@ -2,4 +2,4 @@
 
 This template is stored at https://www.notifications.service.gov.uk/
 
-Hello ((firstName)), your flu vaccination booking is confirmed. Booking reference ((reference)) at ((siteName)) on ((date)) at ((time)). If you need to chance or cancel your appointment visit https://www.nhs.uk/book-flu
+Hello ((firstName)), your flu vaccination booking is confirmed. Booking reference ((reference)) at ((siteName)) on ((date)) at ((time)). If you need to change or cancel your appointment visit https://www.nhs.uk/book-flu

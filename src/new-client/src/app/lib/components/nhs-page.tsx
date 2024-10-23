@@ -36,7 +36,6 @@ const NhsPage = async ({
         <main className="nhsuk-main-wrapper" id="main-content" role="main">
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
-              <span></span>
               <NhsHeading title={title} caption={caption} />
               <NotificationBanner notification={notification} />
               {userProfile === undefined ? (

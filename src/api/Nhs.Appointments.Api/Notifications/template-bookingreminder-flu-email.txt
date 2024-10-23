@@ -1,0 +1,30 @@
+FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+Template name: Booking Reminder (Flu)
+
+Template Subject: Reminder - Flu vaccination appointment
+
+Template Body:
+
+Hello ((firstName)),
+
+This is a reminder for your upcoming flu vaccination appointment.
+
+# Your appointment
+
+Booking reference: ((reference))
+((siteName))
+Date and time: ((date))
+((time))
+((address))
+
+# If you need to change or cancel your appointment:
+
+* visit https://www.nhs.uk/book-flu
+* if you can't get online, call 119
+
+Please cancel your appointment if you have had a flu vaccine somewhere else. It helps the pharmacy to let them know if you can no longer attend.
+
+You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.

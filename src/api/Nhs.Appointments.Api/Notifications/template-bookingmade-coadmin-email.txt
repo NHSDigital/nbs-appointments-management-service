@@ -28,7 +28,7 @@ You should also wait if you have a high temperature or feel very unwell with any
 
 # If you need to cancel or rearrange your appointment:
 
-* visit https://www.nhs.uk/book-vaccine
+* visit https://www.nhs.uk/get-vaccination
 * if you can't get online, call 119
 
 Please tell us about your experience of using the online booking system: https://feedback.digital.nhs.uk/jfe/form/SV_eg1sVnlCFcypebl?Source=booster-confirmation-Email

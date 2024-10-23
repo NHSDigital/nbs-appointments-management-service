@@ -47,6 +47,7 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     Notifications_Provider                = "azure"
     GovNotifyApiKey                       = var.gov_notify_api_key
     ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
+    BookingRemindersCronSchedule          = var.booking_reminders_cron_schedule
   }
 
   identity {
@@ -126,5 +127,10 @@ resource "azurerm_servicebus_queue" "nbs_mya_sbq_user_roles" {
 
 resource "azurerm_servicebus_queue" "nbs_mya_sbq_booking_made" {
   name         = "booking-made"
+  namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
+}
+
+resource "azurerm_servicebus_queue" "nbs_mya_sbq_bookingreminder" {
+  name         = "booking-reminder"
   namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
 }

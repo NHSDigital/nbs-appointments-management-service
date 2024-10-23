@@ -16,12 +16,12 @@ namespace Nhs.Appointments.Api.Functions;
 public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger)
     : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability")]
-    [OpenApiRequestBody("text/json", typeof(SetAvailabilityRequest), Required = true)]
+    [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability for a single day")]
+    [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "text/plain", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("availability:set-setup", typeof(SiteFromBodyInspector))]
     [Function("SetAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(

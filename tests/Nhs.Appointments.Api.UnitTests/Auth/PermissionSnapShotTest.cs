@@ -15,7 +15,7 @@ public class PermissionSnapShotTest
     [InlineData("post", "availability/query", "availability:query")]    
     [InlineData("get", "booking", "booking:query")]
     [InlineData("get", "booking/{bookingReference}", "booking:query")]    
-    [InlineData("post", "booking/get-bookings", "booking:query")]
+    [InlineData("post", "booking/query", "booking:query")]
     [InlineData("post", "booking/set-status", "booking:set-status")]    
     [InlineData("post", "user/roles", "users:manage")]
     [InlineData("get", "users", "users:view")]

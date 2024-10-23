@@ -16,12 +16,12 @@ namespace Nhs.Appointments.Api.Functions;
 public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger) 
     : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "Post_ApplyAvailabilityTemplate", tags: ["Availability"], Summary = "Apply an availability template")]
-    [OpenApiRequestBody("text/json", typeof(ApplyAvailabilityTemplateRequest))]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Availability template is applied")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiOperation(operationId: "ApplyAvailabilityTemplate", tags: ["Availability"], Summary = "Set appointment availability for a date range")]
+    [OpenApiRequestBody("application/json", typeof(ApplyAvailabilityTemplateRequest), Required = true)]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("availability:set-setup", typeof(SiteFromBodyInspector))]
     [Function("ApplyAvailabilityTemplateFunction")]
     public override Task<IActionResult> RunAsync(

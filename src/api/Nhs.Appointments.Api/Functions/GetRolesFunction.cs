@@ -17,8 +17,8 @@ public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesReq
     : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "GetRoles", tags: ["Roles"], Summary = "Get user roles in the system")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(GetRolesResponse), Description = "List of roles with id and display name information")]  
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetRolesResponse), Description = "List of roles with id and display name information")]  
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetRolesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles")] HttpRequest req)

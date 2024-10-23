@@ -20,11 +20,12 @@ namespace Nhs.Appointments.Api.Functions;
 public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger)
 {
-
-    [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by Days, Hours or Slots")]
-    [OpenApiRequestBody("text/json", typeof(QueryAvailabilityRequest),Required = true)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by days, hours or slots")]
+    [OpenApiRequestBody("application/json", typeof(QueryAvailabilityRequest),Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("availability:query", typeof(NoSiteRequestInspector))]
     [Function("QueryAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(

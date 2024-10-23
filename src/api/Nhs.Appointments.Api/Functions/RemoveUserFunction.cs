@@ -21,10 +21,12 @@ public class RemoveUserFunction(
     : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "RemoveUser", tags: ["User"], Summary = "Remove a User")]
-    [OpenApiRequestBody("text/json", typeof(RemoveUserRequest))]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/json", typeof(RemoveUserRequest), Description = "User successfully removed")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "User did not exist to be removed")]
+    [OpenApiRequestBody("application/json", typeof(RemoveUserRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(RemoveUserRequest), Description = "User successfully removed")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "User did not exist to be removed")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("users:manage", typeof(SiteFromBodyInspector))]
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(

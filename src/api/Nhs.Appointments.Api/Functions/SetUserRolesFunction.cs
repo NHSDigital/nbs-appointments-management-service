@@ -19,9 +19,11 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"], Summary = "Set role assignments for a user at a site")]
-    [OpenApiRequestBody("text/json", typeof(SetUserRolesRequest))]
+    [OpenApiRequestBody("application/json", typeof(SetUserRolesRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "User role successfully saved")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("users:manage", typeof(SiteFromScopeInspector))]
     [Function("SetUserRoles")]
     public override Task<IActionResult> RunAsync(

@@ -18,11 +18,11 @@ public class QueryBookingsFunction(IBookingsService bookingsService, IValidator<
 {
 
     [OpenApiOperation(operationId: "QueryBooking", tags: ["Booking"], Summary = "Query bookings for a site within a date range")]
-    [OpenApiRequestBody("text/json", typeof(QueryBookingsRequest))]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(IEnumerable<Booking>), Description = "List of bookings returned from the query")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "text/plain", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiRequestBody("application/json", typeof(QueryBookingsRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<Booking>), Description = "List of bookings returned from the query")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:query", typeof(SiteFromBodyInspector))]
     [Function("QueryBookingsFunction")]
     public override Task<IActionResult> RunAsync(

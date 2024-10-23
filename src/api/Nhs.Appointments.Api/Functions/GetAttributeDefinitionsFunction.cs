@@ -18,8 +18,8 @@ public class GetAttributeSetsFunction(IAttributeDefinitionsService attributeDefi
 : BaseApiFunction<EmptyRequest, IEnumerable<AttributeDefinition>>(validator, userContextProvider, logger)
 {
     [OpenApiOperation(operationId: "GetAttributeDefinitions", tags: ["AttributeDefinitions"], Summary = "Get system attribute definitions")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(IEnumerable<AttributeDefinition>), Description = "List of attribute definitions used by the system")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<AttributeDefinition>), Description = "List of attribute definitions used by the system")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetAttributeDefinitionsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "attributeDefinitions")] HttpRequest req)

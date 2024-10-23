@@ -20,10 +20,10 @@ public class QueryBookingByNhsNumberFunction(IBookingsService bookingsService, I
 
     [OpenApiOperation(operationId: "QueryBookingByNhsNumber", tags: ["Booking"], Summary = "Query bookings by Nhs Number")]
     [OpenApiParameter("nhsNumber", Required = true, In = ParameterLocation.Query, Description = "The nhsNumber of the patients' bookings to retrieve")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(IEnumerable<Booking>), Description = "A list of bookings for patient with the provided nhsNumber")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "text/plain", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "text/plain", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "text/plain", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<Booking>), Description = "A list of bookings for patient with the provided nhsNumber")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:query", typeof(NoSiteRequestInspector))]
     [Function("QueryBookingByNhsNumberReference")]
     public override Task<IActionResult> RunAsync(

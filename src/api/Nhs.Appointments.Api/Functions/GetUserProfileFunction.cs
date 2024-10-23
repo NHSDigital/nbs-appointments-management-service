@@ -19,7 +19,7 @@ namespace Nhs.Appointments.Api.Functions
     {
 
         [OpenApiOperation(operationId: "GetUserProfile", tags: ["User"], Summary = "Gets information about the signed in user")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "text/plain", typeof(UserProfile), Description = "Information about the signed in user")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(UserProfile), Description = "Information about the signed in user")]
         [Function("GetUserProfileFunction")]
         public override Task<IActionResult> RunAsync(
           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/profile")] HttpRequest req)

@@ -1,5 +1,10 @@
 'use client';
-import { Button, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
+import {
+  Button,
+  ButtonGroup,
+  FormGroup,
+  TextArea,
+} from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
 import { AttributeValue } from '@types';
 import { useRouter } from 'next/navigation';
@@ -19,7 +24,7 @@ const AddInformationForCitizensForm = ({
   const { replace } = useRouter();
   const { register, handleSubmit } = useForm<FormFields>({
     defaultValues: {
-      informationForCitizen: '',
+      informationForCitizen: information,
     },
   });
 
@@ -44,21 +49,10 @@ const AddInformationForCitizensForm = ({
     <form onSubmit={handleSubmit(submitForm)}>
       <FormGroup legend="Information for citizen">
         <div className="nhsuk-form-group">
-          <div className="nhsuk-label">
-            What information would you like to include?
-          </div>
-          <div className="nhsuk-hint" id="information-hint">
-            Do not include personal or financial information, for example, your
-            National Insurance number or credit card details.
-          </div>
-          {/* TODO: Make this it's own component */}
-          <textarea
-            className="nhsuk-textarea"
-            id="information-for-citzen"
-            rows={5}
-            aria-describedby="information-hint"
-            value={information}
-          ></textarea>
+          <TextArea
+            label="What information would you like to include?"
+            {...register('informationForCitizen')}
+          />
         </div>
       </FormGroup>
 

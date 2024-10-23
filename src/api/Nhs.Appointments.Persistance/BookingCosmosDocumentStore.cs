@@ -35,10 +35,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
             concurrentResults.Add(bookings);
         });
 
-        var result = new List<Booking>();
-        result.AddRange(concurrentResults.SelectMany(x => x));
-
-        return result;
+        return concurrentResults.SelectMany(x => x);
     }
 
     public async Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference)

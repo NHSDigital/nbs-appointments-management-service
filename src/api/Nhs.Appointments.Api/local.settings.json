@@ -4,6 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobs.NotifyUserRolesChanged.Disabled": true,
     "AzureWebJobs.NotifyBookingMade.Disabled": true,
+    "AzureWebJobs.SendBookingReminders.Disabled": true,
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "COSMOS_ENDPOINT": "https://localhost:8081",
     "COSMOS_TOKEN": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
@@ -18,8 +19,7 @@
     "AuthProvider_ClientId": "nhs-appts-local",
     "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
     "Notifications_Provider": "local",
-    "GovNotifyApiKey": "test",
-    "BookingRemindersCronSchedule": "0 0 8 * * *"
+    "GovNotifyApiKey": "test"
   },
   "Host": { "CORS": "*" }
 }

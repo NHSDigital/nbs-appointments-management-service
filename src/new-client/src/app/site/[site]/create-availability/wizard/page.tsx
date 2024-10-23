@@ -1,6 +1,6 @@
 import { fetchSite, fetchUserProfile } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
-import AvailabilityPeriodWizard from './availability-period-wizard';
+import AvailabilityTemplateWizard from './availability-template-wizard';
 
 type PageProps = {
   params: {
@@ -19,7 +19,7 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsTransactionalPage userProfile={userProfile}>
-      <AvailabilityPeriodWizard site={site} />
+      <AvailabilityTemplateWizard site={site} />
     </NhsTransactionalPage>
   );
 };

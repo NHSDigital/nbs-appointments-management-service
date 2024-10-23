@@ -11,12 +11,12 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { parseAndValidateDateFromComponents } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
-import { AvailabilityPeriodFormValues } from './availability-period-wizard';
+import { AvailabilityTemplateFormValues } from './availability-template-wizard';
 
 const SingleOrRepeatingSessionStep = ({
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { getValues } = useFormContext<AvailabilityPeriodFormValues>();
+  const { getValues } = useFormContext<AvailabilityTemplateFormValues>();
 
   const formValues = getValues();
 

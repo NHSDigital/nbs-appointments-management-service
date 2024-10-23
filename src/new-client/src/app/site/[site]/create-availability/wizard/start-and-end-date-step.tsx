@@ -7,7 +7,7 @@ import {
   TextInput,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
-import { AvailabilityPeriodFormValues } from './availability-period-wizard';
+import { AvailabilityTemplateFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import dayjs from 'dayjs';
 import {
@@ -22,7 +22,7 @@ const StartAndEndDateStep = ({
   returnRouteUponCancellation,
 }: InjectedWizardProps) => {
   const { register, formState, trigger, watch, setError } =
-    useFormContext<AvailabilityPeriodFormValues>();
+    useFormContext<AvailabilityTemplateFormValues>();
   const { errors } = formState;
 
   const {

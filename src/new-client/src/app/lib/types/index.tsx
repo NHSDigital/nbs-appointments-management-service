@@ -36,13 +36,28 @@ type Role = {
   description: string;
 };
 
-type SaveAvailabilityRequest = {
-  date: dayjs.Dayjs;
+type ApplyAvailabilityTemplateRequest = {
   site: string;
-  sessions: Session[];
+  from: string;
+  until: string;
+  template: AvailabilityTemplate;
 };
 
-type Session = {
+type AvailabilityTemplate = {
+  days: DayOfWeek[];
+  sessions: AvailabilitySession[];
+};
+
+type DayOfWeek =
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday'
+  | 'Sunday';
+
+type AvailabilitySession = {
   from: dayjs.Dayjs;
   until: dayjs.Dayjs;
   services: string[];
@@ -86,6 +101,7 @@ type UserProfile = {
 };
 
 export type {
+  ApplyAvailabilityTemplateRequest,
   AvailabilityPeriod,
   ApiErrorResponse,
   ApiResponse,
@@ -94,7 +110,6 @@ export type {
   AttributeValue,
   Role,
   RoleAssignment,
-  SaveAvailabilityRequest,
   ServiceType,
   Site,
   SiteWithAttributes,

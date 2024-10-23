@@ -4,11 +4,11 @@ import StartAndEndDateStep from './start-and-end-date-step';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
 import { Site } from '@types';
-import saveAvailabilityPeriod from './save-availability-period';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 import SummaryStep from './summary-step';
+import saveAvailabilityTemplate from './save-availability-template';
 
-export type AvailabilityPeriodFormValues = {
+export type AvailabilityTemplateFormValues = {
   startDateDay: number;
   startDateMonth: number;
   startDateYear: number;
@@ -21,13 +21,13 @@ type Props = {
   site: Site;
 };
 
-const AvailabilityPeriodWizard = ({ site }: Props) => {
-  const methods = useForm<AvailabilityPeriodFormValues>();
+const AvailabilityTemplateWizard = ({ site }: Props) => {
+  const methods = useForm<AvailabilityTemplateFormValues>();
 
-  const submitForm: SubmitHandler<AvailabilityPeriodFormValues> = async (
-    form: AvailabilityPeriodFormValues,
+  const submitForm: SubmitHandler<AvailabilityTemplateFormValues> = async (
+    form: AvailabilityTemplateFormValues,
   ) => {
-    await saveAvailabilityPeriod(form, site);
+    await saveAvailabilityTemplate(form, site);
   };
 
   return (
@@ -54,28 +54,4 @@ const AvailabilityPeriodWizard = ({ site }: Props) => {
   );
 };
 
-// const mapFormValuesToAvailabilityPeriod = (
-//   formValues: AvailabilityPeriodFormValues,
-// ): AvailabilityPeriod => {
-//   // TODO: Implement this properly and use DayJS, plus validation etc. etc.
-//   return {
-//     startDate: new dayjs.Dayjs(
-//       new Date(
-//         formValues.startDateYear,
-//         formValues.startDateMonth - 1,
-//         formValues.startDateDay,
-//       ),
-//     ),
-//     endDate: new dayjs.Dayjs(
-//       new Date(
-//         formValues.endDateYear,
-//         formValues.endDateMonth,
-//         formValues.endDateDay,
-//       ),
-//     ),
-//     services: [],
-//     status: 'Unpublished',
-//   };
-// };
-
-export default AvailabilityPeriodWizard;
+export default AvailabilityTemplateWizard;

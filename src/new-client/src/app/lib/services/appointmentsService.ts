@@ -5,7 +5,7 @@ import {
   AttributeDefinition,
   AttributeValue,
   Role,
-  SaveAvailabilityRequest,
+  ApplyAvailabilityTemplateRequest,
   SiteWithAttributes,
   User,
   UserProfile,
@@ -166,9 +166,11 @@ export const fetchAvailabilityPeriods = async (siteId: string) => {
   return mockAvailabilityPeriods;
 };
 
-export const saveAvailability = async (request: SaveAvailabilityRequest) => {
+export const saveAvailability = async (
+  request: ApplyAvailabilityTemplateRequest,
+) => {
   const response = await appointmentsApi.post(
-    `availability`,
+    `availability/apply-template`,
     JSON.stringify(request),
   );
 

@@ -1,7 +1,7 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import StartAndEndDateStep from './start-and-end-date-step';
-import { AvailabilityPeriodFormValues } from './availability-period-wizard';
+import { AvailabilityTemplateFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 
 const mockGoToNextStep = jest.fn();
@@ -11,7 +11,7 @@ const mockSetCurrentStep = jest.fn();
 describe('Create Availability Page', () => {
   it('renders', async () => {
     render(
-      <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+      <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
           stepNumber={1}
           currentStep={1}
@@ -35,7 +35,7 @@ describe('Create Availability Page', () => {
 
   it('permits data entry', async () => {
     const { user } = render(
-      <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+      <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
           stepNumber={1}
           currentStep={1}
@@ -70,7 +70,7 @@ describe('Create Availability Page', () => {
 
   it('Displays validation messages', async () => {
     const { user } = render(
-      <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+      <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
           stepNumber={1}
           currentStep={1}
@@ -119,7 +119,7 @@ describe('Create Availability Page', () => {
       expectedValidationMessage: string,
     ) => {
       const { user } = render(
-        <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+        <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
           <StartAndEndDateStep
             stepNumber={1}
             currentStep={1}
@@ -158,7 +158,7 @@ describe('Create Availability Page', () => {
 
   it('displays an href link when there are no previous wizard steps', async () => {
     render(
-      <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+      <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
           stepNumber={1}
           currentStep={1}
@@ -179,7 +179,7 @@ describe('Create Availability Page', () => {
 
   it('displays a link which invokes GoToPreviousStep if there is a previous step', async () => {
     const { user } = render(
-      <MockForm<AvailabilityPeriodFormValues> submitHandler={jest.fn()}>
+      <MockForm<AvailabilityTemplateFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
           stepNumber={2}
           currentStep={2}

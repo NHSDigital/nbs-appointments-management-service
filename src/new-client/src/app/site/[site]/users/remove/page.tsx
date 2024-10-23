@@ -29,10 +29,7 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
   }
 
   const userProfile = await fetchUserProfile();
-  if (
-    userProfile === undefined ||
-    userProfile.emailAddress === searchParams?.user
-  ) {
+  if (userProfile.emailAddress === searchParams?.user) {
     throw new Error('Forbidden: You lack the necessary permissions');
   }
 

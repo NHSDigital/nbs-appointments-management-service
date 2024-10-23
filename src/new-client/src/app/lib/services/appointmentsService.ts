@@ -94,7 +94,6 @@ function handleBodyResponse<T>(
       const lastRequestedPath = headers().get('x-last-requested-path');
 
       const token = cookies().get('token');
-      console.dir(token);
       if (token) {
         cookies().delete('token');
       }
@@ -129,7 +128,6 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
     const lastRequestedPath = headers().get('x-last-requested-path');
 
     const token = cookies().get('token');
-    console.dir(token);
     if (token) {
       cookies().delete('token');
     }

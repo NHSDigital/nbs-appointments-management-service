@@ -1,5 +1,9 @@
 import NhsPage from '@components/nhs-page';
-import { fetchPermissions, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchPermissions,
+  fetchSite,
+} from '@services/appointmentsService';
 import { SitePage } from './site-page';
 import { Metadata } from 'next/types';
 
@@ -19,6 +23,8 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const sitePermissions = await fetchPermissions(params.site);
+
+  await assertPermission(site.id, 'site:view');
 
   return (
     <NhsPage breadcrumbs={[{ name: 'Home', href: '/' }]} title={site.name}>

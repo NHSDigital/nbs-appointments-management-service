@@ -1,7 +1,7 @@
 import NhsPage from '@components/nhs-page';
 import RemoveUserPage from './remove-user-page';
 import {
-  fetchPermissions,
+  assertPermission,
   fetchSite,
   fetchUserProfile,
 } from '@services/appointmentsService';
@@ -23,10 +23,7 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
 
   const site = await fetchSite(params.site);
 
-  const permissions = await fetchPermissions(params.site);
-  if (!permissions.includes('users:manage')) {
-    throw new Error('Forbidden: You lack the necessary permissions');
-  }
+  await assertPermission(site.id, 'users:manage');
 
   const userProfile = await fetchUserProfile();
   if (userProfile.emailAddress === searchParams?.user) {

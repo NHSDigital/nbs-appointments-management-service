@@ -81,6 +81,32 @@ export async function fetchPermissions(site: string) {
   return handleBodyResponse(response).permissions;
 }
 
+export async function assertPermission(site: string, permission: string) {
+  const response = await fetchPermissions(site);
+
+  if (!response.includes(permission)) {
+    return new Error('Forbidden: You lack the necessary permissions');
+  }
+}
+
+export async function assertPermissions(
+  site: string,
+  permissions: string[],
+  operand: 'AND' | 'OR' = 'AND',
+) {
+  const response = await fetchPermissions(site);
+
+  if (
+    operand === 'AND' &&
+    !permissions.every(permission => response.includes(permission))
+  ) {
+    return new Error('Forbidden: You lack the necessary permissions');
+  }
+  if (!permissions.some(permission => response.includes(permission))) {
+    return new Error('Forbidden: You lack the necessary permissions');
+  }
+}
+
 function handleBodyResponse<T>(
   response: ApiResponse<T>,
   transformData = (data: T) => data,
@@ -92,11 +118,6 @@ function handleBodyResponse<T>(
 
     if (response.httpStatusCode === 401) {
       const lastRequestedPath = headers().get('x-last-requested-path');
-
-      const token = cookies().get('token');
-      if (token) {
-        cookies().delete('token');
-      }
 
       redirect(
         lastRequestedPath
@@ -126,11 +147,6 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
 
   if (response.httpStatusCode === 401) {
     const lastRequestedPath = headers().get('x-last-requested-path');
-
-    const token = cookies().get('token');
-    if (token) {
-      cookies().delete('token');
-    }
 
     redirect(
       lastRequestedPath ? `/login?redirectUrl=${lastRequestedPath}` : '/login',

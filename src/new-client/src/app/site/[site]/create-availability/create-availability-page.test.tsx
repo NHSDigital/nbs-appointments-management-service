@@ -1,19 +1,9 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { CreateAvailabilityPage } from './create-availability-page';
-import { mockAvailabilityPeriods, mockSite } from '@testing/data';
-import { fetchAvailabilityPeriods } from '@services/appointmentsService';
-import { AvailabilityPeriod } from '@types';
+import { mockSite } from '@testing/data';
 
-jest.mock('@services/appointmentsService');
-const fetchAvailabilityPeriodsMock = fetchAvailabilityPeriods as jest.Mock<
-  Promise<AvailabilityPeriod[]>
->;
 describe('Create Availability Page', () => {
-  beforeEach(() => {
-    fetchAvailabilityPeriodsMock.mockResolvedValue(mockAvailabilityPeriods);
-  });
-
   it('renders', async () => {
     const jsx = await CreateAvailabilityPage({ site: mockSite });
 
@@ -32,7 +22,7 @@ describe('Create Availability Page', () => {
 
     render(jsx);
 
-    expect(fetchAvailabilityPeriodsMock).toHaveBeenCalledWith(mockSite.id);
+    // expect(fetchAvailabilityPeriodsMock).toHaveBeenCalledWith(mockSite.id);
     expect(screen.getByRole('table')).toBeInTheDocument();
 
     const columns = ['Dates', 'Services', 'Status', 'Actions'];
@@ -57,10 +47,10 @@ describe('Create Availability Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('button', { name: 'Create availablity period' }),
+      screen.getByRole('button', { name: 'Create availablity' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Create availablity period' }),
+      screen.getByRole('link', { name: 'Create availablity' }),
     ).toHaveAttribute(
       'href',
       `/site/${mockSite.id}/create-availability/wizard`,

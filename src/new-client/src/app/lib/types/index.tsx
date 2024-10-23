@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 type ApiErrorResponse = {
   success: false;
   httpStatusCode: number;
@@ -21,13 +19,6 @@ type AttributeDefinition = {
 type AttributeValue = {
   id: string;
   value: string;
-};
-
-type AvailabilityPeriod = {
-  startDate: dayjs.Dayjs;
-  endDate: dayjs.Dayjs;
-  services: ServiceType[];
-  status: 'Published' | 'Unpublished';
 };
 
 type Role = {
@@ -102,7 +93,6 @@ type UserProfile = {
 
 export type {
   ApplyAvailabilityTemplateRequest,
-  AvailabilityPeriod,
   ApiErrorResponse,
   ApiResponse,
   ApiSuccessResponse,

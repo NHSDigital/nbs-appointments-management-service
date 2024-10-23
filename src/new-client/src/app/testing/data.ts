@@ -1,28 +1,11 @@
 import {
   AttributeDefinition,
   AttributeValue,
-  AvailabilityPeriod,
   Role,
   Site,
   User,
   UserProfile,
 } from '@types';
-import dayjs from 'dayjs';
-
-const mockAvailabilityPeriods: AvailabilityPeriod[] = [
-  {
-    startDate: dayjs(new Date('2025-04-21')),
-    endDate: dayjs(new Date('2025-06-15')),
-    services: ['Covid', 'Flu'],
-    status: 'Published',
-  },
-  {
-    startDate: dayjs(new Date('2025-06-15')),
-    endDate: dayjs(new Date('2025-010-05')),
-    services: ['Flu'],
-    status: 'Unpublished',
-  },
-];
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -123,7 +106,6 @@ const mockUserProfile: UserProfile = {
 };
 
 export {
-  mockAvailabilityPeriods,
   getMockUserAssignments,
   mockRoles,
   mockSite,

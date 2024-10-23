@@ -47,7 +47,7 @@ public class BookingsService : IBookingsService
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
     {
-        return _bookingDocumentStore.GetInDateRangeAsync(from, to);
+        return _bookingDocumentStore.GetCrossSiteAsync(from, to);
     }
 
     public Task<Booking> GetBookingByReference(string bookingReference)
@@ -102,7 +102,7 @@ public class BookingsService : IBookingsService
             var reminder = BuildReminderEvent(booking);
             await _bus.Send(reminder);
             booking.ReminderSent = true;
-            await _bookingDocumentStore.SetReminderSent(booking);
+            await _bookingDocumentStore.SetReminderSent(booking.Reference, booking.Site);
         }
     }
 

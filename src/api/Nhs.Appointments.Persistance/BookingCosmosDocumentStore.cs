@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -21,9 +22,23 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
     }
 
-    public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to)
     {
-        return _bookingStore.RunQueryAsync<Booking>(b => b.From >= from && b.From <= to);
+        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
+
+        var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
+
+        await Parallel.ForEachAsync(grouped, async (group, _) =>
+        {
+            var bookings = await GetInDateRangeAsync(group.Min(g => g.From), group.Max(g => g.From), group.Key);
+            concurrentResults.Add(bookings);
+        });
+
+        var result = new List<Booking>();
+        result.AddRange(concurrentResults.SelectMany(x => x));
+
+        return result;
     }
 
     public async Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference)
@@ -78,12 +93,10 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return true;
     }
 
-    public async Task SetReminderSent(Booking booking)
+    public async Task SetReminderSent(string bookingReference, string site)
     {
-        var bookingDocument = _bookingStore.ConvertToDocument(booking);
-
         var patch = PatchOperation.Set("/reminderSent", true);
-        await _bookingStore.PatchDocument(bookingDocument.Site, booking.Reference, patch);
+        await _bookingStore.PatchDocument(site, bookingReference, patch);
 
     }
 

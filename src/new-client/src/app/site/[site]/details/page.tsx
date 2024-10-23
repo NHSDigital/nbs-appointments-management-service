@@ -12,11 +12,6 @@ const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const siteMoniker = site?.name ?? `Site ${params.site}`;
 
-  // This check will be unnecessary after Appt-202 is merged
-  if (site === undefined) {
-    throw new Error('Site not found');
-  }
-
   const sitePermissions = await fetchPermissions(params.site);
   return (
     <NhsPage

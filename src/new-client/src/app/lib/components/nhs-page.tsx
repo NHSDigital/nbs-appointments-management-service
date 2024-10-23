@@ -1,14 +1,17 @@
+'use server';
 import { Breadcrumbs, Breadcrumb } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
-import { NhsHeader } from './nhs-header';
-import NotificationBanner from './notification-banner';
+import { NhsHeader } from '@components/nhs-header';
+import NotificationBanner from '@components/notification-banner';
 import { cookies } from 'next/headers';
-import NhsFooter from './nhs-footer';
-import NhsMainContainer from './nhs-main-container';
+import NhsFooter from '@components/nhs-footer';
+import NhsMainContainer from '@components/nhs-main-container';
+import NhsHeaderLogOut from '@components/nhs-header-log-out';
 
 type Props = {
   title: string;
   children: ReactNode;
+  headerAuthComponent?: ReactNode;
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
 };
@@ -16,6 +19,7 @@ type Props = {
 const NhsPage = ({
   title,
   children = null,
+  headerAuthComponent = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
 }: Props) => {
@@ -23,7 +27,7 @@ const NhsPage = ({
 
   return (
     <>
-      <NhsHeader />
+      <NhsHeader>{headerAuthComponent ?? NhsHeaderLogOut()}</NhsHeader>
       <Breadcrumbs
         trail={[
           ...breadcrumbs,

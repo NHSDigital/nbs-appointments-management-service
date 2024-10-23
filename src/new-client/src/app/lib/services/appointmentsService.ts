@@ -161,3 +161,17 @@ export const removeUserFromSite = async (site: string, user: string) => {
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };
+
+export const setSiteInformationForCitizen = async (
+  site: string,
+  attributeValues: AttributeValue[],
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/attributes`,
+    JSON.stringify(attributeValues),
+  );
+
+  // TODO: Notification?
+  handleResponse(response);
+  revalidatePath(`/site/${site}/information-for-citizens`);
+};

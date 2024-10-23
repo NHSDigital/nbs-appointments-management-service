@@ -1,5 +1,6 @@
 import NhsPage from '@components/nhs-page';
 import { fetchPermissions, fetchSite } from '@services/appointmentsService';
+import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 
 export type PageProps = {
   params: {
@@ -25,6 +26,10 @@ const Page = async ({ params }: PageProps) => {
       ]}
     >
       <h3>Manage information for citizens</h3>
+      <EditInformationForCitizensPage
+        permissions={sitePermissions}
+        site={params.site}
+      />
     </NhsPage>
   );
 };

@@ -9,15 +9,18 @@ type Props = {
 export const EditInformationForCitizensPage = async ({ site }: Props) => {
   const informationForCitizens = await fetchInformationForCitizens();
 
-  <>
-    <div className="nhsuk-form-group">
-      <div className="nhsuk-hint">
-        Configure the information you wish to display to citizens
+  return (
+    <>
+      <div className="nhsuk-form-group">
+        <div className="nhsuk-hint">
+          Configure the information you wish to display to citizens about the
+          site
+        </div>
       </div>
-    </div>
-    <AddInformationForCitizensForm
-      information={informationForCitizens}
-      site={site}
-    />
-  </>;
+      <AddInformationForCitizensForm
+        information={informationForCitizens}
+        site={site}
+      />
+    </>
+  );
 };

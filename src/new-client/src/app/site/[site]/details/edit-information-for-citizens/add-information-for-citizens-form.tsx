@@ -1,5 +1,8 @@
+'use client';
 import { Button, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
-import { useRouter } from 'next/router';
+import { setSiteInformationForCitizen } from '@services/appointmentsService';
+import { AttributeValue } from '@types';
+import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type FormFields = {
@@ -20,14 +23,21 @@ const AddInformationForCitizensForm = ({
     },
   });
 
-  console.log('Add info page hit.');
-
   const cancel = () => {
     replace(`/site/${site}/details`);
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    alert('submit button clicked!');
+    const payload: AttributeValue[] = [
+      {
+        id: 'info_for_citizen',
+        value: form.informationForCitizen,
+      },
+    ];
+
+    await setSiteInformationForCitizen(site, payload);
+
+    replace(`/site/${site}/details`);
   };
 
   return (
@@ -41,15 +51,14 @@ const AddInformationForCitizensForm = ({
             Do not include personal or financial information, for example, your
             National Insurance number or credit card details.
           </div>
+          {/* TODO: Make this it's own component */}
           <textarea
             className="nhsuk-textarea"
             id="information-for-citzen"
-            name="information-for-citizen"
             rows={5}
             aria-describedby="information-hint"
-          >
-            {information}
-          </textarea>
+            value={information}
+          ></textarea>
         </div>
       </FormGroup>
 

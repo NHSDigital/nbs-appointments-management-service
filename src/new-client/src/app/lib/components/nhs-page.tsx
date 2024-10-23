@@ -6,6 +6,7 @@ import LogInButton from './log-in-button';
 import NotificationBanner from './notification-banner';
 import { cookies } from 'next/headers';
 import NhsHeading, { NhsHeadingProps } from '@components/nhs-heading';
+import NhsMainContainer from '@components/nhs-main-container';
 
 type Props = {
   children: ReactNode;
@@ -32,27 +33,21 @@ const NhsPage = async ({
           ...(!omitTitleFromBreadcrumbs ? [{ name: title }] : []),
         ]}
       />
-      <div className="nhsuk-width-container">
-        <main className="nhsuk-main-wrapper" id="main-content" role="main">
-          <div className="nhsuk-grid-row">
-            <div className="nhsuk-grid-column-full">
-              <NhsHeading title={title} caption={caption} />
-              <NotificationBanner notification={notification} />
-              {userProfile === undefined ? (
-                <>
-                  <p>
-                    You are currently not signed in. You must sign in to access
-                    this service.
-                  </p>
-                  <LogInButton />
-                </>
-              ) : (
-                children
-              )}
-            </div>
-          </div>
-        </main>
-      </div>
+      <NhsMainContainer>
+        <NhsHeading title={title} caption={caption} />
+        <NotificationBanner notification={notification} />
+        {userProfile === undefined ? (
+          <>
+            <p>
+              You are currently not signed in. You must sign in to access this
+              service.
+            </p>
+            <LogInButton />
+          </>
+        ) : (
+          children
+        )}
+      </NhsMainContainer>
       <Footer
         supportLinks={
           [

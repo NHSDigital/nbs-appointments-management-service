@@ -1,5 +1,5 @@
 import NhsPage from '@components/nhs-page';
-import { fetchSite } from '@services/appointmentsService';
+import { assertPermission, fetchSite } from '@services/appointmentsService';
 
 type PageProps = {
   params: {
@@ -9,6 +9,8 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
+
+  await assertPermission(site.id, 'availability:set-setup');
 
   return (
     <NhsPage

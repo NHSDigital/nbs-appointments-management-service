@@ -1,6 +1,10 @@
 ﻿import NhsPage from '@components/nhs-page';
 import { ManageUsersPage } from './manage-users-page';
-import { fetchPermissions, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchPermissions,
+  fetchSite,
+} from '@services/appointmentsService';
 
 export type UserPageProps = {
   params: {
@@ -17,10 +21,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
 
   const site = await fetchSite(params.site);
 
-  const permissions = await fetchPermissions(params.site);
-  if (!permissions.includes('users:manage')) {
-    throw new Error('Forbidden: You lack the necessary permissions');
-  }
+  await assertPermission(site.id, 'users:manage');
 
   return (
     <NhsPage

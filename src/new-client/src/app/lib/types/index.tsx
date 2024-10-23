@@ -56,14 +56,6 @@ type AvailabilitySession = {
   capacity: number;
 };
 
-// type FetchAvailabilityRequest = {
-//   sites: string[];
-//   service: string;
-//   from: dayjs.Dayjs;
-//   until: dayjs.Dayjs;
-//   queryType: 'days' | 'hours' | 'slots';
-// };
-
 type RoleAssignment = {
   scope: string;
   role: string;

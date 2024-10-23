@@ -24,12 +24,9 @@ export const isValidDate = (
   //   'en-Gb',
   //   true,
   // );
-
   // return potentialDate.isValid();
 
-  // TODO: This is the worst code I've ever written and I hate it,
-  // but I spent 3+ hours trying to do this properly and it just doesn't work
-  // but writing it this way took 5 minutes and works perfectly
+  // TODO: Remove this absolutely disgraceful code and replace it with something like the above
   if (parsedDay < 1 || parsedDay > 31) {
     return false;
   }

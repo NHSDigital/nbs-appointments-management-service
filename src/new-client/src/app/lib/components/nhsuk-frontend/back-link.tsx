@@ -1,9 +1,16 @@
 import Link from 'next/link';
 import LeftChevron from './icons/left-chevron';
 
-type Props = {
+type Props = NavigationByHrefProps | NavigationByOnClickHandlerProps;
+
+type NavigationByHrefProps = {
+  renderingStrategy: 'server';
   href: string;
-  onClick?: () => void;
+};
+
+type NavigationByOnClickHandlerProps = {
+  renderingStrategy: 'client';
+  onClick: () => void;
 };
 
 /**
@@ -11,14 +18,25 @@ type Props = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/back-link
  */
-const BackLink = ({ href, onClick }: Props) => {
+const BackLink = (props: Props) => {
+  if (props.renderingStrategy === 'server') {
+    return (
+      <div className="nhsuk-back-link">
+        <Link role="link" className="nhsuk-back-link__link" href={props.href}>
+          <LeftChevron />
+          Go back
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="nhsuk-back-link">
       <Link
         role="link"
         className="nhsuk-back-link__link"
-        href={onClick ? '' : href}
-        onClick={onClick}
+        href={''}
+        onClick={props.onClick}
       >
         <LeftChevron />
         Go back

@@ -61,8 +61,6 @@ type RoleAssignment = {
   role: string;
 };
 
-type ServiceType = 'Covid' | 'Flu';
-
 type Site = {
   id: string;
   name: string;
@@ -92,7 +90,6 @@ export type {
   AttributeValue,
   Role,
   RoleAssignment,
-  ServiceType,
   Site,
   SiteWithAttributes,
   User,

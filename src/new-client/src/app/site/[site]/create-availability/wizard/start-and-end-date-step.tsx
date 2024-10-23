@@ -90,10 +90,14 @@ const StartAndEndDateStep = ({
 
   return (
     <>
-      <BackLink
-        href={returnRouteUponCancellation ?? ''}
-        onClick={returnRouteUponCancellation ? undefined : goToPreviousStep}
-      />
+      {returnRouteUponCancellation ? (
+        <BackLink
+          href={returnRouteUponCancellation}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Add start and end dates for your availability period"
         caption="Create availability period"

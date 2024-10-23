@@ -3,7 +3,6 @@ import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
-  ButtonGroup,
   Card,
   SummaryList,
   SummaryListItem,
@@ -36,64 +35,36 @@ const SingleOrRepeatingSessionStep = ({
     {
       title: 'Dates',
       value: `${startDate?.format('D MMMM YYYY')} - ${endDate?.format('D MMMM YYYY')}`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Days',
       value: `Monday, Tuesday, Wednesday, Thursday, Friday`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Time',
       value: `09:00 - 17:00`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Breaks',
       value: `12:00 - 13:00`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Services available',
       value: `Flu 65+, RSV 75+`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Maximum simultaneous appointments',
       value: `1`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
     {
       title: 'Appointment length in minutes',
       value: `10`,
-      action: {
-        href: '#',
-        text: 'Change',
-      },
     },
   ];
 
   return (
     <>
-      <BackLink onClick={goToPreviousStep} href="" />
+      <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       <NhsHeading
         title="Check availability period"
         caption="Create availability period"
@@ -101,12 +72,7 @@ const SingleOrRepeatingSessionStep = ({
       <Card title={'Session details'}>
         <SummaryList items={summary}></SummaryList>
       </Card>
-      <ButtonGroup>
-        <Button type="submit">Save without publishing</Button>
-        <Button type="submit" styleType="secondary">
-          Save without publishing
-        </Button>
-      </ButtonGroup>
+      <Button type="submit">Save</Button>
     </>
   );
 };

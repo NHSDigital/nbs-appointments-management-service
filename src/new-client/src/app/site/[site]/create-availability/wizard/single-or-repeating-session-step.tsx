@@ -2,7 +2,6 @@
 import NhsHeading from '@components/nhs-heading';
 import { BackLink, Button } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
-// type Props = { userProfile: UserProfile } & InjectedWizardProps;
 
 const SingleOrRepeatingSessionStep = ({
   goToPreviousStep,
@@ -14,7 +13,7 @@ const SingleOrRepeatingSessionStep = ({
 
   return (
     <>
-      <BackLink onClick={goToPreviousStep} href="" />
+      <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       <NhsHeading
         title="What type of session do you want to create?"
         caption="Create availability period"

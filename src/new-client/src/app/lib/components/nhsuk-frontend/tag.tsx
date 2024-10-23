@@ -1,6 +1,6 @@
 import React from 'react';
 
-type TagColour =
+export type TagColor =
   | 'white'
   | 'grey'
   | 'green'
@@ -14,7 +14,7 @@ type TagColour =
 
 type Props = {
   text: string;
-  colour: TagColour;
+  color: TagColor;
 };
 
 /**
@@ -22,8 +22,8 @@ type Props = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/tag
  */
-const Tag = ({ text, colour }: Props) => {
-  return <strong className={`nhsuk-tag nhsuk-tag--${colour}`}>{text}</strong>;
+const Tag = ({ text, color }: Props) => {
+  return <strong className={`nhsuk-tag nhsuk-tag--${color}`}>{text}</strong>;
 };
 
 export default Tag;

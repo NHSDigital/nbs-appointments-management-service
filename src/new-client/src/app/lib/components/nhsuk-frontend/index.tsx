@@ -16,12 +16,12 @@ import RightChevron from './icons/right-chevron';
 import Select from './select';
 import SummaryList, { SummaryListItem } from './summary-list';
 import Table from './table';
-import Tag from './tag';
+import Tag, { TagColor } from './tag';
 import TextArea from './text-area';
 import TextInput from './text-input';
 import WarningCallout from './warning-callout';
 
-export type { Breadcrumb, SummaryListItem };
+export type { Breadcrumb, SummaryListItem, TagColor };
 export {
   BackLink,
   Breadcrumbs,

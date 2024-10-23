@@ -29,9 +29,18 @@ async function saveAvailabilityTemplate(
     site: site.id,
     from: startDate.format('YYYY-MM-DD'),
     until: endDate.format('YYYY-MM-DD'),
+    // TODO: Get this from the form values itself
     template: {
-      days: [],
-      sessions: [],
+      days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      sessions: [
+        {
+          from: '09:00',
+          until: '17:00',
+          slotLength: 1,
+          capacity: 2,
+          services: ['COVID:12_15'],
+        },
+      ],
     },
   };
 

@@ -7,6 +7,7 @@ import { Site } from '@types';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 import SummaryStep from './summary-step';
 import saveAvailabilityTemplate from './save-availability-template';
+import { useRouter } from 'next/navigation';
 
 export type AvailabilityTemplateFormValues = {
   startDateDay: number;
@@ -23,11 +24,17 @@ type Props = {
 
 const AvailabilityTemplateWizard = ({ site }: Props) => {
   const methods = useForm<AvailabilityTemplateFormValues>();
+  const router = useRouter();
 
   const submitForm: SubmitHandler<AvailabilityTemplateFormValues> = async (
     form: AvailabilityTemplateFormValues,
   ) => {
     await saveAvailabilityTemplate(form, site);
+
+    // TODO: This redirect is blocked by awaiting the submit request, which could cause a delay to users.
+    // We need to handle this better, potentially with a loading spinner or something
+    // Maybe a <Suspense> object
+    router.push(`/site/${site.id}/create-availability`);
   };
 
   return (

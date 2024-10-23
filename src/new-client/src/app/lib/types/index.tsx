@@ -58,8 +58,8 @@ type DayOfWeek =
   | 'Sunday';
 
 type AvailabilitySession = {
-  from: dayjs.Dayjs;
-  until: dayjs.Dayjs;
+  from: string;
+  until: string;
   services: string[];
   slotLength: number;
   capacity: number;

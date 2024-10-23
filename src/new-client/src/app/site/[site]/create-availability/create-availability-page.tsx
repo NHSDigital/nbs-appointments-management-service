@@ -40,7 +40,7 @@ export const CreateAvailabilityPage = async ({ site }: Props) => {
       /> */}
       <br />
       <Link href={`/site/${site.id}/create-availability/wizard`}>
-        <Button type="button">Create availablity period</Button>
+        <Button type="button">Create availablity</Button>
       </Link>
     </>
   );

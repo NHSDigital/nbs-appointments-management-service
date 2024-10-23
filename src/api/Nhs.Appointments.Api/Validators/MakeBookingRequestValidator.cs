@@ -16,9 +16,7 @@ public class MakeBookingRequestValidator : AbstractValidator<MakeBookingRequest>
             .NotEmpty().WithMessage("Provide a date and time in the format 'yyyy-MM-dd HH:mm'")
             .Must(x => DateTime.TryParseExact(x, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var _)).WithMessage("Provide a date and time in the format 'yyyy-MM-dd HH:mm'");
         RuleFor(x => x.Service)
-            .NotEmpty().WithMessage("Provide a valid service");
-        RuleFor(x => x.SessionHolder)
-            .NotEmpty().WithMessage("Provide a valid session holder");
+            .NotEmpty().WithMessage("Provide a valid service");        
         RuleFor(x => x.AttendeeDetails)
             .NotEmpty().WithMessage("Provide attendee details")
             .SetValidator(new AttendeeDetailsValidator());

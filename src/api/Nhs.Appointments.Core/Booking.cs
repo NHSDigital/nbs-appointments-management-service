@@ -18,9 +18,6 @@ public class Booking
 
     [JsonProperty("site")]
     public string Site { get; set; }
-
-    [JsonProperty("sessionHolder")]
-    public string SessionHolder { get; set; }
     
     [JsonProperty("outcome")]
     public string Outcome { get; set; }

@@ -1,11 +1,9 @@
-﻿using System.Net;
-using System.Text;
+﻿using System.Text;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
@@ -19,9 +17,9 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class QueryAvailabilityFunctionTests
 {
+    private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly QueryAvailabilityFunction _sut;
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
-    private readonly Mock<ISiteConfigurationService> _siteConfigurationService = new();
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<IValidator<QueryAvailabilityRequest>> _validator = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
@@ -32,8 +30,7 @@ public class QueryAvailabilityFunctionTests
     {
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object, 
-            _siteConfigurationService.Object, 
-            _validator.Object, 
+                _validator.Object, 
             _availabilityGrouperFactory.Object, 
             _userContextProvider.Object,
             _logger.Object);
@@ -47,17 +44,13 @@ public class QueryAvailabilityFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenMultipleSitesAreQueried()
     {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        var siteConfigurationA = CreateSiteConfiguration("1000", "COVID", "COVID");
-        var siteConfigurationB = CreateSiteConfiguration("1001", "COVID", "COVID");
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(10, 0), TimeSpan.FromMinutes(5));
         var responseBlocks = CreateAmPmResponseBlocks(12, 0);
 
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1000")).ReturnsAsync(siteConfigurationA);
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1001")).ReturnsAsync(siteConfigurationB);
+            .ReturnsAsync(slots.AsEnumerable());
         
         var request = new QueryAvailabilityRequest(
             new[] { "1000", "1001" },
@@ -74,67 +67,7 @@ public class QueryAvailabilityFunctionTests
         response.Result.Count.Should().Be(2);
         response.Result[0].site.Should().Be("1000");
         response.Result[1].site.Should().Be("1001");
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnsEmptyResponse_WhenServiceRequestedIsNotConfiguredForSite()
-    {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        var siteConfiguration = CreateSiteConfiguration("1000", "COVID", "COVID");
-        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
-
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
-            .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
-            .ReturnsAsync(siteConfiguration);
-        
-        var request = new QueryAvailabilityRequest(
-            new[] { "1000" },
-            "OTHER_SERVICE", 
-            "2077-01-01",
-            "2077-01-01",
-            QueryType.Days);
-
-        var httpRequest = CreateRequest(request);
-        
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        var response = ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
-        response.Result.Should().BeEmpty();
-    }
-    
-    [Fact]
-    public async Task RunAsync_ReturnsAvailability_ForSitesWithRequestedServiceConfiguration()
-    {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        var siteConfigurationA = CreateSiteConfiguration("1000", "COVID", "COVID");
-        var siteConfigurationB = CreateSiteConfiguration("1001", "OTHER_SERVICE", "OTHER_SERVICE");
-        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
-
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
-            .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1000")).ReturnsAsync(siteConfigurationA);
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1001")).ReturnsAsync(siteConfigurationB);
-        
-        var request = new QueryAvailabilityRequest(
-            new[] { "1000", "1001" },
-            "COVID", 
-            "2077-01-01",
-            "2077-01-01",
-            QueryType.Days);
-
-        var httpRequest = CreateRequest(request);
-        
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        var response = ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
-        response.Result.Count.Should().Be(1);
-        response.Result[0].site.Should().Be("1000");
-    }
+    }      
     
     [Theory]
     [InlineData(QueryType.Days)]
@@ -142,16 +75,13 @@ public class QueryAvailabilityFunctionTests
     [InlineData(QueryType.Slots)]
     public async Task RunAsync_ReturnsCorrectAvailabilityGrouper_WhenCalledWithConfiguredQueryType(QueryType queryType)
     {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        var siteConfiguration = CreateSiteConfiguration("1000", "COVID", "COVID");
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(10, 0), TimeSpan.FromMinutes(5));
         var responseBlocks = CreateAmPmResponseBlocks(12, 0);
 
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
-            .ReturnsAsync(siteConfiguration);
+            .ReturnsAsync(slots.AsEnumerable());
         
         var request = new QueryAvailabilityRequest(
             new[] { "1000" },
@@ -167,65 +97,64 @@ public class QueryAvailabilityFunctionTests
     }
 
     [Fact]
-    public async Task RunAsync_ReturnsNoAvailability_ForASiteThatIsNotConfigured()
+    public async Task RunAsync_ReturnsResults_ForEachDayInRequest()
     {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(10, 0), TimeSpan.FromMinutes(5));
         var responseBlocks = CreateAmPmResponseBlocks(12, 0);
 
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync(It.IsAny<string>()))
-            .ThrowsAsync(new CosmosException("Resource not found", HttpStatusCode.NotFound, 0, "1", 1));
-        
+            .ReturnsAsync(slots.AsEnumerable());
+
         var request = new QueryAvailabilityRequest(
             new[] { "1000" },
-            "COVID", 
+            "COVID",
             "2077-01-01",
-            "2077-01-01",
+            "2077-01-03",
             QueryType.Days);
 
         var httpRequest = CreateRequest(request);
-        
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        result.Content.Should().Be("[]");
-    }
-    
-    [Fact]
-    public async Task RunAsync_ReturnsAvailability_ForSitesThatAreConfigured()
-    {
-        var blocks = AvailabilityHelper.CreateTestBlocks("10:00-11:00");
-        var siteConfiguration = CreateSiteConfiguration("1000", "COVID", "COVID");
-        
-        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
 
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<TimePeriod>>(), It.IsAny<int>()))
-            .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1000")).ReturnsAsync(siteConfiguration);
-        _siteConfigurationService.Setup(x => x.GetSiteConfigurationAsync("1001"))
-            .ThrowsAsync(new CosmosException("Resource not found", HttpStatusCode.NotFound, 0, "1", 1));
-        
-        var request = new QueryAvailabilityRequest(
-            new[] { "1000", "1001" },
-            "COVID", 
-            "2077-01-01",
-            "2077-01-01",
-            QueryType.Days);
-
-        var httpRequest = CreateRequest(request);
-        
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
         var response = ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
-        response.Result.Count.Should().Be(1);
-        response.Result[0].site.Should().Be("1000");
+
+        response.Result[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
+        response.Result[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
+        response.Result[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
     }
-    
+
+    [Fact]
+    public async Task RunAsync_CallsGrouperWithCorrectSlots_ForEachDayInRequest()
+    {
+        var blocks = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,5,0)),
+            new SessionInstance(new DateTime(2077,1,2,10,0,0), new DateTime(2077,1,2,10,5,0)),
+            new SessionInstance(new DateTime(2077,1,3,11,0,0), new DateTime(2077,1,3,11,5,0)),
+        };
+        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
+
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
+            .Returns(responseBlocks);
+        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync(blocks.AsEnumerable());
+
+        var request = new QueryAvailabilityRequest(
+            new[] { "1000" },
+            "COVID",
+            "2077-01-01",
+            "2077-01-03",
+            QueryType.Days);
+
+        var httpRequest = CreateRequest(request);
+
+        await _sut.RunAsync(httpRequest);
+        
+        _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()), Times.Exactly(3));        
+    }
+
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
     {
         return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType);
@@ -241,16 +170,7 @@ public class QueryAvailabilityFunctionTests
         request.Body =  new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Add("Authorization", "Test 123");
         return request;
-    }
-
-    private static SiteConfiguration CreateSiteConfiguration(string siteId, string serviceCode, string serviceName)
-    {
-        return new SiteConfiguration
-        {
-            Site = siteId,
-            ServiceConfiguration = new List<ServiceConfiguration> { new (serviceCode, serviceName, 5, true) }
-        };
-    }
+    }       
 
     private static IEnumerable<QueryAvailabilityResponseBlock> CreateAmPmResponseBlocks(int amCount, int pmCount)
     {

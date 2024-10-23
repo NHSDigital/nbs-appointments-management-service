@@ -20,8 +20,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
                 DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
                 new List<QueryAvailabilityResponseBlock>()
                 {
-                    new (new TimeOnly(0,0), new TimeOnly(11,59), int.Parse(row.Cells.ElementAt(1).Value)),
-                    new (new TimeOnly(12,0), new TimeOnly(23,59), int.Parse(row.Cells.ElementAt(2).Value)),
+                    new (new TimeOnly(0,0), new TimeOnly(12,00), int.Parse(row.Cells.ElementAt(1).Value)),
+                    new (new TimeOnly(12,0), new TimeOnly(00,00), int.Parse(row.Cells.ElementAt(2).Value)),
                 }
             ));
 

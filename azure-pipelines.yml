@@ -2,7 +2,7 @@ trigger:
   - main
 
 pool:
-  vmImage: "ubuntu-20.04"
+  vmImage: "ubuntu-latest"
 
 parameters:
   - name: environments
@@ -132,6 +132,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
           - script: |
+              mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |

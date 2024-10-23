@@ -26,6 +26,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             {
                 from = requestedAppointment,
                 service = service,
+                duration = 5,
                 site = GetSiteId(siteDesignation),
                 sessionHolder = "default", 
                 attendeeDetails = new { 

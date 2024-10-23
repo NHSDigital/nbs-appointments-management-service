@@ -15,12 +15,11 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteMetaDataFunction(ISiteConfigurationService siteConfigurationService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteMetaDataFunction> logger)
+public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteMetaDataFunction> logger)
     : SiteBasedResourceFunction<GetSiteMetaDataResponse>(validator, userContextProvider, logger)
 {
 
-    [OpenApiOperation(operationId: "GetSiteMetaData", tags: new[] { "Site Configuration" }, Summary = "Get meta data about the site specific to appointments")]
-    [OpenApiRequestBody("text/json", typeof(SiteConfiguration))]
+    [OpenApiOperation(operationId: "GetSiteMetaData", tags: new[] { "Site Configuration" }, Summary = "Get meta data about the site specific to appointments")]    
     [OpenApiParameter("site", Required = true, Description = "The id of the site to retrieve configuration for")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/json", typeof(GetSiteMetaDataResponse), Description = "The meta data for the specified site")]
@@ -36,10 +35,10 @@ public class GetSiteMetaDataFunction(ISiteConfigurationService siteConfiguration
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var siteConfiguration = await siteConfigurationService.GetSiteConfigurationOrDefaultAsync(request.Site);
-        if (siteConfiguration != null)
+        var site = await siteService.GetSiteByIdAsync(request.Site);
+        if (site != null)
         {
-            return Success(new GetSiteMetaDataResponse(request.Site, siteConfiguration.InformationForCitizen));
+            throw new System.NotImplementedException();
         }
 
         return Failed(System.Net.HttpStatusCode.NotFound, "No site configuration was found for the specified site");

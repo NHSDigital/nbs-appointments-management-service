@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
 
-public class ScheduleBlock
+public class Session
 {
     [JsonProperty("from")]
     [JsonPropertyName("from")]
@@ -16,49 +16,33 @@ public class ScheduleBlock
     [JsonProperty("services")]
     [JsonPropertyName("services")]
     public string[] Services { get; set; }
+
+    [JsonProperty("slotLength")]
+    [JsonPropertyName("slotLength")]
+    public int SlotLength { get; set; }
+
+    [JsonProperty("capacity")]
+    [JsonPropertyName("capacity")]
+    public int Capacity { get; set; }
     
 }
 
 public class SessionInstance : TimePeriod
 {
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
-    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }
-    public string SessionHolder { get; set; }
+    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }    
+    public string[] Services { get; set; }
+    public int SlotLength { get; set; }
+    public int Capacity { get; set; }
 }
 
-public class WeekTemplate
-{
-    [JsonProperty("id")]
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
-
-    [JsonProperty("name")]
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonProperty("site")]
-    [JsonPropertyName("site")]
-    public string Site { get; set; }
-
-    [JsonProperty("items")]
-    [JsonPropertyName("items")]
-    public Schedule[] Items { get; set; }
-}
-
-public class Schedule
+public class Template
 {
     [JsonProperty("days")]
     [JsonPropertyName("days")]
     public DayOfWeek[] Days { get; set; }
 
-    [JsonProperty("scheduleBlocks")]
-    [JsonPropertyName("scheduleBlocks")]
-    public ScheduleBlock[] ScheduleBlocks { get; set; }
-}
-
-public class TemplateAssignment
-{    
-    public DateOnly From { get; set; }
-    public DateOnly Until { get; set; }
-    public string TemplateId { get; set; }  
+    [JsonProperty("sessions")]
+    [JsonPropertyName("sessions")]
+    public Session[] Sessions { get; set; }
 }

@@ -21,7 +21,6 @@ const Table = ({ caption, headers, rows }: TableProps) => {
 
   return (
     <table
-      role="table"
       className={
         cardinality === 'two-column' ? 'nhsuk-table' : 'nhsuk-table-responsive'
       }
@@ -30,15 +29,10 @@ const Table = ({ caption, headers, rows }: TableProps) => {
         <caption className="nhsuk-table__caption">{caption}</caption>
       )}
       <thead className="nhsuk-table__head">
-        <tr role="row">
+        <tr>
           {headers.map((header, index) => {
             return (
-              <th
-                role="columnheader"
-                className=""
-                scope="col"
-                key={`header-${index}`}
-              >
+              <th className="" scope="col" key={`header-${index}`}>
                 {header}
               </th>
             );
@@ -62,11 +56,10 @@ const renderRow = (
   rowIndex: number,
 ) => {
   return (
-    <tr role="row" className="nhsuk-table__row" key={`row-${rowIndex}`}>
+    <tr className="nhsuk-table__row" key={`row-${rowIndex}`}>
       {row.map((cell, cellIndex) => {
         return (
           <td
-            role="cell"
             className="nhsuk-table__cell"
             key={`row-${rowIndex}-cell-${cellIndex}`}
           >

@@ -16,8 +16,8 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             site,
             "2077-01-01 09:00",
-            "COVID",
-            "SessionHolder",
+            5,
+            "COVID",            
             GetAttendeeDetails(),
             GetContactDetails()
         );
@@ -42,8 +42,8 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             from,
+            5,
             "COVID",
-            "SessionHolder",
             GetAttendeeDetails(),
             GetContactDetails()
         );
@@ -62,8 +62,8 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             service,
-            "SessionHolder",
             GetAttendeeDetails(),
             GetContactDetails()
         );
@@ -73,35 +73,15 @@ public class MakeBookingRequestValidatorTests
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.Service));
     }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_ReturnsError_WhenSessionHolderIsNullOrEmpty(string sessionHolder)
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            "COVID",
-            sessionHolder,
-            GetAttendeeDetails(),
-            GetContactDetails()
-        );
         
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.SessionHolder));
-    }
-    
     [Fact]
     public void Validate_ReturnsError_WhenAttendeeDetailsIsNull()
     {
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
-            "SessionHolder",
             null,
             GetContactDetails()
         );
@@ -118,8 +98,8 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
-            "SessionHolder",
             GetAttendeeDetails(),
             null
         );
@@ -146,8 +126,8 @@ public class MakeBookingRequestValidatorTests
         var request = new MakeBookingRequest(
             "1000",
             "2077-01-01 09:00",
+            5,
             "COVID",
-            "SessionHolder",
             GetAttendeeDetails(),
             GetContactDetails()
         );

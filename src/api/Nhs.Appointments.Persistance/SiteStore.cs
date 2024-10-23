@@ -5,7 +5,7 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMapper mapper) : ISiteStore
+public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : ISiteStore
 {
     public Task<IEnumerable<SiteWithDistance>> GetSitesByArea(double longitude, double latitude, int searchRadius)
     {
@@ -23,7 +23,20 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore, IMap
     {
         return GetOrDefault(siteId);
     }
-    
+
+    public async Task<int> GetReferenceNumberGroup(string site)
+    {
+        var siteDocument = await cosmosStore.GetDocument<SiteDocument>(site);
+        return siteDocument.ReferenceNumberGroup;
+    }
+
+    public Task AssignPrefix(string site, int prefix)
+    {
+        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
+        var partitionKey = cosmosStore.GetDocumentType();
+        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
+    }
+
     public async Task<OperationResult> UpdateSiteAttributes(string siteId, IEnumerable<AttributeValue> attributeValues)
     {
         var originalDocument = await GetOrDefault(siteId);

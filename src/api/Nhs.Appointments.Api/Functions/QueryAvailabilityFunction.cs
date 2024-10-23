@@ -20,21 +20,18 @@ using Nhs.Appointments.Api.Auth;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>
-{
-    private readonly ISiteConfigurationService _siteConfigurationService;
+{    
     private readonly IAvailabilityCalculator _availabilityCalculator;
     private readonly IAvailabilityGrouperFactory _availabilityGrouperFactory;
     
     public QueryAvailabilityFunction(
         IAvailabilityCalculator availabilityCalculator, 
-        ISiteConfigurationService siteConfigurationService,
-        IValidator<QueryAvailabilityRequest> validator,
+         IValidator<QueryAvailabilityRequest> validator,
         IAvailabilityGrouperFactory availabilityGrouperFactory,
         IUserContextProvider userContextProvider,
         ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
     {
         _availabilityCalculator = availabilityCalculator;
-        _siteConfigurationService = siteConfigurationService;
         _availabilityGrouperFactory = availabilityGrouperFactory;
     }
 
@@ -70,24 +67,15 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
     {
-        var blocks = (await _availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
-
-        var siteConfigurationOp = await TryPattern.TryAsync(() => _siteConfigurationService.GetSiteConfigurationAsync(site));
-        if (siteConfigurationOp.Completed == false)
-            return null;
-
-        var selectedServiceConfiguration = siteConfigurationOp.Result.ServiceConfiguration.SingleOrDefault(app => app.Code == service);
-        if (selectedServiceConfiguration is null)
-            return null;
-
+        var slots = (await _availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;
         while (day <= until)
         {
-            var blocksForDay = blocks.Where(b => day == DateOnly.FromDateTime(b.From));
+            var slotsForDay = slots.Where(b => day == DateOnly.FromDateTime(b.From));
             var availabilityGrouper = _availabilityGrouperFactory.Create(queryType);
-            var groupedBlocks = availabilityGrouper.GroupAvailability(blocksForDay, selectedServiceConfiguration.Duration);
+            var groupedBlocks = availabilityGrouper.GroupAvailability(slotsForDay);
             availability.Add(new QueryAvailabilityResponseInfo(day, groupedBlocks));
             day = day.AddDays(1);
         }

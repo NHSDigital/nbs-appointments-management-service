@@ -7,15 +7,13 @@ namespace Nhs.Appointments.Api.Availability;
 
 public class SlotAvailabilityGrouper : IAvailabilityGrouper
 {
-    public IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<TimePeriod> blocks, int slotDuration)
+    public IEnumerable<QueryAvailabilityResponseBlock> GroupAvailability(IEnumerable<SessionInstance> blocks)
     {
         if (blocks == null) throw new ArgumentNullException(nameof(blocks));
-        if (slotDuration == 0) throw new ArgumentOutOfRangeException(nameof(slotDuration));
         
         return blocks
-            .SelectMany(b => b.Divide(TimeSpan.FromMinutes(slotDuration)))
-            .GroupBy(x => x.From)
-            .Select(dataItem => new QueryAvailabilityResponseBlock(TimeOnly.FromDateTime(dataItem.Key), TimeOnly.FromDateTime(dataItem.Key.AddMinutes(slotDuration)), dataItem.Count()))
+            .GroupBy(x => (x.From, x.Duration)) // Need to group by from and duration
+            .Select(dataItem => new QueryAvailabilityResponseBlock(TimeOnly.FromDateTime(dataItem.Key.From), TimeOnly.FromDateTime(dataItem.Key.From.Add(dataItem.Key.Duration)), dataItem.Sum(x => x.Capacity)))
             .ToList();
     }
 }

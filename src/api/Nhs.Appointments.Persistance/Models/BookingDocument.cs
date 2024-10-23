@@ -18,9 +18,6 @@ public class BookingDocument : BookingDataCosmosDocument
     [JsonProperty("service")]
     public string Service { get; set; }
 
-    [JsonProperty("sessionHolder")]
-    public string SessionHolder { get; set; }
-
     [JsonProperty("outcome")]
     public string Outcome { get; set; }
 

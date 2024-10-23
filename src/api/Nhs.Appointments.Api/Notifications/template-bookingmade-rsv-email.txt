@@ -4,7 +4,7 @@ This template is stored at https://www.notifications.service.gov.uk/
 
 Template name: Booking Made (RSV)
 
-Template Subject: Booking confirmation - RSV vaccination appointment
+Template Subject: Booking confirmation - RSV appointment
 
 Template Body:
 
@@ -24,4 +24,4 @@ Date and time: ((date))
 
 * visit https://www.nhs.uk/book-rsv
 
-You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.
+You can cancel your appointment up until the day it takes place. However, we can not change appointments an hour before they are due to start.

@@ -33,7 +33,7 @@ public class QueryBookingsFunction(IBookingsService bookingsService, IValidator<
     
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request, ILogger logger)
     {
-        var booking = await bookingsService.GetBookings(request.site, request.from, request.to);
+        var booking = await bookingsService.GetBookings(request.from, request.to, request.site);
         return Success(booking);
     }
 }

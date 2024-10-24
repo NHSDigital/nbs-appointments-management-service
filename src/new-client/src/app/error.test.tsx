@@ -25,7 +25,7 @@ describe('Error Page', () => {
     );
     expect(
       screen.getByRole('heading', {
-        name: 'Sorry, there is a problem with this service',
+        name: 'You cannot access this page',
       }),
     ).toBeVisible();
   });

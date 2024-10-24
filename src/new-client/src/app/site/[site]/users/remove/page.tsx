@@ -4,8 +4,9 @@ import {
   assertPermission,
   fetchSite,
   fetchUserProfile,
+  fetchUsers,
 } from '@services/appointmentsService';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { notAuthorised } from '@services/authService';
 
 export type UserPageProps = {
@@ -23,6 +24,11 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
   }
 
   const site = await fetchSite(params.site);
+
+  const users = await fetchUsers(params.site);
+  if (users === undefined || !users.some(u => u.id === searchParams?.user)) {
+    notFound();
+  }
 
   await assertPermission(site.id, 'users:manage');
 

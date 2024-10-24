@@ -45,7 +45,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                         FirstName = "FirstName",
                         LastName = "LastName",
                         DateOfBirth = new DateOnly(2000, 1, 1)
-                    }
+                    },
+                    ContactDetails =
+                    [
+                        new ContactItem { Type = "email", Value = "firstName@test.com" },
+                        new ContactItem { Type = "phone", Value = "0123456789" }
+                    ]
                 }).ToList();
 
             _statusCode.Should().Be(HttpStatusCode.OK);

@@ -15,15 +15,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class TriggerBookingRemindersFunction : BaseApiFunction<EmptyRequest, EmptyResult>
+public class TriggerBookingRemindersFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger) : BaseApiFunction<EmptyRequest, EmptyResponse>(validator, userContextProvider, logger)
 {
-    private readonly IBookingsService _bookingService;
-
-    public TriggerBookingRemindersFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger) :
-        base(validator, userContextProvider, logger)
-    {
-        _bookingService = bookingService;
-    }
 
     [OpenApiOperation(operationId: "TriggerBookingReminders", tags: ["System", "Booking"], Summary = "Manually trigger reminder notifications for bookings")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
@@ -35,10 +28,10 @@ public class TriggerBookingRemindersFunction : BaseApiFunction<EmptyRequest, Emp
         return base.RunAsync(req);
     }
 
-    protected async override Task<ApiResult<EmptyResult>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        await _bookingService.SendBookingReminders();
-        return new ApiResult<EmptyResult>();
+        await bookingService.SendBookingReminders();
+        return Success(new EmptyResponse());
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

@@ -23,4 +23,7 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
+    
+    [JsonProperty("contactDetails")]
+    public ContactItem[] ContactDetails { get; set; }
 }

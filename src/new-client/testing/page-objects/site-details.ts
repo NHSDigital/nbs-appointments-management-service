@@ -17,7 +17,7 @@ export default class SiteDetailsPage extends RootPage {
   }
 
   async attributeIsTrue(attributeName: string) {
-    expect(
+    await expect(
       this.page
         .getByRole('row')
         .filter({

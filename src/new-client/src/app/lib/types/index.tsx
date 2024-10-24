@@ -23,6 +23,11 @@ type AttributeValue = {
   value: string;
 };
 
+type SetAttributes = {
+  scope: string;
+  attributeValues: AttributeValue[];
+};
+
 type User = {
   id: string;
   roleAssignments: RoleAssignment[];
@@ -62,4 +67,5 @@ export type {
   RoleAssignment,
   Role,
   ApiResponse,
+  SetAttributes,
 };

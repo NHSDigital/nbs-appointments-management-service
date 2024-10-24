@@ -7,7 +7,13 @@ type Props = {
 };
 
 export const EditInformationForCitizensPage = async ({ site }: Props) => {
-  const informationForCitizens = await fetchInformationForCitizens();
+  const informationForCitizens = await fetchInformationForCitizens(
+    site,
+    'site_details',
+  );
+  const siteInformation = informationForCitizens.filter(si =>
+    si.id.includes('info_for_citizen'),
+  )[0];
 
   return (
     <>
@@ -18,7 +24,7 @@ export const EditInformationForCitizensPage = async ({ site }: Props) => {
         </div>
       </div>
       <AddInformationForCitizensForm
-        information={informationForCitizens}
+        information={siteInformation?.value ?? ''}
         site={site}
       />
     </>

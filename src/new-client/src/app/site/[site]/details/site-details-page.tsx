@@ -17,6 +17,9 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
     ad.id.startsWith('accessibility'),
   );
   const siteAttributeValues = await fetchSiteAttributeValues(site.id);
+  const informationForCitizenAttribute = siteAttributeValues.filter(sa =>
+    sa.id.includes('info_for_citizen'),
+  )[0];
 
   return (
     <>
@@ -57,6 +60,11 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
 
       <h3>Information for citizens</h3>
       <p>Instructions to be show to people when they arrive</p>
+      {informationForCitizenAttribute.value ? (
+        <p>{informationForCitizenAttribute.value}</p>
+      ) : (
+        ''
+      )}
       {permissions.includes('site:manage') ? (
         <ButtonGroup>
           <Link href={`/site/${site.id}/details/edit-information-for-citizens`}>

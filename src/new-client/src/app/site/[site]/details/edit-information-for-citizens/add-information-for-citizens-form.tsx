@@ -6,7 +6,7 @@ import {
   TextArea,
 } from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
-import { AttributeValue } from '@types';
+import { SetAttributes } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -33,12 +33,15 @@ const AddInformationForCitizensForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: AttributeValue[] = [
-      {
-        id: 'info_for_citizen',
-        value: form.informationForCitizen,
-      },
-    ];
+    const payload: SetAttributes = {
+      scope: 'site_details',
+      attributeValues: [
+        {
+          id: 'site_details/info_for_citizen',
+          value: form.informationForCitizen,
+        },
+      ],
+    };
 
     await setSiteInformationForCitizen(site, payload);
 

@@ -8,7 +8,7 @@ import {
   CheckBox,
   ButtonGroup,
 } from '@nhsuk-frontend-components';
-import { AttributeDefinition, AttributeValue } from '@types';
+import { AttributeDefinition, AttributeValue, SetAttributes } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAttributeValues } from '@services/appointmentsService';
@@ -40,13 +40,16 @@ const AddAttributesForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: AttributeValue[] = attributeDefinitions.map(ad => ({
-      id: ad.id,
-      value:
-        form.attributeValues.find((fv: string) => ad.id === fv) !== undefined
-          ? 'true'
-          : 'false',
-    }));
+    const payload: SetAttributes = {
+      scope: 'accessibility',
+      attributeValues: attributeDefinitions.map(ad => ({
+        id: ad.id,
+        value:
+          form.attributeValues.find((fv: string) => ad.id === fv) !== undefined
+            ? 'true'
+            : 'false',
+      })),
+    };
     await saveSiteAttributeValues(site, payload);
 
     replace(`/site/${site}/details`);

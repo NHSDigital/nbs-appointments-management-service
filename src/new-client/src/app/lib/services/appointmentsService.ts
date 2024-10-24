@@ -3,8 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
   AttributeDefinition,
-  AttributeValue,
   Role,
+  SetAttributes,
   SiteWithAttributes,
   User,
   UserProfile,
@@ -45,7 +45,7 @@ export const fetchSite = async (siteId: string) => {
 
 export const fetchSiteAttributeValues = async (siteId: string) => {
   const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}`,
+    `sites/${siteId}/scope/*`,
   );
 
   return handleResponse(response)?.attributeValues ?? [];
@@ -122,7 +122,7 @@ export const saveUserRoleAssignments = async (
 
 export const saveSiteAttributeValues = async (
   site: string,
-  attributeValues: AttributeValue[],
+  attributeValues: SetAttributes,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/attributes`,
@@ -158,13 +158,17 @@ export const removeUserFromSite = async (site: string, user: string) => {
   redirect(`/site/${site}/users`);
 };
 
-export async function fetchInformationForCitizens() {
-  return '';
+export async function fetchInformationForCitizens(site: string, scope: string) {
+  const response = await appointmentsApi.get<SiteWithAttributes>(
+    `sites/${site}/scope/${scope}`,
+  );
+
+  return handleResponse(response)?.attributeValues ?? [];
 }
 
 export const setSiteInformationForCitizen = async (
   site: string,
-  attributeValues: AttributeValue[],
+  attributeValues: SetAttributes,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/attributes`,

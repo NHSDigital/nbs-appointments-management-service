@@ -73,10 +73,10 @@ public class BookingsService : IBookingsService
                 booking.Reference = await _referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await _bookingDocumentStore.InsertAsync(booking);
-                var bookingMadeEvent = BuildBookingMadeEvent(booking);
 
                 if (!booking.Provisional)
                 {
+                    var bookingMadeEvent = BuildBookingMadeEvent(booking);
                     await _bus.Send(bookingMadeEvent);
                 }
 

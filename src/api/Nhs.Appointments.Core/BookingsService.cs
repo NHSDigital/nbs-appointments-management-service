@@ -9,7 +9,7 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
-    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
+    Task<(bool Success, string Reference, bool Provisional, Uri? ConfirmationEndpoint)> MakeBooking(Booking booking);
     Task CancelBooking(string site, string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
@@ -23,7 +23,7 @@ public class BookingsService : IBookingsService
     private readonly ISiteLeaseManager _siteLeaseManager;
     private readonly IMessageBus _bus;
     private readonly TimeProvider _time;
-    
+
     public BookingsService(
         IBookingsDocumentStore bookingDocumentStore, 
         IReferenceNumberProvider referenceNumberProvider,
@@ -60,7 +60,7 @@ public class BookingsService : IBookingsService
         return _bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
+    public async Task<(bool Success, string Reference, bool Provisional, Uri? ConfirmationEndpoint)> MakeBooking(Booking booking)
     {            
         using (var leaseContent = _siteLeaseManager.Acquire(booking.Site))
         {                
@@ -69,16 +69,28 @@ public class BookingsService : IBookingsService
 
             if (canBook)
             {
+                booking.Created = _time.GetLocalNow().DateTime;
                 booking.Reference = await _referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await _bookingDocumentStore.InsertAsync(booking);
                 var bookingMadeEvent = BuildBookingMadeEvent(booking);
-                await _bus.Send(bookingMadeEvent);
-                return (true, booking.Reference);
+
+                if (!booking.Provisional)
+                {
+                    await _bus.Send(bookingMadeEvent);
+                }
+
+                return (true, booking.Reference, booking.Provisional, GetConfirmationEndpointForProvisionalBooking(booking));
             }
 
-            return (false, string.Empty);
+            return (false, string.Empty, booking.Provisional, null);
         }            
+    }
+
+    private Uri? GetConfirmationEndpointForProvisionalBooking(Booking booking)
+    {
+        // TODO: implement this endpoint and lock in the correct URI here
+        return booking.Provisional ? new Uri($"https://TODO/booking/{booking.Reference}/confirm") : null;
     }
 
     public Task CancelBooking(string site, string bookingReference)

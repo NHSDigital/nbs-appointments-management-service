@@ -111,6 +111,42 @@ public class MakeBookingRequestValidatorTests
     }
 
     [Fact]
+    public void Validate_ContactDetailsCanBeNull_IfProvisional()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            5,
+            "COVID",
+            GetAttendeeDetails(),
+            null,
+            true
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_ProvisionalBooking_ShouldNotHaveContactDetails()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            5,
+            "COVID",
+            GetAttendeeDetails(),
+            [new ContactItem("email", "test@tempuri.org")],
+            true
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
+    }
+
+    [Fact]
     public void Validate_ReturnsError_WhenRequestIsEmpty()
     {
         MakeBookingRequest request = null;

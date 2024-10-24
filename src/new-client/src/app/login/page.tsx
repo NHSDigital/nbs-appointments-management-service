@@ -15,16 +15,17 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
+  const redirectUrl = searchParams?.redirectUrl ?? '/';
   return (
     <NhsAnonymousPage
       title="Appointment Management Service"
-      headerAuthComponent={NhsHeaderLogIn()}
+      headerAuthComponent={NhsHeaderLogIn({ redirectUrl })}
     >
       <p>
         You are currently not signed in. You must sign in to access this
         service.
       </p>
-      <LogInButton redirectUrl={searchParams?.redirectUrl ?? '/'} />
+      <LogInButton redirectUrl={redirectUrl} />
     </NhsAnonymousPage>
   );
 };

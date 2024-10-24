@@ -1,15 +1,15 @@
 'use server';
 import { fetchUserProfile } from '@services/appointmentsService';
-import { getSession } from '../../auth/getSession';
 import { signOut } from '../../auth/signOut';
 
 const NhsHeaderLogOut = async () => {
-  const emailAddress =
-    getSession()?.emailAddress ?? (await fetchUserProfile()).emailAddress;
+  const userProfile = await fetchUserProfile();
 
   return (
     <>
-      <span className="nhsuk-header-custom__user-control">{emailAddress}</span>
+      <span className="nhsuk-header-custom__user-control">
+        {userProfile.emailAddress}
+      </span>
       <form action={signOut}>
         <button
           aria-label="log out"

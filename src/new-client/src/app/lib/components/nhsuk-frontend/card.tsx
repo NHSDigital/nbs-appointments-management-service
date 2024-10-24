@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import RightChevron from './icons/right-chevron';
+import RightChevron from '@components/nhsuk-frontend/icons/right-chevron';
 import Link from 'next/link';
 
 type CardType = 'primary' | 'secondary' | 'feature';

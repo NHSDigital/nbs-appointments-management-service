@@ -1,5 +1,6 @@
 'use client';
-import NhsErrorPage from '@components/nhs-error-page';
+import ContactUs from '@components/contact-us';
+import NhsAnonymousPage from '@components/nhs-anonymous-page';
 
 export default function Error({
   error,
@@ -7,11 +8,35 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // TODO: write error.digest to application insights?
+  // console.dir(error.digest);
+
+  if (error.message === 'Forbidden: You lack the necessary permissions') {
+    return (
+      <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
+        <p>This might be because: </p>
+        <ul>
+          <li>you don't have an account to access this service</li>
+          <li>you don't have permissions to access this page</li>
+        </ul>
+
+        <ContactUs
+          prompt={'If you think this is wrong, contact us to let us know:'}
+        />
+      </NhsAnonymousPage>
+    );
+  }
+
   return (
-    <NhsErrorPage
-      title="Appointment Management Service"
-      message={error.message}
-      omitTitleFromBreadcrumbs={true}
-    />
+    <NhsAnonymousPage
+      title="Sorry, there is a problem with this service"
+      showHomeBreadcrumb
+    >
+      <ContactUs
+        prompt={
+          'Please try again later or contact us to let us know there is a problem:'
+        }
+      />
+    </NhsAnonymousPage>
   );
 }

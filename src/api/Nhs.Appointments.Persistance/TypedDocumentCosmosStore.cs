@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -61,6 +62,27 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(_documentType.Value));
         return _mapper.Map<TModel>(readResponse.Resource);
     }
+
+    public async Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId)
+    {
+        var container = GetContainer();
+
+        using(ResponseMessage response = await container.ReadItemStreamAsync(documentId, new PartitionKey(_documentType.Value)))
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                return default;
+            }
+
+            using (StreamReader streamReader = new StreamReader(response.Content))
+            {
+                string content = await streamReader.ReadToEndAsync();
+                var document = JsonConvert.DeserializeObject<TModel>(content);
+                return document;
+            }
+        }
+    }
+
     public Task<TModel> GetDocument<TModel>(string documentId)
     {
         return GetDocument<TModel>(documentId, _documentType.Value);

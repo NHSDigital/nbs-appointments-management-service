@@ -29,6 +29,7 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
+  await page.waitForURL('**/site/ABC02/details');
   await siteDetailsPage.editSiteAttributesButton.click();
 
   await page.waitForURL('**/site/ABC02/details/edit-attributes');

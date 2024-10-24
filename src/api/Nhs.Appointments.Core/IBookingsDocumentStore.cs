@@ -13,6 +13,7 @@ public interface IBookingsDocumentStore
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);
     Task SetReminderSent(string bookingReference, string site);
     Task<bool> ConfirmProvisional(string bookingReference);
+    Task RemoveUnconfirmedProvisionalBookings();
 }
 
 public interface IRolesStore

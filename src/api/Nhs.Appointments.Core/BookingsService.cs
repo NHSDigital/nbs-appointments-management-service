@@ -14,6 +14,7 @@ public interface IBookingsService
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
     Task<bool> ConfirmProvisionalBooking(string bookingReference);
+    Task RemoveUnconfirmedProvisionalBookings();
 }    
 
 public class BookingsService : IBookingsService
@@ -160,5 +161,10 @@ public class BookingsService : IBookingsService
             Site = booking.Site,
             ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
         };
+    }
+
+    public Task RemoveUnconfirmedProvisionalBookings()
+    {
+        return _bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 }

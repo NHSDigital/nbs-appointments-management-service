@@ -12,7 +12,7 @@ public class BookingCosmosDocumentStoreTests
 
     public BookingCosmosDocumentStoreTests()
     {
-        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object);
+        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, TimeProvider.System);
     }
     
     [Fact]

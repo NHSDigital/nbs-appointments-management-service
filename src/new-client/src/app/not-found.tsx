@@ -3,7 +3,7 @@ import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import Link from 'next/link';
 
 // TODO: Update this page with approved copy
-export default async function NotFound() {
+export default function NotFound() {
   return (
     <NhsAnonymousPage
       title="Sorry, we could not find that page"

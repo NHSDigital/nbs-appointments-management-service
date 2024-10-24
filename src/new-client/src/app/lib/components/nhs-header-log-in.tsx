@@ -1,8 +1,8 @@
 import redirectToIdServer from '../../auth/redirectToIdServer';
 
-const NhsHeaderLogIn = () => {
+const NhsHeaderLogIn = ({ redirectUrl }: { redirectUrl: string }) => {
   return (
-    <form action={redirectToIdServer.bind(null, '/')}>
+    <form action={redirectToIdServer.bind(null, redirectUrl)}>
       <button
         aria-label="log in"
         className="nhsuk-header-custom__user-control nhsuk-header-custom__user-control-link"

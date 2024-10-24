@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
@@ -15,41 +16,38 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     public sealed class MakeBookingFeatureSteps : BaseFeatureSteps
     {
         private  HttpResponseMessage _response;
-
-        [When(@"I make the appointment for '([\w:]+)' at '(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2})'")]
-        public Task MakeBooking(string service, string requestedAppointment)
-        {
-            return MakeBooking("A", service, requestedAppointment);
-        }
         
-        [When(@"I make the appointment at site '(\w)' for '([\w:]+)' at '(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2})'")]
-        public async Task MakeBooking(string siteDesignation, string service, string requestedAppointment)
+        [When("I make the appointment with the following details")]
+        public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
         {
+            var cells = dataTable.Rows.ElementAt(1).Cells;
             var payload = new
             {
-                from = requestedAppointment,
-                service = service,
-                duration = 5,
-                site = GetSiteId(siteDesignation),
+                from = cells.ElementAt(0).Value,
+                duration = cells.ElementAt(1).Value,
+                service = cells.ElementAt(2).Value,
+                site = GetSiteId(),
                 attendeeDetails = new { 
-                    nhsNumber = "1234678890", 
-                    firstName = "Bill", 
-                    lastName = "Builder", 
-                    dateOfBirth = "2000-02-01"
+                    nhsNumber = cells.ElementAt(3).Value, 
+                    firstName = cells.ElementAt(4).Value, 
+                    lastName = cells.ElementAt(5).Value, 
+                    dateOfBirth = cells.ElementAt(6).Value
                 },
                 contactDetails = 
-                     new[] { 
-                         new { type = "email", value = "test@tempuri.org" },
-                         new { type = "phone", value = "0123456789" }
-                     }
+                    new[] { 
+                        new { type = "email", value = cells.ElementAt(7).Value },
+                        new { type = "phone", value = cells.ElementAt(8).Value }
+                    }
                     
             };
             _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
         }
         
-        [Then(@"the booking is created and the reference number is returned containing '([\w:]+)'")]
-        public async Task Assert(string bookingIncrement)
+        [Then(@"a reference number is returned containing '([\w:]+)' and the following booking is created")]
+        public async Task Assert(string bookingIncrement, Gherkin.Ast.DataTable dataTable)
         {
+            _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            var cells = dataTable.Rows.ElementAt(1).Cells;
             var siteId = GetSiteId();
             var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await _response.Content.ReadAsStringAsync());
             var bookingReference = result.BookingReference;
@@ -57,27 +55,26 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             {
                 Site = siteId,
                 Reference = bookingReference,
-                From = new DateTime(2077, 01, 01, 9, 20, 0),
-                Duration = 5,
-                Service = "COVID",
+                From = DateTime.ParseExact(cells.ElementAt(0).Value, "yyyy-MM-dd HH:mm", null),
+                Duration = int.Parse(cells.ElementAt(1).Value),
+                Service = cells.ElementAt(2).Value,
                 Outcome = null,
                 AttendeeDetails = new AttendeeDetails()
                 {
-                    NhsNumber = "1234678890",
-                    FirstName = "Bill",
-                    LastName = "Builder",
-                    DateOfBirth = new DateOnly(2000, 2, 1)
+                    NhsNumber = cells.ElementAt(3).Value,
+                    FirstName = cells.ElementAt(4).Value,
+                    LastName = cells.ElementAt(5).Value,
+                    DateOfBirth = DateOnly.ParseExact(cells.ElementAt(6).Value, "yyyy-MM-dd", null)
                 },
                 ContactDetails =
                 [
-                    new ContactItem { Type = "email", Value = "test@tempuri.org" },
-                    new ContactItem { Type = "phone", Value = "0123456789" }
+                    new ContactItem { Type = "email", Value = cells.ElementAt(7).Value },
+                    new ContactItem { Type = "phone", Value = cells.ElementAt(8).Value }
                 ],
                 DocumentType = "booking",
                 Id = bookingReference
             };
             
-            _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-{bookingIncrement}");
             var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId)); 
             actualBooking.Resource.Should().BeEquivalentTo(expectedBooking);

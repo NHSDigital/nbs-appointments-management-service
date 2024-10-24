@@ -47,7 +47,7 @@ public class BookingsService : IBookingsService
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
     {
-        return _bookingDocumentStore.GetCrossSiteAsync(from, to);
+        return _bookingDocumentStore.GetCrossSiteAsync(from, to, false);
     }
 
     public Task<Booking> GetBookingByReference(string bookingReference)

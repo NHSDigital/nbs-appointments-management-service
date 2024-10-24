@@ -22,9 +22,9 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
     }
 
-    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, bool provisional = false)
     {
-        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
         var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();

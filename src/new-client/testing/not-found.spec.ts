@@ -14,6 +14,5 @@ test('Invalid roots yield a styled 404 page', async ({ page }) => {
   const notFoundPage = new NotFoundPage(page);
 
   await expect(notFoundPage.title).toBeVisible();
-  await expect(notFoundPage.warningCalloutHeading).toBeVisible();
-  await expect(notFoundPage.warningCalloutText).toBeVisible();
+  await expect(notFoundPage.notFoundMessageText).toBeVisible();
 });

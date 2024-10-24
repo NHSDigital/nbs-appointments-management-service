@@ -13,4 +13,7 @@ public class BookingIndexDocument : IndexDataCosmosDocument
 
     [JsonProperty("nhsNumber")]
     public string NhsNumber { get; set; }
+
+    [JsonProperty("from")]
+    public DateTime From { get; set; }
 }

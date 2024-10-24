@@ -21,22 +21,23 @@ public class ConsoleLogNotifications : IMessageBus
     protected virtual void ProcessMessage<T>(T message) { }
 }
 
-public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer) : ConsoleLogNotifications
+public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer, IConsumer<BookingReminder> bookingReminderConsumer) : ConsoleLogNotifications
 {
     protected override void ProcessMessage<T>(T message)
     {
-        var userRolesChanged = message as UserRolesChanged;
-
-        if(userRolesChanged != null)
+        if(message is UserRolesChanged userRolesChanged)
         {
             userRolesChangedConsumer.Consume(new DummyConsumeContext<UserRolesChanged>() { Message = userRolesChanged });
         }
 
-        var bookingMade = message as BookingMade;
-
-        if (bookingMade != null)
+        if (message is BookingMade bookingMade)
         {
             bookingMadeConsumer.Consume(new DummyConsumeContext<BookingMade>() { Message = bookingMade });
+        }
+
+        if (message is BookingReminder bookingReminder)
+        {
+            bookingReminderConsumer.Consume(new DummyConsumeContext<BookingReminder>() { Message = bookingReminder });
         }
     }
 

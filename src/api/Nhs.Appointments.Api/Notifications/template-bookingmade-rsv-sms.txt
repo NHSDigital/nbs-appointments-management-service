@@ -2,4 +2,4 @@
 
 This template is stored at https://www.notifications.service.gov.uk/
 
-Hello ((firstName)), this is a reminder for the RSV vaccination appointment you have booked on ((date)) ((time)) at ((siteName)). Your booking reference is ((reference)). If you need to change or cancel your appointment visit https://www.nhs.uk/book-rsv
+Hello ((firstName)), your RSV vaccination booking is confirmed. Booking reference ((reference)), at ((siteName)) on ((date)) at ((time)) . If you need to change or cancel your appointment visit https://www.nhs.uk/book-rsv

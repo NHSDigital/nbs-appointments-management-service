@@ -7,7 +7,7 @@ namespace Nhs.Appointments.Api.Tests.Notifications;
 
 public class BookingMadeNotifierTests
 {
-    private BookingMadeNotifier _sut;
+    private BookingNotifier _sut;
     const string EmailTemplateId = "email-template";
     const string SmsTemplateId = "sms-template";
     const string Site = "site:some-site";
@@ -25,7 +25,7 @@ public class BookingMadeNotifierTests
 
     public BookingMadeNotifierTests()
     {
-       _sut = new BookingMadeNotifier(_notificationClient.Object, _notificationConfigurationStore.Object, _siteService.Object);
+       _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationStore.Object, _siteService.Object);
     }
 
     [Fact]

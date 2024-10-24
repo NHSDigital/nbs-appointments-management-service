@@ -2,4 +2,4 @@
 
 This template is stored at https://www.notifications.service.gov.uk/
 
-Hello ((firstName)), your appointment for a COVID-19 vaccine is confirmed at ((siteName)) on ((date)) at ((time)) with booking reference: ((reference)). If you need to chance or cancel your appointment visit https://www.nhs.uk/get-vaccination
+Hello ((firstName)), your appointment for a COVID-19 vaccine is confirmed at ((siteName)) on ((date)) at ((time)) with booking reference: ((reference)). If you need to change or cancel your appointment visit https://www.nhs.uk/get-vaccination

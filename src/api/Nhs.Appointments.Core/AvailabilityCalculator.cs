@@ -20,7 +20,8 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
                 slots.AddRange(session.Divide(TimeSpan.FromMinutes(session.SlotLength)).Select(sl => new SessionInstance(sl) { Services = session.Services, Capacity = session.Capacity }));
             }
 
-            var bookings = await bookingDocumentStore.GetInDateRangeAsync(site, from.ToDateTime(new TimeOnly(0, 0)), until.ToDateTime(new TimeOnly(23, 59)));
+            var bookings = await bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0, 0)), until.ToDateTime(new TimeOnly(23, 59)), site);
+
             var isNotCancelled = (Booking b) => b.Outcome?.ToLower() != "cancelled";
             var liveBookings = bookings.Where(isNotCancelled);
 

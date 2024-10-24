@@ -49,7 +49,7 @@ services:
       - AuthProvider_ClientId=nhs-appts-local
       - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
       - Notifications_Provider=local
-      - BookingRemindersCronSchedule="0 0 8 * * *"
+      - BookingRemindersCronSchedule=0 0 8 * * *
 
   oidc-server:
     image: soluto/oidc-server-mock:latest

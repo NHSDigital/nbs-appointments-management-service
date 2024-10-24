@@ -4,30 +4,23 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder) : IBookingsDocumentStore
 {
-    private const int PointReadLimit = 3;
-    private readonly ITypedDocumentCosmosStore<BookingDocument> _bookingStore;
-    private readonly ITypedDocumentCosmosStore<BookingIndexDocument> _indexStore;
-
-    public BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore) 
-    { 
-        _bookingStore = bookingStore;
-        _indexStore = indexStore;
-    }
+    private const int PointReadLimit = 3;    
            
     public Task<IEnumerable<Booking>> GetInDateRangeAsync(string site, DateTime from, DateTime to)
     {
-        return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        using(metricsRecorder.BeginScope("GetBookingsInDateRange"))
+            return bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
     }       
     
     public async Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference)
     {
         try
         {
-            var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+            var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
             var siteId = bookingIndexDocument.Site;
-            return await _bookingStore.GetDocument<Booking>(bookingReference, siteId);
+            return await bookingStore.GetDocument<Booking>(bookingReference, siteId);
         }
         catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -37,7 +30,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     
     public async Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber)
     {
-        var bookingIndexDocuments = (await _indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
+        var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
         var grouped = bookingIndexDocuments.GroupBy(bi => bi.Site);
@@ -45,7 +38,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         {
             if (siteBookings.Count() > PointReadLimit)
             {
-                var result = await _bookingStore.RunQueryAsync<Booking>(b => b.Site == siteBookings.Key && b.AttendeeDetails.NhsNumber == nhsNumber);
+                var result = await bookingStore.RunQueryAsync<Booking>(b => b.Site == siteBookings.Key && b.AttendeeDetails.NhsNumber == nhsNumber);
                 results.AddRange(result);
             }
             else
@@ -54,7 +47,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
                 {
                     var siteId = document.Site;
                     var bookingReference = document.Reference;
-                    var result = await _bookingStore.GetDocument<Booking>(bookingReference, siteId); 
+                    var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId); 
                     results.Add(result);
                 }
             }
@@ -63,27 +56,27 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     }
     public async Task<bool> UpdateStatus(string bookingReference, string status)
     {
-        var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
         {
             return false;
         }
         var updateStatusPatch = PatchOperation.Replace("/outcome", status);
-        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
         return true;
     }
 
     public async Task InsertAsync(Booking booking)
     {            
-        var bookingDocument = _bookingStore.ConvertToDocument(booking);
-        await _bookingStore.WriteAsync(bookingDocument);
+        var bookingDocument = bookingStore.ConvertToDocument(booking);
+        await bookingStore.WriteAsync(bookingDocument);
 
-        var bookingIndex = _indexStore.ConvertToDocument(booking);
-        await _indexStore.WriteAsync(bookingIndex);
+        var bookingIndex = indexStore.ConvertToDocument(booking);
+        await indexStore.WriteAsync(bookingIndex);
     }
 
     public IDocumentUpdate<Booking> BeginUpdate(string site, string reference)
     {
-        return new DocumentUpdate<Booking, BookingDocument>(_bookingStore, site, reference);
+        return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 }    

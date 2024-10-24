@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -15,13 +16,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private readonly string _databaseName;
     private readonly string _containerName;
     private readonly Lazy<string> _documentType;
+    private readonly IMetricsRecorder _metricsRecorder;
 
-    public TypedDocumentCosmosStore(CosmosClient cosmosClient, IOptions<CosmosDataStoreOptions> options, IMapper mapper)
+    public TypedDocumentCosmosStore(CosmosClient cosmosClient, IOptions<CosmosDataStoreOptions> options, IMapper mapper, IMetricsRecorder metricsRecorder)
     {
         _cosmosClient = cosmosClient;
         _mapper = mapper;
         _documentType = new Lazy<string>(GetDocumentType);
-        _databaseName = options.Value.DatabaseName;
+        _databaseName = options.Value.DatabaseName;        
 
         var cosmosDocumentAttribute = typeof(TDocument).GetCustomAttribute<CosmosDocumentAttribute>(true);
         if (cosmosDocumentAttribute == null)
@@ -29,6 +31,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Document type must have a CosmosDocument attribute");
         }
         _containerName = cosmosDocumentAttribute.ContainerName;
+        _metricsRecorder = metricsRecorder;
     }
 
     public TDocument NewDocument() 
@@ -45,12 +48,13 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return document;
     }
 
-    public Task WriteAsync(TDocument document)
+    public async Task WriteAsync(TDocument document)
     {
         if (document.DocumentType != _documentType.Value)
             throw new InvalidOperationException("Document type does not match the supported type for this writer");
         var container = GetContainer();
-        return container.UpsertItemAsync(document);
+        var result = await container.UpsertItemAsync(document);
+        RecordQueryMetrics(result.RequestCharge);
     }
 
     public async Task<TModel> GetByIdAsync<TModel>(string documentId)
@@ -59,6 +63,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var readResponse = await container.ReadItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(_documentType.Value));
+        RecordQueryMetrics(readResponse.RequestCharge);
         return _mapper.Map<TModel>(readResponse.Resource);
     }
     public Task<TModel> GetDocument<TModel>(string documentId)
@@ -72,6 +77,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var readResponse = await container.ReadItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey));
+        RecordQueryMetrics(readResponse.RequestCharge);
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
@@ -84,9 +90,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public async Task DeleteDocument(string documentId, string partitionKey)
     {
         var container = GetContainer();
-        await container.DeleteItemAsync<UserDocument>(
+        var result = await container.DeleteItemAsync<UserDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey));
+        RecordQueryMetrics(result.RequestCharge);
     }
     
     public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
@@ -99,6 +106,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed, Func<TSource, TOutput> map)
     {
+        var requestCharge = 0.0;
         var results = new List<TOutput>();
         using (queryFeed)
         {
@@ -106,8 +114,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             {
                 var resultSet = await queryFeed.ReadNextAsync();
                 results.AddRange(resultSet.Select(map));
+                requestCharge += resultSet.RequestCharge;
             }
         }
+        RecordQueryMetrics(requestCharge);
         return results;
     }
 
@@ -122,10 +132,17 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(partitionKey),
             patchOperations: patches.ToList().AsReadOnly());
 
+        RecordQueryMetrics(result.RequestCharge);
         return result.Resource;
     }    
 
     public string GetDocumentType() => typeof(TDocument).GetCustomAttribute<CosmosDocumentTypeAttribute>()!.Value;
 
     protected Container GetContainer() => _cosmosClient.GetContainer(_databaseName, _containerName);
+
+    private void RecordQueryMetrics(double requestCharge)
+    {
+        _metricsRecorder.RecordMetric("RequestCharge", requestCharge);
+    }
 }
+

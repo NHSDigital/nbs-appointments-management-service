@@ -16,11 +16,13 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>
 {    
+    private readonly IMetricsRecorder _metricsRecorder;
     private readonly IAvailabilityCalculator _availabilityCalculator;
     private readonly IAvailabilityGrouperFactory _availabilityGrouperFactory;
     
@@ -29,10 +31,12 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
          IValidator<QueryAvailabilityRequest> validator,
         IAvailabilityGrouperFactory availabilityGrouperFactory,
         IUserContextProvider userContextProvider,
+        IMetricsRecorder metricsRecorder,
         ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
     {
         _availabilityCalculator = availabilityCalculator;
         _availabilityGrouperFactory = availabilityGrouperFactory;
+        _metricsRecorder = metricsRecorder;
     }
 
     [OpenApiOperation(operationId: "QueryAvailability", tags: new [] {"Appointment Availability"}, Summary = "Query appointment availability")]
@@ -55,11 +59,16 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
         var requestFrom = request.FromDate;
         var requestUntil = request.UntilDate;
 
-        await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
+        using (_metricsRecorder.BeginScope("QueryAvailabilityRequest"))
         {
-            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
-            concurrentResults.Add(siteAvailability);
-        });
+            await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
+            {
+                var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
+                concurrentResults.Add(siteAvailability);
+            });
+        }
+
+        _metricsRecorder.WriteMetricsToConsole();
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

@@ -10,21 +10,23 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     private const int PointReadLimit = 3;
     private readonly ITypedDocumentCosmosStore<BookingDocument> _bookingStore;
     private readonly ITypedDocumentCosmosStore<BookingIndexDocument> _indexStore;
+    private readonly TimeProvider _time;
 
-    public BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore) 
-    { 
+    public BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, TimeProvider time)
+    {
         _bookingStore = bookingStore;
         _indexStore = indexStore;
+        _time = time;
     }
-           
+
     public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
         return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
     }
 
-    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, bool provisional = false)
     {
-        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
         var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -90,6 +92,23 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return true;
     }
 
+    public async Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    {
+        var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument == null)
+        {
+            return false;
+        }
+
+        var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
+        await _indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+
+        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, addContactDetailsPath);
+        return true;
+    }
+
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);
@@ -109,5 +128,15 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
     public IDocumentUpdate<Booking> BeginUpdate(string site, string reference)
     {
         return new DocumentUpdate<Booking, BookingDocument>(_bookingStore, site, reference);
+    }
+
+    public async Task RemoveUnconfirmedProvisionalBookings()
+    {
+        var indexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= _time.GetLocalNow().AddMinutes(-5));
+        foreach (var indexDocument in indexDocuments)
+        {
+            await _indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
+            await _bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
+        }
     }
 }    

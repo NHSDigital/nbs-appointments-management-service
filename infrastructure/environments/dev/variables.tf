@@ -47,3 +47,8 @@ variable "BOOKING_REMINDERS_CRON_SCHEDULE" {
   type      = string
   sensitive = false
 }
+
+variable "UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE" {
+  type      = string
+  sensitive = false
+}

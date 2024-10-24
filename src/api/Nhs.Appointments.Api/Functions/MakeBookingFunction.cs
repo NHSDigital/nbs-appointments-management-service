@@ -13,6 +13,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -61,15 +62,15 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
                 LastName = bookingRequest.AttendeeDetails.LastName,
                 NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
             },
-            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
+            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray(),
+            Provisional = bookingRequest.Provisional
         };
-
-        
+     
         var bookingResult = await _bookingService.MakeBooking(requestedBooking);
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
-        var response = new MakeBookingResponse(bookingResult.Reference);
+        var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional);
         return Success(response);               
     }    
 }

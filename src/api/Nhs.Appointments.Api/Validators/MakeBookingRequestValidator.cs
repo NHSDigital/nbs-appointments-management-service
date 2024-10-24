@@ -21,7 +21,9 @@ public class MakeBookingRequestValidator : AbstractValidator<MakeBookingRequest>
             .NotEmpty().WithMessage("Provide attendee details")
             .SetValidator(new AttendeeDetailsValidator());
         RuleFor(x => x.ContactDetails)
-            .NotEmpty().WithMessage("Provide contact details");
+            .NotEmpty().When(x => !x.Provisional).WithMessage("Provide contact details");
+        RuleFor(x => x.ContactDetails)
+            .Empty().When(x => x.Provisional).WithMessage("A provisional booking should not include contact details");
     }
     
     protected override bool PreValidate(ValidationContext<MakeBookingRequest> requestBody, ValidationResult result) 

@@ -16,4 +16,10 @@ public class BookingIndexDocument : IndexDataCosmosDocument
 
     [JsonProperty("from")]
     public DateTime From { get; set; }
+
+    [JsonProperty("created")]
+    public DateTime Created { get; set; }
+
+    [JsonProperty("provisional")]
+    public bool Provisional { get; set; }
 }

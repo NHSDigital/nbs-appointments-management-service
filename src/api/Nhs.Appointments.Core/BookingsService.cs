@@ -9,10 +9,12 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
-    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
+    Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
     Task CancelBooking(string site, string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
+    Task<bool> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails);
+    Task RemoveUnconfirmedProvisionalBookings();
 }    
 
 public class BookingsService : IBookingsService
@@ -23,7 +25,7 @@ public class BookingsService : IBookingsService
     private readonly ISiteLeaseManager _siteLeaseManager;
     private readonly IMessageBus _bus;
     private readonly TimeProvider _time;
-    
+
     public BookingsService(
         IBookingsDocumentStore bookingDocumentStore, 
         IReferenceNumberProvider referenceNumberProvider,
@@ -47,7 +49,7 @@ public class BookingsService : IBookingsService
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
     {
-        return _bookingDocumentStore.GetCrossSiteAsync(from, to);
+        return _bookingDocumentStore.GetCrossSiteAsync(from, to, false);
     }
 
     public Task<Booking> GetBookingByReference(string bookingReference)
@@ -60,7 +62,7 @@ public class BookingsService : IBookingsService
         return _bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
+    public async Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking)
     {            
         using (var leaseContent = _siteLeaseManager.Acquire(booking.Site))
         {                
@@ -69,15 +71,21 @@ public class BookingsService : IBookingsService
 
             if (canBook)
             {
+                booking.Created = _time.GetLocalNow().DateTime;
                 booking.Reference = await _referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await _bookingDocumentStore.InsertAsync(booking);
-                var bookingMadeEvent = BuildBookingMadeEvent(booking);
-                await _bus.Send(bookingMadeEvent);
-                return (true, booking.Reference);
+
+                if (!booking.Provisional)
+                {
+                    var bookingMadeEvent = BuildBookingMadeEvent(booking);
+                    await _bus.Send(bookingMadeEvent);
+                }
+
+                return (true, booking.Reference, booking.Provisional);
             }
 
-            return (false, string.Empty);
+            return (false, string.Empty, booking.Provisional);
         }            
     }
 
@@ -87,6 +95,11 @@ public class BookingsService : IBookingsService
             .BeginUpdate(site, bookingReference)
             .UpdateProperty(b => b.Outcome, "Cancelled")                
             .ApplyAsync();
+    }
+
+    public Task<bool> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    {
+        return _bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails);
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, string status)
@@ -142,5 +155,10 @@ public class BookingsService : IBookingsService
             Site = booking.Site,
             ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
         };
+    }
+
+    public Task RemoveUnconfirmedProvisionalBookings()
+    {
+        return _bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 }

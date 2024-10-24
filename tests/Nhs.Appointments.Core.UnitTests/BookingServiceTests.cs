@@ -83,6 +83,24 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task MakeBooking_DoesNotRaiseNotificationEvent_WhenProvisional()
+        {
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+            var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = new[] { "TSERV" } } };
+
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+            var result = await _bookingsService.MakeBooking(booking);
+
+            _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)), Times.Never);
+        }
+
+        [Fact]
         public async Task MakeBooking_FlagsBookingForReminder_WhenBooking()
         {
             var expectedFrom = new DateOnly(2077, 1, 1);

@@ -2,4 +2,4 @@
 
 namespace Nhs.Appointments.Api.Models;
 
-public record MakeBookingResponse(string BookingReference);
+public record MakeBookingResponse(string BookingReference, bool Provisional);

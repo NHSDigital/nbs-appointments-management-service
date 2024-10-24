@@ -35,6 +35,7 @@ services:
       - AzureWebJobs.NotifyBookingMade.Disabled=true
       - AzureWebJobs.SendBookingReminders.Disabled=true
       - AzureWebJobs.NotifyBookingReminder.Disabled=true
+      - AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled=true
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
       - COSMOS_ENDPOINT=${COSMOS_ENDPOINT:-https://cosmos:8081}
       - COSMOS_TOKEN=${COSMOS_TOKEN:-C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==}
@@ -50,6 +51,7 @@ services:
       - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
+      - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
 
   oidc-server:
     image: soluto/oidc-server-mock:latest

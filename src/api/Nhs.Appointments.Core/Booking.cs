@@ -30,6 +30,12 @@ public class Booking
 
     [JsonProperty("reminderSent")]
     public bool ReminderSent { get; set; }
+
+    [JsonProperty("created")]
+    public DateTime Created { get; set; }
+
+    [JsonProperty("provisional")]
+    public bool Provisional { get; set; }
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));

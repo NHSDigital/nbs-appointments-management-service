@@ -70,7 +70,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
-        var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional, bookingResult.ConfirmationEndpoint);
+        var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional);
         return Success(response);               
     }    
 }

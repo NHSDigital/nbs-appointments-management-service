@@ -9,7 +9,7 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
-    Task<(bool Success, string Reference, bool Provisional, Uri? ConfirmationEndpoint)> MakeBooking(Booking booking);
+    Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
     Task CancelBooking(string site, string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
@@ -62,7 +62,7 @@ public class BookingsService : IBookingsService
         return _bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<(bool Success, string Reference, bool Provisional, Uri? ConfirmationEndpoint)> MakeBooking(Booking booking)
+    public async Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking)
     {            
         using (var leaseContent = _siteLeaseManager.Acquire(booking.Site))
         {                
@@ -82,17 +82,11 @@ public class BookingsService : IBookingsService
                     await _bus.Send(bookingMadeEvent);
                 }
 
-                return (true, booking.Reference, booking.Provisional, GetConfirmationEndpointForProvisionalBooking(booking));
+                return (true, booking.Reference, booking.Provisional);
             }
 
-            return (false, string.Empty, booking.Provisional, null);
+            return (false, string.Empty, booking.Provisional);
         }            
-    }
-
-    private Uri? GetConfirmationEndpointForProvisionalBooking(Booking booking)
-    {
-        // TODO: implement this endpoint and lock in the correct URI here
-        return booking.Provisional ? new Uri($"https://TODO/booking/{booking.Reference}/confirm") : null;
     }
 
     public Task CancelBooking(string site, string bookingReference)

@@ -93,7 +93,8 @@
         "users:view",
         "sites:query",
         "site:view",
-        "site:manage"
+        "site:manage",
+        "system:run-reminders"
       ]
     },
     {
@@ -112,7 +113,8 @@
         "users:view",
         "sites:query",
         "site:view",
-        "site:manage"
+        "site:manage",
+        "system:run-reminders"
       ]
     }
   ]

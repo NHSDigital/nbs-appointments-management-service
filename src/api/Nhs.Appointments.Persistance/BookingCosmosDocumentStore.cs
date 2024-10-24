@@ -90,6 +90,20 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return true;
     }
 
+    public async Task<bool> ConfirmProvisional(string bookingReference)
+    {
+        var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument == null)
+        {
+            return false;
+        }
+
+        var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
+        await _indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+        return true;
+    }
+
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);

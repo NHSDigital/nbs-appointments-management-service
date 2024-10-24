@@ -13,7 +13,7 @@ public interface IBookingsService
     Task CancelBooking(string site, string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
-    Task<bool> ConfirmProvisionalBooking(string bookingReference);
+    Task<bool> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails);
     Task RemoveUnconfirmedProvisionalBookings();
 }    
 
@@ -97,9 +97,9 @@ public class BookingsService : IBookingsService
             .ApplyAsync();
     }
 
-    public Task<bool> ConfirmProvisionalBooking(string bookingReference)
+    public Task<bool> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails)
     {
-        return _bookingDocumentStore.ConfirmProvisional(bookingReference);
+        return _bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails);
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, string status)

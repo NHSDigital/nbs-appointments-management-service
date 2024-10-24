@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -40,7 +41,7 @@ public class ConfirmProvisionalBookingFunction : BaseApiFunction<ConfirmBookingR
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var success = await _bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference);
+        var success = await _bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
 
         if (success)
         {

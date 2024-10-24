@@ -1,3 +1,3 @@
 ﻿namespace Nhs.Appointments.Api.Models;
 
-public record ConfirmBookingRequest(string bookingReference);
+public record ConfirmBookingRequest(string bookingReference, ContactItem[] contactDetails);

@@ -92,7 +92,7 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         return true;
     }
 
-    public async Task<bool> ConfirmProvisional(string bookingReference)
+    public async Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
     {
         var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if (bookingIndexDocument == null)
@@ -103,6 +103,9 @@ public class BookingCosmosDocumentStore : IBookingsDocumentStore
         var updateStatusPatch = PatchOperation.Replace("/provisional", false);
         await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
         await _indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+
+        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, addContactDetailsPath);
         return true;
     }
 

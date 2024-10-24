@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next({
     headers: {
-      'x-last-requested-path': pathAndQuery,
+      'mya-last-requested-path': pathAndQuery,
     },
   });
 }

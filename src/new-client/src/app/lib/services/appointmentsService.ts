@@ -12,7 +12,7 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
-import { cookies, headers } from 'next/headers';
+import { notAuthenticated, notAuthorised } from '@services/authService';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -84,7 +84,7 @@ export async function assertPermission(site: string, permission: string) {
   const response = await fetchPermissions(site);
 
   if (!response.includes(permission)) {
-    return new Error('Forbidden: You lack the necessary permissions');
+    notAuthorised();
   }
 }
 
@@ -99,10 +99,10 @@ export async function assertPermissions(
     operand === 'AND' &&
     !permissions.every(permission => response.includes(permission))
   ) {
-    return new Error('Forbidden: You lack the necessary permissions');
+    notAuthorised();
   }
   if (!permissions.some(permission => response.includes(permission))) {
-    return new Error('Forbidden: You lack the necessary permissions');
+    notAuthorised();
   }
 }
 
@@ -116,13 +116,11 @@ function handleBodyResponse<T>(
     }
 
     if (response.httpStatusCode === 401) {
-      const lastRequestedPath = headers().get('x-last-requested-path');
+      notAuthenticated();
+    }
 
-      redirect(
-        lastRequestedPath
-          ? `/login?redirectUrl=${lastRequestedPath}`
-          : '/login',
-      );
+    if (response.httpStatusCode === 403) {
+      notAuthorised();
     }
 
     throw new Error(response.errorMessage);
@@ -145,11 +143,11 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
   }
 
   if (response.httpStatusCode === 401) {
-    const lastRequestedPath = headers().get('x-last-requested-path');
+    notAuthenticated();
+  }
 
-    redirect(
-      lastRequestedPath ? `/login?redirectUrl=${lastRequestedPath}` : '/login',
-    );
+  if (response.httpStatusCode === 403) {
+    notAuthorised();
   }
 
   throw new Error(response.errorMessage);

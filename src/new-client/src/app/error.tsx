@@ -12,19 +12,19 @@ export default function Error({
   // console.dir(error.digest);
 
   if (error.message === 'Forbidden: You lack the necessary permissions') {
-    <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
-      <p>
-        This might be because:
-        <ol>
+    return (
+      <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
+        <p>This might be because: </p>
+        <ul>
           <li>you don't have an account to access this service</li>
           <li>you don't have permissions to access this page</li>
-        </ol>
-      </p>
+        </ul>
 
-      <ContactUs
-        prompt={'If you think this is wrong, contact us to let us know:'}
-      />
-    </NhsAnonymousPage>;
+        <ContactUs
+          prompt={'If you think this is wrong, contact us to let us know:'}
+        />
+      </NhsAnonymousPage>
+    );
   }
 
   return (

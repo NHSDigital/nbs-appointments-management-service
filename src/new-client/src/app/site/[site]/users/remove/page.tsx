@@ -6,6 +6,7 @@ import {
   fetchUserProfile,
 } from '@services/appointmentsService';
 import { redirect } from 'next/navigation';
+import { notAuthorised } from '@services/authService';
 
 export type UserPageProps = {
   params: {
@@ -27,7 +28,7 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
 
   const userProfile = await fetchUserProfile();
   if (userProfile.emailAddress === searchParams?.user) {
-    throw new Error('Forbidden: You lack the necessary permissions');
+    notAuthorised();
   }
 
   return (

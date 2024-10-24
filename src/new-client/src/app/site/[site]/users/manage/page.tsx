@@ -1,10 +1,6 @@
 ﻿import NhsPage from '@components/nhs-page';
 import { ManageUsersPage } from './manage-users-page';
-import {
-  assertPermission,
-  fetchPermissions,
-  fetchSite,
-} from '@services/appointmentsService';
+import { assertPermission, fetchSite } from '@services/appointmentsService';
 
 export type UserPageProps = {
   params: {

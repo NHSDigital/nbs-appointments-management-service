@@ -14,10 +14,12 @@ public abstract class SiteBasedResourceFunction<TResponse>(IValidator<SiteBasedR
     {
         if (req.Query.Keys.Contains("site"))
         {
-            var site = req.Query["site"];        
-            return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site)));            
+            var site = req.Query["site"];
+            return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site, "*")));
         }
         var siteId = RestUriHelper.GetResourceIdFromPath(req.Path.ToUriComponent(), "sites");
-        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(siteId)));
-    }    
+        var requestedScope = RestUriHelper.GetResourceIdFromPath(req.Path.ToUriComponent(), "scope");
+        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>
+            ((true, new SiteBasedResourceRequest(siteId, string.IsNullOrEmpty(requestedScope) ? "*" : requestedScope)));
+    }
 }

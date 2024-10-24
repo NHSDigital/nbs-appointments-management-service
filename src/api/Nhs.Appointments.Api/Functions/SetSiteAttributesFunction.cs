@@ -37,14 +37,14 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAttributesRequest request, ILogger logger)
     {
-        var result = await siteService.UpdateSiteAttributesAsync(request.Site, request.AttributeValues);
+        var result = await siteService.UpdateSiteAttributesAsync(request.Site, request.Scope, request.AttributeValues);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
     protected override async Task<(bool requestRead, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
-        var attributes = await JsonRequestReader.ReadRequestAsync<IEnumerable<AttributeValue>>(req.Body);
-        return (true, new SetSiteAttributesRequest(site, attributes));
+        var attributes = await JsonRequestReader.ReadRequestAsync<AttributeRequest>(req.Body);
+        return (true, new SetSiteAttributesRequest(site, attributes.Scope, attributes.AttributeValues));
     }
 }

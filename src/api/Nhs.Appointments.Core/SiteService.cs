@@ -3,8 +3,8 @@
 public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds);
-    Task<Site> GetSiteByIdAsync(string siteId);
-    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues);
+    Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
+    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);
 }
 
 public class SiteService(ISiteStore siteStore) : ISiteService
@@ -22,14 +22,21 @@ public class SiteService(ISiteStore siteStore) : ISiteService
             .OrderBy(site => site.Distance)
             .Take(maximumRecords);
     }
-    
-    public Task<Site> GetSiteByIdAsync(string siteId)
+
+    public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
-        return siteStore.GetSiteById(siteId);
+        var site = await siteStore.GetSiteById(siteId);
+
+        if (scope == "*")
+            return site;
+
+        site.AttributeValues = site.AttributeValues.Where(a => a.Id.StartsWith(scope));
+
+        return site;
     }
-    
-    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, IEnumerable<AttributeValue> attributeValues)
+
+    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
     {
-        return siteStore.UpdateSiteAttributes(siteId, attributeValues);
+        return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
     }
 }

@@ -25,16 +25,16 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [RequiresPermission("site:view", typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
-    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
+    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/scope/{scope}")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<Site>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var site = await siteService.GetSiteByIdAsync(request.Site);
+        var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
         if (site != null)
-        {            
+        {
             return ApiResult<Site>.Success(site);
         }  
         return Failed(HttpStatusCode.NotFound, "The specified site was not found.");

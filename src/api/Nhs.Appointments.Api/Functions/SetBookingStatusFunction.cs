@@ -8,30 +8,21 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetBookingStatusFunction : BaseApiFunction<SetBookingStatusRequest, SetBookingStatusResponse>
+public class SetBookingStatusFunction(IBookingsService bookingService, IValidator<SetBookingStatusRequest> validator, IUserContextProvider userContextProvider, ILogger<SetBookingStatusFunction> logger)
+    : BaseApiFunction<SetBookingStatusRequest, SetBookingStatusResponse>(validator, userContextProvider, logger)
 {
-    private readonly IBookingsService _bookingService;
 
-    public SetBookingStatusFunction(
-        IBookingsService bookingService,
-        IValidator<SetBookingStatusRequest> validator,
-        IUserContextProvider userContextProvider, 
-        ILogger<SetBookingStatusFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _bookingService = bookingService;
-    }
-
-    [OpenApiOperation(operationId: "SetBookingStatus", tags: new [] {"Booking"}, Summary = "Set the status of a booking")]
-    [OpenApiRequestBody("text/json", typeof(SetBookingStatusRequest))]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(SetBookingStatusResponse), Description = "Booking status successfully set")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "Booking not found")]
+    [OpenApiOperation(operationId: "SetBookingStatus", tags: ["Booking"], Summary = "Set the status of a booking")]
+    [OpenApiRequestBody("application/json", typeof(SetBookingStatusRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(SetBookingStatusResponse), Description = "Booking status successfully set")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:set-status", typeof(SiteFromBodyInspector))]
     [Function("SetBookingStatusFunction")]
     public override Task<IActionResult> RunAsync(
@@ -42,7 +33,7 @@ public class SetBookingStatusFunction : BaseApiFunction<SetBookingStatusRequest,
 
     protected override async Task<ApiResult<SetBookingStatusResponse>> HandleRequest(SetBookingStatusRequest request, ILogger logger)
     {
-        var result = await _bookingService.SetBookingStatus(request.bookingReference, request.status);
+        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status);
         return result ?
             Success(new SetBookingStatusResponse(request.bookingReference, request.status)):
             Failed(System.Net.HttpStatusCode.NotFound, $"Booking {request.bookingReference} not found");

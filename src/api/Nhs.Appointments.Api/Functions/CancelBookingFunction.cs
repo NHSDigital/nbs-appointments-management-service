@@ -9,31 +9,21 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class CancelBookingFunction : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>
+public class CancelBookingFunction(IBookingsService bookingService, IValidator<CancelBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<CancelBookingFunction> logger)
+    : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger)
 {
-    private readonly IBookingsService _bookingService;
-    
-    public CancelBookingFunction(
-        IBookingsService bookingService, 
-        IValidator<CancelBookingRequest> validator,
-        IUserContextProvider userContextProvider,
-        ILogger<CancelBookingFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _bookingService = bookingService;
-    }
 
-    [OpenApiOperation(operationId: "CancelBooking", tags: new [] {"Booking"}, Summary = "Cancel a booking")]
-    [OpenApiRequestBody("text/json", typeof(CancelBookingRequest))]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/json", typeof(CancelBookingResponse), Description = "Booking successfully cancelled")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "Requested site not configured for appointments")]
+    [OpenApiOperation(operationId: "CancelBooking", tags: ["Booking"], Summary = "Cancel a booking")]
+    [OpenApiRequestBody("application/json", typeof(CancelBookingRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(CancelBookingResponse), Description = "Booking successfully cancelled")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Requested site not configured for appointments")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:cancel", typeof(SiteFromBodyInspector))]
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(
@@ -44,7 +34,7 @@ public class CancelBookingFunction : BaseApiFunction<CancelBookingRequest, Cance
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request, ILogger logger)
     {
-        await _bookingService.CancelBooking(request.site, request.bookingReference);
+        await bookingService.CancelBooking(request.site, request.bookingReference);
         var response = new CancelBookingResponse(request.bookingReference, "cancelled");
         return Success(response);
     }    

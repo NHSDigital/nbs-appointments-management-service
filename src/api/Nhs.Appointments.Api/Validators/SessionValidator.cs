@@ -20,11 +20,11 @@ public class SessionValidator : AbstractValidator<Session>
         RuleFor(x => x.Capacity).Cascade(CascadeMode.Stop)
             .NotEmpty()
             .GreaterThanOrEqualTo(1)
-            .Configure(rule => rule.MessageBuilder = _ => "'capacity' must be greater than 0");
+            .Configure(rule => rule.MessageBuilder = _ => "'capacity' must be a positive integer");
         RuleFor(x => x.SlotLength).Cascade(CascadeMode.Stop)
             .NotEmpty()
             .GreaterThanOrEqualTo(1)
-            .Configure(rule => rule.MessageBuilder = _ => "'slotLength' must be greater than 0");
+            .Configure(rule => rule.MessageBuilder = _ => "'slotLength' must be a positive integer");
         RuleFor(x => x.Services)
             .NotEmpty()
             .WithMessage("'services' cannot be empty");

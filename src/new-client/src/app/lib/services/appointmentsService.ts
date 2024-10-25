@@ -225,7 +225,7 @@ export const saveAvailability = async (
     JSON.stringify(request),
   );
 
-  handleResponse(response);
+  handleEmptyResponse(response);
 
   const notificationType = 'ams-notification';
   const notificationMessage =

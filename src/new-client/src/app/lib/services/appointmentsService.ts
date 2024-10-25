@@ -89,20 +89,24 @@ export async function assertPermission(site: string, permission: string) {
   }
 }
 
-export async function assertPermissions(
+export async function assertAnyPermissions(
   site: string,
   permissions: string[],
-  operand: 'AND' | 'OR' = 'AND',
 ) {
   const response = await fetchPermissions(site);
 
-  if (
-    operand === 'AND' &&
-    !permissions.every(permission => response.includes(permission))
-  ) {
+  if (!permissions.some(permission => response.includes(permission))) {
     notAuthorised();
   }
-  if (!permissions.some(permission => response.includes(permission))) {
+}
+
+export async function assertAllPermissions(
+  site: string,
+  permissions: string[],
+) {
+  const response = await fetchPermissions(site);
+
+  if (!permissions.every(permission => response.includes(permission))) {
     notAuthorised();
   }
 }

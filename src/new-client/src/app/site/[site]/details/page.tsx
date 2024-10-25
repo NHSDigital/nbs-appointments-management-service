@@ -1,6 +1,6 @@
 import NhsPage from '@components/nhs-page';
 import {
-  assertPermissions,
+  assertAllPermissions,
   fetchPermissions,
   fetchSite,
 } from '@services/appointmentsService';
@@ -17,7 +17,10 @@ const Page = async ({ params }: PageProps) => {
 
   const sitePermissions = await fetchPermissions(params.site);
 
-  await assertPermissions(site.id, ['site:get-config', 'site:get-meta-data']);
+  await assertAllPermissions(site.id, [
+    'site:get-config',
+    'site:get-meta-data',
+  ]);
 
   return (
     <NhsPage

@@ -4,7 +4,7 @@ import {
   fetchSite,
   fetchPermissions,
   fetchUserProfile,
-  assertPermissions,
+  assertAnyPermissions,
 } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { UsersPage } from './users-page';
@@ -22,7 +22,7 @@ const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const permissions = await fetchPermissions(params.site);
 
-  await assertPermissions(site.id, ['users:view', 'users:view'], 'OR');
+  await assertAnyPermissions(site.id, ['users:view', 'users:view']);
 
   return (
     <NhsPage

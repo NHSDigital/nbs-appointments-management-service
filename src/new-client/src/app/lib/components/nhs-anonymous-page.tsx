@@ -2,13 +2,13 @@ import { ReactNode } from 'react';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
 import { Breadcrumbs, Header } from '@components/nhsuk-frontend';
+import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 
 type Props = {
-  title: string;
   children: ReactNode;
   headerAuthComponent?: ReactNode;
   showHomeBreadcrumb?: boolean;
-};
+} & NhsHeadingProps;
 
 /**
  * A slimmed down version of NhsPage which can be loaded from client components.
@@ -16,6 +16,7 @@ type Props = {
  */
 const NhsAnonymousPage = ({
   title,
+  caption,
   children = null,
   headerAuthComponent = null,
   showHomeBreadcrumb = false,
@@ -27,7 +28,7 @@ const NhsAnonymousPage = ({
         <Breadcrumbs trail={[{ name: 'Home', href: '/' }]} />
       )}
       <NhsMainContainer>
-        <h1 className="app-page-heading">{title}</h1>
+        <NhsHeading title={title} caption={caption} />
         {children}
       </NhsMainContainer>
       <NhsFooter />

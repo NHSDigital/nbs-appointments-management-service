@@ -1,4 +1,6 @@
-type SummaryListItem = {
+import Link from 'next/link';
+
+export type SummaryListItem = {
   title: string;
   value: string;
   action?: {
@@ -39,11 +41,7 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 className="nhsuk-summary-list__actions"
                 aria-label={item.action.text}
               >
-                <a href={item.action.href}>
-                  <span className="nhsuk-u-visually-hidden">
-                    {item.action.text}
-                  </span>
-                </a>
+                <Link href={item.action.href}>{item.action.text}</Link>
               </dd>
             )}
           </div>

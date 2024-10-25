@@ -29,13 +29,13 @@ export default class UsersPage extends RootPage {
   }
 
   async attributeChecked(attribute: string) {
-    expect(
+    await expect(
       this.page.getByRole('checkbox', { name: attribute, exact: true }),
     ).toBeChecked();
   }
 
   async attributeNotChecked(attribute: string) {
-    expect(
+    await expect(
       this.page.getByRole('checkbox', { name: attribute, exact: true }),
     ).not.toBeChecked();
   }

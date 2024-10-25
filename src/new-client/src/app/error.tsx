@@ -20,9 +20,7 @@ export default function Error({
           <li>you don't have permissions to access this page</li>
         </ul>
 
-        <ContactUs
-          prompt={'If you think this is wrong, contact us to let us know:'}
-        />
+        <ContactUs />
       </NhsAnonymousPage>
     );
   }
@@ -32,11 +30,7 @@ export default function Error({
       title="Sorry, there is a problem with this service"
       showHomeBreadcrumb
     >
-      <ContactUs
-        prompt={
-          'Please try again later or contact us to let us know there is a problem:'
-        }
-      />
+      <ContactUs />
     </NhsAnonymousPage>
   );
 }

@@ -14,11 +14,7 @@ export default function NotFound() {
         <Link href="/">Go to the start page.</Link>
       </p>
 
-      <ContactUs
-        prompt={
-          'If the web address is correct or you selected a link or button, contact us to let us know there is a problem with this page:'
-        }
-      />
+      <ContactUs />
     </NhsAnonymousPage>
   );
 }

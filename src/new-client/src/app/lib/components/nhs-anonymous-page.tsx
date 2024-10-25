@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
-import { NhsHeader } from '@components/nhs-header';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
-import { Breadcrumbs } from '@components/nhsuk-frontend';
+import { Breadcrumbs, Header } from '@components/nhsuk-frontend';
 
 type Props = {
   title: string;
@@ -23,7 +22,7 @@ const NhsAnonymousPage = ({
 }: Props) => {
   return (
     <>
-      <NhsHeader>{headerAuthComponent}</NhsHeader>
+      <Header>{headerAuthComponent}</Header>
       {showHomeBreadcrumb && (
         <Breadcrumbs trail={[{ name: 'Home', href: '/' }]} />
       )}

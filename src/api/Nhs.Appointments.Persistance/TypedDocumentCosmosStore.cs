@@ -61,6 +61,23 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(_documentType.Value));
         return _mapper.Map<TModel>(readResponse.Resource);
     }
+
+    public async Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId)
+    {
+        var container = GetContainer();
+
+        using(ResponseMessage response = await container.ReadItemStreamAsync(documentId, new PartitionKey(_documentType.Value)))
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                return default;
+            }
+
+            var document = _cosmosClient.ClientOptions.Serializer.FromStream<TDocument>(response.Content);
+            return _mapper.Map<TModel>(document);
+        }
+    }
+
     public Task<TModel> GetDocument<TModel>(string documentId)
     {
         return GetDocument<TModel>(documentId, _documentType.Value);

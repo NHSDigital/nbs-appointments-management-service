@@ -12,11 +12,8 @@ const Page = async () => {
   const userProfile = await fetchUserProfile();
 
   return (
-    <NhsPage
-      title="Appointment Management Service"
-      omitTitleFromBreadcrumbs={true}
-    >
-      <HomePage sites={userProfile?.availableSites ?? []} />
+    <NhsPage title="Appointment Management Service" omitTitleFromBreadcrumbs>
+      <HomePage sites={userProfile.availableSites} />
     </NhsPage>
   );
 };

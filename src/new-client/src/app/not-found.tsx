@@ -1,16 +1,20 @@
-import NhsPage from '@components/nhs-page';
-import { WarningCallout } from '@components/nhsuk-frontend';
+import ContactUs from '@components/contact-us';
+import NhsAnonymousPage from '@components/nhs-anonymous-page';
+import Link from 'next/link';
 
 // TODO: Update this page with approved copy
 export default function NotFound() {
   return (
-    <NhsPage title="Appointment Management Service" omitTitleFromBreadcrumbs>
-      <WarningCallout title="Page not found">
-        <p>
-          The page or resource you're looking for does not exist. Please check
-          the address and try again.
-        </p>
-      </WarningCallout>
-    </NhsPage>
+    <NhsAnonymousPage
+      title="Sorry, we could not find that page"
+      showHomeBreadcrumb
+    >
+      <p>
+        You may have typed or pasted the web address incorrectly.{' '}
+        <Link href="/">Go to the start page.</Link>
+      </p>
+
+      <ContactUs />
+    </NhsAnonymousPage>
   );
 }

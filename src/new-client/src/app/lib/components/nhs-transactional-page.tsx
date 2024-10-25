@@ -1,18 +1,19 @@
 'use client';
 import { ReactNode } from 'react';
-import { NhsHeader } from './nhs-header';
-import { UserProfile } from '@types';
 import NhsMainContainer from './nhs-main-container';
+import { Header } from '@nhsuk-frontend-components';
+import NhsHeaderLogOut from './nhs-header-log-out';
 
 type Props = {
   children: ReactNode;
-  userProfile: UserProfile;
 };
 
-const NhsTransactionalPage = ({ children = null, userProfile }: Props) => {
+const NhsTransactionalPage = ({ children = null }: Props) => {
   return (
     <>
-      <NhsHeader userEmail={userProfile.emailAddress} />
+      <Header>
+        <NhsHeaderLogOut />
+      </Header>
       <NhsMainContainer>{children}</NhsMainContainer>
     </>
   );

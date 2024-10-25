@@ -27,6 +27,7 @@ public class SessionValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData(0)]
+    [InlineData(-1)]
     public void Validate_ReturnsError_WhenCapacityIsInvalid(int capacity)
     {
         var session = new Session()
@@ -46,6 +47,7 @@ public class SessionValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData(0)]
+    [InlineData(-1)]
     public void Validate_ReturnsError_WhenSlotLengthIsInvalid(int slotLength)
     {
         var session = new Session()

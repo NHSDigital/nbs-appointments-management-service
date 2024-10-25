@@ -17,12 +17,14 @@ public class SessionValidator : AbstractValidator<Session>
                         .GreaterThanOrEqualTo(x => x.From.AddMinutes(x.SlotLength))
                         .WithMessage("At least one slot must be available");
                 });
-        RuleFor(x => x.Capacity)
+        RuleFor(x => x.Capacity).Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("'capacity' cannot be zero or null");
-        RuleFor(x => x.SlotLength)
+            .GreaterThanOrEqualTo(1)
+            .Configure(rule => rule.MessageBuilder = _ => "'capacity' must be a positive integer");
+        RuleFor(x => x.SlotLength).Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("'slotLength' cannot be zero or null");
+            .GreaterThanOrEqualTo(1)
+            .Configure(rule => rule.MessageBuilder = _ => "'slotLength' must be a positive integer");
         RuleFor(x => x.Services)
             .NotEmpty()
             .WithMessage("'services' cannot be empty");

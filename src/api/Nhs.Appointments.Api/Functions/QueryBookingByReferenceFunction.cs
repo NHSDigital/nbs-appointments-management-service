@@ -24,7 +24,8 @@ public class QueryBookingByReferenceFunction : BaseApiFunction<QueryBookingByRef
         IBookingsService bookingsService, 
         IValidator<QueryBookingByReferenceRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<QueryBookingByReferenceFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<QueryBookingByReferenceFunction> logger, 
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingsService = bookingsService;
     }

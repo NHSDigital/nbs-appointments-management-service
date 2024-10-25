@@ -23,7 +23,8 @@ public class QueryBookingsFunction : BaseApiFunction<QueryBookingsRequest, IEnum
         IBookingsService bookingsService,
         IValidator<QueryBookingsRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<QueryBookingsFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<QueryBookingsFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingsService = bookingsService;
     }

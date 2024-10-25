@@ -23,7 +23,8 @@ public class CancelBookingFunction : BaseApiFunction<CancelBookingRequest, Cance
         IBookingsService bookingService, 
         IValidator<CancelBookingRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<CancelBookingFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<CancelBookingFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingService = bookingService;
     }

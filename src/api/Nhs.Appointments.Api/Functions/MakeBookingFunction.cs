@@ -26,7 +26,8 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         IAvailabilityCalculator availabilityCalculator,
         IValidator<MakeBookingRequest> validator,
         IUserContextProvider userContextProvider, 
-        ILogger<MakeBookingFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<MakeBookingFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingService = bookingService;
         _availabilityCalculator = availabilityCalculator;

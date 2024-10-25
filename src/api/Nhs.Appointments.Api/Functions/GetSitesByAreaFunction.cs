@@ -17,8 +17,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesByAreaRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger)
-    : BaseApiFunction<GetSitesByAreaRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger)
+public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesByAreaRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<GetSitesByAreaRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetSitesByArea", tags: new [] {"Sites"}, Summary = "Get sites by area")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]

@@ -22,7 +22,8 @@ public class SetBookingStatusFunction : BaseApiFunction<SetBookingStatusRequest,
         IBookingsService bookingService,
         IValidator<SetBookingStatusRequest> validator,
         IUserContextProvider userContextProvider, 
-        ILogger<SetBookingStatusFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<SetBookingStatusFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingService = bookingService;
     }

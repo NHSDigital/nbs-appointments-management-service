@@ -35,8 +35,8 @@ public class QueryAvailabilityFunctionTests
                 _validator.Object, 
             _availabilityGrouperFactory.Object, 
             _userContextProvider.Object,
-            _metricsRecorder.Object,
-            _logger.Object);
+            _logger.Object,
+            _metricsRecorder.Object);
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))
             .Returns(_availabilityGrouper.Object);

@@ -23,10 +23,11 @@ public class MakeBookingFunctionTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new MakeBookingFunction(_bookingService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }

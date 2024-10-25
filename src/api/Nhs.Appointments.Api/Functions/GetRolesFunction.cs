@@ -15,8 +15,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger ) 
-    : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger)
+public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetRoles", tags: new[] { "Auth" }, Summary = "Gets all existing roles")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]

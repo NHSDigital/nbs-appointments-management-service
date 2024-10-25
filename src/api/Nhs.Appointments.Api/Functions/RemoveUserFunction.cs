@@ -19,8 +19,9 @@ public class RemoveUserFunction(
     IUserService userService,
     IValidator<RemoveUserRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<RemoveUserFunction> logger)
-    : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger)
+    ILogger<RemoveUserFunction> logger,
+    IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "RemoveUser", tags: new [] {"Users"}, Summary = "Remove a User")]
     [OpenApiRequestBody("text/json", typeof(RemoveUserRequest))]

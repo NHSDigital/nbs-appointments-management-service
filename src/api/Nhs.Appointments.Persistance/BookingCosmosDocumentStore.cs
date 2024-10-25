@@ -8,10 +8,12 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 {
     private const int PointReadLimit = 3;    
            
-    public Task<IEnumerable<Booking>> GetInDateRangeAsync(string site, DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetInDateRangeAsync(string site, DateTime from, DateTime to)
     {
-        using(metricsRecorder.BeginScope("GetBookingsInDateRange"))
-            return bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
+        {
+            return await bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        }
     }       
     
     public async Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference)

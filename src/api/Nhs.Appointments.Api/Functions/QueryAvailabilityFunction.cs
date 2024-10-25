@@ -30,9 +30,9 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
         IAvailabilityCalculator availabilityCalculator, 
          IValidator<QueryAvailabilityRequest> validator,
         IAvailabilityGrouperFactory availabilityGrouperFactory,
-        IUserContextProvider userContextProvider,
-        IMetricsRecorder metricsRecorder,
-        ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
+        IUserContextProvider userContextProvider,        
+        ILogger<QueryAvailabilityFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _availabilityCalculator = availabilityCalculator;
         _availabilityGrouperFactory = availabilityGrouperFactory;
@@ -58,17 +58,12 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
         var response = new QueryAvailabilityResponse();
         var requestFrom = request.FromDate;
         var requestUntil = request.UntilDate;
-
-        using (_metricsRecorder.BeginScope("QueryAvailabilityRequest"))
+        
+        await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
         {
-            await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
-            {
-                var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
-                concurrentResults.Add(siteAvailability);
-            });
-        }
-
-        _metricsRecorder.WriteMetricsToConsole();
+            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
+            concurrentResults.Add(siteAvailability);
+        });        
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

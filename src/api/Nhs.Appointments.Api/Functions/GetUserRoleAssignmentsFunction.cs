@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger)
-        : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger)
+    public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger, IMetricsRecorder metricsRecorder)
+        : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [RequiresPermission("users:view", typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]

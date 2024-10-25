@@ -16,8 +16,8 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserProfileFunction(ISiteService siteService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger)
-    : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger)
+    public class GetUserProfileFunction(ISiteService siteService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger, metricsRecorder)
     {
 
         [OpenApiOperation(operationId: "GetUserProfile", tags: new[] { "Utility" }, Summary = "Gets information about the signed in user")]        

@@ -23,7 +23,8 @@ public class QueryBookingByNhsNumberFunction : BaseApiFunction<QueryBookingByNhs
         IBookingsService bookingsService, 
         IValidator<QueryBookingByNhsNumberRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<QueryBookingByNhsNumberFunction> logger) : base(validator, userContextProvider, logger)
+        ILogger<QueryBookingByNhsNumberFunction> logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
         _bookingsService = bookingsService;
     }

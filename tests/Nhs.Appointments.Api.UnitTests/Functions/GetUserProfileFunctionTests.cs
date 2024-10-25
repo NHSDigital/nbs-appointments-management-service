@@ -20,11 +20,12 @@ namespace Nhs.Appointments.Api.Tests.Functions
         private readonly Mock<IValidator<EmptyRequest>> _validator = new();
         private readonly Mock<IUserContextProvider> _userContextProvider = new();
         private readonly Mock<ILogger<GetUserProfileFunction>> _logger = new();
+        private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
         private GetUserProfileFunction _sut;
 
         public GetUserProfileFunctionTests()
         {
-            _sut = new GetUserProfileFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+            _sut = new GetUserProfileFunction(_siteSearchService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         }
 
         [Fact]

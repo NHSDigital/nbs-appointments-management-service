@@ -33,13 +33,48 @@ class Program
             clientOptions: cosmosOptions);
 
         _database = await CreateDatabaseAsync(databaseName);
-        foreach (var container in containers)
+        /*foreach (var container in containers)
         {
             await DeleteContainers(container.Name);
             await AddItemsToContainerAsync(container.Name, container.PartitionKey);
-        }
+        }*/
+        await CreateContainerAsync("booking_data", "/site");
+        await CreateBookings();
 
         Console.WriteLine("Database seeded successfully");
+    }
+
+    private static async Task CreateBookings()
+    {
+        var date = new DateTime(2025, 1, 1, 9, 0, 0);
+        while(date.Month == 1)
+        {
+            while(date.Hour < 18)
+            {
+                if(date.Minute < 40)
+                {
+                    var booking = new
+                    {
+                        id = Guid.NewGuid().ToString(),
+                        site = "ABC01",
+                        reference = Guid.NewGuid().ToString(),
+                        from = date,
+                        duration = 5,
+                        service = "COVID:12_15",
+                        attendeeDetails = new
+                        {
+                            nhsNumber = "12213987",
+                            firstName = "Mr",
+                            lastName = "Test",
+                            dateOfBirth = new DateOnly(1977, 1, 24)
+                        }
+                    };
+                    await _cosmosClient.GetContainer("appts", "booking_data").UpsertItemAsync(booking);                    
+                }
+                date = date.AddMinutes(5);
+            }
+            date = date.AddHours(15);
+        }
     }
 
     private static async Task<Database> CreateDatabaseAsync(string? databaseId)

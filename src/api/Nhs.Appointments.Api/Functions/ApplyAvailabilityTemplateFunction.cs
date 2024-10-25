@@ -15,8 +15,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger) 
-    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ApplyAvailabilityTemplate", tags: ["Apply availability template"], Summary = "Apply an availability template")]
     [OpenApiRequestBody("text/json", typeof(ApplyAvailabilityTemplateRequest))]

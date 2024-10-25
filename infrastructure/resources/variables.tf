@@ -66,3 +66,8 @@ variable "gov_notify_api_key" {
   type      = string
   sensitive = true
 }
+
+variable "booking_reminders_cron_schedule" {
+  type      = string
+  sensitive = false
+}

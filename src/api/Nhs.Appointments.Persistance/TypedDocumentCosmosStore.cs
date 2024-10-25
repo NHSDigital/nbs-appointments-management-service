@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using System.Reflection;
-using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -74,12 +73,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 return default;
             }
 
-            using (StreamReader streamReader = new StreamReader(response.Content))
-            {
-                string content = await streamReader.ReadToEndAsync();
-                var document = JsonConvert.DeserializeObject<TModel>(content);
-                return document;
-            }
+            var document = _cosmosClient.ClientOptions.Serializer.FromStream<TDocument>(response.Content);
+            return _mapper.Map<TModel>(document);
         }
     }
 

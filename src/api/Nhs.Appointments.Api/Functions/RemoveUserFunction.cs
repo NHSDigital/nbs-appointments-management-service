@@ -9,8 +9,6 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -22,12 +20,13 @@ public class RemoveUserFunction(
     ILogger<RemoveUserFunction> logger)
     : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "RemoveUser", tags: new [] {"Users"}, Summary = "Remove a User")]
-    [OpenApiRequestBody("text/json", typeof(RemoveUserRequest))]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/json", typeof(RemoveUserRequest), Description = "User successfully removed")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "User did not exist to be removed")]
+    [OpenApiOperation(operationId: "RemoveUser", tags: ["User"], Summary = "Remove all assigned roles from a user at the specified site")]
+    [OpenApiRequestBody("application/json", typeof(RemoveUserRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(RemoveUserRequest), Description = "Users roles removed for the specified site")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "User did not exist to be removed")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("users:manage", typeof(SiteFromBodyInspector))]
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(

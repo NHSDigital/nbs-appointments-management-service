@@ -20,10 +20,16 @@ namespace Nhs.Appointments.Api.Functions;
 public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesByAreaRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger)
     : BaseApiFunction<GetSitesByAreaRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger)
 {
-    [OpenApiOperation(operationId: "GetSitesByArea", tags: new [] {"Sites"}, Summary = "Get sites by area")]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(IEnumerable<SiteWithDistance>), Description = "List of sites in requested area with distance from requested area")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiOperation(operationId: "GetSitesByArea", tags: ["Sites"], Summary = "Get sites within a specified area from a given location")]
+    [OpenApiParameter("longitude", In = ParameterLocation.Query, Required = true, Type = typeof(double), Description = "The longitude value of the search location")]
+    [OpenApiParameter("latitude", In = ParameterLocation.Query, Required = true, Type = typeof(double), Description = "The latitude value of the search location")]
+    [OpenApiParameter("searchRadius", In = ParameterLocation.Query, Required = true, Type = typeof(int), Description = "The radius distance in meters used to search for sites within the radius from the given location")]
+    [OpenApiParameter("maximumRecords", In = ParameterLocation.Query, Required = true, Type = typeof(int), Description = "The maximum number of sites to return from the query")]
+    [OpenApiParameter("accessNeeds", In = ParameterLocation.Query, Required = false, Type = typeof(string[]), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, Description = "Required access needs used to filter sites")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<SiteWithDistance>), Description = "List of sites within a geographical area that support requested access needs")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("sites:query", typeof(NoSiteRequestInspector))]
     [Function("GetSitesByAreaFunction")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req)

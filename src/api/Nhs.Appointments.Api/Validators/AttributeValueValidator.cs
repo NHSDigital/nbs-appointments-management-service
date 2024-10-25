@@ -10,5 +10,8 @@ public class AttributeValueValidator : AbstractValidator<AttributeValue>
         RuleFor(x => x.Id)
             .NotEmpty()
             .WithMessage("Provide a valid attribute id");
+        RuleFor(x => x.Value)
+            .NotEmpty()
+            .WithMessage("Provide a valid attribute value");
     }
 }

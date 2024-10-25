@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, SummaryList } from '@components/nhsuk-frontend';
 import {
   fetchAttributeDefinitions,
-  fetchSiteAttributeValues,
+  fetchSite,
 } from '@services/appointmentsService';
 import { Site } from '@types';
 import Link from 'next/link';
@@ -16,10 +16,13 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
   );
-  const siteAttributeValues = await fetchSiteAttributeValues(site.id);
-  const informationForCitizenAttribute = siteAttributeValues.filter(sa =>
-    sa.id.includes('info_for_citizen'),
-  )[0];
+  const siteDetails = await fetchSite(site.id);
+  const informationForCitizenAttribute =
+    siteDetails === undefined
+      ? ''
+      : siteDetails.attributeValues.find(
+          sa => sa.id === 'site_details/info_for_citizen',
+        );
 
   return (
     <>
@@ -32,8 +35,9 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
           return {
             title: definition.displayName,
             value:
-              siteAttributeValues.find(value => value.id === definition.id)
-                ?.value === 'true'
+              siteDetails?.attributeValues.find(
+                value => value.id === definition.id,
+              )?.value === 'true'
                 ? 'Status: Active'
                 : 'Status: Inactive',
           };
@@ -60,7 +64,7 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
 
       <h3>Information for citizens</h3>
       <p>Instructions to be show to people when they arrive</p>
-      {informationForCitizenAttribute.value ? (
+      {informationForCitizenAttribute ? (
         <p>{informationForCitizenAttribute.value}</p>
       ) : (
         ''

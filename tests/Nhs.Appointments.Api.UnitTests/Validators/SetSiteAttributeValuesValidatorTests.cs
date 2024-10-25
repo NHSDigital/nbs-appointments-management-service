@@ -17,6 +17,7 @@ public class SetSiteAttributeValuesValidatorTests
     {
         var testRequest = new SetSiteAttributesRequest(
             Site: "ABC01",
+            Scope: "*",
             AttributeValues: new[]
             {
                 new AttributeValue(
@@ -34,6 +35,7 @@ public class SetSiteAttributeValuesValidatorTests
     {
         var request = new SetSiteAttributesRequest(
             Site: siteId,
+            Scope: "*",
             AttributeValues: new[]
             {
                 new AttributeValue(
@@ -50,7 +52,7 @@ public class SetSiteAttributeValuesValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsNull()
     {
-        var request = new SetSiteAttributesRequest(Site: "ABC01", AttributeValues: null);
+        var request = new SetSiteAttributesRequest(Site: "ABC01", Scope: "*", AttributeValues: null);
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -60,7 +62,7 @@ public class SetSiteAttributeValuesValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsEmpty()
     {
-        var request = new SetSiteAttributesRequest(Site: "ABC01", AttributeValues: Array.Empty<AttributeValue>());
+        var request = new SetSiteAttributesRequest(Site: "ABC01", Scope: "*", AttributeValues: Array.Empty<AttributeValue>());
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);

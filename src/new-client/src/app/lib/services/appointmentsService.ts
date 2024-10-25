@@ -39,13 +39,18 @@ export async function fetchUsers(site: string) {
 }
 
 export const fetchSite = async (siteId: string) => {
-  const userProfile = await fetchUserProfile();
-  return userProfile?.availableSites.find(s => s.id === siteId);
+  const response = await appointmentsApi.get<SiteWithAttributes>(
+    `sites/${siteId}?scope=*`,
+    {
+      next: { tags: ['site'] },
+    },
+  );
+  return handleResponse(response);
 };
 
 export const fetchSiteAttributeValues = async (siteId: string) => {
   const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}/scope/*`,
+    `sites/${siteId}?scope=*`,
   );
 
   return handleResponse(response)?.attributeValues ?? [];
@@ -160,7 +165,7 @@ export const removeUserFromSite = async (site: string, user: string) => {
 
 export async function fetchInformationForCitizens(site: string, scope: string) {
   const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${site}/scope/${scope}`,
+    `sites/${site}?scope=${scope}`,
   );
 
   return handleResponse(response)?.attributeValues ?? [];

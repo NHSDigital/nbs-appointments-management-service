@@ -11,9 +11,9 @@ export const EditInformationForCitizensPage = async ({ site }: Props) => {
     site,
     'site_details',
   );
-  const siteInformation = informationForCitizens.filter(si =>
-    si.id.includes('info_for_citizen'),
-  )[0];
+  const siteInformation = informationForCitizens.find(
+    i => i.id === 'site_details/info_for_citizen',
+  );
 
   return (
     <>

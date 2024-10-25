@@ -26,7 +26,6 @@ public class AttributeValuesValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    [InlineData("invalidValue")]
     public void Validate_ReturnsError_WhenValueIsInvalid(string? value)
     {
         var attributeValue = new AttributeValue(

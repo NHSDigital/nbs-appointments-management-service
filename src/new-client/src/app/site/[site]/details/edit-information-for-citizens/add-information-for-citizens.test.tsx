@@ -54,8 +54,16 @@ describe('Add Information For Citizen Form', () => {
     });
     await user.click(saveButton);
 
-    expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith('TEST', [
-      { id: 'info_for_citizen', value: 'test user input' },
-    ]);
+    const expectedPayload = {
+      attributeValues: [
+        { id: 'site_details/info_for_citizen', value: 'test user input' },
+      ],
+      scope: 'site_details',
+    };
+
+    expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith(
+      'TEST',
+      expectedPayload,
+    );
   });
 });

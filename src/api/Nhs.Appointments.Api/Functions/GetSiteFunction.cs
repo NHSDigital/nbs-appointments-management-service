@@ -25,7 +25,7 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [RequiresPermission("site:view", typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
-    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/scope/{scope}")] HttpRequest req)
+    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
     {
         return base.RunAsync(req);
     }

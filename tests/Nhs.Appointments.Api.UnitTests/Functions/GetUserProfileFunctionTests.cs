@@ -81,8 +81,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 new UserProfileSite("2", "Beta", "elsewhere")
             };
 
-            _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
-            _siteSearchService.Setup(x => x.GetSiteByIdAsync("2")).ReturnsAsync(siteDetails[1]);
+            _siteSearchService.Setup(x => x.GetSiteByIdAsync("1", "*")).ReturnsAsync(siteDetails[0]);
+            _siteSearchService.Setup(x => x.GetSiteByIdAsync("2", "*")).ReturnsAsync(siteDetails[1]);
             
             var result = await _sut.RunAsync(request) as ContentResult;
 
@@ -114,7 +114,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 new UserProfileSite("1", "Alpha", "somewhere")
             };
 
-            _siteSearchService.Setup(x => x.GetSiteByIdAsync("1")).ReturnsAsync(siteDetails[0]);
+            _siteSearchService.Setup(x => x.GetSiteByIdAsync("1", "*")).ReturnsAsync(siteDetails[0]);
             
             var result = await _sut.RunAsync(request) as ContentResult;
 

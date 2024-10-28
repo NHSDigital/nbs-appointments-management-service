@@ -1,17 +1,15 @@
-type UserProfile = {
-  emailAddress: string;
-  availableSites: Site[];
+type ApiErrorResponse = {
+  success: false;
+  httpStatusCode: number;
+  errorMessage: string;
 };
 
-type Site = {
-  id: string;
-  name: string;
-  address: string;
-};
+type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
-type SiteWithAttributes = Site & {
-  attributeValues: AttributeValue[];
-};
+interface ApiSuccessResponse<T> {
+  success: true;
+  data: T | null;
+}
 
 type AttributeDefinition = {
   id: string;
@@ -28,9 +26,39 @@ type SetAttributes = {
   attributeValues: AttributeValue[];
 };
 
-type User = {
+type Role = {
+  displayName: string;
   id: string;
-  roleAssignments: RoleAssignment[];
+  description: string;
+};
+
+type ApplyAvailabilityTemplateRequest = {
+  site: string;
+  from: string;
+  until: string;
+  template: AvailabilityTemplate;
+};
+
+type AvailabilityTemplate = {
+  days: DayOfWeek[];
+  sessions: AvailabilitySession[];
+};
+
+type DayOfWeek =
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday'
+  | 'Sunday';
+
+type AvailabilitySession = {
+  from: string;
+  until: string;
+  services: string[];
+  slotLength: number;
+  capacity: number;
 };
 
 type RoleAssignment = {
@@ -38,34 +66,38 @@ type RoleAssignment = {
   role: string;
 };
 
-type Role = {
-  displayName: string;
+type Site = {
   id: string;
-  description: string;
+  name: string;
+  address: string;
 };
 
-type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+type SiteWithAttributes = Site & {
+  attributeValues: AttributeValue[];
+};
 
-interface ApiSuccessResponse<T> {
-  success: true;
-  data: T | null;
-}
+type User = {
+  id: string;
+  roleAssignments: RoleAssignment[];
+};
 
-interface ApiErrorResponse {
-  success: false;
-  httpStatusCode: number;
-  errorMessage: string;
-}
+type UserProfile = {
+  emailAddress: string;
+  availableSites: Site[];
+};
 
 export type {
-  UserProfile,
-  Site,
-  SiteWithAttributes,
+  ApplyAvailabilityTemplateRequest,
+  ApiErrorResponse,
+  ApiResponse,
+  ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
-  User,
-  RoleAssignment,
   Role,
-  ApiResponse,
+  RoleAssignment,
   SetAttributes,
+  Site,
+  SiteWithAttributes,
+  User,
+  UserProfile,
 };

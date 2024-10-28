@@ -4,25 +4,24 @@ This template is stored at https://www.notifications.service.gov.uk/
 
 Template name: Booking Made (RSV)
 
-Template Subject: Reminder - RSV vaccination appointment
+Template Subject: Booking confirmation - RSV appointment
 
 Template Body:
 
 Hello ((firstName)),
 
-This is a reminder for your upcoming RSV (respiratory syncytial virus) vaccination appointment.
+Thank you for booking your RSV (respiratory syncytial virus) vaccination appointment.
 
 # Your appointment
 
 Booking reference: ((reference))
 ((siteName))
-((address))
 Date and time: ((date))
 ((time))
+((address))
 
 # If you need to change or cancel your appointment:
 
 * visit https://www.nhs.uk/book-rsv
-* if you can't get online, call 119
 
-You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.
+You can cancel your appointment up until the day it takes place. However, we can not change appointments an hour before they are due to start.

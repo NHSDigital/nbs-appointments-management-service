@@ -1,10 +1,12 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
   AttributeDefinition,
+  AttributeValue,
   Role,
   SetAttributes,
+  ApplyAvailabilityTemplateRequest,
   SiteWithAttributes,
   User,
   UserProfile,
@@ -12,18 +14,19 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
+import { notAuthenticated, notAuthorised } from '@services/authService';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
-  return handleResponse(response);
+  return handleBodyResponse(response);
 };
 
-export const fetchUserProfile = async () => {
+export const fetchUserProfile = async (): Promise<UserProfile> => {
   const response = await appointmentsApi.get<UserProfile>('user/profile', {
     next: { tags: ['user'] },
   });
 
-  return handleResponse(response, undefined, true);
+  return handleBodyResponse(response);
 };
 
 export async function fetchUsers(site: string) {
@@ -31,10 +34,8 @@ export async function fetchUsers(site: string) {
     cache: 'no-store',
   });
 
-  return (
-    handleResponse(response, (users: User[]) =>
-      users.filter(usr => usr.id.includes('@')),
-    ) ?? []
+  return handleBodyResponse(response, (users: User[]) =>
+    users.filter(usr => usr.id.includes('@')),
   );
 }
 
@@ -45,7 +46,7 @@ export const fetchSite = async (siteId: string) => {
       next: { tags: ['site'] },
     },
   );
-  return handleResponse(response);
+  return handleBodyResponse(response);
 };
 
 export const fetchSiteAttributeValues = async (siteId: string) => {
@@ -53,7 +54,7 @@ export const fetchSiteAttributeValues = async (siteId: string) => {
     `sites/${siteId}?scope=*`,
   );
 
-  return handleResponse(response)?.attributeValues ?? [];
+  return handleBodyResponse(response)?.attributeValues ?? [];
 };
 
 export async function fetchAttributeDefinitions() {
@@ -64,7 +65,7 @@ export async function fetchAttributeDefinitions() {
     },
   );
 
-  return handleResponse(response) ?? [];
+  return handleBodyResponse(response);
 }
 
 export async function fetchRoles() {
@@ -72,7 +73,7 @@ export async function fetchRoles() {
     'roles?tag=canned',
   );
 
-  return handleResponse(response)?.roles ?? [];
+  return handleBodyResponse(response).roles;
 }
 
 export async function fetchPermissions(site: string) {
@@ -80,25 +81,81 @@ export async function fetchPermissions(site: string) {
     `user/permissions?site=${site}`,
   );
 
-  return handleResponse(response)?.permissions ?? [];
+  return handleBodyResponse(response).permissions;
 }
 
-function handleResponse<T>(
+export async function assertPermission(site: string, permission: string) {
+  const response = await fetchPermissions(site);
+
+  if (!response.includes(permission)) {
+    notAuthorised();
+  }
+}
+
+export async function assertAnyPermissions(
+  site: string,
+  permissions: string[],
+) {
+  const response = await fetchPermissions(site);
+
+  if (!permissions.some(permission => response.includes(permission))) {
+    notAuthorised();
+  }
+}
+
+export async function assertAllPermissions(
+  site: string,
+  permissions: string[],
+) {
+  const response = await fetchPermissions(site);
+
+  if (!permissions.every(permission => response.includes(permission))) {
+    notAuthorised();
+  }
+}
+
+function handleBodyResponse<T>(
   response: ApiResponse<T>,
   transformData = (data: T) => data,
-  suppress401Errors = false,
-) {
+): T {
+  if (!response.success) {
+    if (response.httpStatusCode === 404) {
+      notFound();
+    }
+
+    if (response.httpStatusCode === 401) {
+      notAuthenticated();
+    }
+
+    if (response.httpStatusCode === 403) {
+      notAuthorised();
+    }
+
+    throw new Error(response.errorMessage);
+  }
+
+  if (!response.data) {
+    throw new Error('A response body was expected but none was found.');
+  }
+
+  return transformData(response.data);
+}
+
+function handleEmptyResponse(response: ApiResponse<unknown>): void {
   if (response.success) {
-    if (response.data) return transformData(response.data);
-    else return undefined;
+    return;
   }
 
   if (response.httpStatusCode === 404) {
-    return undefined;
+    notFound();
   }
 
-  if (response.httpStatusCode === 401 && suppress401Errors) {
-    return undefined;
+  if (response.httpStatusCode === 401) {
+    notAuthenticated();
+  }
+
+  if (response.httpStatusCode === 403) {
+    notAuthorised();
   }
 
   throw new Error(response.errorMessage);
@@ -120,7 +177,7 @@ export const saveUserRoleAssignments = async (
     JSON.stringify(payload),
   );
 
-  handleResponse(response);
+  handleEmptyResponse(response);
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };
@@ -134,7 +191,7 @@ export const saveSiteAttributeValues = async (
     JSON.stringify(attributeValues),
   );
 
-  handleResponse(response);
+  handleEmptyResponse(response);
 
   const notificationType = 'ams-notification';
   const notificationMessage =
@@ -153,7 +210,7 @@ export const removeUserFromSite = async (site: string, user: string) => {
     }),
   );
 
-  handleResponse(response);
+  handleEmptyResponse(response);
 
   const notificationType = 'ams-notification';
   const notificationMessage = `You have successfully removed ${user} from the current site.`;
@@ -163,12 +220,31 @@ export const removeUserFromSite = async (site: string, user: string) => {
   redirect(`/site/${site}/users`);
 };
 
+export const saveAvailability = async (
+  request: ApplyAvailabilityTemplateRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `availability/apply-template`,
+    JSON.stringify(request),
+  );
+
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully created availability for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  // TODO: Once the fetch availability route is implemented, refresh the tag here
+  // revalidateTag(`fetchAvailability`);
+};
+
 export async function fetchInformationForCitizens(site: string, scope: string) {
   const response = await appointmentsApi.get<SiteWithAttributes>(
     `sites/${site}?scope=${scope}`,
   );
 
-  return handleResponse(response)?.attributeValues ?? [];
+  return handleBodyResponse(response)?.attributeValues ?? [];
 }
 
 export const setSiteInformationForCitizen = async (
@@ -181,6 +257,6 @@ export const setSiteInformationForCitizen = async (
   );
 
   // TODO: Notification?
-  handleResponse(response);
+  handleBodyResponse(response);
   revalidatePath(`/site/${site}/information-for-citizens`);
 };

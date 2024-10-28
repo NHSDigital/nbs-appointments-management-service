@@ -1,0 +1,5 @@
+FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+This is a reminder that we are waiting for the copy for co-admin appointment reminders.

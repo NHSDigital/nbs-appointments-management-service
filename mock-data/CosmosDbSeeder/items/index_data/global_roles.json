@@ -28,7 +28,12 @@
       "id": "canned:site-configuration-manager",
       "name": "Site configuration manager",
       "description": "A user can view and manage site information, such as access needs.",
-      "permissions": ["site:get-config", "site:set-config"]
+      "permissions": [
+        "site:get-config",
+        "site:set-config",
+        "site:get-meta-data",
+        "site:set-meta-data"
+      ]
     },
     {
       "id": "canned:user-manager",
@@ -93,7 +98,8 @@
         "users:view",
         "sites:query",
         "site:view",
-        "site:manage"
+        "site:manage",
+        "system:run-reminders"
       ]
     },
     {
@@ -102,17 +108,21 @@
       "description": "Role for integration test user",
       "permissions": [
         "site:get-meta-data",
+        "site:set-meta-data",
         "availability:query",
         "booking:make",
         "booking:query",
         "booking:cancel",
+        "site:get-config",
         "site:set-config",
         "availability:get-setup",
+        "availability:set-setup",
         "users:manage",
         "users:view",
         "sites:query",
         "site:view",
-        "site:manage"
+        "site:manage",
+        "system:run-reminders"
       ]
     }
   ]

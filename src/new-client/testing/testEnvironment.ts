@@ -16,6 +16,11 @@ const testUsers = {
     username: process.env.TEST_USER_3_USERNAME ?? '',
     password: process.env.TEST_USER_3_PASSWORD ?? '',
   },
+  // This user should exist in the ID server but have no user document in our persistence
+  testUser4: {
+    username: process.env.TEST_USER_4_USERNAME ?? '',
+    password: process.env.TEST_USER_4_PASSWORD ?? '',
+  },
 };
 
 const environment = {

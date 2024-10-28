@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import render from '@testing/render';
 import ErrorPage from './error';
+import UnauthorisedError from './auth/unauthorised-error';
 
 describe('Error Page', () => {
   it('renders', () => {
@@ -17,12 +18,7 @@ describe('Error Page', () => {
   });
 
   it('shows a different title if the error was a 403', async () => {
-    render(
-      <ErrorPage
-        error={new Error('Forbidden: You lack the necessary permissions')}
-        reset={() => {}}
-      />,
-    );
+    render(<ErrorPage error={new UnauthorisedError()} reset={() => {}} />);
     expect(
       screen.getByRole('heading', {
         name: 'You cannot access this page',

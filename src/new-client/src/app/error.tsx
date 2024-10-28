@@ -5,13 +5,13 @@ import NhsAnonymousPage from '@components/nhs-anonymous-page';
 export default function Error({
   error,
 }: {
-  error: Error & { digest?: string };
+  error: Error & { digest?: string; type?: string };
   reset: () => void;
 }) {
   // TODO: write error.digest to application insights?
   // console.dir(error.digest);
 
-  if (error.message === 'Forbidden: You lack the necessary permissions') {
+  if (error.type === 'UnauthorisedError') {
     return (
       <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
         <p>This might be because: </p>

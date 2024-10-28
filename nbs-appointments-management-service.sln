@@ -33,8 +33,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosmosDbSeeder", "mock-data
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.Api.Integration", "tests\Nhs.Appointments.Api.Integration\Nhs.Appointments.Api.Integration.csproj", "{6595832E-26F8-4463-A738-1874F4F2DAD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyaCli", "mock-data\MyaCli\MyaCli.csproj", "{08A1453D-A071-4A4C-A97D-884A96991055}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,10 +83,6 @@ Global
 		{6595832E-26F8-4463-A738-1874F4F2DAD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6595832E-26F8-4463-A738-1874F4F2DAD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6595832E-26F8-4463-A738-1874F4F2DAD9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08A1453D-A071-4A4C-A97D-884A96991055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08A1453D-A071-4A4C-A97D-884A96991055}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08A1453D-A071-4A4C-A97D-884A96991055}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08A1453D-A071-4A4C-A97D-884A96991055}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,7 +100,6 @@ Global
 		{DFA538A6-9D01-417F-A0B3-D91102B9FA22} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{30AD8A58-DF6F-4D6D-9211-CF32618D0E35} = {22B97405-2671-42B1-BE08-E1D0E18A2F1F}
 		{6595832E-26F8-4463-A738-1874F4F2DAD9} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
-		{08A1453D-A071-4A4C-A97D-884A96991055} = {22B97405-2671-42B1-BE08-E1D0E18A2F1F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

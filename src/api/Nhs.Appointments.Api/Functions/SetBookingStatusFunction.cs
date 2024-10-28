@@ -12,8 +12,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetBookingStatusFunction(IBookingsService bookingService, IValidator<SetBookingStatusRequest> validator, IUserContextProvider userContextProvider, ILogger<SetBookingStatusFunction> logger)
-    : BaseApiFunction<SetBookingStatusRequest, SetBookingStatusResponse>(validator, userContextProvider, logger)
+public class SetBookingStatusFunction(IBookingsService bookingService, IValidator<SetBookingStatusRequest> validator, IUserContextProvider userContextProvider, ILogger<SetBookingStatusFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<SetBookingStatusRequest, SetBookingStatusResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
 
     [OpenApiOperation(operationId: "SetBookingStatus", tags: ["Booking"], Summary = "Set the status of a booking")]

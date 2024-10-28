@@ -7,24 +7,16 @@ namespace Nhs.Appointments.Persistance;
 
 public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder) : IBookingsDocumentStore
 {
-    private const int PointReadLimit = 3;
-    private readonly ITypedDocumentCosmosStore<BookingDocument> _bookingStore;
-    private readonly ITypedDocumentCosmosStore<BookingIndexDocument> _indexStore;
-
-    public BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore) 
-    { 
-        _bookingStore = bookingStore;
-        _indexStore = indexStore;
-    }
+    private const int PointReadLimit = 3;    
            
     public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        return _bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        return bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to)
     {
-        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
         var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -93,7 +85,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);
-        await _bookingStore.PatchDocument(site, bookingReference, patch);
+        await bookingStore.PatchDocument(site, bookingReference, patch);
 
     }
 

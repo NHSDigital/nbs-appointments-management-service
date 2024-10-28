@@ -35,7 +35,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
                 response = await HandleRequest(request, logger);
             }
 
-            metricsRecorder.WriteMetricsToConsole();
+            WriteMetricsToConsole();
 
             if (response.IsSuccess)
             {
@@ -83,6 +83,17 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
             message
         };
         return ProblemResponse(status, error);
+    }
+
+    private void WriteMetricsToConsole()
+    {
+        if (metricsRecorder.Metrics != null)
+        {
+            foreach (var metric in metricsRecorder.Metrics)
+            {
+                Console.WriteLine(metric.Path + ": " + metric.Value);
+            }
+        }
     }
 
     protected ApiResult<TResponse> Success(TResponse response) => ApiResult<TResponse>.Success(response);

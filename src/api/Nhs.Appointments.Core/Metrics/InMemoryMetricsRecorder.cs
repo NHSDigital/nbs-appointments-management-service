@@ -1,29 +1,15 @@
-﻿public interface IMetricsRecorder
-{
-    IDisposable BeginScope(string scopeName);
-    void RecordMetric(string name, double value);
-
-    void WriteMetricsToConsole();
-}
-
-public class InMemoryMetricsRecorder : IMetricsRecorder
+﻿public class InMemoryMetricsRecorder : IMetricsRecorder
 {
     private Stack<string> _scopeStack = new Stack<string>();
 
-    private List<(string, double)> _metrics = new List<(string, double)>();
+    private List<(string Path, double Value)> _metrics = new List<(string Path, double Value)>();
     public void RecordMetric(string name, double value)
     {
         var scopedName = string.Join("/", _scopeStack.Reverse().Concat(new[] { name }));
         _metrics.Add((scopedName, value));
     }
 
-    public void WriteMetricsToConsole()
-    {
-        foreach (var metric in _metrics)
-        {
-            Console.WriteLine(metric.Item1 + ": " + metric.Item2);
-        }
-    }
+    public IReadOnlyCollection<(string Path, double Value)> Metrics => _metrics;
 
     public IDisposable BeginScope(string scopeName)
     {

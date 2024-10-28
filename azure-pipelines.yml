@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev"]
+    default: ["dev", "int"]
 
 variables:
   azure_devops_service_connection_name: "nbs-mya-rg-dev"

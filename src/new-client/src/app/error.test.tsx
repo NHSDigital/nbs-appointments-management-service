@@ -1,15 +1,15 @@
 import { screen } from '@testing-library/react';
 import render from '@testing/render';
 import ErrorPage from './error';
-import UnauthorisedError from './auth/unauthorised-error';
+import { MyaError, UnauthorisedError } from '@types';
 
 describe('Error Page', () => {
   it('renders', () => {
-    render(<ErrorPage error={new Error('Test error')} reset={() => {}} />);
+    render(<ErrorPage error={new MyaError('Test error')} reset={() => {}} />);
   });
 
   it('shows the correct title', async () => {
-    render(<ErrorPage error={new Error('Test error')} reset={() => {}} />);
+    render(<ErrorPage error={new MyaError('Test error')} reset={() => {}} />);
     expect(
       screen.getByRole('heading', {
         name: 'Sorry, there is a problem with this service',
@@ -27,7 +27,7 @@ describe('Error Page', () => {
   });
 
   it('shows the correct breadcrumbs including title', async () => {
-    render(<ErrorPage error={new Error('Test error')} reset={() => {}} />);
+    render(<ErrorPage error={new MyaError('Test error')} reset={() => {}} />);
 
     expect(screen.getByRole('link', { name: 'Home' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(

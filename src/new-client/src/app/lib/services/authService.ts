@@ -1,7 +1,7 @@
 'use server';
+import { UnauthorisedError } from '@types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import UnauthorisedError from '../../auth/unauthorised-error';
 
 const notAuthorised = () => {
   throw new UnauthorisedError();

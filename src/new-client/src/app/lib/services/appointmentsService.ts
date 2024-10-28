@@ -3,9 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import {
   AttributeDefinition,
-  AttributeValue,
   Role,
-  SetAttributes,
+  SetAttributesRequest,
   ApplyAvailabilityTemplateRequest,
   SiteWithAttributes,
   User,
@@ -184,7 +183,7 @@ export const saveUserRoleAssignments = async (
 
 export const saveSiteAttributeValues = async (
   site: string,
-  attributeValues: SetAttributes,
+  attributeValues: SetAttributesRequest,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/attributes`,
@@ -249,7 +248,7 @@ export async function fetchInformationForCitizens(site: string, scope: string) {
 
 export const setSiteInformationForCitizen = async (
   site: string,
-  attributeValues: SetAttributes,
+  attributeValues: SetAttributesRequest,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/attributes`,
@@ -257,6 +256,6 @@ export const setSiteInformationForCitizen = async (
   );
 
   // TODO: Notification?
-  handleBodyResponse(response);
-  revalidatePath(`/site/${site}/information-for-citizens`);
+  handleEmptyResponse(response);
+  revalidatePath(`/site/${site}/details`);
 };

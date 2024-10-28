@@ -17,12 +17,9 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
     ad.id.startsWith('accessibility'),
   );
   const siteDetails = await fetchSite(site.id);
-  const informationForCitizenAttribute =
-    siteDetails === undefined
-      ? ''
-      : siteDetails.attributeValues.find(
-          sa => sa.id === 'site_details/info_for_citizen',
-        );
+  const informationForCitizenAttribute = siteDetails.attributeValues.find(
+    sa => sa.id === 'site_details/info_for_citizen',
+  );
 
   return (
     <>
@@ -63,7 +60,7 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
       )}
 
       <h3>Information for citizens</h3>
-      <p>Instructions to be show to people when they arrive</p>
+      <p>Instructions to be shown to people when they arrive</p>
       {informationForCitizenAttribute ? (
         <p>{informationForCitizenAttribute.value}</p>
       ) : (

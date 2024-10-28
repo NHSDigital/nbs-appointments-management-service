@@ -21,7 +21,7 @@ type AttributeValue = {
   value: string;
 };
 
-type SetAttributes = {
+type SetAttributesRequest = {
   scope: string;
   attributeValues: AttributeValue[];
 };
@@ -95,7 +95,7 @@ export type {
   AttributeValue,
   Role,
   RoleAssignment,
-  SetAttributes,
+  SetAttributesRequest,
   Site,
   SiteWithAttributes,
   User,

@@ -6,7 +6,7 @@ import {
   TextArea,
 } from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
-import { SetAttributes } from '@types';
+import { SetAttributesRequest } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -33,7 +33,7 @@ const AddInformationForCitizensForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetAttributes = {
+    const payload: SetAttributesRequest = {
       scope: 'site_details',
       attributeValues: [
         {
@@ -50,7 +50,7 @@ const AddInformationForCitizensForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup legend="Information for citizen">
+      <FormGroup legend="Information for citizens">
         <div className="nhsuk-form-group">
           <TextArea
             label="What information would you like to include?"

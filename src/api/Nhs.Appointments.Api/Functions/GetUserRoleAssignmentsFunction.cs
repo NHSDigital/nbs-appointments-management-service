@@ -9,13 +9,22 @@ using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
 
 namespace Nhs.Appointments.Api.Functions
 {
     public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger, IMetricsRecorder metricsRecorder)
         : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger, metricsRecorder)
     {
+        [OpenApiOperation(operationId: "Get_GetUserRoleAssignmentsFunction", tags: ["Users"], Summary = "Get all user roles assignments for a site")]
+        [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site to retrieve the user role assignments")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "List of user role assignments for a site")]
+        [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+        [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+        [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
         [RequiresPermission("users:view", typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]
         public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req)

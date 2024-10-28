@@ -7,11 +7,10 @@ using Nhs.Appointments.Core;
 using System.Threading.Tasks;
 using Nhs.Appointments.Api.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.OpenApi.Models;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -19,16 +18,17 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     : SiteBasedResourceFunction<GetSiteMetaDataResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
 
-    [OpenApiOperation(operationId: "GetSiteMetaData", tags: new[] { "Site Configuration" }, Summary = "Get meta data about the site specific to appointments")]    
-    [OpenApiParameter("site", Required = true, Description = "The id of the site to retrieve configuration for")]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/json", typeof(GetSiteMetaDataResponse), Description = "The meta data for the specified site")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The request did not contain a valid site in the query string")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "text/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]    
+    [OpenApiOperation(operationId: "GetSiteMetaData", tags: ["Sites"], Summary = "Get meta data about the site specific to appointments")]
+    [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site to retrieve configuration for")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetSiteMetaDataResponse), Description = "The meta data for the specified site")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The request did not contain a valid site in the query string")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "site/meta")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/meta")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
@@ -41,6 +41,6 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
             throw new System.NotImplementedException();
         }
 
-        return Failed(System.Net.HttpStatusCode.NotFound, "No site configuration was found for the specified site");
+        return Failed(HttpStatusCode.NotFound, "No site configuration was found for the specified site");
     }    
 }

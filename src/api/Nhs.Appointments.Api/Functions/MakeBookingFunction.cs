@@ -10,35 +10,20 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>
-{    
-    private readonly IBookingsService _bookingService;    
-    private readonly IAvailabilityCalculator _availabilityCalculator;
-
-    public MakeBookingFunction(
-        IBookingsService bookingService,         
-        IAvailabilityCalculator availabilityCalculator,
-        IValidator<MakeBookingRequest> validator,
-        IUserContextProvider userContextProvider, 
-        ILogger<MakeBookingFunction> logger,
-        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
-    {
-        _bookingService = bookingService;
-        _availabilityCalculator = availabilityCalculator;
-    }
-
-    [OpenApiOperation(operationId: "MakeBooking", tags: new [] {"Booking"}, Summary = "Make a booking")]
-    [OpenApiRequestBody("text/json", typeof(MakeBookingRequest))]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "text/plain", typeof(MakeBookingResponse), Description = "Booking successfully made")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "text/plain", typeof(string), Description = "Requested site not configured for appointments")]
+public class MakeBookingFunction(IBookingsService bookingService, IAvailabilityCalculator availabilityCalculator, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger)
+    : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger)
+{
+    [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
+    [OpenApiRequestBody("application/json", typeof(MakeBookingRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(MakeBookingResponse), Description = "Booking successfully made")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Requested site not configured for appointments")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:make", typeof(SiteFromBodyInspector))]
     [Function("MakeBookingFunction")]
     public override Task<IActionResult> RunAsync(
@@ -66,7 +51,7 @@ public class MakeBookingFunction : BaseApiFunction<MakeBookingRequest, MakeBooki
         };
 
         
-        var bookingResult = await _bookingService.MakeBooking(requestedBooking);
+        var bookingResult = await bookingService.MakeBooking(requestedBooking);
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 

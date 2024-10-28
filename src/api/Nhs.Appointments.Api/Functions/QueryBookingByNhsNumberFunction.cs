@@ -9,30 +9,21 @@ using Nhs.Appointments.Api.Models;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryBookingByNhsNumberFunction : BaseApiFunction<QueryBookingByNhsNumberRequest, IEnumerable<Booking>>
+public class QueryBookingByNhsNumberFunction(IBookingsService bookingsService, IValidator<QueryBookingByNhsNumberRequest> validator, IUserContextProvider userContextProvider, ILogger<QueryBookingByNhsNumberFunction> logger)
+    : BaseApiFunction<QueryBookingByNhsNumberRequest, IEnumerable<Booking>>(validator, userContextProvider, logger)
 {
-    private readonly IBookingsService _bookingsService;
 
-    public QueryBookingByNhsNumberFunction(
-        IBookingsService bookingsService, 
-        IValidator<QueryBookingByNhsNumberRequest> validator,
-        IUserContextProvider userContextProvider,
-        ILogger<QueryBookingByNhsNumberFunction> logger,
-        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
-    {
-        _bookingsService = bookingsService;
-    }
-
-    [OpenApiOperation(operationId: "QueryBookingByNhsNumber", tags: new [] {"Booking"}, Summary = "Query a booking by Nhs Number")]
+    [OpenApiOperation(operationId: "QueryBookingByNhsNumber", tags: ["Booking"], Summary = "Query bookings by Nhs Number")]
     [OpenApiParameter("nhsNumber", Required = true, In = ParameterLocation.Query, Description = "The nhsNumber of the patients' bookings to retrieve")]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(IEnumerable<Booking>), Description = "The bookings for patient with the provided nhsNumber")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<Booking>), Description = "A list of bookings for patient with the provided nhsNumber")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:query", typeof(NoSiteRequestInspector))]
     [Function("QueryBookingByNhsNumberReference")]
     public override Task<IActionResult> RunAsync(
@@ -43,7 +34,7 @@ public class QueryBookingByNhsNumberFunction : BaseApiFunction<QueryBookingByNhs
 
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingByNhsNumberRequest request, ILogger logger)
     {
-        var booking = await _bookingsService.GetBookingByNhsNumber(request.nhsNumber);
+        var booking = await bookingsService.GetBookingByNhsNumber(request.nhsNumber);
         return Success(booking);
     }
 

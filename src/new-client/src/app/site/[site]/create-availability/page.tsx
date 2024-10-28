@@ -1,5 +1,6 @@
-import { fetchSite } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
+import { CreateAvailabilityPage } from './create-availability-page';
+import { assertPermission, fetchSite } from '@services/appointmentsService';
 
 type PageProps = {
   params: {
@@ -9,18 +10,19 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
+
+  await assertPermission(site.id, 'availability:set-setup');
 
   return (
     <NhsPage
-      title="Create Availability"
+      title="Availability periods"
+      caption={site.name}
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
       ]}
     >
-      {/* This will be covered in APPT-240 */}
-      <span></span>
+      <CreateAvailabilityPage site={site} />
     </NhsPage>
   );
 };

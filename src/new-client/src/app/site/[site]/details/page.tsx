@@ -1,5 +1,9 @@
 import NhsPage from '@components/nhs-page';
-import { fetchPermissions, fetchSite } from '@services/appointmentsService';
+import {
+  assertAllPermissions,
+  fetchPermissions,
+  fetchSite,
+} from '@services/appointmentsService';
 import SiteDetailsPage from './site-details-page';
 
 export type PageProps = {
@@ -10,20 +14,20 @@ export type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
-  const siteMoniker = site?.name ?? `Site ${params.site}`;
-
-  // This check will be unnecessary after Appt-202 is merged
-  if (site === undefined) {
-    throw new Error('Site not found');
-  }
 
   const sitePermissions = await fetchPermissions(params.site);
+
+  await assertAllPermissions(site.id, [
+    'site:get-config',
+    'site:get-meta-data',
+  ]);
+
   return (
     <NhsPage
       title="Site details"
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: siteMoniker, href: `/site/${params.site}` },
+        { name: site.name, href: `/site/${params.site}` },
       ]}
     >
       <SiteDetailsPage site={site} permissions={sitePermissions} />

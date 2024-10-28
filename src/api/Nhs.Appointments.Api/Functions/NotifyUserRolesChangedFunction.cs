@@ -10,13 +10,13 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class NotifyUserRolesChangedFunction(IMessageReceiver receiver)
 {
-    const string UserRolesChangedQueueName = "user-roles-changed";
+    public const string QueueName = "user-roles-changed";
 
     [Function("NotifyUserRolesChanged")]
     [AllowAnonymous]
-    public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(UserRolesChangedQueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+    public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
-        return receiver.HandleConsumer<UserRolesChangedConsumer>(UserRolesChangedQueueName, message, cancellationToken);
+        return receiver.HandleConsumer<UserRolesChangedConsumer>(QueueName, message, cancellationToken);
     }
 }
 

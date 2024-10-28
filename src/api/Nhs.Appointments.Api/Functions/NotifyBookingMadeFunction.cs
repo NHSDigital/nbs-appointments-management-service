@@ -10,14 +10,12 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class NotifyBookingMadeFunction(IMessageReceiver receiver)
 {
-    const string BookingMadeQueueName = "booking-made";
+    public const string QueueName = "booking-made";
 
     [Function("NotifyBookingMade")]
     [AllowAnonymous]
-    public Task NotifyBookingMadeAsync([ServiceBusTrigger(BookingMadeQueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+    public Task NotifyBookingMadeAsync([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
-        return receiver.HandleConsumer<BookingMadeConsumer>(BookingMadeQueueName, message, cancellationToken);
+        return receiver.HandleConsumer<BookingMadeConsumer>(QueueName, message, cancellationToken);
     }
 }
-
-

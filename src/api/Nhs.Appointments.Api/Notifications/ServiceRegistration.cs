@@ -15,13 +15,16 @@ public static class ServiceRegistration
         var userNotificationsProvider = Environment.GetEnvironmentVariable("Notifications_Provider");
 
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
-                .AddTransient<IBookingMadeNotifier, BookingMadeNotifier>();
+                .AddTransient<IBookingMadeNotifier, BookingNotifier>()
+                .AddTransient<IBookingReminderNotifier, BookingNotifier>()
+                .AddScoped<NotifyBookingReminderFunction>();
 
         if (userNotificationsProvider == "local")
         {
             services
                 .AddScoped<IConsumer<UserRolesChanged>, UserRolesChangedConsumer>()
                 .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
+                .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
                 .AddScoped<ISendNotifications, FakeNotificationClient>();
         }
@@ -32,11 +35,14 @@ public static class ServiceRegistration
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()
                 .AddScoped<NotifyBookingMadeFunction>()
+                .AddScoped<ScheduledBookingRemindersFunction>()
                 .AddMassTransitForAzureFunctions(cfg =>
                 {
-                    EndpointConvention.Map<UserRolesChanged>(new Uri("queue:user-roles-changed"));
-                    EndpointConvention.Map<BookingMade>(new Uri("queue:booking-made"));
+                    EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
+                    EndpointConvention.Map<BookingMade>(new Uri($"queue:{NotifyBookingMadeFunction.QueueName}"));
+                    EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
                     cfg.AddConsumer<UserRolesChangedConsumer>();
+                    cfg.AddConsumer<BookingReminderConsumer>();
                     cfg.AddConsumer<BookingMadeConsumer>();
                 },
                 connectionStringConfigurationKey: "ServiceBusConnectionString");

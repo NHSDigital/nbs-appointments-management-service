@@ -106,7 +106,7 @@ public class AvailabilityCalculatorTests
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "ABC01")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
@@ -135,7 +135,7 @@ public class AvailabilityCalculatorTests
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "ABC01")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
@@ -165,7 +165,7 @@ public class AvailabilityCalculatorTests
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "ABC01")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
@@ -194,7 +194,7 @@ public class AvailabilityCalculatorTests
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
-        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync("ABC01", It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(bookings);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "ABC01")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 

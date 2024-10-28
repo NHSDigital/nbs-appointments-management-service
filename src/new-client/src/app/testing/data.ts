@@ -112,6 +112,7 @@ const mockSiteWithAttributes: SiteWithAttributes = {
   name: mockSites[0].name,
   attributeValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
+    { id: 'accessibility/attr_1', value: 'true' },
   ],
 };
 

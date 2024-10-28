@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
@@ -12,13 +11,13 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 [FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
 public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
 {
-    [When("I request site details for site '(.+)'")]
-    public async Task RequestSites(string siteDesignation)
+    [When("I request site details for site '(.+)' with the scope '(.+)'")]
+    public async Task RequestSites(string siteDesignation, string scope)
     {
         var siteId = GetSiteId(siteDesignation);
-        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
+        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}?scope={scope}");
     }
-    
+
     [Then("the correct site is returned")]
     public async Task Assert(Gherkin.Ast.DataTable dataTable)
     {

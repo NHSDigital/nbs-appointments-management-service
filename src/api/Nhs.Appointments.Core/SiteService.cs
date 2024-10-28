@@ -30,7 +30,7 @@ public class SiteService(ISiteStore siteStore) : ISiteService
         if (scope == "*")
             return site;
 
-        site.AttributeValues = site.AttributeValues.Where(a => a.Id.StartsWith(scope));
+        site.AttributeValues = site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
     }

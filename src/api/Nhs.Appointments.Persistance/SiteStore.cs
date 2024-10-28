@@ -46,9 +46,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
         var documentType = cosmosStore.GetDocumentType();
         var originalAttributes = originalDocument.AttributeValues;
-        var newAttributes = originalAttributes
-            .Where(a => !a.Id.Contains(scope))
-            .Concat(attributeValues);
+        var newAttributes = scope == "*"
+            ? attributeValues
+            : originalAttributes
+                .Where(a => !a.Id.Contains(scope))
+                .Concat(attributeValues);
         var siteDocumentPatch = PatchOperation.Add("/attributeValues", newAttributes);
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);

@@ -7,7 +7,7 @@ import {
   fetchUsers,
 } from '@services/appointmentsService';
 import { notFound, redirect } from 'next/navigation';
-import { notAuthorised } from '@services/authService';
+import { notAuthorized } from '@services/authService';
 
 export type UserPageProps = {
   params: {
@@ -34,7 +34,7 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
 
   const userProfile = await fetchUserProfile();
   if (userProfile.emailAddress === searchParams?.user) {
-    notAuthorised();
+    notAuthorized();
   }
 
   return (

@@ -10,7 +10,7 @@ parameters:
     default: ["dev", "int"]
 
 variables:
-  azure_devops_service_connection_name: "nbs-mya-rg-dev"
+  serviceConnectionName: "nbs-mya-rg-dev"
 
 stages:
   - stage: Build
@@ -120,14 +120,14 @@ stages:
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
@@ -190,7 +190,7 @@ stages:
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
@@ -202,5 +202,5 @@ stages:
           variable_group: nbs-mya-${{env}}
           apiServerName: nbs-mya-func-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
-          azure_devops_service_connection_name: nbs-mya-rg-${{env}}
+          serviceConnectionName: nbs-mya-rg-${{env}}
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

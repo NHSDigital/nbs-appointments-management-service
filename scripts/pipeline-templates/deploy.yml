@@ -7,7 +7,7 @@
     type: string
   - name: webServerName
     type: string
-  - name: azure_devops_service_connection_name
+  - name: serviceConnectionName
     type: string
   - name: isMain
     type: string
@@ -38,7 +38,7 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               addSpnToEnvironment: true
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: ${{parameters.serviceConnectionName}}
               inlineScript: |
                 $env:ARM_CLIENT_ID=$env:servicePrincipalId
                 $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
@@ -80,7 +80,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: inlineScript
                     addSpnToEnvironment: true
-                    azureSubscription: ${{parameters.azure_devops_service_connection_name}}
+                    azureSubscription: ${{parameters.serviceConnectionName}}
                     inlineScript: |
                       $env:ARM_CLIENT_ID=$env:servicePrincipalId
                       $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
@@ -104,7 +104,7 @@ stages:
           - task: AzureWebApp@1
             displayName: "Deploy Web App"
             inputs:
-              azureSubscription: $(azure_devops_service_connection_name)
+              azureSubscription: ${{parameters.serviceConnectionName}}
               appType: "webAppLinux"
               appName: ${{parameters.webServerName}}
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
@@ -125,7 +125,7 @@ stages:
           - task: AzureFunctionApp@2
             displayName: Deploy Api
             inputs:
-              connectedServiceNameARM: $(azure_devops_service_connection_name)
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
               appType: "functionApp"
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"

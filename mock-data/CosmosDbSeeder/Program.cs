@@ -37,10 +37,10 @@ class Program
         {
             await DeleteContainers(container.Name);
             await AddItemsToContainerAsync(container.Name, container.PartitionKey);
-        }        
+        }
 
         Console.WriteLine("Database seeded successfully");
-    }    
+    }
 
     private static async Task<Database> CreateDatabaseAsync(string? databaseId)
     {

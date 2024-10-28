@@ -58,12 +58,12 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
         var response = new QueryAvailabilityResponse();
         var requestFrom = request.FromDate;
         var requestUntil = request.UntilDate;
-        
+
         await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
         {
             var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
             concurrentResults.Add(siteAvailability);
-        });        
+        });
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

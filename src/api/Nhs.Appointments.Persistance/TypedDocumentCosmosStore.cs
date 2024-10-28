@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -23,7 +22,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         _cosmosClient = cosmosClient;
         _mapper = mapper;
         _documentType = new Lazy<string>(GetDocumentType);
-        _databaseName = options.Value.DatabaseName;        
+        _databaseName = options.Value.DatabaseName;
 
         var cosmosDocumentAttribute = typeof(TDocument).GetCustomAttribute<CosmosDocumentAttribute>(true);
         if (cosmosDocumentAttribute == null)

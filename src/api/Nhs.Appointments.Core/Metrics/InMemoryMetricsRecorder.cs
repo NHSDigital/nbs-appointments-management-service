@@ -1,8 +1,8 @@
 ﻿public class InMemoryMetricsRecorder : IMetricsRecorder
 {
     private Stack<string> _scopeStack = new Stack<string>();
-
     private List<(string Path, double Value)> _metrics = new List<(string Path, double Value)>();
+
     public void RecordMetric(string name, double value)
     {
         var scopedName = string.Join("/", _scopeStack.Reverse().Concat(new[] { name }));

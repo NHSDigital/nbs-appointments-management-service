@@ -15,15 +15,11 @@ const fetchInformationForCitizensMock =
   fetchInformationForCitizens as jest.Mock<Promise<AttributeValue[]>>;
 
 jest.mock('./add-information-for-citizens-form', () => {
-  const MockForm = ({
-    informationForCitizen,
-  }: {
-    informationForCitizen: string;
-  }) => {
+  const MockForm = ({ information }: { information: string }) => {
     return (
       <>
         <div>Add information for citizen form</div>
-        <p>{informationForCitizen}</p>
+        <text>{information}</text>
       </>
     );
   };
@@ -73,6 +69,6 @@ describe('Manage Information For Citizen Form', () => {
     });
     render(jsx);
 
-    expect(screen.getByText('test')).toBeVisible();
+    expect(screen.getByText('Test information')).toBeVisible();
   });
 });

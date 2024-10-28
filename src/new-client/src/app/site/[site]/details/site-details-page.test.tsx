@@ -66,9 +66,9 @@ describe('Manage Attributes Page', () => {
     });
     render(jsx);
 
-    expect(screen.getByRole('link', { name: 'Go back' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toBeVisible();
 
-    expect(screen.getByRole('link', { name: 'Go back' })).toHaveAttribute(
+    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toHaveAttribute(
       'href',
       `/site/${mockSite.id}`,
     );

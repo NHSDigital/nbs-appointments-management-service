@@ -8,12 +8,12 @@ class MyaError extends Error {
   }
 }
 
-class UnauthorisedError extends MyaError {
+class UnauthorizedError extends MyaError {
   constructor() {
-    super('Unauthorised', 'UnauthorizedError');
+    super('Unauthorized', 'UnauthorizedError');
   }
 }
 
-export { MyaError, UnauthorisedError };
+export { MyaError, UnauthorizedError };
 export default MyaError;
 export type ErrorType = 'UnauthorizedError' | 'Error';

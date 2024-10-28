@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import render from '@testing/render';
 import ErrorPage from './error';
-import { MyaError, UnauthorisedError } from '@types';
+import { MyaError, UnauthorizedError } from '@types';
 
 describe('Error Page', () => {
   it('renders', () => {
@@ -18,7 +18,7 @@ describe('Error Page', () => {
   });
 
   it('shows a different title if the error was a 403', async () => {
-    render(<ErrorPage error={new UnauthorisedError()} reset={() => {}} />);
+    render(<ErrorPage error={new UnauthorizedError()} reset={() => {}} />);
     expect(
       screen.getByRole('heading', {
         name: 'You cannot access this page',

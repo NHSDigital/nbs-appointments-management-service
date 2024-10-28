@@ -1,10 +1,10 @@
 'use server';
-import { UnauthorisedError } from '@types';
+import { UnauthorizedError } from '@types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const notAuthorised = () => {
-  throw new UnauthorisedError();
+const notAuthorized = () => {
+  throw new UnauthorizedError();
 };
 
 const notAuthenticated = () => {
@@ -15,4 +15,4 @@ const notAuthenticated = () => {
   );
 };
 
-export { notAuthorised, notAuthenticated };
+export { notAuthorized, notAuthenticated };

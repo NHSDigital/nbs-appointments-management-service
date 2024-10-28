@@ -1,4 +1,4 @@
-import MyaError, { UnauthorisedError, ErrorType } from './mya-error';
+import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
   success: false;
@@ -99,4 +99,4 @@ export type {
   UserProfile,
 };
 
-export { MyaError, UnauthorisedError };
+export { MyaError, UnauthorizedError };

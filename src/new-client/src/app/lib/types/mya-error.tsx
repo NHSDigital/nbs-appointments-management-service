@@ -16,5 +16,4 @@ class UnauthorisedError extends MyaError {
 
 export { MyaError, UnauthorisedError };
 export default MyaError;
-
-type ErrorType = 'UnauthorizedError' | 'Error';
+export type ErrorType = 'UnauthorizedError' | 'Error';

@@ -1,7 +1,7 @@
 'use client';
 import ContactUs from '@components/contact-us';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
-import { MyaError } from '@types';
+import { ErrorType, MyaError } from '@types';
 
 export default function Error({
   error,
@@ -9,7 +9,7 @@ export default function Error({
   error: MyaError;
   reset: () => void;
 }) {
-  if (error.digest === 'UnauthorizedDigest') {
+  if ((error.digest as ErrorType) === 'UnauthorizedError') {
     return (
       <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
         <p>This might be because: </p>

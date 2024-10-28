@@ -1,4 +1,4 @@
-import MyaError, { UnauthorisedError } from './mya-error';
+import MyaError, { UnauthorisedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
   success: false;
@@ -90,6 +90,7 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  ErrorType,
   Role,
   RoleAssignment,
   Site,

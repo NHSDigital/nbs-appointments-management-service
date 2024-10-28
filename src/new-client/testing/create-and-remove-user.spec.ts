@@ -106,6 +106,7 @@ test('Can remove a user', async ({ newUserName }) => {
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
+  await userManagementPage.page.waitForURL('**/site/ABC01/users');
   await userManagementPage.userExists(newUserName);
 
   await userManagementPage.page
@@ -137,6 +138,7 @@ test('Displays a notification banner after removing a user, which disappears whe
   await userManagementPage.searchUserButton.click();
   await userManagementPage.selectRole('Check-in');
   await userManagementPage.confirmAndSaveButton.click();
+  await userManagementPage.page.waitForURL('**/site/ABC01/users');
 
   await userManagementPage.page
     .getByRole('row')

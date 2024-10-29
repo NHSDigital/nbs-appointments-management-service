@@ -15,12 +15,8 @@ using System.Web.Http;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> validator, IUserContextProvider userContextProvider, ILogger logger)
+public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> validator, IUserContextProvider userContextProvider, ILogger logger, IMetricsRecorder metricsRecorder)
 {
-    private readonly IUserContextProvider _userContextProvider = userContextProvider;
-    private readonly IValidator<TRequest> _validator =validator;
-    private readonly ILogger _logger = logger;    
-    
     public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
         try
@@ -33,7 +29,14 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
             if (validationErrors.Any())
                 return ProblemResponse(HttpStatusCode.BadRequest, validationErrors);
 
-            var response = await HandleRequest(request, _logger);
+            ApiResult<TResponse> response;
+            using (metricsRecorder.BeginScope(GetType().Name))
+            {
+                response = await HandleRequest(request, logger);
+            }
+
+            WriteMetricsToConsole();
+
             if (response.IsSuccess)
             {
                 if (response.ResponseObject is EmptyResponse)
@@ -47,7 +50,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            logger.LogError(ex, ex.Message);
             return new InternalServerErrorResult();
         }
     }    
@@ -56,7 +59,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {
-        var validationResult = await _validator.ValidateAsync(request);
+        var validationResult = await validator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
             return
@@ -82,6 +85,17 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
         return ProblemResponse(status, error);
     }
 
+    private void WriteMetricsToConsole()
+    {
+        if (metricsRecorder.Metrics != null)
+        {
+            foreach (var metric in metricsRecorder.Metrics)
+            {
+                Console.WriteLine(metric.Path + ": " + metric.Value);
+            }
+        }
+    }
+
     protected ApiResult<TResponse> Success(TResponse response) => ApiResult<TResponse>.Success(response);
 
     protected ApiResult<TResponse> Failed(HttpStatusCode status, string message) => ApiResult<TResponse>.Failed(status, message);
@@ -90,5 +104,5 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
 
     protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger);
 
-    protected ClaimsPrincipal Principal => _userContextProvider.UserPrincipal;
+    protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
 }

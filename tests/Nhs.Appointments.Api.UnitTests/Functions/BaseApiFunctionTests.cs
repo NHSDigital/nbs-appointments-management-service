@@ -17,10 +17,10 @@ public class BaseApiFunctionTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<string>> _validator = new();    
     private readonly TestLogger _logger = new();
-
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     public BaseApiFunctionTests()
     {
-        _sut = new TestableBaseApiFunction(_validator.Object, _userContextProvider.Object, _logger);
+        _sut = new TestableBaseApiFunction(_validator.Object, _userContextProvider.Object, _logger, _metricsRecorder.Object);
     }
     
     [Fact]
@@ -165,7 +165,8 @@ internal class TestableBaseApiFunction : BaseApiFunction<string, string>
     public TestableBaseApiFunction(
         IValidator<string> validator,
         IUserContextProvider userContextProvider,
-        ILogger logger) : base(validator, userContextProvider, logger)
+        ILogger logger,
+        IMetricsRecorder metricsRecorder) : base(validator, userContextProvider, logger, metricsRecorder)
     {
     }
 

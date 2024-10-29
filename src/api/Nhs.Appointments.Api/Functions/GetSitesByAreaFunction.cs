@@ -17,8 +17,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesByAreaRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger)
-    : BaseApiFunction<GetSitesByAreaRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger)
+public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSitesByAreaRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesByAreaFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<GetSitesByAreaRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetSitesByArea", tags: ["Sites"], Summary = "Get sites within a specified area from a given location")]
     [OpenApiParameter("longitude", In = ParameterLocation.Query, Required = true, Type = typeof(double), Description = "The longitude value of the search location")]

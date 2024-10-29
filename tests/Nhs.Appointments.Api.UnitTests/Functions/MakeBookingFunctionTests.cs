@@ -19,14 +19,14 @@ public class MakeBookingFunctionTests
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly MakeBookingFunction _sut;
     private readonly Mock<IBookingsService> _bookingService = new();
-    private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _availabilityCalculator.Object,  _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new MakeBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -34,9 +34,7 @@ public class MakeBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenAppointmentIsRequested()
     {
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());        
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));        
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
         var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
@@ -51,9 +49,6 @@ public class MakeBookingFunctionTests
     public async Task RunAsync_ReturnsError_WhenAppointmentSlotIsNotAvailable()
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
-
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
         
         var request = CreateRequest("1001", "2077-01-01 09:30", "COVID","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
 
@@ -67,9 +62,6 @@ public class MakeBookingFunctionTests
     public void RunAsync_InvokesBookingService_WithCorrectDetails()
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
-
-        _availabilityCalculator.Setup(x => x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
         
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         

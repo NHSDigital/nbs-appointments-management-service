@@ -14,7 +14,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class TriggerBookingRemindersFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger) : BaseApiFunction<EmptyRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class TriggerBookingRemindersFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger, IMetricsRecorder metricsRecorder) : BaseApiFunction<EmptyRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
 
     [OpenApiOperation(operationId: "TriggerBookingReminders", tags: ["System"], Summary = "Utility function to manually trigger reminder notifications for bookings")]

@@ -6,7 +6,7 @@ import SiteSelectionPage from './page-objects/site-selection';
 import SitePage from './page-objects/site';
 import UsersPage from './page-objects/users';
 import UserManagementPage from './page-objects/user-management';
-import NotAuthorisedPage from './page-objects/unauthorised';
+import NotAuthorizedPage from './page-objects/unauthorized';
 
 const { TEST_USERS } = env;
 
@@ -16,7 +16,7 @@ let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
-let notAuthorisedPage: NotAuthorisedPage;
+let notAuthorizedPage: NotAuthorizedPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
   sitePage = new SitePage(page);
   usersPage = new UsersPage(page);
   userManagementPage = new UserManagementPage(page);
-  notAuthorisedPage = new NotAuthorisedPage(page);
+  notAuthorizedPage = new NotAuthorizedPage(page);
 });
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async () => {
@@ -79,11 +79,11 @@ test('Navigating straight to the user management page displays an appropriate er
 
   await page.goto('/site/ABC01/users');
   await expect(usersPage.emailColumn).not.toBeVisible();
-  await expect(notAuthorisedPage.title).toBeVisible();
+  await expect(notAuthorizedPage.title).toBeVisible();
 
   await page.goto('/site/ABC01/users/manage');
   await expect(userManagementPage.emailInput).not.toBeVisible();
-  await expect(notAuthorisedPage.title).toBeVisible();
+  await expect(notAuthorizedPage.title).toBeVisible();
 });
 
 test('permissions are applied per site', async () => {

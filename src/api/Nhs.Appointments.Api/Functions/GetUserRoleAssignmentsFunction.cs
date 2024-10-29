@@ -16,8 +16,8 @@ using Microsoft.OpenApi.Models;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger)
-        : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger)
+    public class GetUserRoleAssignmentsFunction(IUserService userService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserRoleAssignmentsFunction> logger, IMetricsRecorder metricsRecorder)
+        : SiteBasedResourceFunction<IEnumerable<User>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [OpenApiOperation(operationId: "Get_GetUserRoleAssignmentsFunction", tags: ["Users"], Summary = "Get all user roles assignments for a site")]
         [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site to retrieve the user role assignments")]

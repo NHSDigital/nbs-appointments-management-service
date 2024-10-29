@@ -1,17 +1,15 @@
 'use client';
 import ContactUs from '@components/contact-us';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
+import { ErrorType, MyaError } from '@types';
 
 export default function Error({
   error,
 }: {
-  error: Error & { digest?: string };
+  error: MyaError;
   reset: () => void;
 }) {
-  // TODO: write error.digest to application insights?
-  // console.dir(error.digest);
-
-  if (error.message === 'Forbidden: You lack the necessary permissions') {
+  if ((error.digest as ErrorType) === 'UnauthorizedError') {
     return (
       <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
         <p>This might be because: </p>

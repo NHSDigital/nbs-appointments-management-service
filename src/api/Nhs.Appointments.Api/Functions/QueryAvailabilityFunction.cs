@@ -17,8 +17,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger)
-    : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger)
+public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by days, hours or slots")]
     [OpenApiRequestBody("application/json", typeof(QueryAvailabilityRequest),Required = true)]

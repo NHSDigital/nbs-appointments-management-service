@@ -21,10 +21,11 @@ public class RemoveUserFunctionTests
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<RemoveUserFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public RemoveUserFunctionTests()
     {
-        _sut = new RemoveUserFunction(_userService.Object,  new RemoveUserRequestValidator(), _userContextProvider.Object, _logger.Object);
+        _sut = new RemoveUserFunction(_userService.Object,  new RemoveUserRequestValidator(), _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
     }
 
     [Fact]

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import NhsLogo from './icons/nhs-logo';
+import NhsLogo from '@components/nhsuk-frontend/icons/nhs-logo';
 import { ReactNode } from 'react';
 
 type Props = {

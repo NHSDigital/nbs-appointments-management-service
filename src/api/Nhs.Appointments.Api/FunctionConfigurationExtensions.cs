@@ -33,8 +33,7 @@ public static class FunctionConfigurationExtensions
                     Info = new OpenApiInfo()
                     {
                         Version = "0.0.1",
-                        Title = "NHS Appointment Book API",
-                        Description = "NHS Appointment Book API",
+                        Title = "Manage Your Appointment API"
                     },
                     Servers = DefaultOpenApiConfigurationOptions.GetHostNames(),
                     OpenApiVersion = OpenApiVersionType.V2,
@@ -68,6 +67,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()            
             .AddSingleton(TimeProvider.System)
+            .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 

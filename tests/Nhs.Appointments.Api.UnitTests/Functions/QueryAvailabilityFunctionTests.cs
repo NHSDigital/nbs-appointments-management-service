@@ -12,6 +12,7 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -25,6 +26,7 @@ public class QueryAvailabilityFunctionTests
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<QueryAvailabilityFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public QueryAvailabilityFunctionTests()
     {
@@ -33,7 +35,8 @@ public class QueryAvailabilityFunctionTests
                 _validator.Object, 
             _availabilityGrouperFactory.Object, 
             _userContextProvider.Object,
-            _logger.Object);
+            _logger.Object,
+            _metricsRecorder.Object);
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))
             .Returns(_availabilityGrouper.Object);

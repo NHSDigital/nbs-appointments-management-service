@@ -3,17 +3,14 @@
 import { redirect } from 'next/navigation';
 import { headers, cookies } from 'next/headers';
 
-async function redirectToIdServer(currentPage?: string) {
+async function redirectToIdServer(redirectUrl: string) {
   const idServerEndpoint = `${process.env.AUTH_HOST}/api/authenticate`;
 
   const host = headers().get('host');
   const protocol = host?.includes('localhost') ? 'http' : 'https';
   const routeHandlerToInvokeOnReturn = `${protocol}://${host}/auth/set-cookie`;
 
-  const previousPage = currentPage ?? headers().get('referer');
-  if (previousPage !== null) {
-    cookies().set('previousPage', previousPage);
-  }
+  cookies().set('previousPage', redirectUrl);
 
   return redirect(
     `${idServerEndpoint}?redirect_uri=${routeHandlerToInvokeOnReturn}`,

@@ -19,11 +19,12 @@ public class GetUserPermissionsFunctionTests
     private readonly Mock<IPermissionChecker> _permissionChecker = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetUserPermissionsFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly GetUserPermissionsFunction _sut;
     
     public GetUserPermissionsFunctionTests()
     {
-        _sut = new GetUserPermissionsFunction(_permissionChecker.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetUserPermissionsFunction(_permissionChecker.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

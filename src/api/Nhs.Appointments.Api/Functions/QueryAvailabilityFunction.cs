@@ -12,34 +12,20 @@ using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>
-{    
-    private readonly IAvailabilityCalculator _availabilityCalculator;
-    private readonly IAvailabilityGrouperFactory _availabilityGrouperFactory;
-    
-    public QueryAvailabilityFunction(
-        IAvailabilityCalculator availabilityCalculator, 
-         IValidator<QueryAvailabilityRequest> validator,
-        IAvailabilityGrouperFactory availabilityGrouperFactory,
-        IUserContextProvider userContextProvider,
-        ILogger<QueryAvailabilityFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _availabilityCalculator = availabilityCalculator;
-        _availabilityGrouperFactory = availabilityGrouperFactory;
-    }
-
-    [OpenApiOperation(operationId: "QueryAvailability", tags: new [] {"Appointment Availability"}, Summary = "Query appointment availability")]
-    [OpenApiRequestBody("text/json", typeof(QueryAvailabilityRequest),Required = true)]
-    [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, contentType: "text/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, contentType: "text/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger, metricsRecorder)
+{
+    [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by days, hours or slots")]
+    [OpenApiRequestBody("application/json", typeof(QueryAvailabilityRequest),Required = true)]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("availability:query", typeof(NoSiteRequestInspector))]
     [Function("QueryAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
@@ -67,14 +53,14 @@ public class QueryAvailabilityFunction : BaseApiFunction<QueryAvailabilityReques
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
     {
-        var slots = (await _availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
+        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;
         while (day <= until)
         {
             var slotsForDay = slots.Where(b => day == DateOnly.FromDateTime(b.From));
-            var availabilityGrouper = _availabilityGrouperFactory.Create(queryType);
+            var availabilityGrouper = availabilityGrouperFactory.Create(queryType);
             var groupedBlocks = availabilityGrouper.GroupAvailability(slotsForDay);
             availability.Add(new QueryAvailabilityResponseInfo(day, groupedBlocks));
             day = day.AddDays(1);

@@ -8,6 +8,7 @@ import UsersPage from './page-objects/users';
 import UserManagementPage from './page-objects/user-management';
 import ConfirmRemoveUserPage from './page-objects/confirm-remove-user';
 import NotFoundPage from './page-objects/not-found';
+import NotAuthorizedPage from './page-objects/unauthorized';
 
 const { TEST_USERS } = env;
 
@@ -19,6 +20,7 @@ let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
 let confirmRemoveUserPage: ConfirmRemoveUserPage;
 let notFoundPage: NotFoundPage;
+let notAuthorizedPage: NotAuthorizedPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -29,6 +31,7 @@ test.beforeEach(async ({ page }) => {
   userManagementPage = new UserManagementPage(page);
   confirmRemoveUserPage = new ConfirmRemoveUserPage(page);
   notFoundPage = new NotFoundPage(page);
+  notAuthorizedPage = new NotAuthorizedPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -103,6 +106,7 @@ test('Can remove a user', async ({ newUserName }) => {
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
+  await userManagementPage.page.waitForURL('**/site/ABC01/users');
   await userManagementPage.userExists(newUserName);
 
   await userManagementPage.page
@@ -134,6 +138,7 @@ test('Displays a notification banner after removing a user, which disappears whe
   await userManagementPage.searchUserButton.click();
   await userManagementPage.selectRole('Check-in');
   await userManagementPage.confirmAndSaveButton.click();
+  await userManagementPage.page.waitForURL('**/site/ABC01/users');
 
   await userManagementPage.page
     .getByRole('row')
@@ -158,15 +163,12 @@ test('Displays a notification banner after removing a user, which disappears whe
 test('Receives 403 error when trying to remove self', async ({ page }) => {
   await page.goto(`/site/ABC01/users/remove?user=zzz_test_user_1@nhs.net`);
 
-  await expect(
-    page.getByText('Forbidden: You lack the necessary permissions'),
-  ).toBeVisible();
+  await expect(notAuthorizedPage.title).toBeVisible();
 });
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
   await page.goto(`/site/ABC01/users/remove?user=not-a-user`);
 
   await expect(notFoundPage.title).toBeVisible();
-  await expect(notFoundPage.warningCalloutHeading).toBeVisible();
-  await expect(notFoundPage.warningCalloutText).toBeVisible();
+  await expect(notFoundPage.notFoundMessageText).toBeVisible();
 });

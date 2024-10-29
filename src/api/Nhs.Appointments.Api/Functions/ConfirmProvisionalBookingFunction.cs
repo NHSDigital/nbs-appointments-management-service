@@ -15,20 +15,12 @@ using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ConfirmProvisionalBookingFunction : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>
-{
-    private readonly IBookingsService _bookingService;
-    private readonly IAvailabilityCalculator _availabilityCalculator;
-
-    public ConfirmProvisionalBookingFunction(
-        IBookingsService bookingService,
+public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         IValidator<ConfirmBookingRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<MakeBookingFunction> logger) : base(validator, userContextProvider, logger)
-    {
-        _bookingService = bookingService;
-    }
-
+        ILogger<MakeBookingFunction> logger) : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger)
+{
+    
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: [ "Booking" ], Summary = "Confirm a provisional booking")]
     [OpenApiSecurity("Api Key", SecuritySchemeType.ApiKey, Name = "Authorization", In = OpenApiSecurityLocationType.Header)]
     [RequiresPermission("booking:make", typeof(SiteFromPathInspector))]
@@ -41,7 +33,7 @@ public class ConfirmProvisionalBookingFunction : BaseApiFunction<ConfirmBookingR
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var success = await _bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
+        var success = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
 
         if (success)
         {

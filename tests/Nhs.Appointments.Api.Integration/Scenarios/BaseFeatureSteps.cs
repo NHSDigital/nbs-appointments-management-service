@@ -134,17 +134,38 @@ public abstract class BaseFeatureSteps : Feature
     }
 
     [And(@"the following bookings have been made for site '(\w)'")]
-    public async Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+    public Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+    {
+        return SetupBookings(siteDesignation, dataTable, BookingType.Confirmed);
+    }
+
+    [Given("the following provisional bookings have been made")]
+    [And("the following provisional bookings have been made")]
+    public Task SetupProvisionalBookings(Gherkin.Ast.DataTable dataTable)
+    {
+        return SetupBookings("A", dataTable, BookingType.Provisional);
+    }
+
+    [Given("the following expired provisional bookings have been made")]
+    [And("the following expired provisional bookings have been made")]
+    public Task SetupExpiredProvisionalBookings(Gherkin.Ast.DataTable dataTable)
+    {
+        return SetupBookings("A", dataTable, BookingType.ExpiredProvisional);
+    }
+
+    protected async Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) => new BookingDocument
         {
-            Id = GetBookingReference(index.ToString()),
+            Id = GetBookingReference(index.ToString(), bookingType),
             DocumentType = "booking",
-            Reference = GetBookingReference(index.ToString()),
+            Reference = GetBookingReference(index.ToString(), bookingType),
             From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
+            Provisional = bookingType != BookingType.Confirmed,
+            Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
             AttendeeDetails = new Core.AttendeeDetails
             {
                 NhsNumber = NhsNumber,
@@ -162,11 +183,14 @@ public abstract class BaseFeatureSteps : Feature
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select(
             (row, index) => new BookingIndexDocument
             {
-                Reference = GetBookingReference(index.ToString()),
+                Reference = GetBookingReference(index.ToString(), bookingType),
                 Site = GetSiteId(),
                 DocumentType = "booking_index",
-                Id = GetBookingReference(index.ToString()),
-                NhsNumber = NhsNumber
+                Id = GetBookingReference(index.ToString(), bookingType),
+                NhsNumber = NhsNumber,
+                Provisional = bookingType != BookingType.Confirmed,
+                Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
+                From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
         foreach (var booking in bookings)
@@ -201,7 +225,7 @@ public abstract class BaseFeatureSteps : Feature
     protected string GetTestId => $"{_testId}";
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
-    protected string GetBookingReference(string index = "0") => $"{BookingReference}-{index}";
+    protected string GetBookingReference(string index = "0", BookingType bookingType = BookingType.Confirmed) => bookingType == BookingType.Confirmed ? $"{BookingReference}-{index}" : $"{BookingReference}-{index}p";
 
     private async Task SetUpRoles()
     {
@@ -295,4 +319,6 @@ public abstract class BaseFeatureSteps : Feature
         }
         return results;
     }
+
+    public enum BookingType { Confirmed, Provisional, ExpiredProvisional}
 }

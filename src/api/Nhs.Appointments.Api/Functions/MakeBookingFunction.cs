@@ -11,7 +11,6 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Auth;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Nhs.Appointments.Api.Functions;
 

@@ -5,18 +5,21 @@ using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder) : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time) : IBookingsDocumentStore
 {
     private const int PointReadLimit = 3;    
            
-    public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        return bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
+        {
+            return await bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        }
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, bool provisional = false)
     {
-        var bookingIndexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
         var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -49,7 +52,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
-        var grouped = bookingIndexDocuments.GroupBy(bi => bi.Site);
+        var grouped = bookingIndexDocuments.Where(bi => bi.Provisional == false).GroupBy(bi => bi.Site);
         foreach (var siteBookings in grouped)
         {
             if (siteBookings.Count() > PointReadLimit)
@@ -84,26 +87,23 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
     public async Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
     {
-        var bookingIndexDocument = await _indexStore.GetDocument<BookingIndexDocument>(bookingReference);
-        if (bookingIndexDocument == null)
+        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument != null)
         {
-            return false;
+            var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+            var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+            await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+            await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
+            return true;
         }
 
-        var updateStatusPatch = PatchOperation.Replace("/provisional", false);
-        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
-        await _indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
-
-        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
-        await _bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, addContactDetailsPath);
-        return true;
+        return false;
     }
 
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);
         await bookingStore.PatchDocument(site, bookingReference, patch);
-
     }
 
     public async Task InsertAsync(Booking booking)
@@ -122,11 +122,11 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
     public async Task RemoveUnconfirmedProvisionalBookings()
     {
-        var indexDocuments = await _indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= _time.GetLocalNow().AddMinutes(-5));
+        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= time.GetUtcNow().AddMinutes(-5));
         foreach (var indexDocument in indexDocuments)
         {
-            await _indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
-            await _bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
+            await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
+            await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
         }
     }
 }    

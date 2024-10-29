@@ -18,6 +18,12 @@ public class BookingDocument : BookingDataCosmosDocument
     [JsonProperty("service")]
     public string Service { get; set; }
 
+    [JsonProperty("provisional")]
+    public bool Provisional { get; set; }
+
+    [JsonProperty("created")]
+    public DateTime Created { get; set; }
+
     [JsonProperty("outcome")]
     public string Outcome { get; set; }
 

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
+    "node": "^20.0.0",
+    "npm": ">=10.7.0"
   },
   "scripts": {
     "prepare": "cd ../../ && husky src/new-client/.husky",

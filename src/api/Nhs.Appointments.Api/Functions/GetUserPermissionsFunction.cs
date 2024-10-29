@@ -14,8 +14,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetUserPermissionsFunction(IPermissionChecker permissionChecker, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserPermissionsFunction> logger)
-    : SiteBasedResourceFunction<PermissionsResponse>(validator, userContextProvider, logger)
+public class GetUserPermissionsFunction(IPermissionChecker permissionChecker, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserPermissionsFunction> logger, IMetricsRecorder metricsRecorder)
+    : SiteBasedResourceFunction<PermissionsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
 
     [OpenApiOperation(operationId: "GetPermissionsForAuthenticatedUser", tags: ["User"], Summary = "Gets all permissions for the authenticated user at a site")]

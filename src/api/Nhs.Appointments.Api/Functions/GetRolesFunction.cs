@@ -13,8 +13,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger ) 
-    : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger)
+public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<GetRolesFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<GetRolesRequest, GetRolesResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetRoles", tags: ["Roles"], Summary = "Get user roles in the system")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetRolesResponse), Description = "List of roles with id and display name information")]  

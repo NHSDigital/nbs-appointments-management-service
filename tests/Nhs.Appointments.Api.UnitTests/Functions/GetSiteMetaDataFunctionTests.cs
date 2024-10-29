@@ -20,27 +20,16 @@ public class GetSiteMetaDataFunctionTests
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public GetSiteMetaDataFunctionTests()
     {        
-        _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
-
-    /*[Fact]
-    public async Task RunAsync_ReturnsSuccess_WhenRequestedSiteIsConfigured()
-    {
-        _siteService.Setup(x => x.GetSiteByIdAsync("123")).ReturnsAsync(new Site("ABC01", "TEST", "Test", Enumerable.Empty<AttributeValue>(), new Location("", new[] { 0.0, 0.0 })));
-        var request = CreateRequest();
-        var result = await _sut.RunAsync(request) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        var actualResponse = await ReadResponseAsync<GetSiteMetaDataResponse>(result.Content);
-        actualResponse.Site.Should().Be("123");
-        actualResponse.AdditionalInformation.Should().Be("Test data");
-    }*/
-
+  
     [Fact]
     public async Task RunAsync_ReturnsNotFound_WhenRequestedSiteIsNotConfigured()
     {

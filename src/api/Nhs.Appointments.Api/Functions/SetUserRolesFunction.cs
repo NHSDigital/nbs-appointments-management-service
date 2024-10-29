@@ -15,8 +15,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) 
-    : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"], Summary = "Set role assignments for a user at a site")]
     [OpenApiRequestBody("application/json", typeof(SetUserRolesRequest), Required = true)]

@@ -67,6 +67,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()            
             .AddSingleton(TimeProvider.System)
+            .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 

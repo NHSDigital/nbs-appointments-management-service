@@ -58,7 +58,7 @@ const AddInformationForCitizensForm = ({
           />
         </div>
       </FormGroup>
-
+      <br />
       <ButtonGroup>
         <Button type="submit">Confirm site details</Button>
         <Button styleType="secondary" onClick={cancel}>

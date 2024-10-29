@@ -42,7 +42,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
         {
-            return new OperationResult(false, "The specified site was not found.");;
+            return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
         var originalAttributes = originalDocument.AttributeValues;
@@ -51,7 +51,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             : originalAttributes
                 .Where(a => !a.Id.Contains(scope))
                 .Concat(attributeValues);
-        var siteDocumentPatch = PatchOperation.Add("/attributeValues", newAttributes);
+        var siteDocumentPatch = PatchOperation.Add("/attributeValues", newAttributes.Where(a => !string.IsNullOrEmpty(a.Value)));
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }

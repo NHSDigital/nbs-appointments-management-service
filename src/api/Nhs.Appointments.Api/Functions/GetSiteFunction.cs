@@ -32,9 +32,9 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
 
     protected override async Task<ApiResult<Site>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var site = await siteService.GetSiteByIdAsync(request.Site);
+        var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
         if (site != null)
-        {            
+        {
             return ApiResult<Site>.Success(site);
         }  
         return Failed(HttpStatusCode.NotFound, "The specified site was not found.");

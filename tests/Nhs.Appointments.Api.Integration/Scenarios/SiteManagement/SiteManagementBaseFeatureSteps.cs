@@ -59,6 +59,6 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             return Array.Empty<AttributeValue>();
         }
         var pairs = attributes.Split(",");
-        return pairs.Select(p => p.Split("=")).Select(kvp => new AttributeValue(kvp[0], kvp[1])).ToArray();
+        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new AttributeValue(kvp[0], kvp[1])).ToArray();
     }
 }

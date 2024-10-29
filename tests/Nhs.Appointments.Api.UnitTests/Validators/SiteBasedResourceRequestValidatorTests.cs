@@ -11,7 +11,7 @@ public class SiteBasedRequestValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenSiteIsBlank()
     {
-        var testRequest = new SiteBasedResourceRequest("");
+        var testRequest = new SiteBasedResourceRequest("", "*");
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -21,7 +21,7 @@ public class SiteBasedRequestValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenSiteBasedRequestIsValid()
     {
-        var testRequest = new SiteBasedResourceRequest("site");
+        var testRequest = new SiteBasedResourceRequest("site", "*");
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

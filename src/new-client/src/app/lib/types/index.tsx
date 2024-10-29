@@ -23,6 +23,11 @@ type AttributeValue = {
   value: string;
 };
 
+type SetAttributesRequest = {
+  scope: string;
+  attributeValues: AttributeValue[];
+};
+
 type Role = {
   displayName: string;
   id: string;
@@ -93,6 +98,7 @@ export type {
   ErrorType,
   Role,
   RoleAssignment,
+  SetAttributesRequest,
   Site,
   SiteWithAttributes,
   User,

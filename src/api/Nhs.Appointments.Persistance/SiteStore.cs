@@ -37,15 +37,21 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
     }
 
-    public async Task<OperationResult> UpdateSiteAttributes(string siteId, IEnumerable<AttributeValue> attributeValues)
+    public async Task<OperationResult> UpdateSiteAttributes(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
         {
-            return new OperationResult(false, "The specified site was not found.");;
+            return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        var siteDocumentPatch = PatchOperation.Add("/attributeValues", attributeValues);
+        var originalAttributes = originalDocument.AttributeValues;
+        var newAttributes = scope == "*"
+            ? attributeValues
+            : originalAttributes
+                .Where(a => !a.Id.Contains(scope))
+                .Concat(attributeValues);
+        var siteDocumentPatch = PatchOperation.Add("/attributeValues", newAttributes.Where(a => !string.IsNullOrEmpty(a.Value)));
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }

@@ -296,13 +296,44 @@ public class SiteServiceTests
             Name: "Site 1", 
             Address: "1 Park Row", 
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")});        
+            AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "Attribute 1", Value: "true")});
         _siteStore.Setup(x => x.GetSiteById("ABC01")).ReturnsAsync(site);
         
         var result = await _sut.GetSiteByIdAsync(siteId);
         result.Should().BeEquivalentTo(expectedSite);
     }
-    
+
+    [Fact]
+    public async Task GetSiteByIdAsync_ReturnsRequestedSite_AndFiltersAttributesByScope()
+    {
+        const string siteId = "ABC01";
+        var site = new Site(
+            Id: siteId,
+            Name: "Site 1",
+            Address: "1 Park Row",
+            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            AttributeValues: [
+                new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
+                new AttributeValue(Id: "Attribute 2", Value: "true"),
+                new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
+            ]);
+
+        var expectedSite = new Site(
+            Id: siteId,
+            Name: "Site 1",
+            Address: "1 Park Row",
+            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            AttributeValues: [
+                new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
+                new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
+            ]);
+        _siteStore.Setup(x => x.GetSiteById("ABC01")).ReturnsAsync(site);
+
+        var result = await _sut.GetSiteByIdAsync(siteId, "test_scope");
+
+        result.Should().BeEquivalentTo(expectedSite);
+    }
+
     [Fact]
     public async Task GetSiteByIdAsync_ReturnsDefault_WhenSiteIsNotFound()
     {

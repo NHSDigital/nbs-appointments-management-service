@@ -1,6 +1,6 @@
 import {
   fetchAttributeDefinitions,
-  fetchSiteAttributeValues,
+  fetchSite,
 } from '@services/appointmentsService';
 import AddAttributesForm from './add-attributes-form';
 
@@ -14,7 +14,7 @@ export const EditAttributesPage = async ({ site }: Props) => {
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
   );
-  const siteAttributeValues = await fetchSiteAttributeValues(site);
+  const siteDetails = await fetchSite(site);
 
   return (
     <>
@@ -24,7 +24,7 @@ export const EditAttributesPage = async ({ site }: Props) => {
       <AddAttributesForm
         attributeDefinitions={accessibilityAttributeDefinitions}
         site={site}
-        attributeValues={siteAttributeValues}
+        attributeValues={siteDetails?.attributeValues ?? []}
       />
     </>
   );

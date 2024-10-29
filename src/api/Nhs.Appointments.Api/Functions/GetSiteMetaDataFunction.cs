@@ -35,7 +35,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var site = await siteService.GetSiteByIdAsync(request.Site);
+        var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
         if (site != null)
         {
             throw new System.NotImplementedException();

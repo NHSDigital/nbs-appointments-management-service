@@ -8,7 +8,11 @@ import {
   CheckBox,
   ButtonGroup,
 } from '@nhsuk-frontend-components';
-import { AttributeDefinition, AttributeValue, SetAttributes } from '@types';
+import {
+  AttributeDefinition,
+  AttributeValue,
+  SetAttributesRequest,
+} from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAttributeValues } from '@services/appointmentsService';
@@ -40,7 +44,7 @@ const AddAttributesForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetAttributes = {
+    const payload: SetAttributesRequest = {
       scope: 'accessibility',
       attributeValues: attributeDefinitions.map(ad => ({
         id: ad.id,

@@ -19,11 +19,12 @@ public class GetUserRoleAssignmentsFunctionTests
     private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetUserRoleAssignmentsFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly GetUserRoleAssignmentsFunction _sut;
 
     public GetUserRoleAssignmentsFunctionTests()
     {
-        _sut = new GetUserRoleAssignmentsFunction(_userService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetUserRoleAssignmentsFunction(_userService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

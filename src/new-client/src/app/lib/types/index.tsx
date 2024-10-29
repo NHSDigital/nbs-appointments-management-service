@@ -1,3 +1,5 @@
+import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
+
 type ApiErrorResponse = {
   success: false;
   httpStatusCode: number;
@@ -93,6 +95,7 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  ErrorType,
   Role,
   RoleAssignment,
   SetAttributesRequest,
@@ -101,3 +104,5 @@ export type {
   User,
   UserProfile,
 };
+
+export { MyaError, UnauthorizedError };

@@ -19,11 +19,12 @@ public class GetSitesByAreaFunctionTests
     private readonly Mock<IValidator<GetSitesByAreaRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSitesByAreaFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly GetSitesByAreaFunction _sut;
 
     public GetSitesByAreaFunctionTests()
     {
-        _sut = new GetSitesByAreaFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object);
+        _sut = new GetSitesByAreaFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<GetSitesByAreaRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

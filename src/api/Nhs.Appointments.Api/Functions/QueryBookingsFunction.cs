@@ -13,8 +13,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryBookingsFunction(IBookingsService bookingsService, IValidator<QueryBookingsRequest> validator, IUserContextProvider userContextProvider, ILogger<QueryBookingsFunction> logger)
-    : BaseApiFunction<QueryBookingsRequest, IEnumerable<Booking>>(validator, userContextProvider, logger)
+public class QueryBookingsFunction(IBookingsService bookingsService, IValidator<QueryBookingsRequest> validator, IUserContextProvider userContextProvider, ILogger<QueryBookingsFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<QueryBookingsRequest, IEnumerable<Booking>>(validator, userContextProvider, logger, metricsRecorder)
 {
 
     [OpenApiOperation(operationId: "QueryBooking", tags: ["Booking"], Summary = "Query bookings for a site within a date range")]

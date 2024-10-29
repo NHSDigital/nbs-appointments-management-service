@@ -15,9 +15,10 @@ public class SetUserRolesFunctionTests
     private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<ILogger<SetUserRolesFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     public SetUserRolesFunctionTests()
     {
-        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object);
+        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object, _metricsRecorder.Object);
     }
 
     [Fact]
@@ -39,7 +40,7 @@ public class SetUserRolesFunctionTests
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
         private ILogger<SetUserRolesFunction> _logger;
-        public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger) : base(userService, validator, userContextProvider, logger)
+        public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) : base(userService, validator, userContextProvider, logger, metricsRecorder)
         {
             _logger = logger;
         }

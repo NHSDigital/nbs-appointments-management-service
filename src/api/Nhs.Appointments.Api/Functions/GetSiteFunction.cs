@@ -14,7 +14,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteFunction> logger) : SiteBasedResourceFunction<Site>(validator, userContextProvider, logger)
+public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSiteFunction> logger, IMetricsRecorder metricsRecorder) : SiteBasedResourceFunction<Site>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetSite", tags: ["Sites"], Summary = "Get single site by Id")]
     [OpenApiParameter("site", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The id of the site to retrieve")]

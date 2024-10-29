@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger)
-    : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability for a single day")]
     [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]

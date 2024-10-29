@@ -16,8 +16,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetSiteAttributesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetSiteAttributesFunction> logger) 
-    : BaseApiFunction<SetSiteAttributesRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetSiteAttributesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetSiteAttributesFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<SetSiteAttributesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetSiteAttributes", tags: ["Sites"], Summary = "Set attribute values for a site")]
     [OpenApiRequestBody("application/json", typeof(SetSiteAttributesRequest), Required = true)]

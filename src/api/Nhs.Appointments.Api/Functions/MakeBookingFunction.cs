@@ -14,8 +14,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class MakeBookingFunction(IBookingsService bookingService, IAvailabilityCalculator availabilityCalculator, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger)
-    : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger)
+public class MakeBookingFunction(IBookingsService bookingService, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
     [OpenApiRequestBody("application/json", typeof(MakeBookingRequest), Required = true)]

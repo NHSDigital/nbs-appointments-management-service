@@ -14,8 +14,8 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryBookingByReferenceFunction(IBookingsService bookingsService, IValidator<QueryBookingByReferenceRequest> validator, IUserContextProvider userContextProvider, ILogger<QueryBookingByReferenceFunction> logger)
-    : BaseApiFunction<QueryBookingByReferenceRequest, Booking>(validator, userContextProvider, logger)
+public class QueryBookingByReferenceFunction(IBookingsService bookingsService, IValidator<QueryBookingByReferenceRequest> validator, IUserContextProvider userContextProvider, ILogger<QueryBookingByReferenceFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<QueryBookingByReferenceRequest, Booking>(validator, userContextProvider, logger, metricsRecorder)
 {
 
     [OpenApiOperation(operationId: "QueryBookingByReference", tags: ["Booking"], Summary = "Get a booking by booking reference")]

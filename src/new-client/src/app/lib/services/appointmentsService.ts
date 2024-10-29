@@ -13,7 +13,7 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
-import { notAuthenticated, notAuthorised } from '@services/authService';
+import { notAuthenticated, notAuthorized } from '@services/authService';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -87,7 +87,7 @@ export async function assertPermission(site: string, permission: string) {
   const response = await fetchPermissions(site);
 
   if (!response.includes(permission)) {
-    notAuthorised();
+    notAuthorized();
   }
 }
 
@@ -98,7 +98,7 @@ export async function assertAnyPermissions(
   const response = await fetchPermissions(site);
 
   if (!permissions.some(permission => response.includes(permission))) {
-    notAuthorised();
+    notAuthorized();
   }
 }
 
@@ -109,7 +109,7 @@ export async function assertAllPermissions(
   const response = await fetchPermissions(site);
 
   if (!permissions.every(permission => response.includes(permission))) {
-    notAuthorised();
+    notAuthorized();
   }
 }
 
@@ -127,7 +127,7 @@ function handleBodyResponse<T>(
     }
 
     if (response.httpStatusCode === 403) {
-      notAuthorised();
+      notAuthorized();
     }
 
     throw new Error(response.errorMessage);
@@ -154,7 +154,7 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
   }
 
   if (response.httpStatusCode === 403) {
-    notAuthorised();
+    notAuthorized();
   }
 
   throw new Error(response.errorMessage);

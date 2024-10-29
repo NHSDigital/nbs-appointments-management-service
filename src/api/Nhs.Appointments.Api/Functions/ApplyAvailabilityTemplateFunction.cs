@@ -13,8 +13,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger) 
-    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger)
+public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger, IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ApplyAvailabilityTemplate", tags: ["Availability"], Summary = "Set appointment availability for a date range")]
     [OpenApiRequestBody("application/json", typeof(ApplyAvailabilityTemplateRequest), Required = true)]

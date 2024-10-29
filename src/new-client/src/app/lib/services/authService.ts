@@ -1,9 +1,10 @@
 'use server';
+import { UnauthorizedError } from '@types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const notAuthorised = () => {
-  throw new Error('Forbidden: You lack the necessary permissions');
+const notAuthorized = () => {
+  throw new UnauthorizedError();
 };
 
 const notAuthenticated = () => {
@@ -14,4 +15,4 @@ const notAuthenticated = () => {
   );
 };
 
-export { notAuthorised, notAuthenticated };
+export { notAuthorized, notAuthenticated };

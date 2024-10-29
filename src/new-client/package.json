@@ -7,7 +7,7 @@
     "tsc": "tsc --noEmit",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next build && next start",
     "clean:next": "rimraf .next",
     "clean:full": "rimraf node_modules .next",
     "lint": "eslint **/*.{ts,tsx}",

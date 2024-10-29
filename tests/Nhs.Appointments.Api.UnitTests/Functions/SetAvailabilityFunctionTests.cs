@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Auth;
@@ -8,7 +7,7 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Net;
+
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -20,6 +19,7 @@ public class SetAvailabilityFunctionTests
     private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<ILogger<SetAvailabilityFunction>> _logger = new();
     private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public SetAvailabilityFunctionTests()
     {
@@ -27,7 +27,8 @@ public class SetAvailabilityFunctionTests
             _availabilityService.Object,
             _validator.Object,
             _userContext.Object,
-            _logger.Object);
+            _logger.Object,
+            _metricsRecorder.Object);
     }
 
     [Fact]
@@ -65,8 +66,9 @@ public class SetAvailabilityFunctionTests
             IAvailabilityService availabilityService,
             IValidator<SetAvailabilityRequest> validator,
             IUserContextProvider userContextProvider,
-            ILogger<SetAvailabilityFunction> logger)
-            : base(availabilityService, validator, userContextProvider, logger)
+            ILogger<SetAvailabilityFunction> logger,
+            IMetricsRecorder metricsRecorder)
+            : base(availabilityService, validator, userContextProvider, logger, metricsRecorder)
         {
             _logger = logger;
         }

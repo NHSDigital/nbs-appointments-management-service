@@ -14,8 +14,8 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAttributeSetsFunction(IAttributeDefinitionsService attributeDefinitionsService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAttributeSetsFunction> logger ) 
-: BaseApiFunction<EmptyRequest, IEnumerable<AttributeDefinition>>(validator, userContextProvider, logger)
+public class GetAttributeSetsFunction(IAttributeDefinitionsService attributeDefinitionsService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAttributeSetsFunction> logger, IMetricsRecorder metricsRecorder) 
+: BaseApiFunction<EmptyRequest, IEnumerable<AttributeDefinition>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetAttributeDefinitions", tags: ["AttributeDefinitions"], Summary = "Get system attribute definitions")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<AttributeDefinition>), Description = "List of attribute definitions used by the system")]

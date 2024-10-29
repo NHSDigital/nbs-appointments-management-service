@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
@@ -19,7 +18,8 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         var siteId = GetSiteId(siteDesignation);
         var row = dataTable.Rows.ElementAt(1);
         var attributeValues = ParseAttributes(row.Cells.ElementAt(0).Value);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", attributeValues);
+        var payload = new SetSiteAttributesRequest(siteId, "*", attributeValues);
+        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", payload);
     }
     
     [Then("the correct information for site '(.+)' is returned")]

@@ -3,8 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import {
   AttributeDefinition,
-  AttributeValue,
   Role,
+  SetAttributesRequest,
   ApplyAvailabilityTemplateRequest,
   SiteWithAttributes,
   User,
@@ -40,18 +40,20 @@ export async function fetchUsers(site: string) {
 
 export const fetchSite = async (siteId: string) => {
   const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}`,
+    `sites/${siteId}?scope=*`,
+    {
+      next: { tags: ['site'] },
+    },
   );
-
   return handleBodyResponse(response);
 };
 
 export const fetchSiteAttributeValues = async (siteId: string) => {
   const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}`,
+    `sites/${siteId}?scope=*`,
   );
 
-  return handleBodyResponse(response).attributeValues;
+  return handleBodyResponse(response)?.attributeValues ?? [];
 };
 
 export async function fetchAttributeDefinitions() {
@@ -181,7 +183,7 @@ export const saveUserRoleAssignments = async (
 
 export const saveSiteAttributeValues = async (
   site: string,
-  attributeValues: AttributeValue[],
+  attributeValues: SetAttributesRequest,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/attributes`,
@@ -234,4 +236,26 @@ export const saveAvailability = async (
 
   // TODO: Once the fetch availability route is implemented, refresh the tag here
   // revalidateTag(`fetchAvailability`);
+};
+
+export async function fetchInformationForCitizens(site: string, scope: string) {
+  const response = await appointmentsApi.get<SiteWithAttributes>(
+    `sites/${site}?scope=${scope}`,
+  );
+
+  return handleBodyResponse(response)?.attributeValues ?? [];
+}
+
+export const setSiteInformationForCitizen = async (
+  site: string,
+  attributeValues: SetAttributesRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/attributes`,
+    JSON.stringify(attributeValues),
+  );
+
+  // TODO: Notification?
+  handleEmptyResponse(response);
+  revalidatePath(`/site/${site}/details`);
 };

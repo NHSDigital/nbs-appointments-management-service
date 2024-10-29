@@ -10,6 +10,9 @@ public class SetSiteAttributeValuesValidator : AbstractValidator<SetSiteAttribut
         RuleFor(x => x.Site)
             .NotEmpty()
             .WithMessage("Provide a valid site");
+        RuleFor(x => x.Scope)
+            .NotEmpty()
+            .WithMessage("Provide a valid scope");
         RuleFor(x => x.AttributeValues)
             .NotEmpty()
             .WithMessage("Attribute values must be provided");

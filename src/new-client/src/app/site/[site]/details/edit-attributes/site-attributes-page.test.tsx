@@ -1,11 +1,18 @@
 ﻿import { render, screen } from '@testing-library/react';
 import { EditAttributesPage } from './edit-attributes-page';
-import { AttributeDefinition, AttributeValue } from '@types';
+import {
+  AttributeDefinition,
+  AttributeValue,
+  SiteWithAttributes,
+} from '@types';
 import {
   fetchAttributeDefinitions,
-  fetchSiteAttributeValues,
+  fetchSite,
 } from '@services/appointmentsService';
-import { mockAttributeDefinitions, mockAttributeValues } from '@testing/data';
+import {
+  mockAttributeDefinitions,
+  mockSiteWithAttributes,
+} from '@testing/data';
 
 jest.mock('@services/appointmentsService');
 const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
@@ -13,9 +20,7 @@ const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
 >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteAttributeValuesMock = fetchSiteAttributeValues as jest.Mock<
-  Promise<AttributeValue[]>
->;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
 
 jest.mock('./add-attributes-form', () => {
   const MockForm = ({
@@ -52,7 +57,7 @@ const mockPermissions = ['site:manage', 'site:view'];
 describe('Manage Attributes Page', () => {
   beforeEach(() => {
     fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
-    fetchSiteAttributeValuesMock.mockResolvedValue(mockAttributeValues);
+    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
   });
 
   it('renders', async () => {
@@ -72,7 +77,7 @@ describe('Manage Attributes Page', () => {
       permissions: mockPermissions,
     });
     render(jsx);
-    expect(fetchSiteAttributeValues).toHaveBeenCalledWith('TEST');
+    expect(fetchSite).toHaveBeenCalledWith('TEST');
   });
 
   it('passes props to form component', async () => {

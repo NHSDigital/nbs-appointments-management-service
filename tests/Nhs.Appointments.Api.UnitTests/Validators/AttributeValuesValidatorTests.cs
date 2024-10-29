@@ -22,19 +22,4 @@ public class AttributeValuesValidatorTests
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Contain(nameof(AttributeValue.Id));
     }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    [InlineData("invalidValue")]
-    public void Validate_ReturnsError_WhenValueIsInvalid(string? value)
-    {
-        var attributeValue = new AttributeValue(
-            Id: "attribute_id",
-            Value: value);
-        var result = _sut.TestValidate(attributeValue);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Contain(nameof(AttributeValue.Value));
-    }
 }

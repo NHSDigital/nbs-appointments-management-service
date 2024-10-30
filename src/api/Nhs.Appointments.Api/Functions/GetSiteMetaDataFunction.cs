@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.OpenApi.Models;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -19,7 +20,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
 {
 
     [OpenApiOperation(operationId: "GetSiteMetaData", tags: ["Sites"], Summary = "Get meta data about the site specific to appointments")]
-    [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site to retrieve configuration for")]
+    [OpenApiParameter("site", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The id of the site to retrieve configuration for")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetSiteMetaDataResponse), Description = "The meta data for the specified site")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The request did not contain a valid site in the query string")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]
@@ -28,19 +29,23 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/meta")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/meta")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
+        const string scope = "site_details";
+        var site = await siteService.GetSiteByIdAsync(request.Site, scope);
         if (site != null)
         {
-            throw new System.NotImplementedException();
+            var patientInformation = site.AttributeValues.Any()
+                ? site.AttributeValues?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
+                : string.Empty;
+            return ApiResult<GetSiteMetaDataResponse>.Success(new GetSiteMetaDataResponse(site.Name, patientInformation));
         }
 
         return Failed(HttpStatusCode.NotFound, "No site configuration was found for the specified site");
-    }    
+    }
 }

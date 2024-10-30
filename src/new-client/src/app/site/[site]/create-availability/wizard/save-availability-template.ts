@@ -1,7 +1,14 @@
 'use server';
-import { ApplyAvailabilityTemplateRequest, Site } from '@types';
+import {
+  ApplyAvailabilityTemplateRequest,
+  SetAvailabilityRequest,
+  Site,
+} from '@types';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
-import { saveAvailability } from '@services/appointmentsService';
+import {
+  applyAvailabilityTemplate,
+  saveAvailability,
+} from '@services/appointmentsService';
 import { formatTimeString, parseDateComponents } from '@services/timeService';
 
 async function saveAvailabilityTemplate(
@@ -18,25 +25,43 @@ async function saveAvailabilityTemplate(
     );
   }
 
-  const request: ApplyAvailabilityTemplateRequest = {
-    site: site.id,
-    from: startDate.format('YYYY-MM-DD'),
-    until: endDate.format('YYYY-MM-DD'),
-    template: {
-      days: formData.days,
+  if (formData.sessionType === 'repeating') {
+    const request: ApplyAvailabilityTemplateRequest = {
+      site: site.id,
+      from: startDate.format('YYYY-MM-DD'),
+      until: endDate.format('YYYY-MM-DD'),
+      template: {
+        days: formData.days,
+        sessions: [
+          {
+            from: formatTimeString(formData.session.startTime) ?? '',
+            until: formatTimeString(formData.session.endTime) ?? '',
+            slotLength: formData.session.slotLength,
+            capacity: formData.session.capacity,
+            services: formData.session.services,
+          },
+        ],
+      },
+    };
+
+    await applyAvailabilityTemplate(request);
+  } else {
+    const request: SetAvailabilityRequest = {
+      site: site.id,
+      date: startDate.format('YYYY-MM-DD'),
       sessions: [
         {
-          from: formatTimeString(formData.session.startTime),
-          until: formatTimeString(formData.session.endTime),
+          from: formatTimeString(formData.session.startTime) ?? '',
+          until: formatTimeString(formData.session.endTime) ?? '',
           slotLength: formData.session.slotLength,
           capacity: formData.session.capacity,
           services: formData.session.services,
         },
       ],
-    },
-  };
+    };
 
-  await saveAvailability(request);
+    await saveAvailability(request);
+  }
 }
 
 export default saveAvailabilityTemplate;

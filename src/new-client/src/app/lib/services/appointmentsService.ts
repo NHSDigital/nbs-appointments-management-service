@@ -9,6 +9,7 @@ import {
   SiteWithAttributes,
   User,
   UserProfile,
+  SetAvailabilityRequest,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -219,11 +220,28 @@ export const removeUserFromSite = async (site: string, user: string) => {
   redirect(`/site/${site}/users`);
 };
 
-export const saveAvailability = async (
+export const applyAvailabilityTemplate = async (
   request: ApplyAvailabilityTemplateRequest,
 ) => {
   const response = await appointmentsApi.post(
     `availability/apply-template`,
+    JSON.stringify(request),
+  );
+
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully created availability for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  // TODO: Once the fetch availability route is implemented, refresh the tag here
+  // revalidateTag(`fetchAvailability`);
+};
+
+export const saveAvailability = async (request: SetAvailabilityRequest) => {
+  const response = await appointmentsApi.post(
+    `availability`,
     JSON.stringify(request),
   );
 

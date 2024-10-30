@@ -51,10 +51,15 @@ export const isSameDayOrBefore = (
 };
 
 export const formatTimeString = ({ hour, minute }: TimeComponents) => {
-  const hourString = hour < 10 ? `0${hour}` : `${hour}`;
-  const minuteString = minute < 10 ? `0${minute}` : `${minute}`;
+  if (!Number.isInteger(Number(hour)) || !Number.isInteger(Number(minute))) {
+    return undefined;
+  }
 
-  return `${hourString}:${minuteString}`;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    return undefined;
+  }
+
+  return `${toTwoDigitFormat(hour)}:${toTwoDigitFormat(minute)}`;
 };
 
 export const toTwoDigitFormat = (

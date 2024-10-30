@@ -1,4 +1,5 @@
 import {
+  formatTimeString,
   isValidDate,
   parseDateComponents,
   toTwoDigitFormat,
@@ -34,6 +35,26 @@ describe('Time Service', () => {
   );
 
   it.each([
+    [1, '01'],
+    ['1', '01'],
+    [0, '00'],
+    [10, '10'],
+    [42, '42'],
+    [100, undefined],
+    [-1, undefined],
+    ['fp', undefined],
+    ['e', undefined],
+    ['01', '01'],
+  ])(
+    'can format numbers as double digits: %p should be %p',
+    (input: string | number, expectedResult: string | undefined) => {
+      const result = toTwoDigitFormat(input);
+
+      expect(result).toBe(expectedResult);
+    },
+  );
+
+  it.each([
     [1, 1, 2020, '2020-01-01T00:00:00.000Z'],
     [31, 12, 2018, '2018-12-31T00:00:00.000Z'],
     [29, 2, 2020, '2020-02-29T00:00:00.000Z'],
@@ -54,22 +75,25 @@ describe('Time Service', () => {
   );
 
   it.each([
-    [1, '01'],
-    ['1', '01'],
-    [0, '00'],
-    [10, '10'],
-    [42, '42'],
-    [100, undefined],
-    [-1, undefined],
-    ['fp', undefined],
-    ['e', undefined],
-    ['01', '01'],
+    [1, 1, '01:01'],
+    [13, 7, '13:07'],
+    [0, 0, '00:00'],
+    [23, 46, '23:46'],
+    [-1, 7, undefined],
+    [24, 7, undefined],
+    [NaN, 7, undefined],
+    [6, -1, undefined],
+    [6, 65, undefined],
+    [6, NaN, undefined],
   ])(
-    'can format numbers as double digits: %p should be %p',
-    (input: string | number, expectedResult: string | undefined) => {
-      const result = toTwoDigitFormat(input);
+    'can format time components: hour %p, minute %p should be: %p',
+    (hour: number, minute: number, expectedResult: string | undefined) => {
+      const formattedTime = formatTimeString({
+        hour,
+        minute,
+      });
 
-      expect(result).toBe(expectedResult);
+      expect(formattedTime).toBe(expectedResult);
     },
   );
 });

@@ -41,6 +41,12 @@ type ApplyAvailabilityTemplateRequest = {
   template: AvailabilityTemplate;
 };
 
+type SetAvailabilityRequest = {
+  site: string;
+  date: string;
+  sessions: AvailabilitySession[];
+};
+
 type AvailabilityTemplate = {
   days: DayOfWeek[];
   sessions: AvailabilitySession[];
@@ -123,6 +129,7 @@ export type {
   RoleAssignment,
   Session,
   SetAttributesRequest,
+  SetAvailabilityRequest,
   Site,
   SiteWithAttributes,
   TimeComponents,

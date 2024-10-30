@@ -6,9 +6,12 @@ import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { useFormContext } from 'react-hook-form';
 import CapacityCalculation from './capacity-calculation';
+import { formatTimeString } from '@services/timeService';
 
 const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, watch } = useFormContext<CreateAvailabilityFormValues>();
+  const { register, watch, formState, trigger, setError } =
+    useFormContext<CreateAvailabilityFormValues>();
+  const { errors } = formState;
 
   const [startTimeWatch, endTimeWatch, slotLengthWatch, capacityWatch] = watch([
     'session.startTime',
@@ -17,7 +20,50 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
     'session.capacity',
   ]);
 
+  const validateFields = async () => {
+    const fieldsAreValid = await trigger([
+      'session.capacity',
+      'session.slotLength',
+    ]);
+    if (!fieldsAreValid) {
+      return;
+    }
+
+    const parsedStart = formatTimeString(startTimeWatch);
+    if (parsedStart === undefined) {
+      setError('session.startTime', { message: 'Enter a valid start time' });
+      return false;
+    }
+
+    const parsedEnd = formatTimeString(endTimeWatch);
+    if (parsedEnd === undefined) {
+      setError('session.endTime', {
+        message: 'Enter a valid end time',
+      });
+      return false;
+    }
+
+    if (
+      startTimeWatch.hour > endTimeWatch.hour ||
+      (startTimeWatch.hour === endTimeWatch.hour &&
+        startTimeWatch.minute > endTimeWatch.minute)
+    ) {
+      setError('session.startTime', {
+        message: 'End time cannot be earlier than start time',
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const onContinue = async () => {
+    const formIsValid = await validateFields();
+
+    if (!formIsValid) {
+      return;
+    }
+
     goToNextStep();
   };
 
@@ -34,7 +80,18 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
       </p>
 
       {/* TODO: Create nhsuk-frontend components for these time controls */}
-      <FormGroup legend="Session times" hint="For example, 14:30">
+      <FormGroup
+        legend="Session times"
+        hint="For example, 14:30"
+        error={
+          errors.session?.startTime?.hour?.message ||
+          errors.session?.startTime?.minute?.message ||
+          errors.session?.endTime?.hour?.message ||
+          errors.session?.endTime?.minute?.message ||
+          errors.session?.startTime?.message ||
+          errors.session?.endTime?.message
+        }
+      >
         <div className="nhsuk-label">Start time</div>
         <div className="nhsuk-time-input-custom">
           <div className="nhsuk-time-input-custom__item">
@@ -132,12 +189,23 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         legend="Capacity"
         hint="Enter your capacity to calculate appointment numbers for this session"
       >
-        <FormGroup legend="How many vaccinators or spaces do you have?">
+        <FormGroup
+          legend="How many vaccinators or spaces do you have?"
+          error={errors.session?.capacity?.message}
+        >
           <label id="capacity" htmlFor="capacity" style={{ display: 'none' }}>
             How many vaccinators or spaces do you have?
           </label>
           <TextInput
-            {...register('session.capacity')}
+            {...register('session.capacity', {
+              required: { value: true, message: 'Capacity is required' },
+              min: { value: 1, message: 'Capacity must be at least 1' },
+              validate: value => {
+                if (!Number.isInteger(Number(value))) {
+                  return 'Capacity must be a whole number.';
+                }
+              },
+            })}
             id="capacity"
             aria-labelledby="capacity"
             inputMode="numeric"
@@ -145,7 +213,10 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
           ></TextInput>
         </FormGroup>
 
-        <FormGroup legend="How long are your appointments?">
+        <FormGroup
+          legend="How long are your appointments?"
+          error={errors.session?.slotLength?.message}
+        >
           <label
             id="slot-length"
             htmlFor="slot-length"
@@ -154,7 +225,21 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
             How long are your appointments?
           </label>
           <TextInput
-            {...register('session.slotLength')}
+            {...register('session.slotLength', {
+              required: {
+                value: true,
+                message: 'Appointment length is required',
+              },
+              min: {
+                value: 1,
+                message: 'Appointment length must be at least 1 minute',
+              },
+              validate: value => {
+                if (!Number.isInteger(Number(value))) {
+                  return 'Appointment length must be a whole number.';
+                }
+              },
+            })}
             id="slot-length"
             aria-labelledby="slot-length"
             inputMode="numeric"

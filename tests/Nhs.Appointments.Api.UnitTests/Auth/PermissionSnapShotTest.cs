@@ -10,7 +10,7 @@ public class PermissionSnapShotTest
 {
     [Theory]
     [InlineData("post", "booking/cancel", "booking:cancel")]
-    [InlineData("get", "site/meta", "site:get-meta-data")]
+    [InlineData("get", "sites/{site}/meta", "site:get-meta-data")]
     [InlineData("post", "booking", "booking:make")]
     [InlineData("post", "availability/query", "availability:query")]
     [InlineData("get", "booking", "booking:query")]

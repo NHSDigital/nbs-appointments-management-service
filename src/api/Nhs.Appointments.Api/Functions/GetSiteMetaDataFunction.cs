@@ -20,7 +20,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
 {
 
     [OpenApiOperation(operationId: "GetSiteMetaData", tags: ["Sites"], Summary = "Get meta data about the site specific to appointments")]
-    [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site to retrieve configuration for")]
+    [OpenApiParameter("site", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The id of the site to retrieve configuration for")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetSiteMetaDataResponse), Description = "The meta data for the specified site")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The request did not contain a valid site in the query string")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]
@@ -29,7 +29,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "site/meta")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/meta")] HttpRequest req)
     {
         return base.RunAsync(req);
     }

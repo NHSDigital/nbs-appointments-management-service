@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
         public async Task RequestSiteMetaData(string site)
         {
             var siteId = GetSiteId(site);
-            Response = await Http.GetAsync($"http://localhost:7071/api/site/meta?site={siteId}");
+            Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}/meta");
         }
 
         [Then("the correct site meta data is returned")]

@@ -1,25 +1,50 @@
+/* eslint-disable react/jsx-props-no-spreading */
 'use client';
 import NhsHeading from '@components/nhs-heading';
-import { BackLink, Button } from '@components/nhsuk-frontend';
+import {
+  Button,
+  FormGroup,
+  Radio,
+  RadioGroup,
+} from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
+import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import { useFormContext } from 'react-hook-form';
 
 const SingleOrRepeatingSessionStep = ({
-  goToPreviousStep,
   goToNextStep,
 }: InjectedWizardProps) => {
+  const { register } = useFormContext<CreateAvailabilityFormValues>();
+
   const onContinue = async () => {
     goToNextStep();
   };
 
   return (
     <>
-      <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       <NhsHeading
         title="What type of session do you want to create?"
         caption="Create availability period"
       />
-      {/* TODO: This step is to be completed during ticket 240 https://nhsd-jira.digital.nhs.uk/browse/APPT-240
-      It exists here for now because the acceptance criteria of 231 involves "progressing" to the next step of the wizard*/}
+      <FormGroup>
+        <RadioGroup>
+          <Radio
+            label="Repeat session"
+            hint="Create sessions that repeat on a weekly basis"
+            {...register('sessionType')}
+            id="sessionType-repeating"
+            value="repeating"
+          />
+          <Radio
+            label="Single session"
+            hint="Create a session on a single date"
+            {...register('sessionType')}
+            id="sessionType-single"
+            value="single"
+          />
+        </RadioGroup>
+      </FormGroup>
+
       <Button
         type="button"
         onClick={async () => {

@@ -1,4 +1,12 @@
+import { DateComponents, TimeComponents } from '@types';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(customParseFormat);
+// Our times are treated as zone agnostic, but if we don't
+// specify this then midnight 2020-09-16 will get formatted as 23:00 2020-09-15
+dayjs.extend(utc);
 
 export const isValidDate = (
   day: string | number,
@@ -17,52 +25,20 @@ export const isValidDate = (
     return false;
   }
 
-  // TODO: Find a way of doing this without manual calculations. The below *should* work but doesn't
-  // const potentialDate = dayjs(
-  //   `${parsedYear}-${parsedMonth}-${parsedDay}`,
-  //   'YYYY-M-D',
-  //   'en-Gb',
-  //   true,
-  // );
-  // return potentialDate.isValid();
+  const inputString = `${toTwoDigitFormat(parsedDay)}-${toTwoDigitFormat(parsedMonth)}-${parsedYear}`;
+  const potentialDate = dayjs.utc(inputString, 'DD-MM-YYYY', true);
 
-  // TODO: Remove this absolutely disgraceful code and replace it with something like the above
-  if (parsedDay < 1 || parsedDay > 31) {
-    return false;
-  }
-  if (parsedMonth < 1 || parsedMonth > 12) {
-    return false;
-  }
-  if (parsedYear < 1000 || parsedYear > 9999) {
-    return false;
-  }
-  const monthsWith30Days = [4, 6, 9, 11];
-  if (monthsWith30Days.includes(parsedMonth) && parsedDay > 30) {
-    return false;
-  }
-
-  const isLeapYear = parsedYear % 4 === 0;
-  if (parsedMonth === 2) {
-    if (isLeapYear && parsedDay > 29) {
-      return false;
-    }
-    if (!isLeapYear && parsedDay > 28) {
-      return false;
-    }
-  }
-  return true;
+  return potentialDate.isValid();
 };
 
-export const parseAndValidateDateFromComponents = (
-  day: string | number,
-  month: string | number,
-  year: string | number,
-) => {
+export const parseDateComponents = ({ day, month, year }: DateComponents) => {
   if (!isValidDate(day, month, year)) {
     return undefined;
   }
 
-  return dayjs(`${day}-${month}-${year}`, 'D-M-YYYY', 'en-Gb', true);
+  const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
+
+  return dayjs.utc(inputString, 'DD-MM-YYYY', true);
 };
 
 export const isSameDayOrBefore = (
@@ -72,4 +48,23 @@ export const isSameDayOrBefore = (
   return (
     firstDate.isSame(secondDate, 'day') || firstDate.isBefore(secondDate, 'day')
   );
+};
+
+export const formatTimeString = ({ hour, minute }: TimeComponents) => {
+  const hourString = hour < 10 ? `0${hour}` : `${hour}`;
+  const minuteString = minute < 10 ? `0${minute}` : `${minute}`;
+
+  return `${hourString}:${minuteString}`;
+};
+
+export const toTwoDigitFormat = (
+  input: number | string,
+): string | undefined => {
+  const inputAsNumber = Number(input);
+  if (inputAsNumber < 0 || inputAsNumber > 99 || Number.isNaN(inputAsNumber)) {
+    return undefined;
+  }
+
+  const stringInput = `${input}`;
+  return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };

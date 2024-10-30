@@ -13,29 +13,16 @@ const FormGroup = ({ children, error, legend, hint }: Props) => {
     <div
       className={`nhsuk-form-group ${error ? 'nhsuk-form-group--error' : ''}`}
     >
-      {legend ? (
-        <FieldSet legend={legend}>
-          {hint ? <div className="nhsuk-hint">{hint}</div> : null}
-          {error && (
-            <span className="nhsuk-error-message">
-              <span className="nhsuk-u-visually-hidden">Error: </span>
-              {error}
-            </span>
-          )}
-          {children}
-        </FieldSet>
-      ) : (
-        <>
-          {hint ? <div className="nhsuk-hint">{hint}</div> : null}
-          {error && (
-            <span className="nhsuk-error-message">
-              <span className="nhsuk-u-visually-hidden">Error: </span>
-              {error}
-            </span>
-          )}
-          {children}
-        </>
-      )}
+      <FieldSet legend={legend}>
+        {hint ? <div className="nhsuk-hint">{hint}</div> : null}
+        {error && (
+          <span className="nhsuk-error-message">
+            <span className="nhsuk-u-visually-hidden">Error: </span>
+            {error}
+          </span>
+        )}
+        {children}
+      </FieldSet>
     </div>
   );
 };

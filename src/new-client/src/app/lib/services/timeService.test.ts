@@ -1,4 +1,8 @@
-import { isValidDate } from '@services/timeService';
+import {
+  isValidDate,
+  parseDateComponents,
+  toTwoDigitFormat,
+} from '@services/timeService';
 
 describe('Time Service', () => {
   it.each([
@@ -29,5 +33,43 @@ describe('Time Service', () => {
     },
   );
 
-  it('can parse dates from components', () => {});
+  it.each([
+    [1, 1, 2020, '2020-01-01T00:00:00.000Z'],
+    [31, 12, 2018, '2018-12-31T00:00:00.000Z'],
+    [29, 2, 2020, '2020-02-29T00:00:00.000Z'],
+    [28, 2, 2021, '2021-02-28T00:00:00.000Z'],
+    [16, 9, 2056, '2056-09-16T00:00:00.000Z'],
+  ])(
+    'can parse dates components: day %p, month %p, year %p should be: %p',
+    (day: number, month: number, year: number, expectedResult: string) => {
+      const parsedDate = parseDateComponents({
+        day,
+        month,
+        year,
+      });
+
+      const result = parsedDate?.toISOString();
+      expect(result).toBe(expectedResult);
+    },
+  );
+
+  it.each([
+    [1, '01'],
+    ['1', '01'],
+    [0, '00'],
+    [10, '10'],
+    [42, '42'],
+    [100, undefined],
+    [-1, undefined],
+    ['fp', undefined],
+    ['e', undefined],
+    ['01', '01'],
+  ])(
+    'can format numbers as double digits: %p should be %p',
+    (input: string | number, expectedResult: string | undefined) => {
+      const result = toTwoDigitFormat(input);
+
+      expect(result).toBe(expectedResult);
+    },
+  );
 });

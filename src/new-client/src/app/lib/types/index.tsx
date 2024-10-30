@@ -46,14 +46,16 @@ type AvailabilityTemplate = {
   sessions: AvailabilitySession[];
 };
 
-type DayOfWeek =
-  | 'Monday'
-  | 'Tuesday'
-  | 'Wednesday'
-  | 'Thursday'
-  | 'Friday'
-  | 'Saturday'
-  | 'Sunday';
+const daysOfTheWeek = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const;
+export type DayOfWeek = (typeof daysOfTheWeek)[number];
 
 type AvailabilitySession = {
   from: string;
@@ -88,6 +90,26 @@ type UserProfile = {
   availableSites: Site[];
 };
 
+type DateComponents = {
+  day: number;
+  month: number;
+  year: number;
+};
+
+type TimeComponents = {
+  hour: number;
+  minute: number;
+};
+
+type Session = {
+  startTime: TimeComponents;
+  endTime: TimeComponents;
+  break: 'yes' | 'no';
+  capacity: number;
+  slotLength: number;
+  services: string[];
+};
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -95,14 +117,17 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  DateComponents,
   ErrorType,
   Role,
   RoleAssignment,
+  Session,
   SetAttributesRequest,
   Site,
   SiteWithAttributes,
+  TimeComponents,
   User,
   UserProfile,
 };
 
-export { MyaError, UnauthorizedError };
+export { MyaError, UnauthorizedError, daysOfTheWeek };

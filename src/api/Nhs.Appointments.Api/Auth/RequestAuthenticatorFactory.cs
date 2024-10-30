@@ -15,7 +15,6 @@ public class RequestAuthenticatorFactory : IRequestAuthenticatorFactory
     public IRequestAuthenticator CreateAuthenticator(string scheme) => scheme switch
     {
         "Bearer" => _serviceProvider.GetService<BearerTokenRequestAuthenticator>(),
-        "ApiKey" => _serviceProvider.GetService<ApiKeyRequestAuthenticator>(),
         "Signed" => _serviceProvider.GetService<SignedRequestAuthenticator>(),
         _ => throw new NotSupportedException()
     };

@@ -38,7 +38,15 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         <div className="nhsuk-label">Start time</div>
         <div className="nhsuk-time-input-custom">
           <div className="nhsuk-time-input-custom__item">
+            <label
+              id="start-time-accessibility-label-hour"
+              htmlFor="start-time-hour"
+            >
+              Session start time - hour
+            </label>
             <input
+              aria-labelledby="start-time-accessibility-label-hour"
+              id="start-time-hour"
               className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
               {...register('session.startTime.hour')}
             ></input>
@@ -50,7 +58,14 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
           </div>
 
           <div className="nhsuk-time-input-custom__item">
+            <label
+              id="start-time-accessibility-label-minute"
+              htmlFor="start-time-minute"
+            >
+              Session start time - minute
+            </label>
             <input
+              aria-labelledby="start-time-accessibility-label-minute"
               className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
               {...register('session.startTime.minute')}
             ></input>
@@ -60,7 +75,14 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         <div className="nhsuk-label">End time</div>
         <div className="nhsuk-time-input-custom">
           <div className="nhsuk-time-input-custom__item">
+            <label
+              id="end-time-accessibility-label-hour"
+              htmlFor="end-time-hour"
+            >
+              Session end time - hour
+            </label>
             <input
+              aria-labelledby="end-time-accessibility-label-hour"
               className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
               {...register('session.endTime.hour')}
             ></input>
@@ -72,7 +94,14 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
           </div>
 
           <div className="nhsuk-time-input-custom__item">
+            <label
+              id="end-time-accessibility-label-minute"
+              htmlFor="end-time-minute"
+            >
+              Session end time - minute
+            </label>
             <input
+              aria-labelledby="end-time-accessibility-label-minute"
               className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
               {...register('session.endTime.minute')}
             ></input>
@@ -104,18 +133,30 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         hint="Enter your capacity to calculate appointment numbers for this session"
       >
         <FormGroup legend="How many vaccinators or spaces do you have?">
+          <label id="capacity" htmlFor="capacity" style={{ display: 'none' }}>
+            How many vaccinators or spaces do you have?
+          </label>
           <TextInput
             {...register('session.capacity')}
             id="capacity"
+            aria-labelledby="capacity"
             inputMode="numeric"
             width={2}
           ></TextInput>
         </FormGroup>
 
         <FormGroup legend="How long are your appointments?">
+          <label
+            id="slot-length"
+            htmlFor="slot-length"
+            style={{ display: 'none' }}
+          >
+            How long are your appointments?
+          </label>
           <TextInput
             {...register('session.slotLength')}
-            id="capacity"
+            id="slot-length"
+            aria-labelledby="slot-length"
             inputMode="numeric"
             width={2}
             suffix="minutes"

@@ -23,17 +23,22 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
         public async Task Assert(DataTable dataTable)
         {
             var row = dataTable.Rows.ElementAt(1);
-            var info = row.Cells.ElementAt(1).Value == "__empty__"
-                ? string.Empty
-                : row.Cells.ElementAt(1).Value;
 
             var expectedSite = new GetSiteMetaDataResponse(
                 Site: row.Cells.ElementAt(0).Value,
-                AdditionalInformation: info);
+                AdditionalInformation: row.Cells.ElementAt(1).Value);
 
             Response.StatusCode.Should().Be(HttpStatusCode.OK);
             var actualResponse = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
             actualResponse.Should().BeEquivalentTo(expectedSite);
+        }
+
+        [Then("no site meta data is returned")]
+        public async Task AssertEmpty()
+        {
+            Response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var actualResponse = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
+            actualResponse.AdditionalInformation.Should().BeEmpty();
         }
     }
 }

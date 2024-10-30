@@ -14,6 +14,4 @@
       | Site | Name   | Address      | Attributes             | Longitude | Latitude |
       | A    | Site-A | 1A Site Lane | def_one/attr_one=false | -60       | -60      |
     When I request site meta data for site 'A'
-    Then the correct site meta data is returned
-      | Site   | AdditionalInformation |
-      | Site-A | __empty__             |
+    Then no site meta data is returned

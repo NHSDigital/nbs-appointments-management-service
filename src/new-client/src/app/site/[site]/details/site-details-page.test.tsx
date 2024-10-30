@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AttributeDefinition, AttributeValue } from '@types';
+import { AttributeDefinition, SiteWithAttributes } from '@types';
 import {
   fetchAttributeDefinitions,
-  fetchSiteAttributeValues,
+  fetchSite,
 } from '@services/appointmentsService';
 import {
   mockAttributeDefinitions,
-  mockAttributeValues,
   mockSite,
+  mockSiteWithAttributes,
 } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
@@ -17,14 +17,12 @@ const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
 >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteAttributeValuesMock = fetchSiteAttributeValues as jest.Mock<
-  Promise<AttributeValue[]>
->;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
 
 describe('Manage Attributes Page', () => {
   beforeEach(() => {
     fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
-    fetchSiteAttributeValuesMock.mockResolvedValue(mockAttributeValues);
+    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
   });
 
   it('renders', async () => {
@@ -66,9 +64,9 @@ describe('Manage Attributes Page', () => {
     });
     render(jsx);
 
-    expect(screen.getByRole('link', { name: 'Go back' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toBeVisible();
 
-    expect(screen.getByRole('link', { name: 'Go back' })).toHaveAttribute(
+    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toHaveAttribute(
       'href',
       `/site/${mockSite.id}`,
     );

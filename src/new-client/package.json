@@ -2,6 +2,10 @@
   "name": "appointments-booking-service",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "^20.0.0",
+    "npm": ">=10.7.0"
+  },
   "scripts": {
     "prepare": "cd ../../ && husky src/new-client/.husky",
     "tsc": "tsc --noEmit",
@@ -30,6 +34,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.48.2",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",

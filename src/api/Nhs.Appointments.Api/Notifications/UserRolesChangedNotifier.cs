@@ -19,7 +19,7 @@ public class UserRolesChangedNotifier(ISendNotifications notificationClient, INo
             var rolesAddedNames = GetRoleNames(roles, rolesAdded);
             var rolesRemovedNames = GetRoleNames(roles, rolesRemoved);
 
-            var site = await siteService.GetSiteByIdAsync(siteId);
+            var site = await siteService.GetSiteByIdAsync(siteId, "*");
             var siteName = site == null ? $"Unknown site ({siteId})" : site.Name;
 
             var templateValues = new Dictionary<string, dynamic>

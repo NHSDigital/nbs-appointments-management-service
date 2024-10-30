@@ -22,6 +22,7 @@ export const TextArea = forwardRef<Ref, Props>((props, ref) => (
       rows={props.rows ?? 5}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
+      aria-label={props.label}
     />
   </div>
 ));

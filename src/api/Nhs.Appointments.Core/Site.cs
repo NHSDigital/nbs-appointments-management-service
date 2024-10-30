@@ -13,7 +13,10 @@ public record Site(
     IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]
     Location Location
-);
+)
+{
+    public IEnumerable<AttributeValue> AttributeValues { get; set; } = AttributeValues;
+}
 
 public record Location
 (
@@ -37,4 +40,12 @@ public record SiteWithDistance
     Site Site,
     [JsonProperty("distance")]
     int Distance 
+);
+
+public record AttributeRequest
+(
+    [JsonProperty("scope")]
+    string Scope,
+    [JsonProperty("attributeValues")]
+    IEnumerable<AttributeValue> AttributeValues
 );

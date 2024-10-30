@@ -12,15 +12,15 @@ public abstract class SiteBasedResourceFunction<TResponse>(IValidator<SiteBasedR
 {
     protected override Task<(bool requestRead, SiteBasedResourceRequest request)> ReadRequestAsync(HttpRequest req)
     {
+        var requestedScope = req.Query.Keys.Contains("scope") ? req.Query["scope"].ToString() : "*";
+
         if (req.Query.Keys.Contains("site"))
         {
             var site = req.Query["site"];
-            return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site, "*")));
+            return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(site, requestedScope)));
         }
 
         var siteId = RestUriHelper.GetResourceIdFromPath(req.Path.ToUriComponent(), "sites");
-        var requestedScope = req.Query["scope"].ToString();
-        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>
-            ((true, new SiteBasedResourceRequest(siteId, string.IsNullOrEmpty(requestedScope) ? "*" : requestedScope)));
+        return Task.FromResult<(bool requestRead, SiteBasedResourceRequest request)>((true, new SiteBasedResourceRequest(siteId, requestedScope)));
     }
 }

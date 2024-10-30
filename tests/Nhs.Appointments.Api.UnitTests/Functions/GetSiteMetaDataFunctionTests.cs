@@ -38,6 +38,32 @@ public class GetSiteMetaDataFunctionTests
         result.StatusCode.Should().Be(404);
     }
 
+    [Theory]
+    [InlineData("site_details/info_for_citizen", "Test information", "Test information")]
+    [InlineData("attr_one/test_attr", "Another test", "")]
+    public async Task RunAsync_ReturnsInformationForCitizen(string attrId, string attrVal, string expectedInformation)
+    {
+        _siteService.Setup(x => x.GetSiteByIdAsync("123", "site_details"))
+            .ReturnsAsync(new Site
+            (
+                Id: "123",
+                Name: "Test 123",
+                Address: "1 Test Street",
+                AttributeValues: [new(attrId, attrVal)],
+                Location: new Location("Test", [123.1, 321.3])
+            ));
+        var request = CreateRequest();
+
+        var result = await _sut.RunAsync(request) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var response = await ReadResponseAsync<GetSiteMetaDataResponse>(result.Content);
+
+        response.AdditionalInformation.Should().Be(expectedInformation);
+        response.Site.Should().Be("Test 123");
+    }
+
     private static HttpRequest CreateRequest()
     {
         var context = new DefaultHttpContext();

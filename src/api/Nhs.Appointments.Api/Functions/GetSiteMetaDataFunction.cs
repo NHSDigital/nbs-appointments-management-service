@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.OpenApi.Models;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -28,19 +29,23 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/meta")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "site/meta")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
-        var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
+        const string scope = "site_details";
+        var site = await siteService.GetSiteByIdAsync(request.Site, scope);
         if (site != null)
         {
-            throw new System.NotImplementedException();
+            var patientInformation = site.AttributeValues.Any()
+                ? site.AttributeValues?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
+                : string.Empty;
+            return ApiResult<GetSiteMetaDataResponse>.Success(new GetSiteMetaDataResponse(site.Name, patientInformation));
         }
 
         return Failed(HttpStatusCode.NotFound, "No site configuration was found for the specified site");
-    }    
+    }
 }

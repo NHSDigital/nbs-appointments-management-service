@@ -85,19 +85,22 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
-    public async Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
     {
-        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
         if (bookingIndexDocument != null)
         {
+            if (bookingIndexDocument.Created.AddMinutes(5) < time.GetUtcNow())
+                return BookingConfirmationResult.Expired;
+
             var updateStatusPatch = PatchOperation.Replace("/provisional", false);
             var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
             await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
             await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
-            return true;
+            return BookingConfirmationResult.Success;
         }
 
-        return false;
+        return BookingConfirmationResult.NotFound;
     }
 
     public async Task SetReminderSent(string bookingReference, string site)

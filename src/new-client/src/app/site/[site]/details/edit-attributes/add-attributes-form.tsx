@@ -32,7 +32,11 @@ const AddAttributesForm = ({
   attributeValues: AttributeValue[];
 }) => {
   const { replace } = useRouter();
-  const { register, handleSubmit, formState } = useForm<FormFields>({
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitted },
+  } = useForm<FormFields>({
     defaultValues: {
       attributeValues: attributeValues
         .filter(av => av.value === 'true')
@@ -79,7 +83,7 @@ const AddAttributesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      {formState.isSubmitting ? (
+      {isSubmitting || isSubmitted ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

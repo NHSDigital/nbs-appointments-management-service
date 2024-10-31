@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   FormGroup,
+  SmallSpinnerWithText,
   TextArea,
 } from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
@@ -23,12 +24,17 @@ const AddInformationForCitizensForm = ({
   site: string;
 }) => {
   const { replace } = useRouter();
-  const { register, handleSubmit, formState, watch } = useForm<FormFields>({
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitted, errors },
+    watch,
+  } = useForm<FormFields>({
     defaultValues: {
       informationForCitizen: information,
     },
   });
-  const { errors } = formState;
+
   const infoWatch = watch('informationForCitizen');
   const maxLength = 150;
 
@@ -83,12 +89,17 @@ const AddInformationForCitizensForm = ({
         </div>
       </FormGroup>
       <br />
-      <ButtonGroup>
-        <Button type="submit">Confirm site details</Button>
-        <Button styleType="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </ButtonGroup>
+
+      {isSubmitting || isSubmitted ? (
+        <SmallSpinnerWithText text="Saving..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit">Confirm site details</Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </form>
   );
 };

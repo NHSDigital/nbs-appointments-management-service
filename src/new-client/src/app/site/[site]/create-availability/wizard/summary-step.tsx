@@ -3,6 +3,7 @@ import NhsHeading from '@components/nhs-heading';
 import {
   Button,
   Card,
+  SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
@@ -12,7 +13,10 @@ import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 
 const SummaryStep = ({}: InjectedWizardProps) => {
-  const { getValues } = useFormContext<CreateAvailabilityFormValues>();
+  const {
+    getValues,
+    formState: { isSubmitting, isSubmitted },
+  } = useFormContext<CreateAvailabilityFormValues>();
 
   const { startDate, endDate, session, days, sessionType } = getValues();
 
@@ -57,7 +61,12 @@ const SummaryStep = ({}: InjectedWizardProps) => {
       <Card title={'Session details'}>
         <SummaryList items={summary}></SummaryList>
       </Card>
-      <Button type="submit">Save</Button>
+
+      {isSubmitting || isSubmitted ? (
+        <SmallSpinnerWithText text="Saving..." />
+      ) : (
+        <Button type="submit">Save</Button>
+      )}
     </>
   );
 };

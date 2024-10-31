@@ -11,6 +11,7 @@ import {
   CheckBoxes,
   CheckBox,
   ButtonGroup,
+  SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
 
 type FormFields = {
@@ -32,7 +33,7 @@ const AssignRolesForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isSubmitted },
   } = useForm<FormFields>({
     defaultValues: { roles: assignments.map(a => a.role) },
   });
@@ -69,12 +70,16 @@ const AssignRolesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      <ButtonGroup>
-        <Button type="submit">Confirm and save</Button>
-        <Button styleType="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </ButtonGroup>
+      {isSubmitting || isSubmitted ? (
+        <SmallSpinnerWithText text="Saving..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit">Confirm and save</Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </form>
   );
 };

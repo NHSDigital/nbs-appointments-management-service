@@ -3,19 +3,21 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import StartAndEndDateStep from './start-and-end-date-step';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { Site } from '@types';
+import { DateComponents, Session, Site, DayOfWeek } from '@types';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 import SummaryStep from './summary-step';
 import saveAvailabilityTemplate from './save-availability-template';
 import { useRouter } from 'next/navigation';
+import TimeAndCapacityStep from './time-and-capacity-step';
+import DaysOfWeekStep from './days-of-week-step';
+import SelectServicesStep from './select-services-step';
 
-export type AvailabilityTemplateFormValues = {
-  startDateDay: number;
-  startDateMonth: number;
-  startDateYear: number;
-  endDateDay: number;
-  endDateMonth: number;
-  endDateYear: number;
+export type CreateAvailabilityFormValues = {
+  startDate: DateComponents;
+  endDate: DateComponents;
+  sessionType: 'single' | 'repeating';
+  days: DayOfWeek[];
+  session: Session;
 };
 
 type Props = {
@@ -23,11 +25,30 @@ type Props = {
 };
 
 const AvailabilityTemplateWizard = ({ site }: Props) => {
-  const methods = useForm<AvailabilityTemplateFormValues>();
+  const methods = useForm<CreateAvailabilityFormValues>({
+    defaultValues: {
+      days: [],
+      sessionType: 'single',
+      session: {
+        startTime: {
+          hour: 9,
+          minute: 0,
+        },
+        endTime: {
+          hour: 17,
+          minute: 0,
+        },
+        break: 'no',
+        capacity: 1,
+        slotLength: 5,
+        services: [],
+      },
+    },
+  });
   const router = useRouter();
 
-  const submitForm: SubmitHandler<AvailabilityTemplateFormValues> = async (
-    form: AvailabilityTemplateFormValues,
+  const submitForm: SubmitHandler<CreateAvailabilityFormValues> = async (
+    form: CreateAvailabilityFormValues,
   ) => {
     await saveAvailabilityTemplate(form, site);
 
@@ -49,10 +70,19 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
           }}
         >
           <WizardStep>
+            {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
             {stepProps => <StartAndEndDateStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
+            {stepProps => <DaysOfWeekStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <SelectServicesStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>
           <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
         </Wizard>

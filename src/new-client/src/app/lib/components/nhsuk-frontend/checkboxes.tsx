@@ -13,4 +13,11 @@ const CheckBoxes = ({ children }: Props) => {
   return <div className="nhsuk-checkboxes">{children}</div>;
 };
 
+const CheckBoxOrAll = () => {
+  return (
+    <div style={{ marginBottom: 8, marginLeft: 12, display: 'block' }}>or</div>
+  );
+};
+
+export { CheckBoxOrAll };
 export default CheckBoxes;

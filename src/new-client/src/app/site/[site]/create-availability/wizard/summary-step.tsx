@@ -1,70 +1,55 @@
 'use client';
 import NhsHeading from '@components/nhs-heading';
 import {
-  BackLink,
   Button,
   Card,
   SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
-import { parseAndValidateDateFromComponents } from '@services/timeService';
+import { formatTimeString, parseDateComponents } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
-import { AvailabilityTemplateFormValues } from './availability-template-wizard';
+import { CreateAvailabilityFormValues } from './availability-template-wizard';
 
-const SingleOrRepeatingSessionStep = ({
-  goToPreviousStep,
-}: InjectedWizardProps) => {
-  const { getValues } = useFormContext<AvailabilityTemplateFormValues>();
+const SummaryStep = ({}: InjectedWizardProps) => {
+  const { getValues } = useFormContext<CreateAvailabilityFormValues>();
 
-  const formValues = getValues();
+  const { startDate, endDate, session, days, sessionType } = getValues();
 
-  const startDate = parseAndValidateDateFromComponents(
-    formValues.startDateDay,
-    formValues.startDateMonth,
-    formValues.startDateYear,
-  );
-
-  const endDate = parseAndValidateDateFromComponents(
-    formValues.endDateDay,
-    formValues.endDateMonth,
-    formValues.endDateYear,
-  );
+  const datesText =
+    sessionType === 'repeating'
+      ? `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`
+      : `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`;
 
   const summary: SummaryListItem[] = [
     {
       title: 'Dates',
-      value: `${startDate?.format('D MMMM YYYY')} - ${endDate?.format('D MMMM YYYY')}`,
+      value: datesText,
     },
     {
       title: 'Days',
-      value: `Monday, Tuesday, Wednesday, Thursday, Friday`,
+      value: days.join(', '),
     },
     {
       title: 'Time',
-      value: `09:00 - 17:00`,
-    },
-    {
-      title: 'Breaks',
-      value: `12:00 - 13:00`,
+      value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
     },
     {
       title: 'Services available',
-      value: `Flu 65+, RSV 75+`,
+      value: `${session.services.join(', ')}`,
     },
     {
       title: 'Maximum simultaneous appointments',
-      value: `1`,
+      value: `${session.capacity}`,
     },
     {
       title: 'Appointment length in minutes',
-      value: `10`,
+      value: `${session.slotLength}`,
     },
   ];
 
   return (
     <>
-      <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       <NhsHeading
         title="Check availability period"
         caption="Create availability period"
@@ -77,4 +62,4 @@ const SingleOrRepeatingSessionStep = ({
   );
 };
 
-export default SingleOrRepeatingSessionStep;
+export default SummaryStep;

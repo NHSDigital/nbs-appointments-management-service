@@ -73,3 +73,23 @@
   line-height: normal;
   font-size: 1rem;
 }
+
+.nhsuk-time-input-custom {
+  font-size: 0; /* 1 */
+}
+
+.nhsuk-time-input-custom::after {
+  clear: both;
+  content: '';
+  display: block;
+}
+
+.nhsuk-time-input-custom__item {
+  display: inline-block;
+  margin-bottom: 0;
+  margin-right: 8px;
+}
+
+.nhsuk-time-input-custom__input {
+  margin-bottom: 0;
+}

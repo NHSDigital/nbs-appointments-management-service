@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 type Props = {
-  legend: string;
+  legend?: string;
   children: ReactNode;
 };
 
@@ -13,9 +13,11 @@ type Props = {
 const FieldSet = ({ legend, children }: Props) => {
   return (
     <fieldset className="nhsuk-fieldset">
-      <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
-        <h1 className="nhsuk-fieldset__heading">{legend}</h1>
-      </legend>
+      {legend && (
+        <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
+          <h1 className="nhsuk-fieldset__heading">{legend}</h1>
+        </legend>
+      )}
 
       {children}
     </fieldset>

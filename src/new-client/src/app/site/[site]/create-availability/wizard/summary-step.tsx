@@ -34,10 +34,6 @@ const SummaryStep = ({}: InjectedWizardProps) => {
       title: 'Time',
       value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
     },
-    // {
-    //   title: 'Breaks',
-    //   value: `12:00 - 13:00`,
-    // },
     {
       title: 'Services available',
       value: `${session.services.join(', ')}`,

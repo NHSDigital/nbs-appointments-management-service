@@ -166,24 +166,6 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         </div>
       </FormGroup>
 
-      {/* <br />
-      <FormGroup legend="Add a break to this session?">
-        <RadioGroup>
-          <Radio
-            label="Yes"
-            {...register('session.break')}
-            id="break-yes"
-            value="yes"
-          />
-          <Radio
-            label="No"
-            {...register('session.break')}
-            id="break-no"
-            value="no"
-          />
-        </RadioGroup>
-      </FormGroup> */}
-
       <br />
       <FormGroup
         legend="Capacity"

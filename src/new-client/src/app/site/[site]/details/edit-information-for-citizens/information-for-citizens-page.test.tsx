@@ -19,7 +19,7 @@ jest.mock('./add-information-for-citizens-form', () => {
     return (
       <>
         <div>Add information for citizen form</div>
-        <text>{information}</text>
+        <span>{information}</span>
       </>
     );
   };

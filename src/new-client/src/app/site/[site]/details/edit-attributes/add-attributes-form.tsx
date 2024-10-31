@@ -7,6 +7,7 @@ import {
   CheckBoxes,
   CheckBox,
   ButtonGroup,
+  SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
 import {
   AttributeDefinition,
@@ -31,7 +32,7 @@ const AddAttributesForm = ({
   attributeValues: AttributeValue[];
 }) => {
   const { replace } = useRouter();
-  const { register, handleSubmit } = useForm<FormFields>({
+  const { register, handleSubmit, formState } = useForm<FormFields>({
     defaultValues: {
       attributeValues: attributeValues
         .filter(av => av.value === 'true')
@@ -78,12 +79,16 @@ const AddAttributesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      <ButtonGroup>
-        <Button type="submit">Confirm site details</Button>
-        <Button styleType="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </ButtonGroup>
+      {formState.isSubmitting ? (
+        <SmallSpinnerWithText text="Saving..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit">Confirm site details</Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </form>
   );
 };

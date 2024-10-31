@@ -334,13 +334,15 @@ public class SiteServiceTests
         result.Should().BeEquivalentTo(expectedSite);
     }
 
-    [Fact]
-    public async Task GetSiteByIdAsync_ReturnsDefault_WhenSiteIsNotFound()
+    [Theory]
+    [InlineData("*")]
+    [InlineData("site_details")]
+    public async Task GetSiteByIdAsync_ReturnsDefault_WhenSiteIsNotFound(string scope)
     {
         const string siteId = "ABC01";
         _siteStore.Setup(x => x.GetSiteById(siteId)).ReturnsAsync((Site)null!);
         
-        var result = await _sut.GetSiteByIdAsync(siteId);
+        var result = await _sut.GetSiteByIdAsync(siteId, scope);
         result.Should().BeNull();
     }
 }

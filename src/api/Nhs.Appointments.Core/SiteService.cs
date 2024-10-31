@@ -26,6 +26,8 @@ public class SiteService(ISiteStore siteStore) : ISiteService
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);
+        if (site is null)
+            return default;
 
         if (scope == "*")
             return site;

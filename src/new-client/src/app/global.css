@@ -93,3 +93,67 @@
 .nhsuk-time-input-custom__input {
   margin-bottom: 0;
 }
+
+.nhsuk-loader {
+  margin-bottom: 24px;
+  margin-top: 24px;
+
+  position: relative;
+  text-align: center;
+}
+
+.nhsuk-loader__spinner {
+  animation: spin 2s linear infinite;
+  border: 16px solid #d8dde0;
+  border-radius: 50%;
+  border-top: 16px solid #2675c4;
+  display: inline-block;
+  height: 120px;
+  margin: auto;
+  width: 120px;
+}
+
+.nhsuk-loader__text {
+  font-size: 19px;
+  display: block;
+  margin-bottom: 0;
+}
+
+.nhsuk-loader--small {
+  text-align: left;
+
+  .nhsuk-loader__spinner {
+    border-width: 4px;
+    border-top-width: 4px;
+    height: 24px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 24px;
+  }
+
+  .nhsuk-loader__text {
+    padding-left: 32px;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.nhsuk-loader--white {
+  .nhsuk-loader__spinner {
+    border-color: rgba(#fff, 0.3);
+    border-top-color: #fff;
+  }
+
+  .nhsuk-loader__text {
+    color: #fff;
+  }
+}

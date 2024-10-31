@@ -22,10 +22,7 @@ namespace Nhs.Appointments.Api.Auth
             return services;
         }
 
-        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services) =>services.Configure<ApiKeyOptions>(opts =>
-             {
-                 opts.ValidKeys = Environment.GetEnvironmentVariable("API_KEYS")?.Split(",") ?? new string[0];
-             })
+        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services) =>services
             .Configure<AuthOptions>(opts =>
             {
                 opts.Issuer = Environment.GetEnvironmentVariable("AuthProvider_Issuer");
@@ -45,7 +42,6 @@ namespace Nhs.Appointments.Api.Auth
             .AddRequestInspectors()
             .AddSingleton<SignedRequestAuthenticator>()
             .AddSingleton<BearerTokenRequestAuthenticator>()
-            .AddSingleton<ApiKeyRequestAuthenticator>()
             .AddSingleton<IJwksRetriever, JwksRetriever>()
             .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
             .AddTransient<IRequestSigner, RequestSigner>()

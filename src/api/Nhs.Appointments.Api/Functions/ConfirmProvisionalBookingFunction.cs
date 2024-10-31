@@ -8,12 +8,12 @@ using Nhs.Appointments.Core;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
+using ContactItem = Nhs.Appointments.Api.Models.ContactItem;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -32,7 +32,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     [RequiresPermission("booking:make", typeof(SiteFromPathInspector))]
     [Function("ConfirmProvisionalBookingFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/booking/{bookingReference}/confirm")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/confirm")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
@@ -51,9 +51,14 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<(bool requestRead, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        var baseRequest = await base.ReadRequestAsync(req);
+        var contactDetails = new ContactItem[] { };
+        if (req.Body != null)
+        {
+            var baseRequest = await base.ReadRequestAsync(req);
+            contactDetails = baseRequest.request.contactDetails ?? new ContactItem[] { };
+        }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (true, new ConfirmBookingRequest(bookingReference, baseRequest.request.contactDetails));        
+        return (true, new ConfirmBookingRequest(bookingReference, contactDetails));
     }
 }

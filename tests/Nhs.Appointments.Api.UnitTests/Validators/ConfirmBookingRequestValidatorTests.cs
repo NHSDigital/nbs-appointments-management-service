@@ -19,16 +19,6 @@ public class ConfirmBookingRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_ReturnError_WhenNoContactDetails()
-    {
-        var testRequest = new ConfirmBookingRequest("my-ref", null);
-        var result = _sut.Validate(testRequest);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(ConfirmBookingRequest.contactDetails));
-    }
-
-    [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
         var testRequest = new ConfirmBookingRequest("my-ref", [new ContactItem("email", "test@tempuri.org")]);

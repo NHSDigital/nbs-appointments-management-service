@@ -5,10 +5,11 @@ public class AvailabilityCalculatorTests
     private readonly AvailabilityCalculator _sut;
     private readonly Mock<IBookingsDocumentStore> _bookingDocumentStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityDocumentStore = new();
+    private readonly Mock<TimeProvider> _timeProvider = new();
 
     public AvailabilityCalculatorTests()
     {
-        _sut = new AvailabilityCalculator(_availabilityDocumentStore.Object, _bookingDocumentStore.Object);
+        _sut = new AvailabilityCalculator(_availabilityDocumentStore.Object, _bookingDocumentStore.Object, _timeProvider.Object);
     }
 
     [Fact]

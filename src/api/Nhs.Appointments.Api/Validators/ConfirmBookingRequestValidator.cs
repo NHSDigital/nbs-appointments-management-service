@@ -10,9 +10,6 @@ public class ConfirmBookingRequestValidator : AbstractValidator<ConfirmBookingRe
     {
         RuleFor(x => x.bookingReference)
             .NotEmpty().WithMessage("Provide a valid booking reference");
-        RuleFor(x => x.contactDetails)
-            .NotEmpty().WithMessage("Provide contact details");
-
     }
 }
 

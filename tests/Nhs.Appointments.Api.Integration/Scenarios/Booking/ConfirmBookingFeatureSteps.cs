@@ -47,13 +47,7 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
     public void AssertFailureCode(int statusCode)
     {
         _response.StatusCode.Should().Be((System.Net.HttpStatusCode)statusCode);
-    }
-
-    [Then(@"the call should fail with (\d*)")]
-    public void AssertFailureCode(int statusCode)
-    {
-        _response.StatusCode.Should().Be((System.Net.HttpStatusCode)statusCode);
-    }    
+    }  
 
     [And("the booking is no longer marked as provisional")]
     public async Task AssertBookingNotProvisional()

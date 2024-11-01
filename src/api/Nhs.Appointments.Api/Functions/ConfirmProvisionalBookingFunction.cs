@@ -39,14 +39,19 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var success = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
+        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
 
-        if (success)
+        switch (result)
         {
-            return Success();
+            case BookingConfirmationResult.NotFound:
+                return Failed(HttpStatusCode.NotFound, "The booking was not found");
+            case BookingConfirmationResult.Expired:
+                return Failed(HttpStatusCode.Gone, "The provisional booking expired");
+            case BookingConfirmationResult.Success:
+                return Success();
         }
 
-        return Failed(HttpStatusCode.NotFound, "The booking was not found");
+        return Failed(HttpStatusCode.InternalServerError, "An uknown error occured when trying to confirm the appointment");
     }
 
     protected override async Task<(bool requestRead, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)

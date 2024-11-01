@@ -42,7 +42,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     {
         var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
 
-        switch(result)
+        switch (result)
         {
             case BookingConfirmationResult.NotFound:
                 return Failed(HttpStatusCode.NotFound, "The booking was not found");

@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.VisualBasic;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq;
@@ -42,6 +41,12 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
     public void AssertHttpOk()
     {
         _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+    }    
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode)
+    {
+        _response.StatusCode.Should().Be((System.Net.HttpStatusCode)statusCode);
     }
 
     [Then(@"the call should fail with (\d*)")]
@@ -63,7 +68,7 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
     }
 
     [And("the booking should have stored my contact details as follows")]
-    public async Task AssertBookingContactDetails(Gherkin.Ast.DataTable dataTable)    
+    public async Task AssertBookingContactDetails(Gherkin.Ast.DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 

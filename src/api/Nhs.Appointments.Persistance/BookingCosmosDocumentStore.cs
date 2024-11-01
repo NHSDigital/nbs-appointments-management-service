@@ -103,6 +103,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return BookingConfirmationResult.NotFound;
     }
 
+
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);

@@ -22,11 +22,12 @@ const AddInformationForCitizensForm = ({
   site: string;
 }) => {
   const { replace } = useRouter();
-  const { register, handleSubmit } = useForm<FormFields>({
+  const { register, handleSubmit, formState } = useForm<FormFields>({
     defaultValues: {
       informationForCitizen: information,
     },
   });
+  const { errors } = formState;
 
   const cancel = () => {
     replace(`/site/${site}/details`);
@@ -48,13 +49,35 @@ const AddInformationForCitizensForm = ({
     replace(`/site/${site}/details`);
   };
 
+  const isValidTextInput = (text: string): boolean => {
+    const urlRegex = new RegExp(
+      '([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?([^ ])+',
+    );
+    if (urlRegex.test(text)) {
+      return false;
+    }
+
+    const specialCharacterRegex = /^[-\w \.\,\-]+$/;
+    return specialCharacterRegex.test(text);
+  };
+
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup legend="Information for citizens">
+      <FormGroup
+        legend="Information for citizens"
+        error={errors.informationForCitizen?.message}
+      >
         <div className="nhsuk-form-group">
           <TextArea
             label="What information would you like to include?"
-            {...register('informationForCitizen')}
+            maxLength={150}
+            {...register('informationForCitizen', {
+              validate: value => {
+                if (!isValidTextInput(value)) {
+                  return "Text cannot contain a URL or special characters outside of '.' ',' '-'";
+                }
+              },
+            })}
           />
         </div>
       </FormGroup>

@@ -57,11 +57,6 @@ variable "auth_provider_return_uri" {
   sensitive = false
 }
 
-variable "api_keys" {
-  type      = string
-  sensitive = true
-}
-
 variable "gov_notify_api_key" {
   type      = string
   sensitive = true

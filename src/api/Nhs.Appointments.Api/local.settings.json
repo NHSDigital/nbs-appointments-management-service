@@ -12,7 +12,6 @@
     "COSMOS_TOKEN": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
     "COSMOS_IGNORE_SSL_CERT": true,
     "LEASE_MANAGER_CONNECTION": "local",
-    "API_KEYS": "12345",
     "AuthProvider_Issuer": "http://localhost:8020",
     "AuthProvider_AuthorizeUri": "http://localhost:8020/connect/authorize",
     "AuthProvider_TokenUri": "http://localhost:8020/connect/token",

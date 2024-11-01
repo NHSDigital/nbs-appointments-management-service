@@ -16,7 +16,9 @@ public record MakeBookingRequest(
     [JsonProperty("attendeeDetails")]
     AttendeeDetails AttendeeDetails,
     [JsonProperty("contactDetails")]
-    ContactItem[] ContactDetails
+    ContactItem[] ContactDetails,
+    [JsonProperty("provisional")]
+    bool Provisional = false
 )
 
 {

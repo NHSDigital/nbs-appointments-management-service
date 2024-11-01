@@ -10,10 +10,11 @@ public class BookingCosmosDocumentStoreTests
     private readonly Mock<ITypedDocumentCosmosStore<BookingDocument>> _bookingStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<BookingIndexDocument>> _indexStore = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<TimeProvider> _timeProvider = new();
 
     public BookingCosmosDocumentStoreTests()
     {
-        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, _metricsRecorder.Object);
+        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, _metricsRecorder.Object, _timeProvider.Object);
     }
     
     [Fact]

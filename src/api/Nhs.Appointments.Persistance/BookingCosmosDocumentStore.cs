@@ -5,18 +5,21 @@ using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder) : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time) : IBookingsDocumentStore
 {
     private const int PointReadLimit = 3;    
            
-    public Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        return bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
+        {
+            return await bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+        }
     }
 
-    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, bool provisional = false)
     {
-        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
         var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -49,7 +52,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
-        var grouped = bookingIndexDocuments.GroupBy(bi => bi.Site);
+        var grouped = bookingIndexDocuments.Where(bi => bi.Provisional == false).GroupBy(bi => bi.Site);
         foreach (var siteBookings in grouped)
         {
             if (siteBookings.Count() > PointReadLimit)
@@ -82,11 +85,25 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
+    public async Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    {
+        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument != null)
+        {
+            var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+            var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+            await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+            await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
+            return true;
+        }
+
+        return false;
+    }
+
     public async Task SetReminderSent(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/reminderSent", true);
         await bookingStore.PatchDocument(site, bookingReference, patch);
-
     }
 
     public async Task InsertAsync(Booking booking)
@@ -101,5 +118,15 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     public IDocumentUpdate<Booking> BeginUpdate(string site, string reference)
     {
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
+    }
+
+    public async Task RemoveUnconfirmedProvisionalBookings()
+    {
+        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= time.GetUtcNow().AddMinutes(-5));
+        foreach (var indexDocument in indexDocuments)
+        {
+            await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
+            await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
+        }
     }
 }    

@@ -47,7 +47,8 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
                 LastName = bookingRequest.AttendeeDetails.LastName,
                 NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
             },
-            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
+            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray(),
+            Provisional = bookingRequest.Provisional
         };
 
         
@@ -55,7 +56,7 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
-        var response = new MakeBookingResponse(bookingResult.Reference);
+        var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional);
         return Success(response);               
     }    
 }

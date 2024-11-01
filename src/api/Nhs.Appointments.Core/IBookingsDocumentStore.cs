@@ -12,7 +12,7 @@ public interface IBookingsDocumentStore
     Task<bool> UpdateStatus(string bookingReference, string status);
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);
     Task SetReminderSent(string bookingReference, string site);
-    Task<bool> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails);
+    Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails);
     Task RemoveUnconfirmedProvisionalBookings();
 }
 
@@ -31,4 +31,12 @@ public interface IDocumentUpdate<TModel>
 {
     IDocumentUpdate<TModel> UpdateProperty<TProp>(Expression<Func<TModel, TProp>> prop, TProp val);
     Task ApplyAsync();
+}
+
+public enum BookingConfirmationResult
+{
+    Unknown,
+    Success,
+    Expired,
+    NotFound
 }

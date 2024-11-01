@@ -36,7 +36,6 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     COSMOS_TOKEN                               = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
     LEASE_MANAGER_CONNECTION                   = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING      = azurerm_application_insights.nbs_mya_application_insights.connection_string
-    API_KEYS                                   = var.api_keys
     AuthProvider_Issuer                        = var.auth_provider_issuer
     AuthProvider_AuthorizeUri                  = var.auth_provider_authorize_uri
     AuthProvider_TokenUri                      = var.auth_provider_token_uri

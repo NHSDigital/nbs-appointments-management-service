@@ -152,6 +152,37 @@ public class AvailabilityCalculatorTests
     }
 
     [Fact]
+    public async Task CalculateAvailability_AsjustsSlotCapacity_BasedOnBookings_IgnoresExpiredProvisionalAppointments()
+    {
+        _timeProvider.Setup(t => t.GetUtcNow()).Returns(DateTime.UtcNow);
+
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 2, "COVID"),
+        };
+
+        var bookings = new[]
+        {
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", null, true, DateTime.Now.AddMinutes(-6))
+        };
+
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "ABC01")).ReturnsAsync(bookings);
+
+        var results = await _sut.CalculateAvailability("ABC01", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 2 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 2 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
     public async Task CalculateAvailability_FiltersSlots_WithNoRemainingCapacity()
     {
         var sessions = new[]
@@ -227,8 +258,9 @@ public class AvailabilityCalculatorTests
         return sessionInstance;
     }
     
-    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, string outcome = null)
+    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, string outcome = null, bool provisional = false, DateTime? created = null)
     {
+        created = created ?? DateTime.Now;
         var testBooking = new Booking
         {
             Reference = "123",
@@ -243,7 +275,9 @@ public class AvailabilityCalculatorTests
                 DateOfBirth = new DateOnly(2000, 01, 01),
                 FirstName = "FirstName",
                 LastName = "LastName"
-            }
+            },
+            Provisional = provisional,
+            Created = created.Value
         };
         return testBooking;
     }

@@ -1,78 +1,65 @@
 'use client';
 import {
-  BackLink,
   Button,
   DateInput,
   FormGroup,
   TextInput,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
-import { AvailabilityTemplateFormValues } from './availability-template-wizard';
+import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import dayjs from 'dayjs';
-import {
-  isSameDayOrBefore,
-  parseAndValidateDateFromComponents,
-} from '@services/timeService';
+import { isSameDayOrBefore, parseDateComponents } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
 const StartAndEndDateStep = ({
+  stepNumber,
   goToNextStep,
-  goToPreviousStep,
-  returnRouteUponCancellation,
+  setCurrentStep,
 }: InjectedWizardProps) => {
-  const { register, formState, trigger, watch, setError } =
-    useFormContext<AvailabilityTemplateFormValues>();
+  const { register, formState, trigger, watch, setError, getValues } =
+    useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
-  const {
-    startDateDay,
-    startDateMonth,
-    startDateYear,
-    endDateDay,
-    endDateMonth,
-    endDateYear,
-  } = watch();
+  const [startDateWatch, endDateWatch] = watch(['startDate', 'endDate']);
+  const sessionType = getValues('sessionType');
 
   const validateFields = async () => {
     const fieldsAreIndividuallyValid = await trigger([
-      'startDateDay',
-      'startDateMonth',
-      'startDateYear',
-      'endDateDay',
-      'endDateMonth',
-      'endDateYear',
+      'startDate.day',
+      'startDate.month',
+      'startDate.year',
+      'endDate.day',
+      'endDate.month',
+      'endDate.year',
     ]);
     if (!fieldsAreIndividuallyValid) {
       return false;
     }
 
-    const startDate = parseAndValidateDateFromComponents(
-      startDateDay,
-      startDateMonth,
-      startDateYear,
-    );
+    const startDate = parseDateComponents(startDateWatch);
     if (startDate === undefined) {
-      setError('startDateDay', { message: 'Please enter a valid date' });
+      setError('startDate.day', { message: 'Please enter a valid date' });
       return false;
     }
 
-    const endDate = parseAndValidateDateFromComponents(
-      endDateDay,
-      endDateMonth,
-      endDateYear,
-    );
-    if (endDate === undefined) {
-      setError('endDateDay', { message: 'Please enter a valid date' });
-      return false;
-    }
+    if (sessionType === 'repeating') {
+      const endDate = parseDateComponents(
+        endDateWatch ?? { day: 0, month: 0, year: 0 },
+      );
 
-    const endDateIsAfterStartDate = isSameDayOrBefore(startDate, endDate);
-    if (!endDateIsAfterStartDate) {
-      setError('endDateDay', {
-        message: 'End date must be after the start date',
-      });
-      return false;
+      if (endDate === undefined) {
+        setError('endDate.day', { message: 'Please enter a valid date' });
+        return false;
+      }
+
+      const endDateIsAfterStartDate = isSameDayOrBefore(startDate, endDate);
+      if (!endDateIsAfterStartDate) {
+        setError('endDate', {
+          message: 'End date must be after the start date',
+        });
+        return false;
+      }
     }
 
     return true;
@@ -85,28 +72,29 @@ const StartAndEndDateStep = ({
       return;
     }
 
-    goToNextStep();
+    if (getValues('sessionType') === 'repeating') {
+      goToNextStep();
+    } else {
+      setCurrentStep(stepNumber + 2);
+    }
   };
 
   return (
     <>
-      {returnRouteUponCancellation ? (
-        <BackLink
-          href={returnRouteUponCancellation}
-          renderingStrategy="server"
-        />
-      ) : (
-        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
-      )}
       <NhsHeading
-        title="Add start and end dates for your availability period"
+        title={
+          sessionType === 'single'
+            ? 'Session date'
+            : 'Add start and end dates for your availability period'
+        }
         caption="Create availability period"
       />
       <FormGroup
         error={
-          errors.startDateDay?.message ||
-          errors.startDateMonth?.message ||
-          errors.startDateYear?.message
+          errors.startDate?.message ||
+          errors.startDate?.day?.message ||
+          errors.startDate?.month?.message ||
+          errors.startDate?.year?.message
         }
       >
         <DateInput
@@ -119,7 +107,7 @@ const StartAndEndDateStep = ({
             type="number"
             id="start-date-input-day"
             inputType="date"
-            {...register('startDateDay', {
+            {...register('startDate.day', {
               required: 'Day is required',
               min: { value: 1, message: 'Please enter a valid day' },
               max: { value: 31, message: 'Please enter a valid day' },
@@ -134,7 +122,7 @@ const StartAndEndDateStep = ({
             type="number"
             id="start-date-input-month"
             inputType="date"
-            {...register('startDateMonth', {
+            {...register('startDate.month', {
               required: 'Month is required',
               min: { value: 1, message: 'Please enter a valid month' },
               max: { value: 12, message: 'Please enter a valid month' },
@@ -149,7 +137,7 @@ const StartAndEndDateStep = ({
             type="number"
             id="start-date-input-year"
             inputType="date"
-            {...register('startDateYear', {
+            {...register('startDate.year', {
               required: 'Year is required',
               min: {
                 value: dayjs().year(),
@@ -164,66 +152,73 @@ const StartAndEndDateStep = ({
           />
         </DateInput>
       </FormGroup>
-      <br />
-      <FormGroup
-        error={
-          errors.endDateDay?.message ||
-          errors.endDateMonth?.message ||
-          errors.endDateYear?.message
-        }
-      >
-        <DateInput
-          heading="End date"
-          hint="For example, 15 3 1984"
-          id="end-date-input"
-        >
-          <TextInput
-            label="Day"
-            type="number"
-            id="end-date-input-day"
-            inputType="date"
-            {...register('endDateDay', {
-              required: 'Day is required',
-              min: { value: 1, message: 'Please enter a valid day' },
-              max: { value: 31, message: 'Please enter a valid day' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid day',
-              },
-            })}
-          />
-          <TextInput
-            label="Month"
-            type="number"
-            id="end-date-input-month"
-            inputType="date"
-            {...register('endDateMonth', {
-              required: 'Month is required',
-              min: { value: 1, message: 'Please enter a valid month' },
-              max: { value: 12, message: 'Please enter a valid month' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid month',
-              },
-            })}
-          />
-          <TextInput
-            label="Year"
-            type="number"
-            id="end-date-input-year"
-            inputType="date"
-            {...register('endDateYear', {
-              required: 'Year is required',
-              min: { value: 2020, message: 'Please enter a valid year' },
-              max: { value: 3000, message: 'Please enter a valid year' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid year',
-              },
-            })}
-          />
-        </DateInput>
-      </FormGroup>
+      {getValues('sessionType') === 'repeating' && (
+        <>
+          {' '}
+          <br />
+          <FormGroup
+            error={
+              errors.endDate?.message ||
+              errors.endDate?.day?.message ||
+              errors.endDate?.month?.message ||
+              errors.endDate?.year?.message
+            }
+          >
+            <DateInput
+              heading="End date"
+              hint="For example, 15 3 1984"
+              id="end-date-input"
+            >
+              <TextInput
+                label="Day"
+                type="number"
+                id="end-date-input-day"
+                inputType="date"
+                {...register('endDate.day', {
+                  required: 'Day is required',
+                  min: { value: 1, message: 'Please enter a valid day' },
+                  max: { value: 31, message: 'Please enter a valid day' },
+                  pattern: {
+                    value: /^[0-9]*$/,
+                    message: 'Please enter a valid day',
+                  },
+                })}
+              />
+              <TextInput
+                label="Month"
+                type="number"
+                id="end-date-input-month"
+                inputType="date"
+                {...register('endDate.month', {
+                  required: 'Month is required',
+                  min: { value: 1, message: 'Please enter a valid month' },
+                  max: { value: 12, message: 'Please enter a valid month' },
+                  pattern: {
+                    value: /^[0-9]*$/,
+                    message: 'Please enter a valid month',
+                  },
+                })}
+              />
+              <TextInput
+                label="Year"
+                type="number"
+                id="end-date-input-year"
+                inputType="date"
+                {...register('endDate.year', {
+                  required: 'Year is required',
+                  min: { value: 2020, message: 'Please enter a valid year' },
+                  max: { value: 3000, message: 'Please enter a valid year' },
+                  pattern: {
+                    value: /^[0-9]*$/,
+                    message: 'Please enter a valid year',
+                  },
+                })}
+              />
+            </DateInput>
+          </FormGroup>
+        </>
+      )}
+
       <Button
         type="button"
         onClick={async () => {

@@ -30,7 +30,6 @@ module "api" {
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
   auth_provider_return_uri                       = var.AUTH_PROVIDER_RETURN_URI
-  api_keys                                       = var.API_KEYS
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
   booking_reminders_cron_schedule                = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE

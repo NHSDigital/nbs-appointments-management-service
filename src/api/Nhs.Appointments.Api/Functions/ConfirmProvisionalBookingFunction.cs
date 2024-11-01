@@ -25,6 +25,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         IMetricsRecorder metricsRecorder) : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {        
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: ["Booking"], Summary = "Confirm a provisional booking")]
+    [OpenApiParameter("bookingReference", Required = true, In = ParameterLocation.Path, Description = "The booking reference of the provisional booking")]
     [OpenApiRequestBody("application/json", typeof(ConfirmBookingRequestPayload), Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(EmptyResponse), Description = "Returns 200 OK if booking was confirmed")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]

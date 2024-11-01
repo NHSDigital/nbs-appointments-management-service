@@ -30,24 +30,24 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
   }
 
   app_settings = {
-    FUNCTIONS_WORKER_RUNTIME              = "dotnet-isolated"
-    WEBSITE_RUN_FROM_PACKAGE              = 1
-    COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
-    COSMOS_TOKEN                          = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
-    LEASE_MANAGER_CONNECTION              = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
-    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.nbs_mya_application_insights.connection_string
-    API_KEYS                              = var.api_keys
-    AuthProvider_Issuer                   = var.auth_provider_issuer
-    AuthProvider_AuthorizeUri             = var.auth_provider_authorize_uri
-    AuthProvider_TokenUri                 = var.auth_provider_token_uri
-    AuthProvider_JwksUri                  = var.auth_provider_jwks_uri
-    AuthProvider_ChallengePhrase          = var.auth_provider_challenge_phrase
-    AuthProvider_ClientId                 = var.auth_provider_client_id
-    AuthProvider_ReturnUri                = var.auth_provider_return_uri
-    Notifications_Provider                = "azure"
-    GovNotifyApiKey                       = var.gov_notify_api_key
-    ServiceBusConnectionString            = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
-    BookingRemindersCronSchedule          = var.booking_reminders_cron_schedule
+    FUNCTIONS_WORKER_RUNTIME                   = "dotnet-isolated"
+    WEBSITE_RUN_FROM_PACKAGE                   = 1
+    COSMOS_ENDPOINT                            = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
+    COSMOS_TOKEN                               = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
+    LEASE_MANAGER_CONNECTION                   = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
+    APPLICATIONINSIGHTS_CONNECTION_STRING      = azurerm_application_insights.nbs_mya_application_insights.connection_string
+    AuthProvider_Issuer                        = var.auth_provider_issuer
+    AuthProvider_AuthorizeUri                  = var.auth_provider_authorize_uri
+    AuthProvider_TokenUri                      = var.auth_provider_token_uri
+    AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
+    AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
+    AuthProvider_ClientId                      = var.auth_provider_client_id
+    AuthProvider_ReturnUri                     = var.auth_provider_return_uri
+    Notifications_Provider                     = "azure"
+    GovNotifyApiKey                            = var.gov_notify_api_key
+    ServiceBusConnectionString                 = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
+    BookingRemindersCronSchedule               = var.booking_reminders_cron_schedule
+    UnconfirmedProvisionalBookingsCronSchedule = var.unconfirmed_provisional_bookings_cron_schedule
   }
 
   identity {

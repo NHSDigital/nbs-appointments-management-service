@@ -5,7 +5,7 @@ public interface IAvailabilityCalculator
     Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
 }
 
-public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore) : IAvailabilityCalculator
+public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore, TimeProvider time) : IAvailabilityCalculator
 {
     public async Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until)
     {
@@ -23,7 +23,8 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
             var bookings = await bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0, 0)), until.ToDateTime(new TimeOnly(23, 59)), site);
 
             var isNotCancelled = (Booking b) => b.Outcome?.ToLower() != "cancelled";
-            var liveBookings = bookings.Where(isNotCancelled);
+            var isNotExpiredProvisional = (Booking b) => b.Provisional == false || b.Created.AddMinutes(5) > time.GetUtcNow();
+            var liveBookings = bookings.Where(isNotCancelled).Where(isNotExpiredProvisional);
 
             foreach (var booking in liveBookings)
             {

@@ -57,14 +57,14 @@ variable "auth_provider_return_uri" {
   sensitive = false
 }
 
-variable "api_keys" {
+variable "gov_notify_api_key" {
   type      = string
   sensitive = true
 }
 
-variable "gov_notify_api_key" {
+variable "unconfirmed_provisional_bookings_cron_schedule" {
   type      = string
-  sensitive = true
+  sensitive = false
 }
 
 variable "booking_reminders_cron_schedule" {

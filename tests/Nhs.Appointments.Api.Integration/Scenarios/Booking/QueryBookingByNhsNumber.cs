@@ -39,6 +39,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
+                    Created = DateTime.UtcNow,
+                    Provisional = false,
                     AttendeeDetails = new AttendeeDetails
                     {
                         NhsNumber = NhsNumber,
@@ -54,7 +56,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 }).ToList();
 
             _statusCode.Should().Be(HttpStatusCode.OK);
-            _actualResponse.Should().BeEquivalentTo(expectedBookings);
+            BookingAssertions.BookingsAreEquivalent(_actualResponse, expectedBookings);
         }
         
         [Then(@"the request is successful and no bookings are returned")]

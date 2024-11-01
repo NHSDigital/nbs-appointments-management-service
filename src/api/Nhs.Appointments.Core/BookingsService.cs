@@ -9,100 +9,96 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
-    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
+    Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
     Task CancelBooking(string site, string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails);
+    Task RemoveUnconfirmedProvisionalBookings();
 }    
 
-public class BookingsService : IBookingsService
-{
-    private readonly IAvailabilityCalculator _availabilityCalculator;
-    private readonly IReferenceNumberProvider _referenceNumberProvider;
-    private readonly IBookingsDocumentStore _bookingDocumentStore;
-    private readonly ISiteLeaseManager _siteLeaseManager;
-    private readonly IMessageBus _bus;
-    private readonly TimeProvider _time;
-    
-    public BookingsService(
-        IBookingsDocumentStore bookingDocumentStore, 
+public class BookingsService(
+        IBookingsDocumentStore bookingDocumentStore,
         IReferenceNumberProvider referenceNumberProvider,
-        ISiteLeaseManager siteLeaseManager, 
+        ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
         IMessageBus bus,
-        TimeProvider time) 
-    {
-        _bookingDocumentStore = bookingDocumentStore;
-        _referenceNumberProvider = referenceNumberProvider;
-        _availabilityCalculator = availabilityCalculator;
-        _siteLeaseManager = siteLeaseManager;
-        _bus = bus;
-        _time = time;
-    }
-
+        TimeProvider time) : IBookingsService
+{ 
     public Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
-        return _bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookingDocumentStore.GetInDateRangeAsync(from, to, site);
     }
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
     {
-        return _bookingDocumentStore.GetCrossSiteAsync(from, to);
+        return bookingDocumentStore.GetCrossSiteAsync(from, to, false);
     }
 
     public Task<Booking> GetBookingByReference(string bookingReference)
     {
-        return _bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+        return bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
     }
     
     public Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
     {
-        return _bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
+        return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
+    public async Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking)
     {            
-        using (var leaseContent = _siteLeaseManager.Acquire(booking.Site))
+        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {                
-            var slots = await _availabilityCalculator.CalculateAvailability(booking.Site, booking.Service, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {
-                booking.Reference = await _referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.Created = time.GetUtcNow().DateTime;
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
-                await _bookingDocumentStore.InsertAsync(booking);
-                var bookingMadeEvent = BuildBookingMadeEvent(booking);
-                await _bus.Send(bookingMadeEvent);
-                return (true, booking.Reference);
+                await bookingDocumentStore.InsertAsync(booking);
+
+                if (!booking.Provisional)
+                {
+                    var bookingMadeEvent = BuildBookingMadeEvent(booking);
+                    await bus.Send(bookingMadeEvent);
+                }
+
+                return (true, booking.Reference, booking.Provisional);
             }
 
-            return (false, string.Empty);
+            return (false, string.Empty, booking.Provisional);
         }            
     }
 
     public Task CancelBooking(string site, string bookingReference)
     {
-        return _bookingDocumentStore
+        return bookingDocumentStore
             .BeginUpdate(site, bookingReference)
             .UpdateProperty(b => b.Outcome, "Cancelled")                
             .ApplyAsync();
     }
 
+    public Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    {
+        return bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails);
+    }
+
     public Task<bool> SetBookingStatus(string bookingReference, string status)
     {
-        return _bookingDocumentStore.UpdateStatus(bookingReference, status);
+        return bookingDocumentStore.UpdateStatus(bookingReference, status);
     }
 
     public async Task SendBookingReminders()
     {
-        var bookings = await GetBookings(_time.GetLocalNow().DateTime, _time.GetLocalNow().AddDays(3).DateTime);
+        var bookings = await GetBookings(time.GetLocalNow().DateTime, time.GetLocalNow().AddDays(3).DateTime);
         foreach (var booking in bookings.Where(b => !b.ReminderSent))
         {
             var reminder = BuildReminderEvent(booking);
-            await _bus.Send(reminder);
+            await bus.Send(reminder);
             booking.ReminderSent = true;
-            await _bookingDocumentStore.SetReminderSent(booking.Reference, booking.Site);
+            await bookingDocumentStore.SetReminderSent(booking.Reference, booking.Site);
         }
     }
 
@@ -142,5 +138,10 @@ public class BookingsService : IBookingsService
             Site = booking.Site,
             ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
         };
+    }
+
+    public Task RemoveUnconfirmedProvisionalBookings()
+    {
+        return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 }

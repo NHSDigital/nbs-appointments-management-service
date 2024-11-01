@@ -14,6 +14,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using ContactItem = Nhs.Appointments.Api.Models.ContactItem;
+using Nhs.Appointments.Api.Json;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -24,11 +25,14 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         IMetricsRecorder metricsRecorder) : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {        
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: ["Booking"], Summary = "Confirm a provisional booking")]
-    [OpenApiRequestBody("application/json", typeof(ConfirmBookingRequest), Required = true)]
+    [OpenApiParameter("bookingReference", Required = true, In = ParameterLocation.Path, Description = "The booking reference of the provisional booking")]
+    [OpenApiRequestBody("application/json", typeof(ConfirmBookingRequestPayload), Required = false)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(EmptyResponse), Description = "Returns 200 OK if booking was confirmed")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Gone, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because the provisional booking has expired")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because a provisional booking with matching reference could not be found")]
     [RequiresPermission("booking:make", typeof(SiteFromPathInspector))]
     [Function("ConfirmProvisionalBookingFunction")]
     public override Task<IActionResult> RunAsync(
@@ -59,11 +63,13 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         var contactDetails = new ContactItem[] { };
         if (req.Body != null)
         {
-            var baseRequest = await base.ReadRequestAsync(req);
-            contactDetails = baseRequest.request.contactDetails ?? new ContactItem[] { };
+            var (read, payload) = await JsonRequestReader.TryReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
+            if(read && payload != null)
+                contactDetails = payload.contactDetails ?? new ContactItem[] { };
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
         return (true, new ConfirmBookingRequest(bookingReference, contactDetails));
     }
+    
 }

@@ -8,7 +8,6 @@ import {
 import { Controller, useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
-import dayjs from 'dayjs';
 import {
   isSameDayOrBefore,
   now,
@@ -67,7 +66,7 @@ const StartAndEndDateStep = ({
               const startDate = parseDateComponents(value);
 
               if (startDate === undefined) {
-                return 'Session date must include a valid date';
+                return 'Session date must be a valid date';
               }
 
               if (startDate.isBefore(now(), 'day')) {
@@ -88,15 +87,6 @@ const StartAndEndDateStep = ({
                 inputType="date"
                 {...register('startDate.day', {
                   valueAsNumber: true,
-                  required: 'Session date must include a day',
-                  min: {
-                    value: 1,
-                    message: 'Session date must include a valid day',
-                  },
-                  max: {
-                    value: 31,
-                    message: 'Session date must include a valid day',
-                  },
                 })}
               />
               <TextInput
@@ -106,15 +96,6 @@ const StartAndEndDateStep = ({
                 inputType="date"
                 {...register('startDate.month', {
                   valueAsNumber: true,
-                  required: 'Session date must include a month',
-                  min: {
-                    value: 1,
-                    message: 'Session date must include a valid month',
-                  },
-                  max: {
-                    value: 12,
-                    message: 'Session date must include a valid month',
-                  },
                 })}
               />
               <TextInput
@@ -124,15 +105,6 @@ const StartAndEndDateStep = ({
                 inputType="date"
                 {...register('startDate.year', {
                   valueAsNumber: true,
-                  required: 'Session date must include a year',
-                  min: {
-                    value: now().year(),
-                    message: 'Session date must be this year or a future year',
-                  },
-                  max: {
-                    value: now().year() + 1,
-                    message: 'Session date must include a valid year',
-                  },
                 })}
               />
             </DateInput>
@@ -149,25 +121,18 @@ const StartAndEndDateStep = ({
               const startDate = parseDateComponents(form.startDate);
 
               if (endDate === undefined || startDate === undefined) {
-                return 'Session end date must include a valid day';
+                return 'Session end date must be a valid day';
               }
 
               if (!isSameDayOrBefore(startDate, endDate)) {
-                return 'End date must be after the start date';
+                return 'Session end date must be after the start date';
               }
             },
           }}
           render={() => (
             <>
               <br />
-              <FormGroup
-                error={
-                  errors.endDate?.message ||
-                  errors.endDate?.day?.message ||
-                  errors.endDate?.month?.message ||
-                  errors.endDate?.year?.message
-                }
-              >
+              <FormGroup error={errors.endDate?.message}>
                 <DateInput
                   heading="End date"
                   hint="For example, 15 3 1984"
@@ -180,9 +145,6 @@ const StartAndEndDateStep = ({
                     inputType="date"
                     {...register('endDate.day', {
                       valueAsNumber: true,
-                      required: 'Day is required',
-                      min: { value: 1, message: 'Please enter a valid day' },
-                      max: { value: 31, message: 'Please enter a valid day' },
                     })}
                   />
                   <TextInput
@@ -192,9 +154,6 @@ const StartAndEndDateStep = ({
                     inputType="date"
                     {...register('endDate.month', {
                       valueAsNumber: true,
-                      required: 'Month is required',
-                      min: { value: 1, message: 'Please enter a valid month' },
-                      max: { value: 12, message: 'Please enter a valid month' },
                     })}
                   />
                   <TextInput
@@ -204,15 +163,6 @@ const StartAndEndDateStep = ({
                     inputType="date"
                     {...register('endDate.year', {
                       valueAsNumber: true,
-                      required: 'Year is required',
-                      min: {
-                        value: dayjs().utc().year(),
-                        message: 'Please enter a valid year',
-                      },
-                      max: {
-                        value: 3000,
-                        message: 'Please enter a valid year',
-                      },
                     })}
                   />
                 </DateInput>

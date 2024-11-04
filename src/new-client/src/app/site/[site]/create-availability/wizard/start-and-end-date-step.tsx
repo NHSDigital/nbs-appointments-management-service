@@ -114,6 +114,7 @@ const StartAndEndDateStep = ({
                 type="number"
                 id="start-date-input-year"
                 inputType="date"
+                width={3}
                 {...register('startDate.year', {
                   valueAsNumber: true,
                 })}
@@ -163,6 +164,7 @@ const StartAndEndDateStep = ({
                     type="number"
                     id="end-date-input-month"
                     inputType="date"
+                    width={3}
                     {...register('endDate.month', {
                       valueAsNumber: true,
                     })}

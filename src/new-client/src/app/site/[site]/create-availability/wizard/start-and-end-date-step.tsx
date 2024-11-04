@@ -1,5 +1,6 @@
 'use client';
 import {
+  BackLink,
   Button,
   DateInput,
   FormGroup,
@@ -19,6 +20,8 @@ const StartAndEndDateStep = ({
   stepNumber,
   goToNextStep,
   setCurrentStep,
+  returnRouteUponCancellation,
+  goToPreviousStep,
 }: InjectedWizardProps) => {
   const { register, formState, trigger, getValues, control } =
     useFormContext<CreateAvailabilityFormValues>();
@@ -49,6 +52,14 @@ const StartAndEndDateStep = ({
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title={
           sessionType === 'single'

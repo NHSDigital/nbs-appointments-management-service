@@ -1,5 +1,6 @@
 'use client';
 import {
+  BackLink,
   Button,
   CheckBox,
   CheckBoxes,
@@ -13,7 +14,12 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 
-const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
+const SelectServicesStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+}: InjectedWizardProps) => {
   const { register, watch, trigger, formState, setValue } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
@@ -31,6 +37,14 @@ const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Add services to your session"
         caption="Create availability period"

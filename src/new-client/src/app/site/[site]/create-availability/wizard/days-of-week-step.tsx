@@ -1,5 +1,6 @@
 'use client';
 import {
+  BackLink,
   Button,
   CheckBox,
   CheckBoxes,
@@ -12,7 +13,12 @@ import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 import { daysOfTheWeek } from '@types';
 
-const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
+const DaysOfWeekStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+}: InjectedWizardProps) => {
   const { register, setValue, watch, formState, trigger } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
@@ -30,6 +36,14 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Select days that you want to add to your availability period"
         caption="Create availability period"

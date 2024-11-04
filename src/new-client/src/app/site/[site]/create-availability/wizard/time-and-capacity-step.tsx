@@ -1,15 +1,26 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
 import NhsHeading from '@components/nhs-heading';
-import { Button, FormGroup, TextInput } from '@components/nhsuk-frontend';
+import {
+  BackLink,
+  Button,
+  FormGroup,
+  TextInput,
+} from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
 import CapacityCalculation from './capacity-calculation';
 import { formatTimeString } from '@services/timeService';
 
-const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, watch, formState, trigger, control } =
+const TimeAndCapacityStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+  setCurrentStep,
+}: InjectedWizardProps) => {
+  const { register, watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
@@ -38,8 +49,24 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
     goToNextStep();
   };
 
+  const onBack = async () => {
+    if (getValues('sessionType') === 'repeating') {
+      goToPreviousStep();
+    } else {
+      setCurrentStep(stepNumber - 2);
+    }
+  };
+
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={onBack} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Set time and capacity for your session"
         caption="Create availability period"

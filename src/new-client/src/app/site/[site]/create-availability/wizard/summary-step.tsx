@@ -1,6 +1,7 @@
 'use client';
 import NhsHeading from '@components/nhs-heading';
 import {
+  BackLink,
   Button,
   Card,
   SmallSpinnerWithText,
@@ -15,7 +16,12 @@ import {
   services,
 } from './availability-template-wizard';
 
-const SummaryStep = ({ setCurrentStep }: InjectedWizardProps) => {
+const SummaryStep = ({
+  setCurrentStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+}: InjectedWizardProps) => {
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
@@ -160,6 +166,14 @@ const SummaryStep = ({ setCurrentStep }: InjectedWizardProps) => {
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Check availability period"
         caption="Create availability period"

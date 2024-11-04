@@ -6,7 +6,10 @@ import {
   FormGroup,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  services,
+} from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 
@@ -25,9 +28,6 @@ const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
 
     goToNextStep();
   };
-
-  // TODO: Decide where we're deriving this from
-  const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
 
   return (
     <>

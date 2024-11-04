@@ -24,6 +24,9 @@ type Props = {
   site: Site;
 };
 
+// TODO: Decide where this info should live and move it there
+export const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
 const AvailabilityTemplateWizard = ({ site }: Props) => {
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {

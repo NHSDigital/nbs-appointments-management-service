@@ -10,7 +10,10 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { formatTimeString, parseDateComponents } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  services,
+} from './availability-template-wizard';
 
 const SummaryStep = ({}: InjectedWizardProps) => {
   const {
@@ -24,6 +27,13 @@ const SummaryStep = ({}: InjectedWizardProps) => {
     sessionType === 'repeating'
       ? `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`
       : `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`;
+
+  const servicesText = session.services
+    .map(
+      serviceValue =>
+        services.find(service => service.value === serviceValue)?.label,
+    )
+    .join(', ');
 
   const summary: SummaryListItem[] = [
     {
@@ -40,7 +50,7 @@ const SummaryStep = ({}: InjectedWizardProps) => {
     },
     {
       title: 'Services available',
-      value: `${session.services.join(', ')}`,
+      value: servicesText,
     },
     {
       title: 'Maximum simultaneous appointments',

@@ -8,8 +8,8 @@ import {
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
 import { SetAttributesRequest } from '@types';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
 
 type FormFields = {
   informationForCitizen: string;
@@ -23,13 +23,13 @@ const AddInformationForCitizensForm = ({
   site: string;
 }) => {
   const { replace } = useRouter();
-  const { register, handleSubmit, formState } = useForm<FormFields>({
+  const { register, handleSubmit, formState, watch } = useForm<FormFields>({
     defaultValues: {
       informationForCitizen: information,
     },
   });
   const { errors } = formState;
-  const [textInputLength, setTextInputLength] = useState(0);
+  const infoWatch = watch('informationForCitizen');
   const maxLength = 150;
 
   const cancel = () => {
@@ -52,22 +52,6 @@ const AddInformationForCitizensForm = ({
     replace(`/site/${site}/details`);
   };
 
-  const isValidTextInput = (text: string): boolean => {
-    const urlRegex = new RegExp(
-      '([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?([^ ])+',
-    );
-    if (urlRegex.test(text)) {
-      return false;
-    }
-
-    const specialCharacterRegex = /^[-\w \.\,\-]+$/;
-    return specialCharacterRegex.test(text);
-  };
-
-  const handleTextInputUpdate = (inputLength: number): void => {
-    setTextInputLength(inputLength);
-  };
-
   return (
     <form onSubmit={handleSubmit(submitForm)}>
       <div
@@ -77,21 +61,23 @@ const AddInformationForCitizensForm = ({
       >
         <FormGroup
           legend="Information for citizens"
-          error={errors.informationForCitizen?.message}
+          error={
+            errors.informationForCitizen
+              ? 'Site information cannot contain a URL or special characters except full stops, commas, and hyphens'
+              : ''
+          }
         >
           <div className="nhsuk-form-group">
             <TextArea
               label="What information would you like to include?"
               maxLength={maxLength}
               {...register('informationForCitizen', {
-                validate: value => {
-                  if (!isValidTextInput(value)) {
-                    return "Text cannot contain a URL or special characters outside of '.' ',' '-'";
-                  }
+                validate: {
+                  validInput: value =>
+                    !URL_REGEX.test(value) &&
+                    SPECIAL_CHARACTER_REGEX.test(value),
                 },
-                onChange: e => {
-                  handleTextInputUpdate(e.target.value.length);
-                },
+                maxLength: 150,
               })}
             />
           </div>
@@ -99,7 +85,7 @@ const AddInformationForCitizensForm = ({
             className="nhsuk-hint nhsuk-character-count__message"
             id="more-detail-info"
           >
-            You have {maxLength - textInputLength} characters remaining
+            You have {maxLength - infoWatch.length} characters remaining
           </div>
         </FormGroup>
       </div>

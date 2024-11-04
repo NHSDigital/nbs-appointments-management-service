@@ -23,7 +23,6 @@ export const TextArea = forwardRef<Ref, Props>((props, ref) => (
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
       aria-label={props.label}
-      maxLength={props.maxLength ?? 150}
     />
   </div>
 ));

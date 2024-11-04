@@ -82,7 +82,7 @@ describe('Add Information For Citizen Form', () => {
 
     expect(
       screen.getByText(
-        "Text cannot contain a URL or special characters outside of '.' ',' '-'",
+        'Site information cannot contain a URL or special characters except full stops, commas, and hyphens',
       ),
     ).toBeInTheDocument();
     expect(mockSetSiteInformationForCitizen).not.toHaveBeenCalled();

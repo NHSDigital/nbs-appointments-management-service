@@ -23,7 +23,7 @@ const FindUserForm = ({ site }: { site: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitted },
+    formState: { errors, isSubmitting },
   } = useForm<FormFields>({
     defaultValues: { email: '' },
   });
@@ -61,7 +61,7 @@ const FindUserForm = ({ site }: { site: string }) => {
         ></TextInput>
       </FormGroup>
 
-      {isSubmitting || isSubmitted ? (
+      {isSubmitting ? (
         <SmallSpinnerWithText text="Searching for user..." />
       ) : (
         <ButtonGroup>

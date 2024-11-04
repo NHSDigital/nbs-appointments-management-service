@@ -15,7 +15,7 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 const SummaryStep = ({}: InjectedWizardProps) => {
   const {
     getValues,
-    formState: { isSubmitting, isSubmitted },
+    formState: { isSubmitting },
   } = useFormContext<CreateAvailabilityFormValues>();
 
   const { startDate, endDate, session, days, sessionType } = getValues();
@@ -62,7 +62,7 @@ const SummaryStep = ({}: InjectedWizardProps) => {
         <SummaryList items={summary}></SummaryList>
       </Card>
 
-      {isSubmitting || isSubmitted ? (
+      {isSubmitting ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <Button type="submit">Save</Button>

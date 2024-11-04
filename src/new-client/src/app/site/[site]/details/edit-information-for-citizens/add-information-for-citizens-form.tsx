@@ -27,7 +27,7 @@ const AddInformationForCitizensForm = ({
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitted, errors },
+    formState: { isSubmitting, isSubmitSuccessful, errors },
     watch,
   } = useForm<FormFields>({
     defaultValues: {
@@ -90,7 +90,7 @@ const AddInformationForCitizensForm = ({
       </FormGroup>
       <br />
 
-      {isSubmitting || isSubmitted ? (
+      {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

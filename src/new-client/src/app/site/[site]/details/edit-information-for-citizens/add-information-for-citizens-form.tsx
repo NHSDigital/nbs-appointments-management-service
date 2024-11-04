@@ -54,41 +54,34 @@ const AddInformationForCitizensForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <div
-        className="nhsuk-character-count"
-        data-module="nhsuk-character-count"
-        data-maxlength="150"
+      <FormGroup
+        legend="Information for citizens"
+        error={
+          errors.informationForCitizen
+            ? 'Site information cannot contain a URL or special characters except full stops, commas, and hyphens'
+            : ''
+        }
       >
-        <FormGroup
-          legend="Information for citizens"
-          error={
-            errors.informationForCitizen
-              ? 'Site information cannot contain a URL or special characters except full stops, commas, and hyphens'
-              : ''
-          }
+        <div className="nhsuk-form-group">
+          <TextArea
+            label="What information would you like to include?"
+            maxLength={maxLength}
+            {...register('informationForCitizen', {
+              validate: {
+                validInput: value =>
+                  !URL_REGEX.test(value) && SPECIAL_CHARACTER_REGEX.test(value),
+              },
+              maxLength: 150,
+            })}
+          />
+        </div>
+        <div
+          className="nhsuk-hint nhsuk-character-count__message"
+          id="more-detail-info"
         >
-          <div className="nhsuk-form-group">
-            <TextArea
-              label="What information would you like to include?"
-              maxLength={maxLength}
-              {...register('informationForCitizen', {
-                validate: {
-                  validInput: value =>
-                    !URL_REGEX.test(value) &&
-                    SPECIAL_CHARACTER_REGEX.test(value),
-                },
-                maxLength: 150,
-              })}
-            />
-          </div>
-          <div
-            className="nhsuk-hint nhsuk-character-count__message"
-            id="more-detail-info"
-          >
-            You have {maxLength - infoWatch.length} characters remaining
-          </div>
-        </FormGroup>
-      </div>
+          You have {maxLength - infoWatch.length} characters remaining
+        </div>
+      </FormGroup>
       <br />
       <ButtonGroup>
         <Button type="submit">Confirm site details</Button>

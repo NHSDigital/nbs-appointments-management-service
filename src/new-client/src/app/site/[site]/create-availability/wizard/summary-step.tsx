@@ -15,7 +15,7 @@ import {
   services,
 } from './availability-template-wizard';
 
-const SummaryStep = ({}: InjectedWizardProps) => {
+const SummaryStep = ({ setCurrentStep }: InjectedWizardProps) => {
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
@@ -36,48 +36,125 @@ const SummaryStep = ({}: InjectedWizardProps) => {
           {
             title: 'Date',
             value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(2);
+              },
+            },
           },
           {
             title: 'Time',
             value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
           {
             title: 'Services available',
             value: servicesText,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(5);
+              },
+            },
           },
           {
             title: 'Maximum simultaneous appointments',
             value: `${session.capacity}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
           {
             title: 'Appointment length in minutes',
             value: `${session.slotLength}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
         ]
       : [
           {
             title: 'Dates',
             value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(2);
+              },
+            },
           },
           {
             title: 'Days',
             value: days.join(', '),
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(3);
+              },
+            },
           },
           {
             title: 'Time',
             value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
           {
             title: 'Services available',
             value: servicesText,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(5);
+              },
+            },
           },
           {
             title: 'Maximum simultaneous appointments',
             value: `${session.capacity}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
           {
             title: 'Appointment length in minutes',
             value: `${session.slotLength}`,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(4);
+              },
+            },
           },
         ];
 

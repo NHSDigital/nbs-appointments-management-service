@@ -35,7 +35,7 @@ const AddAttributesForm = ({
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: {
       attributeValues: attributeValues
@@ -83,7 +83,7 @@ const AddAttributesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      {isSubmitting ? (
+      {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

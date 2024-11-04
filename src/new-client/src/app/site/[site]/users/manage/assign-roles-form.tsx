@@ -33,7 +33,7 @@ const AssignRolesForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: { roles: assignments.map(a => a.role) },
   });
@@ -70,7 +70,7 @@ const AssignRolesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      {isSubmitting ? (
+      {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

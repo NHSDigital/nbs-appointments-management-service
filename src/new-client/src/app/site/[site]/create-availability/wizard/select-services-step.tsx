@@ -11,17 +11,15 @@ import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 
 const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, watch, setError, formState } =
+  const { register, watch, trigger, formState, setValue } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
   const servicesWatch = watch('session.services');
 
   const onContinue = async () => {
-    if ((servicesWatch ?? []).length < 1) {
-      setError('session.services', {
-        message: 'At least one service must be selected',
-      });
+    const formIsValid = await trigger(['session.services']);
+    if (!formIsValid) {
       return;
     }
 
@@ -29,7 +27,7 @@ const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
   };
 
   // TODO: Decide where we're deriving this from
-  const services = [{ label: 'RSV', value: 'RSV:Adult' }];
+  const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
 
   return (
     <>
@@ -46,7 +44,29 @@ const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
               label={service.label}
               value={[service.value]}
               key={`checkbox-${service.value.toLowerCase()}`}
-              {...register('session.services')}
+              {...register('session.services', {
+                validate: value => {
+                  if (value === undefined || value.length < 1) {
+                    return 'At least one service must be selected';
+                  }
+                },
+              })}
+              onChange={() => {
+                if ((servicesWatch ?? []).includes(service.value)) {
+                  setValue(
+                    'session.services',
+                    services
+                      .filter(s => s.value !== service.value)
+                      .map(_ => _.value),
+                  );
+                } else {
+                  setValue('session.services', [
+                    service.value,
+                    ...(servicesWatch ?? []),
+                  ]);
+                }
+                trigger('session.services');
+              }}
             />
           ))}
         </CheckBoxes>

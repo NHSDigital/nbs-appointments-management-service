@@ -79,10 +79,10 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
             {stepProps => <DaysOfWeekStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <SelectServicesStep {...stepProps} />}
+            {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <TimeAndCapacityStep {...stepProps} />}
+            {stepProps => <SelectServicesStep {...stepProps} />}
           </WizardStep>
           <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
         </Wizard>

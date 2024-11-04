@@ -1,13 +1,17 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
-import { SummaryList } from '@nhsuk-frontend-components';
+import { SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
 
-const mockItems = [
+const mockItems: SummaryListItem[] = [
   { title: 'Name', value: 'John Doe' },
   {
     title: 'Address',
     value: '123 Fake Street',
-    action: { href: '/user/john-doe/change-address', text: 'Change' },
+    action: {
+      href: 'mock-link',
+      text: 'Change',
+      renderingStrategy: 'server',
+    },
   },
 ];
 
@@ -30,7 +34,7 @@ describe('SummaryList', () => {
     expect(screen.getByRole('link', { name: 'Change' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Change' })).toHaveAttribute(
       'href',
-      '/user/john-doe/change-address',
+      'mock-link',
     );
   });
 });

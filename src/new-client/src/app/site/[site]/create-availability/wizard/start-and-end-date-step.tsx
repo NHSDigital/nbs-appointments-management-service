@@ -121,7 +121,7 @@ const StartAndEndDateStep = ({
               const startDate = parseDateComponents(form.startDate);
 
               if (endDate === undefined || startDate === undefined) {
-                return 'Session end date must be a valid day';
+                return 'Session end date must be a valid date';
               }
 
               if (!isSameDayOrBefore(startDate, endDate)) {

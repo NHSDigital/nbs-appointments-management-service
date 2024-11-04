@@ -10,7 +10,9 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
-import CapacityCalculation from './capacity-calculation';
+import CapacityCalculation, {
+  sessionLengthInMinutes,
+} from './capacity-calculation';
 import { formatTimeString } from '@services/timeService';
 
 const TimeAndCapacityStep = ({
@@ -257,9 +259,23 @@ const TimeAndCapacityStep = ({
                 value: 1,
                 message: 'Appointment length must be at least 1 minute',
               },
-              validate: value => {
+              max: {
+                value: 60,
+                message: 'Appointment length cannot exceed 1 hour',
+              },
+              validate: (value, form) => {
                 if (!Number.isInteger(Number(value))) {
-                  return 'Appointment length must be a whole number.';
+                  return 'Appointment length must be a whole number';
+                }
+
+                if (
+                  value >
+                  sessionLengthInMinutes(
+                    form.session.startTime,
+                    form.session.endTime,
+                  )
+                ) {
+                  return 'Appointment length must be shorter than session length';
                 }
               },
             })}

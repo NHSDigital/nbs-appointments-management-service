@@ -53,5 +53,16 @@ const calculateCapacity = ({
   return `${appointmentsPerDay} appointments per day. ${appointmentsPerHour} per hour.`;
 };
 
-export { calculateCapacity };
+const sessionLengthInMinutes = (
+  startTime: TimeComponents,
+  endTime: TimeComponents,
+): number => {
+  const startMinutes = startTime.hour * 60 + startTime.minute;
+  const endMinutes = endTime.hour * 60 + endTime.minute;
+  const totalMinutesAvailable = endMinutes - startMinutes;
+
+  return Math.max(totalMinutesAvailable, 0);
+};
+
+export { calculateCapacity, sessionLengthInMinutes };
 export default CapacityCalculation;

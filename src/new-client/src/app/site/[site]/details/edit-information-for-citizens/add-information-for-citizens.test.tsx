@@ -66,4 +66,39 @@ describe('Add Information For Citizen Form', () => {
       expectedPayload,
     );
   });
+
+  it('should display a validation error when user input is invalid', async () => {
+    const { user } = render(
+      <AddInformationForCitizensForm information="" site="TEST" />,
+    );
+    const textArea = screen.getByRole('textbox', {
+      name: /What information would you like to include?/i,
+    });
+    await user.type(textArea, 'test user input which is inv@lid!');
+    const saveButton = screen.getByRole('button', {
+      name: 'Confirm site details',
+    });
+    await user.click(saveButton);
+
+    expect(
+      screen.getByText(
+        "Text cannot contain a URL or special characters outside of '.' ',' '-'",
+      ),
+    ).toBeInTheDocument();
+    expect(mockSetSiteInformationForCitizen).not.toHaveBeenCalled();
+  });
+
+  it('should display characters remaining text', async () => {
+    const { user } = render(
+      <AddInformationForCitizensForm information="" site="TEST" />,
+    );
+    const textArea = screen.getByRole('textbox', {
+      name: /What information would you like to include?/i,
+    });
+    await user.type(textArea, 'test user input');
+
+    expect(
+      screen.getByText('You have 135 characters remaining'),
+    ).toBeInTheDocument();
+  });
 });

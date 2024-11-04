@@ -8,6 +8,7 @@ import {
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
 import { SetAttributesRequest } from '@types';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type FormFields = {
@@ -28,6 +29,8 @@ const AddInformationForCitizensForm = ({
     },
   });
   const { errors } = formState;
+  const [textInputLength, setTextInputLength] = useState(0);
+  const maxLength = 150;
 
   const cancel = () => {
     replace(`/site/${site}/details`);
@@ -61,26 +64,45 @@ const AddInformationForCitizensForm = ({
     return specialCharacterRegex.test(text);
   };
 
+  const handleTextInputUpdate = (inputLength: number): void => {
+    setTextInputLength(inputLength);
+  };
+
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup
-        legend="Information for citizens"
-        error={errors.informationForCitizen?.message}
+      <div
+        className="nhsuk-character-count"
+        data-module="nhsuk-character-count"
+        data-maxlength="150"
       >
-        <div className="nhsuk-form-group">
-          <TextArea
-            label="What information would you like to include?"
-            maxLength={150}
-            {...register('informationForCitizen', {
-              validate: value => {
-                if (!isValidTextInput(value)) {
-                  return "Text cannot contain a URL or special characters outside of '.' ',' '-'";
-                }
-              },
-            })}
-          />
-        </div>
-      </FormGroup>
+        <FormGroup
+          legend="Information for citizens"
+          error={errors.informationForCitizen?.message}
+        >
+          <div className="nhsuk-form-group">
+            <TextArea
+              label="What information would you like to include?"
+              maxLength={maxLength}
+              {...register('informationForCitizen', {
+                validate: value => {
+                  if (!isValidTextInput(value)) {
+                    return "Text cannot contain a URL or special characters outside of '.' ',' '-'";
+                  }
+                },
+                onChange: e => {
+                  handleTextInputUpdate(e.target.value.length);
+                },
+              })}
+            />
+          </div>
+          <div
+            className="nhsuk-hint nhsuk-character-count__message"
+            id="more-detail-info"
+          >
+            You have {maxLength - textInputLength} characters remaining
+          </div>
+        </FormGroup>
+      </div>
       <br />
       <ButtonGroup>
         <Button type="submit">Confirm site details</Button>

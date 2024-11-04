@@ -23,11 +23,6 @@ const SummaryStep = ({}: InjectedWizardProps) => {
 
   const { startDate, endDate, session, days, sessionType } = getValues();
 
-  const datesText =
-    sessionType === 'repeating'
-      ? `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`
-      : `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`;
-
   const servicesText = session.services
     .map(
       serviceValue =>
@@ -35,32 +30,56 @@ const SummaryStep = ({}: InjectedWizardProps) => {
     )
     .join(', ');
 
-  const summary: SummaryListItem[] = [
-    {
-      title: 'Dates',
-      value: datesText,
-    },
-    {
-      title: 'Days',
-      value: days.join(', '),
-    },
-    {
-      title: 'Time',
-      value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
-    },
-    {
-      title: 'Services available',
-      value: servicesText,
-    },
-    {
-      title: 'Maximum simultaneous appointments',
-      value: `${session.capacity}`,
-    },
-    {
-      title: 'Appointment length in minutes',
-      value: `${session.slotLength}`,
-    },
-  ];
+  const summary: SummaryListItem[] =
+    sessionType === 'single'
+      ? [
+          {
+            title: 'Date',
+            value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`,
+          },
+          {
+            title: 'Time',
+            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+          },
+          {
+            title: 'Services available',
+            value: servicesText,
+          },
+          {
+            title: 'Maximum simultaneous appointments',
+            value: `${session.capacity}`,
+          },
+          {
+            title: 'Appointment length in minutes',
+            value: `${session.slotLength}`,
+          },
+        ]
+      : [
+          {
+            title: 'Dates',
+            value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`,
+          },
+          {
+            title: 'Days',
+            value: days.join(', '),
+          },
+          {
+            title: 'Time',
+            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+          },
+          {
+            title: 'Services available',
+            value: servicesText,
+          },
+          {
+            title: 'Maximum simultaneous appointments',
+            value: `${session.capacity}`,
+          },
+          {
+            title: 'Appointment length in minutes',
+            value: `${session.slotLength}`,
+          },
+        ];
 
   return (
     <>

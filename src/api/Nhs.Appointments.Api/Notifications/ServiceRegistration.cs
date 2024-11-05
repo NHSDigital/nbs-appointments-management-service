@@ -17,6 +17,7 @@ public static class ServiceRegistration
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingMadeNotifier, BookingNotifier>()
                 .AddTransient<IBookingReminderNotifier, BookingNotifier>()
+                .AddTransient<IBookingCancelledNotifier, BookingNotifier>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
         if (userNotificationsProvider == "local")

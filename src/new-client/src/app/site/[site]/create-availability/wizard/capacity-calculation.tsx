@@ -59,9 +59,8 @@ const sessionLengthInMinutes = (
 ): number => {
   const startMinutes = startTime.hour * 60 + startTime.minute;
   const endMinutes = endTime.hour * 60 + endTime.minute;
-  const totalMinutesAvailable = endMinutes - startMinutes;
 
-  return Math.max(totalMinutesAvailable, 0);
+  return endMinutes - startMinutes;
 };
 
 export { calculateCapacity, sessionLengthInMinutes };

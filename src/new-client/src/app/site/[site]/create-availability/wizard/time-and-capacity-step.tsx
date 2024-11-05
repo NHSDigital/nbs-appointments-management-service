@@ -153,12 +153,17 @@ const TimeAndCapacityStep = ({
                 return 'Enter a valid end time';
               }
 
-              if (
-                form.session.startTime.hour > value.hour ||
-                (form.session.startTime.hour === value.hour &&
-                  form.session.startTime.minute > value.minute)
-              ) {
-                return 'End time cannot be earlier than start time';
+              const minutesBetweenStartAndEnd = sessionLengthInMinutes(
+                form.session.startTime,
+                value,
+              );
+
+              if (minutesBetweenStartAndEnd < 0) {
+                return 'Session end time must be after the start time';
+              }
+
+              if (minutesBetweenStartAndEnd <= 5) {
+                return 'Session length must be more than 5 minutes';
               }
             },
           }}
@@ -226,7 +231,7 @@ const TimeAndCapacityStep = ({
               min: { value: 1, message: 'Capacity must be at least 1' },
               validate: value => {
                 if (!Number.isInteger(Number(value))) {
-                  return 'Capacity must be a whole number.';
+                  return 'Capacity must be a whole number';
                 }
               },
             })}

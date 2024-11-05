@@ -16,12 +16,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [When(@"I cancel the appointment")]
         public async Task CancelAppointment()
         {
-            var payload = new
-            {
-                bookingReference = GetBookingReference(),
-                site = GetSiteId()
-            };
-            _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/cancel", payload);
+            _response = await Http.PostAsync($"http://localhost:7071/api/booking/{GetBookingReference()}/cancel", null);
         }
 
         [Then(@"the appropriate booking has been '(\w+)'")]

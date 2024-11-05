@@ -26,7 +26,7 @@ export const TextInput = forwardRef<Ref, Props>(
           )}
 
           <input
-            className={`nhsuk-input nhsuk-date-input__input nhsuk-input--width-2`}
+            className={`nhsuk-input nhsuk-date-input__input ${width ? `nhsuk-input--width-${width}` : 'nhsuk-input--width-2'}`}
             ref={ref}
             inputMode={'numeric'}
             id={id}

@@ -1,5 +1,6 @@
 'use client';
 import {
+  BackLink,
   Button,
   CheckBox,
   CheckBoxes,
@@ -12,18 +13,21 @@ import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 import { daysOfTheWeek } from '@types';
 
-const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, setValue, watch, setError, formState, trigger } =
+const DaysOfWeekStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+}: InjectedWizardProps) => {
+  const { register, setValue, watch, formState, trigger } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
+
   const daysWatch = watch('days');
 
   const onContinue = async () => {
-    if ((daysWatch ?? []).length < 1) {
-      setError('days', {
-        message: 'Services must run on at least one day',
-      });
-
+    const formIsValid = await trigger(['days']);
+    if (!formIsValid) {
       return;
     }
 
@@ -32,6 +36,14 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Select days that you want to add to your availability period"
         caption="Create availability period"
@@ -52,12 +64,11 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
               {...register('days', {
                 validate: value => {
                   if (value === undefined || value.length < 1) {
-                    return false;
+                    return 'Services must run on at least one day';
                   }
                 },
               })}
               onChange={() => {
-                trigger('days');
                 if ((daysWatch ?? []).includes(dayOfWeek)) {
                   setValue(
                     'days',
@@ -66,6 +77,7 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
                 } else {
                   setValue('days', [dayOfWeek, ...(daysWatch ?? [])]);
                 }
+                trigger('days');
               }}
             />
           ))}
@@ -75,7 +87,6 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
             value={daysOfTheWeek}
             checked={daysWatch?.length == daysOfTheWeek.length}
             onChange={() => {
-              trigger('days');
               if (daysWatch?.length == daysOfTheWeek.length) {
                 setValue('days', []);
               } else {
@@ -84,6 +95,7 @@ const DaysOfWeekStep = ({ goToNextStep }: InjectedWizardProps) => {
                   daysOfTheWeek.map(_ => _),
                 );
               }
+              trigger('days');
             }}
           />
         </CheckBoxes>

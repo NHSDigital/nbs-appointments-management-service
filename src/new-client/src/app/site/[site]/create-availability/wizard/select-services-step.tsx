@@ -1,38 +1,50 @@
 'use client';
 import {
+  BackLink,
   Button,
   CheckBox,
   CheckBoxes,
   FormGroup,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  services,
+} from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 
-const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, watch, setError, formState } =
+const SelectServicesStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+}: InjectedWizardProps) => {
+  const { register, watch, trigger, formState, setValue } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
   const servicesWatch = watch('session.services');
 
   const onContinue = async () => {
-    if ((servicesWatch ?? []).length < 1) {
-      setError('session.services', {
-        message: 'At least one service must be selected',
-      });
+    const formIsValid = await trigger(['session.services']);
+    if (!formIsValid) {
       return;
     }
 
     goToNextStep();
   };
 
-  // TODO: Decide where we're deriving this from
-  const services = [{ label: 'RSV', value: 'RSV:Adult' }];
-
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Add services to your session"
         caption="Create availability period"
@@ -46,7 +58,29 @@ const SelectServicesStep = ({ goToNextStep }: InjectedWizardProps) => {
               label={service.label}
               value={[service.value]}
               key={`checkbox-${service.value.toLowerCase()}`}
-              {...register('session.services')}
+              {...register('session.services', {
+                validate: value => {
+                  if (value === undefined || value.length < 1) {
+                    return 'At least one service must be selected';
+                  }
+                },
+              })}
+              onChange={() => {
+                if ((servicesWatch ?? []).includes(service.value)) {
+                  setValue(
+                    'session.services',
+                    services
+                      .filter(s => s.value !== service.value)
+                      .map(_ => _.value),
+                  );
+                } else {
+                  setValue('session.services', [
+                    service.value,
+                    ...(servicesWatch ?? []),
+                  ]);
+                }
+                trigger('session.services');
+              }}
             />
           ))}
         </CheckBoxes>

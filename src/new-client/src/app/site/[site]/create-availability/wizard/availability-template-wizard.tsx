@@ -24,6 +24,9 @@ type Props = {
   site: Site;
 };
 
+// TODO: Decide where this info should live and move it there
+export const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
 const AvailabilityTemplateWizard = ({ site }: Props) => {
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
@@ -79,10 +82,10 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
             {stepProps => <DaysOfWeekStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <SelectServicesStep {...stepProps} />}
+            {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <TimeAndCapacityStep {...stepProps} />}
+            {stepProps => <SelectServicesStep {...stepProps} />}
           </WizardStep>
           <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
         </Wizard>

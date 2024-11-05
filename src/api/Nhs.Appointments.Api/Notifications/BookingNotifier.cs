@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class BookingNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, ISiteService siteService) : IBookingMadeNotifier, IBookingReminderNotifier
+public class BookingNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, ISiteService siteService) : IBookingMadeNotifier, IBookingReminderNotifier, IBookingCancelledNotifier
 {
     public async Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, string email, string phoneNumber)
     {

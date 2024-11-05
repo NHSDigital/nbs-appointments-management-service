@@ -119,7 +119,7 @@ namespace Nhs.Appointments.Api.Tests.Validators
         public void ReturnsError_WhenDateIsTodayOrEarlier()
         {
             var request = new SetAvailabilityRequest(
-                "2024-10-10",
+                "2024-10-09",
                 "test-site",
                 SetupValidSessions());
 

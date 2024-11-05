@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Validators
                 .WithMessage("Provide a date in the format 'yyyy-MM-dd'")
                 .DependentRules(() =>
                 {
-                    RuleFor(x => DateTimeOffset.Parse(x.Date))
+                    RuleFor(x => DateTimeOffset.ParseExact(x.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal))
                         .GreaterThanOrEqualTo(timeProvider.GetUtcNow().AddDays(1))
                         .WithName(nameof(SetAvailabilityRequest.Date))
                         .WithMessage("Date must be at least 1 day in the future");

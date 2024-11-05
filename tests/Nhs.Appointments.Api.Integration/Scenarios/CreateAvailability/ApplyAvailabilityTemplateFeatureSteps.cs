@@ -45,8 +45,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
                     }
                 }
             };
-            
-            var request = new ApplyAvailabilityTemplateRequest(site, cells.ElementAt(0).Value, cells.ElementAt(1).Value, template);
+
+            var fromDate = ParseDateOnlyFromRelativeCode(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
+            var untilDate = ParseDateOnlyFromRelativeCode(cells.ElementAt(1).Value).ToString("yyyy-MM-dd");
+
+            var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template);
             var payload = JsonResponseWriter.Serialize(request);
             _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
             _statusCode = _response.StatusCode;

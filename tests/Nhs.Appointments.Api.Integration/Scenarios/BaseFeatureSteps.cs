@@ -128,25 +128,37 @@ public abstract class BaseFeatureSteps : Feature
 
     protected DateOnly ParseDateOnlyFromRelativeCode(string dateString)
     {
-        if (dateString == "Today")
+        DateOnly date;
+        date = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (dateString.StartsWith("Today"))
         {
-            return DateOnly.FromDateTime(DateTime.UtcNow);
+            date = DateOnly.FromDateTime(DateTime.UtcNow);
         }
 
-        if (dateString == "Tomorrow")
+        if (dateString.StartsWith("Tomorrow"))
         {
-            return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
+            date = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
         }
 
-        var components = dateString.Split('_');
-        var operand = components[1];
-        var magnitude = int.Parse(components[2]);
-
-        if (operand == "+")
+        if (dateString.Contains('_'))
         {
-            DateOnly.FromDateTime(DateTime.UtcNow).AddDays(magnitude);
+            var components = dateString.Split('_');
+            var operand = components[1];
+            var magnitude = int.Parse(components[2]);
+
+            if (operand == "+")
+            {
+                date = date.AddDays(magnitude);
+            }
+
+            if (operand == "-")
+            {
+                date = date.AddDays(magnitude * -1);
+            }
         }
-        return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(magnitude * -1);
+
+        return date;
     }
 
     [Given("the following bookings have been made")]

@@ -9,6 +9,7 @@ import {
   FormGroup,
   Button,
   ButtonGroup,
+  SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
 
 type FormFields = {
@@ -22,7 +23,7 @@ const FindUserForm = ({ site }: { site: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: { email: '' },
   });
@@ -60,12 +61,16 @@ const FindUserForm = ({ site }: { site: string }) => {
         ></TextInput>
       </FormGroup>
 
-      <ButtonGroup>
-        <Button type="submit">Search user</Button>
-        <Button styleType="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </ButtonGroup>
+      {isSubmitting || isSubmitSuccessful ? (
+        <SmallSpinnerWithText text="Searching for user..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit">Search user</Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </form>
   );
 };

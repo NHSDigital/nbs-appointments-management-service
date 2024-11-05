@@ -2,6 +2,7 @@
 'use client';
 import NhsHeading from '@components/nhs-heading';
 import {
+  BackLink,
   Button,
   FormGroup,
   Radio,
@@ -12,7 +13,10 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { useFormContext } from 'react-hook-form';
 
 const SingleOrRepeatingSessionStep = ({
+  stepNumber,
   goToNextStep,
+  returnRouteUponCancellation,
+  goToPreviousStep,
 }: InjectedWizardProps) => {
   const { register } = useFormContext<CreateAvailabilityFormValues>();
 
@@ -22,6 +26,14 @@ const SingleOrRepeatingSessionStep = ({
 
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="What type of session do you want to create?"
         caption="Create availability period"

@@ -11,7 +11,10 @@ const mockSetCurrentStep = jest.fn();
 describe('Days of Week Step', () => {
   it('renders', async () => {
     render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
@@ -32,7 +35,10 @@ describe('Days of Week Step', () => {
 
   it('permits user input', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
@@ -58,7 +64,10 @@ describe('Days of Week Step', () => {
 
   it('shows a validation error if no days are selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
@@ -80,7 +89,10 @@ describe('Days of Week Step', () => {
 
   it('continues to the next step if a days is selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}

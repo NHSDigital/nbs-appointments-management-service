@@ -11,7 +11,10 @@ const mockSetCurrentStep = jest.fn();
 describe('Select Services Step', () => {
   it('renders', async () => {
     render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ session: { services: [] } }}
+      >
         <SelectServicesStep
           stepNumber={1}
           currentStep={1}
@@ -32,7 +35,10 @@ describe('Select Services Step', () => {
 
   it('permits user input', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ session: { services: [] } }}
+      >
         <SelectServicesStep
           stepNumber={1}
           currentStep={1}
@@ -44,19 +50,28 @@ describe('Select Services Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+    ).not.toBeChecked();
 
-    await user.click(screen.getByRole('checkbox', { name: 'RSV' }));
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
+    expect(screen.getByRole('checkbox', { name: 'RSV (Adult)' })).toBeChecked();
 
-    await user.click(screen.getByRole('checkbox', { name: 'RSV' }));
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).not.toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
+    expect(
+      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+    ).not.toBeChecked();
   });
 
   it('shows a validation error if no services are selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ session: { services: [] } }}
+      >
         <SelectServicesStep
           stepNumber={1}
           currentStep={1}
@@ -68,19 +83,25 @@ describe('Select Services Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+    ).not.toBeChecked();
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(
       screen.getByText('At least one service must be selected'),
     ).toBeInTheDocument();
+
     expect(mockGoToNextStep).not.toHaveBeenCalled();
   });
 
   it('continues to the next step if a service is selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ session: { services: [] } }}
+      >
         <SelectServicesStep
           stepNumber={1}
           currentStep={1}
@@ -92,8 +113,10 @@ describe('Select Services Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('checkbox', { name: 'RSV' })).not.toBeChecked();
-    await user.click(screen.getByRole('checkbox', { name: 'RSV' }));
+    expect(
+      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+    ).not.toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(mockGoToNextStep).toHaveBeenCalled();

@@ -22,7 +22,12 @@ import Tag, { TagColor } from './tag';
 import TextArea from './text-area';
 import TextInput from './text-input';
 import WarningCallout from './warning-callout';
-
+import {
+  Spinner,
+  SpinnerWithText,
+  SmallSpinnerWithText,
+  WhiteSpinnerWithText,
+} from './spinner';
 export type { Breadcrumb, SummaryListItem, TagColor };
 export {
   BackLink,
@@ -44,6 +49,10 @@ export {
   RadioGroup,
   RightChevron,
   Select,
+  Spinner,
+  SpinnerWithText,
+  SmallSpinnerWithText,
+  WhiteSpinnerWithText,
   SummaryList,
   Table,
   Tag,

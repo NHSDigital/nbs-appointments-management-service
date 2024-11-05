@@ -2,7 +2,6 @@
 using Nhs.Appointments.Api.Availability;
 using System;
 using System.Globalization;
-using MassTransit.Serialization;
 
 namespace Nhs.Appointments.Api.Validators
 {

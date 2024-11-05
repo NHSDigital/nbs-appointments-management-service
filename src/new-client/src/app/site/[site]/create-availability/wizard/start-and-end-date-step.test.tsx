@@ -193,7 +193,7 @@ describe('Start and End Date Step', () => {
 
   // TODO: This functionality now comes with wizard-step out of the box, but I might change it back
   // Update / rewrite this test once pattern is confirmed
-  it.skip('displays an href link when there are no previous wizard steps', async () => {
+  it('displays an href link when there are no previous wizard steps', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
@@ -214,7 +214,7 @@ describe('Start and End Date Step', () => {
     );
   });
 
-  it.skip('displays a link which invokes GoToPreviousStep if there is a previous step', async () => {
+  it('displays a link which invokes GoToPreviousStep if there is a previous step', async () => {
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}

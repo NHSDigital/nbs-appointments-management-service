@@ -80,7 +80,7 @@ const StartAndEndDateStep = ({
                 return 'Session date must be a valid date';
               }
 
-              if (startDate.isBefore(now(), 'day')) {
+              if (startDate.isBefore(now().add(1, 'day'), 'day')) {
                 return 'Session date must be in the future';
               }
 

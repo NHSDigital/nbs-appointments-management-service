@@ -111,7 +111,7 @@ namespace Nhs.Appointments.Api.Tests.Validators
 
             result.IsValid.Should().BeFalse();
             result.Errors.Should().HaveCount(1);
-            result.Errors.Single().PropertyName.Should().Be(nameof(SetAvailabilityRequest.Date));
+            result.Errors.Single().PropertyName.Should().Be(nameof(SetAvailabilityRequest.AvailabilityDate));
             result.Errors.Single().ErrorMessage.Should().Be("Date cannot be later than 1 year from now");
         }
 
@@ -127,7 +127,7 @@ namespace Nhs.Appointments.Api.Tests.Validators
 
             result.IsValid.Should().BeFalse();
             result.Errors.Should().HaveCount(1);
-            result.Errors.Single().PropertyName.Should().Be(nameof(SetAvailabilityRequest.Date));
+            result.Errors.Single().PropertyName.Should().Be(nameof(SetAvailabilityRequest.AvailabilityDate));
             result.Errors.Single().ErrorMessage.Should().Be("Date must be at least 1 day in the future");
         }
 

@@ -99,8 +99,8 @@ public abstract class BaseFeatureSteps : Feature
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = row.Cells.ElementAt(0).Value.Replace("-", ""),
-            Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
+            Id = ParseDateOnlyFromRelativeCode(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = ParseDateOnlyFromRelativeCode(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -124,6 +124,29 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
+    }
+
+    protected DateOnly ParseDateOnlyFromRelativeCode(string dateString)
+    {
+        if (dateString == "Today")
+        {
+            return DateOnly.FromDateTime(DateTime.UtcNow);
+        }
+
+        if (dateString == "Tomorrow")
+        {
+            return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
+        }
+
+        var components = dateString.Split('_');
+        var operand = components[1];
+        var magnitude = int.Parse(components[2]);
+
+        if (operand == "+")
+        {
+            DateOnly.FromDateTime(DateTime.UtcNow).AddDays(magnitude);
+        }
+        return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(magnitude * -1);
     }
 
     [Given("the following bookings have been made")]

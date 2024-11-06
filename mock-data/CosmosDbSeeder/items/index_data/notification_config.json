@@ -55,8 +55,12 @@
       "emailTemplate": "b560d593-34d8-4641-8517-ec563e8122ad",
       "smsTemplate": "b21afedd-e6a2-417e-a146-6f1b7ae2865c",
       "eventType": "BookingReminder"
+    },
+    {
+      "services": [ "RSV:Adult" ],
+      "emailTemplate": "2bb90de1-2d7d-45b9-bc6e-88d0c04f0021",
+      "smsTemplate": "2ef9995c-32b9-4088-a630-97c2546062d0",
+      "eventType": "BookingCancelled"
     }
-
-
   ]
 }

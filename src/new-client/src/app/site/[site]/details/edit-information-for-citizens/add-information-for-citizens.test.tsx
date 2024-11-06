@@ -101,4 +101,25 @@ describe('Add Information For Citizen Form', () => {
       screen.getByText('You have 135 characters remaining'),
     ).toBeInTheDocument();
   });
+
+  it('should allow an empty input', async () => {
+    const { user } = render(
+      <AddInformationForCitizensForm information="" site="TEST" />,
+    );
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Confirm site details',
+    });
+    await user.click(saveButton);
+
+    const expectedPayload = {
+      attributeValues: [{ id: 'site_details/info_for_citizen', value: '' }],
+      scope: 'site_details',
+    };
+
+    expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith(
+      'TEST',
+      expectedPayload,
+    );
+  });
 });

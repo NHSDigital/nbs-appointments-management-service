@@ -75,7 +75,9 @@ const AddInformationForCitizensForm = ({
             {...register('informationForCitizen', {
               validate: {
                 validInput: value =>
-                  !URL_REGEX.test(value) && SPECIAL_CHARACTER_REGEX.test(value),
+                  value.length === 0 ||
+                  (!URL_REGEX.test(value) &&
+                    SPECIAL_CHARACTER_REGEX.test(value)),
               },
               maxLength: 150,
             })}

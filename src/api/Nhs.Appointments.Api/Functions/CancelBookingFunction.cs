@@ -10,6 +10,7 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Auth;
+using System;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -34,8 +35,17 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request, ILogger logger)
     {
-        await bookingService.CancelBooking(request.site, request.bookingReference);
-        var response = new CancelBookingResponse(request.bookingReference, "cancelled");
-        return Success(response);
+        var result = await bookingService.CancelBooking(request.site, request.bookingReference);
+
+        switch(result)
+        {
+            case BookingCancellationResult.Success:
+                var response = new CancelBookingResponse(request.bookingReference, "cancelled");
+                return Success(response);
+            case BookingCancellationResult.NotFound:
+                return Failed(HttpStatusCode.NotFound, "booking not found");
+            default:
+                throw new Exception($"Unexpected cancellation result status: {result}");
+        }
     }    
 }

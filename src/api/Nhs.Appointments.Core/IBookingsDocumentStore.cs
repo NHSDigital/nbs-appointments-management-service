@@ -40,3 +40,9 @@ public enum BookingConfirmationResult
     Expired,
     NotFound
 }
+
+public enum BookingCancellationResult
+{
+    Success,
+    NotFound
+}

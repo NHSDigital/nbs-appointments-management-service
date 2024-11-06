@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "name": "Client",
+      "path": "./src/client"
+    },
+    {
+      "name": "New Client",
+      "path": "./src/new-client"
+    },
+    {
+      "name": "API",
+      "path": "./src/api"
+    },
+    {
+      "name": "API Tests",
+      "path": "./tests"
+    },
+    {
+      "name": "Root",
+      "path": "./"
+    }
+  ],
+  "settings": {
+    "jest.disabledWorkspaceFolders": ["API", "API Tests", "Root"],
+    "window.title": "NBS MYA",
+    "jest.runMode": { "type": "on-demand", "revealOutput": "on-run" },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.endOfLine": "crlf"
+  },
+  "extensions": {
+    "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+  }
+}

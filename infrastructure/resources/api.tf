@@ -130,6 +130,11 @@ resource "azurerm_servicebus_queue" "nbs_mya_sbq_booking_made" {
   namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
 }
 
+resource "azurerm_servicebus_queue" "nbs_mya_sbq_booking_cancelled" {
+  name         = "booking-cancelled"
+  namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
+}
+
 resource "azurerm_servicebus_queue" "nbs_mya_sbq_bookingreminder" {
   name         = "booking-reminder"
   namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id

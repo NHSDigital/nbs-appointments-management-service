@@ -12,6 +12,8 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Auth;
 using System;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Routing;
+using Nhs.Appointments.Api.Json;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -21,7 +23,6 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
 
     [OpenApiOperation(operationId: "CancelBooking", tags: ["Booking"], Summary = "Cancel a booking")]
     [OpenApiParameter("bookingReference", Required = true, In = ParameterLocation.Path, Description = "The booking reference of the booking to cancel")]
-    [OpenApiRequestBody("application/json", typeof(CancelBookingRequest), Required = false)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(CancelBookingResponse), Description = "Booking successfully cancelled")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Requested site not configured for appointments")]
@@ -49,5 +50,12 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
             default:
                 throw new Exception($"Unexpected cancellation result status: {result}");
         }
-    }    
+    }
+
+    protected override async Task<(bool requestRead, CancelBookingRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
+
+        return (true, new CancelBookingRequest(bookingReference));
+    }
 }

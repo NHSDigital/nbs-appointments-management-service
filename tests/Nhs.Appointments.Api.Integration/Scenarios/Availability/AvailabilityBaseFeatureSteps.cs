@@ -20,7 +20,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     protected HttpStatusCode StatusCode => _statusCode;
     protected QueryAvailabilityResponse ActualReponse => _actualResponse;
 
-    [When(@"I check ([\w:]+) availability for '([\w:]+)' between '(\d{4}-\d{2}-\d{2})' and '(\d{4}-\d{2}-\d{2})'")]
+    [When(@"I check ([\w:]+) availability for '([\w:]+)' between '(.+)' and '(.+)'")]
     public async Task CheckAvailability(string queryType, string service, string from, string until)
     {
         var convertedQueryType = queryType switch
@@ -30,13 +30,13 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             "slot" => QueryType.Slots,
             _ => throw new Exception($"{queryType} is not a valid queryType")
         };
-            
+
         var payload = new
         {
             sites = new[] { GetSiteId() },
             service,
-            from,
-            until,
+            from=DeriveRelativeDateOnly(from),
+            until=DeriveRelativeDateOnly(until),
             queryType = convertedQueryType.ToString()
         };
             
@@ -45,11 +45,11 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         _actualResponse = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
         
-    [Then(@"the following availability is returned for '(\d{4}-\d{2}-\d{2})'")]
-    [And(@"the following availability is returned for '(\d{4}-\d{2}-\d{2})'")]
+    [Then(@"the following availability is returned for '(.+)'")]
+    [And(@"the following availability is returned for '(.+)'")]
     public async Task Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
     {
-        var expectedDate = DateOnly.FromDateTime(DateTime.ParseExact(date, "yyyy-MM-dd", null));
+        var expectedDate = DeriveRelativeDateOnly(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
             new QueryAvailabilityResponseBlock(
                 TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "HH:mm"),

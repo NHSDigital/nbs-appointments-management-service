@@ -4,7 +4,7 @@
         Given there is no existing availability
         When I apply the following availability template
           | From     | Until        | Days     | TimeFrom | TimeUntil | SlotLength | Capacity | Services |
-          | Tomorrow | Tomorrow_+_2 | Relative | 09:00    | 10:00     | 5          | 1        | COVID    |
+          | Tomorrow | Tomorrow_+2 | Relative | 09:00    | 10:00     | 5          | 1        | COVID    |
         Then the request is successful and the following daily availability is created
           | Date        | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow    | 09:00 | 10:00 | COVID    | 5           | 1        |

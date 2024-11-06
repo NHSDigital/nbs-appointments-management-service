@@ -99,8 +99,8 @@ public abstract class BaseFeatureSteps : Feature
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = ParseDateOnlyFromRelativeCode(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
-            Date = ParseDateOnlyFromRelativeCode(row.Cells.ElementAt(0).Value),
+            Id = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -196,7 +196,7 @@ public abstract class BaseFeatureSteps : Feature
             Id = GetBookingReference(index.ToString(), bookingType),
             DocumentType = "booking",
             Reference = GetBookingReference(index.ToString(), bookingType),
-            From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+            From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
@@ -226,7 +226,7 @@ public abstract class BaseFeatureSteps : Feature
                 NhsNumber = NhsNumber,
                 Provisional = bookingType != BookingType.Confirmed,
                 Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
-                From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
         foreach (var booking in bookings)

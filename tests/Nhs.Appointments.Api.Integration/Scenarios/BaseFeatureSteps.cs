@@ -126,39 +126,40 @@ public abstract class BaseFeatureSteps : Feature
         });
     }
 
-    protected DateOnly ParseDateOnlyFromRelativeCode(string dateString)
+    protected DateOnly DeriveRelativeDateOnly(string dateString)
     {
-        DateOnly date;
-        date = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        if (dateString.StartsWith("Today"))
+        var components = dateString.Split('_');
+        var date = components[0] switch
         {
-            date = DateOnly.FromDateTime(DateTime.UtcNow);
-        }
+            "Tomorrow" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1),
+            "Yesterday" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
+            "Today" => DateOnly.FromDateTime(DateTime.UtcNow),
+            _ => DateOnly.FromDateTime(DateTime.UtcNow)
+        };
 
-        if (dateString.StartsWith("Tomorrow"))
+        if (components.Length > 1)
         {
-            date = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
-        }
-
-        if (dateString.Contains('_'))
-        {
-            var components = dateString.Split('_');
-            var operand = components[1];
-            var magnitude = int.Parse(components[2]);
-
-            if (operand == "+")
-            {
-                date = date.AddDays(magnitude);
-            }
-
-            if (operand == "-")
-            {
-                date = date.AddDays(magnitude * -1);
-            }
+            var offset = int.Parse(components[1]);
+            date = date.AddDays(offset);
         }
 
         return date;
+    }
+
+    protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly endDate)
+    {
+        if (startDate.AddDays(7) <= endDate)
+        {
+            return "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday";
+        }
+
+        var days = new List<DayOfWeek>();
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            days.Add(date.DayOfWeek);
+        }
+
+        return string.Join(",", days);
     }
 
     [Given("the following bookings have been made")]

@@ -19,7 +19,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         {
             var cells = dataTable.Rows.ElementAt(1).Cells;
 
-            var relativeDate = ParseDateOnlyFromRelativeCode(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
+            var relativeDate = DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
             var payload = new
             {
                 date = relativeDate,

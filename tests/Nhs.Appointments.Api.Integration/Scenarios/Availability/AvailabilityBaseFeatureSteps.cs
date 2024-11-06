@@ -74,8 +74,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service = "",
-            from = "2077-01-01",
-            until = "2077-01-01"
+            from = DeriveRelativeDateOnly("Tomorrow"),
+            until = DeriveRelativeDateOnly("Tomorrow")
         };
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }

@@ -30,9 +30,13 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         {
             var cells = dataTable.Rows.ElementAt(1).Cells;
             var site = GetSiteId();
+            var fromDate = DeriveRelativeDateOnly(cells.ElementAt(0).Value);
+            var untilDate = DeriveRelativeDateOnly(cells.ElementAt(1).Value);
+            var days = DeriveWeekDaysInRange(fromDate, untilDate);
+
             var template = new Template
             {
-                Days = ParseDays(cells.ElementAt(2).Value),
+                Days = ParseDays(days),
                 Sessions = new[]
                 {
                     new Session
@@ -46,10 +50,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
                 }
             };
 
-            var fromDate = ParseDateOnlyFromRelativeCode(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
-            var untilDate = ParseDateOnlyFromRelativeCode(cells.ElementAt(1).Value).ToString("yyyy-MM-dd");
 
-            var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template);
+
+            var request = new ApplyAvailabilityTemplateRequest(site, fromDate.ToString("yyyy-MM-dd"), untilDate.ToString("yyyy-MM-dd"), template);
             var payload = JsonResponseWriter.Serialize(request);
             _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
             _statusCode = _response.StatusCode;

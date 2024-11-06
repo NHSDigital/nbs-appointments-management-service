@@ -1,4 +1,4 @@
-# nbs-appointments-management-service
+# National Booking Service - Manage Your Appointments (MYA)
 
 ## Introduction
 
@@ -75,11 +75,12 @@ If you are using VS Code, you may find it beneficial to open the repo by opening
 Each of the following steps needs to be done in a separate terminal window
 
 - Run containerised services
-  - From the root folder run ` docker compose --profile local up --build -d  `
+  - From the root folder run `docker compose --profile local up --build -d `
   - (OR if using VS Code) run the `Start local development containers` task
 
 It is also possible to run next and api services locally **not** using docker:
-- Start mock-api, mock-oidc-server and cosmos containers: 
+
+- Start mock-api, mock-oidc-server and cosmos containers:
   - run ` docker compose up --build -d mock-api oidc-server cosmos`
 - Run the API
   - From the folder `/src/api/Nhs.Appointments.Api` run the command `func start`

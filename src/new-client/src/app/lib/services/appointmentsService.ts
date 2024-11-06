@@ -273,7 +273,11 @@ export const setSiteInformationForCitizen = async (
     JSON.stringify(attributeValues),
   );
 
-  // TODO: Notification?
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    "You have successfully updated the current site's information.";
+  raiseNotification(notificationType, notificationMessage);
+
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
 };

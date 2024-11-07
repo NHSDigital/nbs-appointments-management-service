@@ -9,30 +9,17 @@ using Nhs.Appointments.Persistance.Models;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/Cancel.feature")]
-    public sealed class CancelFeatureSteps : BaseFeatureSteps
+    public sealed class CancelFeatureSteps : BookingBaseFeatureSteps
     {
-        private HttpResponseMessage _response;
-
         [When(@"I cancel the appointment")]
         public async Task CancelAppointment()
         {
             var payload = new
             {
-                bookingReference = GetBookingReference(),
+                bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed),
                 site = GetSiteId()
             };
-            _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/cancel", payload);
-        }
-
-        [Then(@"the appropriate booking has been '(\w+)'")]
-        public async Task Assert(string outcome)
-        {
-            _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-            var siteId = GetSiteId();
-            var bookingReference = GetBookingReference();
-            var actualResult = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
-            actualResult.Resource.Outcome.Should().BeEquivalentTo(outcome);
+            Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/cancel", payload);
         }
 
         private DayOfWeek[] ParseDays(string pattern)

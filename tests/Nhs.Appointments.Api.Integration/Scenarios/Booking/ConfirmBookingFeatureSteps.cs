@@ -9,14 +9,14 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
 [FeatureFile("./Scenarios/Booking/ConfirmBooking.feature")]
-public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
+public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
 {
     private HttpResponseMessage _response;
 
     [When("I confirm the booking")]
     public async Task ConfirmBooking()
     {
-        var bookingReference = GetBookingReference("0", BookingType.Provisional);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", new StringContent(""));
     }
 
@@ -33,7 +33,7 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
                 new ContactItem("phone", cells.ElementAt(1).Value),
             }
         };
-        var bookingReference = GetBookingReference("0", BookingType.Provisional);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", payload);
     }
 
@@ -53,10 +53,10 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
     public async Task AssertBookingNotProvisional()
     {
         var siteId = GetSiteId();
-        var bookingReference = GetBookingReference("0", BookingType.Provisional);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
         actualBooking.Resource.Provisional.Should().BeFalse();
-
+    
         var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
         actualBookingIndex.Resource.Provisional.Should().BeFalse();
     }
@@ -73,7 +73,7 @@ public sealed class ConfirmBookingFeatureSteps : BaseFeatureSteps
         };
 
         var siteId = GetSiteId();
-        var bookingReference = GetBookingReference("0", BookingType.Provisional);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
     }

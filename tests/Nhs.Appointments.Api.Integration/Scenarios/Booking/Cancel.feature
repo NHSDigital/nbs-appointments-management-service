@@ -8,5 +8,5 @@
             | Date       | Time  | Duration | Service |
             | 2076-01-02 | 09:20 | 5        | COVID   |
         When I cancel the appointment 
-        Then the appropriate booking has been 'Cancelled'
+        Then the booking has been 'Cancelled'
       

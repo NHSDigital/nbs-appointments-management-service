@@ -43,7 +43,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
+        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }), bookingRequest.bookingToReschedule);
 
         switch (result)
         {
@@ -55,21 +55,25 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
                 return Success();
         }
 
-        return Failed(HttpStatusCode.InternalServerError, "An uknown error occured when trying to confirm the appointment");
+        return Failed(HttpStatusCode.InternalServerError, "An unknown error occured when trying to confirm the appointment");
     }
 
     protected override async Task<(bool requestRead, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var contactDetails = new ContactItem[] { };
+        var bookingToReschedule = string.Empty;
         if (req.Body != null)
         {
             var (read, payload) = await JsonRequestReader.TryReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
-            if(read && payload != null)
-                contactDetails = payload.contactDetails ?? new ContactItem[] { };
+            if (read && payload != null)
+            {
+                contactDetails = payload.contactDetails ?? new ContactItem[] { }; 
+                bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
+            }
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (true, new ConfirmBookingRequest(bookingReference, contactDetails));
+        return (true, new ConfirmBookingRequest(bookingReference, contactDetails, bookingToReschedule));
     }
     
 }

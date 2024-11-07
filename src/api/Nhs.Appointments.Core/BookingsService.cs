@@ -10,7 +10,7 @@ public interface IBookingsService
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
-    Task CancelBooking(string site, string bookingReference);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
@@ -72,12 +72,24 @@ public class BookingsService(
         }            
     }
 
-    public Task CancelBooking(string site, string bookingReference)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference)
     {
-        return bookingDocumentStore
-            .BeginUpdate(site, bookingReference)
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking == null)
+        {
+            return BookingCancellationResult.NotFound;
+        }
+
+        await bookingDocumentStore
+            .BeginUpdate(booking.Site, bookingReference)
             .UpdateProperty(b => b.Outcome, "Cancelled")                
             .ApplyAsync();
+
+        var bookingCancelledEvent = BuildBookingCancelledEvent(booking);
+        await bus.Send (bookingCancelledEvent);
+
+        return BookingCancellationResult.Success;
     }
 
     public Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
@@ -118,6 +130,20 @@ public class BookingsService(
             Service = booking.Service,
             Site = booking.Site,
             ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
+        };
+    }
+
+    private static BookingCancelled BuildBookingCancelledEvent(Booking booking)
+    {
+        return new BookingCancelled
+        {
+            FirstName = booking.AttendeeDetails?.FirstName,
+            From = booking.From,
+            LastName = booking.AttendeeDetails?.LastName,
+            Reference = booking.Reference,
+            Service = booking.Service,
+            Site = booking.Site,
+            ContactDetails = booking.ContactDetails?.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
         };
     }
 

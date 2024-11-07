@@ -66,4 +66,67 @@ describe('Add Information For Citizen Form', () => {
       expectedPayload,
     );
   });
+
+  it.each([
+    'test user input which is inv@lid! with special characters.',
+    'test user input which is invalid with a URL www.test.com.',
+    'test user input which in invalid because of an _ underscore.',
+  ])(
+    'should display a validation error when user input is invalid',
+    async (textInput: string) => {
+      const { user } = render(
+        <AddInformationForCitizensForm information="" site="TEST" />,
+      );
+      const textArea = screen.getByRole('textbox', {
+        name: /What information would you like to include?/i,
+      });
+      await user.type(textArea, textInput);
+      const saveButton = screen.getByRole('button', {
+        name: 'Confirm site details',
+      });
+      await user.click(saveButton);
+
+      expect(
+        screen.getByText(
+          'Site information cannot contain a URL or special characters except full stops, commas, and hyphens',
+        ),
+      ).toBeInTheDocument();
+      expect(mockSetSiteInformationForCitizen).not.toHaveBeenCalled();
+    },
+  );
+
+  it('should display characters remaining text', async () => {
+    const { user } = render(
+      <AddInformationForCitizensForm information="" site="TEST" />,
+    );
+    const textArea = screen.getByRole('textbox', {
+      name: /What information would you like to include?/i,
+    });
+    await user.type(textArea, 'test user input');
+
+    expect(
+      screen.getByText('You have 135 characters remaining'),
+    ).toBeInTheDocument();
+  });
+
+  it('should allow an empty input', async () => {
+    const { user } = render(
+      <AddInformationForCitizensForm information="" site="TEST" />,
+    );
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Confirm site details',
+    });
+    await user.click(saveButton);
+
+    const expectedPayload = {
+      attributeValues: [{ id: 'site_details/info_for_citizen', value: '' }],
+      scope: 'site_details',
+    };
+
+    expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith(
+      'TEST',
+      expectedPayload,
+    );
+  });
 });

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
-using FluentAssertions;
-using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
@@ -14,12 +11,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [When(@"I cancel the appointment")]
         public async Task CancelAppointment()
         {
-            var payload = new
-            {
-                bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed),
-                site = GetSiteId()
-            };
-            Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/cancel", payload);
+            var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+            Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel", null);
         }
 
         private DayOfWeek[] ParseDays(string pattern)

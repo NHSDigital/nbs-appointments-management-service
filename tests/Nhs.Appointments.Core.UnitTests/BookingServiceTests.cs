@@ -156,6 +156,51 @@ namespace Nhs.Appointments.Core.UnitTests
             result.Reference.Should().Be(string.Empty);
         }
 
+        [Fact]
+        public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
+        {
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult((Booking)null));
+            var result = await _bookingsService.CancelBooking("some-reference");
+            Assert.Equal(BookingCancellationResult.NotFound, result);
+        }
+
+        [Fact]
+        public async Task CancelBooking_CancelsBookingInDatabase()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Outcome, "Cancelled")).Returns(updateMock.Object).Verifiable();
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking() { Site = site }));
+            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object).Verifiable();
+
+            await _bookingsService.CancelBooking(bookingRef);
+
+            _bookingsDocumentStore.VerifyAll();
+            updateMock.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CancelBooking_RaisesNotificationEvent()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Outcome, "Cancelled")).Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking { Reference = bookingRef, Site = site}));
+            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+
+            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled>(e => e.Site == site && e.Reference == bookingRef))).Verifiable();
+
+            await _bookingsService.CancelBooking(bookingRef);
+
+            _messageBus.VerifyAll();
+        }
+
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

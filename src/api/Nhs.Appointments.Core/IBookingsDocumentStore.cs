@@ -42,3 +42,9 @@ public enum BookingConfirmationResult
     RescheduleNotFound,
     RescheduleMismatch
 }
+
+public enum BookingCancellationResult
+{
+    Success,
+    NotFound
+}

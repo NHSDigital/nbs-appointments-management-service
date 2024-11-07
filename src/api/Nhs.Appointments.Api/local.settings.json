@@ -4,6 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobs.NotifyUserRolesChanged.Disabled": true,
     "AzureWebJobs.NotifyBookingMade.Disabled": true,
+    "AzureWebJobs.NotifyBookingCancelled.Disabled": true,
     "AzureWebJobs.SendBookingReminders.Disabled": true,
     "AzureWebJobs.NotifyBookingReminder.Disabled": true,
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled": true,

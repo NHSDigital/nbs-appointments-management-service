@@ -1,5 +1,5 @@
 {
-  "name": "appointments-booking-service",
+  "name": "manage-your-appointments",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@next/env": "^14.2.16",
-    "appointments-booking-service": "file:",
+    "manage-your-appointments": "file:",
     "next": "14.2.16",
     "dayjs": "^1.11.13",
     "nhsuk-frontend": "^8.3.0",

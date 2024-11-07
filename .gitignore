@@ -8,7 +8,7 @@
 .version
 
 *.code-workspace
-!nbs-ams.code-workspace
+!nbs-mya.code-workspace
 
 # Please, add your custom content below!
 ## Ignore Visual Studio temporary files, build results, and

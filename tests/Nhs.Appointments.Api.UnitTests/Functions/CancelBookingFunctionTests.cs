@@ -1,13 +1,10 @@
-﻿using System.Text;
-using System.Web.Http;
-using FluentAssertions;
+﻿using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
@@ -38,7 +35,7 @@ public class CancelBookingFunctionTests
         var bookingRef = "some-booking";
         _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult(BookingCancellationResult.Success));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -51,7 +48,7 @@ public class CancelBookingFunctionTests
         var bookingRef = "some-booking";
         _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -65,7 +62,7 @@ public class CancelBookingFunctionTests
         var invalidResultCode = 99;
         _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as InternalServerErrorResult;
 
@@ -73,12 +70,10 @@ public class CancelBookingFunctionTests
         Assert.Equal(500, response.StatusCode);
     }
 
-    private static HttpRequest BuildRequest(string bookingRef)
+    private static HttpRequest BuildRequest()
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-
-        //request.Path = $"/booking/{bookingRef}/cancel";
        
         request.Headers.Add("Authorization", "Test 123");
 

@@ -49,7 +49,7 @@ public class CancelBookingFunctionTests
     public async Task RunAsync_ReturnsNotFoundResponse_WhenBookingInvalid()
     {
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
         var request = BuildRequest(bookingRef);
 
@@ -63,7 +63,7 @@ public class CancelBookingFunctionTests
     {
         var bookingRef = "some-booking";
         var invalidResultCode = 99;
-        _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
         var request = BuildRequest(bookingRef);
 
@@ -78,10 +78,10 @@ public class CancelBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        var dto = new CancelBookingRequest(bookingRef);
-        var body = JsonConvert.SerializeObject(dto);
-        request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        //request.Path = $"/booking/{bookingRef}/cancel";
+       
         request.Headers.Add("Authorization", "Test 123");
+
         return request;
     }
 }

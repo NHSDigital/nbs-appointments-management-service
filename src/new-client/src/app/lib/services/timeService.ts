@@ -8,6 +8,8 @@ dayjs.extend(customParseFormat);
 // specify this then midnight 2020-09-16 will get formatted as 23:00 2020-09-15
 dayjs.extend(utc);
 
+export const now = () => dayjs.utc();
+
 export const isValidDate = (
   day: string | number,
   month: string | number,

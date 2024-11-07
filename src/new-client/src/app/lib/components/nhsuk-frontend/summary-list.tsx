@@ -1,12 +1,21 @@
 import Link from 'next/link';
 
+type LinkActionProps = {
+  renderingStrategy: 'server';
+  text: string;
+  href: string;
+};
+
+type OnClickActionProps = {
+  renderingStrategy: 'client';
+  text: string;
+  onClick: () => void;
+};
+
 export type SummaryListItem = {
   title: string;
   value: string;
-  action?: {
-    href: string;
-    text: string;
-  };
+  action?: LinkActionProps | OnClickActionProps;
 };
 
 type Props = {
@@ -41,7 +50,13 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 className="nhsuk-summary-list__actions"
                 aria-label={item.action.text}
               >
-                <Link href={item.action.href}>{item.action.text}</Link>
+                {item.action.renderingStrategy === 'server' ? (
+                  <Link href={item.action.href}>{item.action.text}</Link>
+                ) : (
+                  <Link href={''} onClick={item.action.onClick}>
+                    {item.action.text}
+                  </Link>
+                )}
               </dd>
             )}
           </div>

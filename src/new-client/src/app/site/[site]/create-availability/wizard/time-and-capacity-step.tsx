@@ -1,15 +1,28 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
 import NhsHeading from '@components/nhs-heading';
-import { Button, FormGroup, TextInput } from '@components/nhsuk-frontend';
+import {
+  BackLink,
+  Button,
+  FormGroup,
+  TextInput,
+} from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
-import { useFormContext } from 'react-hook-form';
-import CapacityCalculation from './capacity-calculation';
+import { Controller, useFormContext } from 'react-hook-form';
+import CapacityCalculation, {
+  sessionLengthInMinutes,
+} from './capacity-calculation';
 import { formatTimeString } from '@services/timeService';
 
-const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
-  const { register, watch, formState, trigger, setError } =
+const TimeAndCapacityStep = ({
+  goToNextStep,
+  stepNumber,
+  returnRouteUponCancellation,
+  goToPreviousStep,
+  setCurrentStep,
+}: InjectedWizardProps) => {
+  const { register, watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
@@ -21,45 +34,16 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
   ]);
 
   const validateFields = async () => {
-    const fieldsAreValid = await trigger([
+    return trigger([
+      'session.startTime',
+      'session.endTime',
       'session.capacity',
       'session.slotLength',
     ]);
-    if (!fieldsAreValid) {
-      return;
-    }
-
-    const parsedStart = formatTimeString(startTimeWatch);
-    if (parsedStart === undefined) {
-      setError('session.startTime', { message: 'Enter a valid start time' });
-      return false;
-    }
-
-    const parsedEnd = formatTimeString(endTimeWatch);
-    if (parsedEnd === undefined) {
-      setError('session.endTime', {
-        message: 'Enter a valid end time',
-      });
-      return false;
-    }
-
-    if (
-      startTimeWatch.hour > endTimeWatch.hour ||
-      (startTimeWatch.hour === endTimeWatch.hour &&
-        startTimeWatch.minute > endTimeWatch.minute)
-    ) {
-      setError('session.startTime', {
-        message: 'End time cannot be earlier than start time',
-      });
-      return false;
-    }
-
-    return true;
   };
 
   const onContinue = async () => {
     const formIsValid = await validateFields();
-
     if (!formIsValid) {
       return;
     }
@@ -67,8 +51,24 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
     goToNextStep();
   };
 
+  const onBack = async () => {
+    if (getValues('sessionType') === 'repeating') {
+      goToPreviousStep();
+    } else {
+      setCurrentStep(stepNumber - 2);
+    }
+  };
+
   return (
     <>
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={onBack} renderingStrategy="client" />
+      )}
       <NhsHeading
         title="Set time and capacity for your session"
         caption="Create availability period"
@@ -84,88 +84,134 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
         legend="Session times"
         hint="For example, 14:30"
         error={
-          errors.session?.startTime?.hour?.message ||
-          errors.session?.startTime?.minute?.message ||
-          errors.session?.endTime?.hour?.message ||
-          errors.session?.endTime?.minute?.message ||
-          errors.session?.startTime?.message ||
-          errors.session?.endTime?.message
+          errors.session?.startTime?.message || errors.session?.endTime?.message
         }
       >
-        <div className="nhsuk-label">Start time</div>
-        <div className="nhsuk-time-input-custom">
-          <div className="nhsuk-time-input-custom__item">
-            <label
-              id="start-time-accessibility-label-hour"
-              htmlFor="start-time-hour"
-            >
-              Session start time - hour
-            </label>
-            <input
-              aria-labelledby="start-time-accessibility-label-hour"
-              id="start-time-hour"
-              className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-              {...register('session.startTime.hour')}
-            ></input>
-          </div>
-          <div className="nhsuk-time-input-custom__item">
-            <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
-              :
-            </div>
-          </div>
+        <Controller
+          name={'session.startTime'}
+          control={control}
+          rules={{
+            validate: value => {
+              if (formatTimeString(value) === undefined) {
+                return 'Enter a valid start time';
+              }
+            },
+          }}
+          render={() => (
+            <>
+              <div className="nhsuk-label">Start time</div>
+              <div className="nhsuk-time-input-custom">
+                <div className="nhsuk-time-input-custom__item">
+                  <label
+                    id="start-time-accessibility-label-hour"
+                    htmlFor="start-time-hour"
+                  >
+                    Session start time - hour
+                  </label>
+                  <input
+                    aria-labelledby="start-time-accessibility-label-hour"
+                    id="start-time-hour"
+                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                    {...register('session.startTime.hour', {
+                      valueAsNumber: true,
+                    })}
+                  ></input>
+                </div>
+                <div className="nhsuk-time-input-custom__item">
+                  <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
+                    :
+                  </div>
+                </div>
 
-          <div className="nhsuk-time-input-custom__item">
-            <label
-              id="start-time-accessibility-label-minute"
-              htmlFor="start-time-minute"
-            >
-              Session start time - minute
-            </label>
-            <input
-              aria-labelledby="start-time-accessibility-label-minute"
-              className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-              {...register('session.startTime.minute')}
-            ></input>
-          </div>
-        </div>
+                <div className="nhsuk-time-input-custom__item">
+                  <label
+                    id="start-time-accessibility-label-minute"
+                    htmlFor="start-time-minute"
+                  >
+                    Session start time - minute
+                  </label>
+                  <input
+                    aria-labelledby="start-time-accessibility-label-minute"
+                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                    {...register('session.startTime.minute', {
+                      valueAsNumber: true,
+                    })}
+                  ></input>
+                </div>
+              </div>
+            </>
+          )}
+        />
+        <Controller
+          name={'session.endTime'}
+          control={control}
+          rules={{
+            validate: (value, form) => {
+              const endTime = formatTimeString(value);
+              const startTime = formatTimeString(form.session.startTime);
+              if (endTime === undefined || startTime === undefined) {
+                return 'Enter a valid end time';
+              }
 
-        <div className="nhsuk-label">End time</div>
-        <div className="nhsuk-time-input-custom">
-          <div className="nhsuk-time-input-custom__item">
-            <label
-              id="end-time-accessibility-label-hour"
-              htmlFor="end-time-hour"
-            >
-              Session end time - hour
-            </label>
-            <input
-              aria-labelledby="end-time-accessibility-label-hour"
-              className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-              {...register('session.endTime.hour')}
-            ></input>
-          </div>
-          <div className="nhsuk-time-input-custom__item">
-            <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
-              :
-            </div>
-          </div>
+              const minutesBetweenStartAndEnd = sessionLengthInMinutes(
+                form.session.startTime,
+                value,
+              );
 
-          <div className="nhsuk-time-input-custom__item">
-            <label
-              id="end-time-accessibility-label-minute"
-              htmlFor="end-time-minute"
-            >
-              Session end time - minute
-            </label>
-            <input
-              aria-labelledby="end-time-accessibility-label-minute"
-              className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-              {...register('session.endTime.minute')}
-            ></input>
-          </div>
-        </div>
+              if (minutesBetweenStartAndEnd < 0) {
+                return 'Session end time must be after the start time';
+              }
+
+              if (minutesBetweenStartAndEnd <= 5) {
+                return 'Session length must be more than 5 minutes';
+              }
+            },
+          }}
+          render={() => (
+            <>
+              <div className="nhsuk-label">End time</div>
+              <div className="nhsuk-time-input-custom">
+                <div className="nhsuk-time-input-custom__item">
+                  <label
+                    id="end-time-accessibility-label-hour"
+                    htmlFor="end-time-hour"
+                  >
+                    Session end time - hour
+                  </label>
+                  <input
+                    aria-labelledby="end-time-accessibility-label-hour"
+                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                    {...register('session.endTime.hour', {
+                      valueAsNumber: true,
+                    })}
+                  ></input>
+                </div>
+                <div className="nhsuk-time-input-custom__item">
+                  <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
+                    :
+                  </div>
+                </div>
+
+                <div className="nhsuk-time-input-custom__item">
+                  <label
+                    id="end-time-accessibility-label-minute"
+                    htmlFor="end-time-minute"
+                  >
+                    Session end time - minute
+                  </label>
+                  <input
+                    aria-labelledby="end-time-accessibility-label-minute"
+                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                    {...register('session.endTime.minute', {
+                      valueAsNumber: true,
+                    })}
+                  ></input>
+                </div>
+              </div>
+            </>
+          )}
+        />
       </FormGroup>
-
       <br />
       <FormGroup
         legend="Capacity"
@@ -181,10 +227,11 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
           <TextInput
             {...register('session.capacity', {
               required: { value: true, message: 'Capacity is required' },
+              valueAsNumber: true,
               min: { value: 1, message: 'Capacity must be at least 1' },
               validate: value => {
                 if (!Number.isInteger(Number(value))) {
-                  return 'Capacity must be a whole number.';
+                  return 'Capacity must be a whole number';
                 }
               },
             })}
@@ -208,6 +255,7 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
           </label>
           <TextInput
             {...register('session.slotLength', {
+              valueAsNumber: true,
               required: {
                 value: true,
                 message: 'Appointment length is required',
@@ -216,9 +264,23 @@ const TimeAndCapacityStep = ({ goToNextStep }: InjectedWizardProps) => {
                 value: 1,
                 message: 'Appointment length must be at least 1 minute',
               },
-              validate: value => {
+              max: {
+                value: 60,
+                message: 'Appointment length cannot exceed 1 hour',
+              },
+              validate: (value, form) => {
                 if (!Number.isInteger(Number(value))) {
-                  return 'Appointment length must be a whole number.';
+                  return 'Appointment length must be a whole number';
+                }
+
+                if (
+                  value >
+                  sessionLengthInMinutes(
+                    form.session.startTime,
+                    form.session.endTime,
+                  )
+                ) {
+                  return 'Appointment length must be shorter than session length';
                 }
               },
             })}

@@ -119,24 +119,28 @@ describe('Start and End Date Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Day is required')).toBeInTheDocument;
+    expect(screen.getByText('Session end date must be a valid date'))
+      .toBeInTheDocument;
   });
 
+  const startDateInvalidMessage = 'Session date must be a valid date';
+  const endDateInvalidMessage = 'Session end date must be a valid date';
+
   it.each([
-    [undefined, '2', '2041', '7', '08', '2042', 'Day is required'],
-    ['1', undefined, '2041', '7', '08', '2042', 'Month is required'],
-    ['1', '2', undefined, '7', '08', '2042', 'Year is required'],
-    ['1', '2', '2041', undefined, '08', '2042', 'Day is required'],
-    ['1', '2', '2041', '7', undefined, '2042', 'Month is required'],
-    ['1', '2', '2041', '7', '08', undefined, 'Year is required'],
-    ['0', '2', '2041', '7', '08', '2042', 'Please enter a valid day'],
-    ['1', '0', '2041', '7', '08', '2042', 'Please enter a valid month'],
-    ['1', '2', '0', '7', '08', '2042', 'Please enter a valid year'],
-    ['1', '2', '2041', '0', '08', '2042', 'Please enter a valid day'],
-    ['1', '2', '2041', '7', '0', '2042', 'Please enter a valid month'],
-    ['1', '2', '2041', '7', '08', '0', 'Please enter a valid year'],
+    [undefined, '2', '2041', '7', '08', '2042', startDateInvalidMessage],
+    ['1', undefined, '2041', '7', '08', '2042', startDateInvalidMessage],
+    ['1', '2', undefined, '7', '08', '2042', startDateInvalidMessage],
+    ['1', '2', '2041', undefined, '08', '2042', endDateInvalidMessage],
+    ['1', '2', '2041', '7', undefined, '2042', endDateInvalidMessage],
+    ['1', '2', '2041', '7', '08', undefined, endDateInvalidMessage],
+    ['0', '2', '2041', '7', '08', '2042', startDateInvalidMessage],
+    ['1', '0', '2041', '7', '08', '2042', startDateInvalidMessage],
+    ['1', '2', '0', '7', '08', '2042', startDateInvalidMessage],
+    ['1', '2', '2041', '0', '08', '2042', endDateInvalidMessage],
+    ['1', '2', '2041', '7', '0', '2042', endDateInvalidMessage],
+    ['1', '2', '2041', '7', '08', '0', endDateInvalidMessage],
   ])(
-    'can validate date components: day %p, month %p, year %p should be: %p',
+    'can validate date components: start date: day %p, month %p, year %p end date: day %p, month %p, year %p should be: %p',
     async (
       startDay: string | undefined,
       startMonth: string | undefined,
@@ -189,7 +193,7 @@ describe('Start and End Date Step', () => {
 
   // TODO: This functionality now comes with wizard-step out of the box, but I might change it back
   // Update / rewrite this test once pattern is confirmed
-  it.skip('displays an href link when there are no previous wizard steps', async () => {
+  it('displays an href link when there are no previous wizard steps', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
         <StartAndEndDateStep
@@ -210,7 +214,7 @@ describe('Start and End Date Step', () => {
     );
   });
 
-  it.skip('displays a link which invokes GoToPreviousStep if there is a previous step', async () => {
+  it('displays a link which invokes GoToPreviousStep if there is a previous step', async () => {
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}

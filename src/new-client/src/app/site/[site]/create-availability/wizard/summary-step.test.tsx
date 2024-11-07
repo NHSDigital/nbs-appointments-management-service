@@ -62,7 +62,7 @@ describe('Summary Step', () => {
     ).toBeInTheDocument;
   });
 
-  it('summarises the form data collected by the wizard', async () => {
+  it('summarises the single date form data collected by the wizard', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}
@@ -79,13 +79,11 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('term', { name: 'Dates' })).toBeInTheDocument;
+    expect(screen.getByRole('term', { name: 'Date' })).toBeInTheDocument;
     expect(screen.getByRole('definition', { name: '28 February 2027' }))
       .toBeInTheDocument;
 
-    expect(screen.getByRole('term', { name: 'Days' })).toBeInTheDocument;
-    expect(screen.getByRole('definition', { name: 'Tuesday, Thursday' }))
-      .toBeInTheDocument;
+    expect(screen.queryByRole('term', { name: 'Days' })).not.toBeInTheDocument;
 
     expect(screen.getByRole('term', { name: 'Time' })).toBeInTheDocument;
     expect(screen.getByRole('definition', { name: '09:30 - 17:45' }))
@@ -95,7 +93,7 @@ describe('Summary Step', () => {
       .toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
-        name: 'RSV:Adult',
+        name: 'RSV (Adult)',
       }),
     ).toBeInTheDocument;
 

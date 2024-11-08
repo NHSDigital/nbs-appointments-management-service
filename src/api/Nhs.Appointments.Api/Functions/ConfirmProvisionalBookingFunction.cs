@@ -51,6 +51,10 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
                 return Failed(HttpStatusCode.NotFound, "The booking was not found");
             case BookingConfirmationResult.Expired:
                 return Failed(HttpStatusCode.Gone, "The provisional booking expired");
+            case BookingConfirmationResult.RescheduleNotFound:
+                return Failed(HttpStatusCode.NotFound, "The booking to reschedule was not found");
+            case BookingConfirmationResult.RescheduleMismatch:
+                return Failed(HttpStatusCode.PreconditionFailed, "The nhs number for the provisional booking and the booking tobe rescheduled do not match");
             case BookingConfirmationResult.Success:
                 return Success();
         }

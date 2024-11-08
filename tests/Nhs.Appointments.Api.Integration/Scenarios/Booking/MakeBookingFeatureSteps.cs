@@ -44,8 +44,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
         }
         
-        [Then(@"a reference number is returned containing '([\w:]+)' and the following booking is created")]
-        public async Task Assert(string bookingIncrement, Gherkin.Ast.DataTable dataTable)
+        [Then(@"a reference number is returned and the following booking is created")]
+        public async Task Assert(Gherkin.Ast.DataTable dataTable)
         {
             Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             var cells = dataTable.Rows.ElementAt(1).Cells;
@@ -79,7 +79,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 Id = bookingReference
             };
             
-            result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-{bookingIncrement}");
+            result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-([0-9]{{6}})");
             var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
             BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
         }

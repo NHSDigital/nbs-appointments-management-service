@@ -51,4 +51,10 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
         var actualResult = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
         actualResult.Resource.Outcome.Should().BeEquivalentTo(outcome);
     }
+    
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode)
+    {
+        Response.StatusCode.Should().Be((System.Net.HttpStatusCode)statusCode);
+    }
 }

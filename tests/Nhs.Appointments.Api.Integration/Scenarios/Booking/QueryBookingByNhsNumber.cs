@@ -24,7 +24,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         {
             _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
             _statusCode = _response.StatusCode;
-            _actualResponse = await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(await _response.Content.ReadAsStreamAsync());
+            (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(await _response.Content.ReadAsStreamAsync());
         }
         
         [Then(@"the following bookings are returned")]

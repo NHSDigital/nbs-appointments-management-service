@@ -46,11 +46,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
                 }
             };
             
-            var request = new ApplyAvailabilityTemplateRequest(site, cells.ElementAt(0).Value, cells.ElementAt(1).Value, template);
+            var request = new ApplyAvailabilityTemplateRequest(site, DateOnly.ParseExact(cells.ElementAt(0).Value, DateTimeFormats.DateOnly) , DateOnly.ParseExact(cells.ElementAt(1).Value, DateTimeFormats.DateOnly), template);
             var payload = JsonResponseWriter.Serialize(request);
             _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
             _statusCode = _response.StatusCode;
-            _actualResponse = await JsonRequestReader.ReadRequestAsync<EmptyResponse>(await _response.Content.ReadAsStreamAsync());
+            (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<EmptyResponse>(await _response.Content.ReadAsStreamAsync());
         }
             
         [Then("the request is successful and the following daily availability is created")]

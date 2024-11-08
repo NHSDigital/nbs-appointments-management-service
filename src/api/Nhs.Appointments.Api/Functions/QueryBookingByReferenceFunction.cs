@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using System.Collections.Generic;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -45,9 +46,9 @@ public class QueryBookingByReferenceFunction(IBookingsService bookingsService, I
         return Success(booking);
     }
 
-    protected override Task<(bool requestRead, QueryBookingByReferenceRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryBookingByReferenceRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
-        return Task.FromResult((true, new QueryBookingByReferenceRequest(bookingReference)));
+        return Task.FromResult((ErrorMessageResponseItem.None, new QueryBookingByReferenceRequest(bookingReference)));
     }
 }

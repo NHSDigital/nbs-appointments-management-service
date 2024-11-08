@@ -42,7 +42,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
         
     [Then(@"the following availability is returned for '(\d{4}-\d{2}-\d{2})'")]

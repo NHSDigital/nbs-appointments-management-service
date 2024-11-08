@@ -38,8 +38,8 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
     {
         var concurrentResults = new ConcurrentBag<QueryAvailabilityResponseItem>();
         var response = new QueryAvailabilityResponse();
-        var requestFrom = request.FromDate;
-        var requestUntil = request.UntilDate;
+        var requestFrom = request.From;
+        var requestUntil = request.Until;
 
         await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
         {

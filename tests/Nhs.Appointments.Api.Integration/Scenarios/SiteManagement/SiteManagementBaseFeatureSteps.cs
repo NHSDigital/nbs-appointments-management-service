@@ -48,7 +48,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
     public async Task Assert()
     {
         Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        ErrorResponse = await JsonRequestReader.ReadRequestAsync<ErrorMessageResponseItem>(await Response.Content.ReadAsStreamAsync());
+        (_, ErrorResponse) = await JsonRequestReader.ReadRequestAsync<ErrorMessageResponseItem>(await Response.Content.ReadAsStreamAsync());
         ErrorResponse.Message.Should().Be("The specified site was not found.");
     }
     

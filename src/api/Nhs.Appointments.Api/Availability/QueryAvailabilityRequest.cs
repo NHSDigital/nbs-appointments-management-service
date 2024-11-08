@@ -9,14 +9,9 @@ public record QueryAvailabilityRequest(
     [JsonProperty("service")]
     string Service,
     [JsonProperty("from")]
-    string From,
+    DateOnly From,
     [JsonProperty("until")]
-    string Until,
+    DateOnly Until,
     [JsonProperty("queryType")]
     QueryType QueryType
-)
-
-{
-    public DateOnly FromDate => DateOnly.ParseExact(From, "yyyy-MM-dd");
-    public DateOnly UntilDate => DateOnly.ParseExact(Until, "yyyy-MM-dd");
-}
+);

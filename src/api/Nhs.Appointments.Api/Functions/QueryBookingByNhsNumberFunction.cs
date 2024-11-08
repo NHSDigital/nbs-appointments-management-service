@@ -38,9 +38,12 @@ public class QueryBookingByNhsNumberFunction(IBookingsService bookingsService, I
         return Success(booking);
     }
 
-    protected override Task<(bool requestRead, QueryBookingByNhsNumberRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryBookingByNhsNumberRequest request)> ReadRequestAsync(HttpRequest req)
     {
+        var errors = new List<ErrorMessageResponseItem>();
         var nhsNumber = req.Query["nhsNumber"];
-        return Task.FromResult<(bool requestRead, QueryBookingByNhsNumberRequest request)>((true, new QueryBookingByNhsNumberRequest(nhsNumber)));
+        if (string.IsNullOrEmpty(nhsNumber))
+            errors.Add(new ErrorMessageResponseItem { Property = "nhsNumber", Message = "You must provide an nhsNumber" });
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryBookingByNhsNumberRequest request)>((errors.AsReadOnly(), new QueryBookingByNhsNumberRequest(nhsNumber)));
     }
 }

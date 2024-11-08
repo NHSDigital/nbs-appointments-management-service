@@ -2,43 +2,42 @@
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
+using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Json;
 
+public static class DateTimeFormats
+{
+    public static readonly String DateTime = "yyyy-MM-dd HH:mm";
+    public static readonly String TimeOnly = "HH:mm";
+    public static readonly String DateOnly = "yyyy-MM-dd";
+}
+
 public static class JsonRequestReader
 {
-    public static async Task<(bool, TRequest)> TryReadRequestAsync<TRequest>(Stream stream)
+    public static async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync<TRequest>(Stream requestStream)
     {
-        try
+        var deserializerSettings = new JsonSerializerSettings
         {
-            var request = await ReadRequestAsync<TRequest>(stream);
-            return (true, request);
-        }
-        catch (FormatException)
-        {
-            return (false, default);
-        }
-    }
-
-    public static async Task<TRequest> ReadRequestAsync<TRequest>(Stream requestStream)
-    {
-        try
-        {
-            var deserializerSettings = new JsonSerializerSettings
-            {
-                Converters =
+            Converters =
                 {
                     new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new NullableShortDateOnlyJsonConverter()
                 },
 
-            };
-            var body = await new StreamReader(requestStream).ReadToEndAsync();
-            return JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings);
+        };
+        var body = await new StreamReader(requestStream).ReadToEndAsync();
 
-        }
-        catch (Exception ex)
+        try
         {
-            throw new JsonRequestReadException("Problem reading request", ex);
+            return (Enumerable.Empty<ErrorMessageResponseItem>().ToList().AsReadOnly(), JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings));
+        }
+        catch (Exception)
+        {
+            return (JsonToObjectSchemaValidation.ValidateConversion<TRequest>(body), default(TRequest));            
         }
     }
 }

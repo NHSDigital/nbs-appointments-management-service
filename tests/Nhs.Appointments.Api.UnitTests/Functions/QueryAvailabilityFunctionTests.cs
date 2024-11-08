@@ -12,7 +12,6 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -57,9 +56,9 @@ public class QueryAvailabilityFunctionTests
         
         var request = new QueryAvailabilityRequest(
             new[] { "1000", "1001" },
-            "COVID", 
-            "2077-01-01",
-            "2077-01-01",
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             QueryType.Days);
 
         var httpRequest = CreateRequest(request);
@@ -88,9 +87,9 @@ public class QueryAvailabilityFunctionTests
         
         var request = new QueryAvailabilityRequest(
             new[] { "1000" },
-            "COVID", 
-            "2077-01-01",
-            "2077-01-01",
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
             queryType);
 
         var httpRequest = CreateRequest(request);
@@ -113,8 +112,8 @@ public class QueryAvailabilityFunctionTests
         var request = new QueryAvailabilityRequest(
             new[] { "1000" },
             "COVID",
-            "2077-01-01",
-            "2077-01-03",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
             QueryType.Days);
 
         var httpRequest = CreateRequest(request);
@@ -147,8 +146,8 @@ public class QueryAvailabilityFunctionTests
         var request = new QueryAvailabilityRequest(
             new[] { "1000" },
             "COVID",
-            "2077-01-01",
-            "2077-01-03",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
             QueryType.Days);
 
         var httpRequest = CreateRequest(request);
@@ -163,13 +162,13 @@ public class QueryAvailabilityFunctionTests
         return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType);
     }
     
-    private static HttpRequest CreateRequest(string[] sites, string from, string until, string service, QueryType queryType)
+    private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service, QueryType queryType)
     {
         var sitesArray = String.Join(",", sites.Select(x => $"\"{x}\""));
 
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var body = $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from}\", \"until\": \"{until}\", \"queryType\": \"{queryType}\" }} ";
+        var body = $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
         request.Body =  new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Add("Authorization", "Test 123");
         return request;

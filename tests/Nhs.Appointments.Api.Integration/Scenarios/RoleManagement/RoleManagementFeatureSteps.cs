@@ -28,7 +28,7 @@ public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
     {
         _response = await Http.GetAsync($"http://localhost:7071/api/roles?tag={tag}");
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<GetRolesResponse>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<GetRolesResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then("The following roles are returned")] 

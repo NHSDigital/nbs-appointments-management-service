@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using ContactItem = Nhs.Appointments.Api.Models.ContactItem;
 using Nhs.Appointments.Api.Json;
+using MassTransit.SqlTransport;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -58,18 +59,19 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         return Failed(HttpStatusCode.InternalServerError, "An uknown error occured when trying to confirm the appointment");
     }
 
-    protected override async Task<(bool requestRead, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var contactDetails = new ContactItem[] { };
         if (req.Body != null)
         {
-            var (read, payload) = await JsonRequestReader.TryReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
-            if(read && payload != null)
-                contactDetails = payload.contactDetails ?? new ContactItem[] { };
+            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
+            if (errors.Any())
+                return (errors, null);            
+            contactDetails = payload?.contactDetails ?? new ContactItem[] { };
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (true, new ConfirmBookingRequest(bookingReference, contactDetails));
+        return (ErrorMessageResponseItem.None, new ConfirmBookingRequest(bookingReference, contactDetails));
     }
     
 }

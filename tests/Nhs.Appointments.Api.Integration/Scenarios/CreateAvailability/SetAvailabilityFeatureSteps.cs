@@ -18,9 +18,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         public async Task SetAvailability(DataTable dataTable)
         {
             var cells = dataTable.Rows.ElementAt(1).Cells;
+
+            var relativeDate = DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
             var payload = new
             {
-                date = cells.ElementAt(0).Value,
+                date = relativeDate,
                 site = GetSiteId(),
                 sessions = new[]
                 {

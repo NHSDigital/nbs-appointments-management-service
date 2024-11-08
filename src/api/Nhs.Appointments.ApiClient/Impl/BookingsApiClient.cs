@@ -11,7 +11,7 @@ namespace Nhs.Appointments.ApiClient.Impl
         {
         }
 
-        public Task<CancelBookingResponse> CancelBooking(string bookingReference, string site) => Post<CancelBookingRequest, CancelBookingResponse>("api/booking/cancel", new CancelBookingRequest(bookingReference, site));
+        public Task CancelBooking(string bookingReference) => Post($"api/booking/{bookingReference}/cancel");
 
         public Task<MakeBookingResponse> MakeBooking(string site, DateTime from, string service, string sessionHolder, AttendeeDetails attendeeDetails, IEnumerable<ContactItem> contactDetails) => Post<MakeBookingRequest, MakeBookingResponse>("api/booking", new MakeBookingRequest(site, from.ToString("yyyy-MM-dd HH:mm"), service, sessionHolder, attendeeDetails, contactDetails.ToArray()));
 

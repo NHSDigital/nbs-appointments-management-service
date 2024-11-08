@@ -15,7 +15,7 @@ namespace Nhs.Appointments.Api.Client.Integration
         public async void CanMakeBooking()
         {
             var bookingReference = await MakeBooking();       
-            await ApiClient.Bookings.CancelBooking(bookingReference, KnownSiteId);
+            await ApiClient.Bookings.CancelBooking(bookingReference);
             Assert.True(bookingReference.Length > 0);
         }
 
@@ -23,9 +23,7 @@ namespace Nhs.Appointments.Api.Client.Integration
         public async void CanCancelBooking()
         {
             var bookingReference = await MakeBooking();
-            var result = await ApiClient.Bookings.CancelBooking(bookingReference, KnownSiteId);
-            Assert.Equal("cancelled", result.Status);
-            Assert.Equal(bookingReference, result.BookingReference);
+            await ApiClient.Bookings.CancelBooking(bookingReference);
         }
 
         private async Task<string> MakeBooking()

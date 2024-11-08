@@ -11,6 +11,9 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Auth;
+using System.Text.Json;
+using IdentityModel.Client;
+using System.Collections.Frozen;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -48,15 +51,15 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
                 NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
             },
             ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray(),
-            Provisional = bookingRequest.Provisional
+            Provisional = bookingRequest.Provisional,
+            AdditionalData = bookingRequest.AdditionalData
         };
 
-        
         var bookingResult = await bookingService.MakeBooking(requestedBooking);
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
         var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional);
-        return Success(response);               
+        return Success(response);
     }    
 }

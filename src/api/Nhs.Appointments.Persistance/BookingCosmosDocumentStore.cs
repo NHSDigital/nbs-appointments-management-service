@@ -111,7 +111,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     }
 
     public async Task InsertAsync(Booking booking)
-    {            
+    {
         var bookingDocument = bookingStore.ConvertToDocument(booking);
         await bookingStore.WriteAsync(bookingDocument);
 

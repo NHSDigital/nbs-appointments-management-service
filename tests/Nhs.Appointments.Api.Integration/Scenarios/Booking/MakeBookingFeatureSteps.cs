@@ -35,6 +35,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     firstName = cells.ElementAt(4).Value,
                     lastName = cells.ElementAt(5).Value,
                     dateOfBirth = cells.ElementAt(6).Value
+                },
+                addtionalData = new
+                {
+                    isAppBooking = cells.ElementAt(7).Value
                 }
             };
 
@@ -64,7 +68,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     new[] {
                         new { type = "email", value = cells.ElementAt(7).Value },
                         new { type = "phone", value = cells.ElementAt(8).Value }
-                    }
+                    },
+                additionalData = new
+                {
+                    isAppBooking = cells.ElementAt(9).Value
+                }
 
             };
             _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
@@ -96,13 +104,17 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     LastName = cells.ElementAt(5).Value,
                     DateOfBirth = DateOnly.ParseExact(cells.ElementAt(6).Value, "yyyy-MM-dd", null)
                 },
-                ContactDetails = isProvisional ? new ContactItem[] { } : 
+                ContactDetails = isProvisional ? [] : 
                 [
                     new ContactItem { Type = "email", Value = cells.ElementAt(7).Value },
                     new ContactItem { Type = "phone", Value = cells.ElementAt(8).Value }
                 ],
                 DocumentType = "booking",
-                Id = bookingReference
+                Id = bookingReference,
+                AdditionalData = new
+                {
+                    isAppBooking = cells.ElementAt(10).Value
+                }
             };
             
             result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-{bookingIncrement}");

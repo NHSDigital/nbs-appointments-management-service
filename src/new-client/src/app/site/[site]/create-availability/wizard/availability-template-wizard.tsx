@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import TimeAndCapacityStep from './time-and-capacity-step';
 import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
+import { ChangeEvent } from 'react';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -26,6 +27,22 @@ type Props = {
 
 // TODO: Decide where this info should live and move it there
 export const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
+export const handlePositiveBoundedNumberInput = (
+  e: ChangeEvent<HTMLInputElement>,
+  upperBound: number,
+) => {
+  const asNumber = Number(e.currentTarget.value);
+  if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
+    return undefined;
+  }
+
+  if (asNumber > upperBound) {
+    return upperBound;
+  }
+
+  return asNumber;
+};
 
 const AvailabilityTemplateWizard = ({ site }: Props) => {
   const methods = useForm<CreateAvailabilityFormValues>({

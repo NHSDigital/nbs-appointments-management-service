@@ -8,7 +8,10 @@ import {
   TextInput,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  handlePositiveBoundedNumberInput,
+} from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
 import CapacityCalculation, {
   sessionLengthInMinutes,
@@ -66,22 +69,6 @@ const TimeAndCapacityStep = ({
     } else {
       setCurrentStep(stepNumber - 2);
     }
-  };
-
-  const handlePositiveBoundedNumberInput = (
-    e: ChangeEvent<HTMLInputElement>,
-    upperBound: number,
-  ) => {
-    const asNumber = Number(e.currentTarget.value);
-    if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
-      return undefined;
-    }
-
-    if (asNumber > upperBound) {
-      return upperBound;
-    }
-
-    return asNumber;
   };
 
   const handleTwoDigitPositiveBoundedNumberInput = (
@@ -333,6 +320,7 @@ const TimeAndCapacityStep = ({
                 id="capacity"
                 aria-labelledby="capacity"
                 inputMode="numeric"
+                type="number"
                 width={2}
                 onChange={e =>
                   field.onChange(handlePositiveBoundedNumberInput(e, 99))
@@ -391,6 +379,7 @@ const TimeAndCapacityStep = ({
                 id="slot-length"
                 aria-labelledby="slot-length"
                 inputMode="numeric"
+                type="number"
                 width={2}
                 suffix="minutes"
                 onChange={e => {

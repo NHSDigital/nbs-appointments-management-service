@@ -7,7 +7,10 @@ import {
   TextInput,
 } from '@components/nhsuk-frontend';
 import { Controller, useFormContext } from 'react-hook-form';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  handlePositiveBoundedNumberInput,
+} from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import {
   isSameDayOrBefore,
@@ -104,33 +107,61 @@ const StartAndEndDateStep = ({
               hint="For example, 15 3 1984"
               id="start-date-input"
             >
-              <TextInput
-                label="Day"
-                type="number"
-                id="start-date-input-day"
-                inputType="date"
-                {...register('startDate.day', {
-                  valueAsNumber: true,
-                })}
+              <Controller
+                control={control}
+                name="startDate.day"
+                render={({ field }) => (
+                  <TextInput
+                    label="Day"
+                    type="number"
+                    id="start-date-input-day"
+                    inputType="date"
+                    onChange={e =>
+                      field.onChange(handlePositiveBoundedNumberInput(e, 31))
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
-              <TextInput
-                label="Month"
-                type="number"
-                id="start-date-input-month"
-                inputType="date"
-                {...register('startDate.month', {
-                  valueAsNumber: true,
-                })}
+
+              <Controller
+                control={control}
+                name="startDate.month"
+                render={({ field }) => (
+                  <TextInput
+                    label="Month"
+                    type="number"
+                    id="start-date-input-month"
+                    inputType="date"
+                    onChange={e =>
+                      field.onChange(handlePositiveBoundedNumberInput(e, 12))
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
-              <TextInput
-                label="Year"
-                type="number"
-                id="start-date-input-year"
-                inputType="date"
-                width={3}
-                {...register('startDate.year', {
-                  valueAsNumber: true,
-                })}
+
+              <Controller
+                control={control}
+                name="startDate.year"
+                render={({ field }) => (
+                  <TextInput
+                    label="Year"
+                    type="number"
+                    id="start-date-input-year"
+                    inputType="date"
+                    width={3}
+                    onChange={e =>
+                      field.onChange(
+                        handlePositiveBoundedNumberInput(
+                          e,
+                          now().add(1, 'year').year(),
+                        ),
+                      )
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
             </DateInput>
           )}
@@ -167,33 +198,65 @@ const StartAndEndDateStep = ({
                   hint="For example, 15 3 1984"
                   id="end-date-input"
                 >
-                  <TextInput
-                    label="Day"
-                    type="number"
-                    id="end-date-input-day"
-                    inputType="date"
-                    {...register('endDate.day', {
-                      valueAsNumber: true,
-                    })}
+                  <Controller
+                    control={control}
+                    name="endDate.day"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Day"
+                        type="number"
+                        id="end-date-input-day"
+                        inputType="date"
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(e, 31),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
                   />
-                  <TextInput
-                    label="Month"
-                    type="number"
-                    id="end-date-input-month"
-                    inputType="date"
-                    width={3}
-                    {...register('endDate.month', {
-                      valueAsNumber: true,
-                    })}
+
+                  <Controller
+                    control={control}
+                    name="endDate.month"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Month"
+                        type="number"
+                        id="end-date-input-month"
+                        inputType="date"
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(e, 12),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
                   />
-                  <TextInput
-                    label="Year"
-                    type="number"
-                    id="end-date-input-year"
-                    inputType="date"
-                    {...register('endDate.year', {
-                      valueAsNumber: true,
-                    })}
+
+                  <Controller
+                    control={control}
+                    name="endDate.year"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Year"
+                        type="number"
+                        id="end-date-input-year"
+                        inputType="date"
+                        width={3}
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(
+                              e,
+                              now().add(1, 'year').year(),
+                            ),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
                   />
                 </DateInput>
               </FormGroup>

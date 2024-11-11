@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -18,17 +19,17 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
 
         object payload = new
         {
-            from = cells.ElementAt(0).Value,
-            duration = cells.ElementAt(1).Value,
-            service = cells.ElementAt(2).Value,
+            from = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
+            duration = cells.ElementAt(2).Value,
+            service = cells.ElementAt(3).Value,
             site = GetSiteId(),
             provisional = true,
             attendeeDetails = new
             {
-                nhsNumber = EvaluateNhsNumber(cells.ElementAt(3).Value),
-                firstName = cells.ElementAt(4).Value,
-                lastName = cells.ElementAt(5).Value,
-                dateOfBirth = cells.ElementAt(6).Value
+                nhsNumber = EvaluateNhsNumber(cells.ElementAt(4).Value),
+                firstName = cells.ElementAt(5).Value,
+                lastName = cells.ElementAt(6).Value,
+                dateOfBirth = cells.ElementAt(7).Value
             }
         };
 

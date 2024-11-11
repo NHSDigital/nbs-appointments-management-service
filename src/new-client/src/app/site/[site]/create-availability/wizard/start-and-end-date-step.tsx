@@ -27,7 +27,7 @@ const StartAndEndDateStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register, formState, trigger, getValues, control } =
+  const { formState, trigger, getValues, control } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 

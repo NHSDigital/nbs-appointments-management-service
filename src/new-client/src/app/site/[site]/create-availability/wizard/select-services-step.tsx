@@ -87,7 +87,9 @@ const SelectServicesStep = ({
                     ...(servicesWatch ?? []),
                   ]);
                 }
-                trigger('session.services');
+                if (errors.session?.services) {
+                  trigger('session.services');
+                }
               }}
             />
           ))}

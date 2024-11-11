@@ -85,7 +85,10 @@ const DaysOfWeekStep = ({
                 } else {
                   setValue('days', [dayOfWeek, ...(daysWatch ?? [])]);
                 }
-                trigger('days');
+
+                if (errors.days) {
+                  trigger('days');
+                }
               }}
             />
           ))}
@@ -103,7 +106,9 @@ const DaysOfWeekStep = ({
                   daysOfTheWeek.map(_ => _),
                 );
               }
-              trigger('days');
+              if (errors.days) {
+                trigger('days');
+              }
             }}
           />
         </CheckBoxes>

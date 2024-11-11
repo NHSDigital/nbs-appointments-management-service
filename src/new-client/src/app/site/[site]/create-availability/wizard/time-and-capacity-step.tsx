@@ -23,7 +23,7 @@ const TimeAndCapacityStep = ({
   goToPreviousStep,
   setCurrentStep,
 }: InjectedWizardProps) => {
-  const { register, watch, formState, trigger, control, getValues } =
+  const { watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors } = formState;
 
@@ -60,7 +60,23 @@ const TimeAndCapacityStep = ({
     }
   };
 
-  const handlePositiveBoundedInput = (
+  const handlePositiveBoundedNumberInput = (
+    e: ChangeEvent<HTMLInputElement>,
+    upperBound: number,
+  ) => {
+    const asNumber = Number(e.currentTarget.value);
+    if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
+      return undefined;
+    }
+
+    if (asNumber > upperBound) {
+      return upperBound;
+    }
+
+    return asNumber;
+  };
+
+  const handleTwoDigitPositiveBoundedNumberInput = (
     e: ChangeEvent<HTMLInputElement>,
     upperBound: number,
   ) => {
@@ -81,22 +97,6 @@ const TimeAndCapacityStep = ({
       default:
         return e.target.value.slice(-2);
     }
-  };
-
-  const handlePositiveBoundedNumberInput = (
-    e: ChangeEvent<HTMLInputElement>,
-    upperBound: number,
-  ) => {
-    const asNumber = Number(e.currentTarget.value);
-    if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
-      return undefined;
-    }
-
-    if (asNumber > upperBound) {
-      return upperBound;
-    }
-
-    return asNumber;
   };
 
   return (
@@ -157,7 +157,9 @@ const TimeAndCapacityStep = ({
                         id="start-time-hour"
                         className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
                         onChange={e =>
-                          field.onChange(handlePositiveBoundedInput(e, 23))
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 23),
+                          )
                         }
                         value={field.value ?? ''}
                       ></input>
@@ -187,7 +189,9 @@ const TimeAndCapacityStep = ({
                         className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
                         id="start-time-minute"
                         onChange={e =>
-                          field.onChange(handlePositiveBoundedInput(e, 59))
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 59),
+                          )
                         }
                         value={field.value ?? ''}
                       ></input>
@@ -243,7 +247,9 @@ const TimeAndCapacityStep = ({
                         className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
                         id="end-time-hour"
                         onChange={e =>
-                          field.onChange(handlePositiveBoundedInput(e, 23))
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 23),
+                          )
                         }
                         value={field.value ?? ''}
                       ></input>
@@ -272,7 +278,9 @@ const TimeAndCapacityStep = ({
                         aria-labelledby="end-time-accessibility-label-minute"
                         className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
                         onChange={e =>
-                          field.onChange(handlePositiveBoundedInput(e, 59))
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 59),
+                          )
                         }
                         value={field.value ?? ''}
                       ></input>
@@ -377,9 +385,9 @@ const TimeAndCapacityStep = ({
                 inputMode="numeric"
                 width={2}
                 suffix="minutes"
-                onChange={e =>
-                  field.onChange(handlePositiveBoundedNumberInput(e, 60))
-                }
+                onChange={e => {
+                  field.onChange(handlePositiveBoundedNumberInput(e, 60));
+                }}
                 value={field.value ?? ''}
               />
             </FormGroup>

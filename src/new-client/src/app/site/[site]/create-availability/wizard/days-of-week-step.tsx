@@ -15,15 +15,19 @@ import { daysOfTheWeek } from '@types';
 
 const DaysOfWeekStep = ({
   goToNextStep,
+  goToLastStep,
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
   const { register, setValue, watch, formState, trigger } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const daysWatch = watch('days');
+
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
 
   const onContinue = async () => {
     const formIsValid = await trigger(['days']);
@@ -31,7 +35,11 @@ const DaysOfWeekStep = ({
       return;
     }
 
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
 
   return (

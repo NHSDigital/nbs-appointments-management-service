@@ -15,13 +15,23 @@ import { useFormContext } from 'react-hook-form';
 const SingleOrRepeatingSessionStep = ({
   stepNumber,
   goToNextStep,
+  goToLastStep,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register, reset } = useFormContext<CreateAvailabilityFormValues>();
+  const { register, reset, formState } =
+    useFormContext<CreateAvailabilityFormValues>();
+  const { isValid: allStepsAreValid, touchedFields } = formState;
+
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
 
   const onContinue = async () => {
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
 
   const sessionType = { ...register('sessionType') };

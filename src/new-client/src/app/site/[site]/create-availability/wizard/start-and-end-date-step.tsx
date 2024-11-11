@@ -19,13 +19,14 @@ import NhsHeading from '@components/nhs-heading';
 const StartAndEndDateStep = ({
   stepNumber,
   goToNextStep,
+  goToLastStep,
   setCurrentStep,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
   const { register, formState, trigger, getValues, control } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const sessionType = getValues('sessionType');
 
@@ -37,9 +38,17 @@ const StartAndEndDateStep = ({
     }
   };
 
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
+
   const onContinue = async () => {
     const formIsValid = await validateFields();
     if (!formIsValid) {
+      return;
+    }
+
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
       return;
     }
 

@@ -14,6 +14,7 @@ export interface InjectedWizardProps {
   setCurrentStep(step: number): void;
   goToNextStep(): void;
   goToPreviousStep(): void;
+  goToLastStep(): void;
   returnRouteUponCancellation?: string;
 }
 
@@ -68,6 +69,9 @@ const Wizard = ({
             await setActiveStep(
               stepNumber + 1 > lastStep ? lastStep : stepNumber + 1,
             );
+          },
+          async goToLastStep() {
+            await setActiveStep(lastStep);
           },
         });
       })}

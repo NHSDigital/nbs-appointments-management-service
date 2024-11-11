@@ -18,6 +18,7 @@ import { ChangeEvent } from 'react';
 
 const TimeAndCapacityStep = ({
   goToNextStep,
+  goToLastStep,
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
@@ -25,7 +26,7 @@ const TimeAndCapacityStep = ({
 }: InjectedWizardProps) => {
   const { watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const [startTimeWatch, endTimeWatch, slotLengthWatch, capacityWatch] = watch([
     'session.startTime',
@@ -43,13 +44,20 @@ const TimeAndCapacityStep = ({
     ]);
   };
 
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
+
   const onContinue = async () => {
     const formIsValid = await validateFields();
     if (!formIsValid) {
       return;
     }
 
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
 
   const onBack = async () => {

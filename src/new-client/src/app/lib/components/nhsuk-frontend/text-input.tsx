@@ -1,4 +1,4 @@
-import { forwardRef, HTMLProps } from 'react';
+import { DetailedHTMLProps, forwardRef, InputHTMLAttributes } from 'react';
 
 type Props = {
   label?: string;
@@ -6,7 +6,7 @@ type Props = {
   width?: 2 | 3 | 4 | 5 | 10 | 20;
   prefix?: string;
   suffix?: string;
-} & HTMLProps<HTMLInputElement>;
+} & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 type Ref = HTMLInputElement;
 
 /**

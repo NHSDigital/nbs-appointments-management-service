@@ -64,7 +64,7 @@ const TimeAndCapacityStep = ({
     e: ChangeEvent<HTMLInputElement>,
     upperBound: number,
   ) => {
-    const asNumber = Number(e.target.value);
+    const asNumber = Number(e.currentTarget.value);
     if (asNumber < 0 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
       return '00';
     }
@@ -81,6 +81,22 @@ const TimeAndCapacityStep = ({
       default:
         return e.target.value.slice(-2);
     }
+  };
+
+  const handlePositiveBoundedNumberInput = (
+    e: ChangeEvent<HTMLInputElement>,
+    upperBound: number,
+  ) => {
+    const asNumber = Number(e.currentTarget.value);
+    if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
+      return undefined;
+    }
+
+    if (asNumber > upperBound) {
+      return upperBound;
+    }
+
+    return asNumber;
   };
 
   return (
@@ -273,87 +289,115 @@ const TimeAndCapacityStep = ({
         legend="Capacity"
         hint="Enter your capacity to calculate appointment numbers for this session"
       >
-        <FormGroup
-          legend="How many vaccinators or spaces do you have?"
-          error={errors.session?.capacity?.message}
-        >
-          <label id="capacity" htmlFor="capacity" style={{ display: 'none' }}>
-            How many vaccinators or spaces do you have?
-          </label>
-          <TextInput
-            {...register('session.capacity', {
-              required: { value: true, message: 'Capacity is required' },
-              valueAsNumber: true,
-              min: { value: 1, message: 'Capacity must be at least 1' },
-              validate: value => {
-                if (!Number.isInteger(Number(value))) {
-                  return 'Capacity must be a whole number';
+        <Controller
+          control={control}
+          name="session.capacity"
+          rules={{
+            required: { value: true, message: 'Capacity is required' },
+            min: { value: 1, message: 'Capacity must be at least 1' },
+            validate: value => {
+              if (!Number.isInteger(Number(value))) {
+                return 'Capacity must be a whole number';
+              }
+            },
+          }}
+          render={({ field }) => (
+            <FormGroup
+              legend="How many vaccinators or spaces do you have?"
+              error={errors.session?.capacity?.message}
+            >
+              <label
+                id="capacity"
+                htmlFor="capacity"
+                style={{ display: 'none' }}
+              >
+                How many vaccinators or spaces do you have?
+              </label>
+              <TextInput
+                id="capacity"
+                aria-labelledby="capacity"
+                inputMode="numeric"
+                width={2}
+                onChange={e =>
+                  field.onChange(handlePositiveBoundedNumberInput(e, 99))
                 }
-              },
-            })}
-            id="capacity"
-            aria-labelledby="capacity"
-            inputMode="numeric"
-            width={2}
-          ></TextInput>
-        </FormGroup>
+                value={field.value ?? ''}
+              />
+            </FormGroup>
+          )}
+        />
 
-        <FormGroup
-          legend="How long are your appointments?"
-          error={errors.session?.slotLength?.message}
-        >
-          <label
-            id="slot-length"
-            htmlFor="slot-length"
-            style={{ display: 'none' }}
-          >
-            How long are your appointments?
-          </label>
-          <TextInput
-            {...register('session.slotLength', {
-              valueAsNumber: true,
-              required: {
-                value: true,
-                message: 'Appointment length is required',
-              },
-              min: {
-                value: 1,
-                message: 'Appointment length must be at least 1 minute',
-              },
-              max: {
-                value: 60,
-                message: 'Appointment length cannot exceed 1 hour',
-              },
-              validate: (value, form) => {
-                if (!Number.isInteger(Number(value))) {
-                  return 'Appointment length must be a whole number';
-                }
+        <Controller
+          control={control}
+          name="session.slotLength"
+          rules={{
+            required: {
+              value: true,
+              message: 'Appointment length is required',
+            },
+            min: {
+              value: 1,
+              message: 'Appointment length must be at least 1 minute',
+            },
+            max: {
+              value: 60,
+              message: 'Appointment length cannot exceed 1 hour',
+            },
+            validate: (value, form) => {
+              if (!Number.isInteger(Number(value))) {
+                return 'Appointment length must be a whole number';
+              }
 
-                if (
-                  value >
-                  sessionLengthInMinutes(
-                    form.session.startTime,
-                    form.session.endTime,
-                  )
-                ) {
-                  return 'Appointment length must be shorter than session length';
+              if (
+                value >
+                sessionLengthInMinutes(
+                  form.session.startTime,
+                  form.session.endTime,
+                )
+              ) {
+                return 'Appointment length must be shorter than session length';
+              }
+            },
+          }}
+          render={({ field }) => (
+            <FormGroup
+              legend="How long are your appointments?"
+              error={errors.session?.slotLength?.message}
+            >
+              <label
+                id="slot-length"
+                htmlFor="slot-length"
+                style={{ display: 'none' }}
+              >
+                How long are your appointments?
+              </label>
+              <TextInput
+                id="slot-length"
+                aria-labelledby="slot-length"
+                inputMode="numeric"
+                width={2}
+                suffix="minutes"
+                onChange={e =>
+                  field.onChange(handlePositiveBoundedNumberInput(e, 60))
                 }
-              },
-            })}
-            id="slot-length"
-            aria-labelledby="slot-length"
-            inputMode="numeric"
-            width={2}
-            suffix="minutes"
-          ></TextInput>
-        </FormGroup>
+                value={field.value ?? ''}
+              />
+            </FormGroup>
+          )}
+        />
       </FormGroup>
 
       <CapacityCalculation
-        startTime={startTimeWatch}
-        endTime={endTimeWatch}
-        slotLength={slotLengthWatch}
-        capacity={capacityWatch}
+        startTime={{
+          hour: Number(startTimeWatch?.hour),
+          minute: Number(startTimeWatch?.minute),
+        }}
+        endTime={{
+          hour: Number(endTimeWatch?.hour),
+          minute: Number(endTimeWatch?.minute),
+        }}
+        slotLength={Number(slotLengthWatch)}
+        capacity={Number(capacityWatch)}
       />
       <Button
         type="button"

@@ -22,22 +22,24 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 
             object payload = new
             {
-                from = cells.ElementAt(0).Value,
-                duration = cells.ElementAt(1).Value,
-                service = cells.ElementAt(2).Value,
+                from = DateTime.ParseExact(
+                    $"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
+                    "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
+                duration = cells.ElementAt(2).Value,
+                service = cells.ElementAt(3).Value,
                 site = GetSiteId(),
                 provisional = false,
                 attendeeDetails = new
                 {
-                    nhsNumber = cells.ElementAt(3).Value,
-                    firstName = cells.ElementAt(4).Value,
-                    lastName = cells.ElementAt(5).Value,
-                    dateOfBirth = cells.ElementAt(6).Value
+                    nhsNumber = cells.ElementAt(4).Value,
+                    firstName = cells.ElementAt(5).Value,
+                    lastName = cells.ElementAt(6).Value,
+                    dateOfBirth = cells.ElementAt(7).Value
                 },
                 contactDetails =
                     new[] {
-                        new { type = "email", value = cells.ElementAt(7).Value },
-                        new { type = "phone", value = cells.ElementAt(8).Value }
+                        new { type = "email", value = cells.ElementAt(8).Value },
+                        new { type = "phone", value = cells.ElementAt(9).Value }
                     }
 
             };
@@ -52,28 +54,28 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             var siteId = GetSiteId();
             var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
             var bookingReference = result.BookingReference;
-            var isProvisional = cells.ElementAt(9).Value == "Yes";
+            var isProvisional = cells.ElementAt(10).Value == "Yes";
             var expectedBooking = new BookingDocument()
             {
                 Site = siteId,
                 Reference = bookingReference,
-                From = DateTime.ParseExact(cells.ElementAt(0).Value, "yyyy-MM-dd HH:mm", null),
-                Duration = int.Parse(cells.ElementAt(1).Value),
-                Service = cells.ElementAt(2).Value,
+                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                Duration = int.Parse(cells.ElementAt(2).Value),
+                Service = cells.ElementAt(3).Value,
                 Outcome = null,
                 Created = DateTime.UtcNow,
                 Provisional = isProvisional,
                 AttendeeDetails = new AttendeeDetails()
                 {
-                    NhsNumber = cells.ElementAt(3).Value,
-                    FirstName = cells.ElementAt(4).Value,
-                    LastName = cells.ElementAt(5).Value,
-                    DateOfBirth = DateOnly.ParseExact(cells.ElementAt(6).Value, "yyyy-MM-dd", null)
+                    NhsNumber = cells.ElementAt(4).Value,
+                    FirstName = cells.ElementAt(5).Value,
+                    LastName = cells.ElementAt(6).Value,
+                    DateOfBirth = DateOnly.ParseExact(cells.ElementAt(7).Value, "yyyy-MM-dd", null)
                 },
                 ContactDetails = isProvisional ? new ContactItem[] { } : 
                 [
-                    new ContactItem { Type = "email", Value = cells.ElementAt(7).Value },
-                    new ContactItem { Type = "phone", Value = cells.ElementAt(8).Value }
+                    new ContactItem { Type = "email", Value = cells.ElementAt(8).Value },
+                    new ContactItem { Type = "phone", Value = cells.ElementAt(9).Value }
                 ],
                 DocumentType = "booking",
                 Id = bookingReference

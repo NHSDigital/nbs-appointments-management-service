@@ -110,8 +110,8 @@ public abstract class BaseFeatureSteps : Feature
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = row.Cells.ElementAt(0).Value.Replace("-", ""),
-            Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
+            Id = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -135,6 +135,42 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
+    }
+
+    protected DateOnly DeriveRelativeDateOnly(string dateString)
+    {
+        var components = dateString.Split('_');
+        var date = components[0] switch
+        {
+            "Tomorrow" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1),
+            "Yesterday" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
+            "Today" => DateOnly.FromDateTime(DateTime.UtcNow),
+            _ => DateOnly.FromDateTime(DateTime.UtcNow)
+        };
+
+        if (components.Length > 1)
+        {
+            var offset = int.Parse(components[1]);
+            date = date.AddDays(offset);
+        }
+
+        return date;
+    }
+
+    protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly endDate)
+    {
+        if (startDate.AddDays(7) <= endDate)
+        {
+            return "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday";
+        }
+
+        var days = new List<DayOfWeek>();
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            days.Add(date.DayOfWeek);
+        }
+
+        return string.Join(",", days);
     }
 
     [Given("the following bookings have been made")]
@@ -166,12 +202,12 @@ public abstract class BaseFeatureSteps : Feature
 
     protected async Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable, BookingType bookingType)
     {
-        var bookings = dataTable.Rows.Skip(1).ToList().Select((row, index) => new BookingDocument
+        var bookings = dataTable.Rows.Skip(1).Select((row, index) => new BookingDocument
         {
             Id = BookingReferences.GetBookingReference(index, bookingType),
             DocumentType = "booking",
             Reference = BookingReferences.GetBookingReference(index, bookingType),
-            From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+            From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
@@ -201,7 +237,7 @@ public abstract class BaseFeatureSteps : Feature
                 NhsNumber = NhsNumber,
                 Provisional = bookingType != BookingType.Confirmed,
                 Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
-                From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
         foreach (var booking in bookings)

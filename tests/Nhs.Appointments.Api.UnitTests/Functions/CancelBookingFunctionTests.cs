@@ -1,13 +1,10 @@
-﻿using System.Text;
-using System.Web.Http;
-using FluentAssertions;
+﻿using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
@@ -35,11 +32,10 @@ public class CancelBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenBookingCancelled()
     {
-        var site = "some-site";
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(site, bookingRef)).Returns(Task.FromResult(BookingCancellationResult.Success));
+        _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult(BookingCancellationResult.Success));
 
-        var request = BuildRequest(site, bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -49,11 +45,10 @@ public class CancelBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsNotFoundResponse_WhenBookingInvalid()
     {
-        var site = "some-site";
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(site, bookingRef)).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
-        var request = BuildRequest(site, bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -63,12 +58,11 @@ public class CancelBookingFunctionTests
     [Fact]
     public async Task RunAsync_Fails_WhenServiceReturnsUnexpected()
     {
-        var site = "some-site";
         var bookingRef = "some-booking";
         var invalidResultCode = 99;
-        _bookingService.Setup(x => x.CancelBooking(site, bookingRef)).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
-        var request = BuildRequest(site, bookingRef);
+        var request = BuildRequest();
 
         var response = await _sut.RunAsync(request) as InternalServerErrorResult;
 
@@ -76,15 +70,13 @@ public class CancelBookingFunctionTests
         Assert.Equal(500, response.StatusCode);
     }
 
-    private static HttpRequest BuildRequest(string site, string bookingRef)
+    private static HttpRequest BuildRequest()
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-
-        var dto = new CancelBookingRequest(bookingRef, site);
-        var body = JsonConvert.SerializeObject(dto);
-        request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+       
         request.Headers.Add("Authorization", "Test 123");
+
         return request;
     }
 }

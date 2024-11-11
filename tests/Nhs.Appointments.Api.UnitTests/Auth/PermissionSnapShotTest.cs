@@ -9,7 +9,7 @@ namespace Nhs.Appointments.Api.Tests.Auth;
 public class PermissionSnapShotTest
 {
     [Theory]
-    [InlineData("post", "booking/cancel", "booking:cancel")]
+    [InlineData("post", "booking/{bookingReference}/cancel", "booking:cancel")]
     [InlineData("get", "sites/{site}/meta", "site:get-meta-data")]
     [InlineData("post", "booking", "booking:make")]
     [InlineData("post", "availability/query", "availability:query")]

@@ -17,7 +17,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         {
             var expectedAvailabilty = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
             (
-                DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
+                DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value),
                 new List<QueryAvailabilityResponseBlock>()
                 {
                     new (new TimeOnly(0,0), new TimeOnly(12,00), int.Parse(row.Cells.ElementAt(1).Value)),

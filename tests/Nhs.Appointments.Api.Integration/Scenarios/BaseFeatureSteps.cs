@@ -26,10 +26,10 @@ public abstract class BaseFeatureSteps : Feature
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
     private readonly Guid _testId = Guid.NewGuid();
-    private readonly string _nhsNumber = CreateRandomTenCharacterString();
+    private string _nhsNumber = CreateRandomTenCharacterString();
+    private readonly BookingReferenceManager _bookingReferenceManager = new();
         
     protected string NhsNumber => _nhsNumber;
-    private string BookingReference => ReverseString(NhsNumber);
 
     public BaseFeatureSteps()
     {
@@ -95,12 +95,23 @@ public abstract class BaseFeatureSteps : Feature
         }
     }
 
+    [And(@"a citizen with the NHS Number '(\d+)'")]
+    public void SetNhsNumber(string nhsNumber)
+    {
+        _nhsNumber = nhsNumber;
+    }
+    
+    protected string EvaluateNhsNumber(string nhsNumber)
+    {
+        return nhsNumber == "*" ? NhsNumber : nhsNumber;
+    }
+
     protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site, Gherkin.Ast.DataTable dataTable)
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = row.Cells.ElementAt(0).Value.Replace("-", ""),
-            Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd"),
+            Id = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -124,6 +135,42 @@ public abstract class BaseFeatureSteps : Feature
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
+    }
+
+    protected DateOnly DeriveRelativeDateOnly(string dateString)
+    {
+        var components = dateString.Split('_');
+        var date = components[0] switch
+        {
+            "Tomorrow" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1),
+            "Yesterday" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
+            "Today" => DateOnly.FromDateTime(DateTime.UtcNow),
+            _ => DateOnly.FromDateTime(DateTime.UtcNow)
+        };
+
+        if (components.Length > 1)
+        {
+            var offset = int.Parse(components[1]);
+            date = date.AddDays(offset);
+        }
+
+        return date;
+    }
+
+    protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly endDate)
+    {
+        if (startDate.AddDays(7) <= endDate)
+        {
+            return "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday";
+        }
+
+        var days = new List<DayOfWeek>();
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            days.Add(date.DayOfWeek);
+        }
+
+        return string.Join(",", days);
     }
 
     [Given("the following bookings have been made")]
@@ -157,10 +204,10 @@ public abstract class BaseFeatureSteps : Feature
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) => new BookingDocument
         {
-            Id = GetBookingReference(index.ToString(), bookingType),
+            Id = BookingReferences.GetBookingReference(index, bookingType),
             DocumentType = "booking",
-            Reference = GetBookingReference(index.ToString(), bookingType),
-            From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+            Reference = BookingReferences.GetBookingReference(index, bookingType),
+            From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
@@ -187,14 +234,14 @@ public abstract class BaseFeatureSteps : Feature
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select(
             (row, index) => new BookingIndexDocument
             {
-                Reference = GetBookingReference(index.ToString(), bookingType),
+                Reference = BookingReferences.GetBookingReference(index, bookingType),
                 Site = GetSiteId(),
                 DocumentType = "booking_index",
-                Id = GetBookingReference(index.ToString(), bookingType),
+                Id = BookingReferences.GetBookingReference(index, bookingType),
                 NhsNumber = NhsNumber,
                 Provisional = bookingType != BookingType.Confirmed,
                 Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
-                From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
         foreach (var booking in bookings)
@@ -224,12 +271,12 @@ public abstract class BaseFeatureSteps : Feature
             randomString = string.Concat(randomString, random.Next(10).ToString());
         return randomString;
     }
-
-    private static string ReverseString(string stringToReverse) => new (stringToReverse.Reverse().ToArray());
+    
     protected string GetTestId => $"{_testId}";
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
-    protected string GetBookingReference(string index = "0", BookingType bookingType = BookingType.Confirmed) => bookingType == BookingType.Confirmed ? $"{BookingReference}-{index}" : $"{BookingReference}-{index}p";
+
+    public BookingReferenceManager BookingReferences => _bookingReferenceManager;
 
     private async Task SetUpRoles()
     {
@@ -325,4 +372,19 @@ public abstract class BaseFeatureSteps : Feature
     }
 
     public enum BookingType { Confirmed, Provisional, ExpiredProvisional}
+}
+
+public class BookingReferenceManager
+{
+    private readonly Dictionary<int, string> _bookingReferences =  new();
+
+    public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType)
+    {
+        if (bookingType != BaseFeatureSteps.BookingType.Confirmed)
+            index += 50;
+        
+        if(_bookingReferences.ContainsKey(index) == false)
+            _bookingReferences.Add(index, Guid.NewGuid().ToString());
+        return _bookingReferences[index];
+    }
 }

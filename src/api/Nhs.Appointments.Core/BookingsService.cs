@@ -10,10 +10,10 @@ public interface IBookingsService
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
-    Task<BookingCancellationResult> CancelBooking(string site, string bookingReference);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference);
     Task<bool> SetBookingStatus(string bookingReference, string status);
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails);
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task RemoveUnconfirmedProvisionalBookings();
 }    
 
@@ -72,7 +72,7 @@ public class BookingsService(
         }            
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string site, string bookingReference)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -82,7 +82,7 @@ public class BookingsService(
         }
 
         await bookingDocumentStore
-            .BeginUpdate(site, bookingReference)
+            .BeginUpdate(booking.Site, bookingReference)
             .UpdateProperty(b => b.Outcome, "Cancelled")                
             .ApplyAsync();
 
@@ -92,9 +92,9 @@ public class BookingsService(
         return BookingCancellationResult.Success;
     }
 
-    public Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    public Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
-        return bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails);
+        return bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, string status)

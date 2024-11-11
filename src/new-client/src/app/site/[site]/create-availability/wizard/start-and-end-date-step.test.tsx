@@ -4,6 +4,15 @@ import StartAndEndDateStep from './start-and-end-date-step';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import { DefaultValues } from 'react-hook-form';
+import dayjs from 'dayjs';
+
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    now: () => dayjs(new Date('2000-01-01T00:00:00Z')),
+  };
+});
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -74,19 +83,19 @@ describe('Start and End Date Step', () => {
 
     await user.type(screen.getAllByLabelText('Day')[0], '01');
     await user.type(screen.getAllByLabelText('Month')[0], '02');
-    await user.type(screen.getAllByLabelText('Year')[0], '2041');
+    await user.type(screen.getAllByLabelText('Year')[0], '2000');
 
     expect(screen.getAllByLabelText('Day')[0]).toHaveDisplayValue('1');
     expect(screen.getAllByLabelText('Month')[0]).toHaveDisplayValue('2');
-    expect(screen.getAllByLabelText('Year')[0]).toHaveDisplayValue('2041');
+    expect(screen.getAllByLabelText('Year')[0]).toHaveDisplayValue('2000');
 
     await user.type(screen.getAllByLabelText('Day')[1], '7');
     await user.type(screen.getAllByLabelText('Month')[1], '08');
-    await user.type(screen.getAllByLabelText('Year')[1], '2042');
+    await user.type(screen.getAllByLabelText('Year')[1], '2000');
 
     expect(screen.getAllByLabelText('Day')[1]).toHaveDisplayValue('7');
     expect(screen.getAllByLabelText('Month')[1]).toHaveDisplayValue('8');
-    expect(screen.getAllByLabelText('Year')[1]).toHaveDisplayValue('2042');
+    expect(screen.getAllByLabelText('Year')[1]).toHaveDisplayValue('2000');
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -112,10 +121,10 @@ describe('Start and End Date Step', () => {
 
     await user.type(screen.getAllByLabelText('Day')[0], '01');
     await user.type(screen.getAllByLabelText('Month')[0], '02');
-    await user.type(screen.getAllByLabelText('Year')[0], '2041');
+    await user.type(screen.getAllByLabelText('Year')[0], '2000');
 
     await user.type(screen.getAllByLabelText('Month')[1], '08');
-    await user.type(screen.getAllByLabelText('Year')[1], '2042');
+    await user.type(screen.getAllByLabelText('Year')[1], '2000');
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -127,17 +136,17 @@ describe('Start and End Date Step', () => {
   const endDateInvalidMessage = 'Session end date must be a valid date';
 
   it.each([
-    [undefined, '2', '2041', '7', '08', '2042', startDateInvalidMessage],
-    ['1', undefined, '2041', '7', '08', '2042', startDateInvalidMessage],
-    ['1', '2', undefined, '7', '08', '2042', startDateInvalidMessage],
-    ['1', '2', '2041', undefined, '08', '2042', endDateInvalidMessage],
-    ['1', '2', '2041', '7', undefined, '2042', endDateInvalidMessage],
+    [undefined, '2', '2041', '7', '08', '2000', startDateInvalidMessage],
+    ['1', undefined, '2041', '7', '08', '2000', startDateInvalidMessage],
+    ['1', '2', undefined, '7', '08', '2000', startDateInvalidMessage],
+    ['1', '2', '2041', undefined, '08', '2000', endDateInvalidMessage],
+    ['1', '2', '2041', '7', undefined, '2000', endDateInvalidMessage],
     ['1', '2', '2041', '7', '08', undefined, endDateInvalidMessage],
-    ['0', '2', '2041', '7', '08', '2042', startDateInvalidMessage],
-    ['1', '0', '2041', '7', '08', '2042', startDateInvalidMessage],
-    ['1', '2', '0', '7', '08', '2042', startDateInvalidMessage],
-    ['1', '2', '2041', '0', '08', '2042', endDateInvalidMessage],
-    ['1', '2', '2041', '7', '0', '2042', endDateInvalidMessage],
+    ['0', '2', '2041', '7', '08', '2000', startDateInvalidMessage],
+    ['1', '0', '2041', '7', '08', '2000', startDateInvalidMessage],
+    ['1', '2', '0', '7', '08', '2000', startDateInvalidMessage],
+    ['1', '2', '2041', '0', '08', '2000', endDateInvalidMessage],
+    ['1', '2', '2041', '7', '0', '2000', endDateInvalidMessage],
     ['1', '2', '2041', '7', '08', '0', endDateInvalidMessage],
   ])(
     'can validate date components: start date: day %p, month %p, year %p end date: day %p, month %p, year %p should be: %p',
@@ -191,8 +200,71 @@ describe('Start and End Date Step', () => {
     },
   );
 
-  // TODO: This functionality now comes with wizard-step out of the box, but I might change it back
-  // Update / rewrite this test once pattern is confirmed
+  it('does not permit start date to be set more than 1 year in the future', async () => {
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={defaultValues}
+      >
+        <StartAndEndDateStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    await user.clear(screen.getAllByLabelText('Day')[0]);
+    await user.type(screen.getAllByLabelText('Day')[0], '2');
+
+    await user.clear(screen.getAllByLabelText('Month')[0]);
+    await user.type(screen.getAllByLabelText('Month')[0], '1');
+
+    await user.clear(screen.getAllByLabelText('Year')[0]);
+    await user.type(screen.getAllByLabelText('Year')[0], '2001');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(screen.getByText('Session date must be within the next year'))
+      .toBeInTheDocument;
+  });
+
+  it('does not permit end date to be set more than 1 year in the future', async () => {
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...defaultValues,
+          startDate: { day: 6, month: 6, year: 2000 },
+        }}
+      >
+        <StartAndEndDateStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    await user.clear(screen.getAllByLabelText('Day')[1]);
+    await user.type(screen.getAllByLabelText('Day')[1], '10');
+    await user.clear(screen.getAllByLabelText('Month')[1]);
+    await user.type(screen.getAllByLabelText('Month')[1], '1');
+    await user.clear(screen.getAllByLabelText('Year')[1]);
+    await user.type(screen.getAllByLabelText('Year')[1], '2001');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(screen.getByText('Session end date must be within the next year'))
+      .toBeInTheDocument;
+  });
+
   it('displays an href link when there are no previous wizard steps', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>

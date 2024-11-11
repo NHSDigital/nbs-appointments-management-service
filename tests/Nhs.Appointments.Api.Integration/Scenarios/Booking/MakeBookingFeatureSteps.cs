@@ -13,38 +13,12 @@ using ContactItem = Nhs.Appointments.Core.ContactItem;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/MakeBooking.feature")]
-    public sealed class MakeBookingFeatureSteps : BaseFeatureSteps
+    public sealed class MakeBookingFeatureSteps : BookingBaseFeatureSteps
     {
-        private  HttpResponseMessage _response;
-
-        [When("I make a provisional appointment with the following details")]
-        public async Task MakeProvisionalBooking(Gherkin.Ast.DataTable dataTable)
-        {
-            var cells = dataTable.Rows.ElementAt(1).Cells;
-
-            object payload = new
-            {
-                from = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
-                duration = cells.ElementAt(2).Value,
-                service = cells.ElementAt(3).Value,
-                site = GetSiteId(),
-                provisional = true,
-                attendeeDetails = new
-                {
-                    nhsNumber = cells.ElementAt(4).Value,
-                    firstName = cells.ElementAt(5).Value,
-                    lastName = cells.ElementAt(6).Value,
-                    dateOfBirth = cells.ElementAt(7).Value
-                }
-            };
-
-            _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
-        }
-
         [When("I make the appointment with the following details")]
         public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
         {
-            var cells = dataTable.Rows.ElementAt(1).Cells;
+            var cells = dataTable.Rows.ElementAt(1).Cells;            
 
             object payload = new
             {
@@ -69,16 +43,16 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     }
 
             };
-            _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
+            Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
         }
         
-        [Then(@"a reference number is returned containing '([\w:]+)' and the following booking is created")]
-        public async Task Assert(string bookingIncrement, Gherkin.Ast.DataTable dataTable)
+        [Then(@"a reference number is returned and the following booking is created")]
+        public async Task Assert(Gherkin.Ast.DataTable dataTable)
         {
-            _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             var cells = dataTable.Rows.ElementAt(1).Cells;
             var siteId = GetSiteId();
-            var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await _response.Content.ReadAsStringAsync());
+            var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
             var bookingReference = result.BookingReference;
             var isProvisional = cells.ElementAt(10).Value == "Yes";
             var expectedBooking = new BookingDocument()
@@ -107,7 +81,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 Id = bookingReference
             };
             
-            result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-{bookingIncrement}");
+            result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-([0-9]{{6}})");
             var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
             BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
         }
@@ -115,8 +89,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [Then(@"I receive a message informing me that the appointment is no longer available")]
         public async Task AssertBookingAppointmentGone()
         {
-            _response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await _response.Content.ReadAsStringAsync());
+            Response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+            var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await Response.Content.ReadAsStringAsync());
             result.message.Should().Be("The time slot for this booking is not available");
         }
         

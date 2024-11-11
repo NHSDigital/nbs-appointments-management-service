@@ -8,7 +8,7 @@
         When I make the appointment with the following details
           | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      |
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 |
-        Then a reference number is returned containing '000001' and the following booking is created
+        Then a reference number is returned and the following booking is created
           | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional |
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          |
 
@@ -20,7 +20,7 @@
         When I make a provisional appointment with the following details
           | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        |
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |
-        Then a reference number is returned containing '000001' and the following booking is created
+        Then a reference number is returned and the following booking is created
           | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email | Phone | Provisional |
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         |
 

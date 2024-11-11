@@ -13,7 +13,7 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
-    public sealed class QueryBookingByNhsNumber : BaseFeatureSteps
+    public sealed class QueryBookingByNhsNumber : BookingBaseFeatureSteps
     {
         private  HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
@@ -34,7 +34,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 (row, index) =>
                 new Core.Booking()
                 {
-                    Reference = GetBookingReference(index.ToString()),
+                    Reference = BookingReferences.GetBookingReference(index, BookingType.Confirmed),
                     From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,

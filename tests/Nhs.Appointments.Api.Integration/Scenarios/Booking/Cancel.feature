@@ -8,4 +8,4 @@
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:20 | 5        | COVID   |
         When I cancel the appointment
-        Then the appropriate booking has been 'Cancelled'
+        Then the booking has been 'Cancelled'

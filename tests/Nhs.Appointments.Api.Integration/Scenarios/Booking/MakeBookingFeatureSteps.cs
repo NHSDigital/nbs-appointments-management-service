@@ -15,11 +15,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     [FeatureFile("./Scenarios/Booking/MakeBooking.feature")]
     public sealed class MakeBookingFeatureSteps : BookingBaseFeatureSteps
     {
-
         [When("I make the appointment with the following details")]
         public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
         {
-            var cells = dataTable.Rows.ElementAt(1).Cells;            
+            var cells = dataTable.Rows.ElementAt(1).Cells;
 
             object payload = new
             {
@@ -41,7 +40,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     new[] {
                         new { type = "email", value = cells.ElementAt(8).Value },
                         new { type = "phone", value = cells.ElementAt(9).Value }
-                    }
+                    },
+                additionalData = new
+                {
+                    isAppBooking = cells.ElementAt(10).Value
+                }
 
             };
             Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);

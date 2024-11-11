@@ -6,11 +6,11 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
         When I make the appointment with the following details
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData |
+          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           |
         Then a reference number is returned and the following booking is created
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData |
+          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           |
 
     Scenario: Make a provisional booking
         Given the site is configured for MYA
@@ -18,11 +18,11 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
         When I make a provisional appointment with the following details
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | AdditionalData |
+          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | true           |
         Then a reference number is returned and the following booking is created
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email | Phone | Provisional |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email | Phone | Provisional | AdditionalData |
+          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         | true           |
 
     Scenario: Cannot book an appointment that is no longer available
         Given the following sessions
@@ -32,8 +32,8 @@
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:45 | 5        | COVID   |
         When I make the appointment with the following details
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional |
-          | Tomorrow | 09:45 | 5        | COVID   | 1234678892 | Test      | Two      | 1990-02-01 | test@two.org | 0777777777 | No          |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData |
+          | Tomorrow | 09:45 | 5        | COVID   | 1234678892 | Test      | Two      | 1990-02-01 | test@two.org | 0777777777 | No          | true           |
         Then I receive a message informing me that the appointment is no longer available
 
     Scenario: Cannot book an appointment that is outside the session
@@ -41,6 +41,6 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
         When I make the appointment with the following details
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email          | Phone      | Provisional |
-          | Tomorrow | 10:00 | 5        | COVID   | 1234678893 | Test      | Three    | 1980-02-01 | test@three.org | 0777777777 | No          |
+          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email          | Phone      | Provisional | AdditionalData |
+          | Tomorrow | 10:00 | 5        | COVID   | 1234678893 | Test      | Three    | 1980-02-01 | test@three.org | 0777777777 | No          | true           |
         Then I receive a message informing me that the appointment is no longer available

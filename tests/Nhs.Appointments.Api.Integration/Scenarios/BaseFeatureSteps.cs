@@ -224,7 +224,11 @@ public abstract class BaseFeatureSteps : Feature
             [
                 new ContactItem { Type = "email", Value = "firstName@test.com" },
                 new ContactItem { Type = "phone", Value = "0123456789" }
-            ]
+            ],
+            AdditionalData = new
+            {
+                IsAppBooking = true
+            }
         });
 
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select(

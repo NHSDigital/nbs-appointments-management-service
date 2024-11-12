@@ -17,9 +17,10 @@ public class MakeBookingRequestValidatorTests
             site,
             "2077-01-01 09:00",
             5,
-            "COVID",            
+            "COVID",
             GetAttendeeDetails(),
-            GetContactDetails()
+            GetContactDetails(),
+            null
         );
         
         var result = _sut.Validate(request);
@@ -45,7 +46,8 @@ public class MakeBookingRequestValidatorTests
             5,
             "COVID",
             GetAttendeeDetails(),
-            GetContactDetails()
+            GetContactDetails(),
+            null
         );
         
         var result = _sut.Validate(request);
@@ -65,7 +67,8 @@ public class MakeBookingRequestValidatorTests
             5,
             service,
             GetAttendeeDetails(),
-            GetContactDetails()
+            GetContactDetails(),
+            null
         );
         
         var result = _sut.Validate(request);
@@ -83,7 +86,8 @@ public class MakeBookingRequestValidatorTests
             5,
             "COVID",
             null,
-            GetContactDetails()
+            GetContactDetails(),
+            null
         );
         
         var result = _sut.Validate(request);
@@ -101,6 +105,7 @@ public class MakeBookingRequestValidatorTests
             5,
             "COVID",
             GetAttendeeDetails(),
+            null,
             null
         );
 
@@ -120,6 +125,7 @@ public class MakeBookingRequestValidatorTests
             "COVID",
             GetAttendeeDetails(),
             null,
+            null,
             true
         );
 
@@ -137,6 +143,7 @@ public class MakeBookingRequestValidatorTests
             "COVID",
             GetAttendeeDetails(),
             [new ContactItem("email", "test@tempuri.org")],
+            null,
             true
         );
 
@@ -165,7 +172,8 @@ public class MakeBookingRequestValidatorTests
             5,
             "COVID",
             GetAttendeeDetails(),
-            GetContactDetails()
+            GetContactDetails(),
+            null
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();

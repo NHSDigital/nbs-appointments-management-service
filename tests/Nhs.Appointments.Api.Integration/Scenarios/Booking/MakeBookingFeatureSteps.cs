@@ -18,7 +18,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [When("I make the appointment with the following details")]
         public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
         {
-            var cells = dataTable.Rows.ElementAt(1).Cells;            
+            var cells = dataTable.Rows.ElementAt(1).Cells;
 
             object payload = new
             {
@@ -40,7 +40,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     new[] {
                         new { type = "email", value = cells.ElementAt(8).Value },
                         new { type = "phone", value = cells.ElementAt(9).Value }
-                    }
+                    },
+                additionalData = new
+                {
+                    isAppBooking = cells.ElementAt(10).Value
+                }
 
             };
             Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
@@ -72,13 +76,17 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     LastName = cells.ElementAt(6).Value,
                     DateOfBirth = DateOnly.ParseExact(cells.ElementAt(7).Value, "yyyy-MM-dd", null)
                 },
-                ContactDetails = isProvisional ? new ContactItem[] { } : 
+                ContactDetails = isProvisional ? [] : 
                 [
                     new ContactItem { Type = "email", Value = cells.ElementAt(8).Value },
                     new ContactItem { Type = "phone", Value = cells.ElementAt(9).Value }
                 ],
                 DocumentType = "booking",
-                Id = bookingReference
+                Id = bookingReference,
+                AdditionalData = new
+                {
+                    isAppBooking = cells.ElementAt(10).Value
+                }
             };
             
             result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-([0-9]{{6}})");

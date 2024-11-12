@@ -52,7 +52,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     [
                         new ContactItem { Type = "email", Value = "firstName@test.com" },
                         new ContactItem { Type = "phone", Value = "0123456789" }
-                    ]
+                    ],
+                    AdditionalData = new
+                    {
+                        IsAppBooking = true
+                    }
                 }).ToList();
 
             _statusCode.Should().Be(HttpStatusCode.OK);

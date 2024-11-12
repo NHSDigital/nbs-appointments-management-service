@@ -23,6 +23,6 @@ Date and time: ((date))
 # If you need to change or cancel your appointment:
 
 * Visit https://www.nhs.uk/book-rsv
-* If you cant get online, call 119
+* If you can't get online, call 119
 
 You can cancel your appointment up until the day it takes place. However, we cannot change appointments an hour before they are due to start.

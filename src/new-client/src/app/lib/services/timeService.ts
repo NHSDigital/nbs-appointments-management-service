@@ -53,11 +53,19 @@ export const isSameDayOrBefore = (
 };
 
 export const formatTimeString = ({ hour, minute }: TimeComponents) => {
-  if (!Number.isInteger(Number(hour)) || !Number.isInteger(Number(minute))) {
+  const parsedHour = Number(hour);
+  const parsedMinute = Number(minute);
+
+  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
     return undefined;
   }
 
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+  if (
+    parsedHour < 0 ||
+    parsedHour > 23 ||
+    parsedMinute < 0 ||
+    parsedMinute > 59
+  ) {
     return undefined;
   }
 

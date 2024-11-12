@@ -136,7 +136,7 @@ describe('Start and End Date Step', () => {
       .toBeInTheDocument;
   });
 
-  const startDateInvalidMessage = 'Session date must be a valid date';
+  const startDateInvalidMessage = 'Session start date must be a valid date';
   const endDateInvalidMessage = 'Session end date must be a valid date';
 
   it.each([
@@ -234,7 +234,7 @@ describe('Start and End Date Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Session date must be within the next year'))
+    expect(screen.getByText('Session start date must be within the next year'))
       .toBeInTheDocument;
   });
 

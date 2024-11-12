@@ -15,7 +15,7 @@ const InsetText = ({ children }: Props) => {
     <div className="nhsuk-inset-text">
       <span className="nhsuk-u-visually-hidden">Information: </span>
 
-      <p>{children}</p>
+      {children}
     </div>
   );
 };

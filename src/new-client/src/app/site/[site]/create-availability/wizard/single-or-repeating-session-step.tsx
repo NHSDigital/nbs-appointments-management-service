@@ -15,14 +15,26 @@ import { useFormContext } from 'react-hook-form';
 const SingleOrRepeatingSessionStep = ({
   stepNumber,
   goToNextStep,
+  goToLastStep,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register } = useFormContext<CreateAvailabilityFormValues>();
+  const { register, reset, formState } =
+    useFormContext<CreateAvailabilityFormValues>();
+  const { isValid: allStepsAreValid, touchedFields } = formState;
+
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
 
   const onContinue = async () => {
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
+
+  const sessionType = { ...register('sessionType') };
 
   return (
     <>
@@ -43,14 +55,40 @@ const SingleOrRepeatingSessionStep = ({
           <Radio
             label="Repeat session"
             hint="Create sessions that repeat on a weekly basis"
-            {...register('sessionType')}
+            {...{
+              ...sessionType,
+              onChange: e => {
+                reset({
+                  days: [],
+                  sessionType: 'repeating',
+                  session: {
+                    break: 'no',
+                    services: [],
+                  },
+                });
+                sessionType.onChange(e);
+              },
+            }}
             id="sessionType-repeating"
             value="repeating"
           />
           <Radio
             label="Single session"
             hint="Create a session on a single date"
-            {...register('sessionType')}
+            {...{
+              ...sessionType,
+              onChange: e => {
+                reset({
+                  days: [],
+                  sessionType: 'single',
+                  session: {
+                    break: 'no',
+                    services: [],
+                  },
+                });
+                sessionType.onChange(e);
+              },
+            }}
             id="sessionType-single"
             value="single"
           />

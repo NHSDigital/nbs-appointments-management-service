@@ -6,6 +6,7 @@ import TimeAndCapacityStep from './time-and-capacity-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 describe('Time and Capacity Step', () => {
@@ -32,6 +33,7 @@ describe('Time and Capacity Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -67,6 +69,7 @@ describe('Time and Capacity Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -98,7 +101,7 @@ describe('Time and Capacity Step', () => {
     expect(endTimeHourInput).toHaveDisplayValue('17');
     await user.clear(endTimeHourInput);
     await user.type(endTimeHourInput, '6');
-    expect(endTimeHourInput).toHaveDisplayValue('6');
+    expect(endTimeHourInput).toHaveDisplayValue('06');
 
     expect(endTimeMinuteInput).toHaveDisplayValue('45');
     await user.clear(endTimeMinuteInput);
@@ -132,6 +135,7 @@ describe('Time and Capacity Step', () => {
             isActive
             setCurrentStep={mockSetCurrentStep}
             goToNextStep={mockGoToNextStep}
+            goToLastStep={mockGoToLastStep}
             goToPreviousStep={mockGoToPreviousStep}
           />
         </MockForm>,
@@ -189,7 +193,6 @@ describe('Time and Capacity Step', () => {
               hour: 17,
               minute: 45,
             },
-            capacity: 1,
           },
         }}
       >
@@ -199,56 +202,46 @@ describe('Time and Capacity Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    const capacityInput = screen.getByRole('textbox', {
+    const capacityInput = screen.getByRole('spinbutton', {
       name: 'How many vaccinators or spaces do you have?',
     });
 
-    expect(capacityInput).toHaveDisplayValue('1');
+    expect(capacityInput).toHaveDisplayValue('');
     await user.clear(capacityInput);
     await user.type(capacityInput, '5');
     expect(capacityInput).toHaveDisplayValue('5');
   });
 
-  it.each([
-    [undefined, 'Capacity is required'],
-    ['0', 'Capacity must be at least 1'],
-    ['-1', 'Capacity must be at least 1'],
-    ['0.5', 'Capacity must be at least 1'],
-    ['4.5', 'Capacity must be a whole number'],
-  ])(
-    'validates capacity entry',
-    async (capacity: string | undefined, expectedMessage: string) => {
-      const { user } = render(
-        <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
-          <TimeAndCapacityStep
-            stepNumber={1}
-            currentStep={1}
-            isActive
-            setCurrentStep={mockSetCurrentStep}
-            goToNextStep={mockGoToNextStep}
-            goToPreviousStep={mockGoToPreviousStep}
-          />
-        </MockForm>,
-      );
+  it('validates capacity entry', async () => {
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+        <TimeAndCapacityStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
 
-      const capacityInput = screen.getByRole('textbox', {
-        name: 'How many vaccinators or spaces do you have?',
-      });
+    const capacityInput = screen.getByRole('spinbutton', {
+      name: 'How many vaccinators or spaces do you have?',
+    });
 
-      await user.clear(capacityInput);
-      if (capacity) {
-        await user.type(capacityInput, capacity);
-      }
+    await user.clear(capacityInput);
 
-      await user.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByText(expectedMessage)).toBeInTheDocument();
-    },
-  );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByText('Capacity is required')).toBeInTheDocument();
+  });
 
   it('permits slot length data entry', async () => {
     const { user } = render(
@@ -265,6 +258,46 @@ describe('Time and Capacity Step', () => {
               minute: 45,
             },
             capacity: 1,
+          },
+        }}
+      >
+        <TimeAndCapacityStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    const slotLengthInput = screen.getByRole('spinbutton', {
+      name: 'How long are your appointments?',
+    });
+
+    expect(slotLengthInput).toHaveDisplayValue('');
+    await user.clear(slotLengthInput);
+    await user.type(slotLengthInput, '3');
+    expect(slotLengthInput).toHaveDisplayValue('3');
+  });
+
+  it('validates slot length entry', async () => {
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          session: {
+            startTime: {
+              hour: 9,
+              minute: 30,
+            },
+            endTime: {
+              hour: 17,
+              minute: 30,
+            },
+            capacity: 1,
             slotLength: 7,
           },
         }}
@@ -275,73 +308,23 @@ describe('Time and Capacity Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    const slotLengthInput = screen.getByRole('textbox', {
+    const slotLengthInput = screen.getByRole('spinbutton', {
       name: 'How long are your appointments?',
     });
 
-    expect(slotLengthInput).toHaveDisplayValue('7');
     await user.clear(slotLengthInput);
-    await user.type(slotLengthInput, '3');
-    expect(slotLengthInput).toHaveDisplayValue('3');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(
+      screen.getByText('Appointment length is required'),
+    ).toBeInTheDocument();
   });
-
-  it.each([
-    [undefined, 'Appointment length is required'],
-    ['0', 'Appointment length must be at least 1 minute'],
-    ['-1', 'Appointment length must be at least 1 minute'],
-    ['0.5', 'Appointment length must be at least 1 minute'],
-    ['4.5', 'Appointment length must be a whole number'],
-    ['61', 'Appointment length cannot exceed 1 hour'],
-  ])(
-    'validates slot length entry',
-    async (slotLength: string | undefined, expectedMessage: string) => {
-      const { user } = render(
-        <MockForm<CreateAvailabilityFormValues>
-          submitHandler={jest.fn()}
-          defaultValues={{
-            session: {
-              startTime: {
-                hour: 9,
-                minute: 30,
-              },
-              endTime: {
-                hour: 17,
-                minute: 30,
-              },
-              capacity: 1,
-              slotLength: 7,
-            },
-          }}
-        >
-          <TimeAndCapacityStep
-            stepNumber={1}
-            currentStep={1}
-            isActive
-            setCurrentStep={mockSetCurrentStep}
-            goToNextStep={mockGoToNextStep}
-            goToPreviousStep={mockGoToPreviousStep}
-          />
-        </MockForm>,
-      );
-
-      const slotLengthInput = screen.getByRole('textbox', {
-        name: 'How long are your appointments?',
-      });
-
-      await user.clear(slotLengthInput);
-      if (slotLength) {
-        await user.type(slotLengthInput, slotLength);
-      }
-
-      await user.click(screen.getByRole('button', { name: 'Continue' }));
-      expect(screen.getByText(expectedMessage)).toBeInTheDocument();
-    },
-  );
 
   it('validates slot length is shorter than session length', async () => {
     const { user } = render(
@@ -368,12 +351,13 @@ describe('Time and Capacity Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    const slotLengthInput = screen.getByRole('textbox', {
+    const slotLengthInput = screen.getByRole('spinbutton', {
       name: 'How long are your appointments?',
     });
 

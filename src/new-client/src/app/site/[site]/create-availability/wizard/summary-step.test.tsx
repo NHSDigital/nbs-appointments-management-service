@@ -6,6 +6,7 @@ import SummaryStep from './summary-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 const currentFormState: CreateAvailabilityFormValues = {
@@ -50,6 +51,7 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -57,7 +59,7 @@ describe('Summary Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Check availability period',
+        name: 'Check single date session',
       }),
     ).toBeInTheDocument;
   });
@@ -74,6 +76,7 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -98,7 +101,7 @@ describe('Summary Step', () => {
     ).toBeInTheDocument;
 
     expect(
-      screen.getByRole('term', { name: 'Maximum simultaneous appointments' }),
+      screen.getByRole('term', { name: 'Vaccinators or spaces available' }),
     ).toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
@@ -106,11 +109,11 @@ describe('Summary Step', () => {
       }),
     ).toBeInTheDocument;
 
-    expect(screen.getByRole('term', { name: 'Appointment length in minutes' }))
+    expect(screen.getByRole('term', { name: 'Appointment length' }))
       .toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
-        name: '15',
+        name: '15 minutes',
       }),
     ).toBeInTheDocument;
   });
@@ -131,6 +134,7 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -158,12 +162,13 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'Save session' }));
 
     expect(mockOnSubmit).toHaveBeenCalledWith(currentFormState);
   });

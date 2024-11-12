@@ -5,7 +5,7 @@ export type NhsHeadingProps = {
 
 const NhsHeading = ({ title, caption }: NhsHeadingProps) => {
   return (
-    <h1 className="app-page-heading">
+    <h1 className="nhsuk-heading-l">
       {caption && <span className="nhsuk-caption-l">{caption}</span>}
       {title}
     </h1>

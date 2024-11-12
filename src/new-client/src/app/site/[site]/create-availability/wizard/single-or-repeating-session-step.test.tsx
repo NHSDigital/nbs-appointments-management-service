@@ -6,6 +6,7 @@ import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 describe('Single or Repeating Session Step', () => {
@@ -18,6 +19,7 @@ describe('Single or Repeating Session Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -25,7 +27,7 @@ describe('Single or Repeating Session Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period What type of session do you want to create?',
+        name: 'Create availability What type of session do you want to create?',
       }),
     ).toBeInTheDocument;
   });
@@ -39,21 +41,28 @@ describe('Single or Repeating Session Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    await user.click(screen.getByRole('radio', { name: 'Repeat session' }));
-    expect(screen.getByRole('radio', { name: 'Repeat session' })).toBeChecked();
+    await user.click(screen.getByRole('radio', { name: 'Weekly sessions' }));
     expect(
-      screen.getByRole('radio', { name: 'Single session' }),
+      screen.getByRole('radio', { name: 'Weekly sessions' }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Single date session' }),
     ).not.toBeChecked();
 
-    await user.click(screen.getByRole('radio', { name: 'Single session' }));
+    await user.click(
+      screen.getByRole('radio', { name: 'Single date session' }),
+    );
     expect(
-      screen.getByRole('radio', { name: 'Repeat session' }),
+      screen.getByRole('radio', { name: 'Weekly sessions' }),
     ).not.toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Single session' })).toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Single date session' }),
+    ).toBeChecked();
   });
 });

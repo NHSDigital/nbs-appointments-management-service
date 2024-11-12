@@ -16,15 +16,19 @@ import NhsHeading from '@components/nhs-heading';
 
 const SelectServicesStep = ({
   goToNextStep,
+  goToLastStep,
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register, watch, trigger, formState, setValue } =
+  const { register, watch, trigger, formState, setValue, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const servicesWatch = watch('session.services');
+
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
 
   const onContinue = async () => {
     const formIsValid = await trigger(['session.services']);
@@ -32,8 +36,14 @@ const SelectServicesStep = ({
       return;
     }
 
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
+
+  const sessionType = getValues('sessionType');
 
   return (
     <>
@@ -47,7 +57,11 @@ const SelectServicesStep = ({
       )}
       <NhsHeading
         title="Add services to your session"
-        caption="Create availability period"
+        caption={
+          sessionType === 'single'
+            ? 'Create single date session'
+            : 'Create weekly session'
+        }
       />
 
       <FormGroup error={errors.session?.services?.message}>
@@ -79,7 +93,9 @@ const SelectServicesStep = ({
                     ...(servicesWatch ?? []),
                   ]);
                 }
-                trigger('session.services');
+                if (errors.session?.services) {
+                  trigger('session.services');
+                }
               }}
             />
           ))}

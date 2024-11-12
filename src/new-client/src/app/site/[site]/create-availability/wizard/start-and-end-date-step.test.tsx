@@ -16,6 +16,7 @@ jest.mock('@services/timeService', () => {
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 const defaultValues: DefaultValues<CreateAvailabilityFormValues> = {
@@ -49,6 +50,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -59,7 +61,7 @@ describe('Start and End Date Step', () => {
     // But this is straight from the design system guidelines, so...
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Add start and end dates for your availability period',
+        name: 'Create weekly session Add start and end dates',
       }),
     ).toBeInTheDocument;
   });
@@ -76,6 +78,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -114,6 +117,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -170,6 +174,7 @@ describe('Start and End Date Step', () => {
             isActive
             setCurrentStep={mockSetCurrentStep}
             goToNextStep={mockGoToNextStep}
+            goToLastStep={mockGoToLastStep}
             goToPreviousStep={mockGoToPreviousStep}
           />
         </MockForm>,
@@ -212,6 +217,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -247,6 +253,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -274,6 +281,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           returnRouteUponCancellation={'some-back-link'}
         />
@@ -298,6 +306,7 @@ describe('Start and End Date Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,

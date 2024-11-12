@@ -8,8 +8,28 @@ type CapacityCalculationProps = {
   endTime: TimeComponents;
 };
 
+type CapacityCalculationResult = {
+  appointmentsPerSession: number;
+  appointmentsPerHour: number;
+};
+
 const CapacityCalculation = (props: CapacityCalculationProps) => {
-  return <InsetText>{calculateCapacity(props)}</InsetText>;
+  const capacity = calculateCapacity(props);
+
+  return (
+    <InsetText>
+      <strong>
+        <p style={{ marginBottom: 0 }}>Capacity calculator</p>
+      </strong>
+      <p style={{ marginBottom: 0 }}>
+        <strong>{capacity.appointmentsPerSession}</strong> total appointments in
+        the session
+        <br />
+        <strong>{capacity.appointmentsPerHour}</strong> appointments per hour
+        <br />
+      </p>
+    </InsetText>
+  );
 };
 
 const calculateCapacity = ({
@@ -17,7 +37,7 @@ const calculateCapacity = ({
   capacity,
   startTime,
   endTime,
-}: CapacityCalculationProps): string => {
+}: CapacityCalculationProps): CapacityCalculationResult => {
   if (
     !Number.isInteger(slotLength) ||
     !Number.isInteger(capacity) ||
@@ -26,7 +46,7 @@ const calculateCapacity = ({
     !Number.isInteger(endTime.hour) ||
     !Number.isInteger(endTime.minute)
   ) {
-    return 'No capacity.';
+    return { appointmentsPerSession: 0, appointmentsPerHour: 0 };
   }
 
   const startMinutes = startTime.hour * 60 + startTime.minute;
@@ -37,20 +57,23 @@ const calculateCapacity = ({
   const slotsPerHour = Math.floor(60 / slotLength);
 
   const appointmentsPerHour = slotsPerHour * capacity;
-  const appointmentsPerDay = totalSlots * capacity;
+  const appointmentsPerSession = totalSlots * capacity;
 
   if (
     Number.isNaN(appointmentsPerHour) ||
-    Number.isNaN(appointmentsPerDay) ||
-    !Number.isInteger(appointmentsPerHour) ||
-    !Number.isInteger(appointmentsPerDay) ||
-    appointmentsPerDay < 1 ||
+    Number.isNaN(appointmentsPerSession) ||
+    !Number.isInteger(appointmentsPerSession) ||
+    !Number.isInteger(appointmentsPerSession) ||
+    appointmentsPerSession < 1 ||
     appointmentsPerHour < 1
   ) {
-    return 'No capacity.';
+    return { appointmentsPerSession: 0, appointmentsPerHour: 0 };
   }
 
-  return `${appointmentsPerDay} appointments per day. ${appointmentsPerHour} per hour.`;
+  return {
+    appointmentsPerSession,
+    appointmentsPerHour,
+  };
 };
 
 const sessionLengthInMinutes = (

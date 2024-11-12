@@ -21,7 +21,7 @@ const SelectServicesStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register, watch, trigger, formState, setValue } =
+  const { register, watch, trigger, formState, setValue, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
@@ -43,6 +43,8 @@ const SelectServicesStep = ({
     }
   };
 
+  const sessionType = getValues('sessionType');
+
   return (
     <>
       {stepNumber === 1 ? (
@@ -55,7 +57,11 @@ const SelectServicesStep = ({
       )}
       <NhsHeading
         title="Add services to your session"
-        caption="Create availability period"
+        caption={
+          sessionType === 'single'
+            ? 'Create single date session'
+            : 'Create weekly session'
+        }
       />
 
       <FormGroup error={errors.session?.services?.message}>

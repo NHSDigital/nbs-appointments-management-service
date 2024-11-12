@@ -30,7 +30,7 @@ describe('Select Services Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Add services to your session',
+        name: 'Create weekly session Add services to your session',
       }),
     ).toBeInTheDocument;
   });

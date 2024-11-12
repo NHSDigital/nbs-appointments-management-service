@@ -7,7 +7,7 @@ export default class CreateAvailabilityPage extends RootPage {
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'Availability periods',
+      name: 'Create availability',
     });
   }
 }

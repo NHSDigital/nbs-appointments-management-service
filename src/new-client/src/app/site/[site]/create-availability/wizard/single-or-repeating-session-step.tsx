@@ -48,13 +48,19 @@ const SingleOrRepeatingSessionStep = ({
       )}
       <NhsHeading
         title="What type of session do you want to create?"
-        caption="Create availability period"
+        caption="Create availability"
       />
+      <p>You can create weekly or single date sessions, to cover:</p>
+      <ul>
+        <li>Vaccinator availability</li>
+        <li>Type of vaccines availabile</li>
+      </ul>
+      <br />
       <FormGroup>
         <RadioGroup>
           <Radio
-            label="Repeat session"
-            hint="Create sessions that repeat on a weekly basis"
+            label="Weekly sessions"
+            hint="Sessions that run at the same times every week"
             {...{
               ...sessionType,
               onChange: e => {
@@ -73,8 +79,8 @@ const SingleOrRepeatingSessionStep = ({
             value="repeating"
           />
           <Radio
-            label="Single session"
-            hint="Create a session on a single date"
+            label="Single date session"
+            hint="Sessions that run on one day and don't repeat"
             {...{
               ...sessionType,
               onChange: e => {

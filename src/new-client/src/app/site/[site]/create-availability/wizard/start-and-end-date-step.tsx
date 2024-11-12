@@ -72,14 +72,26 @@ const StartAndEndDateStep = ({
       ) : (
         <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       )}
-      <NhsHeading
-        title={
-          sessionType === 'single'
-            ? 'Session date'
-            : 'Add start and end dates for your availability period'
-        }
-        caption="Create availability period"
-      />
+      {sessionType === 'single' ? (
+        <NhsHeading
+          title="Add a date for your session"
+          caption="Create single date session"
+        />
+      ) : (
+        <NhsHeading
+          title="Add start and end dates"
+          caption="Create weekly session"
+        />
+      )}
+
+      <p>
+        You can add multiple sessions to this availability period, to cover:
+      </p>
+      <ul>
+        <li>Vaccinator availability</li>
+        <li>Type of vaccines availabile</li>
+      </ul>
+      <br />
       <FormGroup error={errors.startDate?.message}>
         <Controller
           name="startDate"
@@ -104,7 +116,7 @@ const StartAndEndDateStep = ({
           render={() => (
             <DateInput
               heading="Start date"
-              hint="For example, 15 3 1984"
+              hint="For example, 15 3 2024"
               id="start-date-input"
             >
               <Controller
@@ -195,7 +207,7 @@ const StartAndEndDateStep = ({
               <FormGroup error={errors.endDate?.message}>
                 <DateInput
                   heading="End date"
-                  hint="For example, 15 3 1984"
+                  hint="For example, 15 3 2024"
                   id="end-date-input"
                 >
                   <Controller

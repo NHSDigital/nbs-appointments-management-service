@@ -62,7 +62,7 @@ const calculateCapacity = ({
   if (
     Number.isNaN(appointmentsPerHour) ||
     Number.isNaN(appointmentsPerSession) ||
-    !Number.isInteger(appointmentsPerSession) ||
+    !Number.isInteger(appointmentsPerHour) ||
     !Number.isInteger(appointmentsPerSession) ||
     appointmentsPerSession < 1 ||
     appointmentsPerHour < 1

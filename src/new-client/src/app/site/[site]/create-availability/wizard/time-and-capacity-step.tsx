@@ -85,6 +85,8 @@ const TimeAndCapacityStep = ({
     }
 
     switch (e.target.value.length) {
+      case 0:
+        return `00`;
       case 1:
         return `0${e.target.value}`;
       case 2:

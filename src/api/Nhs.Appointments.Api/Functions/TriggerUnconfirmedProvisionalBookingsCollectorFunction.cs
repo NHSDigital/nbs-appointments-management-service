@@ -30,8 +30,8 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(IBookingsSer
 
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        var numRemoved = await bookingService.RemoveUnconfirmedProvisionalBookings();
-        return Success(new RemoveExpiredProvisionalBookingsResponse(numRemoved));
+        var removedIds = await bookingService.RemoveUnconfirmedProvisionalBookings();
+        return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

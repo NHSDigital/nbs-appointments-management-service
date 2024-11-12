@@ -57,4 +57,4 @@
           | Yesterday | 09:00 | 5        | COVID   |
         When the provisional bookings are cleaned up
         Then the call should be successful
-        And the number of bookings removed should be in the response
+        And the booking should be deleted

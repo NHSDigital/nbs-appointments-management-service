@@ -76,11 +76,16 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
     }
 
-    [And("the number of bookings removed should be in the response")]
-    public async Task AssertNumberOfExpiredProvisionalBookingsRemoved()
+    [And("the booking should be deleted")]
+    public async Task AssertBookingDeleted()
     {
-        var response = await Response.Content.ReadAsAsync<RemoveExpiredProvisionalBookingsResponse>();
-        response.NumberRemoved.Should().NotBeNull();
+        var siteId = GetSiteId();
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
+        var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
+        var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
+        
+        actualBooking.Should().BeNull();
+        actualBookingIndex.Should().BeNull();
     }
 }
 

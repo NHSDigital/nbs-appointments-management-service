@@ -159,7 +159,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 
-    public async Task<int> RemoveUnconfirmedProvisionalBookings()
+    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
         var expiryDateTime = time.GetUtcNow().AddMinutes(-5);
         var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= expiryDateTime);
@@ -169,6 +169,6 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
             await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
         }
 
-        return indexDocuments.Count();
+        return indexDocuments.Select(i => i.Reference).ToList();
     }
 }    

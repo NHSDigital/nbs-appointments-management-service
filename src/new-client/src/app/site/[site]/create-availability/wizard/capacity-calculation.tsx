@@ -87,8 +87,8 @@ const sessionLengthInMinutes = (
   startTime: TimeComponents,
   endTime: TimeComponents,
 ): number => {
-  const startMinutes = startTime.hour * 60 + startTime.minute;
-  const endMinutes = endTime.hour * 60 + endTime.minute;
+  const startMinutes = Number(startTime.hour) * 60 + Number(startTime.minute);
+  const endMinutes = Number(endTime.hour) * 60 + Number(endTime.minute);
 
   return endMinutes - startMinutes;
 };

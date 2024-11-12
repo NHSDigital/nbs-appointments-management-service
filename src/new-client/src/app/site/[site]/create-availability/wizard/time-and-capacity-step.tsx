@@ -293,7 +293,7 @@ const TimeAndCapacityStep = ({
       <br />
       <FormGroup
         legend="Capacity"
-        hint="Enter your capacity to calculate appointment numbers for this session"
+        hint="Enter your capacity to calculate appointment numbers for this session."
       >
         <Controller
           control={control}

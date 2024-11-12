@@ -84,43 +84,41 @@ const StartAndEndDateStep = ({
         />
       )}
 
-      <p>
-        You can add multiple sessions to this availability period, to cover:
-      </p>
-      <ul>
-        <li>Vaccinator availability</li>
-        <li>Type of vaccine available</li>
-      </ul>
-      <br />
       <FormGroup error={errors.startDate?.message}>
         <Controller
           name="startDate"
           control={control}
           rules={{
             validate: value => {
+              const sessionDateDescriptor =
+                sessionType === 'single' ? 'date' : 'start date';
+
+              if (
+                (value.day === '' || value.day === undefined) &&
+                (value.month === '' || value.month === undefined) &&
+                (value.year === '' || value.year === undefined)
+              ) {
+                return `Enter a ${sessionDateDescriptor}`;
+              }
+
               const startDate = parseDateComponents(value);
 
-              const sessionDateDescriptor =
-                sessionType === 'single'
-                  ? 'Session date'
-                  : 'Session start date';
-
               if (startDate === undefined) {
-                return `${sessionDateDescriptor} must be a valid date`;
+                return `Session ${sessionDateDescriptor} must be a valid date`;
               }
 
               if (startDate.isBefore(now().add(1, 'day'), 'day')) {
-                return `${sessionDateDescriptor} must be in the future`;
+                return `Session ${sessionDateDescriptor} must be in the future`;
               }
 
               if (startDate.isAfter(now().add(1, 'year'), 'day')) {
-                return `${sessionDateDescriptor} must be within the next year`;
+                return `Session ${sessionDateDescriptor} must be within the next year`;
               }
             },
           }}
           render={() => (
             <DateInput
-              heading="Start date"
+              heading={sessionType === 'single' ? 'Session date' : 'Start date'}
               hint="For example, 15 3 2024"
               id="start-date-input"
             >
@@ -190,6 +188,14 @@ const StartAndEndDateStep = ({
           control={control}
           rules={{
             validate: (value, form) => {
+              if (
+                (value.day === '' || value.day === undefined) &&
+                (value.month === '' || value.month === undefined) &&
+                (value.year === '' || value.year === undefined)
+              ) {
+                return `Enter an end date`;
+              }
+
               const endDate = parseDateComponents(value);
               const startDate = parseDateComponents(form.startDate);
 

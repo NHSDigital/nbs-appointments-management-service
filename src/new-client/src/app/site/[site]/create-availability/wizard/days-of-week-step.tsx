@@ -53,15 +53,18 @@ const DaysOfWeekStep = ({
         <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       )}
       <NhsHeading
-        title="Select days that you want to add to your availability period"
-        caption="Create availability period"
+        title="Select days to add to your weekly session"
+        caption="Create weekly session"
       />
 
+      <p>You can create multiple weekly sessions, to cover:</p>
+      <ul>
+        <li>Vaccinator availability</li>
+        <li>Type of vaccine available</li>
+      </ul>
+      <br />
+
       <FormGroup error={errors.days?.message}>
-        <div className="nhsuk-hint" id="example-hint">
-          You can add multiple repeat sessions to this availability period, to
-          cover part time work or different service types.
-        </div>
         <CheckBoxes>
           {daysOfTheWeek.map(dayOfWeek => (
             <CheckBox

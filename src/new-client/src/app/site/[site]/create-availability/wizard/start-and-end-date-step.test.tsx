@@ -61,7 +61,7 @@ describe('Start and End Date Step', () => {
     // But this is straight from the design system guidelines, so...
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Add start and end dates for your availability period',
+        name: 'Create weekly session Add start and end dates',
       }),
     ).toBeInTheDocument;
   });

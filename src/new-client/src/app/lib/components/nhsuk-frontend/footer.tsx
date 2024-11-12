@@ -4,7 +4,7 @@ type supportLink = {
 };
 
 type FooterProps = {
-  supportLinks: supportLink[];
+  supportLinks?: supportLink[];
 };
 
 /**
@@ -12,7 +12,7 @@ type FooterProps = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/footer
  */
-const Footer = ({ supportLinks }: FooterProps) => {
+const Footer = ({ supportLinks = [] }: FooterProps) => {
   return (
     <footer role="contentinfo">
       <div className="nhsuk-footer-container">

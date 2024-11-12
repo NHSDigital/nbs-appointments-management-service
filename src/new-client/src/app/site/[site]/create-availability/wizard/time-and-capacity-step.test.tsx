@@ -41,7 +41,7 @@ describe('Time and Capacity Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Set time and capacity for your session',
+        name: 'Create weekly session Set time and capacity for your session',
       }),
     ).toBeInTheDocument;
   });

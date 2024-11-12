@@ -7,7 +7,7 @@ describe('Date Input', () => {
     render(
       <DateInput
         heading="What is your date of birth?"
-        hint="For example, 15 3 1984"
+        hint="For example, 15 3 2024"
         id="date-of-birth-input"
       >
         <TextInput
@@ -35,7 +35,7 @@ describe('Date Input', () => {
     render(
       <DateInput
         heading="What is your date of birth?"
-        hint="For example, 15 3 1984"
+        hint="For example, 15 3 2024"
         id="date-of-birth-input"
       >
         <TextInput
@@ -59,14 +59,14 @@ describe('Date Input', () => {
     expect(
       screen.getByRole('heading', { name: 'What is your date of birth?' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('For example, 15 3 1984')).toBeInTheDocument();
+    expect(screen.getByText('For example, 15 3 2024')).toBeInTheDocument();
   });
 
   it('permits data entry to each input', async () => {
     const { user } = render(
       <DateInput
         heading="What is your date of birth?"
-        hint="For example, 15 3 1984"
+        hint="For example, 15 3 2024"
         id="date-of-birth-input"
       >
         <TextInput
@@ -89,10 +89,10 @@ describe('Date Input', () => {
 
     await user.type(screen.getByLabelText('Day'), '15');
     await user.type(screen.getByLabelText('Month'), '3');
-    await user.type(screen.getByLabelText('Year'), '1984');
+    await user.type(screen.getByLabelText('Year'), '2024');
 
     expect(screen.getByLabelText('Day')).toHaveDisplayValue('15');
     expect(screen.getByLabelText('Month')).toHaveDisplayValue('3');
-    expect(screen.getByLabelText('Year')).toHaveDisplayValue('1984');
+    expect(screen.getByLabelText('Year')).toHaveDisplayValue('2024');
   });
 });

@@ -94,6 +94,8 @@ const TimeAndCapacityStep = ({
     }
   };
 
+  const sessionType = getValues('sessionType');
+
   return (
     <>
       {stepNumber === 1 ? (
@@ -106,13 +108,12 @@ const TimeAndCapacityStep = ({
       )}
       <NhsHeading
         title="Set time and capacity for your session"
-        caption="Create availability period"
+        caption={
+          sessionType === 'single'
+            ? 'Create single date session'
+            : 'Create weekly session'
+        }
       />
-
-      <p>
-        You can add multiple sessions to this availability period, to cover part
-        time work or different service types.
-      </p>
 
       {/* TODO: Create nhsuk-frontend components for these time controls */}
       <FormGroup

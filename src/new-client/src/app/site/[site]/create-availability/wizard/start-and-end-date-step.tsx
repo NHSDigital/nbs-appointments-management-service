@@ -80,8 +80,12 @@ const StartAndEndDateStep = ({
                 return 'Session date must be a valid date';
               }
 
-              if (startDate.isBefore(now(), 'day')) {
+              if (startDate.isBefore(now().add(1, 'day'), 'day')) {
                 return 'Session date must be in the future';
+              }
+
+              if (startDate.isAfter(now().add(1, 'year'), 'day')) {
+                return 'Session date must be within the next year';
               }
             },
           }}
@@ -138,6 +142,10 @@ const StartAndEndDateStep = ({
 
               if (!isSameDayOrBefore(startDate, endDate)) {
                 return 'Session end date must be after the start date';
+              }
+
+              if (endDate.isAfter(now().add(1, 'year'), 'day')) {
+                return 'Session end date must be within the next year';
               }
             },
           }}

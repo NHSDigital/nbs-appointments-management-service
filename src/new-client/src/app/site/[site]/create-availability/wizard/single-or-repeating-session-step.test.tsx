@@ -6,6 +6,7 @@ import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 describe('Single or Repeating Session Step', () => {
@@ -18,6 +19,7 @@ describe('Single or Repeating Session Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -39,6 +41,7 @@ describe('Single or Repeating Session Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,

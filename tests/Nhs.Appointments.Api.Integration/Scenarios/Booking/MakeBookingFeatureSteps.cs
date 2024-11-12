@@ -9,6 +9,7 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Persistance.Models;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
@@ -18,12 +19,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [When("I make the appointment with the following details")]
         public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
         {
-            var cells = dataTable.Rows.ElementAt(1).Cells;            
+            var cells = dataTable.Rows.ElementAt(1).Cells;
 
             object payload = new
             {
                 from = DateTime.ParseExact(
-                    $"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
+                    $"{DeriveRelativeDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
                 duration = cells.ElementAt(2).Value,
                 service = cells.ElementAt(3).Value,
@@ -38,9 +39,14 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 },
                 contactDetails =
                     new[] {
-                        new { type = "email", value = cells.ElementAt(8).Value },
-                        new { type = "phone", value = cells.ElementAt(9).Value }
-                    }
+                        new { type = ContactItemType.Email, value = cells.ElementAt(8).Value },
+                        new { type = ContactItemType.Phone, value = cells.ElementAt(9).Value },
+                        new { type = ContactItemType.Landline, value = cells.ElementAt(11).Value },
+                    },
+                additionalData = new
+                {
+                    isAppBooking = cells.ElementAt(10).Value
+                }
 
             };
             Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
@@ -59,7 +65,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             {
                 Site = siteId,
                 Reference = bookingReference,
-                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(cells.ElementAt(2).Value),
                 Service = cells.ElementAt(3).Value,
                 Outcome = null,
@@ -72,13 +78,18 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     LastName = cells.ElementAt(6).Value,
                     DateOfBirth = DateOnly.ParseExact(cells.ElementAt(7).Value, "yyyy-MM-dd", null)
                 },
-                ContactDetails = isProvisional ? new ContactItem[] { } : 
+                ContactDetails = isProvisional ? [] : 
                 [
-                    new ContactItem { Type = "email", Value = cells.ElementAt(8).Value },
-                    new ContactItem { Type = "phone", Value = cells.ElementAt(9).Value }
+                    new ContactItem { Type = ContactItemType.Email, Value = cells.ElementAt(8).Value },
+                    new ContactItem { Type = ContactItemType.Phone, Value = cells.ElementAt(9).Value },
+                    new ContactItem { Type = ContactItemType.Landline, Value = cells.ElementAt(12).Value }
                 ],
                 DocumentType = "booking",
-                Id = bookingReference
+                Id = bookingReference,
+                AdditionalData = new
+                {
+                    isAppBooking = cells.ElementAt(11).Value
+                }
             };
             
             result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-([0-9]{{6}})");

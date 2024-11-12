@@ -14,7 +14,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger, IMetricsRecorder metricsRecorder) : BaseApiFunction<EmptyRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(IBookingsService bookingService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<TriggerBookingRemindersFunction> logger, IMetricsRecorder metricsRecorder) : BaseApiFunction<EmptyRequest, RemoveExpiredProvisionalBookingsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "TriggerUnconfirmedProvisionalBookingsCollector", tags: ["System"], Summary = "Utility function to manually trigger the removal of expired unconfirmed provisional bookings")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Expired provisional bookings removed")]
@@ -28,10 +28,10 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(IBookingsSer
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        await bookingService.RemoveUnconfirmedProvisionalBookings();
-        return Success(new EmptyResponse());
+        var numRemoved = await bookingService.RemoveUnconfirmedProvisionalBookings();
+        return Success(new RemoveExpiredProvisionalBookingsResponse(numRemoved));
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

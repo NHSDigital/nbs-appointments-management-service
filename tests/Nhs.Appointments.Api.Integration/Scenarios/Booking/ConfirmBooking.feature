@@ -46,3 +46,15 @@
           | Tomorrow | 09:00 | 5        | COVID   |
         When I confirm the booking
         Then the call should fail with 410
+
+    Scenario: A provisional booking expires
+        Given the site is configured for MYA
+        And the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Yesterday | 09:00 | 10:00 | COVID    | 5           | 1        |
+        And the following provisional bookings have been made
+          | Date     | Time  | Duration | Service |
+          | Yesterday | 09:00 | 5        | COVID   |
+        When the provisional bookings are cleaned up
+        Then the call should be successful
+        And the number of bookings removed should be in the response

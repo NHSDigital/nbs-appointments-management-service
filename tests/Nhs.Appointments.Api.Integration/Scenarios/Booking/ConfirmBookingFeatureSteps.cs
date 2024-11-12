@@ -18,6 +18,12 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", new StringContent(""));
     }
 
+    [When("the provisional bookings are cleaned up")]
+    public async Task CleanUpProvisionalBookings()
+    {
+        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep", new StringContent(""));
+    }
+
     [When("I confirm the booking with the following contact information")]
     public async Task ConfirmBookingWithContactDetails(Gherkin.Ast.DataTable dataTable)
     {
@@ -68,6 +74,13 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
+    }
+
+    [And("the number of bookings removed should be in the response")]
+    public async Task AssertNumberOfExpiredProvisionalBookingsRemoved()
+    {
+        var response = await Response.Content.ReadAsAsync<RemoveExpiredProvisionalBookingsResponse>();
+        response.NumberRemoved.Should().NotBeNull();
     }
 }
 

@@ -159,13 +159,16 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 
-    public async Task RemoveUnconfirmedProvisionalBookings()
+    public async Task<int> RemoveUnconfirmedProvisionalBookings()
     {
-        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= time.GetUtcNow().AddMinutes(-5));
+        var expiryDateTime = time.GetUtcNow().AddMinutes(-5);
+        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= expiryDateTime);
         foreach (var indexDocument in indexDocuments)
         {
             await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
             await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
         }
+
+        return indexDocuments.Count();
     }
 }    

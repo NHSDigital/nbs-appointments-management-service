@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Nhs.Appointments.Core;
 
@@ -39,6 +40,9 @@ public class Booking
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
+
+    [JsonProperty("additionalData")]
+    public object? AdditionalData { get; set; }
 }
 
 public class AttendeeDetails

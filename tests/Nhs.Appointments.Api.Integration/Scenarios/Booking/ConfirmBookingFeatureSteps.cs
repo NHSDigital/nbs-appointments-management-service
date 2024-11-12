@@ -35,6 +35,7 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
             {
                 new ContactItem("email", cells.ElementAt(0).Value),
                 new ContactItem("phone", cells.ElementAt(1).Value),
+                new ContactItem("landline", cells.ElementAt(2).Value)
             }
         };
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
@@ -68,6 +69,7 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         {
             new ContactItem("email", cells.ElementAt(0).Value),
             new ContactItem("phone", cells.ElementAt(1).Value),
+            new ContactItem("landline", cells.ElementAt(2).Value)
         };
 
         var siteId = GetSiteId();

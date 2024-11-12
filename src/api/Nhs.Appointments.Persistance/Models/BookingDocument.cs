@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Nhs.Appointments.Core;
+using System.Text.Json;
 
 namespace Nhs.Appointments.Persistance.Models;
 
@@ -29,7 +30,10 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
-    
+
     [JsonProperty("contactDetails")]
     public ContactItem[] ContactDetails { get; set; }
+
+    [JsonProperty("additionalData")]
+    public object AdditionalData { get; set; }
 }

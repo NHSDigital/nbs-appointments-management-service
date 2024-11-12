@@ -8,23 +8,28 @@ import {
   TextInput,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import {
+  CreateAvailabilityFormValues,
+  handlePositiveBoundedNumberInput,
+} from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
 import CapacityCalculation, {
   sessionLengthInMinutes,
 } from './capacity-calculation';
 import { formatTimeString } from '@services/timeService';
+import { ChangeEvent } from 'react';
 
 const TimeAndCapacityStep = ({
   goToNextStep,
+  goToLastStep,
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
   setCurrentStep,
 }: InjectedWizardProps) => {
-  const { register, watch, formState, trigger, control, getValues } =
+  const { watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const [startTimeWatch, endTimeWatch, slotLengthWatch, capacityWatch] = watch([
     'session.startTime',
@@ -42,13 +47,20 @@ const TimeAndCapacityStep = ({
     ]);
   };
 
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
+
   const onContinue = async () => {
     const formIsValid = await validateFields();
     if (!formIsValid) {
       return;
     }
 
-    goToNextStep();
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
+    } else {
+      goToNextStep();
+    }
   };
 
   const onBack = async () => {
@@ -56,6 +68,29 @@ const TimeAndCapacityStep = ({
       goToPreviousStep();
     } else {
       setCurrentStep(stepNumber - 2);
+    }
+  };
+
+  const handleTwoDigitPositiveBoundedNumberInput = (
+    e: ChangeEvent<HTMLInputElement>,
+    upperBound: number,
+  ) => {
+    const asNumber = Number(e.currentTarget.value);
+    if (asNumber < 0 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
+      return '00';
+    }
+
+    if (asNumber > upperBound) {
+      return `0${e.target.value.slice(-1)}`;
+    }
+
+    switch (e.target.value.length) {
+      case 1:
+        return `0${e.target.value}`;
+      case 2:
+        return e.target.value;
+      default:
+        return e.target.value.slice(-2);
     }
   };
 
@@ -101,43 +136,63 @@ const TimeAndCapacityStep = ({
             <>
               <div className="nhsuk-label">Start time</div>
               <div className="nhsuk-time-input-custom">
-                <div className="nhsuk-time-input-custom__item">
-                  <label
-                    id="start-time-accessibility-label-hour"
-                    htmlFor="start-time-hour"
-                  >
-                    Session start time - hour
-                  </label>
-                  <input
-                    aria-labelledby="start-time-accessibility-label-hour"
-                    id="start-time-hour"
-                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-                    {...register('session.startTime.hour', {
-                      valueAsNumber: true,
-                    })}
-                  ></input>
-                </div>
+                <Controller
+                  control={control}
+                  name="session.startTime.hour"
+                  render={({ field }) => (
+                    <div className="nhsuk-time-input-custom__item">
+                      <label
+                        id="start-time-accessibility-label-hour"
+                        htmlFor="start-time-hour"
+                      >
+                        Session start time - hour
+                      </label>
+                      <input
+                        aria-labelledby="start-time-accessibility-label-hour"
+                        id="start-time-hour"
+                        className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                        onChange={e =>
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 23),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      ></input>
+                    </div>
+                  )}
+                />
+
                 <div className="nhsuk-time-input-custom__item">
                   <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
                     :
                   </div>
                 </div>
 
-                <div className="nhsuk-time-input-custom__item">
-                  <label
-                    id="start-time-accessibility-label-minute"
-                    htmlFor="start-time-minute"
-                  >
-                    Session start time - minute
-                  </label>
-                  <input
-                    aria-labelledby="start-time-accessibility-label-minute"
-                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-                    {...register('session.startTime.minute', {
-                      valueAsNumber: true,
-                    })}
-                  ></input>
-                </div>
+                <Controller
+                  control={control}
+                  name="session.startTime.minute"
+                  render={({ field }) => (
+                    <div className="nhsuk-time-input-custom__item">
+                      <label
+                        id="start-time-accessibility-label-minute"
+                        htmlFor="start-time-minute"
+                      >
+                        Session start time - minute
+                      </label>
+                      <input
+                        aria-labelledby="start-time-accessibility-label-minute"
+                        className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                        id="start-time-minute"
+                        onChange={e =>
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 59),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      ></input>
+                    </div>
+                  )}
+                />
               </div>
             </>
           )}
@@ -171,42 +226,62 @@ const TimeAndCapacityStep = ({
             <>
               <div className="nhsuk-label">End time</div>
               <div className="nhsuk-time-input-custom">
-                <div className="nhsuk-time-input-custom__item">
-                  <label
-                    id="end-time-accessibility-label-hour"
-                    htmlFor="end-time-hour"
-                  >
-                    Session end time - hour
-                  </label>
-                  <input
-                    aria-labelledby="end-time-accessibility-label-hour"
-                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-                    {...register('session.endTime.hour', {
-                      valueAsNumber: true,
-                    })}
-                  ></input>
-                </div>
+                <Controller
+                  control={control}
+                  name="session.endTime.hour"
+                  render={({ field }) => (
+                    <div className="nhsuk-time-input-custom__item">
+                      <label
+                        id="end-time-accessibility-label-hour"
+                        htmlFor="end-time-hour"
+                      >
+                        Session end time - hour
+                      </label>
+                      <input
+                        aria-labelledby="end-time-accessibility-label-hour"
+                        className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                        id="end-time-hour"
+                        onChange={e =>
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 23),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      ></input>
+                    </div>
+                  )}
+                />
+
                 <div className="nhsuk-time-input-custom__item">
                   <div style={{ display: 'inline-block', fontSize: 'x-large' }}>
                     :
                   </div>
                 </div>
 
-                <div className="nhsuk-time-input-custom__item">
-                  <label
-                    id="end-time-accessibility-label-minute"
-                    htmlFor="end-time-minute"
-                  >
-                    Session end time - minute
-                  </label>
-                  <input
-                    aria-labelledby="end-time-accessibility-label-minute"
-                    className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
-                    {...register('session.endTime.minute', {
-                      valueAsNumber: true,
-                    })}
-                  ></input>
-                </div>
+                <Controller
+                  control={control}
+                  name="session.endTime.minute"
+                  render={({ field }) => (
+                    <div className="nhsuk-time-input-custom__item">
+                      <label
+                        id="end-time-accessibility-label-minute"
+                        htmlFor="end-time-minute"
+                      >
+                        Session end time - minute
+                      </label>
+                      <input
+                        aria-labelledby="end-time-accessibility-label-minute"
+                        className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                        onChange={e =>
+                          field.onChange(
+                            handleTwoDigitPositiveBoundedNumberInput(e, 59),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      ></input>
+                    </div>
+                  )}
+                />
               </div>
             </>
           )}
@@ -217,87 +292,117 @@ const TimeAndCapacityStep = ({
         legend="Capacity"
         hint="Enter your capacity to calculate appointment numbers for this session"
       >
-        <FormGroup
-          legend="How many vaccinators or spaces do you have?"
-          error={errors.session?.capacity?.message}
-        >
-          <label id="capacity" htmlFor="capacity" style={{ display: 'none' }}>
-            How many vaccinators or spaces do you have?
-          </label>
-          <TextInput
-            {...register('session.capacity', {
-              required: { value: true, message: 'Capacity is required' },
-              valueAsNumber: true,
-              min: { value: 1, message: 'Capacity must be at least 1' },
-              validate: value => {
-                if (!Number.isInteger(Number(value))) {
-                  return 'Capacity must be a whole number';
+        <Controller
+          control={control}
+          name="session.capacity"
+          rules={{
+            required: { value: true, message: 'Capacity is required' },
+            min: { value: 1, message: 'Capacity must be at least 1' },
+            validate: value => {
+              if (!Number.isInteger(Number(value))) {
+                return 'Capacity must be a whole number';
+              }
+            },
+          }}
+          render={({ field }) => (
+            <FormGroup
+              legend="How many vaccinators or spaces do you have?"
+              error={errors.session?.capacity?.message}
+            >
+              <label
+                id="capacity"
+                htmlFor="capacity"
+                style={{ display: 'none' }}
+              >
+                How many vaccinators or spaces do you have?
+              </label>
+              <TextInput
+                id="capacity"
+                aria-labelledby="capacity"
+                inputMode="numeric"
+                type="number"
+                width={2}
+                onChange={e =>
+                  field.onChange(handlePositiveBoundedNumberInput(e, 99))
                 }
-              },
-            })}
-            id="capacity"
-            aria-labelledby="capacity"
-            inputMode="numeric"
-            width={2}
-          ></TextInput>
-        </FormGroup>
+                value={field.value ?? ''}
+              />
+            </FormGroup>
+          )}
+        />
 
-        <FormGroup
-          legend="How long are your appointments?"
-          error={errors.session?.slotLength?.message}
-        >
-          <label
-            id="slot-length"
-            htmlFor="slot-length"
-            style={{ display: 'none' }}
-          >
-            How long are your appointments?
-          </label>
-          <TextInput
-            {...register('session.slotLength', {
-              valueAsNumber: true,
-              required: {
-                value: true,
-                message: 'Appointment length is required',
-              },
-              min: {
-                value: 1,
-                message: 'Appointment length must be at least 1 minute',
-              },
-              max: {
-                value: 60,
-                message: 'Appointment length cannot exceed 1 hour',
-              },
-              validate: (value, form) => {
-                if (!Number.isInteger(Number(value))) {
-                  return 'Appointment length must be a whole number';
-                }
+        <Controller
+          control={control}
+          name="session.slotLength"
+          rules={{
+            required: {
+              value: true,
+              message: 'Appointment length is required',
+            },
+            min: {
+              value: 1,
+              message: 'Appointment length must be at least 1 minute',
+            },
+            max: {
+              value: 60,
+              message: 'Appointment length cannot exceed 1 hour',
+            },
+            validate: (value, form) => {
+              if (!Number.isInteger(Number(value))) {
+                return 'Appointment length must be a whole number';
+              }
 
-                if (
-                  value >
-                  sessionLengthInMinutes(
-                    form.session.startTime,
-                    form.session.endTime,
-                  )
-                ) {
-                  return 'Appointment length must be shorter than session length';
-                }
-              },
-            })}
-            id="slot-length"
-            aria-labelledby="slot-length"
-            inputMode="numeric"
-            width={2}
-            suffix="minutes"
-          ></TextInput>
-        </FormGroup>
+              if (
+                value >
+                sessionLengthInMinutes(
+                  form.session.startTime,
+                  form.session.endTime,
+                )
+              ) {
+                return 'Appointment length must be shorter than session length';
+              }
+            },
+          }}
+          render={({ field }) => (
+            <FormGroup
+              legend="How long are your appointments?"
+              error={errors.session?.slotLength?.message}
+            >
+              <label
+                id="slot-length"
+                htmlFor="slot-length"
+                style={{ display: 'none' }}
+              >
+                How long are your appointments?
+              </label>
+              <TextInput
+                id="slot-length"
+                aria-labelledby="slot-length"
+                inputMode="numeric"
+                type="number"
+                width={2}
+                suffix="minutes"
+                onChange={e => {
+                  field.onChange(handlePositiveBoundedNumberInput(e, 60));
+                }}
+                value={field.value ?? ''}
+              />
+            </FormGroup>
+          )}
+        />
       </FormGroup>
 
       <CapacityCalculation
-        startTime={startTimeWatch}
-        endTime={endTimeWatch}
-        slotLength={slotLengthWatch}
-        capacity={capacityWatch}
+        startTime={{
+          hour: Number(startTimeWatch?.hour),
+          minute: Number(startTimeWatch?.minute),
+        }}
+        endTime={{
+          hour: Number(endTimeWatch?.hour),
+          minute: Number(endTimeWatch?.minute),
+        }}
+        slotLength={Number(slotLengthWatch)}
+        capacity={Number(capacityWatch)}
       />
       <Button
         type="button"

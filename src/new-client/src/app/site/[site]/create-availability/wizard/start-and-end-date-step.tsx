@@ -100,16 +100,21 @@ const StartAndEndDateStep = ({
             validate: value => {
               const startDate = parseDateComponents(value);
 
+              const sessionDateDescriptor =
+                sessionType === 'single'
+                  ? 'Session date'
+                  : 'Session start date';
+
               if (startDate === undefined) {
-                return 'Session date must be a valid date';
+                return `${sessionDateDescriptor} must be a valid date`;
               }
 
               if (startDate.isBefore(now().add(1, 'day'), 'day')) {
-                return 'Session date must be in the future';
+                return `${sessionDateDescriptor} must be in the future`;
               }
 
               if (startDate.isAfter(now().add(1, 'year'), 'day')) {
-                return 'Session date must be within the next year';
+                return `${sessionDateDescriptor} must be within the next year`;
               }
             },
           }}

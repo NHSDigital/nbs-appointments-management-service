@@ -93,9 +93,7 @@ describe('Select Services Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(
-      screen.getByText('At least one service must be selected'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Select a service')).toBeInTheDocument();
 
     expect(mockGoToNextStep).not.toHaveBeenCalled();
   });

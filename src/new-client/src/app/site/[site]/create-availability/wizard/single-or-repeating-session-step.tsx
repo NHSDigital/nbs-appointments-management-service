@@ -53,7 +53,7 @@ const SingleOrRepeatingSessionStep = ({
       <p>You can create weekly or single date sessions, to cover:</p>
       <ul>
         <li>Vaccinator availability</li>
-        <li>Type of vaccines availabile</li>
+        <li>Type of vaccine available</li>
       </ul>
       <br />
       <FormGroup>

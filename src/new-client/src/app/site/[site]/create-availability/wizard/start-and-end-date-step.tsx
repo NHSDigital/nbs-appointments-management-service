@@ -89,7 +89,7 @@ const StartAndEndDateStep = ({
       </p>
       <ul>
         <li>Vaccinator availability</li>
-        <li>Type of vaccines availabile</li>
+        <li>Type of vaccine available</li>
       </ul>
       <br />
       <FormGroup error={errors.startDate?.message}>

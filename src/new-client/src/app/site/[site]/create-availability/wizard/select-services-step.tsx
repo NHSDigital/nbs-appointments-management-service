@@ -75,7 +75,7 @@ const SelectServicesStep = ({
               {...register('session.services', {
                 validate: value => {
                   if (value === undefined || value.length < 1) {
-                    return 'At least one service must be selected';
+                    return 'Select a service';
                   }
                 },
               })}

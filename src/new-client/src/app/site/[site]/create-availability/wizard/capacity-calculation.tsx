@@ -38,26 +38,33 @@ const calculateCapacity = ({
   startTime,
   endTime,
 }: CapacityCalculationProps): CapacityCalculationResult => {
+  const parsedSlotLength = Number(slotLength);
+  const parsedCapacity = Number(capacity);
+  const parsedStartTimeHour = Number(startTime.hour);
+  const parsedStartTimeMinute = Number(startTime.minute);
+  const parsedEndTimeHour = Number(endTime.hour);
+  const parsedEndTimeMinute = Number(endTime.minute);
+
   if (
-    !Number.isInteger(slotLength) ||
-    !Number.isInteger(capacity) ||
-    !Number.isInteger(startTime.hour) ||
-    !Number.isInteger(startTime.minute) ||
-    !Number.isInteger(endTime.hour) ||
-    !Number.isInteger(endTime.minute)
+    !Number.isInteger(parsedSlotLength) ||
+    !Number.isInteger(parsedCapacity) ||
+    !Number.isInteger(parsedStartTimeHour) ||
+    !Number.isInteger(parsedStartTimeMinute) ||
+    !Number.isInteger(parsedEndTimeHour) ||
+    !Number.isInteger(parsedEndTimeMinute)
   ) {
     return { appointmentsPerSession: 0, appointmentsPerHour: 0 };
   }
 
-  const startMinutes = startTime.hour * 60 + startTime.minute;
-  const endMinutes = endTime.hour * 60 + endTime.minute;
+  const startMinutes = parsedStartTimeHour * 60 + parsedStartTimeMinute;
+  const endMinutes = parsedEndTimeHour * 60 + parsedEndTimeMinute;
   const totalMinutesAvailable = endMinutes - startMinutes;
 
-  const totalSlots = Math.floor(totalMinutesAvailable / slotLength);
-  const slotsPerHour = Math.floor(60 / slotLength);
+  const totalSlots = Math.floor(totalMinutesAvailable / parsedSlotLength);
+  const slotsPerHour = Math.floor(60 / parsedSlotLength);
 
-  const appointmentsPerHour = slotsPerHour * capacity;
-  const appointmentsPerSession = totalSlots * capacity;
+  const appointmentsPerHour = slotsPerHour * parsedCapacity;
+  const appointmentsPerSession = totalSlots * parsedCapacity;
 
   if (
     Number.isNaN(appointmentsPerHour) ||

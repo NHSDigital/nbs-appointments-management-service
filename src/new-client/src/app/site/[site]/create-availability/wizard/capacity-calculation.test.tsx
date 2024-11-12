@@ -19,41 +19,44 @@ describe('Capacity Calculation', () => {
       />,
     );
 
+    expect(screen.getByText('72')).toBeInTheDocument();
     expect(
-      screen.getByText('72 appointments per day. 24 per hour.'),
+      screen.getByText(/total appointments in the session/),
     ).toBeInTheDocument();
+    expect(screen.getByText('24')).toBeInTheDocument();
+    expect(screen.getByText(/appointments per hour/)).toBeInTheDocument();
   });
 
   it.each([
-    [9, 0, 12, 0, 5, 1, '36 appointments per day. 12 per hour.'],
-    [9, 0, 12, 0, 5, 2, '72 appointments per day. 24 per hour.'],
-    [9, 0, 9, 0, 5, 1, 'No capacity.'], // start time == end time
-    [9, 0, 9, 5, 5, 1, '1 appointments per day. 12 per hour.'],
-    [9, 0, 9, 5, 6, 1, 'No capacity.'], // slot length > end time
-    [10, 0, 9, 0, 5, 1, 'No capacity.'], // start time > end time
-    [9, 30, 9, 40, 5, 1, '2 appointments per day. 12 per hour.'], // time span under an hour
+    [9, 0, 12, 0, 5, 1, 36, 12],
+    [9, 0, 12, 0, 5, 2, 72, 24],
+    [9, 0, 9, 0, 5, 1, 0, 0], // start time == end time
+    [9, 0, 9, 5, 5, 1, 1, 12],
+    [9, 0, 9, 5, 6, 1, 0, 0], // slot length > end time
+    [10, 0, 9, 0, 5, 1, 0, 0], // start time > end time
+    [9, 30, 9, 40, 5, 1, 2, 12], // time span under an hour
 
     // No decimals allowed
-    [9.5, 0, 12, 0, 5, 1, 'No capacity.'],
-    [9, 0.5, 12, 0, 5, 1, 'No capacity.'],
-    [9, 0, 12.5, 0, 5, 1, 'No capacity.'],
-    [9, 0, 12, 0.5, 5, 1, 'No capacity.'],
-    [9, 0, 12, 0, 5.5, 1, 'No capacity.'],
-    [9, 0, 12, 0, 5, 1.5, 'No capacity.'],
+    [9.5, 0, 12, 0, 5, 1, 0, 0],
+    [9, 0.5, 12, 0, 5, 1, 0, 0],
+    [9, 0, 12.5, 0, 5, 1, 0, 0],
+    [9, 0, 12, 0.5, 5, 1, 0, 0],
+    [9, 0, 12, 0, 5.5, 1, 0, 0],
+    [9, 0, 12, 0, 5, 1.5, 0, 0],
 
     // No NaNs or Infinity
-    [NaN, 30, 17, 0, 5, 1, 'No capacity.'],
-    [9, NaN, 12, 0, 5, 1, 'No capacity.'],
-    [9, 0, NaN, 0, 5, 1, 'No capacity.'],
-    [9, 0, 12, NaN, 5, 1, 'No capacity.'],
-    [9, 0, 12, 0, NaN, 1, 'No capacity.'],
-    [9, 0, 12, 0, 5, NaN, 'No capacity.'],
-    [Infinity, 0, 9, 5, 6, 1, 'No capacity.'],
-    [9, Infinity, 12, 0, 5, 1, 'No capacity.'],
-    [9, 0, Infinity, 0, 5, 1, 'No capacity.'],
-    [9, 0, 12, Infinity, 5, 1, 'No capacity.'],
-    [9, 0, 12, 0, Infinity, 1, 'No capacity.'],
-    [9, 0, 12, 0, 5, Infinity, 'No capacity.'],
+    [NaN, 30, 17, 0, 5, 1, 0, 0],
+    [9, NaN, 12, 0, 5, 1, 0, 0],
+    [9, 0, NaN, 0, 5, 1, 0, 0],
+    [9, 0, 12, NaN, 5, 1, 0, 0],
+    [9, 0, 12, 0, NaN, 1, 0, 0],
+    [9, 0, 12, 0, 5, NaN, 0, 0],
+    [Infinity, 0, 9, 5, 6, 1, 0, 0],
+    [9, Infinity, 12, 0, 5, 1, 0, 0],
+    [9, 0, Infinity, 0, 5, 1, 0, 0],
+    [9, 0, 12, Infinity, 5, 1, 0, 0],
+    [9, 0, 12, 0, Infinity, 1, 0, 0],
+    [9, 0, 12, 0, 5, Infinity, 0, 0],
   ])(
     'calculates correctly: %i:%i - %i:%i, %i, %i',
     (
@@ -63,7 +66,8 @@ describe('Capacity Calculation', () => {
       endTimeMinute,
       slotLength,
       capacity,
-      expectedResult,
+      expectedCapacityPerSession,
+      expectedCapacityPerHour,
     ) => {
       const result = calculateCapacity({
         startTime: { hour: startTimeHour, minute: startTimeMinute },
@@ -72,7 +76,8 @@ describe('Capacity Calculation', () => {
         capacity,
       });
 
-      expect(result).toBe(expectedResult);
+      expect(result.appointmentsPerSession).toBe(expectedCapacityPerSession);
+      expect(result.appointmentsPerHour).toBe(expectedCapacityPerHour);
     },
   );
 });

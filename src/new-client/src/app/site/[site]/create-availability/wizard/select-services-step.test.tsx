@@ -6,6 +6,7 @@ import SelectServicesStep from './select-services-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 describe('Select Services Step', () => {
@@ -21,6 +22,7 @@ describe('Select Services Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -28,7 +30,7 @@ describe('Select Services Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Add services to your session',
+        name: 'Create weekly session Add services to your session',
       }),
     ).toBeInTheDocument;
   });
@@ -45,6 +47,7 @@ describe('Select Services Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -78,6 +81,7 @@ describe('Select Services Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -108,6 +112,7 @@ describe('Select Services Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,

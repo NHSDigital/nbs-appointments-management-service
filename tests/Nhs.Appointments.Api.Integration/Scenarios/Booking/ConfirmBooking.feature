@@ -21,12 +21,12 @@
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:00 | 5        | COVID   |
         When I confirm the booking with the following contact information
-          | Email         | Phone         |
-          | test@test.com | 07654 3210987 |
+          | Email         | Phone         | Landline    |
+          | test@test.com | 07654 3210987 | 00001234567 |
         Then the call should be successful
         And the booking should have stored my contact details as follows
-          | Email         | Phone         |
-          | test@test.com | 07654 3210987 |
+          | Email         | Phone         | Landline    |
+          | test@test.com | 07654 3210987 | 00001234567 |
 
     Scenario: Cannot confirm an appointment that does not exist
         Given the site is configured for MYA

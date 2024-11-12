@@ -23,4 +23,5 @@ public static class ContactItemType
 {
     public const string Email = "email";
     public const string Phone = "phone";
+    public const string Landline = "landline";
 }

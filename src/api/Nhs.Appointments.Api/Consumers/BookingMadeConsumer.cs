@@ -11,8 +11,8 @@ public class BookingMadeConsumer(IBookingMadeNotifier notifier) : IConsumer<Book
 {
     public Task Consume(ConsumeContext<BookingMade> context)
     {
-        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "email")?.Value;
-        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "phone")?.Value;
+        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Email)?.Value;
+        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Phone)?.Value;
 
         return notifier.Notify(
             nameof(BookingMade),

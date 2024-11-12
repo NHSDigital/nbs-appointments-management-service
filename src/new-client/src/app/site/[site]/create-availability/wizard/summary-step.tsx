@@ -3,7 +3,7 @@ import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
-  Card,
+  InsetText,
   SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
@@ -15,6 +15,7 @@ import {
   CreateAvailabilityFormValues,
   services,
 } from './availability-template-wizard';
+import { calculateCapacity } from './capacity-calculation';
 
 const SummaryStep = ({
   setCurrentStep,
@@ -61,19 +62,9 @@ const SummaryStep = ({
               },
             },
           },
+
           {
-            title: 'Services available',
-            value: servicesText,
-            action: {
-              renderingStrategy: 'client',
-              text: 'Change',
-              onClick: () => {
-                setCurrentStep(5);
-              },
-            },
-          },
-          {
-            title: 'Maximum simultaneous appointments',
+            title: 'Vaccinators or spaces available',
             value: `${session.capacity}`,
             action: {
               renderingStrategy: 'client',
@@ -84,13 +75,24 @@ const SummaryStep = ({
             },
           },
           {
-            title: 'Appointment length in minutes',
-            value: `${session.slotLength}`,
+            title: 'Appointment length',
+            value: `${session.slotLength} minutes`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
               onClick: () => {
                 setCurrentStep(4);
+              },
+            },
+          },
+          {
+            title: 'Services available',
+            value: servicesText,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(5);
               },
             },
           },
@@ -130,18 +132,7 @@ const SummaryStep = ({
             },
           },
           {
-            title: 'Services available',
-            value: servicesText,
-            action: {
-              renderingStrategy: 'client',
-              text: 'Change',
-              onClick: () => {
-                setCurrentStep(5);
-              },
-            },
-          },
-          {
-            title: 'Maximum simultaneous appointments',
+            title: 'Vaccinators or spaces available',
             value: `${session.capacity}`,
             action: {
               renderingStrategy: 'client',
@@ -152,8 +143,8 @@ const SummaryStep = ({
             },
           },
           {
-            title: 'Appointment length in minutes',
-            value: `${session.slotLength}`,
+            title: 'Appointment length',
+            value: `${session.slotLength} minutes`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
@@ -162,7 +153,25 @@ const SummaryStep = ({
               },
             },
           },
+          {
+            title: 'Services available',
+            value: servicesText,
+            action: {
+              renderingStrategy: 'client',
+              text: 'Change',
+              onClick: () => {
+                setCurrentStep(5);
+              },
+            },
+          },
         ];
+
+  const capacity = calculateCapacity({
+    startTime: session.startTime,
+    endTime: session.endTime,
+    slotLength: session.slotLength,
+    capacity: session.capacity,
+  });
 
   return (
     <>
@@ -175,17 +184,31 @@ const SummaryStep = ({
         <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
       )}
       <NhsHeading
-        title="Check availability period"
-        caption="Create availability period"
+        title={
+          sessionType === 'single'
+            ? 'Check single date session'
+            : 'Check weekly session'
+        }
       />
-      <Card title={'Session details'}>
-        <SummaryList items={summary}></SummaryList>
-      </Card>
+      <SummaryList items={summary}></SummaryList>
+
+      <p>
+        <strong>{capacity.appointmentsPerSession}</strong> total appointments in
+        the session
+        <br />
+        <strong>{capacity.appointmentsPerHour}</strong> appointments per hour
+        <br />
+      </p>
+
+      <InsetText>
+        Saving will allow people to book appointments for the availability
+        you've created. Make sure the information is accurate before saving.
+      </InsetText>
 
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
-        <Button type="submit">Save</Button>
+        <Button type="submit">Save session</Button>
       )}
     </>
   );

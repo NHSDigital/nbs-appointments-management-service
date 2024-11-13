@@ -14,9 +14,10 @@ You've cancelled your RSV (Respiratory syncytial virus) vaccination appointment.
 
 Booking reference: ((reference))
 ((siteName))
+((address))
 Date and time: ((date))
 ((time))
-((address))
+
 
 # To rebook your appointment:
 

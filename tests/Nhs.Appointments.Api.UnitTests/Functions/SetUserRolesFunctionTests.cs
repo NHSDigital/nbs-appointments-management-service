@@ -51,7 +51,7 @@ public class SetUserRolesFunctionTests
         string[] roles = ["role1"];
         const string scope = "site:some-site";
         var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@user.com");
-        const string expectedReason = "You cannot update the roles of the currently logged in user.";
+        const string expectedReason = "You cannot update the role assignments of the currently logged in user.";
 
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 

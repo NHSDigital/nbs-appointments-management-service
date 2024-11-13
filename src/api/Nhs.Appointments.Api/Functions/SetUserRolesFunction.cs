@@ -36,7 +36,7 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
     {
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
-            return Failed(HttpStatusCode.BadRequest, "You cannot update the roles of the currently logged in user.");
+            return Failed(HttpStatusCode.BadRequest, "You cannot update the role assignments of the currently logged in user.");
         }
 
         var roleAssignments = request

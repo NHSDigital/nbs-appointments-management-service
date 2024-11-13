@@ -52,13 +52,13 @@ export const UsersPage = ({
               ?.join(' | '),
             ...(canSeeAdminControls
               ? [
-                  <EditRoleAssignmentsButton
-                    key={`edit-${user.id}`}
-                    user={user.id}
-                  />,
                   ...(userProfile.emailAddress === user.id
                     ? []
                     : [
+                        <EditRoleAssignmentsButton
+                          key={`edit-${user.id}`}
+                          user={user.id}
+                        />,
                         <RemoveUserButton
                           key={`remove-${user.id}`}
                           user={user.id}

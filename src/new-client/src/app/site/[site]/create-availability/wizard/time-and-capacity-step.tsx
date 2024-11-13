@@ -309,7 +309,7 @@ const TimeAndCapacityStep = ({
           }}
           render={({ field }) => (
             <FormGroup
-              legend="How many vaccinators or spaces do you have?"
+              legend="How many vaccinators or vaccination spaces do you have?"
               error={errors.session?.capacity?.message}
             >
               <label
@@ -317,7 +317,7 @@ const TimeAndCapacityStep = ({
                 htmlFor="capacity"
                 style={{ display: 'none' }}
               >
-                How many vaccinators or spaces do you have?
+                How many vaccinators or vaccination spaces do you have?
               </label>
               <TextInput
                 id="capacity"

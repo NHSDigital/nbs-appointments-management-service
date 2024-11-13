@@ -30,7 +30,7 @@ describe('Days of Week Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Select days that you want to add to your availability period',
+        name: 'Create weekly session Select days to add to your weekly session',
       }),
     ).toBeInTheDocument;
   });

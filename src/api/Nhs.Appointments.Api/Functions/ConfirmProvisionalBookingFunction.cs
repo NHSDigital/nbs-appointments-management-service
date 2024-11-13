@@ -14,7 +14,6 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using ContactItem = Nhs.Appointments.Api.Models.ContactItem;
-using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Json;
 
 namespace Nhs.Appointments.Api.Functions;

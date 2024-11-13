@@ -305,7 +305,8 @@ public abstract class BaseFeatureSteps : Feature
                             "sites:query",
                             "site:view",
                             "site:manage",
-                            "availability:set-setup"
+                            "availability:set-setup",
+                            "system:run-provisional-sweep"
                         ] 
                     },
                 new Role

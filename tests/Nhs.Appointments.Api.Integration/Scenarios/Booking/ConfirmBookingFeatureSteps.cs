@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
@@ -16,6 +18,12 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", new StringContent(""));
+    }
+
+    [When("the provisional bookings are cleaned up")]
+    public async Task CleanUpProvisionalBookings()
+    {
+        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep", new StringContent(""));
     }
 
     [When("I confirm the booking with the following contact information")]
@@ -70,6 +78,19 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
+    }
+
+    [And("the booking should be deleted")]
+    public async Task AssertBookingDeleted()
+    {
+        var siteId = GetSiteId();
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
+
+        var exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId)));
+        exception.Message.Should().Contain("404");
+
+        exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index")));
+        exception.Message.Should().Contain("404");
     }
 }
 

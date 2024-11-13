@@ -163,6 +163,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     {
         var expiryDateTime = time.GetUtcNow().AddMinutes(-5);
         var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= expiryDateTime);
+        
         foreach (var indexDocument in indexDocuments)
         {
             await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");

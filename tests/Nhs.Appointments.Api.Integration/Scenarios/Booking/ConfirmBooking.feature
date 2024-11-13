@@ -52,7 +52,7 @@
         And the following sessions
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Yesterday | 09:00 | 10:00 | COVID    | 5           | 1        |
-        And the following provisional bookings have been made
+        And the following expired provisional bookings have been made
           | Date     | Time  | Duration | Service |
           | Yesterday | 09:00 | 5        | COVID   |
         When the provisional bookings are cleaned up

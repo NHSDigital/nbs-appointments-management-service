@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
@@ -83,11 +85,12 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
     {
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
-        var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
-        
-        actualBooking.Should().BeNull();
-        actualBookingIndex.Should().BeNull();
+
+        var exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId)));
+        exception.Message.Should().Contain("404");
+
+        exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index")));
+        exception.Message.Should().Contain("404");
     }
 }
 

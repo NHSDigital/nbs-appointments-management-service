@@ -33,7 +33,7 @@ public static class ServiceRegistration
         else if(userNotificationsProvider == "azure")
         {
             services
-                .AddScoped<ISendNotifications>(x => new GovNotifyEmailClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped<ISendNotifications>(x => new GovNotifyClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()
                 .AddScoped<NotifyBookingMadeFunction>()

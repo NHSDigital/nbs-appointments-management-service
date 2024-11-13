@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class GovNotifyEmailClient : Notify.Client.NotificationClient, ISendNotifications
+public class GovNotifyClient : Notify.Client.NotificationClient, ISendNotifications
 {
-    public GovNotifyEmailClient(string apiKey) : base(apiKey)
+    public GovNotifyClient(string apiKey) : base(apiKey)
     {
     }
 

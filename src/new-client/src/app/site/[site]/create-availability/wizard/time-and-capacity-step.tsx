@@ -85,6 +85,8 @@ const TimeAndCapacityStep = ({
     }
 
     switch (e.target.value.length) {
+      case 0:
+        return `00`;
       case 1:
         return `0${e.target.value}`;
       case 2:
@@ -291,7 +293,7 @@ const TimeAndCapacityStep = ({
       <br />
       <FormGroup
         legend="Capacity"
-        hint="Enter your capacity to calculate appointment numbers for this session"
+        hint="Enter your capacity to calculate appointment numbers for this session."
       >
         <Controller
           control={control}

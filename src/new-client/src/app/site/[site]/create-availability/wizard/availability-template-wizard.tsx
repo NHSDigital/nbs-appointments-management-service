@@ -34,7 +34,7 @@ export const handlePositiveBoundedNumberInput = (
 ) => {
   const asNumber = Number(e.currentTarget.value);
   if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
-    return undefined;
+    return '';
   }
 
   if (asNumber > upperBound) {

@@ -12,6 +12,7 @@ public class PermissionSnapShotTest
     [InlineData("post", "booking/{bookingReference}/cancel", "booking:cancel")]
     [InlineData("get", "sites/{site}/meta", "site:get-meta-data")]
     [InlineData("post", "booking", "booking:make")]
+    [InlineData("post", "booking/{bookingReference}/confirm", "booking:make")]
     [InlineData("post", "availability/query", "availability:query")]
     [InlineData("get", "booking", "booking:query")]
     [InlineData("get", "booking/{bookingReference}", "booking:query")]
@@ -25,6 +26,8 @@ public class PermissionSnapShotTest
     [InlineData("post", "availability/apply-template", "availability:set-setup")]
     [InlineData("post", "availability", "availability:set-setup")]
     [InlineData("post", "user/remove", "users:manage")]
+    [InlineData("post", "system/run-reminders", "system:run-reminders")]
+    [InlineData("post", "system/run-provisional-sweep", "system:run-provisional-sweep")]
     public void Permissions_AreApplied_ToCorrectEndpoints(string method, string path, string permission)
     {
         var functionTypes = typeof(BaseApiFunction<,>).Assembly.GetTypes().Where(t => t.GetMethod("RunAsync") != null);

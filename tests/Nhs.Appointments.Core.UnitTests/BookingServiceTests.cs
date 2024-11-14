@@ -20,6 +20,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
                 _availabilityCalculator.Object,
+                new EventFactory(),
                 _messageBus.Object,
                 TimeProvider.System);
         }
@@ -38,7 +39,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
             var leaseManager = new FakeLeaseManager();
-            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, _messageBus.Object, TimeProvider.System);
+            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, new EventFactory(), _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             var taskCompleted = task.Wait(100);

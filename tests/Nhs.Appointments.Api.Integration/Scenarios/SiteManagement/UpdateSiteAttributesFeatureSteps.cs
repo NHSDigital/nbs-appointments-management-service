@@ -31,10 +31,11 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
             Id: GetSiteId(siteId),
             Name: row.Cells.ElementAt(1).Value,
             Address: row.Cells.ElementAt(2).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(3).Value),
+            PhoneNumber: row.Cells.ElementAt(3).Value,
+            AttributeValues: ParseAttributes(row.Cells.ElementAt(4).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(4).Value), double.Parse(row.Cells.ElementAt(5).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         

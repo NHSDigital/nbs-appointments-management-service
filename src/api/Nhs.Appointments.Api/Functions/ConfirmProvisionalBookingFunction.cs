@@ -44,7 +44,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }));
+        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }), bookingRequest.bookingToReschedule);
 
         switch (result)
         {
@@ -52,26 +52,32 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
                 return Failed(HttpStatusCode.NotFound, "The booking was not found");
             case BookingConfirmationResult.Expired:
                 return Failed(HttpStatusCode.Gone, "The provisional booking expired");
+            case BookingConfirmationResult.RescheduleNotFound:
+                return Failed(HttpStatusCode.NotFound, "The booking to reschedule was not found");
+            case BookingConfirmationResult.RescheduleMismatch:
+                return Failed(HttpStatusCode.PreconditionFailed, "The nhs number for the provisional booking and the booking tobe rescheduled do not match");
             case BookingConfirmationResult.Success:
                 return Success();
         }
 
-        return Failed(HttpStatusCode.InternalServerError, "An uknown error occured when trying to confirm the appointment");
+        return Failed(HttpStatusCode.InternalServerError, "An unknown error occured when trying to confirm the appointment");
     }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, ConfirmBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var contactDetails = new ContactItem[] { };
+        var bookingToReschedule = string.Empty;
         if (req.Body != null)
         {
             var (errors, payload) = await JsonRequestReader.ReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
             if (errors.Any())
                 return (errors, null);            
             contactDetails = payload?.contactDetails ?? new ContactItem[] { };
+            bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (ErrorMessageResponseItem.None, new ConfirmBookingRequest(bookingReference, contactDetails));
+        return (true, new ConfirmBookingRequest(bookingReference, contactDetails, bookingToReschedule));
     }
     
 }

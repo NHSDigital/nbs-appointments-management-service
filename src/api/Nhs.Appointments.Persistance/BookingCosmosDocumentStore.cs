@@ -80,27 +80,62 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         {
             return false;
         }
-        var updateStatusPatch = PatchOperation.Replace("/outcome", status);
-        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch);
+        await UpdateStatus(bookingIndexDocument, status);
         return true;
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails)
+    private Task UpdateStatus(BookingIndexDocument booking, string status)
+    {
+        var updateStatusPatch = PatchOperation.Replace("/outcome", status);
+        return bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
+    }
+
+    private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)
+    {
+        if (string.IsNullOrEmpty(bookingReference) == false)
+        {
+            var rescheduleDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
+            if (rescheduleDocument == null)
+            {
+                return (BookingConfirmationResult.RescheduleNotFound, null);
+            }
+
+            if (rescheduleDocument.NhsNumber != nhsNumber)
+            {
+                return (BookingConfirmationResult.RescheduleMismatch, null);
+            }
+            
+            return (BookingConfirmationResult.Unknown, rescheduleDocument);
+        }
+        
+        return (BookingConfirmationResult.Unknown, null);
+    }
+
+    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
-        if (bookingIndexDocument != null)
+        if (bookingIndexDocument == null)
+            return BookingConfirmationResult.NotFound;
+
+        var (getRescheduleResult, rescheduleDocument) = await GetBookingForReschedule(bookingToReschedule, bookingIndexDocument.NhsNumber);
+
+        if (getRescheduleResult != BookingConfirmationResult.Unknown)
+            return getRescheduleResult;
+        
+        if (bookingIndexDocument.Created.AddMinutes(5) < time.GetUtcNow())
+            return BookingConfirmationResult.Expired;
+
+        var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
+
+        if (rescheduleDocument != null)
         {
-            if (bookingIndexDocument.Created.AddMinutes(5) < time.GetUtcNow())
-                return BookingConfirmationResult.Expired;
-
-            var updateStatusPatch = PatchOperation.Replace("/provisional", false);
-            var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
-            await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
-            await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
-            return BookingConfirmationResult.Success;
+            await UpdateStatus(rescheduleDocument, "cancelled");
         }
-
-        return BookingConfirmationResult.NotFound;
+        
+        return BookingConfirmationResult.Success;
     }
 
 
@@ -111,7 +146,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     }
 
     public async Task InsertAsync(Booking booking)
-    {            
+    {
         var bookingDocument = bookingStore.ConvertToDocument(booking);
         await bookingStore.WriteAsync(bookingDocument);
 
@@ -124,13 +159,17 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 
-    public async Task RemoveUnconfirmedProvisionalBookings()
+    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= time.GetUtcNow().AddMinutes(-5));
+        var expiryDateTime = time.GetUtcNow().AddMinutes(-5);
+        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= expiryDateTime);
+        
         foreach (var indexDocument in indexDocuments)
         {
             await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
             await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
         }
+
+        return indexDocuments.Select(i => i.Reference).ToList();
     }
 }    

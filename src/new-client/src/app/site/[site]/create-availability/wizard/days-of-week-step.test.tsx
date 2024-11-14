@@ -6,18 +6,23 @@ import DaysOfWeekStep from './days-of-week-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 describe('Days of Week Step', () => {
   it('renders', async () => {
     render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -25,20 +30,24 @@ describe('Days of Week Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Select days that you want to add to your availability period',
+        name: 'Create weekly session Select days to add to your weekly session',
       }),
     ).toBeInTheDocument;
   });
 
   it('permits user input', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -58,13 +67,17 @@ describe('Days of Week Step', () => {
 
   it('shows a validation error if no days are selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -80,13 +93,17 @@ describe('Days of Week Step', () => {
 
   it('continues to the next step if a days is selected', async () => {
     const { user } = render(
-      <MockForm<CreateAvailabilityFormValues> submitHandler={jest.fn()}>
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ days: [] }}
+      >
         <DaysOfWeekStep
           stepNumber={1}
           currentStep={1}
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,

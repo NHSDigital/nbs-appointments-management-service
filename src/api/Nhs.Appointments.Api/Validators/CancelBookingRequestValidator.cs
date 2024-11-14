@@ -9,7 +9,5 @@ public class CancelBookingRequestValidator : AbstractValidator<CancelBookingRequ
     {
         RuleFor(x => x.bookingReference)
             .NotEmpty().WithMessage("Provide a booking reference");
-        RuleFor(x => x.site)
-            .NotEmpty().WithMessage("Provide a site");
     }
 }

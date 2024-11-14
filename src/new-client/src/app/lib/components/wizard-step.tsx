@@ -1,7 +1,6 @@
 'use client';
 import React, { ReactNode } from 'react';
 import { InjectedWizardProps } from './wizard';
-import { BackLink } from '@components/nhsuk-frontend';
 
 export interface WizardStepProps {
   children: ((props: InjectedWizardProps) => ReactNode) | ReactNode;
@@ -10,12 +9,7 @@ export interface WizardStepProps {
 
 const WizardStep = ({ children, id, ...rest }: WizardStepProps) => {
   const injectedWizardProps = rest as InjectedWizardProps;
-  const {
-    stepNumber,
-    currentStep,
-    returnRouteUponCancellation,
-    goToPreviousStep,
-  } = injectedWizardProps;
+  const { stepNumber, currentStep } = injectedWizardProps;
 
   if (stepNumber !== currentStep) {
     return null;
@@ -23,14 +17,6 @@ const WizardStep = ({ children, id, ...rest }: WizardStepProps) => {
 
   return (
     <div id={id}>
-      {stepNumber === 1 ? (
-        <BackLink
-          href={returnRouteUponCancellation ?? '/'}
-          renderingStrategy="server"
-        />
-      ) : (
-        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
-      )}
       {typeof children === 'function'
         ? children(injectedWizardProps)
         : children}

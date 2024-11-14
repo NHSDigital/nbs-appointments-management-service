@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import TimeAndCapacityStep from './time-and-capacity-step';
 import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
+import { ChangeEvent } from 'react';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -24,23 +25,32 @@ type Props = {
   site: Site;
 };
 
+// TODO: Decide where this info should live and move it there
+export const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
+export const handlePositiveBoundedNumberInput = (
+  e: ChangeEvent<HTMLInputElement>,
+  upperBound: number,
+) => {
+  const asNumber = Number(e.currentTarget.value);
+  if (asNumber < 1 || Number.isNaN(asNumber) || !Number.isInteger(asNumber)) {
+    return '';
+  }
+
+  if (asNumber > upperBound) {
+    return upperBound;
+  }
+
+  return asNumber;
+};
+
 const AvailabilityTemplateWizard = ({ site }: Props) => {
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
       days: [],
       sessionType: 'single',
       session: {
-        startTime: {
-          hour: 9,
-          minute: 0,
-        },
-        endTime: {
-          hour: 17,
-          minute: 0,
-        },
         break: 'no',
-        capacity: 1,
-        slotLength: 5,
         services: [],
       },
     },
@@ -79,10 +89,10 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
             {stepProps => <DaysOfWeekStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <SelectServicesStep {...stepProps} />}
+            {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <TimeAndCapacityStep {...stepProps} />}
+            {stepProps => <SelectServicesStep {...stepProps} />}
           </WizardStep>
           <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
         </Wizard>

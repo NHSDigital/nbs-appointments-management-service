@@ -6,6 +6,7 @@ import SummaryStep from './summary-step';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 const currentFormState: CreateAvailabilityFormValues = {
@@ -50,6 +51,7 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -57,12 +59,12 @@ describe('Summary Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Create availability period Check availability period',
+        name: 'Check single date session',
       }),
     ).toBeInTheDocument;
   });
 
-  it('summarises the form data collected by the wizard', async () => {
+  it('summarises the single date form data collected by the wizard', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}
@@ -74,18 +76,17 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    expect(screen.getByRole('term', { name: 'Dates' })).toBeInTheDocument;
+    expect(screen.getByRole('term', { name: 'Date' })).toBeInTheDocument;
     expect(screen.getByRole('definition', { name: '28 February 2027' }))
       .toBeInTheDocument;
 
-    expect(screen.getByRole('term', { name: 'Days' })).toBeInTheDocument;
-    expect(screen.getByRole('definition', { name: 'Tuesday, Thursday' }))
-      .toBeInTheDocument;
+    expect(screen.queryByRole('term', { name: 'Days' })).not.toBeInTheDocument;
 
     expect(screen.getByRole('term', { name: 'Time' })).toBeInTheDocument;
     expect(screen.getByRole('definition', { name: '09:30 - 17:45' }))
@@ -95,12 +96,14 @@ describe('Summary Step', () => {
       .toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
-        name: 'RSV:Adult',
+        name: 'RSV (Adult)',
       }),
     ).toBeInTheDocument;
 
     expect(
-      screen.getByRole('term', { name: 'Maximum simultaneous appointments' }),
+      screen.getByRole('term', {
+        name: 'Vaccinators or vaccination spaces available',
+      }),
     ).toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
@@ -108,11 +111,11 @@ describe('Summary Step', () => {
       }),
     ).toBeInTheDocument;
 
-    expect(screen.getByRole('term', { name: 'Appointment length in minutes' }))
+    expect(screen.getByRole('term', { name: 'Appointment length' }))
       .toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
-        name: '15',
+        name: '15 minutes',
       }),
     ).toBeInTheDocument;
   });
@@ -133,6 +136,7 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
@@ -160,13 +164,55 @@ describe('Summary Step', () => {
           isActive
           setCurrentStep={mockSetCurrentStep}
           goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
         />
       </MockForm>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'Save session' }));
 
     expect(mockOnSubmit).toHaveBeenCalledWith(currentFormState);
+  });
+
+  it('hides the appointments per hour calculation if session length is under 1 hour', () => {
+    render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...currentFormState,
+          session: {
+            ...currentFormState.session,
+            startTime: {
+              hour: 9,
+              minute: 0,
+            },
+            endTime: {
+              hour: 9,
+              minute: 30,
+            },
+          },
+        }}
+      >
+        <SummaryStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(
+      screen.getByText(/total appointments in the session/),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(/Up to/)).not.toBeInTheDocument();
+    expect(screen.queryByText('8')).not.toBeInTheDocument();
+    expect(screen.queryByText(/appointments per hour/)).not.toBeInTheDocument();
   });
 });

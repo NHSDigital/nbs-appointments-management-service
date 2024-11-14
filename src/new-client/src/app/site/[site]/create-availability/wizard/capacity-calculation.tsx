@@ -8,8 +8,33 @@ type CapacityCalculationProps = {
   endTime: TimeComponents;
 };
 
+type CapacityCalculationResult = {
+  appointmentsPerSession: number;
+  appointmentsPerHour?: number;
+};
+
 const CapacityCalculation = (props: CapacityCalculationProps) => {
-  return <InsetText>{calculateCapacity(props)}</InsetText>;
+  const capacity = calculateCapacity(props);
+
+  return (
+    <InsetText>
+      <strong>
+        <p style={{ marginBottom: 0 }}>Capacity calculator</p>
+      </strong>
+      <p style={{ marginBottom: 0 }}>
+        <strong>{capacity.appointmentsPerSession}</strong> total appointments in
+        the session
+        {capacity.appointmentsPerHour !== undefined && (
+          <>
+            <br />
+            Up to <strong>{capacity.appointmentsPerHour}</strong> appointments
+            per hour
+          </>
+        )}
+        <br />
+      </p>
+    </InsetText>
+  );
 };
 
 const calculateCapacity = ({
@@ -17,41 +42,62 @@ const calculateCapacity = ({
   capacity,
   startTime,
   endTime,
-}: CapacityCalculationProps): string => {
+}: CapacityCalculationProps): CapacityCalculationResult => {
+  const parsedSlotLength = Number(slotLength);
+  const parsedCapacity = Number(capacity);
+  const parsedStartTimeHour = Number(startTime.hour);
+  const parsedStartTimeMinute = Number(startTime.minute);
+  const parsedEndTimeHour = Number(endTime.hour);
+  const parsedEndTimeMinute = Number(endTime.minute);
+
   if (
-    !Number.isInteger(slotLength) ||
-    !Number.isInteger(capacity) ||
-    !Number.isInteger(startTime.hour) ||
-    !Number.isInteger(startTime.minute) ||
-    !Number.isInteger(endTime.hour) ||
-    !Number.isInteger(endTime.minute)
+    !Number.isInteger(parsedSlotLength) ||
+    !Number.isInteger(parsedCapacity) ||
+    !Number.isInteger(parsedStartTimeHour) ||
+    !Number.isInteger(parsedStartTimeMinute) ||
+    !Number.isInteger(parsedEndTimeHour) ||
+    !Number.isInteger(parsedEndTimeMinute)
   ) {
-    return 'No capacity.';
+    return { appointmentsPerSession: 0, appointmentsPerHour: 0 };
   }
 
-  const startMinutes = startTime.hour * 60 + startTime.minute;
-  const endMinutes = endTime.hour * 60 + endTime.minute;
+  const startMinutes = parsedStartTimeHour * 60 + parsedStartTimeMinute;
+  const endMinutes = parsedEndTimeHour * 60 + parsedEndTimeMinute;
   const totalMinutesAvailable = endMinutes - startMinutes;
 
-  const totalSlots = Math.floor(totalMinutesAvailable / slotLength);
-  const slotsPerHour = Math.floor(60 / slotLength);
+  const totalSlots = Math.floor(totalMinutesAvailable / parsedSlotLength);
+  const slotsPerHour = Math.floor(60 / parsedSlotLength);
 
-  const appointmentsPerHour = slotsPerHour * capacity;
-  const appointmentsPerDay = totalSlots * capacity;
+  const appointmentsPerHour = slotsPerHour * parsedCapacity;
+  const appointmentsPerSession = totalSlots * parsedCapacity;
 
   if (
     Number.isNaN(appointmentsPerHour) ||
-    Number.isNaN(appointmentsPerDay) ||
+    Number.isNaN(appointmentsPerSession) ||
     !Number.isInteger(appointmentsPerHour) ||
-    !Number.isInteger(appointmentsPerDay) ||
-    appointmentsPerDay < 1 ||
+    !Number.isInteger(appointmentsPerSession) ||
+    appointmentsPerSession < 1 ||
     appointmentsPerHour < 1
   ) {
-    return 'No capacity.';
+    return { appointmentsPerSession: 0, appointmentsPerHour: 0 };
   }
 
-  return `${appointmentsPerDay} appointments per day. ${appointmentsPerHour} per hour.`;
+  return {
+    appointmentsPerSession,
+    appointmentsPerHour:
+      totalMinutesAvailable >= 60 ? appointmentsPerHour : undefined,
+  };
 };
 
-export { calculateCapacity };
+const sessionLengthInMinutes = (
+  startTime: TimeComponents,
+  endTime: TimeComponents,
+): number => {
+  const startMinutes = Number(startTime.hour) * 60 + Number(startTime.minute);
+  const endMinutes = Number(endTime.hour) * 60 + Number(endTime.minute);
+
+  return endMinutes - startMinutes;
+};
+
+export { calculateCapacity, sessionLengthInMinutes };
 export default CapacityCalculation;

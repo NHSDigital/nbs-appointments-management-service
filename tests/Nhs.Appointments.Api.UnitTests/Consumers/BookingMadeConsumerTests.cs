@@ -25,6 +25,7 @@ public class BookingMadeConsumerTests
         const string PhoneNumber = "0123456789";
         const string Reference = "booking-ref-1234";
         const string Service = "covid-19";
+        const string Landline = "00001234567";
         DateOnly date = new DateOnly(2050, 1, 1);
         TimeOnly time = new TimeOnly(12, 15);
 
@@ -39,7 +40,8 @@ public class BookingMadeConsumerTests
             Service = Service,
             ContactDetails= [
                 new ContactItem{Type = ContactItemType.Email, Value = Email},
-                new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber}
+                new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber},
+                new ContactItem{Type = ContactItemType.Landline, Value = Landline},
                 ]
         });
 

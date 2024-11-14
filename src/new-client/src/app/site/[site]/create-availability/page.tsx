@@ -15,7 +15,7 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsPage
-      title="Availability periods"
+      title="Create availability"
       caption={site.name}
       breadcrumbs={[
         { name: 'Home', href: '/' },

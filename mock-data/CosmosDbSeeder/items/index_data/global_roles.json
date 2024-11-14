@@ -99,7 +99,8 @@
         "sites:query",
         "site:view",
         "site:manage",
-        "system:run-reminders"
+        "system:run-reminders",
+        "system:run-provisional-sweep"
       ]
     },
     {
@@ -122,7 +123,8 @@
         "sites:query",
         "site:view",
         "site:manage",
-        "system:run-reminders"
+        "system:run-reminders",
+        "system:run-provisional-sweep"
       ]
     }
   ]

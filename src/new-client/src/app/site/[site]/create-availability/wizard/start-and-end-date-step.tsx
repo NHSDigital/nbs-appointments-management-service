@@ -1,74 +1,57 @@
 'use client';
 import {
+  BackLink,
   Button,
   DateInput,
   FormGroup,
   TextInput,
 } from '@components/nhsuk-frontend';
-import { useFormContext } from 'react-hook-form';
-import { CreateAvailabilityFormValues } from './availability-template-wizard';
+import { Controller, useFormContext } from 'react-hook-form';
+import {
+  CreateAvailabilityFormValues,
+  handlePositiveBoundedNumberInput,
+} from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
-import dayjs from 'dayjs';
-import { isSameDayOrBefore, parseDateComponents } from '@services/timeService';
+import {
+  isSameDayOrBefore,
+  now,
+  parseDateComponents,
+} from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
 const StartAndEndDateStep = ({
   stepNumber,
   goToNextStep,
+  goToLastStep,
   setCurrentStep,
+  returnRouteUponCancellation,
+  goToPreviousStep,
 }: InjectedWizardProps) => {
-  const { register, formState, trigger, watch, setError, getValues } =
+  const { formState, trigger, getValues, control } =
     useFormContext<CreateAvailabilityFormValues>();
-  const { errors } = formState;
+  const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
-  const [startDateWatch, endDateWatch] = watch(['startDate', 'endDate']);
   const sessionType = getValues('sessionType');
 
   const validateFields = async () => {
-    const fieldsAreIndividuallyValid = await trigger([
-      'startDate.day',
-      'startDate.month',
-      'startDate.year',
-      'endDate.day',
-      'endDate.month',
-      'endDate.year',
-    ]);
-    if (!fieldsAreIndividuallyValid) {
-      return false;
+    if (sessionType === 'single') {
+      return trigger(['startDate']);
+    } else {
+      return trigger(['startDate', 'endDate']);
     }
-
-    const startDate = parseDateComponents(startDateWatch);
-    if (startDate === undefined) {
-      setError('startDate.day', { message: 'Please enter a valid date' });
-      return false;
-    }
-
-    if (sessionType === 'repeating') {
-      const endDate = parseDateComponents(
-        endDateWatch ?? { day: 0, month: 0, year: 0 },
-      );
-
-      if (endDate === undefined) {
-        setError('endDate.day', { message: 'Please enter a valid date' });
-        return false;
-      }
-
-      const endDateIsAfterStartDate = isSameDayOrBefore(startDate, endDate);
-      if (!endDateIsAfterStartDate) {
-        setError('endDate', {
-          message: 'End date must be after the start date',
-        });
-        return false;
-      }
-    }
-
-    return true;
   };
+
+  const shouldSkipToSummaryStep =
+    touchedFields.session?.services && allStepsAreValid;
 
   const onContinue = async () => {
     const formIsValid = await validateFields();
-
     if (!formIsValid) {
+      return;
+    }
+
+    if (shouldSkipToSummaryStep) {
+      goToLastStep();
       return;
     }
 
@@ -81,142 +64,228 @@ const StartAndEndDateStep = ({
 
   return (
     <>
-      <NhsHeading
-        title={
-          sessionType === 'single'
-            ? 'Session date'
-            : 'Add start and end dates for your availability period'
-        }
-        caption="Create availability period"
-      />
-      <FormGroup
-        error={
-          errors.startDate?.message ||
-          errors.startDate?.day?.message ||
-          errors.startDate?.month?.message ||
-          errors.startDate?.year?.message
-        }
-      >
-        <DateInput
-          heading="Start date"
-          hint="For example, 15 3 1984"
-          id="start-date-input"
-        >
-          <TextInput
-            label="Day"
-            type="number"
-            id="start-date-input-day"
-            inputType="date"
-            {...register('startDate.day', {
-              required: 'Day is required',
-              min: { value: 1, message: 'Please enter a valid day' },
-              max: { value: 31, message: 'Please enter a valid day' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid day',
-              },
-            })}
-          />
-          <TextInput
-            label="Month"
-            type="number"
-            id="start-date-input-month"
-            inputType="date"
-            {...register('startDate.month', {
-              required: 'Month is required',
-              min: { value: 1, message: 'Please enter a valid month' },
-              max: { value: 12, message: 'Please enter a valid month' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid month',
-              },
-            })}
-          />
-          <TextInput
-            label="Year"
-            type="number"
-            id="start-date-input-year"
-            inputType="date"
-            {...register('startDate.year', {
-              required: 'Year is required',
-              min: {
-                value: dayjs().year(),
-                message: 'Please enter a valid year',
-              },
-              max: { value: 3000, message: 'Please enter a valid year' },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: 'Please enter a valid year',
-              },
-            })}
-          />
-        </DateInput>
-      </FormGroup>
-      {getValues('sessionType') === 'repeating' && (
-        <>
-          {' '}
-          <br />
-          <FormGroup
-            error={
-              errors.endDate?.message ||
-              errors.endDate?.day?.message ||
-              errors.endDate?.month?.message ||
-              errors.endDate?.year?.message
-            }
-          >
+      {stepNumber === 1 ? (
+        <BackLink
+          href={returnRouteUponCancellation ?? '/'}
+          renderingStrategy="server"
+        />
+      ) : (
+        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+      )}
+      {sessionType === 'single' ? (
+        <NhsHeading
+          title="Add a date for your session"
+          caption="Create single date session"
+        />
+      ) : (
+        <NhsHeading
+          title="Add start and end dates"
+          caption="Create weekly session"
+        />
+      )}
+
+      <FormGroup error={errors.startDate?.message}>
+        <Controller
+          name="startDate"
+          control={control}
+          rules={{
+            validate: value => {
+              const sessionDateDescriptor =
+                sessionType === 'single' ? 'date' : 'start date';
+
+              if (
+                (value.day === '' || value.day === undefined) &&
+                (value.month === '' || value.month === undefined) &&
+                (value.year === '' || value.year === undefined)
+              ) {
+                return `Enter a ${sessionDateDescriptor}`;
+              }
+
+              const startDate = parseDateComponents(value);
+
+              if (startDate === undefined) {
+                return `Session ${sessionDateDescriptor} must be a valid date`;
+              }
+
+              if (startDate.isBefore(now().add(1, 'day'), 'day')) {
+                return `Session ${sessionDateDescriptor} must be in the future`;
+              }
+
+              if (startDate.isAfter(now().add(1, 'year'), 'day')) {
+                return `Session ${sessionDateDescriptor} must be within the next year`;
+              }
+            },
+          }}
+          render={() => (
             <DateInput
-              heading="End date"
-              hint="For example, 15 3 1984"
-              id="end-date-input"
+              heading={sessionType === 'single' ? 'Session date' : 'Start date'}
+              hint="For example, 15 3 2024"
+              id="start-date-input"
             >
-              <TextInput
-                label="Day"
-                type="number"
-                id="end-date-input-day"
-                inputType="date"
-                {...register('endDate.day', {
-                  required: 'Day is required',
-                  min: { value: 1, message: 'Please enter a valid day' },
-                  max: { value: 31, message: 'Please enter a valid day' },
-                  pattern: {
-                    value: /^[0-9]*$/,
-                    message: 'Please enter a valid day',
-                  },
-                })}
+              <Controller
+                control={control}
+                name="startDate.day"
+                render={({ field }) => (
+                  <TextInput
+                    label="Day"
+                    type="number"
+                    id="start-date-input-day"
+                    inputType="date"
+                    onChange={e =>
+                      field.onChange(handlePositiveBoundedNumberInput(e, 31))
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
-              <TextInput
-                label="Month"
-                type="number"
-                id="end-date-input-month"
-                inputType="date"
-                {...register('endDate.month', {
-                  required: 'Month is required',
-                  min: { value: 1, message: 'Please enter a valid month' },
-                  max: { value: 12, message: 'Please enter a valid month' },
-                  pattern: {
-                    value: /^[0-9]*$/,
-                    message: 'Please enter a valid month',
-                  },
-                })}
+
+              <Controller
+                control={control}
+                name="startDate.month"
+                render={({ field }) => (
+                  <TextInput
+                    label="Month"
+                    type="number"
+                    id="start-date-input-month"
+                    inputType="date"
+                    onChange={e =>
+                      field.onChange(handlePositiveBoundedNumberInput(e, 12))
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
-              <TextInput
-                label="Year"
-                type="number"
-                id="end-date-input-year"
-                inputType="date"
-                {...register('endDate.year', {
-                  required: 'Year is required',
-                  min: { value: 2020, message: 'Please enter a valid year' },
-                  max: { value: 3000, message: 'Please enter a valid year' },
-                  pattern: {
-                    value: /^[0-9]*$/,
-                    message: 'Please enter a valid year',
-                  },
-                })}
+
+              <Controller
+                control={control}
+                name="startDate.year"
+                render={({ field }) => (
+                  <TextInput
+                    label="Year"
+                    type="number"
+                    id="start-date-input-year"
+                    inputType="date"
+                    width={3}
+                    onChange={e =>
+                      field.onChange(
+                        handlePositiveBoundedNumberInput(
+                          e,
+                          now().add(1, 'year').year(),
+                        ),
+                      )
+                    }
+                    value={field.value ?? ''}
+                  />
+                )}
               />
             </DateInput>
-          </FormGroup>
-        </>
+          )}
+        />
+      </FormGroup>
+      {getValues('sessionType') === 'repeating' && (
+        <Controller
+          name="endDate"
+          control={control}
+          rules={{
+            validate: (value, form) => {
+              if (
+                (value.day === '' || value.day === undefined) &&
+                (value.month === '' || value.month === undefined) &&
+                (value.year === '' || value.year === undefined)
+              ) {
+                return `Enter an end date`;
+              }
+
+              const endDate = parseDateComponents(value);
+              const startDate = parseDateComponents(form.startDate);
+
+              if (endDate === undefined || startDate === undefined) {
+                return 'Session end date must be a valid date';
+              }
+
+              if (!isSameDayOrBefore(startDate, endDate)) {
+                return 'Session end date must be after the start date';
+              }
+
+              if (endDate.isAfter(now().add(1, 'year'), 'day')) {
+                return 'Session end date must be within the next year';
+              }
+            },
+          }}
+          render={() => (
+            <>
+              <br />
+              <FormGroup error={errors.endDate?.message}>
+                <DateInput
+                  heading="End date"
+                  hint="For example, 15 3 2024"
+                  id="end-date-input"
+                >
+                  <Controller
+                    control={control}
+                    name="endDate.day"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Day"
+                        type="number"
+                        id="end-date-input-day"
+                        inputType="date"
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(e, 31),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
+                    name="endDate.month"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Month"
+                        type="number"
+                        id="end-date-input-month"
+                        inputType="date"
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(e, 12),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
+                    name="endDate.year"
+                    render={({ field }) => (
+                      <TextInput
+                        label="Year"
+                        type="number"
+                        id="end-date-input-year"
+                        inputType="date"
+                        width={3}
+                        onChange={e =>
+                          field.onChange(
+                            handlePositiveBoundedNumberInput(
+                              e,
+                              now().add(1, 'year').year(),
+                            ),
+                          )
+                        }
+                        value={field.value ?? ''}
+                      />
+                    )}
+                  />
+                </DateInput>
+              </FormGroup>
+            </>
+          )}
+        ></Controller>
       )}
 
       <Button

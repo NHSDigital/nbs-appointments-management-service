@@ -12,8 +12,8 @@ public interface IBookingsDocumentStore
     Task<bool> UpdateStatus(string bookingReference, string status);
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);
     Task SetReminderSent(string bookingReference, string site);
-    Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails);
-    Task RemoveUnconfirmedProvisionalBookings();
+    Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+    Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 }
 
 public interface IRolesStore
@@ -38,5 +38,13 @@ public enum BookingConfirmationResult
     Unknown,
     Success,
     Expired,
+    NotFound,
+    RescheduleNotFound,
+    RescheduleMismatch
+}
+
+public enum BookingCancellationResult
+{
+    Success,
     NotFound
 }

@@ -13,7 +13,7 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
-    public sealed class QueryBookingByNhsNumber : BaseFeatureSteps
+    public sealed class QueryBookingByNhsNumber : BookingBaseFeatureSteps
     {
         private  HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
@@ -34,8 +34,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 (row, index) =>
                 new Core.Booking()
                 {
-                    Reference = GetBookingReference(index.ToString()),
-                    From = DateTime.ParseExact($"{row.Cells.ElementAt(0).Value} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                    Reference = BookingReferences.GetBookingReference(index, BookingType.Confirmed),
+                    From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
@@ -51,8 +51,13 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     ContactDetails =
                     [
                         new ContactItem { Type = "email", Value = "firstName@test.com" },
-                        new ContactItem { Type = "phone", Value = "0123456789" }
-                    ]
+                        new ContactItem { Type = "phone", Value = "0123456789" },
+                        new ContactItem { Type = "landline", Value = "00001234567" }
+                    ],
+                    AdditionalData = new
+                    {
+                        IsAppBooking = true
+                    }
                 }).ToList();
 
             _statusCode.Should().Be(HttpStatusCode.OK);

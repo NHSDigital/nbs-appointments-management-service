@@ -97,14 +97,14 @@ type UserProfile = {
 };
 
 type DateComponents = {
-  day: number;
-  month: number;
-  year: number;
+  day: number | string;
+  month: number | string;
+  year: number | string;
 };
 
 type TimeComponents = {
-  hour: number;
-  minute: number;
+  hour: number | string;
+  minute: number | string;
 };
 
 type Session = {

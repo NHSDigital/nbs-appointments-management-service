@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.Json;
 using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Api.Models;
@@ -12,17 +13,20 @@ public record MakeBookingRequest(
     [JsonProperty("duration")]
     int Duration,
     [JsonProperty("service")]
-    string Service,    
+    string Service,
     [JsonProperty("attendeeDetails")]
     AttendeeDetails AttendeeDetails,
     [JsonProperty("contactDetails")]
     ContactItem[] ContactDetails,
+    [JsonProperty("additionalData")]
+    object? AdditionalData,
     [JsonProperty("provisional")]
     bool Provisional = false
 )
 
 {
     public DateTime FromDateTime => DateTime.ParseExact(From, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
 };
 
 public record AttendeeDetails(

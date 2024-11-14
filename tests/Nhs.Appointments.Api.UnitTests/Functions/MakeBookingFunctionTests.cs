@@ -34,10 +34,10 @@ public class MakeBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenAppointmentIsRequested()
     {
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));        
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01", false));
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
@@ -50,7 +50,7 @@ public class MakeBookingFunctionTests
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
         
-        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -65,7 +65,7 @@ public class MakeBookingFunctionTests
         
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01", false));
         
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789");
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
         var expectedBooking = new Booking
         {
             Site = "1001",
@@ -98,7 +98,19 @@ public class MakeBookingFunctionTests
         actualArgument.Should().BeEquivalentTo(expectedBooking);
     }
 
-    private static HttpRequest CreateRequest(string site, string from, string service, string nhsNumber, string firstName, string lastName, string dateOfBirth, string email, string phoneNumber, bool emailContactConsent = true, bool phoneContactConsent = true)
+    private static HttpRequest CreateRequest(
+        string site,
+        string from,
+        string service,
+        string nhsNumber,
+        string firstName,
+        string lastName,
+        string dateOfBirth,
+        string email,
+        string phoneNumber,
+        object? additionalData,
+        bool emailContactConsent = true,
+        bool phoneContactConsent = true)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
@@ -108,7 +120,8 @@ public class MakeBookingFunctionTests
             [
                 new Models.ContactItem ("email", email ),
                 new Models.ContactItem ("phone", phoneNumber)
-            ]);
+            ],
+            additionalData);
 
         var body = JsonConvert.SerializeObject(dto);
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));

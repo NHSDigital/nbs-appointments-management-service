@@ -17,6 +17,7 @@ public static class ServiceRegistration
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingMadeNotifier, BookingNotifier>()
                 .AddTransient<IBookingReminderNotifier, BookingNotifier>()
+                .AddTransient<IBookingCancelledNotifier, BookingNotifier>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
         if (userNotificationsProvider == "local")
@@ -24,6 +25,7 @@ public static class ServiceRegistration
             services
                 .AddScoped<IConsumer<UserRolesChanged>, UserRolesChangedConsumer>()
                 .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
+                .AddScoped<IConsumer<BookingCancelled>, BookingCancelledConsumer>()
                 .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
                 .AddScoped<ISendNotifications, FakeNotificationClient>();
@@ -31,19 +33,22 @@ public static class ServiceRegistration
         else if(userNotificationsProvider == "azure")
         {
             services
-                .AddScoped<ISendNotifications>(x => new GovNotifyEmailClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped<ISendNotifications>(x => new GovNotifyClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()
                 .AddScoped<NotifyBookingMadeFunction>()
+                .AddScoped<NotifyBookingCancelledFunction>()
                 .AddScoped<ScheduledBookingRemindersFunction>()
                 .AddMassTransitForAzureFunctions(cfg =>
                 {
                     EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
                     EndpointConvention.Map<BookingMade>(new Uri($"queue:{NotifyBookingMadeFunction.QueueName}"));
+                    EndpointConvention.Map<BookingCancelled>(new Uri($"queue:{NotifyBookingCancelledFunction.QueueName}"));
                     EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
                     cfg.AddConsumer<UserRolesChangedConsumer>();
                     cfg.AddConsumer<BookingReminderConsumer>();
                     cfg.AddConsumer<BookingMadeConsumer>();
+                    cfg.AddConsumer<BookingCancelledConsumer>();
                 },
                 connectionStringConfigurationKey: "ServiceBusConnectionString");
         }

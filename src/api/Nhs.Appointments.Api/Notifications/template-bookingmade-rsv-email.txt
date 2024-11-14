@@ -16,9 +16,9 @@ Thank you for booking your RSV (respiratory syncytial virus) vaccination appoint
 
 Booking reference: ((reference))
 ((siteName))
+((address))
 Date and time: ((date))
 ((time))
-((address))
 
 # If you need to change or cancel your appointment:
 

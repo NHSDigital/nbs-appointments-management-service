@@ -49,6 +49,7 @@ public class GetSiteMetaDataFunctionTests
                 Id: "123",
                 Name: "Test 123",
                 Address: "1 Test Street",
+                PhoneNumber: "0113 1111111",
                 AttributeValues: [new(attrId, attrVal)],
                 Location: new Location("Test", [123.1, 321.3])
             ));

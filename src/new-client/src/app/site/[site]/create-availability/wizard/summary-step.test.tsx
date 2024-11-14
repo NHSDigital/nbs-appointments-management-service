@@ -101,7 +101,9 @@ describe('Summary Step', () => {
     ).toBeInTheDocument;
 
     expect(
-      screen.getByRole('term', { name: 'Vaccinators or spaces available' }),
+      screen.getByRole('term', {
+        name: 'Vaccinators or vaccination spaces available',
+      }),
     ).toBeInTheDocument;
     expect(
       screen.getByRole('definition', {
@@ -171,5 +173,46 @@ describe('Summary Step', () => {
     await user.click(screen.getByRole('button', { name: 'Save session' }));
 
     expect(mockOnSubmit).toHaveBeenCalledWith(currentFormState);
+  });
+
+  it('hides the appointments per hour calculation if session length is under 1 hour', () => {
+    render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...currentFormState,
+          session: {
+            ...currentFormState.session,
+            startTime: {
+              hour: 9,
+              minute: 0,
+            },
+            endTime: {
+              hour: 9,
+              minute: 30,
+            },
+          },
+        }}
+      >
+        <SummaryStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(
+      screen.getByText(/total appointments in the session/),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(/Up to/)).not.toBeInTheDocument();
+    expect(screen.queryByText('8')).not.toBeInTheDocument();
+    expect(screen.queryByText(/appointments per hour/)).not.toBeInTheDocument();
   });
 });

@@ -40,7 +40,8 @@ public enum BookingConfirmationResult
     Expired,
     NotFound,
     RescheduleNotFound,
-    RescheduleMismatch
+    RescheduleMismatch,
+    RescheduleTooSoon
 }
 
 public enum BookingCancellationResult

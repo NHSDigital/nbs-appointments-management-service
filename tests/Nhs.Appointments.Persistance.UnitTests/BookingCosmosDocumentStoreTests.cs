@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -10,11 +11,12 @@ public class BookingCosmosDocumentStoreTests
     private readonly Mock<ITypedDocumentCosmosStore<BookingDocument>> _bookingStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<BookingIndexDocument>> _indexStore = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<IOptions<BookingCosmosDocumentStore.Options>> _options = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
 
     public BookingCosmosDocumentStoreTests()
     {
-        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, _metricsRecorder.Object, _timeProvider.Object);
+        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, _metricsRecorder.Object, _timeProvider.Object, _options.Object);
     }
     
     [Fact]

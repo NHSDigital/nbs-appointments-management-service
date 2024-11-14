@@ -47,6 +47,7 @@ public static class FunctionConfigurationExtensions
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
+            .Configure<BookingCosmosDocumentStore.Options>(opts => opts.RescheduleThreshold = TimeSpan.FromMinutes(int.Parse(Environment.GetEnvironmentVariable("RESCHEDULE_THRESHOLD_MINUTES"))))
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()

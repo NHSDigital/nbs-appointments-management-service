@@ -54,7 +54,9 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
             case BookingConfirmationResult.RescheduleNotFound:
                 return Failed(HttpStatusCode.NotFound, "The booking to reschedule was not found");
             case BookingConfirmationResult.RescheduleMismatch:
-                return Failed(HttpStatusCode.PreconditionFailed, "The nhs number for the provisional booking and the booking tobe rescheduled do not match");
+                return Failed(HttpStatusCode.PreconditionFailed, "The nhs number for the provisional booking and the booking to be rescheduled do not match");
+            case BookingConfirmationResult.RescheduleTooSoon:
+                return Failed(HttpStatusCode.PreconditionFailed, "The booking to reschedule could not be rescheduled as it is too soon.");
             case BookingConfirmationResult.Success:
                 return Success();
         }

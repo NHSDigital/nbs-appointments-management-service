@@ -23,7 +23,8 @@
     "Notifications_Provider": "local",
     "GovNotifyApiKey": "test",
     "BookingRemindersCronSchedule": "0 0 8 * * *",
-    "UnconfirmedProvisionalBookingsCronSchedule": "*/5 * * * *"
+    "UnconfirmedProvisionalBookingsCronSchedule": "*/5 * * * *",
+    "RESCHEDULE_THRESHOLD_MINUTES": 60
   },
   "Host": { "CORS": "*" }
 }

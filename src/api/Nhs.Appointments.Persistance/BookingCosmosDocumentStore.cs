@@ -2,10 +2,11 @@
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time) : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time, IOptions<BookingCosmosDocumentStore.Options> options) : IBookingsDocumentStore
 {
     private const int PointReadLimit = 3;    
            
@@ -105,6 +106,11 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
                 return (BookingConfirmationResult.RescheduleMismatch, null);
             }
             
+            if (rescheduleDocument.From.Add(options.Value.RescheduleThreshold) > time.GetLocalNow())
+            {
+                return (BookingConfirmationResult.RescheduleTooSoon, null);
+            }
+            
             return (BookingConfirmationResult.Unknown, rescheduleDocument);
         }
         
@@ -171,5 +177,10 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         }
 
         return indexDocuments.Select(i => i.Reference).ToList();
+    }
+
+    public class Options
+    {
+        public TimeSpan RescheduleThreshold { get; set; }
     }
 }    

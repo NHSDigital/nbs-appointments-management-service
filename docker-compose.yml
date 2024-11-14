@@ -10,11 +10,9 @@ services:
     build:
       context: src/new-client/
       dockerfile: web.Dockerfile
-
     environment:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
-
     volumes:
       - ./src/new-client/src:/app/src
       - ./src/new-client/public:/app/public
@@ -51,6 +49,7 @@ services:
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
+      - RESCHEDULE_THRESHOLD_MINUTES=60
 
   oidc-server:
     image: soluto/oidc-server-mock:latest

@@ -1,6 +1,11 @@
 ﻿import NhsPage from '@components/nhs-page';
 import { ManageUsersPage } from './manage-users-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchSite,
+  fetchUserProfile,
+} from '@services/appointmentsService';
+import { notAuthorized } from '@services/authService';
 
 export type UserPageProps = {
   params: {
@@ -18,6 +23,11 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   const site = await fetchSite(params.site);
 
   await assertPermission(site.id, 'users:manage');
+
+  const userProfile = await fetchUserProfile();
+  if (userProfile.emailAddress === searchParams?.user) {
+    notAuthorized();
+  }
 
   return (
     <NhsPage

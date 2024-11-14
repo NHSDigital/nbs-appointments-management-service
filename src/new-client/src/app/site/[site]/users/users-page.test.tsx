@@ -74,7 +74,7 @@ describe('Users Page', () => {
     );
 
     expect(screen.getByRole('columnheader', { name: 'Manage' })).toBeVisible();
-    expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(2);
+    expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(1);
     expect(
       screen.getAllByRole('link', { name: 'Remove from this site' }).length,
     ).toBe(1);
@@ -105,7 +105,7 @@ describe('Users Page', () => {
     ).toBeNull();
   });
 
-  it('Does not display the remove button for the current user', async () => {
+  it('Does not display the edit or remove buttons for the current user', async () => {
     render(
       <UsersPage
         userProfile={mockUserProfile}
@@ -118,6 +118,7 @@ describe('Users Page', () => {
     expect(
       screen.queryAllByRole('link', { name: 'Remove from this site' }),
     ).toHaveLength(1);
+    expect(screen.getAllByRole('link', { name: 'Edit' }).length).toBe(1);
 
     expect(
       screen.getByRole('link', { name: 'Remove from this site' }),

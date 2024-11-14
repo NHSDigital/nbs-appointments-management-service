@@ -1,10 +1,12 @@
-﻿using FluentValidation;
+﻿using FluentAssertions;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using System.Net;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -27,20 +29,55 @@ public class SetUserRolesFunctionTests
         const string User = "test@user.com";
         string[] roles = ["role1"];
         const string scope = "site:some-site";
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user2@testdomain.com");
 
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 
-        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])))).Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
-        
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
+            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+            .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
+        _userContext.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
+
         await _sut.Invoke(request);
 
         _userService.Verify();
     }
 
+    [Fact]
+    public async Task ReturnsBadRequestResponse_WhenUserTriesToUpdateRolesForThemself()
+    {
+        const string User = "test@user.com";
+        string[] roles = ["role1"];
+        const string scope = "site:some-site";
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test@user.com");
+        const string expectedReason = "You cannot update the role assignments of the currently logged in user.";
+
+        var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
+
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
+            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+            .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
+        _userContext.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
+
+        var result = await _sut.Invoke(request);
+
+        result.IsSuccess.Should().BeFalse();
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.Reason.Should().Be(expectedReason);
+    }
+
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
         private ILogger<SetUserRolesFunction> _logger;
-        public SetUserRolesFunctionTestProxy(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) : base(userService, validator, userContextProvider, logger, metricsRecorder)
+        public SetUserRolesFunctionTestProxy(
+            IUserService userService,
+            IValidator<SetUserRolesRequest> validator,
+            IUserContextProvider userContextProvider,
+            ILogger<SetUserRolesFunction> logger,
+            IMetricsRecorder metricsRecorder)
+            : base(userService, validator, userContextProvider, logger, metricsRecorder)
         {
             _logger = logger;
         }

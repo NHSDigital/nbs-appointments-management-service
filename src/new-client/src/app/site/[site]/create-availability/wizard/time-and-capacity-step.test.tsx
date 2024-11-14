@@ -209,7 +209,7 @@ describe('Time and Capacity Step', () => {
     );
 
     const capacityInput = screen.getByRole('spinbutton', {
-      name: 'How many vaccinators or spaces do you have?',
+      name: 'How many vaccinators or vaccination spaces do you have?',
     });
 
     expect(capacityInput).toHaveDisplayValue('');
@@ -234,7 +234,7 @@ describe('Time and Capacity Step', () => {
     );
 
     const capacityInput = screen.getByRole('spinbutton', {
-      name: 'How many vaccinators or spaces do you have?',
+      name: 'How many vaccinators or vaccination spaces do you have?',
     });
 
     await user.clear(capacityInput);

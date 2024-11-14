@@ -10,7 +10,7 @@ type CapacityCalculationProps = {
 
 type CapacityCalculationResult = {
   appointmentsPerSession: number;
-  appointmentsPerHour: number;
+  appointmentsPerHour?: number;
 };
 
 const CapacityCalculation = (props: CapacityCalculationProps) => {
@@ -24,8 +24,13 @@ const CapacityCalculation = (props: CapacityCalculationProps) => {
       <p style={{ marginBottom: 0 }}>
         <strong>{capacity.appointmentsPerSession}</strong> total appointments in
         the session
-        <br />
-        <strong>{capacity.appointmentsPerHour}</strong> appointments per hour
+        {capacity.appointmentsPerHour !== undefined && (
+          <>
+            <br />
+            Up to <strong>{capacity.appointmentsPerHour}</strong> appointments
+            per hour
+          </>
+        )}
         <br />
       </p>
     </InsetText>
@@ -79,7 +84,8 @@ const calculateCapacity = ({
 
   return {
     appointmentsPerSession,
-    appointmentsPerHour,
+    appointmentsPerHour:
+      totalMinutesAvailable >= 60 ? appointmentsPerHour : undefined,
   };
 };
 

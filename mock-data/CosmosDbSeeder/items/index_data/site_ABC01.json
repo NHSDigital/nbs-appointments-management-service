@@ -3,6 +3,7 @@
   "docType": "site",
   "name": "Robin Lane Medical Centre",
   "address": "Pudsey, Leeds, LS28 7BR",
+  "phoneNumber": "0113 1111111",
   "location": {
     "type": "Point",
     "coordinates": [

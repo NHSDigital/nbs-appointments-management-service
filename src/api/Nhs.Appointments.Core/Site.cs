@@ -9,6 +9,8 @@ public record Site(
     string Name,
     [JsonProperty("address")]
     string Address,
+    [JsonProperty("phoneNumber")]
+    string PhoneNumber,
     [JsonProperty("attributeValues")]
     IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]

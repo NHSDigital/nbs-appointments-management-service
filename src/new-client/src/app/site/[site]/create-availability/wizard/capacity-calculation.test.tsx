@@ -23,18 +23,46 @@ describe('Capacity Calculation', () => {
     expect(
       screen.getByText(/total appointments in the session/),
     ).toBeInTheDocument();
+
+    expect(screen.getByText(/Up to/)).toBeInTheDocument();
     expect(screen.getByText('24')).toBeInTheDocument();
     expect(screen.getByText(/appointments per hour/)).toBeInTheDocument();
+  });
+
+  it('hides the appointments per hour calculation if session length is under 1 hour', () => {
+    render(
+      <CapacityCalculation
+        slotLength={5}
+        capacity={1}
+        startTime={{
+          hour: 9,
+          minute: 0,
+        }}
+        endTime={{
+          hour: 9,
+          minute: 30,
+        }}
+      />,
+    );
+
+    expect(screen.getByText('6')).toBeInTheDocument();
+    expect(
+      screen.getByText(/total appointments in the session/),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(/Up to/)).not.toBeInTheDocument();
+    expect(screen.queryByText('24')).not.toBeInTheDocument();
+    expect(screen.queryByText(/appointments per hour/)).not.toBeInTheDocument();
   });
 
   it.each([
     [9, 0, 12, 0, 5, 1, 36, 12],
     [9, 0, 12, 0, 5, 2, 72, 24],
     [9, 0, 9, 0, 5, 1, 0, 0], // start time == end time
-    [9, 0, 9, 5, 5, 1, 1, 12],
+    [9, 0, 9, 5, 5, 1, 1, undefined],
     [9, 0, 9, 5, 6, 1, 0, 0], // slot length > end time
     [10, 0, 9, 0, 5, 1, 0, 0], // start time > end time
-    [9, 30, 9, 40, 5, 1, 2, 12], // time span under an hour
+    [9, 30, 9, 40, 5, 1, 2, undefined], // time span under an hour
 
     // No decimals allowed
     [9.5, 0, 12, 0, 5, 1, 0, 0],

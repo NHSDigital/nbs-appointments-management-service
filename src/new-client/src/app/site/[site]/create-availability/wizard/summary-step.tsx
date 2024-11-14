@@ -64,7 +64,7 @@ const SummaryStep = ({
           },
 
           {
-            title: 'Vaccinators or spaces available',
+            title: 'Vaccinators or vaccination spaces available',
             value: `${session.capacity}`,
             action: {
               renderingStrategy: 'client',
@@ -132,7 +132,7 @@ const SummaryStep = ({
             },
           },
           {
-            title: 'Vaccinators or spaces available',
+            title: 'Vaccinators or vaccination spaces available',
             value: `${session.capacity}`,
             action: {
               renderingStrategy: 'client',
@@ -195,8 +195,13 @@ const SummaryStep = ({
       <p>
         <strong>{capacity.appointmentsPerSession}</strong> total appointments in
         the session
-        <br />
-        <strong>{capacity.appointmentsPerHour}</strong> appointments per hour
+        {capacity.appointmentsPerHour !== undefined && (
+          <>
+            <br />
+            Up to <strong>{capacity.appointmentsPerHour}</strong> appointments
+            per hour
+          </>
+        )}
         <br />
       </p>
 

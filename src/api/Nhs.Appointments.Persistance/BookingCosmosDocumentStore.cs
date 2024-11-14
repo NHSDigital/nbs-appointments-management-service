@@ -106,7 +106,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
                 return (BookingConfirmationResult.RescheduleMismatch, null);
             }
             
-            if (rescheduleDocument.From.Add(options.Value.RescheduleThreshold) > time.GetLocalNow())
+            if (rescheduleDocument.From < time.GetLocalNow().Add(options.Value.RescheduleThreshold))
             {
                 return (BookingConfirmationResult.RescheduleTooSoon, null);
             }

@@ -15,6 +15,21 @@
         And I confirm the rescheduled booking
         Then the rescheduled booking is no longer marked as provisional
         And  the original booking has been 'Cancelled'
+
+    Scenario: Cannot reschedule an appointment that is less than 60 minutes away 
+        Given the site is configured for MYA
+        And a citizen with the NHS Number '9999999999'
+        And the following sessions
+            | Date     | From  | Until | Services | Slot Length | Capacity |
+            | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 1        |
+        And I have an existing appointment less than 60 minutes from now
+            | Date     | Duration | Service |
+            | Today    | 5        | COVID   |
+        When I make a provisional appointment with the following details
+            | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        |
+            | Tomorrow | 09:30 | 5        | COVID   | *          | Test      | One      | 2000-02-01 |
+        And I confirm the rescheduled booking
+        Then the call should fail with 412
         
     Scenario: Cannot reschedule an appointment if the nhs number for both bookings does not match
         Given the site is configured for MYA

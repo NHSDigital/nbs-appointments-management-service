@@ -16,6 +16,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Api;
 
@@ -65,7 +66,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
-            .AddTransient<IPermissionChecker, PermissionChecker>()            
+            .AddTransient<IPermissionChecker, PermissionChecker>()     
+            .AddTransient<IBookingEventFactory, EventFactory>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

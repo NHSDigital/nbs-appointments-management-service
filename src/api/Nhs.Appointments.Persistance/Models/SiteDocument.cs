@@ -12,6 +12,9 @@ public class SiteDocument : IndexDataCosmosDocument
     [JsonProperty("address")]
     public string Address { get; set; }
     
+    [JsonProperty("phoneNumber")]
+    public string PhoneNumber { get; set; }
+    
     [JsonProperty("location")]
     public Location Location { get; set; }
 

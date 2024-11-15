@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Nhs.Appointments.Api.Json
 {
-    internal static class JsonToObjectSchemaValidation
+    public static class JsonToObjectSchemaValidation
     {
         public static List<ErrorMessageResponseItem> ValidateConversion<TRequest>(string json)
         {
@@ -76,7 +76,7 @@ namespace Nhs.Appointments.Api.Json
 
                 if (objProperty == null)
                 {
-                    errors.Add(new ErrorMessageResponseItem { Property = jsonProperty.Name, Message = "Does not exist on request type (over posting)" });
+                    errors.Add(new ErrorMessageResponseItem { Property = jsonProperty.Name, Message = "The property does not exist on the request type" });
                 }
                 else
                 {                    
@@ -104,27 +104,27 @@ namespace Nhs.Appointments.Api.Json
                     if (json.ValueKind != JsonValueKind.Number)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = "Expected a number but found " + json.ValueKind });
                     else if (json.TryGetInt32(out var val) == false)
-                        errors.Add(new ErrorMessageResponseItem { Property = path, Message = "Expected an ineger but found a floating point number" });
+                        errors.Add(new ErrorMessageResponseItem { Property = path, Message = "Expected an integer but found a floating point number" });
                     break;
                 case nameof(TimeOnly):
                     errorMessage = $"Times should be provided as a string in the following format {DateTimeFormats.TimeOnly}";
                     if (json.ValueKind != JsonValueKind.String)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
-                    if (TimeOnly.TryParseExact(json.GetString(), DateTimeFormats.TimeOnly, null, System.Globalization.DateTimeStyles.None, out var _) == false)
+                    else if (TimeOnly.TryParseExact(json.GetString(), DateTimeFormats.TimeOnly, null, System.Globalization.DateTimeStyles.None, out var _) == false)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
                     break;
                 case nameof(DateOnly):
                     errorMessage = $"Dates should be provided as a string in the following format {DateTimeFormats.DateOnly}";
                     if (json.ValueKind != JsonValueKind.String)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
-                    if (DateOnly.TryParseExact(json.GetString(), DateTimeFormats.DateOnly, null, System.Globalization.DateTimeStyles.None, out var _) == false)
+                    else if (DateOnly.TryParseExact(json.GetString(), DateTimeFormats.DateOnly, null, System.Globalization.DateTimeStyles.None, out var _) == false)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
                     break;
                 case nameof(DateTime):
                     errorMessage = $"Date time data should be provided as a string in the following format {DateTimeFormats.DateTime}";
                     if (json.ValueKind != JsonValueKind.String)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
-                    if (DateTime.TryParseExact(json.GetString(), DateTimeFormats.DateTime, null, System.Globalization.DateTimeStyles.None, out var _) == false)
+                    else if (DateTime.TryParseExact(json.GetString(), DateTimeFormats.DateTime, null, System.Globalization.DateTimeStyles.None, out var _) == false)
                         errors.Add(new ErrorMessageResponseItem { Property = path, Message = errorMessage });
                     break;
                 case nameof(Boolean):

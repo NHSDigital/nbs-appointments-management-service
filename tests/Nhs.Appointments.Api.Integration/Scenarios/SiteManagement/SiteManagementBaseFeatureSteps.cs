@@ -33,9 +33,10 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Id = GetSiteId(row.Cells.ElementAt(0).Value),
                 Name = row.Cells.ElementAt(1).Value,
                 Address = row.Cells.ElementAt(2).Value,
+                PhoneNumber = row.Cells.ElementAt(3).Value,
                 DocumentType = "site",
-                AttributeValues = ParseAttributes(row.Cells.ElementAt(3).Value),
-                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(4).Value), double.Parse(row.Cells.ElementAt(5).Value) }),
+                AttributeValues = ParseAttributes(row.Cells.ElementAt(4).Value),
+                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value) }),
             });
         
         foreach (var site in sites)

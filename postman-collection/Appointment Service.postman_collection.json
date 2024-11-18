@@ -1,0 +1,1092 @@
+{
+	"info": {
+		"_postman_id": "6ddb1181-33d2-4bbb-a631-fad3492086f0",
+		"name": "Appointment Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27520445"
+	},
+	"item": [
+		{
+			"name": "availability/apply-template",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-31\",\r\n    \"template\": {\r\n        \"days\": [\r\n            \"Monday\",\r\n            \"Tuesday\",\r\n            \"Wednesday\",\r\n            \"Thursday\",\r\n            \"Friday\",\r\n            \"Saturday\",\r\n            \"Sunday\"\r\n        ],\r\n        \"sessions\": [\r\n            {\r\n                \"from\": \"09:00\",\r\n                \"until\": \"17:00\",\r\n                \"slotLength\": 5,\r\n                \"capacity\": 1,\r\n                \"services\": [\r\n                    \"COVID:18_74\"\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/availability/apply-template",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"availability",
+						"apply-template"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "availability",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"date\": \"2025-01-01\",\r\n    \"sessions\": [\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"17:00\",\r\n            \"slotLength\": 5,\r\n            \"capacity\": 2,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        },\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"16:00\",\r\n            \"slotLength\": 10,\r\n            \"capacity\": 1,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/availability",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "availability/query - days",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sites\": [\"ABC01\", \"ABC02\"],\r\n    \"service\": \"COVID:18_74\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-01\",\r\n    \"QueryType\": \"Days\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/availability/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"availability",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "availability/query - hours",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sites\": [{{sites}}], \r\n    \"service\": \"COVID:18_74\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-01\",\r\n    \"queryType\": \"Hours\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/availability/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"availability",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "availability/query - slots",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sites\": [{{sites}}], \r\n    \"service\": \"COVID:18_74\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-01\",\r\n    \"queryType\": \"slots\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/availability/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"availability",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const reference = responseJson.bookingReference;\r",
+							"\r",
+							"pm.environment.set('bookingReference', reference);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from\": \"2024-12-01 09:00\",\r\n    \"duration\": 5,\r\n    \"service\": \"COVID:18_74\",\r\n    \"site\": \"{{site}}\",\r\n    \"attendeeDetails\": {\r\n        \"nhsNumber\": \"{{nhsNumber}}\",\r\n        \"firstName\": \"MAUREEN\",\r\n        \"lastName\": \"CULLINGWORTH\",\r\n        \"dateOfBirth\": \"2000-01-01\"\r\n    },\r\n    \"provisional\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/confirm",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contactDetails\": [\r\n        {\r\n            \"type\": \"email\",\r\n            \"value\": \"enter-email-address\"\r\n        },\r\n        {\r\n            \"type\": \"phone\",\r\n            \"value\": \"enter-phone-number\"\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/{{bookingReference}}/confirm",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"{{bookingReference}}",
+						"confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/confirm (RESCHEDULE)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contactDetails\": [\r\n        {\r\n            \"type\": \"email\",\r\n            \"value\": \"enter-email-address\"\r\n        },\r\n        {\r\n            \"type\": \"phone\",\r\n            \"value\": \"enter-phone-number\"\r\n        }\r\n    ],\r\n    \"bookingToReschedule\": \"enter-booking-ref-for-booking-to-cancel\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/{{bookingReference}}/confirm",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"{{bookingReference}}",
+						"confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from\": \"2024-12-01 00:00\",\r\n    \"to\": \"2024-12-01 23:59\",\r\n    \"site\": \"{{site}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/cancel",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/{{bookingReference}}/cancel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"{{bookingReference}}",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/set-status",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"bookingReference\": \"{{bookingReference}}\",\r\n    \"status\": \"CheckedIn\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/set-status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"set-status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sites/{site}/attributes",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"id\": \"accessibility/accessible_toilet\",\r\n        \"value\": \"false\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/braille_translation_service\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/disabled_car_parking_on_site\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/car_parking_on_site\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/induction_loop\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/sign_language_service\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/step_free_access\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/text_relay\",\r\n        \"value\": \"true\"\r\n    },\r\n    {\r\n        \"id\": \"accessibility/wheelchair_access\",\r\n        \"value\": \"false\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sites/{{site}}/attributes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sites",
+						"{{site}}",
+						"attributes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user/roles",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"scope\": \"site:ABC01\",\r\n    \"user\": \"cc.agent@nhs.uk\",\r\n    \"roles\": [\r\n        {{enter-roles-to-assign}}\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/user/roles",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"roles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user/remove",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"user\": \"cc.agent@nhs.uk\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/user/remove",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"remove"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "system/run-reminders",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/system/run-reminders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"system",
+						"run-reminders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "system/run-provisional-sweep",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/system/run-provisional-sweep",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"system",
+						"run-provisional-sweep"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "attributeDefinitions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/attributeDefinitions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"attributeDefinitions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/{ref}",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/booking/{{bookingReference}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking",
+						"{{bookingReference}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking/{nhsNumber}",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/booking?nhsNumber={{nhsNumber}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking"
+					],
+					"query": [
+						{
+							"key": "nhsNumber",
+							"value": "{{nhsNumber}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "site/meta",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sites/{{site}}/meta",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sites",
+						"{{site}}",
+						"meta"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sites/{site}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sites/{{site}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sites",
+						"{{site}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sites",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sites?long=-1.663038&lat=53.796638&searchRadius=100000&maxRecords=50",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sites"
+					],
+					"query": [
+						{
+							"key": "long",
+							"value": "-1.663038"
+						},
+						{
+							"key": "lat",
+							"value": "53.796638"
+						},
+						{
+							"key": "searchRadius",
+							"value": "100000",
+							"description": "6000"
+						},
+						{
+							"key": "maxRecords",
+							"value": "50"
+						},
+						{
+							"key": "accessNeeds",
+							"value": "accessible_toilet,braille_translation_service",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "roles",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/roles?tag=canned",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"roles"
+					],
+					"query": [
+						{
+							"key": "tag",
+							"value": "canned"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "users",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users?site={{site}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "site",
+							"value": "{{site}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user/permissions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/user/permissions?site={{site}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"permissions"
+					],
+					"query": [
+						{
+							"key": "site",
+							"value": "{{site}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"var crypto = require('crypto-js')\r",
+					"var moment = require('moment')\r",
+					"\r",
+					"const secret = pm.environment.get(\"hmacKey\")\r",
+					"const method = pm.request.method;\r",
+					"const path = pm.variables.replaceIn(pm.request.url.getPath());\r",
+					"const queryString = pm.variables.replaceIn(pm.request.url.getQueryString())\r",
+					"const now = moment.utc();\r",
+					"const requestTimestamp = now.format();\r",
+					"const content = pm.variables.replaceIn(pm.request.body).toString() + queryString;\r",
+					"var hashedContentBase64 = crypto.SHA256(content).toString(crypto.enc.Base64);\r",
+					"var payload = method +\"\\n\" + path + \"\\n\" + requestTimestamp + \"\\n\" + hashedContentBase64\r",
+					"var keyBytes = crypto.enc.Base64.parse(secret);\r",
+					"var hashedPayloadBase64 = crypto.HmacSHA256(payload, keyBytes).toString(crypto.enc.Base64);\r",
+					"\r",
+					"pm.request.addHeader({\r",
+					"    'key': 'Authorization',\r",
+					"    'value': 'Signed ' + hashedPayloadBase64\r",
+					"});\r",
+					"pm.request.addHeader({\r",
+					"    'key': 'RequestTimestamp',\r",
+					"    'value': requestTimestamp\r",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

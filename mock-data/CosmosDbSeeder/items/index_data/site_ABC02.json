@@ -4,6 +4,8 @@
   "name": "Church Lane Pharmacy",
   "address": "Pudsey, Leeds, LS28 7LD",
   "phoneNumber": "0113 2222222",
+  "region": "R2",
+  "integratedCareBoard": "ICB2",
   "location": {
     "type": "Point",
     "coordinates": [

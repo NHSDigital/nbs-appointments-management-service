@@ -33,7 +33,7 @@ public class BookingMadeNotifierTests
     {
         _notificationConfigurationStore.Setup(x => x.GetNotificationConfigurationForService(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(new NotificationConfiguration { EmailTemplateId = EmailTemplateId, SmsTemplateId = SmsTemplateId }));
         _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site), It.IsAny<string>()))
-            .Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", null, null)));
+            .Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", "R1", "ICB1",null, null)));
 
         _notificationClient.Setup(x => x.SendEmailAsync(Email, EmailTemplateId, It.Is<Dictionary<string, dynamic>>(
             dic => 
@@ -54,7 +54,7 @@ public class BookingMadeNotifierTests
     public async Task GetsNameOfSite()
     {
         _notificationConfigurationStore.Setup(x => x.GetNotificationConfigurationForService(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(new NotificationConfiguration { EmailTemplateId = EmailTemplateId, SmsTemplateId = SmsTemplateId }));
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site), It.IsAny<string>())).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", Array.Empty<AttributeValue>(), new Location("point", [0, 0])))).Verifiable();
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site), It.IsAny<string>())).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", "R1", "ICB1",Array.Empty<AttributeValue>(), new Location("point", [0, 0])))).Verifiable();
         _notificationClient.Setup(x => x.SendEmailAsync(Email, EmailTemplateId, It.IsAny<Dictionary<string, dynamic>>()));
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber);
@@ -65,7 +65,7 @@ public class BookingMadeNotifierTests
     public async Task GetsCorrectNotificationConfiguration()
     {
         _notificationConfigurationStore.Setup(x => x.GetNotificationConfigurationForService("BookingMade", Service)).Returns(Task.FromResult(new NotificationConfiguration { EmailTemplateId = EmailTemplateId, SmsTemplateId = SmsTemplateId })).Verifiable();
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111",Array.Empty<AttributeValue>(), new Location("point", [0, 0]))));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", "R1", "ICB1",Array.Empty<AttributeValue>(), new Location("point", [0, 0]))));
         _notificationClient.Setup(x => x.SendEmailAsync(Email, EmailTemplateId, It.IsAny<Dictionary<string, dynamic>>()));
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber);

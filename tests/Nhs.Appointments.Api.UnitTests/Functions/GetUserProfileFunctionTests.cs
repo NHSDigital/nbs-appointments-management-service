@@ -72,8 +72,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", "0113 1111111",new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
-                new Site("2", "Beta", "elsewhere", "0113 1111111",new [] {new AttributeValue(Id: "Attribute 2", Value: "false")}, new Location("point", new []{-0.1, -10}))
+                new Site("1", "Alpha", "somewhere", "0113 1111111", "R1", "ICB1",new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
+                new Site("2", "Beta", "elsewhere", "0113 1111111", "R1", "ICB1",new [] {new AttributeValue(Id: "Attribute 2", Value: "false")}, new Location("point", new []{-0.1, -10}))
             };
             
             var expectedUserProfileSiteDetails = new[]
@@ -107,7 +107,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
             {
-                new Site("1", "Alpha", "somewhere", "0113 1111111", new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10}))
+                new Site("1", "Alpha", "somewhere", "0113 1111111", "R1", "ICB1",new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10}))
             };
             
             var expectedUserProfileSiteDetails = new[]

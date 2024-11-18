@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -27,10 +28,12 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             Name: row.Cells.ElementAt(1).Value,
             Address: row.Cells.ElementAt(2).Value,
             PhoneNumber: row.Cells.ElementAt(3).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(4).Value),
+            Region: row.Cells.ElementAt(4).Value,
+            IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+            AttributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) = await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());

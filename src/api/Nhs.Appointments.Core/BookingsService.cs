@@ -1,6 +1,5 @@
 ﻿using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
-using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
@@ -22,6 +21,7 @@ public class BookingsService(
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
+        IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 { 
@@ -61,7 +61,7 @@ public class BookingsService(
 
                 if (!booking.Provisional)
                 {
-                    var bookingMadeEvent = BuildBookingMadeEvent(booking);
+                    var bookingMadeEvent = eventFactory.BuildBookingMadeEvent(booking);
                     await bus.Send(bookingMadeEvent);
                 }
 
@@ -86,15 +86,40 @@ public class BookingsService(
             .UpdateProperty(b => b.Outcome, "Cancelled")                
             .ApplyAsync();
 
-        var bookingCancelledEvent = BuildBookingCancelledEvent(booking);
+        var bookingCancelledEvent = eventFactory.BuildBookingCancelledEvent(booking);
         await bus.Send (bookingCancelledEvent);
 
         return BookingCancellationResult.Success;
     }
 
-    public Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
-        return bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+        var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
+
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking == null)
+        {
+            return BookingConfirmationResult.NotFound;
+        }
+
+        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+
+        if(result == BookingConfirmationResult.Success)
+        {
+            if (isRescheduleOperation)
+            {
+                var bookingRescheduledEvent = eventFactory.BuildBookingRescheduledEvent(booking);
+                await bus.Send(bus.Send(bookingRescheduledEvent));
+            }
+            else
+            {
+                var bookingMadeEvent = eventFactory.BuildBookingMadeEvent(booking);
+                await bus.Send(bookingMadeEvent);
+            }
+        }
+
+        return result;
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, string status)
@@ -107,63 +132,11 @@ public class BookingsService(
         var bookings = await GetBookings(time.GetLocalNow().DateTime, time.GetLocalNow().AddDays(3).DateTime);
         foreach (var booking in bookings.Where(b => !b.ReminderSent))
         {
-            var reminder = BuildReminderEvent(booking);
+            var reminder = eventFactory.BuildBookingReminderEvent(booking);
             await bus.Send(reminder);
             booking.ReminderSent = true;
             await bookingDocumentStore.SetReminderSent(booking.Reference, booking.Site);
         }
-    }
-
-    private static BookingMade BuildBookingMadeEvent(Booking booking)
-    {
-        if(booking.ContactDetails == null)
-        {
-            throw new ArgumentException("The booking must include contact details");
-        }
-
-        return new BookingMade
-        {
-            FirstName = booking.AttendeeDetails.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value}).ToArray()
-        };
-    }
-
-    private static BookingCancelled BuildBookingCancelledEvent(Booking booking)
-    {
-        return new BookingCancelled
-        {
-            FirstName = booking.AttendeeDetails?.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails?.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
-        };
-    }
-
-    private static BookingReminder BuildReminderEvent(Booking booking)
-    {
-        if (booking.ContactDetails == null)
-        {
-            throw new ArgumentException("The booking must include contact details");
-        }
-
-        return new BookingReminder
-        {
-            FirstName = booking.AttendeeDetails.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
-        };
     }
 
     public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()

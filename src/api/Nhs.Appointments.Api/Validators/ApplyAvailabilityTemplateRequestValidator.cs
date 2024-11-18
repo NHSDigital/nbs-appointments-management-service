@@ -12,31 +12,17 @@ public class ApplyAvailabilityTemplateRequestValidator : AbstractValidator<Apply
         RuleFor(x => x.Site)            
             .NotEmpty()
             .WithMessage("Provide a valid site");
+        
         RuleFor(x => x.From).Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .Must(x => DateOnly.TryParseExact(x.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var _))
-            .WithMessage("Provide a from date in the format 'yyyy-MM-dd'")
-            .DependentRules(
-                () =>
-                {
-                    RuleFor(x => x.Until).Cascade(CascadeMode.Stop)
-                        .NotEmpty()
-                        .Must(x => DateOnly.TryParseExact(x.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var _))
-                        .WithMessage("Provide a from date in the format 'yyyy-MM-dd'")
-                        .DependentRules(
-                        () =>
-                        {
-                            RuleFor(x => x.FromDate).Cascade(CascadeMode.Stop)
-                                .LessThanOrEqualTo(x => x.UntilDate)
-                                .WithMessage("'until' date must be after 'from' date")
-                                .GreaterThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().AddDays(1).ToString("yyyy-MM-dd")))
-                                .WithMessage("'from' date must be at least 1 day in the future");
+            .LessThanOrEqualTo(x => x.Until)
+            .WithMessage("'until' date must be after 'from' date")
+            .GreaterThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().AddDays(1).ToString("yyyy-MM-dd")))
+            .WithMessage("'from' date must be at least 1 day in the future");
 
-                            RuleFor(x => x.UntilDate)
-                                .LessThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().AddYears(1).ToString("yyyy-MM-dd")))
-                                .WithMessage("'until' date cannot be later than 1 year from now");
-                        });
-                });
+        RuleFor(x => x.Until)
+            .LessThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().AddYears(1).ToString("yyyy-MM-dd")))
+            .WithMessage("'until' date cannot be later than 1 year from now");                                        
+
         RuleFor(x => x.Template)
             .NotEmpty()
             .WithMessage("Please provide a valid template")

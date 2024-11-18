@@ -29,7 +29,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
                 AdditionalInformation: row.Cells.ElementAt(1).Value);
 
             Response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var actualResponse = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
+            var (_, actualResponse) = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
             actualResponse.Should().BeEquivalentTo(expectedSite);
         }
 
@@ -37,7 +37,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
         public async Task AssertEmpty()
         {
             Response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var actualResponse = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
+            var (_, actualResponse) = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
             actualResponse.AdditionalInformation.Should().BeEmpty();
         }
     }

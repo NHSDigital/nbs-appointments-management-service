@@ -33,7 +33,7 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
                 Coordinates: [double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ActualResponse = await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
+        (_, ActualResponse) = await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
         ActualResponse.Should().BeEquivalentTo(expectedSite);
     }
 }

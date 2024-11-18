@@ -40,7 +40,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
 
         _response = await Http.PostAsync($"http://localhost:7071/api/user/remove", new StringContent(JsonResponseWriter.Serialize(requestBody), Encoding.UTF8, "application/json"));
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"'(.+)' is no longer in the system")]

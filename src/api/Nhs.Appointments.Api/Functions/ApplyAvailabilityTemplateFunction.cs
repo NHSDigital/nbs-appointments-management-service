@@ -32,7 +32,7 @@ public class ApplyAvailabilityTemplateFunction(IAvailabilityService availability
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ApplyAvailabilityTemplateRequest request, ILogger logger)
     {
-        await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.FromDate, request.UntilDate, request.Template);
+        await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until, request.Template);
         return Success(new EmptyResponse());
     }
 }

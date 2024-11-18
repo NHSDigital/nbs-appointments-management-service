@@ -52,10 +52,10 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
         }
     }
 
-    protected override async Task<(bool requestRead, CancelBookingRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, CancelBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (true, new CancelBookingRequest(bookingReference));
+        return (ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference));
     }
 }

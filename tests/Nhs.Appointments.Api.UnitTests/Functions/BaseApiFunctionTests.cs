@@ -73,8 +73,9 @@ public class BaseApiFunctionTests
     {
         var exception = new SystemException("Test Exception");
         var request = GetDefaultRequest();
+        var errors = new List<ErrorMessageResponseItem>() { new ErrorMessageResponseItem { } };
 
-        _sut.ReadRequestDelegate = (req) => (false, "");
+        _sut.ReadRequestDelegate = (req) => (errors.AsReadOnly(), "");
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
@@ -183,10 +184,10 @@ internal class TestableBaseApiFunction : BaseApiFunction<string, string>
         return Task.FromResult(HandleDelegate(request, logger));
     }
 
-    protected override Task<(bool requestRead, string request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, string request)> ReadRequestAsync(HttpRequest req)
     {
         if (ReadRequestDelegate is null)
-            return Task.FromResult((true, ""));
+            return Task.FromResult((ErrorMessageResponseItem.None, ""));
         return Task.FromResult(ReadRequestDelegate(req));
     }
 
@@ -199,7 +200,7 @@ internal class TestableBaseApiFunction : BaseApiFunction<string, string>
 
     public Func<string, ILogger, ApiResult<string>> HandleDelegate { get; set; }
 
-    public Func<HttpRequest, (bool requestRead, string request)> ReadRequestDelegate { get; set; }
+    public Func<HttpRequest, (IReadOnlyCollection<ErrorMessageResponseItem> errors, string request)> ReadRequestDelegate { get; set; }
 
     public Func<string, IEnumerable<ErrorMessageResponseItem>> ValidateRequestDelegate { get; set; }
 }

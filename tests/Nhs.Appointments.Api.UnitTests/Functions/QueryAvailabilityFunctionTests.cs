@@ -89,7 +89,7 @@ public class QueryAvailabilityFunctionTests
             new[] { "1000" },
             "COVID",
             new DateOnly(2077, 01, 01),
-            new DateOnly(2077, 01, 03),
+            new DateOnly(2077, 01, 01),
             queryType);
 
         var httpRequest = CreateRequest(request);

@@ -370,6 +370,7 @@ const TimeAndCapacityStep = ({
             <FormGroup
               legend="How long are your appointments?"
               error={errors.session?.slotLength?.message}
+              hint="Appointment length must be a maximum of 60 minutes or less."
             >
               <label
                 id="slot-length"

@@ -10,6 +10,9 @@ public class AvailabilityCreatedEvent
     [JsonProperty("by")]
     public required string By { get; set; }
 
+    [JsonProperty("site")]
+    public required string Site { get; set; }
+
     [JsonProperty("template")]
     public Template? Template { get; set; }
 

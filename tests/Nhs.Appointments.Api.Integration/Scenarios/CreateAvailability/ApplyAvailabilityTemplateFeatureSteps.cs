@@ -13,7 +13,7 @@ using Nhs.Appointments.Persistance.Models;
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
     [FeatureFile("./Scenarios/CreateAvailability/ApplyAvailabilityTemplate.feature")]
-    public sealed class ApplyAvailabilityTemplateFeatureSteps : BaseFeatureSteps
+    public sealed class ApplyAvailabilityTemplateFeatureSteps : CreateAvailabilityFeatureSteps
     {
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;

@@ -56,6 +56,7 @@ public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<Ava
         {
             By = document.By,
             Created = document.Created,
+            Site = document.Site,
             Sessions = document.Sessions,
             Template = document.Template,
             From = document.From,

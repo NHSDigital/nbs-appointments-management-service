@@ -10,7 +10,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
     [FeatureFile("./Scenarios/CreateAvailability/SetAvailability.feature")]
-    public class SetAvailabilityFeatureSteps : BaseFeatureSteps
+    public class SetAvailabilityFeatureSteps : CreateAvailabilityFeatureSteps
     {
         private HttpResponseMessage _response;
 
@@ -40,7 +40,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         }
 
         [Then(@"the request is successful and the following availability is created")]
-        public async Task AssertAsync(DataTable expectedDataTable)
+        public async Task AssertAvailabilityAsync(DataTable expectedDataTable)
         {
             _response.StatusCode.Should().Be(HttpStatusCode.OK);
             var site = GetSiteId();

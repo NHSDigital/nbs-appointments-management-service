@@ -34,6 +34,13 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
+    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site)
+    {
+        var events = await availabilityCreatedEventStore.GetAvailabilityCreatedEvents(site);
+
+        return events;
+    }
+
     public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions)
     {
         if (string.IsNullOrEmpty(site))

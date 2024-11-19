@@ -45,4 +45,21 @@ public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<Ava
 
         await documentStore.WriteAsync(document);
     }
+
+    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEvents(string site)
+    {
+        var docType = documentStore.GetDocumentType();
+
+        var documents = await documentStore.RunQueryAsync<AvailabilityCreatedEventDocument>(b => b.DocumentType == docType && b.Site == site);
+
+        return documents.Select(document => new AvailabilityCreatedEvent()
+        {
+            By = document.By,
+            Created = document.Created,
+            Sessions = document.Sessions,
+            Template = document.Template,
+            From = document.From,
+            To = document.To,
+        });
+    }
 }

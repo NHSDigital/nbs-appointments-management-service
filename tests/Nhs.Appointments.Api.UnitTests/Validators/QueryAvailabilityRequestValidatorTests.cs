@@ -21,8 +21,8 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             new [] {"1000", "1001"},
             "COVID",
-            "2077-01-01",
-            "2077-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             QueryType.Days
         );
         var result = _sut.TestValidate(request);
@@ -41,8 +41,8 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             sites,
             "SERVICE",
-            "2077-01-01",
-            "2077-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             QueryType.Days
         );
         var result = _sut.TestValidate(request);
@@ -60,8 +60,8 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             new [] {"1000", "1001"},
             service,
-            "2077-01-01",
-            "2077-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             QueryType.Days
         );
         var result = _sut.TestValidate(request);
@@ -69,53 +69,7 @@ public class QueryAvailabilityRequestValidatorTests
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(QueryAvailabilityRequest.Service));
         result.Errors.Single().ErrorMessage.Should().Be(InvalidStringErrorMessage);
-    }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData("01-01-2077")]
-    [InlineData("2077-99-31")]
-    [InlineData("2077-01-99")]
-    [InlineData("Not a date")]
-    [InlineData(null)]
-    public void Validate_ReturnsError_WhenFromDateIsNotValid(string fromDate)
-    {
-        var request = new QueryAvailabilityRequest(
-            new [] {"1000", "1001"},
-            "COVID",
-            fromDate,
-            "2077-01-01",
-            QueryType.Days
-        );
-        var result = _sut.TestValidate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(QueryAvailabilityRequest.From));
-        result.Errors.Single().ErrorMessage.Should().Be(InvalidDateErrorMessage);
-    }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData("01-01-2077")]
-    [InlineData("2077-99-31")]
-    [InlineData("2077-01-99")]
-    [InlineData("Not a date")]
-    [InlineData(null)]
-    public void Validate_ReturnsError_WhenUntilDateIsNotValid(string untilDate)
-    {
-        var request = new QueryAvailabilityRequest(
-            new [] {"1000", "1001"},
-            "COVID",
-            "2077-01-01",
-            untilDate,
-            QueryType.Days
-        );
-        var result = _sut.TestValidate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(QueryAvailabilityRequest.Until));
-        result.Errors.Single().ErrorMessage.Should().Be(InvalidDateErrorMessage);
-    }
+    }              
     
     [Fact]
     public void Validate_ReturnsError_WhenUntilDateIsBeforeFrom()
@@ -123,14 +77,14 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             new [] {"1000", "1001"},
             "COVID",
-            "2077-01-01",
-            "2076-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2076, 01, 01),
             QueryType.Days
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(QueryAvailabilityRequest.FromDate));
+        result.Errors.Single().PropertyName.Should().Be(nameof(QueryAvailabilityRequest.From));
         result.Errors.Single().ErrorMessage.Should().Be(InvalidFromDateRangeErrorMessage);
     }
     
@@ -143,8 +97,8 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             new [] {"1000", "1001"},
             "COVID",
-            "2077-01-01",
-            "2077-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             queryType
         );
         var result = _sut.TestValidate(request);
@@ -160,8 +114,8 @@ public class QueryAvailabilityRequestValidatorTests
         var request = new QueryAvailabilityRequest(
             new [] {"1000", "1001"},
             "COVID",
-            "2077-01-01",
-            "2077-01-01",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
             queryType
         );
         var result = _sut.TestValidate(request);

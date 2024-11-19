@@ -40,10 +40,10 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
-    protected override async Task<(bool requestRead, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
-        var attributes = await JsonRequestReader.ReadRequestAsync<AttributeRequest>(req.Body);
-        return (true, new SetSiteAttributesRequest(site, attributes.Scope, attributes.AttributeValues));
+        var (errors, attributes) = await JsonRequestReader.ReadRequestAsync<AttributeRequest>(req.Body);
+        return (errors, new SetSiteAttributesRequest(site, attributes?.Scope, attributes?.AttributeValues));
     }
 }

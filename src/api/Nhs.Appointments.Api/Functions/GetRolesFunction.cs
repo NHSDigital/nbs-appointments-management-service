@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -35,9 +36,9 @@ public class GetRolesFunction(IRolesService rolesService, IValidator<GetRolesReq
         return ApiResult<GetRolesResponse>.Success(new GetRolesResponse(mappedRoles.ToArray()));
     }
     
-    protected override Task<(bool requestRead, GetRolesRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetRolesRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var tag = req.Query["tag"];
-        return Task.FromResult<(bool requestRead, GetRolesRequest request)>((true, new GetRolesRequest(tag)));
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem>, GetRolesRequest request)>((ErrorMessageResponseItem.None, new GetRolesRequest(tag)));
     }
 }

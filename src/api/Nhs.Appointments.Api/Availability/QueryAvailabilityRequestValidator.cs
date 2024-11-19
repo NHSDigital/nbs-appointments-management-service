@@ -15,20 +15,8 @@ public class QueryAvailabilityRequestValidator : AbstractValidator<QueryAvailabi
             .NotEmpty().WithMessage("One or more site identifiers must be provided");
         RuleForEach(x => x.Sites)
             .NotEmpty().WithMessage("All provided site identifiers must be valid");
-        RuleFor(x => x.From).Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Provide a date in the format 'yyyy-MM-dd'")
-            .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _)).WithMessage("Provide a date in the format 'yyyy-MM-dd'")
-            .DependentRules(() =>
-            {
-                RuleFor(x => x.Until).Cascade(CascadeMode.Stop)
-                    .NotEmpty().WithMessage("Provide a date in the format 'yyyy-MM-dd'")
-                    .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _)).WithMessage("Provide a date in the format 'yyyy-MM-dd'")
-                    .DependentRules(() =>
-                    {
-                        RuleFor(x => x.FromDate).Cascade(CascadeMode.Stop)
-                            .LessThanOrEqualTo(x => x.UntilDate).WithMessage("From date must be on or before Until date");
-                    });
-            });
+        RuleFor(x => x.From)
+            .LessThanOrEqualTo(x => x.Until).WithMessage("From date must be on or before Until date");        
         RuleFor(x => x.Service)
             .NotEmpty().WithMessage("Provide a valid string");
         RuleFor(x => x.QueryType)

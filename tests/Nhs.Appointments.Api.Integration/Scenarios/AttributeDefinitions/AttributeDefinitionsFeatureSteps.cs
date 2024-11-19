@@ -40,7 +40,7 @@ public sealed class AttributeDefinitionsFeatureSteps : BaseFeatureSteps
     {
         _response = await Http.GetAsync("http://localhost:7071/api/attributeDefinitions");
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<AttributeDefinition>>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<AttributeDefinition>>(await _response.Content.ReadAsStreamAsync());
     }
     
     [Then("the following attribute definitions are returned")] 

@@ -32,7 +32,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var accessNeeds = row.Cells.ElementAt(4).Value;
         _response = await Http.GetAsync($"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}");
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(await _response.Content.ReadAsStreamAsync());
     }
 
     [When("I make the following request without access needs")]
@@ -45,7 +45,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var latitude = row.Cells.ElementAt(3).Value;
         _response = await Http.GetAsync($"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}");
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then("the following sites and distances are returned")]
@@ -57,9 +57,11 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
                 Name: row.Cells.ElementAt(1).Value,
                 Address: row.Cells.ElementAt(2).Value,
                 PhoneNumber: row.Cells.ElementAt(3).Value,
-                AttributeValues: ParseAttributes(row.Cells.ElementAt(4).Value),
-                Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value) })
-                ), Distance: int.Parse(row.Cells.ElementAt(7).Value)
+                Region: row.Cells.ElementAt(4).Value,
+                IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+                AttributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
+                Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value) })
+                ), Distance: int.Parse(row.Cells.ElementAt(9).Value)
             )).ToList();
 
         _statusCode.Should().Be(HttpStatusCode.OK);

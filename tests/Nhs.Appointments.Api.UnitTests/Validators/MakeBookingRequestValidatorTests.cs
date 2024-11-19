@@ -28,6 +28,28 @@ public class MakeBookingRequestValidatorTests
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.Site));
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(301)]
+    public void Validate_ReturnsError_WhenDurationIsOutOfRange(int duration)
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            duration,
+            "COVID",
+            GetAttendeeDetails(),
+            GetContactDetails(),
+            null
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.Duration));
+    }
     
     [Theory]
     [InlineData("")]

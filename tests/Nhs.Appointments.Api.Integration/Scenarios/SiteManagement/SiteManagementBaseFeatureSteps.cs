@@ -34,9 +34,11 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Name = row.Cells.ElementAt(1).Value,
                 Address = row.Cells.ElementAt(2).Value,
                 PhoneNumber = row.Cells.ElementAt(3).Value,
+                Region = row.Cells.ElementAt(4).Value,
+                IntegratedCareBoard = row.Cells.ElementAt(5).Value,
                 DocumentType = "site",
-                AttributeValues = ParseAttributes(row.Cells.ElementAt(4).Value),
-                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(5).Value), double.Parse(row.Cells.ElementAt(6).Value) }),
+                AttributeValues = ParseAttributes(row.Cells.ElementAt(6).Value),
+                Location = new Location("Point", new[] { double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value) }),
             });
         
         foreach (var site in sites)
@@ -49,7 +51,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
     public async Task Assert()
     {
         Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        ErrorResponse = await JsonRequestReader.ReadRequestAsync<ErrorMessageResponseItem>(await Response.Content.ReadAsStreamAsync());
+        (_, ErrorResponse) = await JsonRequestReader.ReadRequestAsync<ErrorMessageResponseItem>(await Response.Content.ReadAsStreamAsync());
         ErrorResponse.Message.Should().Be("The specified site was not found.");
     }
     

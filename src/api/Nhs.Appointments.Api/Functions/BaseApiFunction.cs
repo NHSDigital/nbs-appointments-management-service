@@ -21,9 +21,9 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
     {
         try
         {
-            (bool requestRead, TRequest request) = await ReadRequestAsync(req);
-            if (requestRead == false)
-                return ProblemResponse(HttpStatusCode.BadRequest, "The request was invalid");
+            (IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request) = await ReadRequestAsync(req);
+            if (errors.Any())
+                return ProblemResponse(HttpStatusCode.BadRequest, errors);
 
             var validationErrors = await ValidateRequest(request);
             if (validationErrors.Any())
@@ -55,7 +55,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
         }
     }    
     
-    protected virtual Task<(bool requestRead, TRequest request)> ReadRequestAsync(HttpRequest req) => JsonRequestReader.TryReadRequestAsync<TRequest>(req.Body);
+    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(HttpRequest req) => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {

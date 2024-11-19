@@ -43,15 +43,19 @@ public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSite
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
     
-    protected override Task<(bool requestRead, GetSitesByAreaRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)> ReadRequestAsync(HttpRequest req)
     {
+        var errors = new List<ErrorMessageResponseItem>();
         var accessNeeds = req.Query.ContainsKey("accessNeeds") ? req.Query["accessNeeds"].ToString().Split(',') : Array.Empty<string>();
         if (accessNeeds.Any(string.IsNullOrEmpty))
-            return Task.FromResult<(bool requestRead, GetSitesByAreaRequest request)>((false, null));
+        {
+            errors.Add(new ErrorMessageResponseItem { Property = "accessNeeds", Message = "Access needs cannot be contain empty values" });
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((errors.AsReadOnly(), null));
+        }
         var longitude = double.Parse(req.Query["long"]);
         var latitude = double.Parse(req.Query["lat"]);
         var searchRadius = int.Parse(req.Query["searchRadius"]);
         var maximumRecords = int.Parse(req.Query["maxRecords"]);
-        return Task.FromResult<(bool requestRead, GetSitesByAreaRequest request)>((true, new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds)));
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((errors.AsReadOnly(), new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds)));
     }
 }

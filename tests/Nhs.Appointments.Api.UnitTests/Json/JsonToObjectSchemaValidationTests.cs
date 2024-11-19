@@ -6,6 +6,15 @@ namespace Nhs.Appointments.Api.Tests.Json
 {
     public class JsonToObjectSchemaValidationTests
     {
+        [Fact]
+        public void ValidateConversion_ReturnsError_WhenJsonIsImproperlyFormatted()
+        {
+            var results = JsonToObjectSchemaValidation.ValidateConversion<Object[]>("{\"prop\": }");
+            results.Count.Should().Be(1);
+            results[0].Property.Should().Be("document");
+            results[0].Message.Should().Be("The json is not properly formatted");
+        }
+
         [Theory]
         [InlineData("\"string\"", JsonValueKind.String)]
         [InlineData("32", JsonValueKind.Number)]
@@ -351,6 +360,13 @@ namespace Nhs.Appointments.Api.Tests.Json
             results[0].Message.Should().Be("The property does not exist on the request type");
         }
 
+        [Fact]
+        public void ValidateConversion_DoesNotValidateNestedObjects_WhenDynamicDataIsExpected()
+        {
+            var results = JsonToObjectSchemaValidation.ValidateConversion<ClassWithDyamicProperty>("{\"DynamicProp\": {\"Prop\": 2} }");
+            results.Count.Should().Be(0);            
+        }
+
         public class ClassWithDateTimeProperty
         {
             public DateTime MyProp { get; set; }
@@ -401,6 +417,11 @@ namespace Nhs.Appointments.Api.Tests.Json
         public class ClassWithEnumProperty
         {
             public TestEnum MyProp { get; set; }
+        }
+
+        public class ClassWithDyamicProperty
+        {
+            public Object DynamicProp { get; set; }
         }
     }
 }

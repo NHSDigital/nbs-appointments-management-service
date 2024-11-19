@@ -12,10 +12,18 @@ namespace Nhs.Appointments.Api.Json
     {
         public static List<ErrorMessageResponseItem> ValidateConversion<TRequest>(string json)
         {
+            JsonDocument document;
             var errorList = new List<ErrorMessageResponseItem>();
-            var document = JsonDocument.Parse(json); // If this throws an exception then we have a invalid json
-
-            // First thing to check, if the root element is an array or an object
+            try
+            {
+                document = JsonDocument.Parse(json);
+            }
+            catch(System.Text.Json.JsonException)
+            {
+                errorList.Add(new ErrorMessageResponseItem { Property = "document", Message = "The json is not properly formatted" });
+                return errorList;
+            }
+            
             var requestType = typeof(TRequest);
 
             if (requestType.IsArray)
@@ -36,7 +44,7 @@ namespace Nhs.Appointments.Api.Json
                     errorList.Add(new ErrorMessageResponseItem { Property = "", Message = "Expected an object but got " + document.RootElement.ValueKind.ToString() });
                 }
                 else
-                {
+                {                    
                     errorList = CheckObject<TRequest>(document.RootElement);
                 }
             }
@@ -68,6 +76,10 @@ namespace Nhs.Appointments.Api.Json
         {            
             var objectEnumerator = json.EnumerateObject();
             var errors = new List<ErrorMessageResponseItem>();
+
+            // If property type is object then we are expecting dynamic data we cannot validate further
+            if (objType == typeof(Object)) 
+                return errors;
 
             while (objectEnumerator.MoveNext())
             {

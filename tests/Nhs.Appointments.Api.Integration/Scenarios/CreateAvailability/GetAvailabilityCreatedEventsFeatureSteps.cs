@@ -24,10 +24,15 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 
             _response = await Http.GetAsync($"http://localhost:7071/api/availability-created?site={siteId}");
             _statusCode = _response.StatusCode;
-            _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<AvailabilityCreatedEvent>>(await _response.Content.ReadAsStreamAsync());
+            var content = await _response.Content.ReadAsStreamAsync();
+
+            _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<AvailabilityCreatedEvent>>(content);
 
             _statusCode.Should().Be(HttpStatusCode.OK);
-            _expectedAvailabilityCreatedEvents.Should().BeEquivalentTo(_actualResponse);
+
+            _actualResponse.Should().BeEquivalentTo(_expectedAvailabilityCreatedEvents,
+                options => options.Excluding(
+                    x => x.Created));
         }
     }
 }

@@ -34,6 +34,10 @@ public class SetAvailabilityFunctionTests
     [Fact]
     public async Task InvokeAvailabilityService_WhenSettingAvailability()
     {
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user3@nhs.net");
+        _userContext.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
+
         var sessions = new List<Session>
         {
             new()
@@ -55,12 +59,12 @@ public class SetAvailabilityFunctionTests
 
         result.IsSuccess.Should().BeTrue();
 
-        _availabilityService.Verify(x => x.SetAvailabilityAsync(request.AvailabilityDate, request.Site, sessions), Times.Once);
+        _availabilityService.Verify(x => x.ApplySingleDateSessionAsync(request.AvailabilityDate, request.Site, sessions, "test.user3@nhs.net"), Times.Once);
     }
 
-    internal class SetAvailabilityFunctionTestProxy : SetAvailabilityFunction
+    private class SetAvailabilityFunctionTestProxy : SetAvailabilityFunction
     {
-        private ILogger<SetAvailabilityFunction> _logger;
+        private readonly ILogger<SetAvailabilityFunction> _logger;
 
         public SetAvailabilityFunctionTestProxy(
             IAvailabilityService availabilityService,

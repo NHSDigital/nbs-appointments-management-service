@@ -9,7 +9,7 @@ public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<Ava
     {
         var documentType = documentStore.GetDocumentType();
         var timeStamp = time.GetUtcNow().UtcDateTime;
-        var documentId = $"availability_created_{site}_{timeStamp:yyyyMMddHHmmss}";
+        var documentId = $"availability_created_{site}_{timeStamp:yyyyMMddHHmmssffffff}";
 
         var document = new AvailabilityCreatedEventDocument()
         {
@@ -30,7 +30,7 @@ public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<Ava
     {
         var documentType = documentStore.GetDocumentType();
         var timeStamp = time.GetUtcNow().UtcDateTime;
-        var documentId = $"availability_created_{site}_{timeStamp:yyyyMMddHHmmss}";
+        var documentId = $"availability_created_{site}_{timeStamp:yyyyMMddHHmmssffffff}";
 
         var document = new AvailabilityCreatedEventDocument()
         {
@@ -40,7 +40,7 @@ public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<Ava
             By = user,
             Site = site,
             Sessions = sessions,
-            From = date
+            From = date,
         };
 
         await documentStore.WriteAsync(document);

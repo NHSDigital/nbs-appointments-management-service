@@ -50,6 +50,8 @@ public class GetSiteMetaDataFunctionTests
                 Name: "Test 123",
                 Address: "1 Test Street",
                 PhoneNumber: "0113 1111111",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
                 AttributeValues: [new(attrId, attrVal)],
                 Location: new Location("Test", [123.1, 321.3])
             ));

@@ -11,6 +11,10 @@ public record Site(
     string Address,
     [JsonProperty("phoneNumber")]
     string PhoneNumber,
+    [JsonProperty("region")]
+    string Region,
+    [JsonProperty("integratedCareBoard")]
+    string IntegratedCareBoard,
     [JsonProperty("attributeValues")]
     IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]

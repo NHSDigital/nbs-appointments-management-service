@@ -2,10 +2,8 @@
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
-using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text.Json;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Json;
@@ -25,7 +23,11 @@ public static class JsonRequestReader
         {
             Converters =
                 {
-                    new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new NullableShortDateOnlyJsonConverter()
+                    new ShortTimeOnlyJsonConverter(), 
+                    new ShortDateOnlyJsonConverter(), 
+                    new DayOfWeekJsonConverter(), 
+                    new NullableShortDateOnlyJsonConverter(),
+                    new StrictBooleanJsonConverter()
                 },
 
         };

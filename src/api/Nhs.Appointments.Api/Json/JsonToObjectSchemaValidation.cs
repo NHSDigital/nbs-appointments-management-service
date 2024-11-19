@@ -81,21 +81,27 @@ namespace Nhs.Appointments.Api.Json
             if (objType == typeof(Object)) 
                 return errors;
 
+            var jsonProperties = objType.GetProperties().Select(p => (p, p.GetCustomAttribute<JsonPropertyAttribute>()));
+            var requiredProperties = jsonProperties.Where(jp => jp.Item2?.Required == Required.Always).Select(p => p.Item1.Name).ToList();
+
             while (objectEnumerator.MoveNext())
             {
                 var jsonProperty = objectEnumerator.Current;
-                var objProperty = GetProperty(jsonProperty.Name, objType);
+                var objProperty = GetProperty(jsonProperty.Name, objType);                
 
                 if (objProperty == null)
                 {
                     errors.Add(new ErrorMessageResponseItem { Property = jsonProperty.Name, Message = "The property does not exist on the request type" });
                 }
                 else
-                {                    
+                {
+                    requiredProperties.Remove(objProperty.Name); // Remove from the list as it has been supplied
                     var propErrors = CheckType(objProperty.PropertyType, jsonProperty);
                     errors.AddRange(propErrors);                    
                 }
             }
+
+            errors.AddRange(requiredProperties.Select(rp => new ErrorMessageResponseItem { Property = rp, Message = "This property is required but was not provided" }));
 
             return errors;
         }

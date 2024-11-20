@@ -1,6 +1,9 @@
 import {
   AttributeDefinition,
   AttributeValue,
+  AvailabilityCreatedEvent,
+  AvailabilitySession,
+  AvailabilityTemplate,
   Role,
   Site,
   SiteWithAttributes,
@@ -106,6 +109,79 @@ const mockUserProfile: UserProfile = {
   availableSites: mockSites,
 };
 
+const mockSession1: AvailabilitySession = {
+  from: '09:00',
+  until: '12:00',
+  services: ['RSV:Adult'],
+  capacity: 2,
+  slotLength: 5,
+};
+
+const mockSession2: AvailabilitySession = {
+  from: '13:00',
+  until: '17:30',
+  services: ['RSV:Adult'],
+  capacity: 2,
+  slotLength: 5,
+};
+
+const mockSession3: AvailabilitySession = {
+  from: '09:00',
+  until: '17:30',
+  services: ['RSV:Adult'],
+  capacity: 3,
+  slotLength: 10,
+};
+
+const mockTemplate1: AvailabilityTemplate = {
+  days: ['Monday', 'Tuesday'],
+  sessions: [mockSession1],
+};
+
+const mockTemplate2: AvailabilityTemplate = {
+  days: ['Thursday', 'Friday'],
+  sessions: [mockSession3],
+};
+
+const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
+  {
+    created: '2024-11-20T13:36:43.4680585Z',
+    by: mockUserProfile.emailAddress,
+    site: mockSite.id,
+    from: '2025-01-01',
+    to: '2024-02-28',
+    template: mockTemplate1,
+    sessions: undefined,
+  },
+  {
+    created: '2024-11-20T13:36:43.4680585Z',
+    by: mockUserProfile.emailAddress,
+    site: mockSite.id,
+    from: '2025-01-01',
+    to: undefined,
+    template: undefined,
+    sessions: [mockSession1],
+  },
+  {
+    created: '2024-11-20T13:36:43.4680585Z',
+    by: mockUserProfile.emailAddress,
+    site: mockSite.id,
+    from: '2025-03-01',
+    to: '2024-04-30',
+    template: mockTemplate2,
+    sessions: undefined,
+  },
+  {
+    created: '2024-11-20T13:36:43.4680585Z',
+    by: mockUserProfile.emailAddress,
+    site: mockSite.id,
+    from: '2025-02-16',
+    to: undefined,
+    template: undefined,
+    sessions: [mockSession3],
+  },
+];
+
 const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
@@ -118,6 +194,7 @@ const mockSiteWithAttributes: SiteWithAttributes = {
 
 export {
   getMockUserAssignments,
+  mockAvailabilityCreatedEvents,
   mockRoles,
   mockSite,
   mockSites,

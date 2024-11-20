@@ -1,16 +1,14 @@
 import { Button, Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { AvailabilityCreatedEvent, Site } from '@types';
+import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
 
 type Props = {
   site: Site;
-  availabilityCreated: AvailabilityCreatedEvent[];
 };
 
-export const CreateAvailabilityPage = async ({
-  site,
-  availabilityCreated,
-}: Props) => {
+export const CreateAvailabilityPage = async ({ site }: Props) => {
+  const availabilityCreated = await fetchAvailabilityCreatedEvents(site.id);
   const tableData = mapTableData(availabilityCreated);
 
   return (
@@ -34,7 +32,7 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
     return undefined;
   }
 
-  const headers = ['Dates', 'Created by', 'Days', 'Services', 'Session type'];
+  const headers = ['Dates', 'Days', 'Services', 'Session type'];
 
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {

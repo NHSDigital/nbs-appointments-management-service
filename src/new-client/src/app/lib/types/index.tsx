@@ -134,6 +134,8 @@ export type {
   AttributeDefinition,
   AttributeValue,
   AvailabilityCreatedEvent,
+  AvailabilitySession,
+  AvailabilityTemplate,
   DateComponents,
   ErrorType,
   Role,

@@ -45,8 +45,8 @@ public record AttendeeDetails(
 };
 
 public record ContactItem(
-    [JsonProperty("type")]
+    [property:JsonProperty("type", Required = Required.Always)]
     string Type,
-    [JsonProperty("value")]
+    [property:JsonProperty("value", Required = Required.Always)]
     string Value
     ) { }

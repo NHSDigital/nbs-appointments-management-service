@@ -44,7 +44,7 @@ public class BaseFeatureStepsTests
     }
 
     [Fact]
-    public void CanParseNaturalLanguageDates_WithYearss()
+    public void CanParseNaturalLanguageDates_WithYears()
     {
         var now = DateOnly.FromDateTime(DateTime.UtcNow);
         var result = BaseFeatureSteps.ParseNaturalLanguageDateOnly("1 year from today");
@@ -52,7 +52,7 @@ public class BaseFeatureStepsTests
         result.Year.Should().Be(now.Year + 1);
         result.Month.Should().Be(now.Month);
 
-        var is29thOfFeb = $"{now}:MM-dd" == "02-29";
+        var is29thOfFeb = $"{now:MM-dd}" == "02-29";
         if (is29thOfFeb)
         {
             result.Day.Should().Be(28);

@@ -4,15 +4,15 @@
     Given there is no existing availability
     When I apply the following availability template
       | From     | Until       | Days     | TimeFrom | TimeUntil | SlotLength | Capacity | Services |
-      | Tomorrow | Tomorrow_+2 | Relative | 09:00    | 10:00     | 5          | 1        | COVID    |
+      | Tomorrow | 3 days from today | Relative | 09:00    | 10:00     | 5          | 1        | COVID    |
     Then the request is successful and the following daily availability is created
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 10:00 | COVID    | 5           | 1        |
-      | Tomorrow_+1 | 09:00 | 10:00 | COVID    | 5           | 1        |
-      | Tomorrow_+2 | 09:00 | 10:00 | COVID    | 5           | 1        |
+      | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
+      | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following availability created events are created
       | Type     | By       | FromDate | ToDate      | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
-      | Template | api@test | Tomorrow | Tomorrow_+2 | Relative      | 09:00    | 10:00     | 5          | 1        | COVID    |
+      | Template | api@test | Tomorrow | 3 days from today | Relative      | 09:00    | 10:00     | 5          | 1        | COVID    |
 
   Scenario: Overwrites existing daily availability
     Given the following sessions

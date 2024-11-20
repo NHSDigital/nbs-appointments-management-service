@@ -19,7 +19,7 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
 
         object payload = new
         {
-            from = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
+            from = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
             site = GetSiteId(),

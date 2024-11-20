@@ -7,11 +7,7 @@ interface SitePageProps {
 }
 
 export const SitePage = ({ site, permissions }: SitePageProps) => {
-  // TODO: Improve this as we add more cards gated by permissions.
-  // We want to avoid rendering the card-group if there are no cards to show.
-  const permissionsRelevantToCards = permissions.filter(
-    p => p === 'users:view' || p === 'site:manage' || p === 'site:view',
-  );
+  // TODO: We want to avoid rendering the card-group if there are no cards to show.
 
   return (
     <>
@@ -22,14 +18,16 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
         </div>
       </div>
       <ul className="nhsuk-grid-row nhsuk-card-group">
-        <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-          <Card
-            href={`${site.id}/create-availability`}
-            title="Create availability"
-            description="Create and edit available dates and sessions for your site"
-          />
-        </li>
-        {permissionsRelevantToCards.includes('users:view') && (
+        {permissions.includes('availability:set-setup') && (
+          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <Card
+              href={`${site.id}/create-availability`}
+              title="Create availability"
+              description="Create and edit available dates and sessions for your site"
+            />
+          </li>
+        )}
+        {permissions.includes('users:view') && (
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`${site.id}/users`}
@@ -38,8 +36,8 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
             />
           </li>
         )}
-        {(permissionsRelevantToCards.includes('site:manage') ||
-          permissionsRelevantToCards.includes('site:view')) && (
+        {(permissions.includes('site:manage') ||
+          permissions.includes('site:view')) && (
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`${site.id}/details`}

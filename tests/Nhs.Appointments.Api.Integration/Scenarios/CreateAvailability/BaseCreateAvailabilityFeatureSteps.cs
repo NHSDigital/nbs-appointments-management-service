@@ -131,11 +131,11 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
             }
         };
 
-        var request = new ApplyAvailabilityTemplateRequest(site, fromDate.ToString("yyyy-MM-dd"), untilDate.ToString("yyyy-MM-dd"), template);
+        var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template);
         var payload = JsonResponseWriter.Serialize(request);
         _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
         _statusCode = _response.StatusCode;
-        _actualResponse = await JsonRequestReader.ReadRequestAsync<EmptyResponse>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<EmptyResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [When(@"I apply the following availability")]

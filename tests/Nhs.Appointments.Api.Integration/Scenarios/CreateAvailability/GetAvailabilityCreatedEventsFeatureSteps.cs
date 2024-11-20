@@ -26,7 +26,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
             _statusCode = _response.StatusCode;
             var content = await _response.Content.ReadAsStreamAsync();
 
-            _actualResponse = await JsonRequestReader.ReadRequestAsync<IEnumerable<AvailabilityCreatedEvent>>(content);
+            (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<AvailabilityCreatedEvent>>(content);
 
             _statusCode.Should().Be(HttpStatusCode.OK);
 

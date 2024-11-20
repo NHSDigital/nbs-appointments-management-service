@@ -43,20 +43,20 @@
         Given the following sessions
           | Date       | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow   | 09:00 | 09:30 | COVID    | 10          | 1        |
-          | Tomorrow_+1 | 10:30 | 11:00 | COVID    | 10          | 1        |
-          | Tomorrow_+2 | 09:00 | 09:30 | COVID    | 15          | 1        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow_+2'
+          | 2 days from today | 10:30 | 11:00 | COVID    | 10          | 1        |
+          | 3 days from today | 09:00 | 09:30 | COVID    | 15          | 1        |
+        When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 1     |
           | 09:10 | 09:20 | 1     |
           | 09:20 | 09:30 | 1     |
-        And the following availability is returned for 'Tomorrow_+1'
+        And the following availability is returned for '2 days from today'
           | From  | Until | Count |
           | 10:30 | 10:40 | 1     |
           | 10:40 | 10:50 | 1     |
           | 10:50 | 11:00 | 1     |
-        And the following availability is returned for 'Tomorrow_+2'
+        And the following availability is returned for '3 days from today'
           | From  | Until | Count |
           | 09:00 | 09:15 | 1     |
           | 09:15 | 09:30 | 1     |

@@ -14,6 +14,8 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Reference))
             .ForMember(x => x.NhsNumber, opt => opt.MapFrom(src => src.AttendeeDetails.NhsNumber));
 
+        CreateMap<AvailabilityCreatedEventDocument, AvailabilityCreatedEvent>()
+            .ForAllMembers(opt => opt.AllowNull());
         CreateMap<BookingDocument, Booking>();        
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Core.RoleAssignment, Models.RoleAssignment>();

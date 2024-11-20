@@ -41,6 +41,16 @@ type ApplyAvailabilityTemplateRequest = {
   template: AvailabilityTemplate;
 };
 
+type AvailabilityCreatedEvent = {
+  created: string;
+  by: string;
+  site: string;
+  from: string;
+  to?: string;
+  template?: AvailabilityTemplate;
+  sessions?: AvailabilitySession[];
+};
+
 type SetAvailabilityRequest = {
   site: string;
   date: string;
@@ -123,6 +133,7 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  AvailabilityCreatedEvent,
   DateComponents,
   ErrorType,
   Role,

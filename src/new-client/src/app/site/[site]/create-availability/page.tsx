@@ -1,6 +1,10 @@
 import NhsPage from '@components/nhs-page';
 import { CreateAvailabilityPage } from './create-availability-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchAvailabilityCreatedEvents,
+  fetchSite,
+} from '@services/appointmentsService';
 
 type PageProps = {
   params: {
@@ -13,6 +17,8 @@ const Page = async ({ params }: PageProps) => {
 
   await assertPermission(site.id, 'availability:set-setup');
 
+  const availabilityCreated = await fetchAvailabilityCreatedEvents(site.id);
+
   return (
     <NhsPage
       title="Create availability"
@@ -22,7 +28,10 @@ const Page = async ({ params }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
       ]}
     >
-      <CreateAvailabilityPage site={site} />
+      <CreateAvailabilityPage
+        site={site}
+        availabilityCreated={availabilityCreated}
+      />
     </NhsPage>
   );
 };

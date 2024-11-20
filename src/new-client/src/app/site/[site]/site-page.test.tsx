@@ -75,6 +75,7 @@ describe('Site Page', () => {
     ).not.toBeInTheDocument();
   });
 
+  // TODO: Maybe parameterise these tests over permission/card pairs
   it('shows the create availability page if the user may see it', () => {
     const mockSite = mockSites[0];
 

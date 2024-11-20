@@ -17,7 +17,7 @@ public static class DateTimeFormats
 
 public static class JsonRequestReader
 {
-    public static async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync<TRequest>(Stream requestStream)
+    public static async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync<TRequest>(Stream requestStream, bool checkSchemaFirst = false)
     {
         var deserializerSettings = new JsonSerializerSettings
         {
@@ -32,6 +32,13 @@ public static class JsonRequestReader
 
         };
         var body = await new StreamReader(requestStream).ReadToEndAsync();
+
+        if(checkSchemaFirst)
+        {
+            var schemaErrors = JsonToObjectSchemaValidation.ValidateConversion<TRequest>(body);
+            if(schemaErrors.Any())
+                return (schemaErrors, default(TRequest));
+        }
 
         try
         {

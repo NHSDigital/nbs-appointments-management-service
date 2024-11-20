@@ -17,7 +17,7 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
     public async Task ConfirmBooking()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", new StringContent(""));
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", null);
     }
 
     [When("the provisional bookings are cleaned up")]

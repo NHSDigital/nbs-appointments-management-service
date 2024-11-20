@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Json;
 using System.Text.Json;
 
@@ -367,6 +368,15 @@ namespace Nhs.Appointments.Api.Tests.Json
             results.Count.Should().Be(0);            
         }
 
+        [Fact]
+        public void ValidateConversion_ReturnsErrors_WhenRequiredPropertyIsNotProvided()
+        {
+            var results = JsonToObjectSchemaValidation.ValidateConversion<ClassWithRequiredProperty>("{}");
+            results.Count.Should().Be(1);
+            results[0].Property.Should().Be("MyProp");
+            results[0].Message.Should().Be("This property is required but was not provided");
+        }
+
         public class ClassWithDateTimeProperty
         {
             public DateTime MyProp { get; set; }
@@ -422,6 +432,12 @@ namespace Nhs.Appointments.Api.Tests.Json
         public class ClassWithDyamicProperty
         {
             public Object DynamicProp { get; set; }
+        }
+
+        public class ClassWithRequiredProperty
+        {
+            [JsonProperty(Required = Required.Always)]
+            public string MyProp { get; set; }
         }
     }
 }

@@ -67,11 +67,11 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     {
         var contactDetails = new ContactItem[] { };
         var bookingToReschedule = string.Empty;
-        if (req.Body != null)
+        if (req.Body != null && req.Body.Length > 0)
         {
-            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<ConfirmBookingRequestPayload>(req.Body);
+            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<ConfirmBookingRequestPayload>(req.Body, true);
             if (errors.Any())
-                return (errors, null);            
+                return (errors, null);
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
         }

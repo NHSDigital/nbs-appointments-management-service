@@ -99,4 +99,14 @@ describe('Site Page', () => {
       screen.queryByRole('link', { name: 'Create Availability' }),
     ).not.toBeInTheDocument();
   });
+
+  it('does not show any cards when if the user may not see any of them', () => {
+    const mockSite = mockSites[0];
+
+    render(
+      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+    );
+
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
 });

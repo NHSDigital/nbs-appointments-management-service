@@ -7,7 +7,13 @@ interface SitePageProps {
 }
 
 export const SitePage = ({ site, permissions }: SitePageProps) => {
-  // TODO: We want to avoid rendering the card-group if there are no cards to show.
+  const permissionsRelevantToCards = permissions.filter(
+    p =>
+      p === 'users:view' ||
+      p === 'site:manage' ||
+      p === 'site:view' ||
+      p === 'availability:set-setup',
+  );
 
   return (
     <>
@@ -17,36 +23,38 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
           <p className="nhsuk-card__description">{site.address}</p>
         </div>
       </div>
-      <ul className="nhsuk-grid-row nhsuk-card-group">
-        {permissions.includes('availability:set-setup') && (
-          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-            <Card
-              href={`${site.id}/create-availability`}
-              title="Create availability"
-              description="Create and edit available dates and sessions for your site"
-            />
-          </li>
-        )}
-        {permissions.includes('users:view') && (
-          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-            <Card
-              href={`${site.id}/users`}
-              title="User management"
-              description="Assign roles to users to give them access to features at this site"
-            />
-          </li>
-        )}
-        {(permissions.includes('site:manage') ||
-          permissions.includes('site:view')) && (
-          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-            <Card
-              href={`${site.id}/details`}
-              title="Site management"
-              description="Assign accessibility attributes to this site"
-            />
-          </li>
-        )}
-      </ul>
+      {permissionsRelevantToCards.length > 0 && (
+        <ul className="nhsuk-grid-row nhsuk-card-group">
+          {permissions.includes('availability:set-setup') && (
+            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+              <Card
+                href={`${site.id}/create-availability`}
+                title="Create availability"
+                description="Create and edit available dates and sessions for your site"
+              />
+            </li>
+          )}
+          {permissions.includes('users:view') && (
+            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+              <Card
+                href={`${site.id}/users`}
+                title="User management"
+                description="Assign roles to users to give them access to features at this site"
+              />
+            </li>
+          )}
+          {(permissions.includes('site:manage') ||
+            permissions.includes('site:view')) && (
+            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+              <Card
+                href={`${site.id}/details`}
+                title="Site management"
+                description="Assign accessibility attributes to this site"
+              />
+            </li>
+          )}
+        </ul>
+      )}
     </>
   );
 };

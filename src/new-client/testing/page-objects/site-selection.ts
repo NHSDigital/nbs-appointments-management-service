@@ -9,7 +9,7 @@ export default class SiteSelectionPage extends RootPage {
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'Appointment Management Service',
+      name: 'Manage your appointments',
     });
     this.siteSelectionCardHeading = page.getByRole('heading', {
       name: 'Choose a site',

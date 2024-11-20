@@ -10,7 +10,7 @@ import { Metadata } from 'next/types';
 // TODO: Get a brief for what titles/description should be on each page
 // Could use the generateMetadata function to dynamically generate this, to include site names / other dynamic content
 export const metadata: Metadata = {
-  title: 'Appointment Management Service - Site',
+  title: 'Manage your appointments - Site',
   description: 'Manage appointments at this site',
 };
 

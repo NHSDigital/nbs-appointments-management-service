@@ -168,10 +168,10 @@ public abstract partial class BaseFeatureSteps : Feature
             "day" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset),
             "weeks" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
             "week" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
-            "months" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 28),
-            "month" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 28),
-            "years" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 365),
-            "year" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 365),
+            "months" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
+            "month" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
+            "years" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
+            "year" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
             _ => throw new FormatException("Error parsing natural language date regex")
         };
     }

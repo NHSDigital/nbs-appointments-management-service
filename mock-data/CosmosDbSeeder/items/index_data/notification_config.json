@@ -64,20 +64,20 @@
     },
     {
       "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
-      "emailTemplate": "",
-      "smsTemplate": "",
+      "emailTemplate": "8d8ffe21-d995-49d5-89b0-3e3f5a7d8e9a",
+      "smsTemplate": "72d8ba78-e3a7-454a-9540-fc42278a9706",
       "eventType": "BookingRescheduled"
     },
     {
       "services": [ "FLU:18_64", "FLU:65" ],
-      "emailTemplate": "",
-      "smsTemplate": "",
+      "emailTemplate": "679e3760-6dd2-4076-8ee5-0799517fa9ca",
+      "smsTemplate": "0a4bb160-0ab7-4acc-b66d-57256a9d5973",
       "eventType": "BookingRescheduled"
     },
     {
       "services": [ "COVID_FLU:18_64", "COVID_FLU:65_74", "COVID_FLU:75" ],
-      "emailTemplate": "",
-      "smsTemplate": "",
+      "emailTemplate": "cab0fdf2-d631-4a2f-a2fb-09cfe7e77080",
+      "smsTemplate": "f89fb975-7491-492e-907d-29caa52e40f5",
       "eventType": "BookingRescheduled"
     },
     {

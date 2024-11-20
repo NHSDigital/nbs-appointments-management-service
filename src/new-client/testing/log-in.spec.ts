@@ -56,7 +56,7 @@ test('User visits the site origin, signs in, then signs out again', async ({
   await siteSelectionPage.logOutButton.click();
 
   await expect(
-    page.getByRole('heading', { name: 'Appointment Management Service' }),
+    page.getByRole('heading', { name: 'Manage your appointments' }),
   ).toBeVisible();
 
   await expect(

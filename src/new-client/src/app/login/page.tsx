@@ -10,7 +10,7 @@ export type LoginPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: 'Appointment Management Service',
+  title: 'Manage your appointments',
   description: 'A National Booking Service site for managing NHS appointments',
 };
 
@@ -18,7 +18,7 @@ const Page = async ({ searchParams }: LoginPageProps) => {
   const redirectUrl = searchParams?.redirectUrl ?? '/';
   return (
     <NhsAnonymousPage
-      title="Appointment Management Service"
+      title="Manage your appointments"
       headerAuthComponent={NhsHeaderLogIn({ redirectUrl })}
     >
       <p>

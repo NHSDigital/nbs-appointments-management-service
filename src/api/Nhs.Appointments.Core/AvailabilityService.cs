@@ -34,11 +34,14 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
-    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site)
+    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from)
     {
         var events = await availabilityCreatedEventStore.GetAvailabilityCreatedEvents(site);
 
-        return events.OrderBy(e => e.From).ThenBy(e => e.To);
+        return events
+            .Where(acEvent => (acEvent.To ?? acEvent.From) >= from)
+            .OrderBy(e => e.From)
+            .ThenBy(e => e.To);
     }
 
     public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions)

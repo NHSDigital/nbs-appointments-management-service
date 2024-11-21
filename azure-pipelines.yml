@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int"]
+    default: ["exp"]
 
 variables:
   serviceConnectionName: "nbs-mya-rg-dev"

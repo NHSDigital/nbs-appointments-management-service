@@ -21,6 +21,7 @@ class Program
 
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
         var cosmosToken = configuration["COSMOS_TOKEN"];
+        var environment = configuration["ENVIRONMENT"];
         var databaseName = configuration["CosmosSettings:DatabaseName"];
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
 
@@ -36,7 +37,9 @@ class Program
         foreach (var container in containers)
         {
             await DeleteContainers(container.Name);
-            await AddItemsToContainerAsync(container.Name, container.PartitionKey);
+            if (environment != null)
+                await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
+            else Console.WriteLine("Environment was not provided");
         }
 
         Console.WriteLine("Database seeded successfully");
@@ -88,14 +91,14 @@ class Program
         return response.Container;
     }
 
-    private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath)
+    private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath, string environment)
     {
         var container = await CreateContainerAsync(containerName, partitionKeyPath);
 
-        var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{containerName}");
+        var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}");
         if(Directory.Exists(folderPath))
         {
-            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{containerName}"), "*.json");
+            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}"), "*.json");
 
             foreach (var file in jsonFiles)
             {

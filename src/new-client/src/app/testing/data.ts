@@ -160,7 +160,7 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
     from: '2025-01-01',
     to: undefined,
     template: undefined,
-    sessions: [mockSession1],
+    sessions: [mockSession2],
   },
   {
     created: '2024-11-20T13:36:43.4680585Z',

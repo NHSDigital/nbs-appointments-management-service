@@ -1,15 +1,17 @@
 import { Button, Table } from '@nhsuk-frontend-components';
 import Link from 'next/link';
-import { AvailabilityCreatedEvent, Site } from '@types';
+import { AvailabilityCreatedEvent, Site, clinicalServices } from '@types';
 import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
+import { getDayOfWeek, parseDateString } from '@services/timeService';
 
 type Props = {
   site: Site;
 };
 
 export const CreateAvailabilityPage = async ({ site }: Props) => {
-  const availabilityCreated = await fetchAvailabilityCreatedEvents(site.id);
-  const tableData = mapTableData(availabilityCreated);
+  const response = await fetchAvailabilityCreatedEvents(site.id);
+
+  const tableData = mapTableData(response);
 
   return (
     <>
@@ -37,21 +39,49 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {
       return [
-        `${availability.from} - ${availability.to}`,
-        availability.by,
-        availability.template.days.join(', '),
-        availability.template.sessions[0].services,
-        'Repeat',
+        `${parseDateString(availability.from).format('D MMMM YYYY')} - ${parseDateString(availability.to ?? '').format('D MMMM YYYY')}`, //.format('D MMMM YYYY')
+        availability.template.days.map(dayToShortName).join(', '),
+        availability.template.sessions[0].services
+          .map(serviceValueToLabel)
+          .join(', '),
+        'Weekly repeating',
       ];
     }
     return [
-      availability.from,
-      availability.by,
-      'N/A',
-      availability.sessions ? availability.sessions[0].services : 'Error',
-      'Single',
+      parseDateString(availability.from).format('D MMMM YYYY'),
+      getDayOfWeek(parseDateString(availability.from)),
+      availability.sessions
+        ? availability.sessions[0].services.map(serviceValueToLabel)
+        : 'Error',
+      'Single date',
     ];
   });
 
   return { headers, rows };
+};
+
+const dayToShortName = (day: string) => {
+  switch (day) {
+    case 'Monday':
+      return 'Mon';
+    case 'Tuesday':
+      return 'Tue';
+    case 'Wednesday':
+      return 'Wed';
+    case 'Thursday':
+      return 'Thu';
+    case 'Friday':
+      return 'Fri';
+    case 'Saturday':
+      return 'Sat';
+    case 'Sunday':
+      return 'Sun';
+    default:
+      return day;
+  }
+};
+
+const serviceValueToLabel = (serviceValue: string) => {
+  const service = clinicalServices.find(s => s.value === serviceValue);
+  return service?.label;
 };

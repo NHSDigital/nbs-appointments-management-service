@@ -126,6 +126,9 @@ type Session = {
   services: string[];
 };
 
+// TODO: Decide where this info should live and move it there
+const clinicalServices = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -150,4 +153,4 @@ export type {
   UserProfile,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek };
+export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

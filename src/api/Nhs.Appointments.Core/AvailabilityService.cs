@@ -38,7 +38,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
     {
         var events = await availabilityCreatedEventStore.GetAvailabilityCreatedEvents(site);
 
-        return events;
+        return events.OrderBy(e => e.From).ThenBy(e => e.To);
     }
 
     public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions)

@@ -25,9 +25,6 @@ type Props = {
   site: Site;
 };
 
-// TODO: Decide where this info should live and move it there
-export const services = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
-
 export const handlePositiveBoundedNumberInput = (
   e: ChangeEvent<HTMLInputElement>,
   upperBound: number,

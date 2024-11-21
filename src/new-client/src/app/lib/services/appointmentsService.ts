@@ -1,5 +1,5 @@
 'use server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import {
   AttributeDefinition,
@@ -10,6 +10,7 @@ import {
   User,
   UserProfile,
   SetAvailabilityRequest,
+  AvailabilityCreatedEvent,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -82,6 +83,17 @@ export async function fetchPermissions(site: string) {
   );
 
   return handleBodyResponse(response).permissions;
+}
+
+export async function fetchAvailabilityCreatedEvents(site: string) {
+  const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
+    `availability-created?site=${site}`,
+    {
+      next: { tags: ['availability-created'] },
+    },
+  );
+
+  return handleBodyResponse(response);
 }
 
 export async function assertPermission(site: string, permission: string) {
@@ -230,6 +242,8 @@ export const applyAvailabilityTemplate = async (
 
   handleEmptyResponse(response);
 
+  revalidateTag('availability-created');
+
   const notificationType = 'ams-notification';
   const notificationMessage =
     'You have successfully created availability for the current site.';
@@ -246,6 +260,8 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
   );
 
   handleEmptyResponse(response);
+
+  revalidateTag('availability-created');
 
   const notificationType = 'ams-notification';
   const notificationMessage =

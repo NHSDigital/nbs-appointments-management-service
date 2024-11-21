@@ -16,7 +16,8 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+#    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: succeeded()
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -128,4 +129,24 @@ stages:
               appType: "functionApp"
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
-              deploymentMethod: "auto"
+              deploymentMethod: "auto"              
+      - job: UploadCosmosDocuments
+        displayName: "Upload documents to cosmosdb"
+        variables:
+          cosmosAccountName: nbs-mya-cdb-${{parameters.env}}-uks
+          environment: ${{parameters.env}}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+              arguments: '$(environment) $(cosmosAccountName)'
+          - task: DotNetCoreCLI@2
+            displayName: "Seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"

@@ -7,12 +7,10 @@ import {
   FormGroup,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
-import {
-  CreateAvailabilityFormValues,
-  services,
-} from './availability-template-wizard';
+import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
+import { clinicalServices } from '@types';
 
 const SelectServicesStep = ({
   goToNextStep,
@@ -66,7 +64,7 @@ const SelectServicesStep = ({
 
       <FormGroup error={errors.session?.services?.message}>
         <CheckBoxes>
-          {services.map(service => (
+          {clinicalServices.map(service => (
             <CheckBox
               id={`checkbox-${service.value.toLowerCase()}`}
               label={service.label}
@@ -83,7 +81,7 @@ const SelectServicesStep = ({
                 if ((servicesWatch ?? []).includes(service.value)) {
                   setValue(
                     'session.services',
-                    services
+                    clinicalServices
                       .filter(s => s.value !== service.value)
                       .map(_ => _.value),
                   );

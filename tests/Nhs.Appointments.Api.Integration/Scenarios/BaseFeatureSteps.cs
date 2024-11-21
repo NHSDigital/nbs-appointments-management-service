@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
@@ -18,7 +19,7 @@ using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
-public abstract class BaseFeatureSteps : Feature
+public abstract partial class BaseFeatureSteps : Feature
 {
     private const string ApiSigningKey = "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
     protected const string AppointmentsApiUrl = "http://localhost:7071/api";
@@ -28,7 +29,6 @@ public abstract class BaseFeatureSteps : Feature
     private readonly Guid _testId = Guid.NewGuid();
     private string _nhsNumber = CreateRandomTenCharacterString();
     private readonly BookingReferenceManager _bookingReferenceManager = new();
-        
     protected string NhsNumber => _nhsNumber;
 
     public BaseFeatureSteps()
@@ -87,8 +87,7 @@ public abstract class BaseFeatureSteps : Feature
     public async Task SetupSessions(string siteDesignation, Gherkin.Ast.DataTable dataTable)
     {
         var site = GetSiteId(siteDesignation);
-        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable); 
-        
+        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable);
         foreach (var document in availabilityDocuments)
         {
             await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
@@ -100,7 +99,6 @@ public abstract class BaseFeatureSteps : Feature
     {
         _nhsNumber = nhsNumber;
     }
-    
     protected string EvaluateNhsNumber(string nhsNumber)
     {
         return nhsNumber == "*" ? NhsNumber : nhsNumber;
@@ -110,8 +108,8 @@ public abstract class BaseFeatureSteps : Feature
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
-            Date = DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value),
+            Id = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -137,28 +135,54 @@ public abstract class BaseFeatureSteps : Feature
         });
     }
 
-    protected DateOnly DeriveRelativeDateOnly(string dateString)
+    public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
     {
-        var components = dateString.Split('_');
-        var date = components[0] switch
+        var match = NaturalLanguageRelativeDate().Match(dateString);
+        if (!match.Success)
         {
-            "Tomorrow" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1),
-            "Yesterday" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1),
-            "Today" => DateOnly.FromDateTime(DateTime.UtcNow),
-            _ => DateOnly.FromDateTime(DateTime.UtcNow)
-        };
-
-        if (components.Length > 1)
-        {
-            var offset = int.Parse(components[1]);
-            date = date.AddDays(offset);
+            throw new FormatException("Date string not recognised.");
         }
 
-        return date;
+        var format = match.Groups["format"].Value;
+        switch (format)
+        {
+            case "Tomorrow":
+            case "tomorrow":
+                return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
+            case "Yesterday":
+            case "yesterday":
+                return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
+            case "Today":
+            case "today":
+                return DateOnly.FromDateTime(DateTime.UtcNow);
+        }
+
+        var period = match.Groups["period"].Value;
+        var direction = match.Groups["direction"].Value;
+        var magnitude = match.Groups["magnitude"].Value;
+
+        var offset = direction == "from" ? int.Parse(magnitude) : int.Parse(magnitude) * -1;
+        return period switch
+        {
+            "days" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset),
+            "day" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset),
+            "weeks" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
+            "week" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
+            "months" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
+            "month" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
+            "years" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
+            "year" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
+            _ => throw new FormatException("Error parsing natural language date regex")
+        };
     }
 
-    protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly endDate)
+    protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly? endDate)
     {
+        if (endDate is null)
+        {
+            return string.Empty;
+        }
+
         if (startDate.AddDays(7) <= endDate)
         {
             return "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday";
@@ -207,7 +231,7 @@ public abstract class BaseFeatureSteps : Feature
             Id = BookingReferences.GetBookingReference(index, bookingType),
             DocumentType = "booking",
             Reference = BookingReferences.GetBookingReference(index, bookingType),
-            From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+            From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
@@ -242,7 +266,7 @@ public abstract class BaseFeatureSteps : Feature
                 NhsNumber = NhsNumber,
                 Provisional = bookingType != BookingType.Confirmed,
                 Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
-                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
         foreach (var booking in bookings)
@@ -263,7 +287,7 @@ public abstract class BaseFeatureSteps : Feature
         else
             return pattern.Split(",").Select(d => Enum.Parse(typeof(DayOfWeek), d, true)).Cast<DayOfWeek>().ToArray();
     }
-    
+
     private static string CreateRandomTenCharacterString()
     {
         var random = new Random();
@@ -374,6 +398,9 @@ public abstract class BaseFeatureSteps : Feature
     }
 
     public enum BookingType { Confirmed, Provisional, ExpiredProvisional}
+
+    [GeneratedRegex("^(?<format>Today|today|Tomorrow|tomorrow|Yesterday|yesterday|(((?<magnitude>[0-9]+) (?<period>days|day|weeks|week|months|month|years|year) (?<direction>from|before) (now|today))))$")]
+    private static partial Regex NaturalLanguageRelativeDate();
 }
 
 public class BookingReferenceManager

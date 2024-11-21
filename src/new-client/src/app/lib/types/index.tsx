@@ -41,6 +41,16 @@ type ApplyAvailabilityTemplateRequest = {
   template: AvailabilityTemplate;
 };
 
+type AvailabilityCreatedEvent = {
+  created: string;
+  by: string;
+  site: string;
+  from: string;
+  to?: string;
+  template?: AvailabilityTemplate;
+  sessions?: AvailabilitySession[];
+};
+
 type SetAvailabilityRequest = {
   site: string;
   date: string;
@@ -148,6 +158,9 @@ type Week = {
   endMonth: string;
 };
 
+// TODO: Decide where this info should live and move it there
+const clinicalServices = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -158,6 +171,9 @@ export type {
   Availability,
   AvailabilityBlock,
   AvailabilityResponse,
+  AvailabilityCreatedEvent,
+  AvailabilitySession,
+  AvailabilityTemplate,
   DateComponents,
   ErrorType,
   FetchAvailabilityRequest,
@@ -174,4 +190,4 @@ export type {
   Week,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek };
+export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

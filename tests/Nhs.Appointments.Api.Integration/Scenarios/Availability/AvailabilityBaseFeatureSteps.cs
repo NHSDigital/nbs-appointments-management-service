@@ -35,8 +35,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service,
-            from=DeriveRelativeDateOnly(from),
-            until=DeriveRelativeDateOnly(until),
+            from=ParseNaturalLanguageDateOnly(from),
+            until=ParseNaturalLanguageDateOnly(until),
             queryType = convertedQueryType.ToString()
         };
             
@@ -49,7 +49,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     [And(@"the following availability is returned for '(.+)'")]
     public async Task Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
     {
-        var expectedDate = DeriveRelativeDateOnly(date);
+        var expectedDate = ParseNaturalLanguageDateOnly(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
             new QueryAvailabilityResponseBlock(
                 TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "HH:mm"),
@@ -74,8 +74,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service = "",
-            from = DeriveRelativeDateOnly("Tomorrow"),
-            until = DeriveRelativeDateOnly("Tomorrow")
+            from = ParseNaturalLanguageDateOnly("Tomorrow"),
+            until = ParseNaturalLanguageDateOnly("Tomorrow")
         };
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }

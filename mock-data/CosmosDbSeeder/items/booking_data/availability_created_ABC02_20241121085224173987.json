@@ -1,0 +1,22 @@
+{
+  "created": "2024-11-21T08:52:24.1740713Z",
+  "by": "cc.agent@nhs.net",
+  "template": {
+    "days": ["Monday", "Wednesday", "Friday", "Sunday"],
+    "sessions": [
+      {
+        "from": "09:00",
+        "until": "17:30",
+        "services": ["RSV:Adult"],
+        "slotLength": 10,
+        "capacity": 5
+      }
+    ]
+  },
+  "from": "2025-07-01",
+  "to": "2025-08-05",
+  "sessions": null,
+  "site": "ABC02",
+  "id": "availability_created_ABC02_20241121085224173987",
+  "docType": "availability_created_event"
+}

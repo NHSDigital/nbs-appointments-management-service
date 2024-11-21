@@ -1,11 +1,26 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { CreateAvailabilityPage } from './create-availability-page';
-import { mockSite } from '@testing/data';
+import { mockAvailabilityCreatedEvents, mockSite } from '@testing/data';
+import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
+import { AvailabilityCreatedEvent } from '@types';
+
+jest.mock('@services/appointmentsService');
+const fetchAvailabilityCreatedEventsMock =
+  fetchAvailabilityCreatedEvents as jest.Mock<
+    Promise<AvailabilityCreatedEvent[]>
+  >;
 
 describe('Create Availability Page', () => {
+  beforeEach(() => {
+    fetchAvailabilityCreatedEventsMock.mockResolvedValue(
+      mockAvailabilityCreatedEvents,
+    );
+  });
   it('renders', async () => {
-    const jsx = await CreateAvailabilityPage({ site: mockSite });
+    const jsx = await CreateAvailabilityPage({
+      site: mockSite,
+    });
 
     render(jsx);
 
@@ -16,33 +31,54 @@ describe('Create Availability Page', () => {
     ).toBeInTheDocument;
   });
 
-  // TODO: Re-implement this once this page has gone back through design
-  it.skip('renders a table of availability periods', async () => {
-    const jsx = await CreateAvailabilityPage({ site: mockSite });
+  it('renders a table of availability periods', async () => {
+    const jsx = await CreateAvailabilityPage({
+      site: mockSite,
+    });
 
     render(jsx);
 
-    // expect(fetchAvailabilityPeriodsMock).toHaveBeenCalledWith(mockSite.id);
+    expect(fetchAvailabilityCreatedEventsMock).toHaveBeenCalledWith(
+      mockSite.id,
+    );
     expect(screen.getByRole('table')).toBeInTheDocument();
 
-    const columns = ['Dates', 'Services', 'Status', 'Actions'];
+    const columns = ['Dates', 'Days', 'Services', 'Session type'];
     columns.forEach(column => {
       screen.getByRole('columnheader', { name: column });
     });
 
-    expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+
     expect(
-      screen.getByRole('cell', { name: '21 Apr 2025 - 15 Jun 2025' }),
-    ).toBeInTheDocument();
+      screen.getByRole('row', {
+        name: '1 January 2024 - 28 February 2024 Mon, Tue RSV (Adult) Weekly repeating',
+      }),
+    );
+
     expect(
-      screen.getByRole('cell', { name: '15 Jun 2025 - 05 Oct 2025' }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('strong')).toHaveLength(2);
-    expect(screen.getAllByRole('link', { name: 'Edit' })).toHaveLength(2);
+      screen.getByRole('row', {
+        name: '1 January 2025 Wed RSV (Adult) Single date',
+      }),
+    );
+
+    expect(
+      screen.getByRole('row', {
+        name: '1 March 2024 - 30 April 2024 Thu, Fri RSV (Adult) Weekly repeating',
+      }),
+    );
+
+    expect(
+      screen.getByRole('row', {
+        name: '16 February 2025 Sun RSV (Adult) Single date',
+      }),
+    );
   });
 
   it('renders a button to create more availability periods', async () => {
-    const jsx = await CreateAvailabilityPage({ site: mockSite });
+    const jsx = await CreateAvailabilityPage({
+      site: mockSite,
+    });
 
     render(jsx);
 

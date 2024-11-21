@@ -48,13 +48,31 @@ describe('Create Availability Page', () => {
       screen.getByRole('columnheader', { name: column });
     });
 
-    expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+
     expect(
-      screen.getByRole('cell', { name: '2025-01-01' }),
-    ).toBeInTheDocument();
+      screen.getByRole('row', {
+        name: '1 January 2024 - 28 February 2024 Mon, Tue RSV (Adult) Weekly repeating',
+      }),
+    );
+
     expect(
-      screen.getByRole('cell', { name: '2025-03-01 - 2024-04-30' }),
-    ).toBeInTheDocument();
+      screen.getByRole('row', {
+        name: '1 January 2025 Wed RSV (Adult) Single date',
+      }),
+    );
+
+    expect(
+      screen.getByRole('row', {
+        name: '1 March 2024 - 30 April 2024 Thu, Fri RSV (Adult) Weekly repeating',
+      }),
+    );
+
+    expect(
+      screen.getByRole('row', {
+        name: '16 February 2025 Sun RSV (Adult) Single date',
+      }),
+    );
   });
 
   it('renders a button to create more availability periods', async () => {

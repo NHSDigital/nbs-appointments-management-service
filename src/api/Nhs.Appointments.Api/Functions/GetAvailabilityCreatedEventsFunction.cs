@@ -43,12 +43,12 @@ namespace Nhs.Appointments.Api.Functions;
             var errors = new List<ErrorMessageResponseItem>();
             if (!req.Query.TryGetValue("site", out var site))
             {
-                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing site parameter from query" });
+                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing site parameter from query", Property = nameof(GetAvailabilityCreatedEventsRequest.Site)});
             }
 
             if (!req.Query.TryGetValue("from", out var from))
             {
-                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing from parameter from query" });
+                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing from parameter from query", Property = nameof(GetAvailabilityCreatedEventsRequest.From) });
             }
 
             var parsedRequest = new GetAvailabilityCreatedEventsRequest(site, from);

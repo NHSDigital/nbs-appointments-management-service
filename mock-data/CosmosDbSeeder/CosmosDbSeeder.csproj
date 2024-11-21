@@ -21,6 +21,9 @@
       <None Update="items\index_data\*">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="items\booking_data\*">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

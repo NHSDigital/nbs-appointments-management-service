@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 
@@ -23,7 +24,7 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
             site = GetSiteId(),
-            provisional = true,
+            kind = "provisional",
             attendeeDetails = new
             {
                 nhsNumber = EvaluateNhsNumber(cells.ElementAt(4).Value),
@@ -37,20 +38,21 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
     }
     
     [And(@"the original booking has been '(\w+)'")]
-    public Task AssertRescheduledBookingOutcome(string outcome)
+    public Task AssertRescheduledBookingStatus(string outcome)
     {
-        return AssertBookingOutcome(outcome);
+        return AssertBookingStatus(outcome);
     }
     
     [Then(@"the booking has been '(\w+)'")]
-    public async Task AssertBookingOutcome(string outcome)
-    { 
+    public async Task AssertBookingStatus(string outcome)
+    {
+        var expectedOutcome = Enum.Parse<AppointmentStatus>(outcome);
         Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var actualResult = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
-        actualResult.Resource.Outcome.Should().BeEquivalentTo(outcome);
+        actualResult.Resource.Status.Should().Be(expectedOutcome);
     }
     
     [Then(@"the call should fail with (\d*)")]

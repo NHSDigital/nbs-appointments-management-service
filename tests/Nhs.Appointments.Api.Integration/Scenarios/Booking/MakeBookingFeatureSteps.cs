@@ -29,7 +29,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 duration = cells.ElementAt(2).Value,
                 service = cells.ElementAt(3).Value,
                 site = GetSiteId(),
-                provisional = false,
+                kind = "booked",
                 attendeeDetails = new
                 {
                     nhsNumber = cells.ElementAt(4).Value,
@@ -68,9 +68,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(cells.ElementAt(2).Value),
                 Service = cells.ElementAt(3).Value,
-                Outcome = null,
+                Status = isProvisional ? Core.AppointmentStatus.Provisional : Core.AppointmentStatus.Booked,
                 Created = DateTime.UtcNow,
-                Provisional = isProvisional,
                 AttendeeDetails = new AttendeeDetails()
                 {
                     NhsNumber = cells.ElementAt(4).Value,

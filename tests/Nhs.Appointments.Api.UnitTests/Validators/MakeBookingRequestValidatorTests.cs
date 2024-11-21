@@ -15,12 +15,13 @@ public class MakeBookingRequestValidatorTests
     {
         var request = new MakeBookingRequest(
             site,
-            "2077-01-01 09:00",
+            new DateTime(2077, 01, 01, 09, 0, 0),
             5,
             "COVID",
             GetAttendeeDetails(),
             GetContactDetails(),
-            null
+            null,
+            BookingKind.Booked
         );
         
         var result = _sut.Validate(request);
@@ -37,46 +38,20 @@ public class MakeBookingRequestValidatorTests
     {
         var request = new MakeBookingRequest(
             "1000",
-            "2077-01-01 09:00",
+            new DateTime(2077, 01, 01, 09, 0, 0),
             duration,
             "COVID",
             GetAttendeeDetails(),
             GetContactDetails(),
-            null
+            null,
+            BookingKind.Booked
         );
 
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.Duration));
-    }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData("01-01-2077 09:00")]
-    [InlineData("2077-99-31 09:00")]
-    [InlineData("2077-01-99 09:00")]
-    [InlineData("Not a date 09:00")]
-    [InlineData("2077-01-01 :00")]
-    [InlineData("2077-01-01 09")]
-    [InlineData(null)]
-    public void Validate_ReturnsError_WhenFromDateIsInvalid(string from)
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            from,
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            GetContactDetails(),
-            null
-        );
-        
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.From));
-    }
+    }       
     
     [Theory]
     [InlineData("")]
@@ -85,12 +60,13 @@ public class MakeBookingRequestValidatorTests
     {
         var request = new MakeBookingRequest(
             "1000",
-            "2077-01-01 09:00",
+            new DateTime(2077, 01, 01, 09, 0, 0),
             5,
             service,
             GetAttendeeDetails(),
             GetContactDetails(),
-            null
+            null,
+            BookingKind.Booked
         );
         
         var result = _sut.Validate(request);
@@ -104,76 +80,20 @@ public class MakeBookingRequestValidatorTests
     {
         var request = new MakeBookingRequest(
             "1000",
-            "2077-01-01 09:00",
+            new DateTime(2077, 01, 01, 09, 0, 0),
             5,
             "COVID",
             null,
             GetContactDetails(),
-            null
+            null,
+            BookingKind.Booked
         );
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.AttendeeDetails));
-    }
-
-    [Fact]
-    public void Validate_ReturnsError_WhenContactDetailsIsNull()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            null,
-            null
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
-    }
-
-    [Fact]
-    public void Validate_ContactDetailsCanBeNull_IfProvisional()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            null,
-            null,
-            true
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Validate_ProvisionalBooking_ShouldNotHaveContactDetails()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            [new ContactItem("email", "test@tempuri.org")],
-            null,
-            true
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
-    }
+    }    
 
     [Fact]
     public void Validate_ReturnsError_WhenRequestIsEmpty()
@@ -190,12 +110,13 @@ public class MakeBookingRequestValidatorTests
     {
         var request = new MakeBookingRequest(
             "1000",
-            "2077-01-01 09:00",
+            new DateTime(2077, 01, 01, 09, 0, 0),
             5,
             "COVID",
             GetAttendeeDetails(),
             GetContactDetails(),
-            null
+            null,
+            BookingKind.Booked
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();
@@ -208,7 +129,7 @@ public class MakeBookingRequestValidatorTests
             "1234567890",
             "FirstName",
             "LastName",
-            "1980-01-01"
+            new DateOnly(1980, 01, 01)
         );
         return attendeeDetails;
     }

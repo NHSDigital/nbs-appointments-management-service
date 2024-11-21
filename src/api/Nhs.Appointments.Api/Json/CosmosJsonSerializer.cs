@@ -13,7 +13,7 @@ public class CosmosJsonSerializer : CosmosSerializer
         {
             var desrializerSettings = new JsonSerializerSettings
             {
-                Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter() }
+                Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new Newtonsoft.Json.Converters.StringEnumConverter() }
             };
             var body = new StreamReader(stream).ReadToEndAsync().GetAwaiter().GetResult();
             return JsonConvert.DeserializeObject<T>(body, desrializerSettings);
@@ -24,7 +24,7 @@ public class CosmosJsonSerializer : CosmosSerializer
     {
         var serializerSettings = new JsonSerializerSettings
         {
-            Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter() }
+            Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new Newtonsoft.Json.Converters.StringEnumConverter() }
         };
         var json = JsonConvert.SerializeObject(input, serializerSettings);
         return new MemoryStream(Encoding.UTF8.GetBytes(json));

@@ -1,48 +1,44 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.Json;
 using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Api.Models;
 
 public record MakeBookingRequest(
-    [JsonProperty("site")]
+    [property:JsonProperty("site", Required = Required.Always)]
     string Site,
-    [JsonProperty("from")]
-    string From,
-    [JsonProperty("duration")]
+    [property:JsonProperty("from", Required = Required.Always)]
+    DateTime From,
+    [property:JsonProperty("duration", Required = Required.Always)]
     int Duration,
-    [JsonProperty("service")]
+    [property:JsonProperty("service", Required = Required.Always)]
     string Service,
-    [JsonProperty("attendeeDetails")]
+    [property:JsonProperty("attendeeDetails", Required = Required.Always)]
     AttendeeDetails AttendeeDetails,
-    [JsonProperty("contactDetails")]
+    [property:JsonProperty("contactDetails")]
     ContactItem[] ContactDetails,
-    [JsonProperty("additionalData")]
-    object? AdditionalData,
-    [JsonProperty("provisional")]
-    bool Provisional = false
-)
+    [property:JsonProperty("additionalData")]
+    object AdditionalData,
+    [property:JsonProperty("kind", Required = Required.Always)]
+    BookingKind Kind
+);
 
+public enum BookingKind
 {
-    public DateTime FromDateTime => DateTime.ParseExact(From, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-};
+    Booked,
+    Provisional
+}
 
 public record AttendeeDetails(
-    [JsonProperty("nhsNumber")]
+    [JsonProperty("nhsNumber", Required = Required.Always)]
     string NhsNumber,
-    [JsonProperty("firstName")]
+    [JsonProperty("firstName", Required = Required.Always)]
     string FirstName,
-    [JsonProperty("lastName")]
+    [JsonProperty("lastName", Required = Required.Always)]
     string LastName,
-    [JsonProperty("dateOfBirth")]
-    string DateOfBirth
-)
-
-{
-    public DateOnly BirthDate => DateOnly.ParseExact(DateOfBirth, "yyyy-MM-dd");
-};
+    [JsonProperty("dateOfBirth", Required = Required.Always)]
+    DateOnly DateOfBirth
+);
 
 public record ContactItem(
     [property:JsonProperty("type", Required = Required.Always)]

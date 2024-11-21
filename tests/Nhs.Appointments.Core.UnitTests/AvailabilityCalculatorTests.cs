@@ -132,7 +132,7 @@ public class AvailabilityCalculatorTests
 
         var bookings = new[]
         {
-            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", "cancelled")
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", AppointmentStatus.Cancelled)
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
@@ -163,7 +163,7 @@ public class AvailabilityCalculatorTests
 
         var bookings = new[]
         {
-            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", null, true, DateTime.Now.AddMinutes(-6))
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01", AppointmentStatus.Provisional, DateTime.Now.AddMinutes(-6))
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
@@ -258,7 +258,7 @@ public class AvailabilityCalculatorTests
         return sessionInstance;
     }
     
-    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, string outcome = null, bool provisional = false, DateTime? created = null)
+    private static Booking CreateTestBooking(DateTime appointmentDateAndTime, int appointmentDuration, string service, string site, AppointmentStatus status = AppointmentStatus.Booked, DateTime? created = null)
     {
         created = created ?? DateTime.Now;
         var testBooking = new Booking
@@ -268,7 +268,7 @@ public class AvailabilityCalculatorTests
             Duration = appointmentDuration,
             Service = service,
             Site = site,            
-            Outcome = outcome,
+            Status = status,
             AttendeeDetails = new AttendeeDetails()
             {
                 NhsNumber = "999999999",
@@ -276,7 +276,6 @@ public class AvailabilityCalculatorTests
                 FirstName = "FirstName",
                 LastName = "LastName"
             },
-            Provisional = provisional,
             Created = created.Value
         };
         return testBooking;

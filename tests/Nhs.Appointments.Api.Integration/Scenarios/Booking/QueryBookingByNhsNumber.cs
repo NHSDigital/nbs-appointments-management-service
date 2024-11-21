@@ -40,7 +40,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
                     Created = DateTime.UtcNow,
-                    Provisional = false,
+                    Status = AppointmentStatus.Booked,
                     AttendeeDetails = new AttendeeDetails
                     {
                         NhsNumber = NhsNumber,

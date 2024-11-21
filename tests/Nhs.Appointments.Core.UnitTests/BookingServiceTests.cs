@@ -72,7 +72,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var expectedUntil = expectedFrom.AddDays(1);
             var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = new[] { "TSERV" } } };
 
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails() };
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails(), Status = AppointmentStatus.Booked };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
@@ -90,7 +90,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var expectedUntil = expectedFrom.AddDays(1);
             var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = new[] { "TSERV" } } };
 
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Status = AppointmentStatus.Provisional };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
@@ -172,7 +172,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
 
             var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Outcome, "Cancelled")).Returns(updateMock.Object).Verifiable();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled)).Returns(updateMock.Object).Verifiable();
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking() { Site = site }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object).Verifiable();
@@ -190,7 +190,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
 
             var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Outcome, "Cancelled")).Returns(updateMock.Object);
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled)).Returns(updateMock.Object);
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking { Reference = bookingRef, Site = site}));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);

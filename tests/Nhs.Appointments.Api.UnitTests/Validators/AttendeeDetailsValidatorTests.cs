@@ -20,7 +20,7 @@ public class AttendeeValidatorTests
             nhsNumber, 
             "FirstName", 
             "LastName", 
-            "1990-01-01");
+            new DateOnly(1990,01,01));
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -36,9 +36,9 @@ public class AttendeeValidatorTests
         var request = new AttendeeDetails(
             "1234567890", 
             firstName, 
-            "LastName", 
-            "1990-01-01");
-        
+            "LastName",
+            new DateOnly(1990, 01, 01));
+
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -54,33 +54,13 @@ public class AttendeeValidatorTests
             "1234567890", 
             "FirstName", 
             lastName, 
-            "1990-01-01");
+            new DateOnly(1990, 01, 01));
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(AttendeeDetails.LastName));
-    }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    [InlineData("01-01-2077")]
-    [InlineData("1990-99-31")]
-    [InlineData("1990-01-99")]
-    public void Validate_ReturnsError_WhenDateOfBirthIsInvalid(string dateOfBirth)
-    {
-        var request = new AttendeeDetails(
-            "1234567890", 
-            "FirstName", 
-            "LastName", 
-            dateOfBirth);
-        
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(AttendeeDetails.DateOfBirth));
-    }
+    }       
     
     [Fact]
     public void Validate_ReturnsError_WhenDateOfBirthIsInTheFuture()
@@ -90,7 +70,7 @@ public class AttendeeValidatorTests
             "1234567890",
             "FirstName",
             "LastName",
-            today);
+            DateOnly.FromDateTime(DateTime.Now.AddDays(5)));
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -105,7 +85,7 @@ public class AttendeeValidatorTests
             "1234567890",
             "FirstName",
             "LastName",
-            "2000-01-01"
+            new DateOnly(2000, 01,01)
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();

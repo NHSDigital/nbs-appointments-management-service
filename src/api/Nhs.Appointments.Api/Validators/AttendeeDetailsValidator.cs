@@ -19,13 +19,7 @@ public class AttendeeDetailsValidator : AbstractValidator<AttendeeDetails>
             .NotEmpty().WithMessage("Provide a first name");
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Provide a last name");
-        RuleFor(x => x.DateOfBirth).Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Provide a date of birth in the format 'yyyy-MM-dd'")
-            .Must(x => DateOnly.TryParseExact(x.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var _)).WithMessage("Provide a date of birth in the format 'yyyy-MM-dd'")
-            .DependentRules(() =>
-            {
-                RuleFor(x => x.BirthDate)
-                    .LessThan(x => today).WithMessage("Date of birth must be in the past");
-            });
+        RuleFor(x => x.DateOfBirth)
+            .LessThan(x => today).WithMessage("Date of birth must be in the past");            
     }
 }

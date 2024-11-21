@@ -207,5 +207,5 @@ stages:
           variable_group: nbs-mya-${{env}}
           apiServerName: nbs-mya-func-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
+          serviceConnectionName: nbs-mya-rg-dev
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

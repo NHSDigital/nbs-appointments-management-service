@@ -13,15 +13,8 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const title = `View availability for ${dayjs().format('MMMM YYYY')}`;
-  const payload: FetchAvailabilityRequest = {
-    sites: [site.name],
-    service: '*',
-    from: dayjs().startOf('month').format('YYYY-MM-DD'),
-    until: dayjs().endOf('month').format('YYYY-MM-DD'),
-    queryType: 'Days',
-  };
-  const availability = await fetchAvailability(payload);
 
+  // TODO: Look into optimising these methods as there is a chunk of duplicated code
   const getWeeksInMonth = (year: number, month: number): Week[] => {
     const weeks: Week[] = [];
 
@@ -42,8 +35,9 @@ const Page = async ({ params }: PageProps) => {
       weeks.push({
         start: start,
         end: end,
-        startMonth: dayjs().month(month).format('MMMM'),
-        endMonth: dayjs().month(month).format('MMMM'),
+        startMonth: month,
+        endMonth: month,
+        year: year,
       });
       start = end + 1;
       end = end + 7;
@@ -88,8 +82,9 @@ const Page = async ({ params }: PageProps) => {
       weeks.push({
         start: start,
         end: end,
-        startMonth: dayjs().month(month).format('MMMM'),
-        endMonth: dayjs().month(month).format('MMMM'),
+        startMonth: month,
+        endMonth: month,
+        year: year,
       });
       start = end + 1;
       end = end + 7;
@@ -110,6 +105,24 @@ const Page = async ({ params }: PageProps) => {
     return weeks[0];
   };
   const weeks = getWeeksInMonth(dayjs().year(), dayjs().month());
+
+  const firstWeek = weeks[0];
+  const lastWeek = weeks[weeks.length - 1];
+  const startDate = new Date(
+    firstWeek.year,
+    firstWeek.startMonth,
+    firstWeek.start,
+  );
+  const endDate = new Date(lastWeek.year, lastWeek.endMonth, lastWeek.endMonth);
+
+  const payload: FetchAvailabilityRequest = {
+    sites: [site.name],
+    service: '*',
+    from: dayjs(startDate).format('YYYY-MM-DD'),
+    until: dayjs(endDate).format('YYYY-MM-DD'),
+    queryType: 'Days',
+  };
+  const availability = await fetchAvailability(payload);
 
   return (
     <NhsPage

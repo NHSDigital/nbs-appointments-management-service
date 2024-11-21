@@ -151,11 +151,13 @@ type AvailabilityBlock = {
   count: number;
 };
 
+// TODO: Rename this type to something more meaningful
 type Week = {
   start: number;
   end: number;
-  startMonth: string;
-  endMonth: string;
+  startMonth: number;
+  endMonth: number;
+  year: number;
 };
 
 // TODO: Decide where this info should live and move it there

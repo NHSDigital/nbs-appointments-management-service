@@ -1,5 +1,6 @@
 import { Card, Table } from '@components/nhsuk-frontend';
 import { AvailabilityResponse, Week } from '@types';
+import dayjs from 'dayjs';
 
 type Props = {
   availability: AvailabilityResponse[];
@@ -12,13 +13,11 @@ export const ViewAvailabilityPage = ({ availability, weeks }: Props) => {
     ['Row 2 Col 1', 'Row 2 Col 2'],
   ];
 
-  console.log(weeks);
-
   return (
     <>
       {weeks.map((week, i) => (
         <Card
-          title={`${week.start} ${week.startMonth} to ${week.end} ${week.endMonth}`}
+          title={`${week.start} ${dayjs().month(week.startMonth).format('MMMM')} to ${week.end} ${dayjs().month(week.endMonth).format('MMMM')}`}
           key={i}
         >
           <Table

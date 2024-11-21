@@ -10,6 +10,8 @@ import {
   User,
   UserProfile,
   SetAvailabilityRequest,
+  FetchAvailabilityRequest,
+  AvailabilityResponse,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -280,4 +282,13 @@ export const setSiteInformationForCitizen = async (
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
+};
+
+export const fetchAvailability = async (payload: FetchAvailabilityRequest) => {
+  const response = await appointmentsApi.post<AvailabilityResponse[]>(
+    'availability/query',
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
 };

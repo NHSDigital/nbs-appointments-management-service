@@ -116,6 +116,38 @@ type Session = {
   services: string[];
 };
 
+type FetchAvailabilityRequest = {
+  sites: string[];
+  service: string;
+  from: string;
+  until: string;
+  queryType: string;
+};
+
+type AvailabilityResponse = {
+  site: string;
+  service: string;
+  availability: Availability[];
+};
+
+type Availability = {
+  date: Date;
+  blocks: AvailabilityBlock[];
+};
+
+type AvailabilityBlock = {
+  from: string;
+  until: string;
+  count: number;
+};
+
+type Week = {
+  start: number;
+  end: number;
+  startMonth: string;
+  endMonth: string;
+};
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -123,8 +155,12 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  Availability,
+  AvailabilityBlock,
+  AvailabilityResponse,
   DateComponents,
   ErrorType,
+  FetchAvailabilityRequest,
   Role,
   RoleAssignment,
   Session,
@@ -135,6 +171,7 @@ export type {
   TimeComponents,
   User,
   UserProfile,
+  Week,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek };

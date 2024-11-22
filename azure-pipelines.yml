@@ -136,6 +136,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
+          - script: printenv
           - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
@@ -143,15 +144,18 @@ stages:
           - script: |
               docker compose up --build --detach
             displayName: "Start docker containers"
+#            env:
+#              COSMOS_ENDPOINT: $(CosmosEndpoint)
+#              COSMOS_TOKEN: $(CosmosToken)
           - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:
               command: "test"
               projects: "$(integrationTestProjectPath)"
               arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
-            env:
-              COSMOS_ENDPOINT: $(CosmosEndpoint)
-              COSMOS_TOKEN: $(CosmosToken)
+#            env:
+#              COSMOS_ENDPOINT: $(CosmosEndpoint)
+#              COSMOS_TOKEN: $(CosmosToken)
           - task: PublishTestResults@2
             displayName: "Publish integration test results"
             inputs:

@@ -149,11 +149,12 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
+          - script: printenv
           - task: DotNetCoreCLI@2
             displayName: "Seed Cosmos DB containers"
             inputs:
               command: "run"
               projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-            env:
-              COSMOS_ENDPOINT: $(CosmosEndpoint)
-              COSMOS_TOKEN: $(CosmosToken)
+#            env:
+#              COSMOS_ENDPOINT: $(CosmosEndpoint)
+#              COSMOS_TOKEN: $(CosmosToken)

@@ -118,6 +118,7 @@ stages:
               $CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
               Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
             displayName: Set short commit hash
+          - script: printenv
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
@@ -125,7 +126,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
-              arguments: '$(environment) $(cosmosAccountName)'
+              arguments: "$(ENVIRONMENT) $(cosmosAccountName)"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:

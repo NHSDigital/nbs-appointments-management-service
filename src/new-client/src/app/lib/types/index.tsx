@@ -158,6 +158,7 @@ type Week = {
   startMonth: number;
   endMonth: number;
   year: number;
+  unbooked?: number;
 };
 
 type ClinicalService = {

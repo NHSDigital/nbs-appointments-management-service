@@ -1,17 +1,15 @@
 import { Card, Table } from '@components/nhsuk-frontend';
-import { AvailabilityResponse, Week } from '@types';
+import { clinicalServices, Week } from '@types';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 
 type Props = {
-  availability: AvailabilityResponse[];
   weeks: Week[];
 };
 
-export const ViewAvailabilityPage = ({ availability, weeks }: Props) => {
-  const mockRows = [
-    ['Row 1 Col 1', 'Row 1 Col 2'],
-    ['Row 2 Col 1', 'Row 2 Col 2'],
-  ];
+export const ViewAvailabilityPage = ({ weeks }: Props) => {
+  const totalAppts = 2800;
+  const booked = 2355;
 
   return (
     <>
@@ -22,8 +20,20 @@ export const ViewAvailabilityPage = ({ availability, weeks }: Props) => {
         >
           <Table
             headers={['Services', 'Booked appointments']}
-            rows={mockRows}
+            rows={clinicalServices.map(service => {
+              return [service.label, service.value];
+            })}
           ></Table>
+          <Table
+            headers={[
+              `Total appointments: ${totalAppts}`,
+              `Booked: ${booked}`,
+              `Unbooked: ${week.unbooked}`,
+            ]}
+            rows={[]}
+          ></Table>
+          <br />
+          <Link href="">View week</Link>
         </Card>
       ))}
     </>

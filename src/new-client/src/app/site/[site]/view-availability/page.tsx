@@ -2,7 +2,7 @@ import NhsPage from '@components/nhs-page';
 import { fetchAvailability, fetchSite } from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { ViewAvailabilityPage } from './view-availability-page';
-import { FetchAvailabilityRequest, Week } from '@types';
+import { AvailabilityBlock, FetchAvailabilityRequest, Week } from '@types';
 
 type PageProps = {
   params: {
@@ -113,16 +113,52 @@ const Page = async ({ params }: PageProps) => {
     firstWeek.startMonth,
     firstWeek.start,
   );
-  const endDate = new Date(lastWeek.year, lastWeek.endMonth, lastWeek.endMonth);
-
+  const endDate = new Date(lastWeek.year, lastWeek.endMonth, lastWeek.end);
   const payload: FetchAvailabilityRequest = {
-    sites: [site.name],
+    sites: [site.id],
     service: '*',
     from: dayjs(startDate).format('YYYY-MM-DD'),
     until: dayjs(endDate).format('YYYY-MM-DD'),
     queryType: 'Days',
   };
   const availability = await fetchAvailability(payload);
+
+  // TODO: Can this be optimised / cleaned up?
+  const getUnbookedCount = () => {
+    if (!availability || availability.length === 0) {
+      return;
+    }
+
+    for (let w = 0; w < weeks.length; w++) {
+      for (let a = 0; a < availability.length; a++) {
+        if (availability[a].availability.length === 0) {
+          continue;
+        }
+
+        const fromDate = new Date(
+          weeks[w].year,
+          weeks[w].startMonth,
+          weeks[w].start,
+        );
+        const toDate = new Date(weeks[w].year, weeks[w].endMonth, weeks[w].end);
+
+        const blocks: AvailabilityBlock[] = [];
+        availability[a].availability.filter(item => {
+          const date = new Date(item.date);
+          if (
+            date.getTime() >= fromDate.getTime() &&
+            date.getTime() <= toDate.getTime()
+          ) {
+            blocks.push(...item.blocks);
+          }
+        });
+
+        const countArray = blocks.map(b => b.count);
+        weeks[w].unbooked = countArray.reduce((sum, num) => sum + num);
+      }
+    }
+  };
+  getUnbookedCount();
 
   return (
     <NhsPage
@@ -133,7 +169,7 @@ const Page = async ({ params }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
       ]}
     >
-      <ViewAvailabilityPage availability={availability} weeks={weeks} />
+      <ViewAvailabilityPage weeks={weeks} />
     </NhsPage>
   );
 };

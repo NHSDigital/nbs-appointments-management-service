@@ -14,8 +14,8 @@ using Microsoft.OpenApi.Models;
 
 namespace Nhs.Appointments.Api.Functions;
 
-    public class GetAvailabilityCreatedEventsFunction(IAvailabilityService availabilityService, IValidator<SiteBasedResourceRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAvailabilityCreatedEventsFunction> logger, IMetricsRecorder metricsRecorder)
-        : SiteBasedResourceFunction<IEnumerable<AvailabilityCreatedEvent>>(validator, userContextProvider, logger, metricsRecorder)
+    public class GetAvailabilityCreatedEventsFunction(IAvailabilityService availabilityService, IValidator<GetAvailabilityCreatedEventsRequest> validator, IUserContextProvider userContextProvider, ILogger<GetAvailabilityCreatedEventsFunction> logger, IMetricsRecorder metricsRecorder)
+        : BaseApiFunction<GetAvailabilityCreatedEventsRequest, IEnumerable<AvailabilityCreatedEvent>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [OpenApiOperation(operationId: "Get_AvailabilityCreatedEventsFunction", tags: ["Availability"], Summary = "Get records of availability created previously")]
         [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The id of the site from which to retrieve previously created availability")]
@@ -30,10 +30,29 @@ namespace Nhs.Appointments.Api.Functions;
             return base.RunAsync(req);
         }
 
-        protected override async Task<ApiResult<IEnumerable<AvailabilityCreatedEvent>>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
+        protected override async Task<ApiResult<IEnumerable<AvailabilityCreatedEvent>>> HandleRequest(GetAvailabilityCreatedEventsRequest request, ILogger logger)
         {
-            var availabilityCreatedEvents = await availabilityService.GetAvailabilityCreatedEventsAsync(request.Site);
+            var availabilityCreatedEvents = await availabilityService.GetAvailabilityCreatedEventsAsync(request.Site, request.FromDate);
 
             return Success(availabilityCreatedEvents);
+        }
+
+        protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetAvailabilityCreatedEventsRequest request)>
+            ReadRequestAsync(HttpRequest req)
+        {
+            var errors = new List<ErrorMessageResponseItem>();
+            if (!req.Query.TryGetValue("site", out var site))
+            {
+                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing site parameter from query", Property = nameof(GetAvailabilityCreatedEventsRequest.Site)});
+            }
+
+            if (!req.Query.TryGetValue("from", out var from))
+            {
+                errors.Add(new ErrorMessageResponseItem { Message = "Error parsing from parameter from query", Property = nameof(GetAvailabilityCreatedEventsRequest.From) });
+            }
+
+            var parsedRequest = new GetAvailabilityCreatedEventsRequest(site, from);
+
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetAvailabilityCreatedEventsRequest request)>((errors, parsedRequest));
         }
     }

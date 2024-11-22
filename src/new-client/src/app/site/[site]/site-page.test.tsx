@@ -76,8 +76,7 @@ describe('Site Page', () => {
   });
 
   // TODO: Maybe parameterise these tests over permission/card pairs
-  // once we have more cards (i.e. during APPT-62 which adds in permission checking for this card)
-  it('shows the create availability page', () => {
+  it('shows the create availability page if the user may see it', () => {
     const mockSite = mockSites[0];
 
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
@@ -88,5 +87,27 @@ describe('Site Page', () => {
     expect(
       screen.getByRole('link', { name: 'Create availability' }),
     ).toHaveAttribute('href', `${mockSite.id}/create-availability`);
+  });
+
+  it('does not show the create availability page if the user may not see it', () => {
+    const mockSite = mockSites[0];
+
+    render(
+      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Create Availability' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not show any cards when if the user may not see any of them', () => {
+    const mockSite = mockSites[0];
+
+    render(
+      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+    );
+
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 });

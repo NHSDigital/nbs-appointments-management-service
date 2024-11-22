@@ -16,6 +16,10 @@ public class NullableShortDateOnlyJsonConverter : JsonConverter<DateOnly?>
     public override DateOnly? ReadJson(JsonReader reader, Type objectType, DateOnly? existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
+        if (reader.Value == null)
+        {
+            return null;
+        }
         return DateOnly.ParseExact((string)reader.Value, DateFormat, CultureInfo.InvariantCulture);
     }
 }

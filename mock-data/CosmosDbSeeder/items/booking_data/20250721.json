@@ -1,0 +1,15 @@
+{
+  "date": "2025-07-21",
+  "sessions": [
+    {
+      "from": "09:00",
+      "until": "17:30",
+      "services": ["RSV:Adult"],
+      "slotLength": 10,
+      "capacity": 5
+    }
+  ],
+  "site": "ABC02",
+  "id": "20250721",
+  "docType": "daily_availability"
+}

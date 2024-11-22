@@ -24,7 +24,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             object payload = new
             {
                 from = DateTime.ParseExact(
-                    $"{DeriveRelativeDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
+                    $"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
                 duration = cells.ElementAt(2).Value,
                 service = cells.ElementAt(3).Value,
@@ -65,7 +65,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             {
                 Site = siteId,
                 Reference = bookingReference,
-                From = DateTime.ParseExact($"{DeriveRelativeDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
+                From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(cells.ElementAt(2).Value),
                 Service = cells.ElementAt(3).Value,
                 Outcome = null,

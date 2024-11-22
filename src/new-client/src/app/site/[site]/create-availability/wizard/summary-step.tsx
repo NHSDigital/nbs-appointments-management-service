@@ -11,11 +11,9 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { formatTimeString, parseDateComponents } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
-import {
-  CreateAvailabilityFormValues,
-  services,
-} from './availability-template-wizard';
+import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { calculateCapacity } from './capacity-calculation';
+import { clinicalServices } from '@types';
 
 const SummaryStep = ({
   setCurrentStep,
@@ -33,7 +31,7 @@ const SummaryStep = ({
   const servicesText = session.services
     .map(
       serviceValue =>
-        services.find(service => service.value === serviceValue)?.label,
+        clinicalServices.find(service => service.value === serviceValue)?.label,
     )
     .join(', ');
 

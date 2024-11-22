@@ -83,3 +83,7 @@ export const toTwoDigitFormat = (
   const stringInput = `${input}`;
   return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };
+
+export const parseDateString = (dateString: string, format = 'YYYY-MM-DD') => {
+  return dayjs.utc(dateString, format, true);
+};

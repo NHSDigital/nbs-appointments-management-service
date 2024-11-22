@@ -136,11 +136,10 @@ stages:
               deploymentMethod: "auto"              
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
-#        dependsOn: ApplyTerraform
+        dependsOn: ApplyTerraform
         variables:
           environment: ${{parameters.env}}
         steps:
-          - script: printenv
           - checkout: self
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"

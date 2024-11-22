@@ -119,7 +119,6 @@ stages:
               $CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
               Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
             displayName: Set short commit hash
-          - script: printenv
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
@@ -136,7 +135,6 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
-          - script: printenv
           - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
@@ -170,6 +168,7 @@ stages:
             inputs:
               command: "run"
               projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

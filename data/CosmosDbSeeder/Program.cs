@@ -11,7 +11,7 @@ class Program
     private static CosmosClient? _cosmosClient;
     private static Database? _database;
 
-    static async Task Main()
+    static async Task Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
@@ -36,10 +36,22 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
-            await DeleteContainers(container.Name);
-            if (environment != null)
-                await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
-            else Console.WriteLine("Environment was not provided");
+            var knownEnvironments = new [] { "local", "dev", "int", "exp", "stag", "prod" };
+            
+            if (string.IsNullOrWhiteSpace(environment))
+                throw new ArgumentException("Environment must be provided");
+            
+            if (knownEnvironments.Contains(environment) == false)
+                throw new ArgumentOutOfRangeException($"Environment {environment} is not supported");
+
+            if (args.Contains("delete-containers"))
+            {
+                if(IsProtectedEnvironment(environment))
+                    throw new InvalidOperationException("Cannot delete container from a protected environment");
+                await DeleteContainers(container.Name);
+            }
+
+            await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
         }
 
         Console.WriteLine("Database seeded successfully");
@@ -93,11 +105,10 @@ class Program
 
     private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath, string environment)
     {
-        var container = await CreateContainerAsync(containerName, partitionKeyPath);
-
         var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}");
         if(Directory.Exists(folderPath))
         {
+            var container = await CreateContainerAsync(containerName, partitionKeyPath);
             var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}"), "*.json");
 
             foreach (var file in jsonFiles)
@@ -110,6 +121,7 @@ class Program
                     : $"Replaced {fileName} in {containerName}");
             }
         }
+        else throw new DirectoryNotFoundException($"Directory {folderPath} does not exist");
     }
 
     private static CosmosClientOptions GetCosmosOptions()
@@ -124,6 +136,12 @@ class Program
             ConnectionMode = ConnectionMode.Gateway,
             LimitToEndpoint = true
         };
+    }
+
+    private static bool IsProtectedEnvironment(string environment)
+    {
+        var protectedEnvironments = new [] { "dev", "int", "exp", "stag", "prod" };
+        return protectedEnvironments.Contains(environment);
     }
 }
 

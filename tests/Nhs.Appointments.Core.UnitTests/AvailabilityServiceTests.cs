@@ -225,4 +225,97 @@ public class AvailabilityServiceTests
 
         _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions), Times.Once);
     }
+
+    [Fact]
+    public async Task GetAvailabilityCreatedEvents_OrdersEventsByFromThenByTo()
+    {
+        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
+        {
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2025, 4, 3)),
+            },
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
+                To = DateOnly.FromDateTime(new DateTime(2024, 10, 20)),
+            },
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
+                To = DateOnly.FromDateTime(new DateTime(2024, 10, 15)),
+            }
+        };
+
+        _availabilityCreatedEventStore.Setup(x => x.GetAvailabilityCreatedEvents(It.IsAny<string>()))
+            .ReturnsAsync(availabilityCreatedEvents);
+
+        var fromDate = DateOnly.FromDateTime(DateTime.MinValue);
+        var result = (await _sut.GetAvailabilityCreatedEventsAsync("some-site", fromDate)).ToList();
+
+        result.Should().HaveCount(3);
+
+        result[0].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
+        result[0].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 15)));
+
+        result[1].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
+        result[1].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 20)));
+
+        result[2].From.Should().Be(DateOnly.FromDateTime(new DateTime(2025, 4, 3)));
+        result[2].To.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetAvailabilityCreatedEvents_FiltersEventsAfterDate()
+    {
+        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
+        {
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2025, 4, 3)),
+            },
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
+                To = DateOnly.FromDateTime(new DateTime(2024, 10, 20)),
+            },
+            new()
+            {
+                Created = DateTime.UtcNow,
+                By = "some.user@nhs.net",
+                Site = "some-site",
+                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
+                To = DateOnly.FromDateTime(new DateTime(2024, 10, 15)),
+            }
+        };
+
+        _availabilityCreatedEventStore.Setup(x => x.GetAvailabilityCreatedEvents(It.IsAny<string>()))
+            .ReturnsAsync(availabilityCreatedEvents);
+
+        var fromDate = DateOnly.FromDateTime(new DateTime(2024, 10, 17));
+        var result = (await _sut.GetAvailabilityCreatedEventsAsync("some-site", fromDate)).ToList();
+
+        result.Should().HaveCount(2);
+
+        result[0].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
+        result[0].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 20)));
+
+        result[1].From.Should().Be(DateOnly.FromDateTime(new DateTime(2025, 4, 3)));
+        result[1].To.Should().BeNull();
+    }
 }

@@ -40,7 +40,7 @@ async function globalSetup(config: FullConfig) {
       const filePath = path.join(folderPath, document);
       const fileContent = await fs.readFile(filePath, 'utf-8');
 
-      const jsonData = JSON.parse(fileContent);
+      const jsonData = JSON.parse(fileContent.replace(/\s/g, ''));
       await container.items.upsert(jsonData);
     }
   }

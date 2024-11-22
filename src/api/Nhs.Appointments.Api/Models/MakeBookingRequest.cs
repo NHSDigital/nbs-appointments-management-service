@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Models;
 
@@ -28,21 +29,3 @@ public enum BookingKind
     Booked,
     Provisional
 }
-
-public record AttendeeDetails(
-    [JsonProperty("nhsNumber", Required = Required.Always)]
-    string NhsNumber,
-    [JsonProperty("firstName", Required = Required.Always)]
-    string FirstName,
-    [JsonProperty("lastName", Required = Required.Always)]
-    string LastName,
-    [JsonProperty("dateOfBirth", Required = Required.Always)]
-    DateOnly DateOfBirth
-);
-
-public record ContactItem(
-    [property:JsonProperty("type", Required = Required.Always)]
-    string Type,
-    [property:JsonProperty("value", Required = Required.Always)]
-    string Value
-    ) { }

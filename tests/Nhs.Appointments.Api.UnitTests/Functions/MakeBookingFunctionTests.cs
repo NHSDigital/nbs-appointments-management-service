@@ -84,12 +84,12 @@ public class MakeBookingFunctionTests
             new Core.ContactItem
             {
                 Value = "test@tempuri.org",
-                Type = "email"
+                Type = ContactItemType.Email
             },
             new Core.ContactItem
             {
                 Value = "0123456789",
-                Type = "phone"
+                Type = ContactItemType.Phone
             }
             ]
         };
@@ -116,11 +116,17 @@ public class MakeBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        var dto = new MakeBookingRequest(site, DateTime.ParseExact(from, "yyyy-MM-dd HH:mm", null) , 5, service,
-            new Models.AttendeeDetails(nhsNumber, firstName, lastName, DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")),
+        var dto = new MakeBookingRequest(site, from, 5, service,
+            new AttendeeDetails
+            {
+                NhsNumber = nhsNumber,
+                FirstName = firstName,
+                LastName = lastName,
+                DateOfBirth = DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")
+            },
             [
-                new Models.ContactItem ("email", email ),
-                new Models.ContactItem ("phone", phoneNumber)
+                new ContactItem { Type = ContactItemType.Email, Value = email },
+                new ContactItem { Type = ContactItemType.Phone, Value = phoneNumber }
             ],
             additionalData, BookingKind.Booked);
 

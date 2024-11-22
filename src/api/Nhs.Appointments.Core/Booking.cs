@@ -56,12 +56,20 @@ public class AttendeeDetails
 
 public class ContactItem
 {
-    [JsonProperty("type")]
-    public string Type { get; set; }
+    [JsonProperty("type", Required = Required.Always)]
+    public ContactItemType Type { get; set; }
 
-    [JsonProperty("value")]
+    [JsonProperty("value", Required = Required.Always)]
     public string Value { get; set; }
 }
+
+public enum ContactItemType
+{ 
+    Phone,
+    Email,
+    Landline
+}
+
 
 public enum AppointmentStatus
 {

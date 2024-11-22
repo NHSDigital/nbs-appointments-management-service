@@ -40,15 +40,10 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
             Duration = bookingRequest.Duration,
             Service = bookingRequest.Service,
             Site = bookingRequest.Site,
-            AttendeeDetails = new Core.AttendeeDetails
-            {
-                DateOfBirth = bookingRequest.AttendeeDetails.DateOfBirth,
-                FirstName = bookingRequest.AttendeeDetails.FirstName,
-                LastName = bookingRequest.AttendeeDetails.LastName,
-                NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
-            },
             ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray(),
             Status = MapAppointmentStatus(bookingRequest.Kind),
+            AttendeeDetails = bookingRequest.AttendeeDetails,
+            ContactDetails = bookingRequest.ContactDetails?.ToArray(),            
             AdditionalData = bookingRequest.AdditionalData
         };
 

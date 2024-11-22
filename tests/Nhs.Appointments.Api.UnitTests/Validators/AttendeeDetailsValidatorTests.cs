@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -16,11 +17,11 @@ public class AttendeeValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenNhsNumberIsInvalid(string nhsNumber)
     {
-        var request = new AttendeeDetails(
-            nhsNumber, 
-            "FirstName", 
-            "LastName", 
-            new DateOnly(1990,01,01));
+        var request = new AttendeeDetails {
+            NhsNumber = nhsNumber,
+            FirstName = "FirstName",
+            LastName = "LastName",
+            DateOfBirth = new DateOnly(1990, 01, 01)};
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -33,12 +34,12 @@ public class AttendeeValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenFirstNameIsNullOrEmpty(string firstName)
     {
-        var request = new AttendeeDetails(
-            "1234567890", 
-            firstName, 
-            "LastName",
-            new DateOnly(1990, 01, 01));
-
+        var request = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = firstName,
+            LastName = "LastName",
+            DateOfBirth = new DateOnly(1990, 01, 01)};
+        
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -50,11 +51,12 @@ public class AttendeeValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenLastNameIsNullOrEmpty(string lastName)
     {
-        var request = new AttendeeDetails(
-            "1234567890", 
-            "FirstName", 
-            lastName, 
-            new DateOnly(1990, 01, 01));
+        var request = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = "FirstName",
+            LastName = lastName,
+            DateOfBirth = new DateOnly(1990,01,01)
+        };
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -66,11 +68,12 @@ public class AttendeeValidatorTests
     public void Validate_ReturnsError_WhenDateOfBirthIsInTheFuture()
     {
         var today = DateTime.Now.ToString();
-        var request = new AttendeeDetails(
-            "1234567890",
-            "FirstName",
-            "LastName",
-            DateOnly.FromDateTime(DateTime.Now.AddDays(5)));
+        var request = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = "FirstName",
+            LastName = "LastName",
+            DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+        };
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -81,12 +84,12 @@ public class AttendeeValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
-        var request = new AttendeeDetails(
-            "1234567890",
-            "FirstName",
-            "LastName",
-            new DateOnly(2000, 01,01)
-        );
+        var request = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = "FirstName",
+            LastName = "LastName",
+            DateOfBirth = new DateOnly(2000, 01, 01)
+        };
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);            

@@ -7,14 +7,14 @@ using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Api.Tests.Consumers;
 
-public class BookingReminderConsumerTests
+public class BookingRescheduledConsumerTests
 {
-    private BookingReminderConsumer _sut;
-    private readonly Mock<IBookingReminderNotifier> _notifier = new();
+    private BookingRescheduledConsumer _sut;
+    private readonly Mock<IBookingRescheduledNotifier> _notifier = new();
 
-    public BookingReminderConsumerTests()
+    public BookingRescheduledConsumerTests()
     {
-        _sut = new BookingReminderConsumer(_notifier.Object);
+        _sut = new BookingRescheduledConsumer(_notifier.Object);
     }
 
     [Fact]
@@ -26,12 +26,13 @@ public class BookingReminderConsumerTests
         const string PhoneNumber = "0123456789";
         const string Reference = "booking-ref-1234";
         const string Service = "covid-19";
+        const string Landline = "00001234567";
         DateOnly date = new DateOnly(2050, 1, 1);
         TimeOnly time = new TimeOnly(12, 15);
 
-        _notifier.Setup(x => x.Notify(nameof(BookingReminder), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber)).Verifiable();
-        var ctx = new Mock<ConsumeContext<BookingReminder>>();
-        ctx.SetupGet(x => x.Message).Returns(new BookingReminder
+        _notifier.Setup(x => x.Notify(nameof(BookingRescheduled), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber)).Verifiable();
+        var ctx = new Mock<ConsumeContext<BookingRescheduled>>();
+        ctx.SetupGet(x => x.Message).Returns(new BookingRescheduled
         {
             FirstName = FirstName,
             From = new DateTime(date, time),
@@ -40,7 +41,8 @@ public class BookingReminderConsumerTests
             Service = Service,
             ContactDetails = [
                 new ContactItem{Type = ContactItemType.Email, Value = Email},
-                new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber}
+                new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber},
+                new ContactItem{Type = ContactItemType.Landline, Value = Landline},
                 ]
         });
 

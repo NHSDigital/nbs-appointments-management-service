@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class GetAvailabilityCreatedEventsFunctionTests
 {
     private readonly Mock<IAvailabilityService> availabilityService = new();
-    private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
+    private readonly Mock<IValidator<GetAvailabilityCreatedEventsRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetAvailabilityCreatedEventsFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
@@ -31,7 +31,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
             _logger.Object,
             _metricsRecorder.Object);
         _validator
-            .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ValidateAsync(It.IsAny<GetAvailabilityCreatedEventsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
 
@@ -39,7 +39,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString($"?site=1000");
+        request.QueryString = new QueryString($"?site=1000&from=2000-01-01");
         return request;
     }
 
@@ -47,7 +47,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
     public async Task RunsAsync_Gets_Availability_Created_Events()
     {
         availabilityService.Setup(
-            x => x.GetAvailabilityCreatedEventsAsync("1000"))
+            x => x.GetAvailabilityCreatedEventsAsync("1000", DateOnly.FromDateTime(new DateTime(2000, 1, 1))))
             .ReturnsAsync([new AvailabilityCreatedEvent()
             {
                 Created = DateTime.UtcNow,
@@ -67,7 +67,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
 
         response.Single().By.Should().Be("test@test.com");
         availabilityService.Verify(
-            x => x.GetAvailabilityCreatedEventsAsync("1000"),
+            x => x.GetAvailabilityCreatedEventsAsync("1000", DateOnly.FromDateTime(new DateTime(2000, 1, 1))),
             Times.Once);
     }
 

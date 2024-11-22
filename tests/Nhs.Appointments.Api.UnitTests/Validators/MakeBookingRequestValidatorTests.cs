@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -96,6 +97,63 @@ public class MakeBookingRequestValidatorTests
     }    
 
     [Fact]
+    public void Validate_ReturnsError_WhenContactDetailsIsNull()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            5,
+            "COVID",
+            GetAttendeeDetails(),
+            null,
+            null
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
+    }
+
+    [Fact]
+    public void Validate_ContactDetailsCanBeNull_IfProvisional()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            5,
+            "COVID",
+            GetAttendeeDetails(),
+            null,
+            null,
+            true
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_ProvisionalBooking_ShouldNotHaveContactDetails()
+    {
+        var request = new MakeBookingRequest(
+            "1000",
+            "2077-01-01 09:00",
+            5,
+            "COVID",
+            GetAttendeeDetails(),
+            [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }],
+            null,
+            true
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
+    }
+
+    [Fact]
     public void Validate_ReturnsError_WhenRequestIsEmpty()
     {
         MakeBookingRequest request = null;
@@ -125,20 +183,20 @@ public class MakeBookingRequestValidatorTests
 
     private AttendeeDetails GetAttendeeDetails()
     {
-        var attendeeDetails = new AttendeeDetails(
-            "1234567890",
-            "FirstName",
-            "LastName",
-            new DateOnly(1980, 01, 01)
-        );
+        var attendeeDetails = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = "FirstName",
+            LastName = "LastName",
+            DateOfBirth = new DateOnly(1980, 01, 01)
+        };
         return attendeeDetails;
     }
 
     private ContactItem[] GetContactDetails()
     {
         return [
-            new ContactItem("email", "test@tempuri.org"),
-            new ContactItem("phone", "0123456789")
+            new ContactItem{ Type = ContactItemType.Email , Value = "test@tempuri.org" },
+            new ContactItem{ Type = ContactItemType.Phone, Value = "0123456789" }
             ];
     }
 }

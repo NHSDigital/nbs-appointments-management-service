@@ -10,6 +10,7 @@ using Nhs.Appointments.Persistance.Models;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {

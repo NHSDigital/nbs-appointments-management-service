@@ -13,7 +13,6 @@ using Nhs.Appointments.Api.Auth;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
-using ContactItem = Nhs.Appointments.Api.Models.ContactItem;
 using Nhs.Appointments.Api.Json;
 using System;
 
@@ -74,6 +73,14 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
                 return (errors, null);
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
+
+            var payloadErrors = new List<ErrorMessageResponseItem>();
+            if(payload?.contactDetails == null && payload.bookingToReschedule == null)
+            {
+                payloadErrors.Add(new ErrorMessageResponseItem { Message = "Request was not valid" });
+                return (payloadErrors, null);
+            }
+
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 

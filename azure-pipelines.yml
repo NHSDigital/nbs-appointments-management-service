@@ -112,7 +112,6 @@ stages:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-          environment: "dev"
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)

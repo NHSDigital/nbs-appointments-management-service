@@ -26,7 +26,7 @@ public class EventFactory : IBookingEventFactory
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
+            ContactDetails = booking.ContactDetails?.ToArray()
         };
     }
 
@@ -45,7 +45,7 @@ public class EventFactory : IBookingEventFactory
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
+            ContactDetails = booking.ContactDetails?.ToArray()
         };
     }
 
@@ -59,7 +59,7 @@ public class EventFactory : IBookingEventFactory
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
+            ContactDetails = booking.ContactDetails?.ToArray()
         };
     }
 
@@ -78,7 +78,7 @@ public class EventFactory : IBookingEventFactory
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails.Select(c => new Messaging.Events.ContactItem { Type = c.Type, Value = c.Value }).ToArray()
+            ContactDetails = booking.ContactDetails?.ToArray()
         };
     }
 }

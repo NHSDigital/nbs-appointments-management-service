@@ -2,6 +2,7 @@
 using Moq;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Api.Tests.Consumers;

@@ -246,9 +246,9 @@ public abstract partial class BaseFeatureSteps : Feature
             },
             ContactDetails =
             [
-                new ContactItem { Type = "email", Value = "firstName@test.com" },
-                new ContactItem { Type = "phone", Value = "0123456789" },
-                new ContactItem { Type = "landline", Value = "00001234567" }
+                new ContactItem { Type = ContactItemType.Email, Value = "firstName@test.com" },
+                new ContactItem { Type = ContactItemType.Phone, Value = "0123456789" },
+                new ContactItem { Type = ContactItemType.Landline, Value = "00001234567" }
             ],
             AdditionalData = new
             {

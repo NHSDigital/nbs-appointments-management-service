@@ -113,7 +113,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 { Services = new[] { "TSERV" } },
             };
 
-            ContactItem[] contactDetails = [new ContactItem { Type = "email", Value = "test@tempuri.org" }];
+            ContactItem[] contactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
 
             var initialBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
 
@@ -148,7 +148,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 { Services = new[] { "TSERV" } },
             };
 
-            ContactItem[] contactDetails = [new ContactItem { Type = "email", Value = "test@tempuri.org" }];
+            ContactItem[] contactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
 
             var initialBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
 

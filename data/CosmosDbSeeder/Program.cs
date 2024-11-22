@@ -121,7 +121,6 @@ class Program
                     : $"Replaced {fileName} in {containerName}");
             }
         }
-        else throw new DirectoryNotFoundException($"Directory {folderPath} does not exist");
     }
 
     private static CosmosClientOptions GetCosmosOptions()

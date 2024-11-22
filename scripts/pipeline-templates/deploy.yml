@@ -136,6 +136,7 @@ stages:
               deploymentMethod: "auto"              
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
+#        dependsOn: ApplyTerraform
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -155,6 +156,6 @@ stages:
             inputs:
               command: "run"
               projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-#            env:
-#              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-#              COSMOS_TOKEN: $(COSMOS_TOKEN)
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)

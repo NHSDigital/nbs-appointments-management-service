@@ -23,5 +23,5 @@ $NameValue=$connectionString -replace ";", "`n" | ConvertFrom-StringData
 $cosmosEndpoint = $NameValue.AccountEndpoint
 $cosmosPrimaryKey = $NameValue.AccountKey
 
-Write-Host "##vso[task.setvariable variable=COSMOS_ENDPOINT]$cosmosEndpoint"
-Write-Host "##vso[task.setvariable variable=COSMOS_TOKEN]$cosmosPrimaryKey"
+Write-Host "##vso[task.setvariable variable=COSMOS_ENDPOINT;issecret=true]$cosmosEndpoint"
+Write-Host "##vso[task.setvariable variable=COSMOS_TOKEN;issecret=true]$cosmosPrimaryKey"

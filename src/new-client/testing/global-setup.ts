@@ -6,10 +6,16 @@ import * as path from 'path';
 import { CosmosClient } from '@azure/cosmos';
 import { type FullConfig } from '@playwright/test';
 
-const { COSMOS_ENDPOINT, COSMOS_TOKEN } = env;
+const { COSMOS_ENDPOINT, COSMOS_TOKEN, SEED_COSMOS_BEFORE_RUN } = env;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function globalSetup(config: FullConfig) {
+  if (SEED_COSMOS_BEFORE_RUN) {
+    await seedCosmos();
+  }
+}
+
+async function seedCosmos() {
   const client = new CosmosClient({
     endpoint: COSMOS_ENDPOINT,
     key: COSMOS_TOKEN,

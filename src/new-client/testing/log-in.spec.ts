@@ -24,10 +24,6 @@ test('User visits the site origin, signs in and see the Site Selection menu', as
   await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
 });
 
-test('does a thing', async ({ page }) => {
-  console.dir('Hello world');
-});
-
 test('User signs in using the log in button in the header', async ({
   page,
 }) => {

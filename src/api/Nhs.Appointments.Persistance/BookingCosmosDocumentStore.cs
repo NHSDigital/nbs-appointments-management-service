@@ -87,10 +87,11 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
-    private Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
+    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
-        return bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
+        await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
     }
 
     private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)

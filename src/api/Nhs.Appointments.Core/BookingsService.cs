@@ -81,10 +81,7 @@ public class BookingsService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore
-            .BeginUpdate(booking.Site, bookingReference)
-            .UpdateProperty(b => b.Status, AppointmentStatus.Cancelled)
-            .ApplyAsync();
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
 
         var bookingCancelledEvent = eventFactory.BuildBookingCancelledEvent(booking);
         await bus.Send (bookingCancelledEvent);

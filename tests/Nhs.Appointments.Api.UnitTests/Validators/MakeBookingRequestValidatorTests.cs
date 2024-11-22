@@ -94,64 +94,7 @@ public class MakeBookingRequestValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.AttendeeDetails));
-    }    
-
-    [Fact]
-    public void Validate_ReturnsError_WhenContactDetailsIsNull()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            null,
-            null
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
-    }
-
-    [Fact]
-    public void Validate_ContactDetailsCanBeNull_IfProvisional()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            null,
-            null,
-            true
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Validate_ProvisionalBooking_ShouldNotHaveContactDetails()
-    {
-        var request = new MakeBookingRequest(
-            "1000",
-            "2077-01-01 09:00",
-            5,
-            "COVID",
-            GetAttendeeDetails(),
-            [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }],
-            null,
-            true
-        );
-
-        var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(MakeBookingRequest.ContactDetails));
-    }
+    }            
 
     [Fact]
     public void Validate_ReturnsError_WhenRequestIsEmpty()

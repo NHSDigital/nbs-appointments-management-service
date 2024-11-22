@@ -116,7 +116,7 @@ public class MakeBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        var dto = new MakeBookingRequest(site, from, 5, service,
+        var dto = new MakeBookingRequest(site, DateTime.ParseExact(from, "yyyy-MM-dd HH:mm", null), 5, service,
             new AttendeeDetails
             {
                 NhsNumber = nhsNumber,

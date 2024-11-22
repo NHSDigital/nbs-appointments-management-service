@@ -44,15 +44,18 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
     }
     
     [Then(@"the booking has been '(\w+)'")]
-    public async Task AssertBookingStatus(string outcome)
+    public async Task AssertBookingStatus(string status)
     {
-        var expectedOutcome = Enum.Parse<AppointmentStatus>(outcome);
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
         Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        var actualResult = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
-        actualResult.Resource.Status.Should().Be(expectedOutcome);
+        var bookingDocument = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
+        bookingDocument.Resource.Status.Should().Be(expectedStatus);
+
+        var indexDocument = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
+        indexDocument.Resource.Status.Should().Be(expectedStatus);
     }
     
     [Then(@"the call should fail with (\d*)")]

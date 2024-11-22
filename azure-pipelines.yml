@@ -124,7 +124,7 @@ stages:
               azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/create_cosmos_db.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
               arguments: '$(environment) $(cosmosAccountName)'
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
@@ -132,7 +132,7 @@ stages:
               azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: '$(environment) $(cosmosAccountName)'
           - script: |
               mkdir -p $(PFX_CERT_PATH)
@@ -196,7 +196,7 @@ stages:
               azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/delete_cosmos_db.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
               arguments: '$(environment) $(cosmosAccountName)'
 
   - ${{ each env in parameters.environments }}:

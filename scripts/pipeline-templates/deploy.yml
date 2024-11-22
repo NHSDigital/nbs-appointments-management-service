@@ -143,7 +143,7 @@ stages:
               azureSubscription: $(serviceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-pr-build/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: '$(ENVIRONMENT) $(cosmosAccountName)'
           - task: DotNetCoreCLI@2
             displayName: "Seed Cosmos DB containers"

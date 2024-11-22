@@ -160,8 +160,25 @@ type Week = {
   year: number;
 };
 
+type ClinicalService = {
+  label: string;
+  value: string;
+};
+
 // TODO: Decide where this info should live and move it there
-const clinicalServices = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+const clinicalServices: ClinicalService[] = [
+  { label: 'COVID 12-15', value: 'COVID:12_15' },
+  { label: 'COVID 16-17', value: 'COVID:16_17' },
+  { label: 'COVID 18-74', value: 'COVID:18_74' },
+  { label: 'COVID 5-11 (10 Min)', value: 'COVID:5_11_10' },
+  { label: 'COVID 75+', value: 'COVID:75' },
+  { label: 'FLU 18-64', value: 'FLU:18_64' },
+  { label: 'FLU 65+', value: 'FLU:65' },
+  { label: 'FLU and COVID 18-64', value: 'COVID_FLU:18_64' },
+  { label: 'FLU and COVID 65-74', value: 'COVID_FLU:65-74' },
+  { label: 'FLU and COVID 75+', value: 'COVID_FLU:75' },
+  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+];
 
 export type {
   ApplyAvailabilityTemplateRequest,

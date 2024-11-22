@@ -134,7 +134,6 @@ stages:
         displayName: "Upload documents to cosmosdb"
         variables:
           cosmosAccountName: nbs-mya-cdb-${{parameters.env}}-uks
-          ENVIRONMENT: ${{parameters.env}}
         steps:
           - script: printenv
           - checkout: self

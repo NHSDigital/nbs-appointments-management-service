@@ -15,6 +15,7 @@ export default defineConfig({
     ['html', { outputFolder: 'testing/playwright-report' }],
   ],
   outputDir: './test-artifacts',
+  globalSetup: require.resolve('./testing/global-setup'),
 
   // TODO: Playwright init defaults to 0 retries locally.
   // Let's try this for a bit with the goal of eliminating flakiness, but add in retries if we have to.
@@ -32,13 +33,8 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'Seed Cosmos',
-      testMatch: /seed-cosmos\.ts/,
-    },
-    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['Seed Cosmos'],
     },
     // TODO: Test with multiple browsers in CI, or maybe just on an ad hoc basis
     // Mobile Safari, firefox, edge, Chrome etc.

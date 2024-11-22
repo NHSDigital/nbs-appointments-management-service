@@ -8,10 +8,7 @@
   "integratedCareBoard": "ICB2",
   "location": {
     "type": "Point",
-    "coordinates": [
-      -1.66382134,
-      53.79628754
-    ]
+    "coordinates": [-1.66382134, 53.79628754]
   },
   "attributeValues": [
     {

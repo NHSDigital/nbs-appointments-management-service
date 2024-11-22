@@ -8,7 +8,7 @@
     },
     {
       "role": "canned:user-manager",
-      "scope":  "site:ABC01"
+      "scope": "site:ABC01"
     },
     {
       "role": "canned:site-attributes-editor",

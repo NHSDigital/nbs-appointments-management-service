@@ -21,7 +21,7 @@ public class ConsoleLogNotifications : IMessageBus
     protected virtual void ProcessMessage<T>(T message) { }
 }
 
-public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer, IConsumer<BookingReminder> bookingReminderConsumer, IConsumer<BookingCancelled> bookingCancelledConsumer) : ConsoleLogNotifications
+public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer, IConsumer<BookingReminder> bookingReminderConsumer, IConsumer<BookingCancelled> bookingCancelledConsumer, IConsumer<BookingRescheduled> bookingRescheduledConsumer) : ConsoleLogNotifications
 {
     protected override void ProcessMessage<T>(T message)
     {
@@ -33,6 +33,11 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
         if (message is BookingMade bookingMade)
         {
             bookingMadeConsumer.Consume(new DummyConsumeContext<BookingMade>() { Message = bookingMade });
+        }
+
+        if (message is BookingRescheduled bookingRescheduled)
+        {
+            bookingRescheduledConsumer.Consume(new DummyConsumeContext<BookingRescheduled>() { Message = bookingRescheduled });
         }
 
         if (message is BookingReminder bookingReminder)

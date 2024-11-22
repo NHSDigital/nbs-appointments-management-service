@@ -16,6 +16,7 @@ public static class ServiceRegistration
 
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingMadeNotifier, BookingNotifier>()
+                .AddTransient<IBookingRescheduledNotifier, BookingNotifier>()
                 .AddTransient<IBookingReminderNotifier, BookingNotifier>()
                 .AddTransient<IBookingCancelledNotifier, BookingNotifier>()
                 .AddScoped<NotifyBookingReminderFunction>();
@@ -27,6 +28,7 @@ public static class ServiceRegistration
                 .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
                 .AddScoped<IConsumer<BookingCancelled>, BookingCancelledConsumer>()
                 .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
+                .AddScoped<IConsumer<BookingRescheduled>, BookingRescheduledConsumer>()
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
                 .AddScoped<ISendNotifications, FakeNotificationClient>();
         }
@@ -39,10 +41,12 @@ public static class ServiceRegistration
                 .AddScoped<NotifyBookingMadeFunction>()
                 .AddScoped<NotifyBookingCancelledFunction>()
                 .AddScoped<ScheduledBookingRemindersFunction>()
+                .AddScoped<NotifyBookingRescheduledFunction>()
                 .AddMassTransitForAzureFunctions(cfg =>
                 {
                     EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
                     EndpointConvention.Map<BookingMade>(new Uri($"queue:{NotifyBookingMadeFunction.QueueName}"));
+                    EndpointConvention.Map<BookingRescheduled>(new Uri($"queue:{NotifyBookingRescheduledFunction.QueueName}"));
                     EndpointConvention.Map<BookingCancelled>(new Uri($"queue:{NotifyBookingCancelledFunction.QueueName}"));
                     EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
                     cfg.AddConsumer<UserRolesChangedConsumer>();

@@ -116,7 +116,7 @@ stages:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
-              Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName
+              Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
             displayName: Set short commit hash
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"

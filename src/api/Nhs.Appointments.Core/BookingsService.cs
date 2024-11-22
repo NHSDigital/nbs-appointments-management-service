@@ -96,21 +96,16 @@ public class BookingsService(
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
-
-        if (booking == null)
-        {
-            return BookingConfirmationResult.NotFound;
-        }
-
         var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
         if(result == BookingConfirmationResult.Success)
         {
+            var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
             if (isRescheduleOperation)
             {
                 var bookingRescheduledEvent = eventFactory.BuildBookingRescheduledEvent(booking);
-                await bus.Send(bus.Send(bookingRescheduledEvent));
+                await bus.Send(bookingRescheduledEvent);
             }
             else
             {

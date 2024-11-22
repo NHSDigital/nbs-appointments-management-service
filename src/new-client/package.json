@@ -24,15 +24,16 @@
   },
   "dependencies": {
     "@next/env": "^14.2.16",
+    "dayjs": "^1.11.13",
     "manage-your-appointments": "file:",
     "next": "14.2.16",
-    "dayjs": "^1.11.13",
     "nhsuk-frontend": "^8.3.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.1"
   },
   "devDependencies": {
+    "@azure/cosmos": "^4.2.0",
     "@playwright/test": "^1.48.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",

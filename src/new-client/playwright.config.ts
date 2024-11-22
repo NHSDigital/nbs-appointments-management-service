@@ -32,8 +32,13 @@ export default defineConfig({
 
   projects: [
     {
+      name: 'Seed Cosmos',
+      testMatch: /seed-cosmos\.ts/,
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['Seed Cosmos'],
     },
     // TODO: Test with multiple browsers in CI, or maybe just on an ad hoc basis
     // Mobile Safari, firefox, edge, Chrome etc.

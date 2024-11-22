@@ -25,6 +25,8 @@ const testUsers = {
 
 const environment = {
   BASE_URL: process.env.BASE_URL ?? '',
+  COSMOS_ENDPOINT: process.env.COSMOS_ENDPOINT ?? '',
+  COSMOS_TOKEN: process.env.COSMOS_TOKEN ?? '',
   TEST_USERS: testUsers,
 };
 

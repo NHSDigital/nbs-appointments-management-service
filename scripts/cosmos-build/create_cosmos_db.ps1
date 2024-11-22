@@ -1,14 +1,14 @@
 ﻿#!/usr/bin/env pwsh
 param (
-    [string][Parameter(Mandatory)]$environment,
+    [string][Parameter(Mandatory)]$resourceGroup,
     [string][Parameter(Mandatory)]$cosmosAccountName
 )
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$ResourceGroup = "nbs-mya-cdb-$(environment)-uks"
-$CosmosAccountName = $(cosmosAccountName)
+$ResourceGroup = $resourceGroup
+$CosmosAccountName = $cosmosAccountName
 $DevSubscription = "07748954-52d6-46ce-95e6-2701bfc715b4"
 
 az cosmosdb create `

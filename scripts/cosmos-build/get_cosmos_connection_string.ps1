@@ -1,12 +1,12 @@
 ﻿#!/usr/bin/env pwsh
 
 param (
-        [string][Parameter(Mandatory)]$environment,
+        [string][Parameter(Mandatory)]$resourceGroup,
         [string][Parameter(Mandatory)]$cosmosAccountName
 )
 
-$ResourceGroup = "nbs-mya-cdb-$(environment)-uks"
-$CosmosAccountName = $(cosmosAccountName)
+$ResourceGroup = $resourceGroup
+$CosmosAccountName = $cosmosAccountName
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"

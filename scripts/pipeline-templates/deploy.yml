@@ -7,6 +7,10 @@
     type: string
   - name: webServerName
     type: string
+  - name: cosmosAccountName
+    type: string
+  - name: resourceGroup
+    type: string
   - name: serviceConnectionName
     type: string
   - name: isMain
@@ -140,11 +144,11 @@ stages:
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(serviceConnectionName)
+              azureSubscription: ${{parameters.serviceConnectionName}}
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
-              arguments: '$(ENVIRONMENT) $(cosmosAccountName)'
+              arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
           - task: DotNetCoreCLI@2
             displayName: "Seed Cosmos DB containers"
             inputs:

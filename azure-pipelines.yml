@@ -112,6 +112,7 @@ stages:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "mock-data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+          prBuildResourceGroup: "nbs-mya-prbuild-rg-dev-uks"
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
@@ -126,7 +127,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
-              arguments: "$(ENVIRONMENT) $(cosmosAccountName)"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
@@ -134,7 +135,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
-              arguments: '$(environment) $(cosmosAccountName)'
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
           - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
@@ -198,7 +199,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
-              arguments: '$(environment) $(cosmosAccountName)'
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
 
   - ${{ each env in parameters.environments }}:
       - template: "scripts/pipeline-templates/deploy.yml"
@@ -207,5 +208,7 @@ stages:
           variable_group: nbs-mya-${{env}}
           apiServerName: nbs-mya-func-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
+          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+          resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-dev
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

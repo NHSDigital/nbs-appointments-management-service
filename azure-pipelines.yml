@@ -149,6 +149,9 @@ stages:
               command: "test"
               projects: "$(integrationTestProjectPath)"
               arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(CosmosEndpoint)
+              COSMOS_TOKEN: $(CosmosToken)
           - task: PublishTestResults@2
             displayName: "Publish integration test results"
             inputs:

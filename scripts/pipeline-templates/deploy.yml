@@ -154,3 +154,6 @@ stages:
             inputs:
               command: "run"
               projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+            env:
+              COSMOS_ENDPOINT: $(CosmosEndpoint)
+              COSMOS_TOKEN: $(CosmosToken)

@@ -105,10 +105,10 @@ class Program
 
     private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath, string environment)
     {
+        var container = await CreateContainerAsync(containerName, partitionKeyPath);
         var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}");
         if(Directory.Exists(folderPath))
         {
-            var container = await CreateContainerAsync(containerName, partitionKeyPath);
             var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}"), "*.json");
 
             foreach (var file in jsonFiles)

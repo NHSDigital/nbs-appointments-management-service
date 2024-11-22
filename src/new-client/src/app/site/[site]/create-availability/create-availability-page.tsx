@@ -23,7 +23,7 @@ export const CreateAvailabilityPage = async ({ site }: Props) => {
       {tableData && <Table {...tableData}></Table>}
       <br />
       <Link href={`/site/${site.id}/create-availability/wizard`}>
-        <Button type="button">Create availablity</Button>
+        <Button type="button">Create availability</Button>
       </Link>
     </>
   );

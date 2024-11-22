@@ -83,10 +83,10 @@ describe('Create Availability Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('button', { name: 'Create availablity' }),
+      screen.getByRole('button', { name: 'Create availability' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Create availablity' }),
+      screen.getByRole('link', { name: 'Create availability' }),
     ).toHaveAttribute(
       'href',
       `/site/${mockSite.id}/create-availability/wizard`,

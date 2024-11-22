@@ -102,6 +102,76 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task RescheduleBooking_IsSuccessful()
+        {
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+            var availability = new[] {
+                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+                { Services = new[] { "TSERV" } },
+                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
+                { Services = new[] { "TSERV" } },
+            };
+
+            ContactItem[] contactDetails = [new ContactItem { Type = "email", Value = "test@tempuri.org" }];
+
+            var initialBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking { Reference = "TEST1", Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = contactDetails, Provisional = false, AttendeeDetails = new AttendeeDetails() });
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST2")).ReturnsAsync(new Booking { Reference = "TEST2", Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 11, 0, 0, 0), Duration = 10, ContactDetails = contactDetails, Provisional = false, AttendeeDetails = new AttendeeDetails() });
+            var initialBookingResult = await _bookingsService.MakeBooking(initialBooking);
+            await _bookingsService.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
+
+            var rescheduledBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 11, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+            var rescheduledBookingResult = await _bookingsService.MakeBooking(rescheduledBooking);
+
+            var rescheduleResult = await _bookingsService.ConfirmProvisionalBooking(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference);
+
+            rescheduleResult.Should().Be(BookingConfirmationResult.Success);
+        }
+
+        [Fact]
+        public async Task RescheduleBooking_RaisesNotificationEvent()
+        {
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+            var availability = new[] {
+                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+                { Services = new[] { "TSERV" } },
+                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
+                { Services = new[] { "TSERV" } },
+            };
+
+            ContactItem[] contactDetails = [new ContactItem { Type = "email", Value = "test@tempuri.org" }];
+
+            var initialBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking { Reference = "TEST1", Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = contactDetails, Provisional = false, AttendeeDetails = new AttendeeDetails() });
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST2")).ReturnsAsync(new Booking { Reference = "TEST2", Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 11, 0, 0, 0), Duration = 10, ContactDetails = contactDetails, Provisional = false, AttendeeDetails = new AttendeeDetails() });
+            var initialBookingResult = await _bookingsService.MakeBooking(initialBooking);
+            await _bookingsService.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
+
+            var rescheduledBooking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 11, 0, 0, 0), Duration = 10, ContactDetails = null, Provisional = true };
+            var rescheduledBookingResult = await _bookingsService.MakeBooking(rescheduledBooking);
+
+            var rescheduleResult = await _bookingsService.ConfirmProvisionalBooking(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference);
+
+            _messageBus.Verify(x => x.Send(It.Is<BookingRescheduled>(e => e.Reference == rescheduledBookingResult.Reference)), Times.Once);
+        }
+
+        [Fact]
         public async Task MakeBooking_FlagsBookingForReminder_WhenBooking()
         {
             var expectedFrom = new DateOnly(2077, 1, 1);

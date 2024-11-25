@@ -1,4 +1,4 @@
-﻿{
+{
   "id": "ABC01",
   "docType": "site",
   "name": "Robin Lane Medical Centre",
@@ -8,10 +8,7 @@
   "integratedCareBoard": "ICB1",
   "location": {
     "type": "Point",
-    "coordinates": [
-      -1.6610648,
-      53.795467
-    ]
+    "coordinates": [-1.6610648, 53.795467]
   },
   "attributeValues": []
 }

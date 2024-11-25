@@ -21,6 +21,6 @@ public class AttendeeDetailsValidator : AbstractValidator<AttendeeDetails>
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Provide a last name");
         RuleFor(x => x.DateOfBirth)
-            .LessThan(x => today).WithMessage("Date of birth must be in the past");
+            .LessThan(x => today).WithMessage("Date of birth must be in the past");            
     }
 }

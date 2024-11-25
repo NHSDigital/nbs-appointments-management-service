@@ -12,7 +12,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             expected.ContactDetails.Should().BeEquivalentTo(actual.ContactDetails);
             expected.Duration.Should().Be(actual.Duration);
             expected.AttendeeDetails.Should().BeEquivalentTo(actual.AttendeeDetails);
-            expected.Outcome.Should().Be(actual.Outcome);
+            expected.Status.Should().Be(actual.Status);
             expected.Created.Year.Should().Be(actual.Created.Year);
             expected.Created.Month.Should().Be(actual.Created.Month);
             expected.Created.Day.Should().Be(actual.Created.Day);
@@ -28,7 +28,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             expected.ContactDetails.Should().BeEquivalentTo(actual.ContactDetails);
             expected.Duration.Should().Be(actual.Duration);
             expected.AttendeeDetails.Should().BeEquivalentTo(actual.AttendeeDetails);
-            expected.Outcome.Should().Be(actual.Outcome);
+            expected.Status.Should().Be(actual.Status);
             expected.Created.Year.Should().Be(actual.Created.Year);
             expected.Created.Month.Should().Be(actual.Created.Month);
             expected.Created.Day.Should().Be(actual.Created.Day);

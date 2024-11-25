@@ -8,9 +8,9 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
-    Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking);
+    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference);
-    Task<bool> SetBookingStatus(string bookingReference, string status);
+    Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
@@ -32,7 +32,7 @@ public class BookingsService(
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
     {
-        return bookingDocumentStore.GetCrossSiteAsync(from, to, false);
+        return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
     }
 
     public Task<Booking> GetBookingByReference(string bookingReference)
@@ -45,7 +45,7 @@ public class BookingsService(
         return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<(bool Success, string Reference, bool Provisional)> MakeBooking(Booking booking)
+    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {            
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {                
@@ -59,16 +59,16 @@ public class BookingsService(
                 booking.ReminderSent = false;
                 await bookingDocumentStore.InsertAsync(booking);
 
-                if (!booking.Provisional)
+                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
                 {
                     var bookingMadeEvent = eventFactory.BuildBookingMadeEvent(booking);
                     await bus.Send(bookingMadeEvent);
                 }
 
-                return (true, booking.Reference, booking.Provisional);
+                return (true, booking.Reference);
             }
 
-            return (false, string.Empty, booking.Provisional);
+            return (false, string.Empty);
         }            
     }
 
@@ -81,10 +81,7 @@ public class BookingsService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore
-            .BeginUpdate(booking.Site, bookingReference)
-            .UpdateProperty(b => b.Outcome, "Cancelled")                
-            .ApplyAsync();
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
 
         var bookingCancelledEvent = eventFactory.BuildBookingCancelledEvent(booking);
         await bus.Send (bookingCancelledEvent);
@@ -117,7 +114,7 @@ public class BookingsService(
         return result;
     }
 
-    public Task<bool> SetBookingStatus(string bookingReference, string status)
+    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status)
     {
         return bookingDocumentStore.UpdateStatus(bookingReference, status);
     }

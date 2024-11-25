@@ -22,9 +22,11 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
 
             var bookings = await bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0, 0)), until.ToDateTime(new TimeOnly(23, 59)), site);
 
-            var isNotCancelled = (Booking b) => b.Outcome?.ToLower() != "cancelled";
-            var isNotExpiredProvisional = (Booking b) => b.Provisional == false || b.Created.AddMinutes(5) > time.GetUtcNow();
-            var liveBookings = bookings.Where(isNotCancelled).Where(isNotExpiredProvisional);
+            var liveStatuses = new[] { AppointmentStatus.Booked, AppointmentStatus.Provisional };
+            var isExpiredProvisional = (Booking b) => b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
+            var liveBookings = bookings
+                .Where(b => liveStatuses.Contains(b.Status))
+                .Where(b => isExpiredProvisional(b) == false);
 
             foreach (var booking in liveBookings)
             {

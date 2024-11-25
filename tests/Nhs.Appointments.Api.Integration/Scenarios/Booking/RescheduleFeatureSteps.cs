@@ -38,10 +38,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             var siteId = GetSiteId();
             var bookingReference = _reschduledBookingReference;
             var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
-            actualBooking.Resource.Provisional.Should().BeFalse();
+            actualBooking.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
 
             var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
-            actualBookingIndex.Resource.Provisional.Should().BeFalse();
+            actualBookingIndex.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
         }
     }
 }

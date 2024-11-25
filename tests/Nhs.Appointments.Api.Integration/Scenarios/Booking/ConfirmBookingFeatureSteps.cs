@@ -57,10 +57,10 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
-        actualBooking.Resource.Provisional.Should().BeFalse();
+        actualBooking.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
     
         var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
-        actualBookingIndex.Resource.Provisional.Should().BeFalse();
+        actualBookingIndex.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
     }
 
     [And("the booking should have stored my contact details as follows")]

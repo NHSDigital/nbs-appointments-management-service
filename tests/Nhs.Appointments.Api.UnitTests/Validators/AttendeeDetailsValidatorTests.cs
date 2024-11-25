@@ -62,7 +62,7 @@ public class AttendeeValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Be(nameof(AttendeeDetails.LastName));
-    }
+    }       
     
     [Fact]
     public void Validate_ReturnsError_WhenDateOfBirthIsInTheFuture()

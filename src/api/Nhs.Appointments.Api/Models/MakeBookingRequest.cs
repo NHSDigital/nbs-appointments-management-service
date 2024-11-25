@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.Json;
 using Newtonsoft.Json;
 using Nhs.Appointments.Core;
@@ -7,25 +6,26 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Api.Models;
 
 public record MakeBookingRequest(
-    [JsonProperty("site")]
+    [property:JsonProperty("site", Required = Required.Always)]
     string Site,
-    [JsonProperty("from")]
-    string From,
-    [JsonProperty("duration")]
+    [property:JsonProperty("from", Required = Required.Always)]
+    DateTime From,
+    [property:JsonProperty("duration", Required = Required.Always)]
     int Duration,
-    [JsonProperty("service")]
+    [property:JsonProperty("service", Required = Required.Always)]
     string Service,
-    [JsonProperty("attendeeDetails")]
+    [property:JsonProperty("attendeeDetails", Required = Required.Always)]
     AttendeeDetails AttendeeDetails,
-    [JsonProperty("contactDetails")]
+    [property:JsonProperty("contactDetails")]
     ContactItem[] ContactDetails,
-    [JsonProperty("additionalData")]
-    object? AdditionalData,
-    [JsonProperty("provisional")]
-    bool Provisional = false
-)
+    [property:JsonProperty("additionalData")]
+    object AdditionalData,
+    [property:JsonProperty("kind", Required = Required.Always)]
+    BookingKind Kind
+);
 
+public enum BookingKind
 {
-    public DateTime FromDateTime => DateTime.ParseExact(From, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-};
+    Booked,
+    Provisional
+}

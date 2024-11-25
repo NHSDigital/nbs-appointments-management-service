@@ -35,7 +35,7 @@ public class MakeBookingFunctionTests
     public async Task RunAsync_ReturnsSuccessResponse_WhenAppointmentIsRequested()
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01", false));
+        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
         var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
 
@@ -63,7 +63,7 @@ public class MakeBookingFunctionTests
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
         
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01", false));
+        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
         var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
         var expectedBooking = new Booking
@@ -72,6 +72,7 @@ public class MakeBookingFunctionTests
             Duration = 5,
             Service = "COVID",
             From = new DateTime(2077, 1, 1, 10, 30, 0),
+            Status = AppointmentStatus.Booked,
             AttendeeDetails = new Core.AttendeeDetails
             {
                 FirstName = "FirstName",
@@ -115,7 +116,7 @@ public class MakeBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        var dto = new MakeBookingRequest(site, from, 5, service,
+        var dto = new MakeBookingRequest(site, DateTime.ParseExact(from, "yyyy-MM-dd HH:mm", null), 5, service,
             new AttendeeDetails
             {
                 NhsNumber = nhsNumber,
@@ -127,7 +128,7 @@ public class MakeBookingFunctionTests
                 new ContactItem { Type = ContactItemType.Email, Value = email },
                 new ContactItem { Type = ContactItemType.Phone, Value = phoneNumber }
             ],
-            additionalData);
+            additionalData, BookingKind.Booked);
 
         var body = JsonConvert.SerializeObject(dto);
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));

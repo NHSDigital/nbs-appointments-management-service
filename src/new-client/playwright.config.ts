@@ -21,7 +21,7 @@ export default defineConfig({
   // Let's try this for a bit with the goal of eliminating flakiness, but add in retries if we have to.
   retries: process.env.CI ? 2 : 0,
   // TODO: Playwright init defaults to opt out of parallel tests on CI. We should confirm if we agree with that
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   use: {
     baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',

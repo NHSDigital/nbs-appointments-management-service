@@ -36,7 +36,11 @@ const Page = async ({ params }: PageProps) => {
     queryType: 'Days',
   };
   const availability = await fetchAvailability(payload);
-  const detailedMonthView = await getDetailedMonthView(availability, site.id);
+  const detailedMonthView = await getDetailedMonthView(
+    availability,
+    weeks,
+    site.id,
+  );
 
   return (
     <NhsPage

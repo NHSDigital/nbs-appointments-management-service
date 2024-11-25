@@ -33,8 +33,8 @@ async function seedCosmos() {
     withFileTypes: true,
   });
 
-  for (const containerFolder of containerFolders) {
-    const containerName = containerFolder.name;
+  containerFolders.forEach(async folder => {
+    const containerName = folder.name;
     const { container } = await appts.containers.createIfNotExists({
       id: containerName,
     });
@@ -42,14 +42,14 @@ async function seedCosmos() {
     const folderPath = path.join(dbSeederDocumentsRoot, containerName);
     const documents = await fs.readdir(folderPath);
 
-    for (const document of documents) {
+    documents.forEach(async document => {
       const filePath = path.join(folderPath, document);
       const fileContent = await fs.readFile(filePath, 'utf-8');
 
-      const jsonData = JSON.parse(fileContent.replace(/\s/g, ''));
+      const jsonData = JSON.parse(fileContent);
       await container.items.upsert(jsonData);
-    }
-  }
+    });
+  });
 }
 
 export default globalSetup;

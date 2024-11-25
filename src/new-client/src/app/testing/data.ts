@@ -139,7 +139,15 @@ const mockTemplate1: AvailabilityTemplate = {
 };
 
 const mockTemplate2: AvailabilityTemplate = {
-  days: ['Thursday', 'Friday'],
+  days: [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ],
   sessions: [mockSession3],
 };
 

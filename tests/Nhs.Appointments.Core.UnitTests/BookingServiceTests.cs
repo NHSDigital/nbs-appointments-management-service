@@ -240,17 +240,13 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             var site = "some-site";
             var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled)).Returns(updateMock.Object).Verifiable();
-
+            
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking() { Site = site }));
-            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object).Verifiable();
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
 
             await _bookingsService.CancelBooking(bookingRef);
 
-            _bookingsDocumentStore.VerifyAll();
-            updateMock.VerifyAll();
+            _bookingsDocumentStore.VerifyAll();            
         }
 
         [Fact]

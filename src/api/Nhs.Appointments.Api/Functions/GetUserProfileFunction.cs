@@ -1,3 +1,4 @@
+using System;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace Nhs.Appointments.Api.Functions
                     siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
             }
 
-            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList));
+            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList, new DateOnly(2024, 12, 01)));
         }
 
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

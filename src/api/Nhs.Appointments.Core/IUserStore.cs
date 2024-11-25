@@ -9,4 +9,6 @@ public interface IUserStore
     Task<IEnumerable<User>> GetUsersAsync(string site);
     Task<User> GetOrDefaultAsync(string userId);
     Task<OperationResult> RemoveUserAsync(string userId, string siteId);
+
+    Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate);
 }

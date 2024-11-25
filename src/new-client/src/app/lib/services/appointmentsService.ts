@@ -13,6 +13,8 @@ import {
   AvailabilityCreatedEvent,
   FetchAvailabilityRequest,
   AvailabilityResponse,
+  FetchBookingsRequest,
+  Booking,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -304,6 +306,15 @@ export const setSiteInformationForCitizen = async (
 export const fetchAvailability = async (payload: FetchAvailabilityRequest) => {
   const response = await appointmentsApi.post<AvailabilityResponse[]>(
     'availability/query',
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
+};
+
+export const fetchBookings = async (payload: FetchBookingsRequest) => {
+  const response = await appointmentsApi.post<Booking[]>(
+    'booking/query',
     JSON.stringify(payload),
   );
 

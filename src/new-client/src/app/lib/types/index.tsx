@@ -152,6 +152,7 @@ type AvailabilityBlock = {
 };
 
 // TODO: Rename this type to something more meaningful
+// TODO: Do we need to include start year & end year?
 type Week = {
   start: number;
   end: number;
@@ -159,6 +160,47 @@ type Week = {
   endMonth: number;
   year: number;
   unbooked?: number;
+  totalAppointments?: number;
+  booked?: number;
+  bookedAppointments: bookedAppointments[];
+};
+
+type FetchBookingsRequest = {
+  from: string;
+  to: string;
+  site: string;
+};
+
+type Booking = {
+  reference: string;
+  from: string;
+  duration: number;
+  service: string;
+  site: string;
+  outcome: string;
+  attendeeDetails: AttendeeDetails;
+  contactDetails: ContactItem[];
+  reminderSet: boolean;
+  created: string;
+  provisional: boolean;
+  // TODO: Additional data object - any type?
+};
+
+type AttendeeDetails = {
+  nhsNumber: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+};
+
+type ContactItem = {
+  type: string;
+  value: string;
+};
+
+type bookedAppointments = {
+  service: string;
+  count: number;
 };
 
 type ClinicalService = {
@@ -194,9 +236,11 @@ export type {
   AvailabilityCreatedEvent,
   AvailabilitySession,
   AvailabilityTemplate,
+  Booking,
   DateComponents,
   ErrorType,
   FetchAvailabilityRequest,
+  FetchBookingsRequest,
   Role,
   RoleAssignment,
   Session,

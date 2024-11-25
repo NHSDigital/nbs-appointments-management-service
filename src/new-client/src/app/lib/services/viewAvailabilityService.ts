@@ -139,10 +139,10 @@ export const getUnbookedCount = (
 };
 
 const weekStart = (week: Week): Date => {
-  return new Date(week.year, week.startMonth, week.start);
+  return new Date(week.year, week.startMonth, week.start, 0, 0, 0);
 };
 const weekEnd = (week: Week): Date => {
-  return new Date(week.year, week.endMonth, week.end);
+  return new Date(week.year, week.endMonth, week.end, 23, 59, 59);
 };
 
 const getBookingsInWeek = (
@@ -164,16 +164,26 @@ export const getDetailedMonthView = async (
   siteId: string,
 ): Promise<Week[]> => {
   const weeks = getWeeksInMonth(dayjs().year(), dayjs().month());
-  const fromDate = new Date(weeks[0].year, weeks[0].startMonth, weeks[0].start);
+  const fromDate = new Date(
+    weeks[0].year,
+    weeks[0].startMonth,
+    weeks[0].start,
+    0,
+    0,
+    0,
+  );
   const toDate = new Date(
     weeks[weeks.length - 1].year,
     weeks[weeks.length - 1].endMonth,
     weeks[weeks.length - 1].end,
+    23,
+    59,
+    59,
   );
 
   const bookingRequest: FetchBookingsRequest = {
-    from: dayjs(fromDate).format('YYYY-MM-DD'),
-    to: dayjs(toDate).format('YYYY-MM-DD'),
+    from: dayjs(fromDate).format('YYYY-MM-DD H:mm'),
+    to: dayjs(toDate).format('YYYY-MM-DD H:mm'),
     site: siteId,
   };
 

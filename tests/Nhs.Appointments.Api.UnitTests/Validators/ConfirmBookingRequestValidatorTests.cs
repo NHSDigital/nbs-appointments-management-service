@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -11,7 +12,7 @@ public class ConfirmBookingRequestValidatorTests
     [Fact]
     public void Validate_ReturnError_WhenReferenceIsBlank()
     {
-        var testRequest = new ConfirmBookingRequest(string.Empty, [new ContactItem("email", "test@tempuri.org")], string.Empty);
+        var testRequest = new ConfirmBookingRequest(string.Empty, [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }], string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -21,7 +22,7 @@ public class ConfirmBookingRequestValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
-        var testRequest = new ConfirmBookingRequest("my-ref", [new ContactItem("email", "test@tempuri.org")], string.Empty);
+        var testRequest = new ConfirmBookingRequest("my-ref", [new ContactItem{Type = ContactItemType.Email, Value = "test@tempuri.org"}], string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

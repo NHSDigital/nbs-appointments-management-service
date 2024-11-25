@@ -1,0 +1,19 @@
+{
+  "created": "2020-01-01T14:54:31.233324Z",
+  "by": "cc.agent@nhs.net",
+  "template": null,
+  "from": "2020-02-01",
+  "to": null,
+  "sessions": [
+    {
+      "from": "09:00",
+      "until": "12:00",
+      "services": ["RSV:Adult"],
+      "slotLength": 10,
+      "capacity": 5
+    }
+  ],
+  "site": "ABC02",
+  "id": "availability_created_ABC02_20200101145431233324",
+  "docType": "availability_created_event"
+}

@@ -1,3 +1,6 @@
+// We need this to avoid SSL errors when running tests locally
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import { test as baseTest } from '@playwright/test';
 
 export * from '@playwright/test';

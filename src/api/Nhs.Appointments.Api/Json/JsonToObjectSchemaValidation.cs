@@ -170,7 +170,7 @@ namespace Nhs.Appointments.Api.Json
             {
                 if (json.ValueKind != JsonValueKind.String)
                     errors.Add(new ErrorMessageResponseItem { Property = path, Message = "Expected a string value but found " + json.ValueKind });
-                else if (Enum.TryParse(type, json.GetString(), out var val) == false)
+                else if (Enum.TryParse(type, json.GetString(), true, out var val) == false)
                     errors.Add(new ErrorMessageResponseItem { Property = path, Message = $"{json.GetString()} is not a valid value" });
             }
 

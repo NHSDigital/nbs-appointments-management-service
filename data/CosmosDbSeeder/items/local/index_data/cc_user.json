@@ -1,4 +1,4 @@
-﻿{
+{
   "id": "cc.agent@nhs.net",
   "docType": "user",
   "roleAssignments": [
@@ -8,7 +8,7 @@
     },
     {
       "role": "canned:user-manager",
-      "scope":  "site:ABC01"
+      "scope": "site:ABC01"
     },
     {
       "role": "canned:site-attributes-editor",

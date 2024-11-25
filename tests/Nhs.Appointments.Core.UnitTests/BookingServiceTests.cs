@@ -261,7 +261,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking { Reference = bookingRef, Site = site}));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
 
-            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled>(e => e.Site == site && e.Reference == bookingRef))).Verifiable();
+            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled>(e => e.Site == site && e.Reference == bookingRef))).Verifiable(Times.Once);
 
             await _bookingsService.CancelBooking(bookingRef);
 

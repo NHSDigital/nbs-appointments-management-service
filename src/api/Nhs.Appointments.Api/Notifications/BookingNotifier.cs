@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class BookingNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, ISiteService siteService) : IBookingMadeNotifier, IBookingReminderNotifier, IBookingCancelledNotifier, IBookingRescheduledNotifier
+public class BookingNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, ISiteService siteService, IPrivacyUtil privacy) : IBookingMadeNotifier, IBookingReminderNotifier, IBookingCancelledNotifier, IBookingRescheduledNotifier
 {
     public async Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, string email, string phoneNumber)
     {
@@ -26,7 +26,16 @@ public class BookingNotifier(ISendNotifications notificationClient, INotificatio
             {"address", site.Address }
         };
 
-        var notificationConfig = await notificationConfigurationStore.GetNotificationConfigurationForService(eventType, service);
+        NotificationConfiguration notificationConfig;
+
+        try
+        {
+            notificationConfig = await notificationConfigurationStore.GetNotificationConfigurationForService(eventType, service);
+        }
+        catch(Exception ex)
+        {
+            throw new NotificationException($"The {eventType} notification could not be sent to {privacy.ObfuscateEmail(email)} {privacy.ObfuscatePhoneNumber(phoneNumber)} because due to a notification configuration problem.");
+        }
 
         if(!string.IsNullOrEmpty(email))
         {

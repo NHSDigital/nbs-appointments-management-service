@@ -3,8 +3,10 @@ import OAuthLoginPage from './page-objects/oauth';
 import RootPage from './page-objects/root';
 import SiteSelectionPage from './page-objects/site-selection';
 import env from './testEnvironment';
+import { CosmosClient } from '@azure/cosmos';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const { TEST_USERS } = env;
+const { TEST_USERS, COSMOS_ENDPOINT, COSMOS_TOKEN } = env;
 
 test('User visits the site origin, signs in and see the Site Selection menu', async ({
   page,

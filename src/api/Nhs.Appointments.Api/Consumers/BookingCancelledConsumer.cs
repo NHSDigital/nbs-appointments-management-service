@@ -21,8 +21,8 @@ public class BookingCancelledConsumer(IBookingCancelledNotifier notifier, TimePr
             return Task.CompletedTask;
         }
 
-        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "email")?.Value;
-        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "phone")?.Value;
+        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == Core.ContactItemType.Email)?.Value;
+        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == Core.ContactItemType.Phone)?.Value;
 
         return notifier.Notify(
             nameof(BookingCancelled),

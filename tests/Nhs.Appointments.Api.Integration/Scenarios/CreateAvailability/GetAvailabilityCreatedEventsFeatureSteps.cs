@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Xunit.Gherkin.Quick;
-using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
@@ -21,8 +20,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         public async Task ThenIRequestAvailabilityCreatedEventsForTheCurrentSite()
         {
             var siteId = GetSiteId();
+            var dateFrom = ParseNaturalLanguageDateOnly("Yesterday");
 
-            _response = await Http.GetAsync($"http://localhost:7071/api/availability-created?site={siteId}");
+            _response = await Http.GetAsync($"http://localhost:7071/api/availability-created?site={siteId}&from={dateFrom:yyyy-MM-dd}");
             _statusCode = _response.StatusCode;
             var content = await _response.Content.ReadAsStreamAsync();
 

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -164,7 +165,7 @@ public class MakeBookingRequestValidatorTests
             5,
             "COVID",
             GetAttendeeDetails(),
-            [new ContactItem("email", "test@tempuri.org")],
+            [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }],
             null,
             true
         );
@@ -204,20 +205,20 @@ public class MakeBookingRequestValidatorTests
 
     private AttendeeDetails GetAttendeeDetails()
     {
-        var attendeeDetails = new AttendeeDetails(
-            "1234567890",
-            "FirstName",
-            "LastName",
-            "1980-01-01"
-        );
+        var attendeeDetails = new AttendeeDetails {
+            NhsNumber = "1234567890",
+            FirstName = "FirstName",
+            LastName = "LastName",
+            DateOfBirth = new DateOnly(1980, 01, 01)
+        };
         return attendeeDetails;
     }
 
     private ContactItem[] GetContactDetails()
     {
         return [
-            new ContactItem("email", "test@tempuri.org"),
-            new ContactItem("phone", "0123456789")
+            new ContactItem{ Type = ContactItemType.Email , Value = "test@tempuri.org" },
+            new ContactItem{ Type = ContactItemType.Phone, Value = "0123456789" }
             ];
     }
 }

@@ -1,0 +1,30 @@
+﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+
+This template is stored at https://www.notifications.service.gov.uk/
+
+Template name: Booking Rescheduled (RSV)
+
+Template Subject: Your rescheduled RSV appointment
+
+Template Body:
+
+Hello ((firstName)),
+
+Thank you for rescheduling your appointment for a RSV (respiratory syncytial virus) vaccination appointment. Your appointment has been successfully changed.
+
+# Your appointment
+
+Booking reference: ((reference))
+((siteName))
+((address))
+Date and time: ((date))
+((time))
+
+# If you need to change or cancel your appointment:
+
+* visit https://www.nhs.uk/book-rsv
+* if you can't get online, call 119
+
+Please cancel your appointment if you have had a RSV vaccination somewhere else. It helps the pharmacy to let them know if you can no longer attend.
+
+You can cancel your appointment up until the day it takes place. However, we can not change appointments an hour before they are due to start.

@@ -18,8 +18,8 @@ namespace Nhs.Appointments.Core.UnitTests
             e.Service.Should().Be(booking.Service);
             e.Site.Should().Be(booking.Site);
             e.ContactDetails.Should().NotBeNull();
-            e.ContactDetails.Should().Contain(c => c.Type == "email" && c.Value == "test@tempuri.org");
-            e.ContactDetails.Should().Contain(c => c.Type == "phone" && c.Value == "1234567890");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Email && c.Value == "test@tempuri.org");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Phone && c.Value == "1234567890");
         }
 
         [Fact]
@@ -41,8 +41,8 @@ namespace Nhs.Appointments.Core.UnitTests
             e.Service.Should().Be(booking.Service);
             e.Site.Should().Be(booking.Site);
             e.ContactDetails.Should().NotBeNull();
-            e.ContactDetails.Should().Contain(c => c.Type == "email" && c.Value == "test@tempuri.org");
-            e.ContactDetails.Should().Contain(c => c.Type == "phone" && c.Value == "1234567890");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Email && c.Value == "test@tempuri.org");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Phone && c.Value == "1234567890");
         }
 
         [Fact]
@@ -64,8 +64,8 @@ namespace Nhs.Appointments.Core.UnitTests
             e.Service.Should().Be(booking.Service);
             e.Site.Should().Be(booking.Site);
             e.ContactDetails.Should().NotBeNull();
-            e.ContactDetails.Should().Contain(c => c.Type == "email" && c.Value == "test@tempuri.org");
-            e.ContactDetails.Should().Contain(c => c.Type == "phone" && c.Value == "1234567890");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Email && c.Value == "test@tempuri.org");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Phone && c.Value == "1234567890");
         }
 
         [Fact]
@@ -80,8 +80,8 @@ namespace Nhs.Appointments.Core.UnitTests
             e.Service.Should().Be(booking.Service);
             e.Site.Should().Be(booking.Site);
             e.ContactDetails.Should().NotBeNull();
-            e.ContactDetails.Should().Contain(c => c.Type == "email" && c.Value == "test@tempuri.org");
-            e.ContactDetails.Should().Contain(c => c.Type == "phone" && c.Value == "1234567890");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Email && c.Value == "test@tempuri.org");
+            e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Phone && c.Value == "1234567890");
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
         private static Booking BuildBooking(bool withContact = true)
         {
-            ContactItem[]? contact = withContact ? [ new ContactItem { Type = "email", Value = "test@tempuri.org"}, new ContactItem { Type = "phone", Value = "1234567890"}] : null;
+            ContactItem[]? contact = withContact ? [ new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}, new ContactItem { Type = ContactItemType.Phone, Value = "1234567890"}] : null;
             return new Booking
             {
                 AttendeeDetails = new AttendeeDetails

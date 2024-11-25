@@ -11,8 +11,8 @@ public class BookingReminderConsumer(IBookingReminderNotifier notifier) : IConsu
 {
     public Task Consume(ConsumeContext<BookingReminder> context)
     {
-        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "email")?.Value;
-        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == "phone")?.Value;
+        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == Core.ContactItemType.Email)?.Value;
+        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == Core.ContactItemType.Phone)?.Value;
 
         return notifier.Notify(
             nameof(BookingReminder),

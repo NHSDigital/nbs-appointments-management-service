@@ -235,7 +235,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
-            Provisional = bookingType != BookingType.Confirmed,
+            Status = MapStatus(bookingType),
             Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
             AttendeeDetails = new Core.AttendeeDetails
             {
@@ -246,9 +246,9 @@ public abstract partial class BaseFeatureSteps : Feature
             },
             ContactDetails =
             [
-                new ContactItem { Type = "email", Value = "firstName@test.com" },
-                new ContactItem { Type = "phone", Value = "0123456789" },
-                new ContactItem { Type = "landline", Value = "00001234567" }
+                new ContactItem { Type = ContactItemType.Email, Value = "firstName@test.com" },
+                new ContactItem { Type = ContactItemType.Phone, Value = "0123456789" },
+                new ContactItem { Type = ContactItemType.Landline, Value = "00001234567" }
             ],
             AdditionalData = new
             {
@@ -264,7 +264,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 DocumentType = "booking_index",
                 Id = BookingReferences.GetBookingReference(index, bookingType),
                 NhsNumber = NhsNumber,
-                Provisional = bookingType != BookingType.Confirmed,
+                Status = MapStatus(bookingType),
                 Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
                 From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
@@ -296,6 +296,14 @@ public abstract partial class BaseFeatureSteps : Feature
             randomString = string.Concat(randomString, random.Next(10).ToString());
         return randomString;
     }
+
+    protected AppointmentStatus MapStatus(BookingType bookingType) => bookingType switch
+    {
+        BookingType.Confirmed => AppointmentStatus.Booked,
+        BookingType.Provisional => AppointmentStatus.Provisional,
+        BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
+        _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
+    };
     
     protected string GetTestId => $"{_testId}";
     protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";

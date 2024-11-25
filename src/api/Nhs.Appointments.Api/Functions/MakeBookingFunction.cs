@@ -11,9 +11,6 @@ using FluentValidation;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Auth;
-using System.Text.Json;
-using IdentityModel.Client;
-using System.Collections.Frozen;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -39,19 +36,13 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
     {
         var requestedBooking = new Booking
         {
-            From = bookingRequest.FromDateTime,
+            From = bookingRequest.From,
             Duration = bookingRequest.Duration,
             Service = bookingRequest.Service,
             Site = bookingRequest.Site,
-            AttendeeDetails = new Core.AttendeeDetails
-            {
-                DateOfBirth = bookingRequest.AttendeeDetails.BirthDate,
-                FirstName = bookingRequest.AttendeeDetails.FirstName,
-                LastName = bookingRequest.AttendeeDetails.LastName,
-                NhsNumber = bookingRequest.AttendeeDetails.NhsNumber
-            },
-            ContactDetails = bookingRequest.ContactDetails?.Select(c => new Core.ContactItem { Type = c.Type, Value = c.Value}).ToArray(),
-            Provisional = bookingRequest.Provisional,
+            Status = MapAppointmentStatus(bookingRequest.Kind),
+            AttendeeDetails = bookingRequest.AttendeeDetails,
+            ContactDetails = bookingRequest.ContactDetails?.ToArray(),            
             AdditionalData = bookingRequest.AdditionalData
         };
 
@@ -59,7 +50,14 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
-        var response = new MakeBookingResponse(bookingResult.Reference, bookingResult.Provisional);
+        var response = new MakeBookingResponse(bookingResult.Reference);
         return Success(response);
-    }    
+    }
+
+    private AppointmentStatus MapAppointmentStatus(BookingKind kind) => kind switch
+    {
+        BookingKind.Provisional => AppointmentStatus.Provisional,
+        BookingKind.Booked => AppointmentStatus.Booked,
+        _ => throw new System.ArgumentOutOfRangeException(nameof(kind))
+    };
 }

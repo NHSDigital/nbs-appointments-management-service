@@ -17,10 +17,13 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         }
     }
 
-    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, bool provisional = false)
+    public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
     {
-        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to && i.Provisional == provisional);
-        var grouped = bookingIndexDocuments.GroupBy(i => i.Site);
+        if (statuses.Length == 0)
+            throw new ArgumentException("You must specify one or more statuses");
+
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var grouped = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
 
@@ -52,7 +55,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
-        var grouped = bookingIndexDocuments.Where(bi => bi.Provisional == false).GroupBy(bi => bi.Site);
+        var grouped = bookingIndexDocuments.Where(bi => bi.Status != AppointmentStatus.Provisional).GroupBy(bi => bi.Site);
         foreach (var siteBookings in grouped)
         {
             if (siteBookings.Count() > PointReadLimit)
@@ -73,7 +76,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         }
         return results;
     }
-    public async Task<bool> UpdateStatus(string bookingReference, string status)
+    public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
@@ -84,10 +87,11 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
-    private Task UpdateStatus(BookingIndexDocument booking, string status)
+    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
     {
-        var updateStatusPatch = PatchOperation.Replace("/outcome", status);
-        return bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
+        var updateStatusPatch = PatchOperation.Replace("/status", status);
+        await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
     }
 
     private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)
@@ -125,14 +129,14 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         if (bookingIndexDocument.Created.AddMinutes(5) < time.GetUtcNow())
             return BookingConfirmationResult.Expired;
 
-        var updateStatusPatch = PatchOperation.Replace("/provisional", false);
+        var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
         var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
         await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
         await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, "cancelled");
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled);
         }
         
         return BookingConfirmationResult.Success;
@@ -161,9 +165,17 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
     public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        var expiryDateTime = time.GetUtcNow().AddMinutes(-5);
-        var indexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.Provisional && i.Created <= expiryDateTime);
-        
+        var expiryDateTime = time.GetUtcNow().AddMinutes(-5);        
+
+        var query = new QueryDefinition(
+                query: "SELECT * " +
+                       "FROM index_data d " +
+                       "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
+            .WithParameter("@docType", "booking_index")
+            .WithParameter("@status", AppointmentStatus.Provisional.ToString())
+            .WithParameter("@expiry", expiryDateTime);
+        var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
+
         foreach (var indexDocument in indexDocuments)
         {
             await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");

@@ -15,6 +15,7 @@ export default defineConfig({
     ['html', { outputFolder: 'testing/playwright-report' }],
   ],
   outputDir: './test-artifacts',
+  globalSetup: require.resolve('./testing/global-setup'),
 
   // TODO: Playwright init defaults to 0 retries locally.
   // Let's try this for a bit with the goal of eliminating flakiness, but add in retries if we have to.

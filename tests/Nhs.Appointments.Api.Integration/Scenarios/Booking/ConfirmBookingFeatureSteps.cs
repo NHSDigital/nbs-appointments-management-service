@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq;
 using System.Net.Http;
@@ -35,9 +36,9 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         {
             contactDetails = new[]
             {
-                new ContactItem("email", cells.ElementAt(0).Value),
-                new ContactItem("phone", cells.ElementAt(1).Value),
-                new ContactItem("landline", cells.ElementAt(2).Value)
+                new { type = "Email", value = cells.ElementAt(0).Value },
+                new { type = "Phone", value = cells.ElementAt(1).Value },
+                new { type = "Landline", value = cells.ElementAt(2).Value }
             }
         };
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
@@ -56,10 +57,10 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
-        actualBooking.Resource.Provisional.Should().BeFalse();
+        actualBooking.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
     
         var actualBookingIndex = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
-        actualBookingIndex.Resource.Provisional.Should().BeFalse();
+        actualBookingIndex.Resource.Status.Should().Be(Core.AppointmentStatus.Booked);
     }
 
     [And("the booking should have stored my contact details as follows")]
@@ -69,9 +70,9 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
 
         var expectedContactDetails = new[]
         {
-            new ContactItem("email", cells.ElementAt(0).Value),
-            new ContactItem("phone", cells.ElementAt(1).Value),
-            new ContactItem("landline", cells.ElementAt(2).Value)
+            new ContactItem{ Type = ContactItemType.Email, Value = cells.ElementAt(0).Value },
+            new ContactItem{ Type = ContactItemType.Phone, Value = cells.ElementAt(1).Value },
+            new ContactItem{ Type = ContactItemType.Landline, Value = cells.ElementAt(2).Value }
         };
 
         var siteId = GetSiteId();

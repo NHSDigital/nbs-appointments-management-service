@@ -20,8 +20,8 @@ public class Booking
     [JsonProperty("site")]
     public string Site { get; set; }
     
-    [JsonProperty("outcome")]
-    public string Outcome { get; set; }
+    [JsonProperty("status")]
+    public AppointmentStatus Status{ get; set; }
     
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
@@ -33,10 +33,7 @@ public class Booking
     public bool ReminderSent { get; set; }
 
     [JsonProperty("created")]
-    public DateTime Created { get; set; }
-
-    [JsonProperty("provisional")]
-    public bool Provisional { get; set; }
+    public DateTime Created { get; set; }    
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
@@ -59,9 +56,25 @@ public class AttendeeDetails
 
 public class ContactItem
 {
-    [JsonProperty("type")]
-    public string Type { get; set; }
+    [JsonProperty("type", Required = Required.Always)]
+    public ContactItemType Type { get; set; }
 
-    [JsonProperty("value")]
+    [JsonProperty("value", Required = Required.Always)]
     public string Value { get; set; }
+}
+
+public enum ContactItemType
+{ 
+    Phone,
+    Email,
+    Landline
+}
+
+
+public enum AppointmentStatus
+{
+    Unknown,
+    Provisional,
+    Booked,
+    Cancelled
 }

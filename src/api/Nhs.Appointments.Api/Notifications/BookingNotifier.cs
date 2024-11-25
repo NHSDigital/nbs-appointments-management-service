@@ -34,7 +34,7 @@ public class BookingNotifier(ISendNotifications notificationClient, INotificatio
         }
         catch(Exception ex)
         {
-            throw new NotificationException($"The {eventType} notification could not be sent to {privacy.ObfuscateEmail(email)} {privacy.ObfuscatePhoneNumber(phoneNumber)} because due to a notification configuration problem.");
+            throw new NotificationException($"The {eventType} notification could not be sent to {privacy.ObfuscateEmail(email)} {privacy.ObfuscatePhoneNumber(phoneNumber)} due to a notification configuration problem.");
         }
 
         if(!string.IsNullOrEmpty(email))

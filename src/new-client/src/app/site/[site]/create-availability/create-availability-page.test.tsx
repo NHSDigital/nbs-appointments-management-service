@@ -52,25 +52,25 @@ describe('Create Availability Page', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '1 January 2024 - 28 February 2024 Mon, Tue RSV (Adult) Weekly repeating',
+        name: '1 Jan 2024 - 28 Feb 2024 Mon, Tue RSV (Adult) Weekly repeating',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '1 January 2025 Wed RSV (Adult) Single date',
+        name: '1 Jan 2025 Wed RSV (Adult) Single date',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '1 March 2024 - 30 April 2024 Thu, Fri RSV (Adult) Weekly repeating',
+        name: '1 Mar 2024 - 30 Apr 2024 All RSV (Adult) Weekly repeating',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '16 February 2025 Sun RSV (Adult) Single date',
+        name: '16 Feb 2025 Sun RSV (Adult) Single date',
       }),
     );
   });
@@ -83,10 +83,10 @@ describe('Create Availability Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('button', { name: 'Create availablity' }),
+      screen.getByRole('button', { name: 'Create availability' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Create availablity' }),
+      screen.getByRole('link', { name: 'Create availability' }),
     ).toHaveAttribute(
       'href',
       `/site/${mockSite.id}/create-availability/wizard`,

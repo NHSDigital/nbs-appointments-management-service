@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Api.Models;
+﻿using Nhs.Appointments.Core;
 
-public record SetBookingStatusRequest(string bookingReference, string status);
-public record SetBookingStatusResponse(string bookingReference, string status);
+namespace Nhs.Appointments.Api.Models;
+
+public record SetBookingStatusRequest(string bookingReference, AppointmentStatus status);
+public record SetBookingStatusResponse(string bookingReference, AppointmentStatus status);

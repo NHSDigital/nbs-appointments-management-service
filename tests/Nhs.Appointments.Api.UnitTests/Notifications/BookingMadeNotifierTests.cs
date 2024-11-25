@@ -25,7 +25,7 @@ public class BookingMadeNotifierTests
 
     public BookingMadeNotifierTests()
     {
-       _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationStore.Object, _siteService.Object);
+       _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationStore.Object, _siteService.Object, new PrivacyUtil());
     }
 
     [Fact]

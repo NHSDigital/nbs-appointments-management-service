@@ -19,6 +19,7 @@ public static class ServiceRegistration
                 .AddTransient<IBookingRescheduledNotifier, BookingNotifier>()
                 .AddTransient<IBookingReminderNotifier, BookingNotifier>()
                 .AddTransient<IBookingCancelledNotifier, BookingNotifier>()
+                .AddTransient<IPrivacyUtil, PrivacyUtil>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
         if (userNotificationsProvider == "local")
@@ -35,7 +36,8 @@ public static class ServiceRegistration
         else if(userNotificationsProvider == "azure")
         {
             services
-                .AddScoped<ISendNotifications>(x => new GovNotifyClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped(x => new Notify.Client.NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped<ISendNotifications, GovNotifyClient>()
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()
                 .AddScoped<NotifyBookingMadeFunction>()

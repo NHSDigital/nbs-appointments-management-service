@@ -135,7 +135,10 @@ stages:
               deploymentMethod: "auto"              
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
-        dependsOn: ApplyTerraform
+        dependsOn:
+         - ApplyTerraform
+         - DeployWeb
+         - DeployApi
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -148,7 +151,6 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
-          - script: printenv
           - task: DotNetCoreCLI@2
             displayName: "Seed Cosmos DB containers"
             inputs:

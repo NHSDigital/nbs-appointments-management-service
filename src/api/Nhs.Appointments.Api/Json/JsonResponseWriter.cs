@@ -20,7 +20,7 @@ public static class JsonResponseWriter
     {
         var serializerSettings = new JsonSerializerSettings
         {
-            Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter() },
+            Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new Newtonsoft.Json.Converters.StringEnumConverter { AllowIntegerValues = false } },
             ContractResolver = new CamelCasePropertyNamesContractResolver() 
         };
         return JsonConvert.SerializeObject(result, serializerSettings);

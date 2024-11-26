@@ -27,7 +27,8 @@ public static class JsonRequestReader
                     new ShortDateOnlyJsonConverter(), 
                     new DayOfWeekJsonConverter(), 
                     new NullableShortDateOnlyJsonConverter(),
-                    new StrictBooleanJsonConverter()
+                    new StrictBooleanJsonConverter(),
+                    new Newtonsoft.Json.Converters.StringEnumConverter{AllowIntegerValues=false}
                 },
 
         };

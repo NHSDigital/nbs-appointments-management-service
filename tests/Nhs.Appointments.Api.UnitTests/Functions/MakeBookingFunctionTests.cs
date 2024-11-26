@@ -116,19 +116,27 @@ public class MakeBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        var dto = new MakeBookingRequest(site, DateTime.ParseExact(from, "yyyy-MM-dd HH:mm", null), 5, service,
-            new AttendeeDetails
+        var dto = new
+        {
+            site,
+            from,
+            duration = 5,
+            service,
+            attendeeDetails = new
             {
                 NhsNumber = nhsNumber,
                 FirstName = firstName,
                 LastName = lastName,
                 DateOfBirth = DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")
             },
-            [
-                new ContactItem { Type = ContactItemType.Email, Value = email },
-                new ContactItem { Type = ContactItemType.Phone, Value = phoneNumber }
-            ],
-            additionalData, BookingKind.Booked);
+            contactDetails = new[]
+            {
+                new { type = "email", value = email },
+                new { type = "phone", value = phoneNumber }
+            },
+            additionalData,
+            kind = "booked"
+        };
 
         var body = JsonConvert.SerializeObject(dto);
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));

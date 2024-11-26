@@ -11,7 +11,7 @@ class Program
     private static CosmosClient? _cosmosClient;
     private static Database? _database;
 
-    static async Task Main()
+    static async Task Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
@@ -21,6 +21,7 @@ class Program
 
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
         var cosmosToken = configuration["COSMOS_TOKEN"];
+        var environment = configuration["ENVIRONMENT"];
         var databaseName = configuration["CosmosSettings:DatabaseName"];
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
 
@@ -35,8 +36,22 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
-            await DeleteContainers(container.Name);
-            await AddItemsToContainerAsync(container.Name, container.PartitionKey);
+            var knownEnvironments = new [] { "local", "dev", "int", "stag", "prod" };
+            
+            if (string.IsNullOrWhiteSpace(environment))
+                throw new ArgumentException("Environment must be provided");
+            
+            if (knownEnvironments.Contains(environment) == false)
+                throw new ArgumentOutOfRangeException($"Environment {environment} is not supported");
+
+            if (args.Contains("delete-containers"))
+            {
+                if(IsProtectedEnvironment(environment))
+                    throw new InvalidOperationException("Cannot delete container from a protected environment");
+                await DeleteContainers(container.Name);
+            }
+
+            await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
         }
 
         Console.WriteLine("Database seeded successfully");
@@ -88,14 +103,13 @@ class Program
         return response.Container;
     }
 
-    private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath)
+    private static async Task AddItemsToContainerAsync(string containerName, string partitionKeyPath, string environment)
     {
         var container = await CreateContainerAsync(containerName, partitionKeyPath);
-
-        var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{containerName}");
+        var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}");
         if(Directory.Exists(folderPath))
         {
-            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{containerName}"), "*.json");
+            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}"), "*.json");
 
             foreach (var file in jsonFiles)
             {
@@ -121,6 +135,12 @@ class Program
             ConnectionMode = ConnectionMode.Gateway,
             LimitToEndpoint = true
         };
+    }
+
+    private static bool IsProtectedEnvironment(string environment)
+    {
+        var protectedEnvironments = new [] { "dev", "int", "stag", "prod" };
+        return protectedEnvironments.Contains(environment);
     }
 }
 

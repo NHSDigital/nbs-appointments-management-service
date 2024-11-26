@@ -1,16 +1,19 @@
 ﻿#!/usr/bin/env pwsh
+param (
+    [string][Parameter(Mandatory)]$resourceGroup,
+    [string][Parameter(Mandatory)]$cosmosAccountName
+)
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$ShortCommitHash = $ENV:SHORT_COMMIT_HASH
-$PRBuildResourceGroup = "nbs-mya-prbuild-rg-dev-uks"
+$ResourceGroup = $ResourceGroup
+$CosmosAccountName = $CosmosAccountName
 $DevSubscription = "07748954-52d6-46ce-95e6-2701bfc715b4"
-$CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
 
 az cosmosdb delete `
     --name $CosmosAccountName `
-    --resource-group $PRBuildResourceGroup `
+    --resource-group $ResourceGroup `
     --subscription $DevSubscription `
     --yes `
     --no-wait

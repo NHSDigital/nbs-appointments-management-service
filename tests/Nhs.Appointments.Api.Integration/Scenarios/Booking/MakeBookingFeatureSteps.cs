@@ -40,9 +40,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 },
                 contactDetails =
                     new[] {
-                        new { type = ContactItemType.Email, value = cells.ElementAt(8).Value },
-                        new { type = ContactItemType.Phone, value = cells.ElementAt(9).Value },
-                        new { type = ContactItemType.Landline, value = cells.ElementAt(11).Value },
+                        new { type = "email", value = cells.ElementAt(8).Value },
+                        new { type = "phone", value = cells.ElementAt(9).Value },
+                        new { type = "landline", value = cells.ElementAt(11).Value },
                     },
                 additionalData = new
                 {

@@ -27,7 +27,7 @@ public class Booking
     public AttendeeDetails AttendeeDetails { get; set; }
 
     [JsonProperty("contactDetails")]
-    public ContactItem[] ContactDetails { get; set; }
+    public ContactItem[]? ContactDetails { get; set; }
 
     [JsonProperty("reminderSent")]
     public bool ReminderSent { get; set; }

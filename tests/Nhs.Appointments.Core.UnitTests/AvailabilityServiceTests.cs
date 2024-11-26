@@ -47,7 +47,7 @@ public class AvailabilityServiceTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
-        Template template = null;
+        Template? template = null;
 
         var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("template must be provided");

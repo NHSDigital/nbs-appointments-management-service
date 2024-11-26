@@ -25,7 +25,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 TimeProvider.System);
         }
 
-        [Fact (Skip = "flakey test. needs investigation")]
+        [Fact]
         public async Task MakeBooking_AcquiresLock_WhenBooking()
         {
             var expectedFrom = new DateOnly(2077, 1, 1);
@@ -42,13 +42,13 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, new EventFactory(), _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
-            var taskCompleted = task.Wait(100);
-            taskCompleted.Should().BeFalse();           
+            await Task.Delay(100);
+            task.IsCompleted.Should().BeFalse();
 
             leaseManager.WaitHandle.Set();
 
-            taskCompleted = task.Wait(100);
-            taskCompleted.Should().BeTrue();            
+            await Task.Delay(1000);
+            task.IsCompleted.Should().BeTrue();
         }
 
         [Fact]
@@ -230,7 +230,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
         {
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult((Booking)null));
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking?>(null));
             var result = await _bookingsService.CancelBooking("some-reference");
             Assert.Equal(BookingCancellationResult.NotFound, result);
         }
@@ -241,7 +241,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var site = "some-site";
             var bookingRef = "some-booking";
             
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking() { Site = site, ContactDetails = [] }));
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking?>(new Booking() { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
 
             await _bookingsService.CancelBooking(bookingRef);
@@ -258,7 +258,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var updateMock = new Mock<IDocumentUpdate<Booking>>();
             updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled)).Returns(updateMock.Object);
 
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult(new Booking { Reference = bookingRef, Site = site, ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}] }));
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking?>(new Booking { Reference = bookingRef, Site = site, ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}] }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
 
             _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e => e[0].Site == site && e[0].Reference == bookingRef && e[0].ContactDetails[0].Type == ContactItemType.Email))).Verifiable(Times.Once);

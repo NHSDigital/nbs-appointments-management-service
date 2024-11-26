@@ -4,81 +4,44 @@ namespace Nhs.Appointments.Core.Messaging;
 
 public interface IBookingEventFactory
 {
-    BookingMade BuildBookingMadeEvent(Booking booking);
-    BookingCancelled BuildBookingCancelledEvent(Booking booking);
-    BookingRescheduled BuildBookingRescheduledEvent(Booking booking);
-    BookingReminder BuildBookingReminderEvent(Booking booking);
+    T[] BuildBookingEvents<T>(Booking booking) where T : PatientBookingNotificationEventBase, new();
 }
 public class EventFactory : IBookingEventFactory
 {
-    public BookingRescheduled BuildBookingRescheduledEvent(Booking booking)
+    public T[] BuildBookingEvents<T>(Booking booking) where T : PatientBookingNotificationEventBase, new()
     {
         if (booking.ContactDetails == null)
         {
             throw new ArgumentException("The booking must include contact details", nameof(booking.ContactDetails));
         }
 
-        return new BookingRescheduled
-        {
-            FirstName = booking.AttendeeDetails.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.ToArray()
-        };
-    }
+        var result = new List<T>();
 
-    public BookingMade BuildBookingMadeEvent(Booking booking)
-    {
-        if (booking.ContactDetails == null)
+        if (booking.ContactDetails.Any(x => x.Type == ContactItemType.Phone))
         {
-            throw new ArgumentException("The booking must include contact details", nameof(booking.ContactDetails));
+            result.Add(BuildEvent<T>(booking, NotificationType.Sms));
         }
 
-        return new BookingMade
+        if (booking.ContactDetails.Any(x => x.Type == ContactItemType.Email))
         {
-            FirstName = booking.AttendeeDetails.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.ToArray()
-        };
+            result.Add(BuildEvent<T>(booking, NotificationType.Email));
+        }
+
+        return result.ToArray();
     }
 
-    public BookingCancelled BuildBookingCancelledEvent(Booking booking)
+    private static T BuildEvent<T>(Booking booking, NotificationType notificationType) where T : PatientBookingNotificationEventBase, new()
     {
-        return new BookingCancelled
+        return new T
         {
+            NotificationType = notificationType,
             FirstName = booking.AttendeeDetails?.FirstName,
             From = booking.From,
             LastName = booking.AttendeeDetails?.LastName,
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.ToArray()
-        };
-    }
-
-    public BookingReminder BuildBookingReminderEvent(Booking booking)
-    {
-        if (booking.ContactDetails == null)
-        {
-            throw new ArgumentException("The booking must include contact details", nameof(booking.ContactDetails));
-        }
-
-        return new BookingReminder
-        {
-            FirstName = booking.AttendeeDetails.FirstName,
-            From = booking.From,
-            LastName = booking.AttendeeDetails.LastName,
-            Reference = booking.Reference,
-            Service = booking.Service,
-            Site = booking.Site,
-            ContactDetails = booking.ContactDetails?.ToArray()
+            ContactDetails = booking.ContactDetails.ToArray()
         };
     }
 }

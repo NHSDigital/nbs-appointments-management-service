@@ -4,8 +4,11 @@ namespace Nhs.Appointments.Core.Messaging;
 
 public class MassTransitBusWrapper(IBus bus) : IMessageBus
 {
-    public async Task Send<T>(T message) where T : class
+    public async Task Send<T>(params T[] messages) where T : class
     {
-       await bus.Send(message);
+       foreach(T message in messages)
+        {
+            await bus.Send(message);
+        }
     }
 }

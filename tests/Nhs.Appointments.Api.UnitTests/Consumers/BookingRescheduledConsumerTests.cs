@@ -30,7 +30,7 @@ public class BookingRescheduledConsumerTests
         DateOnly date = new DateOnly(2050, 1, 1);
         TimeOnly time = new TimeOnly(12, 15);
 
-        _notifier.Setup(x => x.Notify(nameof(BookingRescheduled), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber)).Verifiable();
+        _notifier.Setup(x => x.Notify(nameof(BookingRescheduled), Service, Reference, Site, FirstName, date, time, Email, null)).Verifiable();
         var ctx = new Mock<ConsumeContext<BookingRescheduled>>();
         ctx.SetupGet(x => x.Message).Returns(new BookingRescheduled
         {
@@ -43,7 +43,8 @@ public class BookingRescheduledConsumerTests
                 new ContactItem{Type = ContactItemType.Email, Value = Email},
                 new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber},
                 new ContactItem{Type = ContactItemType.Landline, Value = Landline},
-                ]
+                ],
+            NotificationType = NotificationType.Email
         });
 
         await _sut.Consume(ctx.Object);

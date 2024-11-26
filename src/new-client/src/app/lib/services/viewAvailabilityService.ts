@@ -12,8 +12,10 @@ import { fetchBookings } from './appointmentsService';
 const BuildWeeks = (year: number, month: number): Week[] => {
   const weeks: Week[] = [];
 
+  const [lastDateMonth, lastDateYear] =
+    month === 11 ? [0, year + 1] : [month + 1, year];
   const firstDate = new Date(year, month, 1);
-  const lastDate = new Date(year, month + 1, 0);
+  const lastDate = new Date(lastDateYear, lastDateMonth, 0);
   const numDays = lastDate.getDate();
   const dayOfWeekCounter = firstDate.getDay();
 
@@ -31,7 +33,8 @@ const BuildWeeks = (year: number, month: number): Week[] => {
       end: end,
       startMonth: month,
       endMonth: month,
-      year: year,
+      startYear: year,
+      endYear: lastDateYear,
       bookedAppointments: [],
     });
     start = end + 1;
@@ -49,13 +52,15 @@ export const getWeeksInMonth = (year: number, month: number): Week[] => {
   const weeks = BuildWeeks(year, month);
 
   if (weeks[0].start === 1) {
-    const beforeWeeks = BuildWeeks(year, month - 1);
+    const beforeWeeks =
+      month === 0 ? BuildWeeks(year, 11) : BuildWeeks(year, month - 1);
     weeks[0].start = beforeWeeks[beforeWeeks.length - 1].start;
     weeks[0].startMonth = beforeWeeks[beforeWeeks.length - 1].startMonth;
   }
 
   if (weeks[weeks.length - 1].end === new Date(year, month + 1, 0).getDate()) {
-    const afterWeeks = BuildWeeks(year, month + 1);
+    const afterWeeks =
+      month === 11 ? BuildWeeks(year + 1, 0) : BuildWeeks(year, month + 1);
     weeks[weeks.length - 1].end = afterWeeks[0].start;
     weeks[weeks.length - 1].endMonth = afterWeeks[0].endMonth;
   }
@@ -92,17 +97,18 @@ const getUnbookedCount = (
     });
 
     const countArray = blocks.map(b => b.count);
-    unbookedCount = countArray.reduce((sum, num) => sum + num);
+    unbookedCount =
+      countArray.length === 0 ? 0 : countArray.reduce((sum, num) => sum + num);
   }
 
   return unbookedCount;
 };
 
 const weekStart = (week: Week): Date => {
-  return new Date(week.year, week.startMonth, week.start, 0, 0, 0);
+  return new Date(week.startYear, week.startMonth, week.start, 0, 0, 0);
 };
 const weekEnd = (week: Week): Date => {
-  return new Date(week.year, week.endMonth, week.end, 23, 59, 59);
+  return new Date(week.endYear, week.endMonth, week.end, 23, 59, 59);
 };
 
 const getBookingsInWeek = (
@@ -125,7 +131,7 @@ export const getDetailedMonthView = async (
   siteId: string,
 ): Promise<Week[]> => {
   const fromDate = new Date(
-    weeks[0].year,
+    weeks[0].startYear,
     weeks[0].startMonth,
     weeks[0].start,
     0,
@@ -133,13 +139,15 @@ export const getDetailedMonthView = async (
     0,
   );
   const toDate = new Date(
-    weeks[weeks.length - 1].year,
+    weeks[weeks.length - 1].endYear,
     weeks[weeks.length - 1].endMonth,
     weeks[weeks.length - 1].end,
     23,
     59,
     59,
   );
+
+  console.log(fromDate.getFullYear(), toDate.getFullYear());
 
   const bookingRequest: FetchBookingsRequest = {
     from: dayjs(fromDate).format('YYYY-MM-DD H:mm'),

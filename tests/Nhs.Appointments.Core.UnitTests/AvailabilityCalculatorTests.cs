@@ -222,7 +222,7 @@ public class AvailabilityCalculatorTests
 
         var bookings = new[]
         {
-            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01"),            
+            CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "ABC01"),
         };
 
         _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
@@ -243,6 +243,36 @@ public class AvailabilityCalculatorTests
         results.Should().BeEquivalentTo(expectedResults);
     }
 
+    [Fact]
+    public async Task CalculateAvailability_ReturnsAllSessions()
+    {
+        var sessions = new[]
+        {
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "FLU"),
+            CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "RSV")
+        };
+        _availabilityDocumentStore.Setup(x => x.GetSessions("ABC01", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        var results = await _sut.CalculateAvailability("ABC01", "*", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
+
+        var expectedResults = new[]
+        {
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = ["FLU"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = ["FLU"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = ["FLU"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = ["FLU"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = ["RSV"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = ["RSV"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = ["RSV"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = ["RSV"], Capacity = 1 },
+        };
+
+        results.Should().BeEquivalentTo(expectedResults);
+    }
 
     private static SessionInstance CreateSessionInstance(DateTime from, DateTime until, params string[] services)
     {

@@ -23,11 +23,11 @@ const Page = async ({ params }: PageProps) => {
   const firstWeek = weeks[0];
   const lastWeek = weeks[weeks.length - 1];
   const startDate = new Date(
-    firstWeek.year,
+    firstWeek.startYear,
     firstWeek.startMonth,
     firstWeek.start,
   );
-  const endDate = new Date(lastWeek.year, lastWeek.endMonth, lastWeek.end);
+  const endDate = new Date(lastWeek.endYear, lastWeek.endMonth, lastWeek.end);
   const payload: FetchAvailabilityRequest = {
     sites: [site.id],
     service: '*',

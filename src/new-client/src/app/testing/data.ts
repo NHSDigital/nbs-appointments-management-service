@@ -2,13 +2,16 @@ import {
   AttributeDefinition,
   AttributeValue,
   AvailabilityCreatedEvent,
+  AvailabilityResponse,
   AvailabilitySession,
   AvailabilityTemplate,
+  Booking,
   Role,
   Site,
   SiteWithAttributes,
   User,
   UserProfile,
+  Week,
 } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
@@ -200,6 +203,152 @@ const mockSiteWithAttributes: SiteWithAttributes = {
   ],
 };
 
+const mockAvailability: AvailabilityResponse[] = [
+  {
+    site: 'TEST01',
+    service: '*',
+    availability: [
+      {
+        date: new Date(2024, 10, 1),
+        blocks: [
+          { from: '00:00', until: '12:00', count: 12 },
+          { from: '12:00', until: '16:00', count: 4 },
+        ],
+      },
+      {
+        date: new Date(2024, 10, 8),
+        blocks: [
+          { from: '00:00', until: '12:00', count: 12 },
+          { from: '12:00', until: '16:00', count: 4 },
+        ],
+      },
+      {
+        date: new Date(2024, 10, 16),
+        blocks: [
+          { from: '00:00', until: '12:00', count: 12 },
+          { from: '12:00', until: '16:00', count: 4 },
+        ],
+      },
+      {
+        date: new Date(2024, 10, 26),
+        blocks: [
+          { from: '00:00', until: '12:00', count: 12 },
+          { from: '12:00', until: '16:00', count: 4 },
+        ],
+      },
+      {
+        date: new Date(2024, 10, 1),
+        blocks: [
+          { from: '00:00', until: '12:00', count: 12 },
+          { from: '12:00', until: '16:00', count: 4 },
+        ],
+      },
+    ],
+  },
+];
+
+const mockBookings: Booking[] = [
+  {
+    reference: '1234',
+    from: '2024-11-10T14:05:00',
+    duration: 5,
+    service: 'RSV:Adult',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999990',
+      firstName: 'John',
+      lastName: 'Smith',
+      dateOfBirth: new Date(1979, 1, 1),
+    },
+    created: '2024-11-05T10:35:08.0477062',
+    provisional: false,
+    reminderSet: false,
+  },
+  {
+    reference: '4321',
+    from: '2024-11-19T14:05:00',
+    duration: 5,
+    service: 'COVID:75',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999991',
+      firstName: 'Sarah',
+      lastName: 'Smith',
+      dateOfBirth: new Date(1945, 1, 1),
+    },
+    created: '2024-11-15T10:35:08.0477062',
+    provisional: false,
+    reminderSet: false,
+  },
+  {
+    reference: '2468',
+    from: '2024-11-27T14:05:00',
+    duration: 5,
+    service: 'FLU:18_64',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999995',
+      firstName: 'Brian',
+      lastName: 'Smith',
+      dateOfBirth: new Date(1984, 1, 1),
+    },
+    created: '2024-11-05T10:35:08.0477062',
+    provisional: false,
+    reminderSet: false,
+  },
+];
+
+const mockDetailedWeeks: Week[] = [
+  {
+    start: 1,
+    startMonth: 11,
+    startYear: 2024,
+    endYear: 2025,
+    end: 7,
+    endMonth: 11,
+    bookedAppointments: [
+      { service: 'COVID 75+', count: 10 },
+      { service: 'FLU 18-64', count: 5 },
+      { service: 'RSV (Adult)', count: 2 },
+    ],
+    booked: 17,
+    unbooked: 13,
+    totalAppointments: 30,
+  },
+  {
+    start: 8,
+    startMonth: 11,
+    startYear: 2024,
+    endYear: 2025,
+    end: 15,
+    endMonth: 11,
+    bookedAppointments: [
+      { service: 'COVID 75+', count: 5 },
+      { service: 'FLU 18-64', count: 1 },
+      { service: 'RSV (Adult)', count: 12 },
+    ],
+    booked: 18,
+    unbooked: 12,
+    totalAppointments: 30,
+  },
+  {
+    start: 16,
+    startMonth: 11,
+    startYear: 2024,
+    endYear: 2025,
+    end: 23,
+    endMonth: 11,
+    bookedAppointments: [
+      { service: 'COVID 75+', count: 5 },
+      { service: 'FLU 18-64', count: 10 },
+      { service: 'RSV (Adult)', count: 10 },
+    ],
+    booked: 25,
+    unbooked: 5,
+    totalAppointments: 30,
+  },
+];
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -213,4 +362,7 @@ export {
   mockAttributeValues,
   mockUserProfile,
   mockSiteWithAttributes,
+  mockAvailability,
+  mockBookings,
+  mockDetailedWeeks,
 };

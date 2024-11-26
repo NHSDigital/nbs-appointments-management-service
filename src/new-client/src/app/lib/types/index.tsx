@@ -158,7 +158,8 @@ type Week = {
   end: number;
   startMonth: number;
   endMonth: number;
-  year: number;
+  startYear: number;
+  endYear: number;
   unbooked?: number;
   totalAppointments?: number;
   booked?: number;
@@ -177,9 +178,9 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  outcome: string;
+  outcome?: string;
   attendeeDetails: AttendeeDetails;
-  contactDetails: ContactItem[];
+  contactDetails?: ContactItem[];
   reminderSet: boolean;
   created: string;
   provisional: boolean;

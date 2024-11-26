@@ -22,10 +22,10 @@ public class BookingCosmosDocumentStoreTests
     {
         var bookingIndexDocuments = new List<BookingIndexDocument>
         {
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000003", NhsNumber = "9999999999", Reference = "01-76-000003" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "02-76-000004", NhsNumber = "9999999999", Reference = "02-76-000004" },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000003", NhsNumber = "9999999999", Reference = "01-76-000003", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "02-76-000004", NhsNumber = "9999999999", Reference = "02-76-000004", Status = AppointmentStatus.Booked },
         };
 
         _indexStore.Setup(x => 
@@ -41,8 +41,8 @@ public class BookingCosmosDocumentStoreTests
     {
         var bookingIndexDocuments = new List<BookingIndexDocument>
         {
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002" },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002", Status = AppointmentStatus.Booked },
         };
 
         _indexStore.Setup(x => 
@@ -58,12 +58,12 @@ public class BookingCosmosDocumentStoreTests
     {
         var bookingIndexDocuments = new List<BookingIndexDocument>
         {
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001" },
-            new BookingIndexDocument {Site = "1001", DocumentType = "booking_index", Id = "02-76-000001", NhsNumber = "9999999999", Reference = "02-76-000001" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000003", NhsNumber = "9999999999", Reference = "01-76-000003" },
-            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "02-76-000004", NhsNumber = "9999999999", Reference = "02-76-000004" },
-            new BookingIndexDocument {Site = "1001", DocumentType = "booking_index", Id = "02-76-000002", NhsNumber = "9999999999", Reference = "02-76-000002" },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000001", NhsNumber = "9999999999", Reference = "01-76-000001", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1001", DocumentType = "booking_index", Id = "02-76-000001", NhsNumber = "9999999999", Reference = "02-76-000001", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000002", NhsNumber = "9999999999", Reference = "01-76-000002", Status = AppointmentStatus.Booked },
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "01-76-000003", NhsNumber = "9999999999", Reference = "01-76-000003" , Status = AppointmentStatus.Booked},
+            new BookingIndexDocument {Site = "1000", DocumentType = "booking_index", Id = "02-76-000004", NhsNumber = "9999999999", Reference = "02-76-000004" , Status = AppointmentStatus.Booked},
+            new BookingIndexDocument {Site = "1001", DocumentType = "booking_index", Id = "02-76-000002", NhsNumber = "9999999999", Reference = "02-76-000002" , Status = AppointmentStatus.Booked},
         };
 
         _indexStore.Setup(x => 

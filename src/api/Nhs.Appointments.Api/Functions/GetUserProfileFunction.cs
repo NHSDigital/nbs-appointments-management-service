@@ -31,8 +31,15 @@ namespace Nhs.Appointments.Api.Functions
         protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger)
         {
             var userEmail = Principal.Claims.GetUserEmail();
-            var roleAssignments = await userService.GetUserRoleAssignments(userEmail);
-            var siteIdsForUser = roleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
+
+
+            var user = await userService.GetUserAsync(userEmail);
+            if (user is null)
+            {
+                return Failed(HttpStatusCode.NotFound, "The requested user does not exist.");
+            }
+
+            var siteIdsForUser = user.RoleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
             var siteInfoList = new List<UserProfileSite>();
 
             foreach (var site in siteIdsForUser.Distinct())
@@ -42,7 +49,7 @@ namespace Nhs.Appointments.Api.Functions
                     siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
             }
 
-            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList, new DateOnly(2024, 12, 01)));
+            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList, user.LatestAcceptedEulaVersion));
         }
 
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

@@ -23,7 +23,6 @@ import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { now } from '@services/timeService';
-import { cookies } from 'next/headers';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -35,31 +34,7 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
     next: { tags: ['user'] },
   });
 
-  const userProfile = handleBodyResponse(response);
-
-  console.dir(userProfile);
-  await assertEula(userProfile);
-
-  return userProfile;
-};
-
-const assertEula = async (userProfile: UserProfile) => {
-  const eulaCookie = cookies().get('eula-consent');
-  if (eulaCookie === undefined) {
-    const latestEulaVersion = await fetchEula();
-    console.dir({
-      fromApi: latestEulaVersion,
-      fromProfile: userProfile.latestAcceptedEulaVersion,
-    });
-    if (
-      latestEulaVersion.versionDate === userProfile.latestAcceptedEulaVersion
-    ) {
-      console.log('trying to set cookie');
-      cookies().set('eula-consent', 'true', { maxAge: 5000 });
-    } else {
-      redirect('/eula');
-    }
-  }
+  return handleBodyResponse(response);
 };
 
 export async function fetchUsers(site: string) {

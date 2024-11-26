@@ -16,6 +16,11 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return userDocument.ApiSigningKey;
     }
 
+    public async Task<User?> GetUserAsync(string userId)
+    {
+        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
+    }
+
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
         var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId);

@@ -2,7 +2,11 @@
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { fetchAccessToken, fetchEula } from '@services/appointmentsService';
+import {
+  fetchAccessToken,
+  fetchEula,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(request: NextRequest) {
@@ -20,6 +24,12 @@ export async function GET(request: NextRequest) {
   cookies().set('token', tokenResponse.token);
   revalidateTag('user');
 
+  const userProfile = await fetchUserProfile();
+  const eula = await fetchEula();
+  if (userProfile.latestAcceptedEulaVersion !== eula.versionDate) {
+    redirect('/eula');
+  }
+
   const previousPage = cookies().get('previousPage');
   if (previousPage) {
     cookies().delete('previousPage');
@@ -28,23 +38,3 @@ export async function GET(request: NextRequest) {
 
   redirect('/');
 }
-
-// TODO: Move this from appointmentsService.ts into here
-// const assertEula = async (userProfile: UserProfile) => {
-//   const eulaCookie = cookies().get('eula-consent');
-//   if (eulaCookie === undefined) {
-//     const latestEulaVersion = await fetchEula();
-//     console.dir({
-//       fromApi: latestEulaVersion,
-//       fromProfile: userProfile.latestAcceptedEulaVersion,
-//     });
-//     if (
-//       latestEulaVersion.versionDate === userProfile.latestAcceptedEulaVersion
-//     ) {
-//       console.log('trying to set cookie');
-//       cookies().set('eula-consent', 'true', { maxAge: 5000 });
-//     } else {
-//       redirect('/eula');
-//     }
-//   }
-// };

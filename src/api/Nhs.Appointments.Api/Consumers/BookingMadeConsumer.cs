@@ -12,19 +12,41 @@ public class BookingMadeConsumer(IBookingMadeNotifier notifier) : IConsumer<Book
 {
     public Task Consume(ConsumeContext<BookingMade> context)
     {
-        var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Email)?.Value;
-        var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Phone)?.Value;
+        switch (context.Message.NotificationType)
+        {
+            case NotificationType.Email:
+                var email = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Email)?.Value;
 
-        return notifier.Notify(
-            nameof(BookingMade),
-            context.Message.Service,
-            context.Message.Reference,
-            context.Message.Site,
-            context.Message.FirstName,
-            DateOnly.FromDateTime(context.Message.From),
-            TimeOnly.FromDateTime(context.Message.From),
-            email,
-            phone
-            );
+                return notifier.Notify(
+                    nameof(BookingMade),
+                    context.Message.Service,
+                    context.Message.Reference,
+                    context.Message.Site,
+                    context.Message.FirstName,
+                    DateOnly.FromDateTime(context.Message.From),
+                    TimeOnly.FromDateTime(context.Message.From),
+                    email,
+                    null
+                    );
+
+            case NotificationType.Sms:
+                var phone = context.Message.ContactDetails.FirstOrDefault(x => x.Type == ContactItemType.Phone)?.Value;
+
+                return notifier.Notify(
+                    nameof(BookingMade),
+                    context.Message.Service,
+                    context.Message.Reference,
+                    context.Message.Site,
+                    context.Message.FirstName,
+                    DateOnly.FromDateTime(context.Message.From),
+                    TimeOnly.FromDateTime(context.Message.From),
+                    null,
+                    phone
+                    );
+            default:
+                return Task.CompletedTask;
+
+        }
+
     }
 }

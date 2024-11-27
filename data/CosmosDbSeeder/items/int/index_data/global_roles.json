@@ -77,7 +77,8 @@
         "booking:make",
         "booking:query",
         "booking:cancel",
-        "sites:query"
+        "sites:query",
+        "site:view"
       ]
     },
     {
@@ -94,30 +95,6 @@
         "booking:query",
         "booking:cancel",
         "booking:set-status",
-        "users:manage",
-        "users:view",
-        "sites:query",
-        "site:view",
-        "site:manage",
-        "system:run-reminders",
-        "system:run-provisional-sweep"
-      ]
-    },
-    {
-      "id": "system:integration-test-user",
-      "name": "Integration Test Api User Role",
-      "description": "Role for integration test user",
-      "permissions": [
-        "site:get-meta-data",
-        "site:set-meta-data",
-        "availability:query",
-        "booking:make",
-        "booking:query",
-        "booking:cancel",
-        "site:get-config",
-        "site:set-config",
-        "availability:get-setup",
-        "availability:set-setup",
         "users:manage",
         "users:view",
         "sites:query",

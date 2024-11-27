@@ -77,7 +77,8 @@
         "booking:make",
         "booking:query",
         "booking:cancel",
-        "sites:query"
+        "sites:query",
+        "site:view"
       ]
     },
     {

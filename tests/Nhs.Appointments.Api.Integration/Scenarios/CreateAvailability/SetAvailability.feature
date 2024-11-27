@@ -1,6 +1,6 @@
 ﻿Feature: Set availability
 
-  Scenario: Make a booking appointment
+  Scenario: Create availability for a single day
     Given the site is configured for MYA
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services |

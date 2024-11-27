@@ -11,7 +11,7 @@ using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;
 using System.Net;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
+using Nhs.Appointments.Api.Availability;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
@@ -132,7 +132,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
             }
         };
 
-        var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template);
+        var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template, ApplyAvailabilityMode.Overwrite);
         var payload = JsonResponseWriter.Serialize(request);
         _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
         _statusCode = _response.StatusCode;
@@ -155,11 +155,12 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
                 new {
                     from = cells.ElementAt(1).Value,
                     until = cells.ElementAt(2).Value,
-                    slotLength = cells.ElementAt(3).Value,
-                    capacity = cells.ElementAt(4).Value,
+                    slotLength = int.Parse(cells.ElementAt(3).Value),
+                    capacity = int.Parse(cells.ElementAt(4).Value),
                     services = cells.ElementAt(5).Value.Split(',').Select(s => s.Trim()).ToArray(),
                 }
-            }
+            },
+            mode = "Overwrite"
         };
 
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);

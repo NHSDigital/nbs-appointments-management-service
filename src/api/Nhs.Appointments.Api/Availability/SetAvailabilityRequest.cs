@@ -5,12 +5,12 @@ using System;
 namespace Nhs.Appointments.Api.Availability;
 
 public record SetAvailabilityRequest(
-    [JsonProperty("date")]
-    string Date,
-    [JsonProperty("site")]
+    [property:JsonProperty("date", Required = Required.Always)]
+    DateOnly Date,
+    [property:JsonProperty("site", Required = Required.Always)]
     string Site,
-    [JsonProperty("sessions")]
-    Session[] Sessions)
-{
-    public DateOnly AvailabilityDate => DateOnly.ParseExact(Date, "yyyy-MM-dd");
-}
+    [property:JsonProperty("sessions", Required = Required.Always)]
+    Session[] Sessions,
+    [property:JsonProperty("mode", Required = Required.Always)]
+    ApplyAvailabilityMode Mode
+);

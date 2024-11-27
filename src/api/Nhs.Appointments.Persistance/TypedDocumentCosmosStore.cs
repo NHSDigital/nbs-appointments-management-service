@@ -66,11 +66,16 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
-    public async Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId)
+    public Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId)
+    {
+        return GetByIdOrDefaultAsync<TModel>(documentId, _documentType.Value);
+    }
+    
+    public async Task<TModel?> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
     {
         var container = GetContainer();
 
-        using(ResponseMessage response = await container.ReadItemStreamAsync(documentId, new PartitionKey(_documentType.Value)))
+        using(ResponseMessage response = await container.ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)))
         {
             if (!response.IsSuccessStatusCode)
             {

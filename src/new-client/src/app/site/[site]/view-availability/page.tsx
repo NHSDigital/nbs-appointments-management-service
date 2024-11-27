@@ -1,11 +1,17 @@
 import NhsPage from '@components/nhs-page';
-import { fetchAvailability, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchAvailability,
+  fetchSite,
+} from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { ViewAvailabilityPage } from './view-availability-page';
 import { FetchAvailabilityRequest } from '@types';
 import {
   getDetailedMonthView,
   getWeeksInMonth,
+  monthEnd,
+  monthStart,
 } from '@services/viewAvailabilityService';
 
 type PageProps = {
@@ -16,23 +22,18 @@ type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
+  await assertPermission(site.id, 'availability:query');
   const title = `View availability for ${dayjs().format('MMMM YYYY')}`;
 
   const weeks = getWeeksInMonth(dayjs().year(), dayjs().month());
 
-  const firstWeek = weeks[0];
-  const lastWeek = weeks[weeks.length - 1];
-  const startDate = new Date(
-    firstWeek.startYear,
-    firstWeek.startMonth,
-    firstWeek.start,
-  );
-  const endDate = new Date(lastWeek.endYear, lastWeek.endMonth, lastWeek.end);
+  const startDate = monthStart(weeks);
+  const endDate = monthEnd(weeks);
   const payload: FetchAvailabilityRequest = {
     sites: [site.id],
     service: '*',
-    from: dayjs(startDate).format('YYYY-MM-DD'),
-    until: dayjs(endDate).format('YYYY-MM-DD'),
+    from: startDate,
+    until: endDate,
     queryType: 'Days',
   };
   const availability = await fetchAvailability(payload);

@@ -254,8 +254,7 @@ export const applyAvailabilityTemplate = async (
     'You have successfully created availability for the current site.';
   raiseNotification(notificationType, notificationMessage);
 
-  // TODO: Once the fetch availability route is implemented, refresh the tag here
-  // revalidateTag(`fetchAvailability`);
+  revalidateTag(`fetchAvailability`);
 };
 
 export const saveAvailability = async (request: SetAvailabilityRequest) => {
@@ -273,8 +272,7 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
     'You have successfully created availability for the current site.';
   raiseNotification(notificationType, notificationMessage);
 
-  // TODO: Once the fetch availability route is implemented, refresh the tag here
-  // revalidateTag(`fetchAvailability`);
+  revalidateTag(`fetchAvailability`);
 };
 
 export async function fetchInformationForCitizens(site: string, scope: string) {
@@ -307,6 +305,9 @@ export const fetchAvailability = async (payload: FetchAvailabilityRequest) => {
   const response = await appointmentsApi.post<AvailabilityResponse[]>(
     'availability/query',
     JSON.stringify(payload),
+    {
+      next: { tags: ['fetchAvailability'] },
+    },
   );
 
   return handleBodyResponse(response);

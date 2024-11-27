@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
@@ -131,7 +132,7 @@ type FetchAvailabilityRequest = {
   service: string;
   from: string;
   until: string;
-  queryType: string;
+  queryType: '*' | 'Days' | 'Hours' | 'Slots';
 };
 
 type AvailabilityResponse = {
@@ -152,7 +153,6 @@ type AvailabilityBlock = {
 };
 
 // TODO: Rename this type to something more meaningful
-// TODO: Do we need to include start year & end year?
 type Week = {
   start: number;
   end: number;
@@ -163,7 +163,9 @@ type Week = {
   unbooked?: number;
   totalAppointments?: number;
   booked?: number;
-  bookedAppointments: bookedAppointments[];
+  bookedAppointments: BookedAppointments[];
+  startDate?: dayjs.Dayjs;
+  endDate?: dayjs.Dayjs;
 };
 
 type FetchBookingsRequest = {
@@ -199,7 +201,7 @@ type ContactItem = {
   value: string;
 };
 
-type bookedAppointments = {
+type BookedAppointments = {
   service: string;
   count: number;
 };

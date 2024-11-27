@@ -29,10 +29,6 @@ export const ViewAvailabilityPage = ({ weeks }: Props) => {
             ]}
             rows={[]}
           ></Table>
-          <br />
-          <Link href="" className="nhsuk-link">
-            View week
-          </Link>
         </Card>
       ))}
     </>

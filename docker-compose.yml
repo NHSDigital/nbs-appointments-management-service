@@ -1,6 +1,7 @@
 services:
   next-app:
     container_name: next-app
+    profiles: [all-services, all-except-cosmos]
     build:
       context: src/client/
       dockerfile: web.Dockerfile
@@ -18,6 +19,7 @@ services:
 
   api:
     container_name: api
+    profiles: [all-services, all-except-cosmos]
     build:
       context: src/api/
       dockerfile: api.Dockerfile
@@ -48,6 +50,8 @@ services:
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
 
   oidc-server:
+    container_name: id-server
+    profiles: [all-services, all-except-cosmos, id-and-azurite-only]
     image: soluto/oidc-server-mock:latest
     ports:
       - "8010:443"
@@ -72,3 +76,8 @@ services:
     volumes:
       - ./mock-oidc:/tmp/config:ro
       - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro
+
+  azurite:
+    container_name: azurite
+    profiles: [all-services, all-except-cosmos, id-and-azurite-only]
+    image: mcr.microsoft.com/azure-storage/azurite:latest

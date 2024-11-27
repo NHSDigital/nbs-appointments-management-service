@@ -33,7 +33,7 @@ public static class ServiceRegistration
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
                 .AddScoped<ISendNotifications, FakeNotificationClient>();
         }
-        else if(userNotificationsProvider == "azure")
+        else if (userNotificationsProvider == "azure")
         {
             services
                 .AddScoped(x => new Notify.Client.NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
@@ -55,6 +55,7 @@ public static class ServiceRegistration
                     cfg.AddConsumer<BookingReminderConsumer>();
                     cfg.AddConsumer<BookingMadeConsumer>();
                     cfg.AddConsumer<BookingCancelledConsumer>();
+                    cfg.AddConsumer<BookingRescheduledConsumer>();
                 },
                 connectionStringConfigurationKey: "ServiceBusConnectionString");
         }

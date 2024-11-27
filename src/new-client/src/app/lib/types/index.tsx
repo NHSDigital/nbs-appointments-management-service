@@ -180,12 +180,11 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  outcome?: string;
+  status: AppointmentStatus;
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;
   created: string;
-  provisional: boolean;
   // TODO: Additional data object - any type?
 };
 
@@ -197,7 +196,7 @@ type AttendeeDetails = {
 };
 
 type ContactItem = {
-  type: string;
+  type: ContactItemType;
   value: string;
 };
 
@@ -210,6 +209,19 @@ type ClinicalService = {
   label: string;
   value: string;
 };
+
+enum AppointmentStatus {
+  Unknown,
+  Provisional,
+  Booked,
+  Cancelled,
+}
+
+enum ContactItemType {
+  Phone,
+  Email,
+  Landline,
+}
 
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [

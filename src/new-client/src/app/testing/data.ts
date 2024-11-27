@@ -1,4 +1,5 @@
 import {
+  AppointmentStatus,
   AttributeDefinition,
   AttributeValue,
   AvailabilityCreatedEvent,
@@ -261,7 +262,7 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1979, 1, 1),
     },
     created: '2024-11-05T10:35:08.0477062',
-    provisional: false,
+    status: AppointmentStatus.Booked,
     reminderSet: false,
   },
   {
@@ -277,7 +278,7 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1945, 1, 1),
     },
     created: '2024-11-15T10:35:08.0477062',
-    provisional: false,
+    status: AppointmentStatus.Booked,
     reminderSet: false,
   },
   {
@@ -293,7 +294,7 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1984, 1, 1),
     },
     created: '2024-11-05T10:35:08.0477062',
-    provisional: false,
+    status: AppointmentStatus.Booked,
     reminderSet: false,
   },
 ];

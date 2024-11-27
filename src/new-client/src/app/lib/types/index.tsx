@@ -259,4 +259,11 @@ export type {
   Week,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };
+export {
+  AppointmentStatus,
+  ContactItemType,
+  MyaError,
+  UnauthorizedError,
+  daysOfTheWeek,
+  clinicalServices,
+};

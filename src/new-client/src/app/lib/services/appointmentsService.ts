@@ -11,6 +11,10 @@ import {
   UserProfile,
   SetAvailabilityRequest,
   AvailabilityCreatedEvent,
+  FetchAvailabilityRequest,
+  AvailabilityResponse,
+  FetchBookingsRequest,
+  Booking,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -250,8 +254,7 @@ export const applyAvailabilityTemplate = async (
     'You have successfully created availability for the current site.';
   raiseNotification(notificationType, notificationMessage);
 
-  // TODO: Once the fetch availability route is implemented, refresh the tag here
-  // revalidateTag(`fetchAvailability`);
+  revalidateTag(`fetchAvailability`);
 };
 
 export const saveAvailability = async (request: SetAvailabilityRequest) => {
@@ -269,8 +272,7 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
     'You have successfully created availability for the current site.';
   raiseNotification(notificationType, notificationMessage);
 
-  // TODO: Once the fetch availability route is implemented, refresh the tag here
-  // revalidateTag(`fetchAvailability`);
+  revalidateTag(`fetchAvailability`);
 };
 
 export async function fetchInformationForCitizens(site: string, scope: string) {
@@ -297,4 +299,25 @@ export const setSiteInformationForCitizen = async (
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
+};
+
+export const fetchAvailability = async (payload: FetchAvailabilityRequest) => {
+  const response = await appointmentsApi.post<AvailabilityResponse[]>(
+    'availability/query',
+    JSON.stringify(payload),
+    {
+      next: { tags: ['fetchAvailability'] },
+    },
+  );
+
+  return handleBodyResponse(response);
+};
+
+export const fetchBookings = async (payload: FetchBookingsRequest) => {
+  const response = await appointmentsApi.post<Booking[]>(
+    'booking/query',
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
 };

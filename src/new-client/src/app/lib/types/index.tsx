@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
@@ -126,8 +127,106 @@ type Session = {
   services: string[];
 };
 
+type FetchAvailabilityRequest = {
+  sites: string[];
+  service: string;
+  from: string;
+  until: string;
+  queryType: '*' | 'Days' | 'Hours' | 'Slots';
+};
+
+type AvailabilityResponse = {
+  site: string;
+  service: string;
+  availability: Availability[];
+};
+
+type Availability = {
+  date: Date;
+  blocks: AvailabilityBlock[];
+};
+
+type AvailabilityBlock = {
+  from: string;
+  until: string;
+  count: number;
+};
+
+// TODO: Rename this type to something more meaningful
+type Week = {
+  start: number;
+  end: number;
+  startMonth: number;
+  endMonth: number;
+  startYear: number;
+  endYear: number;
+  unbooked?: number;
+  totalAppointments?: number;
+  booked?: number;
+  bookedAppointments: BookedAppointments[];
+  startDate?: dayjs.Dayjs;
+  endDate?: dayjs.Dayjs;
+};
+
+type FetchBookingsRequest = {
+  from: string;
+  to: string;
+  site: string;
+};
+
+type Booking = {
+  reference: string;
+  from: string;
+  duration: number;
+  service: string;
+  site: string;
+  status: AppointmentStatus;
+  attendeeDetails: AttendeeDetails;
+  contactDetails?: ContactItem[];
+  reminderSet: boolean;
+  created: string;
+  // TODO: Additional data object - any type?
+};
+
+type AttendeeDetails = {
+  nhsNumber: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+};
+
+type ContactItem = {
+  type: ContactItemType;
+  value: string;
+};
+
+type BookedAppointments = {
+  service: string;
+  count: number;
+};
+
+type ClinicalService = {
+  label: string;
+  value: string;
+};
+
+enum AppointmentStatus {
+  Unknown,
+  Provisional,
+  Booked,
+  Cancelled,
+}
+
+enum ContactItemType {
+  Phone,
+  Email,
+  Landline,
+}
+
 // TODO: Decide where this info should live and move it there
-const clinicalServices = [{ label: 'RSV (Adult)', value: 'RSV:Adult' }];
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+];
 
 export type {
   ApplyAvailabilityTemplateRequest,
@@ -136,11 +235,17 @@ export type {
   ApiSuccessResponse,
   AttributeDefinition,
   AttributeValue,
+  Availability,
+  AvailabilityBlock,
+  AvailabilityResponse,
   AvailabilityCreatedEvent,
   AvailabilitySession,
   AvailabilityTemplate,
+  Booking,
   DateComponents,
   ErrorType,
+  FetchAvailabilityRequest,
+  FetchBookingsRequest,
   Role,
   RoleAssignment,
   Session,
@@ -151,6 +256,14 @@ export type {
   TimeComponents,
   User,
   UserProfile,
+  Week,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };
+export {
+  AppointmentStatus,
+  ContactItemType,
+  MyaError,
+  UnauthorizedError,
+  daysOfTheWeek,
+  clinicalServices,
+};

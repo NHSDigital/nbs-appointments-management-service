@@ -2,5 +2,5 @@
 
 public interface IMessageBus
 {
-    Task Send<T>(T message) where T : class;
+    Task Send<T>(params T[] messages) where T : class;
 }

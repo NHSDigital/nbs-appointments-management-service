@@ -1,5 +1,6 @@
 ﻿using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
@@ -61,8 +62,8 @@ public class BookingsService(
 
                 if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
                 {
-                    var bookingMadeEvent = eventFactory.BuildBookingMadeEvent(booking);
-                    await bus.Send(bookingMadeEvent);
+                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                    await bus.Send(bookingMadeEvents);
                 }
 
                 return (true, booking.Reference);
@@ -83,8 +84,11 @@ public class BookingsService(
 
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
 
-        var bookingCancelledEvent = eventFactory.BuildBookingCancelledEvent(booking);
-        await bus.Send (bookingCancelledEvent);
+        if (booking.ContactDetails != null)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
 
         return BookingCancellationResult.Success;
     }
@@ -101,13 +105,13 @@ public class BookingsService(
 
             if (isRescheduleOperation)
             {
-                var bookingRescheduledEvent = eventFactory.BuildBookingRescheduledEvent(booking);
-                await bus.Send(bookingRescheduledEvent);
+                var bookingRescheduledEvents = eventFactory.BuildBookingEvents<BookingRescheduled>(booking);
+                await bus.Send(bookingRescheduledEvents);
             }
             else
             {
-                var bookingMadeEvent = eventFactory.BuildBookingMadeEvent(booking);
-                await bus.Send(bookingMadeEvent);
+                var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                await bus.Send(bookingMadeEvents);
             }
         }
 
@@ -124,8 +128,8 @@ public class BookingsService(
         var bookings = await GetBookings(time.GetLocalNow().DateTime, time.GetLocalNow().AddDays(3).DateTime);
         foreach (var booking in bookings.Where(b => !b.ReminderSent))
         {
-            var reminder = eventFactory.BuildBookingReminderEvent(booking);
-            await bus.Send(reminder);
+            var reminders = eventFactory.BuildBookingEvents<BookingReminder>(booking);
+            await bus.Send(reminders);
             booking.ReminderSent = true;
             await bookingDocumentStore.SetReminderSent(booking.Reference, booking.Site);
         }

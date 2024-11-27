@@ -7,6 +7,10 @@
     type: string
   - name: webServerName
     type: string
+  - name: cosmosAccountName
+    type: string
+  - name: resourceGroup
+    type: string
   - name: serviceConnectionName
     type: string
   - name: isMain
@@ -128,4 +132,30 @@ stages:
               appType: "functionApp"
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
-              deploymentMethod: "auto"
+              deploymentMethod: "auto"              
+      - job: UploadCosmosDocuments
+        displayName: "Upload documents to cosmosdb"
+        dependsOn:
+         - ApplyTerraform
+         - DeployWeb
+         - DeployApi
+        variables:
+          environment: ${{parameters.env}}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
+          - task: DotNetCoreCLI@2
+            displayName: "Seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)

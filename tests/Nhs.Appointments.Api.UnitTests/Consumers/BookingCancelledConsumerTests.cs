@@ -29,7 +29,7 @@ public class BookingCancelledConsumerTests
         DateOnly date = new DateOnly(DateTime.Now.AddYears(1).Year, 1, 1);
         TimeOnly time = new TimeOnly(12, 15);
 
-        _notifier.Setup(x => x.Notify(nameof(BookingCancelled), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber)).Verifiable();
+        _notifier.Setup(x => x.Notify(nameof(BookingCancelled), Service, Reference, Site, FirstName, date, time, Email, null)).Verifiable();
         var ctx = new Mock<ConsumeContext<BookingCancelled>>();
         ctx.SetupGet(x => x.Message).Returns(new BookingCancelled
         {
@@ -41,7 +41,8 @@ public class BookingCancelledConsumerTests
             ContactDetails = [
                 new ContactItem{Type = ContactItemType.Email, Value = Email},
                 new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber}
-                ]
+                ],
+            NotificationType = NotificationType.Email
         });
 
         await _sut.Consume(ctx.Object);

@@ -12,7 +12,8 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       p === 'users:view' ||
       p === 'site:manage' ||
       p === 'site:view' ||
-      p === 'availability:set-setup',
+      p === 'availability:set-setup' ||
+      p === 'availability:query',
   );
 
   return (
@@ -25,6 +26,15 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       </div>
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
+          {permissionsRelevantToCards.includes('availability:query') && (
+            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+              <Card
+                href={`${site.id}/view-availability`}
+                title="View availability"
+                description="View and manage availability and appointments for your site"
+              />
+            </li>
+          )}
           {permissionsRelevantToCards.includes('availability:set-setup') && (
             <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
               <Card

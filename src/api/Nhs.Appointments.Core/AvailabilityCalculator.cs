@@ -10,12 +10,14 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
     public async Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until)
     {
         var allSessions = await availabilityStore.GetSessions(site, from, until);
-        var sessionsForService = allSessions.Where(s => s.Services.Contains(service));   
+        var filteredSessions = service == "*"
+            ? allSessions
+            : allSessions.Where(s => s.Services.Contains(service));
 
-        if (sessionsForService.Any())
+        if (filteredSessions.Any())
         {
             var slots = new List<SessionInstance>();
-            foreach (var session in sessionsForService)
+            foreach (var session in filteredSessions)
             {
                 slots.AddRange(session.Divide(TimeSpan.FromMinutes(session.SlotLength)).Select(sl => new SessionInstance(sl) { Services = session.Services, Capacity = session.Capacity }));
             }

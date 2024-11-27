@@ -36,6 +36,7 @@ class Client {
   public post<T = unknown>(
     path: string,
     payload: BodyInit,
+    config?: RequestInit,
   ): Promise<ApiResponse<T>> {
     const tokenCookie = cookies().get('token');
 
@@ -47,6 +48,7 @@ class Client {
             Authorization: `Bearer ${tokenCookie.value}`,
           }
         : undefined,
+      ...config,
     }).then(async response => {
       return await this.handleResponse<T>(response);
     });

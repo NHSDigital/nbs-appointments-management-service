@@ -27,7 +27,7 @@ async function seedCosmos() {
 
   const dbSeederDocumentsRoot = path.resolve(
     __dirname,
-    '../../../mock-data/CosmosDbSeeder/items',
+    '../../../data/CosmosDbSeeder/items/local',
   );
   const containerFolders = await fs.readdir(dbSeederDocumentsRoot, {
     withFileTypes: true,

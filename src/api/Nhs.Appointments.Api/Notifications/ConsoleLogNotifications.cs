@@ -11,10 +11,14 @@ namespace Nhs.Appointments.Api.Notifications;
 
 public class ConsoleLogNotifications : IMessageBus
 {
-    public Task Send<T>(T message) where T : class
+    public Task Send<T>(params T[] messages) where T : class
     {
-        Console.WriteLine(Json.JsonResponseWriter.Serialize(message));
-        ProcessMessage(message);
+        foreach(var message in messages)
+        {
+            Console.WriteLine(Json.JsonResponseWriter.Serialize(message));
+            ProcessMessage(message);
+        }
+
         return Task.CompletedTask;
     }
 

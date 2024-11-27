@@ -1,17 +1,20 @@
 ﻿#!/usr/bin/env pwsh
+param (
+    [string][Parameter(Mandatory)]$resourceGroup,
+    [string][Parameter(Mandatory)]$cosmosAccountName
+)
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$ShortCommitHash = $ENV:SHORT_COMMIT_HASH
-$PRBuildResourceGroup = "nbs-mya-prbuild-rg-dev-uks"
+$ResourceGroup = $resourceGroup
+$CosmosAccountName = $cosmosAccountName
 $DevSubscription = "07748954-52d6-46ce-95e6-2701bfc715b4"
-$CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
 
 az cosmosdb create `
     --name $CosmosAccountName `
-    --resource-group $PRBuildResourceGroup `
-    --subscription $devSubscription `
+    --resource-group $ResourceGroup `
+    --subscription $DevSubscription `
     --locations regionName=uksouth failoverPriority=0 `
     --enable-automatic-failover=false `
     --backup-redundancy local `

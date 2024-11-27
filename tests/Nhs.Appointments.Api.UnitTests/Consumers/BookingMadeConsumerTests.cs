@@ -30,7 +30,7 @@ public class BookingMadeConsumerTests
         DateOnly date = new DateOnly(2050, 1, 1);
         TimeOnly time = new TimeOnly(12, 15);
 
-        _notifier.Setup(x => x.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, Email, PhoneNumber)).Verifiable();
+        _notifier.Setup(x => x.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, Email, null)).Verifiable();
         var ctx = new Mock<ConsumeContext<BookingMade>>();
         ctx.SetupGet(x => x.Message).Returns(new BookingMade 
         { 
@@ -43,7 +43,8 @@ public class BookingMadeConsumerTests
                 new ContactItem{Type = ContactItemType.Email, Value = Email},
                 new ContactItem{Type = ContactItemType.Phone, Value = PhoneNumber},
                 new ContactItem{Type = ContactItemType.Landline, Value = Landline},
-                ]
+                ],
+            NotificationType = NotificationType.Email
         });
 
         await _sut.Consume(ctx.Object);

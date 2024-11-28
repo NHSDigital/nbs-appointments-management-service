@@ -111,32 +111,35 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
     public async Task ApplyTemplate(Gherkin.Ast.DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var site = GetSiteId();
         var fromDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
         var untilDate = ParseNaturalLanguageDateOnly(cells.ElementAt(1).Value);
         var days = DeriveWeekDaysInRange(fromDate, untilDate);
 
-        var template = new Template
+        var request = new
         {
-            Days = ParseDays(days),
-            Sessions = new[]
+            site = GetSiteId(),
+            from = fromDate,
+            until = untilDate,
+            template = new
             {
-                new Session
+                days = ParseDays(days),
+                sessions = new[]
                 {
-                    From = TimeOnly.Parse(cells.ElementAt(3).Value),
-                    Until = TimeOnly.Parse(cells.ElementAt(4).Value),
-                    SlotLength = int.Parse(cells.ElementAt(5).Value),
-                    Capacity = int.Parse(cells.ElementAt(6).Value),
-                    Services = cells.ElementAt(7).Value.Split(",").Select(s => s.Trim()).ToArray()
+                    new {
+                        from = cells.ElementAt(3).Value,
+                        until = cells.ElementAt(4).Value,
+                        slotLength = int.Parse(cells.ElementAt(5).Value),
+                        capacity = int.Parse(cells.ElementAt(6).Value),
+                        services = cells.ElementAt(7).Value.Split(',').Select(s => s.Trim()).ToArray(),
+                    }
                 }
-            }
+            },
+            mode = cells.ElementAt(8).Value
         };
 
-        var request = new ApplyAvailabilityTemplateRequest(site, fromDate, untilDate, template, ApplyAvailabilityMode.Overwrite);
         var payload = JsonResponseWriter.Serialize(request);
         _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
         _statusCode = _response.StatusCode;
-        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<EmptyResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [When(@"I apply the following availability")]
@@ -160,9 +163,22 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
                     services = cells.ElementAt(5).Value.Split(',').Select(s => s.Trim()).ToArray(),
                 }
             },
-            mode = "Overwrite"
+            mode = cells.ElementAt(6).Value
         };
 
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+        _statusCode = _response.StatusCode;
+    }
+    
+    [Then("the request is successful and the following daily availability sessions are created")]
+    public async Task AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
+    {
+        _statusCode.Should().Be(HttpStatusCode.OK);
+        var site = GetSiteId();
+        var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
+        var container = Client.GetContainer("appts", "booking_data");
+        var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container, d => d.DocumentType == "daily_availability" && d.Site == site);
+        actualDocuments.Count().Should().Be(expectedDocuments.Count());
+        actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
 }

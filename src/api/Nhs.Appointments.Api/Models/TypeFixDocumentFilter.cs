@@ -57,7 +57,8 @@ public class TypeFixDocumentFilter(IEnumerable<Type> typesToFix, TimeProvider ti
             {
                 Type = "string",
                 Format = "date",
-                Default = new OpenApiString(time.GetLocalNow().ToString("yyyy-MM-dd"))
+                Default = new OpenApiString(time.GetLocalNow().ToString("yyyy-MM-dd")),
+                Description = "Date format must be yyyy-MM-dd"
             };
         }
         else if(underlyingType == typeof(TimeOnly))
@@ -66,7 +67,8 @@ public class TypeFixDocumentFilter(IEnumerable<Type> typesToFix, TimeProvider ti
             {
                 Type = "string",
                 Format = "time",
-                Default = new OpenApiString("09:00")
+                Default = new OpenApiString("09:00"),
+                Description = "24 hour time format e.g. HH:mm"
             };
         }
         else if(underlyingType == typeof(DateTime))
@@ -75,7 +77,8 @@ public class TypeFixDocumentFilter(IEnumerable<Type> typesToFix, TimeProvider ti
             {
                 Type = "string",
                 Format = "date-time",
-                Default = new OpenApiString(time.GetLocalNow().ToString("yyyy-MM-dd HH:mm"))
+                Default = new OpenApiString(time.GetLocalNow().ToString("yyyy-MM-dd HH:mm")),
+                Description = "Date time format must be yyyy-MM-dd HH:mm"
             };
         }
         else if(underlyingType == typeof(DayOfWeek[])) // This is quite specialized and should be made more generic in future

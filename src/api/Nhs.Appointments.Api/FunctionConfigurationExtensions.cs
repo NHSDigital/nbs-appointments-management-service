@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using System.Net.Http;
 using Nhs.Appointments.Api.Json;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -17,6 +18,10 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core.Messaging;
+using System.Collections.Generic;
+using Nhs.Appointments.Api.Models;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Nhs.Appointments.Api.Functions;
 
 namespace Nhs.Appointments.Api;
 
@@ -41,6 +46,7 @@ public static class FunctionConfigurationExtensions
                     IncludeRequestingHostName = true,
                     ForceHttps = false,
                     ForceHttp = false,
+                    DocumentFilters = new List<IDocumentFilter> { new TypeFixDocumentFilter(GetTypesToFixInOpenApi(), TimeProvider.System) }
                 };
                 return options;
             });
@@ -129,4 +135,33 @@ public static class FunctionConfigurationExtensions
             Serializer = new CosmosJsonSerializer()
         };            
     }    
+
+    private static IEnumerable<Type> GetTypesToFixInOpenApi()
+    {
+        var functionEntryPoints = typeof(BaseApiFunction<,>).Assembly.GetTypes().Where(t => t.GetMethods().Any(t => t.Name == "RunAsync")).Select(t => t.GetMethod("RunAsync"));
+        var openApiPayloadMarkers = functionEntryPoints
+            .SelectMany(t => t.GetCustomAttributes<OpenApiRequestBodyAttribute>()).Cast<OpenApiPayloadAttribute>()
+            .Concat(functionEntryPoints.SelectMany(t => t.GetCustomAttributes<OpenApiResponseWithBodyAttribute>()));
+        
+        var payloadTypes = openApiPayloadMarkers
+            .Select(t => t.BodyType)
+            .Where(t => t.FullName.StartsWith("System") == false)
+            .Distinct()
+            .ToList();
+
+        // Manually adding additional types at the moment, but it should be possible to walk through the types to derive this information
+        payloadTypes.AddRange(
+        [
+            typeof(QueryAvailabilityResponseInfo),
+            typeof(QueryAvailabilityResponseItem),
+            typeof(QueryAvailabilityResponseBlock),
+            typeof(Session),
+            typeof(Template),
+            typeof(AvailabilityCreatedEvent),
+            typeof(ContactItem),
+            typeof(AttendeeDetails),            
+        ]);
+
+        return payloadTypes;
+    }
 }

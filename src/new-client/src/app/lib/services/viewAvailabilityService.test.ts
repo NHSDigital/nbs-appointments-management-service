@@ -35,8 +35,8 @@ describe('View Availability Service', () => {
       const lastWeek = weeks[weeks.length - 1];
 
       expect(weeks.length).toBe(expectedWeekCount);
-      expect(firstWeek.startMonth).toBe(exectedStartMonth);
-      expect(lastWeek.endMonth).toBe(expectedEndMonth);
+      expect(firstWeek.startDate.month()).toBe(exectedStartMonth);
+      expect(lastWeek.endDate.month()).toBe(expectedEndMonth);
     },
   );
 

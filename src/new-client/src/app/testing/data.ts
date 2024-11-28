@@ -14,6 +14,7 @@ import {
   UserProfile,
   Week,
 } from '@types';
+import dayjs from 'dayjs';
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -307,6 +308,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 7,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(1),
+    endDate: dayjs().year(2024).month(11).date(7),
     bookedAppointments: [
       { service: 'COVID 75+', count: 10 },
       { service: 'FLU 18-64', count: 5 },
@@ -323,6 +326,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 15,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(8),
+    endDate: dayjs().year(2024).month(11).date(15),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 1 },
@@ -339,6 +344,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 23,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(16),
+    endDate: dayjs().year(2024).month(11).date(23),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 10 },

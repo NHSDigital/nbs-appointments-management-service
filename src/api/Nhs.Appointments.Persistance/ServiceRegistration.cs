@@ -3,6 +3,7 @@ using Nhs.Appointments.Persistance;
 using System.Reflection;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Options;
+using Microsoft.Extensions.Azure;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -31,8 +32,13 @@ public static class ServiceRegistration
         if (string.IsNullOrWhiteSpace(eulaBlobStoreConnectionString)
             || string.IsNullOrWhiteSpace(eulaBlobStoreContainerName))
         {
-            throw new NullReferenceException("Could not configure eula blob storage service. Connection string or container name was missing.");
+            throw new NullReferenceException("Could not configure EULA blob storage service. Connection string or container name was missing.");
         }
+
+        services.AddAzureClients(x =>
+        {
+            x.AddBlobServiceClient(eulaBlobStoreConnectionString);
+        });
 
         services.Configure<EulaStoreOptions>(opts => {
             opts.ConnectionString = eulaBlobStoreConnectionString;

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -55,6 +56,10 @@ class Program
         }
 
         Console.WriteLine("Database seeded successfully");
+
+        Console.WriteLine("Writing EULA to blob storage...");
+        UploadEulaT  oBlobStorage();
+        Console.WriteLine("\tdone");
     }
 
     private static async Task<Database> CreateDatabaseAsync(string databaseId)
@@ -141,6 +146,16 @@ class Program
     {
         var protectedEnvironments = new [] { "dev", "int", "stag", "prod" };
         return protectedEnvironments.Contains(environment);
+    }
+
+    private static void UploadEulaToBlobStorage()
+    {
+        BlobContainerClient blobContainerClient = new BlobContainerClient("UseDevelopmentStorage=true", "eula");
+        blobContainerClient.CreateIfNotExists();
+
+        var eulaContent = "this is some eula content";
+
+        blobContainerClient.UploadBlob("eula", new BinaryData(eulaContent));
     }
 }
 

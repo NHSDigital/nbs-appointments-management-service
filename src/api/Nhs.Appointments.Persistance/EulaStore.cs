@@ -26,7 +26,7 @@ public class EulaStore : IEulaStore
 
         var eulaBlob = (await blobClient.DownloadContentAsync()).Value;
 
-        var versionDate = DateOnly.FromDateTime(DateTime.Parse(eulaBlob.Details.VersionId));
+        var versionDate = DateOnly.FromDateTime(eulaBlob.Details.LastModified.UtcDateTime);
         // TODO: Do we need to make this a stream or is enumerating it all here sufficient?
         var content = eulaBlob.Content.ToString();
 

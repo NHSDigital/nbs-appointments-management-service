@@ -10,25 +10,34 @@ import { FetchAvailabilityRequest } from '@types';
 import {
   getDetailedMonthView,
   getWeeksInMonth,
-  monthEnd,
-  monthStart,
 } from '@services/viewAvailabilityService';
+import Pagination from '@components/nhsuk-frontend/pagination';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 type PageProps = {
   params: {
     site: string;
   };
+  searchParams?: {
+    date?: string;
+  };
 };
 
-const Page = async ({ params }: PageProps) => {
+const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'availability:query');
-  const title = `View availability for ${dayjs().format('MMMM YYYY')}`;
+  const searchMonth = searchParams?.date
+    ? dayjs(searchParams?.date, 'YYYY-MM-DD')
+    : dayjs();
 
-  const weeks = getWeeksInMonth(dayjs().year(), dayjs().month());
+  const title = `View availability for ${searchMonth.format('MMMM YYYY')}`;
 
-  const startDate = monthStart(weeks);
-  const endDate = monthEnd(weeks);
+  const weeks = getWeeksInMonth(searchMonth.year(), searchMonth.month());
+
+  const startDate = weeks[0].startDate.format('YYYY-MM-DD');
+  const endDate = weeks[weeks.length - 1].endDate.format('YYYY-MM-DD');
   const payload: FetchAvailabilityRequest = {
     sites: [site.id],
     service: '*',
@@ -43,6 +52,18 @@ const Page = async ({ params }: PageProps) => {
     site.id,
   );
 
+  const nextMonth = searchMonth.startOf('month').add(1, 'month');
+  const previousMonth = searchMonth.startOf('month').subtract(1, 'month');
+
+  const next = {
+    title: nextMonth.format('MMMM YYYY'),
+    href: `view-availability?date=${nextMonth.format('YYYY-MM-DD')}`,
+  };
+  const previous = {
+    title: previousMonth.format('MMMM YYYY'),
+    href: `view-availability?date=${previousMonth.format('YYYY-MM-DD')}`,
+  };
+
   return (
     <NhsPage
       title={title}
@@ -52,6 +73,7 @@ const Page = async ({ params }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
       ]}
     >
+      <Pagination previous={previous} next={next} />
       <ViewAvailabilityPage weeks={detailedMonthView} />
     </NhsPage>
   );

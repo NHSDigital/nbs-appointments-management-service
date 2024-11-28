@@ -1,6 +1,5 @@
 import { Card, Table } from '@components/nhsuk-frontend';
 import { Week } from '@types';
-import dayjs from 'dayjs';
 import Link from 'next/link';
 
 type Props = {
@@ -12,7 +11,7 @@ export const ViewAvailabilityPage = ({ weeks }: Props) => {
     <>
       {weeks.map((week, i) => (
         <Card
-          title={`${week.start} ${dayjs().month(week.startMonth).format('MMMM')} to ${week.end} ${dayjs().month(week.endMonth).format('MMMM')}`}
+          title={`${week.startDate.format('D MMMM')} to ${week.endDate.format('D MMMM')}`}
           key={i}
         >
           <Table
@@ -29,6 +28,13 @@ export const ViewAvailabilityPage = ({ weeks }: Props) => {
             ]}
             rows={[]}
           ></Table>
+          <br />
+          <Link
+            className="nhsuk-link"
+            href={`view-availability/week?from=${week.startDate.format('YYYY-MM-DD')}&to=${week.endDate.format('YYYY-MM-DD')}`}
+          >
+            View week
+          </Link>
         </Card>
       ))}
     </>

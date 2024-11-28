@@ -164,8 +164,8 @@ type Week = {
   totalAppointments?: number;
   booked?: number;
   bookedAppointments: BookedAppointments[];
-  startDate?: dayjs.Dayjs;
-  endDate?: dayjs.Dayjs;
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
 };
 
 type FetchBookingsRequest = {

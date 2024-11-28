@@ -8,6 +8,7 @@ export default class CreateAvailabilityPage extends RootPage {
   readonly btnContinue: Locator;
   readonly setAndCapacityTittle: Locator;
   readonly btnSaveSession: Locator;
+  readonly sessionSuccessMsg: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -34,16 +35,26 @@ export default class CreateAvailabilityPage extends RootPage {
     this.btnSaveSession = page.getByRole('button', {
       name: 'Save session',
     });
+
+    this.sessionSuccessMsg = page.getByText(
+      'You have successfully created availability for the current site.',
+    );
   }
 
   async selectSession(sessionType: string) {
     await this.page.getByRole('radio', { name: sessionType }).click();
   }
 
-  async enterSessionDate(day: string, month: string, year: string) {
-    await this.page.getByLabel('Day').fill(day);
-    await this.page.getByLabel('Month').fill(month);
-    await this.page.getByLabel('Year').fill(year);
+  async enterSessionStartDate(day: string, month: string, year: string) {
+    await this.page.locator('id=start-date-input-day').fill(day);
+    await this.page.locator('id=start-date-input-month').fill(month);
+    await this.page.locator('id=start-date-input-year').fill(year);
+  }
+
+  async enterSessionEndDate(day: string, month: string, year: string) {
+    await this.page.locator('id=end-date-input-day').fill(day);
+    await this.page.locator('id=end-date-input-month').fill(month);
+    await this.page.locator('id=end-date-input-year').fill(year);
   }
 
   async enterStartTime(hour: string, minute: string) {
@@ -68,5 +79,9 @@ export default class CreateAvailabilityPage extends RootPage {
 
   async addServices(serviceName: string) {
     await this.page.getByRole('checkbox', { name: serviceName }).click();
+  }
+
+  async selectDays(Day: string) {
+    await this.page.getByRole('checkbox', { name: 'Day' }).click();
   }
 }

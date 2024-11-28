@@ -101,13 +101,16 @@ const getUnbookedCount = (
       continue;
     }
 
-    const fromDate = week.startDate;
-    const toDate = week.endDate;
+    const fromDate = week.startDate.startOf('date');
+    const toDate = week.endDate.endOf('date');
 
     const blocks: AvailabilityBlock[] = [];
     availability[a].availability.filter(item => {
       const date = dayjs(item.date);
-      if (date.isSameOrAfter(fromDate) && date.isSameOrBefore(toDate)) {
+      if (
+        date.startOf('date').isSameOrAfter(fromDate) &&
+        date.isSameOrBefore(toDate)
+      ) {
         blocks.push(...item.blocks);
       }
     });

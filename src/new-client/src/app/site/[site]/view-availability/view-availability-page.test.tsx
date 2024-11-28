@@ -33,4 +33,10 @@ describe('View Availability Page', () => {
       screen.getByRole('row', { name: 'RSV (Adult) 2' }),
     ).toBeInTheDocument();
   });
+
+  it('renders a link for each week', () => {
+    render(<ViewAvailabilityPage weeks={mockDetailedWeeks} />);
+
+    expect(screen.getAllByText('View week')).toHaveLength(3);
+  });
 });

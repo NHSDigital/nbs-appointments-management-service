@@ -42,6 +42,7 @@ async function saveAvailabilityTemplate(
           },
         ],
       },
+      mode: 'Additive',
     };
 
     await applyAvailabilityTemplate(request);
@@ -58,6 +59,7 @@ async function saveAvailabilityTemplate(
           services: formData.session.services,
         },
       ],
+      mode: 'Additive',
     };
 
     await saveAvailability(request);

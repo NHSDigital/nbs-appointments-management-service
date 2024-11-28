@@ -46,10 +46,10 @@ test('E2E Create single session of RSV availability', async ({ page }) => {
   await createAvailabilityPage.enterSessionStartDate('27', '10', '2025');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.enterStartTime('09', '00');
-  await createAvailabilityPage.enterEndtTime('10', '00'),
-    await createAvailabilityPage.noOfVaccinators('1'),
-    await createAvailabilityPage.appointmentLength('5'),
-    await createAvailabilityPage.btnContinue.click();
+  await createAvailabilityPage.enterEndtTime('10', '00');
+  await createAvailabilityPage.noOfVaccinators('1');
+  await createAvailabilityPage.appointmentLength('5');
+  await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.addServices('RSV (Adult)');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.btnSaveSession.click();
@@ -69,13 +69,13 @@ test('E2E Create weekly session of RSV availability', async ({ page }) => {
   await createAvailabilityPage.enterSessionStartDate('27', '10', '2025');
   await createAvailabilityPage.enterSessionEndDate('28', '10', '2025');
   await createAvailabilityPage.btnContinue.click();
-  await createAvailabilityPage.selectDays('Select all days');
+  await createAvailabilityPage.selectDay('Select all days');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.enterStartTime('09', '00');
-  await createAvailabilityPage.enterEndtTime('10', '00'),
-    await createAvailabilityPage.noOfVaccinators('1'),
-    await createAvailabilityPage.appointmentLength('5'),
-    await createAvailabilityPage.btnContinue.click();
+  await createAvailabilityPage.enterEndtTime('10', '00');
+  await createAvailabilityPage.noOfVaccinators('1');
+  await createAvailabilityPage.appointmentLength('5');
+  await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.addServices('RSV (Adult)');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.btnSaveSession.click();

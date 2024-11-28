@@ -81,7 +81,7 @@ export default class CreateAvailabilityPage extends RootPage {
     await this.page.getByRole('checkbox', { name: serviceName }).click();
   }
 
-  async selectDays(Day: string) {
-    await this.page.getByRole('checkbox', { name: 'Day' }).click();
+  async selectDay(Day: string) {
+    await this.page.getByRole('checkbox', { name: Day }).click();
   }
 }

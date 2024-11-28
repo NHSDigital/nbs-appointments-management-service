@@ -32,7 +32,7 @@
       "command": "dotnet",
       "type": "process",
       "options": {
-        "cwd": "mock-data/CosmosDbSeeder/"
+        "cwd": "data/CosmosDbSeeder/"
       },
       "args": ["clean", "CosmosDbSeeder.csproj"],
       "problemMatcher": "$msCompile"
@@ -42,7 +42,7 @@
       "command": "dotnet",
       "type": "process",
       "options": {
-        "cwd": "mock-data/CosmosDbSeeder/"
+        "cwd": "data/CosmosDbSeeder/"
       },
       "args": ["run", "CosmosDbSeeder.csproj"],
       "problemMatcher": "$msCompile",

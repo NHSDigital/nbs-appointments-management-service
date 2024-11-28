@@ -45,16 +45,34 @@ export default class CreateAvailabilityPage extends RootPage {
     await this.page.getByRole('radio', { name: sessionType }).click();
   }
 
-  async enterSessionStartDate(day: string, month: string, year: string) {
-    await this.page.locator('id=start-date-input-day').fill(day);
-    await this.page.locator('id=start-date-input-month').fill(month);
-    await this.page.locator('id=start-date-input-year').fill(year);
+  async enterSingleDateSessionDate(day: string, month: string, year: string) {
+    const sessionDateFormGroup = this.page
+      .getByRole('group')
+      .filter({ has: this.page.getByText('Session date') });
+
+    await sessionDateFormGroup.getByLabel('Day').fill(day);
+    await sessionDateFormGroup.getByLabel('Month').fill(month);
+    await sessionDateFormGroup.getByLabel('Year').fill(year);
   }
 
-  async enterSessionEndDate(day: string, month: string, year: string) {
-    await this.page.locator('id=end-date-input-day').fill(day);
-    await this.page.locator('id=end-date-input-month').fill(month);
-    await this.page.locator('id=end-date-input-year').fill(year);
+  async enterWeeklySessionStartDate(day: string, month: string, year: string) {
+    const startDateFormGroup = this.page
+      .getByRole('group')
+      .filter({ has: this.page.getByText('Start date') });
+
+    await startDateFormGroup.getByLabel('Day').fill(day);
+    await startDateFormGroup.getByLabel('Month').fill(month);
+    await startDateFormGroup.getByLabel('Year').fill(year);
+  }
+
+  async enterWeeklySessionEndDate(day: string, month: string, year: string) {
+    const endDateFormGroup = this.page
+      .getByRole('group')
+      .filter({ has: this.page.getByText('End date') });
+
+    await endDateFormGroup.getByLabel('Day').fill(day);
+    await endDateFormGroup.getByLabel('Month').fill(month);
+    await endDateFormGroup.getByLabel('Year').fill(year);
   }
 
   async enterStartTime(hour: string, minute: string) {

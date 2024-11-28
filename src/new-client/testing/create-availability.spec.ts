@@ -43,7 +43,7 @@ test('E2E Create single session of RSV availability', async ({ page }) => {
   await expect(createAvailabilityPage.sessionTittle).toBeVisible();
   await createAvailabilityPage.selectSession('Single date session');
   await createAvailabilityPage.btnContinue.click();
-  await createAvailabilityPage.enterSessionStartDate('27', '10', '2025');
+  await createAvailabilityPage.enterSingleDateSessionDate('27', '10', '2025');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.enterStartTime('09', '00');
   await createAvailabilityPage.enterEndtTime('10', '00');
@@ -66,8 +66,8 @@ test('E2E Create weekly session of RSV availability', async ({ page }) => {
   await expect(createAvailabilityPage.sessionTittle).toBeVisible();
   await createAvailabilityPage.selectSession('Weekly sessions');
   await createAvailabilityPage.btnContinue.click();
-  await createAvailabilityPage.enterSessionStartDate('27', '10', '2025');
-  await createAvailabilityPage.enterSessionEndDate('28', '10', '2025');
+  await createAvailabilityPage.enterWeeklySessionStartDate('27', '10', '2025');
+  await createAvailabilityPage.enterWeeklySessionEndDate('28', '10', '2025');
   await createAvailabilityPage.btnContinue.click();
   await createAvailabilityPage.selectDay('Select all days');
   await createAvailabilityPage.btnContinue.click();

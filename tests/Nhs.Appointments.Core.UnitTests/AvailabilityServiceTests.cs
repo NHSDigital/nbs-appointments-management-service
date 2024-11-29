@@ -36,7 +36,7 @@ public class AvailabilityServiceTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user); };
+        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("site must have a value");
     }
     
@@ -49,7 +49,7 @@ public class AvailabilityServiceTests
         var until = new DateOnly(2025, 01, 12);
         Template template = null;
 
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user); };
+        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("template must be provided");
     }
     
@@ -75,7 +75,7 @@ public class AvailabilityServiceTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user); };
+        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("until date must be after from date");
     }
     
@@ -101,7 +101,7 @@ public class AvailabilityServiceTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user); };
+        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>("template must specify one or more weekdays");
     }
     
@@ -117,7 +117,7 @@ public class AvailabilityServiceTests
             Days = [DayOfWeek.Monday],
             Sessions = []
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user); };
+        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>("template must contain one or more sessions");
     }
     
@@ -146,7 +146,7 @@ public class AvailabilityServiceTests
             Sessions = sessions
         };
         
-        await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, user);
+        await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
         var actualDates = _availabilityStore.Invocations
             .Where(i => i.Method.Name == nameof(IAvailabilityStore.ApplyAvailabilityTemplate))
             .Select(i => (DateOnly)i.Arguments[1]);
@@ -181,9 +181,9 @@ public class AvailabilityServiceTests
             }
         }.ToArray();
 
-        await _sut.ApplySingleDateSessionAsync(date, site, sessions, user);
+        await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions), Times.Once);
+        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
         _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user), Times.Once);
     }
 
@@ -193,14 +193,14 @@ public class AvailabilityServiceTests
     [InlineData(null)]
     public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSiteIsInvalid(string? site)
     {
-        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>()); };
+        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>(), ApplyAvailabilityMode.Overwrite); };
         await setAvailability.Should().ThrowAsync<ArgumentException>("Site must have a value.");
     }
 
     [Fact]
     public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSessionsArrayIsEmpty()
     {
-        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), "test-site", Array.Empty<Session>()); };
+        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), "test-site", Array.Empty<Session>(), ApplyAvailabilityMode.Overwrite); };
         await setAvailability.Should().ThrowAsync<ArgumentException>("Availability must contain one or more sessions.");
     }
 
@@ -221,9 +221,9 @@ public class AvailabilityServiceTests
         var date = new DateOnly(2024, 10, 10);
         var site = "test-site";
 
-        await _sut.SetAvailabilityAsync(date, site, sessions);
+        await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions), Times.Once);
+        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
     }
 
     [Fact]

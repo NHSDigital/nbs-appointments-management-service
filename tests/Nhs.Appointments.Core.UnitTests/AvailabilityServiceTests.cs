@@ -15,7 +15,7 @@ public class AvailabilityServiceTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public async Task ApplyTemplateAsync_ThrowsArgumentException_IfSiteIsEmpty(string? siteId)
+    public async Task ApplyTemplateAsync_ThrowsArgumentException_IfSiteIsEmpty(string siteId)
     {
         var site = siteId;
         const string user = "mock.user@nhs.net";
@@ -47,7 +47,7 @@ public class AvailabilityServiceTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
-        Template? template = null;
+        Template template = null;
 
         var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("template must be provided");
@@ -191,7 +191,7 @@ public class AvailabilityServiceTests
     [InlineData(" ")]
     [InlineData("")]
     [InlineData(null)]
-    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSiteIsInvalid(string? site)
+    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSiteIsInvalid(string site)
     {
         var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>(), ApplyAvailabilityMode.Overwrite); };
         await setAvailability.Should().ThrowAsync<ArgumentException>("Site must have a value.");

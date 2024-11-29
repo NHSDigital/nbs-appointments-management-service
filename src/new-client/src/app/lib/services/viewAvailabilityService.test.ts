@@ -35,8 +35,8 @@ describe('View Availability Service', () => {
       const lastWeek = weeks[weeks.length - 1];
 
       expect(weeks.length).toBe(expectedWeekCount);
-      expect(firstWeek.startMonth).toBe(exectedStartMonth);
-      expect(lastWeek.endMonth).toBe(expectedEndMonth);
+      expect(firstWeek.startDate.month()).toBe(exectedStartMonth);
+      expect(lastWeek.endDate.month()).toBe(expectedEndMonth);
     },
   );
 
@@ -49,11 +49,13 @@ describe('View Availability Service', () => {
     );
 
     expect(detailedWeeks.length).toBe(5);
-    expect(detailedWeeks[1].unbooked).toBe(16);
-    expect(detailedWeeks[1].booked).toBe(1);
-    expect(detailedWeeks[1].totalAppointments).toBe(17);
 
-    const rsvAppt = detailedWeeks[1].bookedAppointments.find(
+    const lastWeek = detailedWeeks[detailedWeeks.length - 1];
+    expect(lastWeek.unbooked).toBe(16);
+    expect(lastWeek.booked).toBe(1);
+    expect(lastWeek.totalAppointments).toBe(17);
+
+    const rsvAppt = lastWeek.bookedAppointments.find(
       b => b.service === 'RSV (Adult)',
     );
     expect(rsvAppt?.count).toBe(1);

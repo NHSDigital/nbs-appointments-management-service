@@ -10,25 +10,30 @@ import { FetchAvailabilityRequest } from '@types';
 import {
   getDetailedMonthView,
   getWeeksInMonth,
-  monthEnd,
-  monthStart,
 } from '@services/viewAvailabilityService';
 
 type PageProps = {
   params: {
     site: string;
   };
+  searchParams?: {
+    date?: string;
+  };
 };
 
-const Page = async ({ params }: PageProps) => {
+const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'availability:query');
-  const title = `View availability for ${dayjs().format('MMMM YYYY')}`;
+  const searchMonth = searchParams?.date
+    ? dayjs(searchParams?.date, 'YYYY-MM-DD')
+    : dayjs();
 
-  const weeks = getWeeksInMonth(dayjs().year(), dayjs().month());
+  const title = `View availability for ${searchMonth.format('MMMM YYYY')}`;
 
-  const startDate = monthStart(weeks);
-  const endDate = monthEnd(weeks);
+  const weeks = getWeeksInMonth(searchMonth.year(), searchMonth.month());
+
+  const startDate = weeks[0].startDate.format('YYYY-MM-DD');
+  const endDate = weeks[weeks.length - 1].endDate.format('YYYY-MM-DD');
   const payload: FetchAvailabilityRequest = {
     sites: [site.id],
     service: '*',
@@ -52,7 +57,10 @@ const Page = async ({ params }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
       ]}
     >
-      <ViewAvailabilityPage weeks={detailedMonthView} />
+      <ViewAvailabilityPage
+        weeks={detailedMonthView}
+        searchMonth={searchMonth}
+      />
     </NhsPage>
   );
 };

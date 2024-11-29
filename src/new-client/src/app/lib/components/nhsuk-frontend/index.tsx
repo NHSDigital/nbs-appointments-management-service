@@ -28,6 +28,7 @@ import {
   SmallSpinnerWithText,
   WhiteSpinnerWithText,
 } from './spinner';
+import Pagination from './pagination';
 export type { Breadcrumb, SummaryListItem, TagColor };
 export {
   BackLink,
@@ -45,6 +46,7 @@ export {
   FormGroup,
   InsetText,
   NhsLogo,
+  Pagination,
   Radio,
   RadioGroup,
   RightChevron,

@@ -1,5 +1,4 @@
 import {
-  AppointmentStatus,
   AttributeDefinition,
   AttributeValue,
   AvailabilityCreatedEvent,
@@ -14,6 +13,7 @@ import {
   UserProfile,
   Week,
 } from '@types';
+import dayjs from 'dayjs';
 
 const getMockUserAssignments = (site: string): User[] => [
   {
@@ -262,14 +262,14 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1979, 1, 1),
     },
     created: '2024-11-05T10:35:08.0477062',
-    status: AppointmentStatus.Booked,
+    status: 'Booked',
     reminderSet: false,
   },
   {
     reference: '4321',
     from: '2024-11-19T14:05:00',
     duration: 5,
-    service: 'COVID:75',
+    service: 'RSV:Adult',
     site: 'TEST01',
     attendeeDetails: {
       nhsNumber: '9999999991',
@@ -278,14 +278,14 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1945, 1, 1),
     },
     created: '2024-11-15T10:35:08.0477062',
-    status: AppointmentStatus.Booked,
+    status: 'Booked',
     reminderSet: false,
   },
   {
     reference: '2468',
     from: '2024-11-27T14:05:00',
     duration: 5,
-    service: 'FLU:18_64',
+    service: 'RSV:Adult',
     site: 'TEST01',
     attendeeDetails: {
       nhsNumber: '9999999995',
@@ -294,7 +294,7 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1984, 1, 1),
     },
     created: '2024-11-05T10:35:08.0477062',
-    status: AppointmentStatus.Booked,
+    status: 'Booked',
     reminderSet: false,
   },
 ];
@@ -307,6 +307,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 7,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(1),
+    endDate: dayjs().year(2024).month(11).date(7),
     bookedAppointments: [
       { service: 'COVID 75+', count: 10 },
       { service: 'FLU 18-64', count: 5 },
@@ -323,6 +325,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 15,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(8),
+    endDate: dayjs().year(2024).month(11).date(15),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 1 },
@@ -339,6 +343,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 23,
     endMonth: 11,
+    startDate: dayjs().year(2024).month(11).date(16),
+    endDate: dayjs().year(2024).month(11).date(23),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 10 },

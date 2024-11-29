@@ -1,0 +1,25 @@
+<testsuites id="" name="" tests="3" failures="0" skipped="0" errors="0" time="6.834823">
+<testsuite name="create-availability.spec.ts" timestamp="2024-11-29T11:56:21.195Z" hostname="chromium" tests="3" failures="0" skipped="0" time="13.565" errors="0">
+<testcase name="A user can navigate to the Create Availability flow from the site page" classname="create-availability.spec.ts" time="3.419">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-artifacts\create-availability-A-user-c9153-ity-flow-from-the-site-page-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="E2E Create single session of RSV availability" classname="create-availability.spec.ts" time="4.94">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-artifacts\create-availability-E2E-Cr-1b223-session-of-RSV-availability-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="E2E Create weekly session of RSV availability" classname="create-availability.spec.ts" time="5.206">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-artifacts\create-availability-E2E-Cr-3d8d3-session-of-RSV-availability-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

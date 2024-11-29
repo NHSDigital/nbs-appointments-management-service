@@ -11,9 +11,6 @@ import {
   getDetailedMonthView,
   getWeeksInMonth,
 } from '@services/viewAvailabilityService';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(customParseFormat);
 
 type PageProps = {
   params: {

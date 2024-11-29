@@ -1,5 +1,4 @@
-import { Card, Table } from '@components/nhsuk-frontend';
-import Pagination from '@components/nhsuk-frontend/pagination';
+import { Card, Pagination, Table } from '@components/nhsuk-frontend';
 import { Week } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';

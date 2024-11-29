@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Globalization;
 using FluentValidation;
-using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Api.Availability;
 
 namespace Nhs.Appointments.Api.Validators;
 

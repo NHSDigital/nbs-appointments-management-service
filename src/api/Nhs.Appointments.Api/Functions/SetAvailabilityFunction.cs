@@ -34,7 +34,7 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
-        await availabilityService.ApplySingleDateSessionAsync(request.AvailabilityDate, request.Site, request.Sessions, user);
+        await availabilityService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions, request.Mode, user);
         return Success(new EmptyResponse());
     }
 }

@@ -2,7 +2,7 @@
 
 public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabilityCreatedEventStore availabilityCreatedEventStore) : IAvailabilityService
 {
-    public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, string user)
+    public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
         if (string.IsNullOrEmpty(site))
             throw new ArgumentException("site must have a value");
@@ -22,15 +22,15 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         var dates = GetDatesBetween(from, until, template.Days);
         foreach (var date in dates)
         {
-            await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions);
+            await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
     }
 
-    public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, string user)
+    public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode, string user)
     {
-        await SetAvailabilityAsync(date, site, sessions);
+        await SetAvailabilityAsync(date, site, sessions, mode);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
@@ -44,7 +44,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
             .ThenBy(e => e.To);
     }
 
-    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions)
+    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode)
     {
         if (string.IsNullOrEmpty(site))
             throw new ArgumentException("Site must have a value.");
@@ -52,7 +52,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         if (sessions is null || sessions.Length == 0)
             throw new ArgumentException("Availability must contain one or more sessions.");
 
-        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions);
+        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode);
     }
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)

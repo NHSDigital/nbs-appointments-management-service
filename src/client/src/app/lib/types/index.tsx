@@ -40,6 +40,7 @@ type ApplyAvailabilityTemplateRequest = {
   from: string;
   until: string;
   template: AvailabilityTemplate;
+  mode: ApplyAvailabilityMode;
 };
 
 type AvailabilityCreatedEvent = {
@@ -56,12 +57,15 @@ type SetAvailabilityRequest = {
   site: string;
   date: string;
   sessions: AvailabilitySession[];
+  mode: ApplyAvailabilityMode;
 };
 
 type AvailabilityTemplate = {
   days: DayOfWeek[];
   sessions: AvailabilitySession[];
 };
+
+type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
 
 const daysOfTheWeek = [
   'Monday',

@@ -51,31 +51,22 @@ public class SetAvailabilityFunctionTests
         }.ToArray();
 
         var request = new SetAvailabilityRequest(
-            "2024-10-10",
+            new DateOnly(2024, 10, 10 ),
             "test-site",
-            sessions);
+            sessions,
+            ApplyAvailabilityMode.Overwrite);
 
         var result = await _sut.Invoke(request);
 
         result.IsSuccess.Should().BeTrue();
 
-        _availabilityService.Verify(x => x.ApplySingleDateSessionAsync(request.AvailabilityDate, request.Site, sessions, "test.user3@nhs.net"), Times.Once);
+        _availabilityService.Verify(x => x.ApplySingleDateSessionAsync(request.Date, request.Site, sessions, ApplyAvailabilityMode.Overwrite, "test.user3@nhs.net"), Times.Once);
     }
 
-    private class SetAvailabilityFunctionTestProxy : SetAvailabilityFunction
+    private class SetAvailabilityFunctionTestProxy(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+        : SetAvailabilityFunction(availabilityService, validator, userContextProvider, logger, metricsRecorder)
     {
-        private readonly ILogger<SetAvailabilityFunction> _logger;
-
-        public SetAvailabilityFunctionTestProxy(
-            IAvailabilityService availabilityService,
-            IValidator<SetAvailabilityRequest> validator,
-            IUserContextProvider userContextProvider,
-            ILogger<SetAvailabilityFunction> logger,
-            IMetricsRecorder metricsRecorder)
-            : base(availabilityService, validator, userContextProvider, logger, metricsRecorder)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<SetAvailabilityFunction> _logger = logger;
 
         public async Task<ApiResult<EmptyResponse>> Invoke(SetAvailabilityRequest request) => await HandleRequest(request, _logger);
     }

@@ -1,5 +1,4 @@
 import {
-  AppointmentStatus,
   AvailabilityBlock,
   AvailabilityResponse,
   Booking,
@@ -158,9 +157,7 @@ export const getDetailedMonthView = async (
       week.startDate,
       week.endDate,
     );
-    const booked = bookingsInWeek.filter(
-      b => b.status === AppointmentStatus.Booked,
-    );
+    const booked = bookingsInWeek.filter(b => b.status === 'Booked');
     week.booked = booked.length;
     week.unbooked = getUnbookedCount(availability, week);
     week.totalAppointments = booked.length + (week.unbooked ?? 0);

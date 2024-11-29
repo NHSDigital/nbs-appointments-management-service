@@ -180,7 +180,7 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: AppointmentStatus;
+  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;
@@ -196,7 +196,7 @@ type AttendeeDetails = {
 };
 
 type ContactItem = {
-  type: ContactItemType;
+  type: 'Phone' | 'Email' | 'Landline';
   value: string;
 };
 
@@ -209,19 +209,6 @@ type ClinicalService = {
   label: string;
   value: string;
 };
-
-enum AppointmentStatus {
-  Unknown = 'Unknown',
-  Provisional = 'Provisional',
-  Booked = 'Booked',
-  Cancelled = 'Cancelled',
-}
-
-enum ContactItemType {
-  Phone,
-  Email,
-  Landline,
-}
 
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [
@@ -259,11 +246,4 @@ export type {
   Week,
 };
 
-export {
-  AppointmentStatus,
-  ContactItemType,
-  MyaError,
-  UnauthorizedError,
-  daysOfTheWeek,
-  clinicalServices,
-};
+export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

@@ -5,10 +5,6 @@
       "path": "./src/client"
     },
     {
-      "name": "New Client",
-      "path": "./src/new-client"
-    },
-    {
       "name": "API",
       "path": "./src/api"
     },

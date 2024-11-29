@@ -1,7 +1,6 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
 import { Week } from '@types';
 import dayjs from 'dayjs';
-import Link from 'next/link';
 
 type Props = {
   weeks: Week[];

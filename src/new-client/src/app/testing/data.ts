@@ -270,7 +270,7 @@ const mockBookings: Booking[] = [
     reference: '4321',
     from: '2024-11-19T14:05:00',
     duration: 5,
-    service: 'COVID:75',
+    service: 'RSV:Adult',
     site: 'TEST01',
     attendeeDetails: {
       nhsNumber: '9999999991',
@@ -286,7 +286,7 @@ const mockBookings: Booking[] = [
     reference: '2468',
     from: '2024-11-27T14:05:00',
     duration: 5,
-    service: 'FLU:18_64',
+    service: 'RSV:Adult',
     site: 'TEST01',
     attendeeDetails: {
       nhsNumber: '9999999995',

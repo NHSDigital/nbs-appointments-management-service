@@ -11,7 +11,6 @@ import {
   getDetailedMonthView,
   getWeeksInMonth,
 } from '@services/viewAvailabilityService';
-import Pagination from '@components/nhsuk-frontend/pagination';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 dayjs.extend(customParseFormat);
@@ -52,18 +51,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site.id,
   );
 
-  const nextMonth = searchMonth.startOf('month').add(1, 'month');
-  const previousMonth = searchMonth.startOf('month').subtract(1, 'month');
-
-  const next = {
-    title: nextMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${nextMonth.format('YYYY-MM-DD')}`,
-  };
-  const previous = {
-    title: previousMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${previousMonth.format('YYYY-MM-DD')}`,
-  };
-
   return (
     <NhsPage
       title={title}
@@ -73,8 +60,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
       ]}
     >
-      <Pagination previous={previous} next={next} />
-      <ViewAvailabilityPage weeks={detailedMonthView} />
+      <ViewAvailabilityPage
+        weeks={detailedMonthView}
+        searchMonth={searchMonth}
+      />
     </NhsPage>
   );
 };

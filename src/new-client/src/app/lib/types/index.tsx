@@ -211,10 +211,10 @@ type ClinicalService = {
 };
 
 enum AppointmentStatus {
-  Unknown,
-  Provisional,
-  Booked,
-  Cancelled,
+  Unknown = 'Unknown',
+  Provisional = 'Provisional',
+  Booked = 'Booked',
+  Cancelled = 'Cancelled',
 }
 
 enum ContactItemType {

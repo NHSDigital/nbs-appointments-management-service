@@ -8,21 +8,8 @@
       "type": "docker-compose",
       "dockerCompose": {
         "up": {
-          "profile": "local",
           "detached": true,
           "build": true
-        },
-        "files": ["docker-compose.yml"]
-      }
-    },
-    {
-      "label": "Start cosmos container",
-      "type": "docker-compose",
-      "dockerCompose": {
-        "up": {
-          "detached": true,
-          "build": true,
-          "services": ["cosmos"]
         },
         "files": ["docker-compose.yml"]
       }

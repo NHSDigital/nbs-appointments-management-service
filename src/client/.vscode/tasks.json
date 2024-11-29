@@ -7,9 +7,6 @@
       "label": "Build Typescript",
       "type": "typescript",
       "tsconfig": "tsconfig.json",
-      "options": {
-        "args": ["--noEmit"]
-      },
       "problemMatcher": ["$tsc"],
       "group": {
         "kind": "build"
@@ -39,6 +36,18 @@
       "dependsOn": ["Build Next App"]
     },
     {
+      "label": "Run ES Lint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Run Prettier",
+      "type": "npm",
+      "script": "format",
+      "problemMatcher": []
+    },
+    {
       "label": "Run Jest Tests",
       "type": "npm",
       "script": "test",
@@ -55,7 +64,13 @@
       "type": "shell",
       "command": "echo Finished",
       "dependsOrder": "sequence",
-      "dependsOn": ["NPM Install", "Build Typescript", "Build Next App"],
+      "dependsOn": [
+        "NPM Install",
+        "Build Typescript",
+        "Build Next App",
+        "Run ES Lint",
+        "Run Prettier"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -71,6 +86,8 @@
         "NPM Install",
         "Build Typescript",
         "Build Next App",
+        "Run ES Lint",
+        "Run Prettier",
         "Run Jest Tests"
       ],
       "problemMatcher": []

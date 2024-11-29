@@ -22,7 +22,7 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
 {
     [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by days, hours or slots")]
     [OpenApiRequestBody("application/json", typeof(QueryAvailabilityRequest),Required = true)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(QueryAvailabilityRequest), Description = "Appointment availability")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(QueryAvailabilityResponseItem[]), Description = "Appointment availability")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]

@@ -66,7 +66,7 @@ stages:
             inputs:
               version: 20.x
           - script: |
-              cd ./src/new-client
+              cd ./src/client
               npm ci 
               npm run lint
               npm run format:check
@@ -79,17 +79,17 @@ stages:
               testRunTitle: NBS Appointments Management Service Client Tests
               testResultsFormat: "JUnit"
               publishRunAttachments: true
-              searchFolder: "$(Build.SourcesDirectory)/src/new-client"
+              searchFolder: "$(Build.SourcesDirectory)/src/client"
             condition: succeededOrFailed()
           - script: |
-              cd ./src/new-client
+              cd ./src/client
               npm run build
               mv .next/static .next/standalone/.next/static
             displayName: "Build Web App"
           - task: ArchiveFiles@2
             displayName: Zip Web Client
             inputs:
-              rootFolderOrFile: "$(Build.SourcesDirectory)/src/new-client/.next"
+              rootFolderOrFile: "$(Build.SourcesDirectory)/src/client/.next"
               includeRootFolder: false
               archiveType: "zip"
               archiveFile: "$(Build.ArtifactStagingDirectory)/web/next.zip"
@@ -177,7 +177,7 @@ stages:
             inputs:
               version: 20.x
           - script: |
-              cd ./src/new-client
+              cd ./src/client
               npm ci
               npx playwright install --with-deps chromium
               npm run test:e2e
@@ -189,7 +189,7 @@ stages:
             displayName: "Publish E2E test results"
             condition: succeededOrFailed()
             inputs:
-              searchFolder: "src/new-client/testing"
+              searchFolder: "src/client/testing"
               testResultsFormat: "JUnit"
               testResultsFiles: "e2e-junit-results.xml"
               mergeTestResults: true
@@ -199,7 +199,7 @@ stages:
             displayName: "Publish E2E test artifacts"
             condition: succeededOrFailed()
             inputs:
-              PathtoPublish: "src/new-client/test-artifacts"
+              PathtoPublish: "src/client/test-artifacts"
               ArtifactName: "E2E Test-results"
           - task: AzureCLI@2
             displayName: "Delete Cosmos DB account"

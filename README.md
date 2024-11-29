@@ -108,7 +108,7 @@ If your configuration causes any of these to be running differently then you wil
 configuration files accordingly. (Or use environment variables to override local configuration)
 
 API configuration file is found at `/src/Nhs.Appointments.Api/localsettings.json`
-Client configuration file is found at `/src/new-client/.env`
+Client configuration file is found at `/src/client/.env`
 
 ### Exploring the Cosmos Database
 
@@ -135,7 +135,7 @@ The api user is identified using the ClientId header - so the in the above examp
 
 ### Frontend Unit Tests (using Jest)
 
-From `~/src/new-client`:
+From `~/src/client`:
 
 - Ensure you have ran `npm i`
 - Simply run `npm run test`
@@ -144,7 +144,7 @@ If running the workspace in VS Code, the Jest tests should be automatically disc
 
 ### Frontend E2E Tests (using Playwright)
 
-From `~/src/new-client`:
+From `~/src/client`:
 
 - Ensure you have ran `npm i`
 - The very first time you run the tests you will need to run `npx playwright install`. This instructs Playwright to download and instantiate the latest version of the browsers it requires.

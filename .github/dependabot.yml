@@ -9,7 +9,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "npm"
-    directory: "/src/new-client"
+    directory: "/src/client"
     schedule:
       interval: "daily"
     groups:

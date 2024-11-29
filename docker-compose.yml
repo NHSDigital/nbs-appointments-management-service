@@ -2,7 +2,7 @@ services:
   next-app:
     container_name: next-app
     build:
-      context: src/new-client/
+      context: src/client/
       dockerfile: web.Dockerfile
 
     environment:
@@ -10,12 +10,12 @@ services:
       AUTH_HOST: http://localhost:7071
 
     volumes:
-      - ./src/new-client/src:/app/src
-      - ./src/new-client/public:/app/public
+      - ./src/client/src:/app/src
+      - ./src/client/public:/app/public
     restart: always
     ports:
       - 3000:3000
-  
+
   api:
     container_name: api
     build:

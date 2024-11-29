@@ -1,4 +1,4 @@
 # .husky/pre-commit
 
-cd src/new-client
+cd src/client
 npx lint-staged

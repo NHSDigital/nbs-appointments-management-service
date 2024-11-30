@@ -33,4 +33,7 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("additionalData")]
     public object AdditionalData { get; set; }
+
+    [JsonProperty("reminderSent")]
+    public Boolean ReminderSent { get; set; }
 }

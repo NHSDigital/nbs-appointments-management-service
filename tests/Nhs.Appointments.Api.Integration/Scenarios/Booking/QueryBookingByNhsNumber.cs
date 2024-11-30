@@ -50,9 +50,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     },
                     ContactDetails =
                     [
-                        new ContactItem { Type = ContactItemType.Email, Value = "firstName@test.com" },
-                        new ContactItem { Type = ContactItemType.Phone, Value = "0123456789" },
-                        new ContactItem { Type = ContactItemType.Landline, Value = "00001234567" }
+                        new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
+                        new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
+                        new ContactItem { Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline) }
                     ],
                     AdditionalData = new
                     {

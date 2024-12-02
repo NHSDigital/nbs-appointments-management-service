@@ -25,6 +25,7 @@
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         | true           |             |
 
     Scenario: Cannot book an appointment that is no longer available
+        Given the site is configured for MYA
         Given the following sessions
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -37,6 +38,7 @@
         Then I receive a message informing me that the appointment is no longer available
 
     Scenario: Cannot book an appointment that is outside the session
+        Given the site is configured for MYA
         Given the following sessions
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |

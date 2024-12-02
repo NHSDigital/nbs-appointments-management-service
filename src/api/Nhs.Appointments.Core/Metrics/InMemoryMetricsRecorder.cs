@@ -5,11 +5,14 @@
 
     public void RecordMetric(string name, double value)
     {
-        var scopedName = string.Join("/", _scopeStack.Reverse().Concat(new[] { name }));
-        _metrics.Add((scopedName, value));
+        lock (_metrics)
+        {
+            var scopedName = string.Join("/", _scopeStack.Reverse().Concat(new[] { name }));
+            _metrics.Add((scopedName, value));
+        }
     }
 
-    public IReadOnlyCollection<(string Path, double Value)> Metrics => _metrics;
+    public IReadOnlyCollection<(string Path, double Value)> Metrics => _metrics.ToList().AsReadOnly();
 
     public IDisposable BeginScope(string scopeName)
     {

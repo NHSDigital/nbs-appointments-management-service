@@ -19,6 +19,7 @@ public class MakeBookingFunctionTests
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly MakeBookingFunction _sut;
     private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<ISiteService> _siteService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
@@ -26,7 +27,7 @@ public class MakeBookingFunctionTests
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -35,6 +36,7 @@ public class MakeBookingFunctionTests
     public async Task RunAsync_ReturnsSuccessResponse_WhenAppointmentIsRequested()
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
         
         var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
@@ -44,10 +46,24 @@ public class MakeBookingFunctionTests
         var response = ReadResponseAsync<MakeBookingResponse>(result.Content);
         response.Result.BookingReference.Should().Be("TEST01");
     }
-    
+
+    [Fact]
+    public async Task RunAsync_ReturnsError_WhenSiteDoesNotExist()
+    {
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((Site?)null);
+        
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
+
+        var result = await _sut.RunAsync(request) as ContentResult;
+        result.StatusCode.Should().Be(404);
+        var response = ReadResponseAsync<BadRequestBody>(result.Content);
+        response.Result.message.Should().Be("Site for booking request could not be found");
+    }
+
     [Fact]
     public async Task RunAsync_ReturnsError_WhenAppointmentSlotIsNotAvailable()
     {
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
         
         var request = CreateRequest("1001", "2077-01-01 09:30", "COVID","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
@@ -61,6 +77,7 @@ public class MakeBookingFunctionTests
     [Fact]
     public void RunAsync_InvokesBookingService_WithCorrectDetails()
     {
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
         
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));

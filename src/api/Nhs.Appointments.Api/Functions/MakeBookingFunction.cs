@@ -14,7 +14,7 @@ using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class MakeBookingFunction(IBookingsService bookingService, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger, IMetricsRecorder metricsRecorder)
+public class MakeBookingFunction(IBookingsService bookingService, ISiteService siteService, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
@@ -45,6 +45,10 @@ public class MakeBookingFunction(IBookingsService bookingService, IValidator<Mak
             ContactDetails = bookingRequest.ContactDetails?.ToArray(),            
             AdditionalData = bookingRequest.AdditionalData
         };
+
+        var site = await siteService.GetSiteByIdAsync(requestedBooking.Site);
+        if(site == null)
+            return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
 
         var bookingResult = await bookingService.MakeBooking(requestedBooking);
         if (bookingResult.Success == false)

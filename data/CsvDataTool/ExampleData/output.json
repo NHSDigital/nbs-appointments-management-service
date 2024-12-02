@@ -1,0 +1,1 @@
+[{"Id":"1","Name":"Example site","Address":"123 Test Street","PhoneNumber":"01234 567890","Region":"Yorkshire","IntegratedCareBoard":"Test ICB","Location":{"type":"Point","coordinates":[1.0,60.1]}}]

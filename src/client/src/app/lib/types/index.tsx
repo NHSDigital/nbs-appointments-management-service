@@ -68,7 +68,6 @@ type AvailabilityTemplate = {
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
 
 type EulaVersion = {
-  content: string;
   versionDate: string;
 };
 

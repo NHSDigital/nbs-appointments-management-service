@@ -108,9 +108,8 @@ export async function fetchEula() {
   return handleBodyResponse(response);
 }
 
-export async function acceptEula(user: string, versionDate: string) {
+export async function acceptEula(versionDate: string) {
   const payload = {
-    userId: user,
     versionDate,
   };
 

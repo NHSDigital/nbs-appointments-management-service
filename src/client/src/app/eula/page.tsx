@@ -1,21 +1,17 @@
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { Button, InsetText } from '@components/nhsuk-frontend';
-import { acceptEula, fetchEula } from '@services/appointmentsService';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import {
+  acceptEula,
+  fetchEula,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 
-export type EulaPageProps = {
-  searchParams?: {
-    user?: string;
-  };
-};
+const Page = async () => {
+  // Only fetch user profile to ensure the user is logged in
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const userProfile = await fetchUserProfile();
 
-const Page = async ({ searchParams }: EulaPageProps) => {
   const latestVersion = await fetchEula();
-
-  if (searchParams?.user === undefined) {
-    notFound();
-  }
 
   return (
     <NhsAnonymousPage title="Agree to the End User Licence Agreement">
@@ -23,6 +19,8 @@ const Page = async ({ searchParams }: EulaPageProps) => {
         You must read the End-User Licence Agreement before using this
         application.
       </InsetText>
+
+      {/* // TODO: Add these links back in once we have appropriate content
       <p>
         <Link href={'/eula/full-terms'}>
           Read the full user agreement set out in the end-user licence agreement
@@ -33,15 +31,9 @@ const Page = async ({ searchParams }: EulaPageProps) => {
         By continuing, you agree to the full{' '}
         <Link href="/terms-of-use">terms of use</Link> and{' '}
         <Link href="/privacy-policy">privacy policy</Link>.
-      </p>
+      </p> */}
 
-      <form
-        action={acceptEula.bind(
-          null,
-          searchParams.user,
-          latestVersion.versionDate,
-        )}
-      >
+      <form action={acceptEula.bind(null, latestVersion.versionDate)}>
         <Button aria-label="Accept and continue" type="submit">
           Accept and continue
         </Button>

@@ -14,6 +14,11 @@ public class SiteCsvReader
     {
         _inputFile = inputFile;
         _hasHeaderRow = hasHeaderRow;
+
+        if (!hasHeaderRow)
+        {
+            throw new ArgumentException("Headerless CSV files are not supported in this version of the tool");
+        }
     }
 
     public SiteCsvReader(string csvContent, bool hasHeaderRow)

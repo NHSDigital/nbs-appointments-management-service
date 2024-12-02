@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetEulaFunction(IEulaService eulaService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger, IMetricsRecorder metricsRecorder)
+    public class GetEulaFunction(IEulaService eulaService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetEulaFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<EmptyRequest, EulaVersion>(validator, userContextProvider, logger, metricsRecorder)
     {
 

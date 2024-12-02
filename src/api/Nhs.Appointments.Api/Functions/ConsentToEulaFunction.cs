@@ -15,7 +15,7 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ConsentToEulaFunction(IEulaService eulaService, IValidator<ConsentToEulaRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder)
+public class ConsentToEulaFunction(IEulaService eulaService, IValidator<ConsentToEulaRequest> validator, IUserContextProvider userContextProvider, ILogger<ConsentToEulaFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<ConsentToEulaRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ConsentToEula", tags: ["Eula"], Summary = "Confirm a user's consent to a specific EULA version.")]

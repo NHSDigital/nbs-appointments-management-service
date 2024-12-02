@@ -52,7 +52,7 @@ test('Create single session of RSV availability', async ({ page }) => {
   await createAvailabilityPage.continueButton.click();
   await createAvailabilityPage.addService('RSV (Adult)');
   await createAvailabilityPage.continueButton.click();
-  await createAvailabilityPage.btnSaveSession.click();
+  await createAvailabilityPage.saveSessionButton.click();
   await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
 });
 
@@ -78,6 +78,6 @@ test('Create weekly session of RSV availability', async ({ page }) => {
   await createAvailabilityPage.continueButton.click();
   await createAvailabilityPage.addService('RSV (Adult)');
   await createAvailabilityPage.continueButton.click();
-  await createAvailabilityPage.btnSaveSession.click();
+  await createAvailabilityPage.saveSessionButton.click();
   await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
 });

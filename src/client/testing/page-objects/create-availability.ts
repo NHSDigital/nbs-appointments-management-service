@@ -7,7 +7,7 @@ export default class CreateAvailabilityPage extends RootPage {
   readonly sessionTitle: Locator;
   readonly continueButton: Locator;
   readonly setAndCapacityTitle: Locator;
-  readonly btnSaveSession: Locator;
+  readonly saveSessionButton: Locator;
   readonly sessionSuccessMsg: Locator;
 
   constructor(page: Page) {
@@ -32,7 +32,7 @@ export default class CreateAvailabilityPage extends RootPage {
       name: 'Set time and capacity for your session',
     });
 
-    this.btnSaveSession = page.getByRole('button', {
+    this.saveSessionButton = page.getByRole('button', {
       name: 'Save session',
     });
 

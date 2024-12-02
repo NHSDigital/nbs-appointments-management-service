@@ -85,7 +85,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
         private static Booking BuildBooking(bool withContact = true)
         {
-            ContactItem[]? contact = withContact ? [ new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}, new ContactItem { Type = ContactItemType.Phone, Value = "1234567890"}] : null;
+            ContactItem[] contact = withContact ? [ new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}, new ContactItem { Type = ContactItemType.Phone, Value = "1234567890"}] : null;
             return new Booking
             {
                 AttendeeDetails = new AttendeeDetails

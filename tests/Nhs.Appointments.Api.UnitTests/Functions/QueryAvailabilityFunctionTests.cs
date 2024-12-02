@@ -120,11 +120,11 @@ public class QueryAvailabilityFunctionTests
 
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
-        var response = ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
-        response.Result[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
-        response.Result[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
-        response.Result[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
+        response[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
+        response[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
+        response[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
     }
 
     [Fact]

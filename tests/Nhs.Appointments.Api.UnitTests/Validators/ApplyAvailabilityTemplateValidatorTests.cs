@@ -1,8 +1,7 @@
-﻿using Azure;
-using FluentAssertions;
+﻿using FluentAssertions;
 using FluentValidation.TestHelper;
 using Moq;
-using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Validators;
 using Nhs.Appointments.Core;
 
@@ -42,7 +41,8 @@ public class ApplyAvailabilityTemplateValidatorTests
                         Services = ["Service 1"]
                     }
                 ]
-            }
+            },
+            ApplyAvailabilityMode.Overwrite
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeTrue();
@@ -71,7 +71,8 @@ public class ApplyAvailabilityTemplateValidatorTests
                             Services = ["Service 1"]
                         }
                     ]
-                }
+                },
+            ApplyAvailabilityMode.Overwrite
             );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -100,7 +101,8 @@ public class ApplyAvailabilityTemplateValidatorTests
                         Services = ["Service 1"]
                     }
                 ]
-            }
+            },
+            ApplyAvailabilityMode.Overwrite
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -130,7 +132,8 @@ public class ApplyAvailabilityTemplateValidatorTests
                         Services = ["Service 1"]
                     }
                 ]
-            }
+            },
+            ApplyAvailabilityMode.Overwrite
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -160,7 +163,8 @@ public class ApplyAvailabilityTemplateValidatorTests
                         Services = ["Service 1"]
                     }
                 ]
-            }
+            },
+            ApplyAvailabilityMode.Overwrite
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -174,7 +178,8 @@ public class ApplyAvailabilityTemplateValidatorTests
             Site: "ABC01",
             From: new DateOnly(2077, 01, 01),
             Until: new DateOnly(2077, 01, 01),
-            Template: null
+            Template: null,
+            ApplyAvailabilityMode.Overwrite
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();

@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
@@ -34,7 +35,7 @@ public class ApplyAvailabilityTemplateFunction(IAvailabilityService availability
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
-        await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until, request.Template, user);
+        await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until, request.Template, request.Mode, user);
         return Success(new EmptyResponse());
     }
 }

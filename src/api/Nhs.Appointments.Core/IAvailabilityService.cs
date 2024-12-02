@@ -2,7 +2,7 @@
 
 public interface IAvailabilityService
 {
-    Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, string user);
-    Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, string user);
+    Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user);
+    Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode, string user);
     Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
 }

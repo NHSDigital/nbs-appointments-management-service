@@ -19,7 +19,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-31\",\r\n    \"template\": {\r\n        \"days\": [\r\n            \"Monday\",\r\n            \"Tuesday\",\r\n            \"Wednesday\",\r\n            \"Thursday\",\r\n            \"Friday\",\r\n            \"Saturday\",\r\n            \"Sunday\"\r\n        ],\r\n        \"sessions\": [\r\n            {\r\n                \"from\": \"09:00\",\r\n                \"until\": \"17:00\",\r\n                \"slotLength\": 5,\r\n                \"capacity\": 1,\r\n                \"services\": [\r\n                    \"COVID:18_74\"\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}",
+					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-31\",\r\n    \"mode\": \"Additive\",\r\n    \"template\": {\r\n        \"days\": [\r\n            \"Monday\",\r\n            \"Tuesday\",\r\n            \"Wednesday\",\r\n            \"Thursday\",\r\n            \"Friday\",\r\n            \"Saturday\",\r\n            \"Sunday\"\r\n        ],\r\n        \"sessions\": [\r\n            {\r\n                \"from\": \"09:00\",\r\n                \"until\": \"17:00\",\r\n                \"slotLength\": 5,\r\n                \"capacity\": 1,\r\n                \"services\": [\r\n                    \"COVID:18_74\"\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -53,7 +53,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"date\": \"2025-01-01\",\r\n    \"sessions\": [\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"17:00\",\r\n            \"slotLength\": 5,\r\n            \"capacity\": 2,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        },\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"16:00\",\r\n            \"slotLength\": 10,\r\n            \"capacity\": 1,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"date\": \"2025-01-01\",\r\n    \"mode\": \"Overwrite\",\r\n    \"sessions\": [\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"17:00\",\r\n            \"slotLength\": 5,\r\n            \"capacity\": 2,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        },\r\n        {\r\n            \"from\": \"09:00\",\r\n            \"until\": \"16:00\",\r\n            \"slotLength\": 10,\r\n            \"capacity\": 1,\r\n            \"services\": [\r\n                \"COVID:18_74\"\r\n            ]\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -89,7 +89,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"sites\": [\"ABC01\", \"ABC02\"],\r\n    \"service\": \"COVID:18_74\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-01\",\r\n    \"QueryType\": \"Days\"\r\n}",
+					"raw": "{\r\n    \"sites\": [{{sites}}],\r\n    \"service\": \"COVID:18_74\",\r\n    \"from\": \"2024-12-01\",\r\n    \"until\": \"2024-12-01\",\r\n    \"QueryType\": \"Days\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -185,7 +185,7 @@
 			"response": []
 		},
 		{
-			"name": "booking",
+			"name": "booking (PROVISIONAL)",
 			"event": [
 				{
 					"listen": "test",
@@ -225,7 +225,68 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"from\": \"2024-12-01 09:00\",\r\n    \"duration\": 5,\r\n    \"service\": \"COVID:18_74\",\r\n    \"site\": \"{{site}}\",\r\n    \"attendeeDetails\": {\r\n        \"nhsNumber\": \"{{nhsNumber}}\",\r\n        \"firstName\": \"MAUREEN\",\r\n        \"lastName\": \"CULLINGWORTH\",\r\n        \"dateOfBirth\": \"2000-01-01\"\r\n    },\r\n    \"provisional\": true\r\n}",
+					"raw": "{\r\n    \"from\": \"2024-12-01 09:00\",\r\n    \"duration\": 5,\r\n    \"service\": \"COVID:18_74\",\r\n    \"site\": \"{{site}}\",\r\n    \"kind\": \"Provisional\",\r\n    \"attendeeDetails\": {\r\n        \"nhsNumber\": \"{{nhsNumber}}\",\r\n        \"firstName\": \"MAUREEN\",\r\n        \"lastName\": \"CULLINGWORTH\",\r\n        \"dateOfBirth\": \"2000-01-01\"\r\n    },\r\n    \"additionalData\": {\r\n        \"isCallCentreBooking\": true,\r\n        \"callCentreHandlerEmail\": \"test@example.com\",\r\n        \"isAppBooking\": false,\r\n        \"selfReferralOccupation\": \"test\",\r\n        \"decisionReason\": \"test\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/booking",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "booking (BOOKED)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const reference = responseJson.bookingReference;\r",
+							"\r",
+							"pm.environment.set('bookingReference', reference);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from\": \"2024-12-01 09:00\",\r\n    \"duration\": 5,\r\n    \"service\": \"COVID:18_74\",\r\n    \"site\": \"{{site}}\",\r\n    \"attendeeDetails\": {\r\n        \"nhsNumber\": \"{{nhsNumber}}\",\r\n        \"firstName\": \"MAUREEN\",\r\n        \"lastName\": \"CULLINGWORTH\",\r\n        \"dateOfBirth\": \"2000-01-01\"\r\n    },\r\n    \"kind\": \"Booked\",\r\n    \"conatactDetails\": [\r\n        {\r\n            \"type\": \"phone\",\r\n            \"value\": \"enter-phone-number\"\r\n        },\r\n        {\r\n            \"type\": \"email\",\r\n            \"value\": \"enter-email-address\"\r\n        },\r\n        {\r\n            \"type\": \"landline\",\r\n            \"value\": \"enter-landline-number\"\r\n        }\r\n    ],\r\n    \"additionalData\": {\r\n        \"isCallCentreBooking\": true,\r\n        \"callCentreHandlerEmail\": \"test@example.com\",\r\n        \"isAppBooking\": false,\r\n        \"selfReferralOccupation\": \"test\",\r\n        \"decisionReason\": \"test\"\r\n    }\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

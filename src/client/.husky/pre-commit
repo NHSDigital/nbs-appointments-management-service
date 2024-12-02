@@ -1,0 +1,4 @@
+# .husky/pre-commit
+
+cd src/client
+npx lint-staged

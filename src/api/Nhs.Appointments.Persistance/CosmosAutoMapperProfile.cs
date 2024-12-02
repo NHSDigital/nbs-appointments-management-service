@@ -29,5 +29,7 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<SiteDocument, Site>();
 
         CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
+
+        CreateMap<DailyAvailabilityDocument, DailyAvailability>();
     }
 }

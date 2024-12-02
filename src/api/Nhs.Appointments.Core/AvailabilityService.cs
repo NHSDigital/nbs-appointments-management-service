@@ -55,6 +55,17 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode);
     }
 
+    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
+    {
+        if (string.IsNullOrEmpty(site))
+            throw new ArgumentException("Site must have a value.");
+
+        if (from > to)
+            throw new ArgumentException("From date must be before to date.");
+
+        return await availabilityStore.GetDailyAvailability(site, from, to);
+    }
+
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {
         var cursor = start;

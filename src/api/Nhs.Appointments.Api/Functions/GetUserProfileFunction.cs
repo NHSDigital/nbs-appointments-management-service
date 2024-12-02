@@ -32,7 +32,6 @@ namespace Nhs.Appointments.Api.Functions
         {
             var userEmail = Principal.Claims.GetUserEmail();
 
-
             var user = await userService.GetUserAsync(userEmail);
             if (user is null)
             {

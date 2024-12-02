@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { EulaVersion } from '@types';
 import render from '@testing/render';
 import EulaPage from './page';
@@ -34,6 +34,8 @@ describe('EULA page', () => {
       screen.getByRole('button', { name: 'Accept and continue' }),
     );
 
-    expect(acceptEulaMock).toHaveBeenCalledWith('2021-01-01');
+    waitFor(() => {
+      expect(acceptEulaMock).toHaveBeenCalledWith('2021-01-01');
+    });
   });
 });

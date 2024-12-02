@@ -39,7 +39,7 @@ test('Create single session of RSV availability', async ({ page }) => {
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.createAvailabilityCard.click();
   await page.waitForURL('**/site/ABC02/create-availability');
-  await createAvailabilityPage.CreateAvailabilityButton.click();
+  await createAvailabilityPage.createAvailabilityButton.click();
   await expect(createAvailabilityPage.sessionTitle).toBeVisible();
   await createAvailabilityPage.selectSession('Single date session');
   await createAvailabilityPage.continueButton.click();
@@ -62,7 +62,7 @@ test('Create weekly session of RSV availability', async ({ page }) => {
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.createAvailabilityCard.click();
-  await createAvailabilityPage.CreateAvailabilityButton.click();
+  await createAvailabilityPage.createAvailabilityButton.click();
   await expect(createAvailabilityPage.sessionTitle).toBeVisible();
   await createAvailabilityPage.selectSession('Weekly sessions');
   await createAvailabilityPage.continueButton.click();

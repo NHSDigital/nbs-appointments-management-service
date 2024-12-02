@@ -3,7 +3,7 @@ import RootPage from './root';
 
 export default class CreateAvailabilityPage extends RootPage {
   readonly title: Locator;
-  readonly CreateAvailabilityButton: Locator;
+  readonly createAvailabilityButton: Locator;
   readonly sessionTitle: Locator;
   readonly continueButton: Locator;
   readonly setAndCapacityTittle: Locator;
@@ -16,7 +16,7 @@ export default class CreateAvailabilityPage extends RootPage {
       name: 'Create availability',
     });
 
-    this.CreateAvailabilityButton = page.getByRole('button', {
+    this.createAvailabilityButton = page.getByRole('button', {
       name: 'Create availability',
     });
 

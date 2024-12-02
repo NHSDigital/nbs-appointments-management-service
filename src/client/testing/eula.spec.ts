@@ -19,6 +19,24 @@ test.beforeEach(async ({ page }) => {
   eulaConsentPage = new EulaConsentPage(page);
 });
 
+test('A user with an out of date EULA consent version is prompted with the EULA consent page', async ({
+  page,
+}) => {
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser5);
+
+  await page.waitForURL('**/eula');
+  await expect(eulaConsentPage.title).toBeVisible();
+
+  // Try to bypass EULA consent
+  await page.goto('**/site');
+
+  await page.waitForURL('**/eula');
+  await expect(eulaConsentPage.title).toBeVisible();
+  await expect(siteSelectionPage.title).not.toBeVisible();
+});
+
 test('A user with an out of date EULA version is prompted with the EULA consent page on login, but not again after they have consented', async ({
   page,
 }) => {

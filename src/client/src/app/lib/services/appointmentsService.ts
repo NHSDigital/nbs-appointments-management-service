@@ -34,7 +34,13 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
     next: { tags: ['user'] },
   });
 
-  return handleBodyResponse(response);
+  const userProfile = handleBodyResponse(response);
+
+  const eula = await fetchEula();
+  if (userProfile.latestAcceptedEulaVersion !== eula.versionDate) {
+    redirect('/eula');
+  }
+  return userProfile;
 };
 
 export async function fetchUsers(site: string) {

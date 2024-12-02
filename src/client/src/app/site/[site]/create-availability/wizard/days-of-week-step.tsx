@@ -99,7 +99,7 @@ const DaysOfWeekStep = ({
           <CheckBox
             label={'Select all days'}
             value={daysOfTheWeek}
-            id={'alldays'}
+            id={'allDays'}
             checked={daysWatch?.length == daysOfTheWeek.length}
             onChange={() => {
               if (daysWatch?.length == daysOfTheWeek.length) {

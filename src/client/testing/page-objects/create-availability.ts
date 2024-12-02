@@ -3,9 +3,9 @@ import RootPage from './root';
 
 export default class CreateAvailabilityPage extends RootPage {
   readonly title: Locator;
-  readonly btnCreateAvailability: Locator;
-  readonly sessionTittle: Locator;
-  readonly btnContinue: Locator;
+  readonly CreateAvailabilityButton: Locator;
+  readonly sessionTitle: Locator;
+  readonly continueButton: Locator;
   readonly setAndCapacityTittle: Locator;
   readonly btnSaveSession: Locator;
   readonly sessionSuccessMsg: Locator;
@@ -16,15 +16,15 @@ export default class CreateAvailabilityPage extends RootPage {
       name: 'Create availability',
     });
 
-    this.btnCreateAvailability = page.getByRole('button', {
+    this.CreateAvailabilityButton = page.getByRole('button', {
       name: 'Create availability',
     });
 
-    this.sessionTittle = page.getByRole('heading', {
+    this.sessionTitle = page.getByRole('heading', {
       name: 'What type of session do you want to create?',
     });
 
-    this.btnContinue = page.getByRole('button', {
+    this.continueButton = page.getByRole('button', {
       name: 'Continue',
     });
 
@@ -80,26 +80,26 @@ export default class CreateAvailabilityPage extends RootPage {
     await this.page.getByLabel('Session start time - minute').fill(minute);
   }
 
-  async enterEndtTime(hour: string, minute: string) {
+  async enterEndTime(hour: string, minute: string) {
     await this.page.getByLabel('Session end time - hour').fill(hour);
     await this.page.getByLabel('Session end time - minute').fill(minute);
   }
 
-  async noOfVaccinators(numberof: string) {
+  async enterNoOfVaccinators(numberOf: string) {
     await this.page
       .getByLabel('How many vaccinators or vaccination spaces do you have?')
-      .fill(numberof);
+      .fill(numberOf);
   }
 
   async appointmentLength(length: string) {
     await this.page.getByLabel('How long are your appointments?').fill(length);
   }
 
-  async addServices(serviceName: string) {
+  async addService(serviceName: string) {
     await this.page.getByRole('checkbox', { name: serviceName }).click();
   }
 
-  async selectDay(Day: string) {
-    await this.page.getByRole('checkbox', { name: Day }).click();
+  async selectDay(day: string) {
+    await this.page.getByRole('checkbox', { name: day }).click();
   }
 }

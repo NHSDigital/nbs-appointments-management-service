@@ -21,7 +21,8 @@
     {
         public void Dispose()
         {
-            recorder._scopeStack.Pop();
+            if(recorder._scopeStack.Count > 0) 
+                recorder._scopeStack.Pop();
         }
     }
 }

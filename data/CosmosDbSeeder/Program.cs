@@ -56,10 +56,6 @@ class Program
         }
 
         Console.WriteLine("Database seeded successfully");
-
-        Console.WriteLine("Writing EULA to blob storage...");
-        UploadEulaT  oBlobStorage();
-        Console.WriteLine("\tdone");
     }
 
     private static async Task<Database> CreateDatabaseAsync(string databaseId)

@@ -2,5 +2,5 @@
 
 namespace Nhs.Appointments.Api.Models;
 
-public record ConsentToEulaRequest(string userId, DateOnly versionDate);
+public record ConsentToEulaRequest(DateOnly versionDate);
 

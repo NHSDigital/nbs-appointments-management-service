@@ -32,13 +32,14 @@ public class ConsentToEulaFunction(IEulaService eulaService, IValidator<ConsentT
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConsentToEulaRequest request, ILogger logger)
     {
         var latestEulaVersion = await eulaService.GetEulaVersionAsync();
-
         if (request.versionDate != latestEulaVersion.VersionDate)
         {
             return Failed(HttpStatusCode.BadRequest, "The EULA version date provided is not the latest EULA version.");
         }
 
-        await eulaService.ConsentToEula(request.userId);
+        var userId = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+
+        await eulaService.ConsentToEula(userId);
         
         return Success(new EmptyResponse());
     }

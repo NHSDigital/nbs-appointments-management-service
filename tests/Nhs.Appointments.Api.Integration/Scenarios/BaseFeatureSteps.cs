@@ -432,7 +432,7 @@ public abstract partial class BaseFeatureSteps : Feature
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(notificationConfiguration);
     }
     
-    private async Task SetUpIntegrationTestUserRoleAssignments()
+    protected async Task SetUpIntegrationTestUserRoleAssignments(DateOnly latestAcceptedEulaVersion = default)
     {
         var userAssignments = new UserDocument()
         {
@@ -443,7 +443,8 @@ public abstract partial class BaseFeatureSteps : Feature
             RoleAssignments = [
                 new RoleAssignment()
                     { Role = "system:integration-test-user", Scope = "global" }
-            ]
+            ],
+            LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
     }

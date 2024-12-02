@@ -51,8 +51,6 @@ public static class FunctionConfigurationExtensions
                 return options;
             });
 
-        builder.Services.AddEulaBlobStore();
-
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
@@ -60,6 +58,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()

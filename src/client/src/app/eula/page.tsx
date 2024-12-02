@@ -2,9 +2,20 @@ import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { Button, InsetText } from '@components/nhsuk-frontend';
 import { acceptEula, fetchEula } from '@services/appointmentsService';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-const Page = async () => {
+export type EulaPageProps = {
+  searchParams?: {
+    user?: string;
+  };
+};
+
+const Page = async ({ searchParams }: EulaPageProps) => {
   const latestVersion = await fetchEula();
+
+  if (searchParams?.user === undefined) {
+    notFound();
+  }
 
   return (
     <NhsAnonymousPage title="Agree to the End User Licence Agreement">
@@ -27,7 +38,7 @@ const Page = async () => {
       <form
         action={acceptEula.bind(
           null,
-          'cc.agent@nhs.net',
+          searchParams.user,
           latestVersion.versionDate,
         )}
       >

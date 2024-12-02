@@ -31,7 +31,7 @@ public static class ServiceRegistration
                 .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
                 .AddScoped<IConsumer<BookingRescheduled>, BookingRescheduledConsumer>()
                 .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
-                .AddScoped<ISendNotifications, FakeNotificationClient>();
+                .AddScoped<ISendNotifications, CosmosNotificationClient>();
         }
         else if (userNotificationsProvider == "azure")
         {

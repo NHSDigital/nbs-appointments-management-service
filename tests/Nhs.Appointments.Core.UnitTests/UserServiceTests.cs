@@ -16,14 +16,14 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void RaisesEventWhenRolesAreAdded()
+        public async Task RaisesEventWhenRolesAreAdded()
         {
-            string userId = "user1";
-            string scope = "site:some-site";
+            const string userId = "user1";
+            const string scope = "site:some-site";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
             IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
 
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult(new User { Id = userId }));
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole"}]));
             _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.AddedRoleIds.Contains(newRoles[0].Role)))).Verifiable();
@@ -34,14 +34,14 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void RaisesEventWhenRolesAreRemoved()
+        public async Task RaisesEventWhenRolesAreRemoved()
         {
-            string userId = "user1";
-            string scope = "site:some-site";
+            const string userId = "user1";
+            const string scope = "site:some-site";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
             IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
 
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult(new User { Id = userId }));
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
             _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.RemovedRoleIds.Contains("someoldrole")))).Verifiable();
@@ -52,15 +52,15 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void IncludesSiteIdInEvent()
+        public async Task IncludesSiteIdInEvent()
         {
-            string userId = "user1";
-            string scope = "site:some-site";
-            string site = "some-site";
+            const string userId = "user1";
+            const string scope = "site:some-site";
+            const string site = "some-site";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
             IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
 
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult(new User { Id = userId }));
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
             _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.SiteId == site))).Verifiable();
@@ -71,14 +71,14 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void IncludesUserIdInEvent()
+        public async Task IncludesUserIdInEvent()
         {
-            string userId = "user1";
-            string scope = "site:some-site";
+            const string userId = "user1";
+            const string scope = "site:some-site";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
             IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
 
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult(new User { Id = userId }));
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
             _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
             _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.UserId == userId))).Verifiable();
@@ -89,14 +89,14 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async void ReturnsFailureWhenRoleNotFound()
+        public async Task ReturnsFailureWhenRoleNotFound()
         {
-            string userId = "user1";
-            string scope = "site:some-site";
+            const string userId = "user1";
+            const string scope = "site:some-site";
             RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }, new RoleAssignment { Role = "not a role"}];
             IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }, new Role { Id = "role2"}];
 
-            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult(new User { Id = userId }));
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
             _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>())).Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole" }]));
             _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
 

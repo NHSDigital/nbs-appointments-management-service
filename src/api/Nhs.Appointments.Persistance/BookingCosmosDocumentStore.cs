@@ -13,7 +13,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     {
         using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
         {
-            return await bookingStore.RunQueryAsync<Booking>(b => b.Site == site && b.From >= from && b.From <= to);
+            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
         }
     }
 
@@ -22,7 +22,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         if (statuses.Length == 0)
             throw new ArgumentException("You must specify one or more statuses");
 
-        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.From >= from && i.From <= to);
         var grouped = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -52,7 +52,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     
     public async Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber)
     {
-        var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.NhsNumber == nhsNumber)).ToList();
+        var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.DocumentType == "booking_index" && bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
         var grouped = bookingIndexDocuments.Where(bi => bi.Status == AppointmentStatus.Booked).GroupBy(bi => bi.Site);

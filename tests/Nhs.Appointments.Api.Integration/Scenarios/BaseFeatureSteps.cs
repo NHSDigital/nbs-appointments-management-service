@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -31,6 +32,16 @@ public abstract partial class BaseFeatureSteps : Feature
     private readonly BookingReferenceManager _bookingReferenceManager = new();
     protected string NhsNumber => _nhsNumber;
 
+    protected string GetContactInfo(ContactItemType type) => type switch
+    {
+        ContactItemType.Landline => $"0113{NhsNumber.Substring(7)}",
+        ContactItemType.Email => $"{NhsNumber}@test.com",
+        ContactItemType.Phone => $"07777{NhsNumber.Substring(6)}",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    protected List<BookingDocument> MadeBookings= new List<BookingDocument>();
+
     public BaseFeatureSteps()
     {
         CosmosClientOptions options = new()
@@ -61,6 +72,7 @@ public abstract partial class BaseFeatureSteps : Feature
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles().GetAwaiter().GetResult();
         SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
+        SetUpNotificationConfiguration().GetAwaiter().GetResult();
     }
 
     [Given("the site is configured for MYA")]
@@ -246,9 +258,9 @@ public abstract partial class BaseFeatureSteps : Feature
             },
             ContactDetails =
             [
-                new ContactItem { Type = ContactItemType.Email, Value = "firstName@test.com" },
-                new ContactItem { Type = ContactItemType.Phone, Value = "0123456789" },
-                new ContactItem { Type = ContactItemType.Landline, Value = "00001234567" }
+                new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
+                new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
+                new ContactItem { Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline) }
             ],
             AdditionalData = new
             {
@@ -278,6 +290,8 @@ public abstract partial class BaseFeatureSteps : Feature
         {            
             await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingIndex);
         }
+
+        MadeBookings.AddRange(bookings);
     }
 
     protected static DayOfWeek[] ParseDays(string pattern)
@@ -338,7 +352,8 @@ public abstract partial class BaseFeatureSteps : Feature
                             "site:view",
                             "site:manage",
                             "availability:set-setup",
-                            "system:run-provisional-sweep"
+                            "system:run-provisional-sweep",
+                            "system:run-reminders"
                         ] 
                     },
                 new Role
@@ -372,6 +387,32 @@ public abstract partial class BaseFeatureSteps : Feature
             ]
         };        
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(roles);
+    }
+
+    private async Task SetUpNotificationConfiguration()
+    {
+        var notificationConfiguration = new NotificationConfigurationDocument
+        {
+            Id = "notification_configuration",
+            DocumentType = "system",
+            Configs = [
+                new NotificationConfigurationItem
+                {
+                    Services = ["COVID", "COVID:18_74"],
+                    EmailTemplateId = "COVID Email Confirmation",
+                    SmsTemplateId = "COVID SMS Confirmation",
+                    EventType = "BookingMade"
+                },
+                new NotificationConfigurationItem
+                {
+                    Services = ["COVID", "COVID:18_74"],
+                    EmailTemplateId = "COVID Email Reminder",
+                    SmsTemplateId = "COVID SMS Reminder",
+                    EventType = "BookingReminder"
+                }
+            ]
+        };
+        await Client.GetContainer("appts", "index_data").UpsertItemAsync(notificationConfiguration);
     }
     
     private async Task SetUpIntegrationTestUserRoleAssignments()

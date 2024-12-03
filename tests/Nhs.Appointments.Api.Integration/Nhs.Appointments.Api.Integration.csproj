@@ -41,4 +41,8 @@
 	  <None Remove="Nhs.Appointments.Api.Integration\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="Scenarios\Availability\DailyAvailability.feature" />
+	</ItemGroup>
+
 </Project>

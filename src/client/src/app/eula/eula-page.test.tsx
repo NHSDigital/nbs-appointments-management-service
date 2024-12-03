@@ -38,4 +38,27 @@ describe('EULA page', () => {
       expect(acceptEulaMock).toHaveBeenCalledWith('2021-01-01');
     });
   });
+
+  it('links to the privacy policy and terms of use ', async () => {
+    const jsx = await EulaPage();
+    render(jsx);
+
+    const termsOfUseLink = screen.getByRole('link', { name: 'terms of use' });
+
+    expect(termsOfUseLink).toHaveAttribute(
+      'href',
+      'https://digital.nhs.uk/coronavirus/vaccinations/booking-systems/terms-of-use',
+    );
+    expect(termsOfUseLink).toHaveAttribute('target', '_blank');
+
+    const privacyPolicyLink = screen.getByRole('link', {
+      name: 'privacy policy',
+    });
+
+    expect(privacyPolicyLink).toHaveAttribute(
+      'href',
+      'https://www.nhs.uk/our-policies/nbs-privacy-policy/',
+    );
+    expect(privacyPolicyLink).toHaveAttribute('target', '_blank');
+  });
 });

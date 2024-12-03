@@ -1119,7 +1119,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/api/daily-availability?site=ABC02&from=2024-12-03&to=2024-12-08",
+					"raw": "{{baseUrl}}/api/daily-availability?site=ABC02&from=2024-12-03&until=2024-12-08",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1137,7 +1137,7 @@
 							"value": "2024-12-03"
 						},
 						{
-							"key": "to",
+							"key": "until",
 							"value": "2024-12-08"
 						}
 					]

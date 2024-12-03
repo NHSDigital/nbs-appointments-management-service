@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Security.Cryptography.X509Certificates;
 
 public class InMemoryMetricsRecorder : IMetricsRecorder
 {
@@ -10,8 +11,8 @@ public class InMemoryMetricsRecorder : IMetricsRecorder
         lock (_metrics)
         {
             _scopeStack.TryPeek(out var currentName);
-            var scopedName = string.Join("/", [currentName, name]);
-            _metrics.Add((scopedName, value));
+            var scopeName = String.IsNullOrEmpty(currentName) ? name : currentName + "/" + name;
+            _metrics.Add((scopeName, value));
         }
     }
 

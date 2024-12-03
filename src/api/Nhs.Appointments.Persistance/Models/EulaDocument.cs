@@ -2,7 +2,7 @@
 
 namespace Nhs.Appointments.Persistance.Models;
 
-[CosmosDocumentType("eula")]
+[CosmosDocumentType("system")]
 public class EulaDocument : IndexDataCosmosDocument
 {
     [JsonProperty("versionDate")]

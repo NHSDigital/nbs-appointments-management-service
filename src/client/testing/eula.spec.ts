@@ -24,13 +24,20 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser5);
+
+  await oAuthPage.page
+    .getByLabel('Username')
+    .fill(TEST_USERS.testUser5.username);
+  await oAuthPage.page
+    .getByLabel('Password')
+    .fill(TEST_USERS.testUser5.password);
+  await oAuthPage.page.getByLabel('Password').press('Enter');
 
   await page.waitForURL('**/eula');
   await expect(eulaConsentPage.title).toBeVisible();
 
   // Try to bypass EULA consent
-  await page.goto('**/site');
+  await page.goto('/');
 
   await page.waitForURL('**/eula');
   await expect(eulaConsentPage.title).toBeVisible();
@@ -42,18 +49,34 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser5);
+
+  await oAuthPage.page
+    .getByLabel('Username')
+    .fill(TEST_USERS.testUser5.username);
+  await oAuthPage.page
+    .getByLabel('Password')
+    .fill(TEST_USERS.testUser5.password);
+  await oAuthPage.page.getByLabel('Password').press('Enter');
 
   await page.waitForURL('**/eula');
   await expect(eulaConsentPage.title).toBeVisible();
 
   await eulaConsentPage.acceptAndContinueButton.click();
-  await page.waitForURL('**/site');
+
+  await page.waitForURL('/');
   await expect(siteSelectionPage.title).toBeVisible();
 
   await rootPage.logOutButton.click();
   await rootPage.pageContentLogInButton.click();
+  await oAuthPage.page
+    .getByLabel('Username')
+    .fill(TEST_USERS.testUser5.username);
+  await oAuthPage.page
+    .getByLabel('Password')
+    .fill(TEST_USERS.testUser5.password);
+  await oAuthPage.page.getByLabel('Password').press('Enter');
+
   // do not expect to see the EULA consent page again
-  await page.waitForURL('**/site');
+  await page.waitForURL('/');
   await expect(siteSelectionPage.title).toBeVisible();
 });

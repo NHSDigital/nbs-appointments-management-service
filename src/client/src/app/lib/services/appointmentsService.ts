@@ -35,12 +35,18 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
   });
 
   const userProfile = handleBodyResponse(response);
-
-  const eula = await fetchEula();
-  if (userProfile.latestAcceptedEulaVersion !== eula.versionDate) {
-    redirect('/eula');
-  }
+  await assertEulaAcceptance(userProfile);
   return userProfile;
+};
+
+export const assertEulaAcceptance = async (userProfile: UserProfile) => {
+  if (userProfile.availableSites.length > 0) {
+    const eulaVersion = await fetchEula();
+
+    if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {
+      redirect('/eula');
+    }
+  }
 };
 
 export async function fetchUsers(site: string) {
@@ -110,7 +116,9 @@ export async function fetchAvailabilityCreatedEvents(site: string) {
 }
 
 export async function fetchEula() {
-  const response = await appointmentsApi.get<EulaVersion>('eula');
+  const response = await appointmentsApi.get<EulaVersion>('eula', {
+    next: { revalidate: 60 * 60 * 24 },
+  });
   return handleBodyResponse(response);
 }
 

@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import {
+  assertEulaAcceptance,
   fetchAccessToken,
-  fetchEula,
   fetchUserProfile,
 } from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
@@ -25,10 +25,7 @@ export async function GET(request: NextRequest) {
   revalidateTag('user');
 
   const userProfile = await fetchUserProfile();
-  const eula = await fetchEula();
-  if (userProfile.latestAcceptedEulaVersion !== eula.versionDate) {
-    redirect('/eula');
-  }
+  await assertEulaAcceptance(userProfile);
 
   const previousPage = cookies().get('previousPage');
   if (previousPage) {

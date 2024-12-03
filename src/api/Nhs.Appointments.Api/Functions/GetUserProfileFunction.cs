@@ -1,4 +1,3 @@
-using System;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +34,7 @@ namespace Nhs.Appointments.Api.Functions
             var user = await userService.GetUserAsync(userEmail);
             if (user is null)
             {
-                return Failed(HttpStatusCode.NotFound, "The requested user does not exist.");
+                return Success(new UserProfile(userEmail, [], null));
             }
 
             var siteIdsForUser = user.RoleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));

@@ -1,16 +1,8 @@
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { Button, InsetText } from '@components/nhsuk-frontend';
-import {
-  acceptEula,
-  fetchEula,
-  fetchUserProfile,
-} from '@services/appointmentsService';
+import { acceptEula, fetchEula } from '@services/appointmentsService';
 
 const Page = async () => {
-  // Only fetch user profile to ensure the user is logged in
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const userProfile = await fetchUserProfile();
-
   const latestVersion = await fetchEula();
 
   return (

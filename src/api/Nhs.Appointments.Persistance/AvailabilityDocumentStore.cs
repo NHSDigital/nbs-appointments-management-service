@@ -1,10 +1,11 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
+using AutoMapper;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder) : IAvailabilityStore
+public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder, IMapper mapper) : IAvailabilityStore
 {
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
@@ -48,6 +49,12 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
+    {
+        var docType = documentStore.GetDocumentType();
+        return await documentStore.RunQueryAsync<DailyAvailability>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
     }
 
     private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions, string site)

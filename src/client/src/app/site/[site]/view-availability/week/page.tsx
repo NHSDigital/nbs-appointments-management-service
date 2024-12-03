@@ -1,25 +1,49 @@
 import NhsPage from '@components/nhs-page';
-import dayjs from 'dayjs';
+import {
+  assertPermission,
+  fetchDailyAvailability,
+  fetchSite,
+} from '@services/appointmentsService';
+import { ViewWeekAvailabilityPage } from './view-week-availability-page';
+import { endOfWeek, startOfWeek } from '@services/timeService';
 
 // TODO: Include site in props
 type PageProps = {
   searchParams: {
-    // TODO: Make this a single date and use dayjs' isoWeek to get the start & end of the week and all the days in that week
-    from: string;
-    until: string;
+    date: string;
+  };
+  params: {
+    site: string;
   };
 };
 
-const Page = async ({ searchParams }: PageProps) => {
-  // TODO: Add permission check on site for 'availability:query' - Make it a required param for <NhsPage ... />?
+const Page = async ({ searchParams, params }: PageProps) => {
+  const site = await fetchSite(params.site);
+  await assertPermission(site.id, 'availability:query');
+
+  const weekStart = startOfWeek(searchParams.date);
+  const weekEnd = endOfWeek(searchParams.date);
+
+  const availability = await fetchDailyAvailability(
+    params.site,
+    weekStart.format('YYYY-MM-DD'),
+    weekEnd.format('YYYY-MM-DD'),
+  );
 
   return (
     <NhsPage
-      title={`${dayjs(searchParams.from).format('D MMMM')} to ${dayjs(searchParams.until).format('D MMMM')}`}
-      // TODO: Update breadcrumbs to include site & view availabitly
-      breadcrumbs={[{ name: 'Home', href: '/' }]}
+      title={`${weekStart.format('D MMMM')} to ${weekEnd.format('D MMMM')}`}
+      // TODO: Does the view availability breadcrumb need a date query param? Or date in the name?
+      breadcrumbs={[
+        { name: 'Home', href: '/' },
+        { name: site.name, href: `/site/${params.site}` },
+        {
+          name: 'View availability',
+          href: `/site/${params.site}/view-availability`,
+        },
+      ]}
     >
-      <p>View weekly availability page.</p>
+      <ViewWeekAvailabilityPage availability={availability} />
     </NhsPage>
   );
 };

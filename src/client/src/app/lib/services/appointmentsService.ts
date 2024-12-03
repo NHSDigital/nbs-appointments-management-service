@@ -15,6 +15,7 @@ import {
   AvailabilityResponse,
   FetchBookingsRequest,
   Booking,
+  DailyAvailability,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -317,6 +318,18 @@ export const fetchBookings = async (payload: FetchBookingsRequest) => {
   const response = await appointmentsApi.post<Booking[]>(
     'booking/query',
     JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
+};
+
+export const fetchDailyAvailability = async (
+  site: string,
+  from: string,
+  until: string,
+) => {
+  const response = await appointmentsApi.get<DailyAvailability[]>(
+    `daily-availability?site=${site}&from=${from}&until=${until}`,
   );
 
   return handleBodyResponse(response);

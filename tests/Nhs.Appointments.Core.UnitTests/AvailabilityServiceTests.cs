@@ -319,24 +319,6 @@ public class AvailabilityServiceTests
         result[1].To.Should().BeNull();
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public async Task GetDailyAvailability_ThrowsArgumentException_WhenSiteIsNullOrEmpty(string site)
-    {
-        var result = async () => { await _sut.GetDailyAvailability(site, DateOnly.FromDateTime(new DateTime(2024, 12, 3)), DateOnly.FromDateTime(new DateTime(2024, 12, 8))); };
-        await result.Should().ThrowAsync<ArgumentException>().WithMessage("Site must have a value.");
-    }
-
-    [Fact]
-    public async Task GetDailyAvailability_ThrowsArgumentException_WhenFromDateIsBeforeToDate()
-    {
-        var fromDate = DateOnly.FromDateTime(new DateTime(2024, 12, 8));
-        var toDate = DateOnly.FromDateTime(new DateTime(2024, 12, 1));
-        var result = async () => { await _sut.GetDailyAvailability("TEST01", fromDate, toDate); };
-        await result.Should().ThrowAsync<ArgumentException>().WithMessage("From date must be before to date.");
-    }
-
     [Fact]
     public async Task GetDailyAvailabiltiy_ReturnsAvailabilityWithinDateRange()
     {

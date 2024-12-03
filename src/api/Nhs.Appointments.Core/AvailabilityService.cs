@@ -57,12 +57,6 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
-        if (string.IsNullOrEmpty(site))
-            throw new ArgumentException("Site must have a value.");
-
-        if (from > to)
-            throw new ArgumentException("From date must be before to date.");
-
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
 

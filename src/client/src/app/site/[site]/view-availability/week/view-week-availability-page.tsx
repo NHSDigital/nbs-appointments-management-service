@@ -12,14 +12,13 @@ export const ViewWeekAvailabilityPage = ({ availability }: Props) => {
       {availability.map((day, i) => (
         <Card title={dayjs(day.date).format('dddd D MMMM')} key={i}>
           <Table
-            headers={['Time', 'Services', 'Booked', 'Unbooked', 'Action']}
+            headers={['Time', 'Services', 'Booked', 'Unbooked']}
             rows={day.sessions.map(session => {
               return [
                 `${session.from} - ${session.until}`,
                 `${session.services.join(',')}`,
                 '0 booked',
                 '0 unbooked',
-                'Change', // TODO: This should be a link
               ];
             })}
           ></Table>

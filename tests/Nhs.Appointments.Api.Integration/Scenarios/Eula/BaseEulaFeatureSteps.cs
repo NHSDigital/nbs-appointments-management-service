@@ -17,7 +17,7 @@ public abstract class BaseEulaFeatureSteps : BaseFeatureSteps
         var eulaVersion = new EulaDocument()
         {
             Id = "eula",
-            DocumentType = "eula",
+            DocumentType = "system",
             VersionDate = versionDate
         };
 

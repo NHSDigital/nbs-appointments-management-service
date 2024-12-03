@@ -55,6 +55,11 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode);
     }
 
+    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
+    {
+        return await availabilityStore.GetDailyAvailability(site, from, to);
+    }
+
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {
         var cursor = start;

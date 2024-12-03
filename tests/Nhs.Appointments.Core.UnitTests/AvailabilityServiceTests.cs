@@ -318,4 +318,53 @@ public class AvailabilityServiceTests
         result[1].From.Should().Be(DateOnly.FromDateTime(new DateTime(2025, 4, 3)));
         result[1].To.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetDailyAvailabiltiy_ReturnsAvailabilityWithinDateRange()
+    {
+        var fromDate = DateOnly.FromDateTime(new DateTime(2024, 12, 1));
+        var toDate = DateOnly.FromDateTime(new DateTime(2024, 12, 8));
+
+        var availability = new List<DailyAvailability>
+        {
+            new()
+            {
+                Date = DateOnly.FromDateTime(new DateTime(2024, 12, 1)),
+                Sessions =
+                [
+                    new()
+                    {
+                        From = TimeOnly.FromTimeSpan(TimeSpan.FromHours(11)),
+                        Until = TimeOnly.FromTimeSpan(TimeSpan.FromHours(16)),
+                        Capacity = 2,
+                        SlotLength = 5,
+                        Services = ["RSV:Adult"]
+                    }
+                ]
+            },
+            new()
+            {
+                Date = DateOnly.FromDateTime(new DateTime(2024, 12, 4)),
+                Sessions =
+                [
+                    new()
+                    {
+                        From = TimeOnly.FromTimeSpan(TimeSpan.FromHours(11)),
+                        Until = TimeOnly.FromTimeSpan(TimeSpan.FromHours(16)),
+                        Capacity = 2,
+                        SlotLength = 5,
+                        Services = ["RSV:Adult"]
+                    }
+                ]
+            }
+        };
+
+        _availabilityStore.Setup(x => x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync(availability);
+
+        var result = await _sut.GetDailyAvailability("TEST01", fromDate, toDate);
+
+        result.Any().Should().BeTrue();
+        result.Count().Should().Be(2);
+    }
 }

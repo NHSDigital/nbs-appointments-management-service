@@ -18,10 +18,10 @@ namespace Nhs.Appointments.Api.Validators
                 .WithMessage("Provide a date in 'yyyy-MM-dd'")
                 .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _))
                 .WithMessage("Provide a date in the format 'yyyy-MM-dd'")
-                .LessThanOrEqualTo(x => x.To)
+                .LessThanOrEqualTo(x => x.Until)
                 .WithMessage("'from' date must be before 'to' date");
 
-            RuleFor(x => x.To)
+            RuleFor(x => x.Until)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("Provide a date in 'yyyy-MM-dd'")
                 .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _))

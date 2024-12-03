@@ -24,8 +24,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         {
             var siteId = GetSiteId();
             var fromDate = ParseNaturalLanguageDateOnly(from).ToString("yyyy-MM-dd");
-            var toDate = ParseNaturalLanguageDateOnly(until).ToString("yyyy-MM-dd");
-            var requestUrl = $"http://localhost:7071/api/daily-availability?site={siteId}&from={fromDate}&to={toDate}";
+            var untilDate = ParseNaturalLanguageDateOnly(until).ToString("yyyy-MM-dd");
+            var requestUrl = $"http://localhost:7071/api/daily-availability?site={siteId}&from={fromDate}&until={untilDate}";
 
             _response = await Http.GetAsync(requestUrl);
             _statusCode = _response.StatusCode;

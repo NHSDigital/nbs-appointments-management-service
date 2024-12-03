@@ -326,10 +326,10 @@ export const fetchBookings = async (payload: FetchBookingsRequest) => {
 export const fetchDailyAvailability = async (
   site: string,
   from: string,
-  to: string,
+  until: string,
 ) => {
   const response = await appointmentsApi.get<DailyAvailability[]>(
-    `daily-availability?site=${site}&from=${from}&to=${to}`,
+    `daily-availability?site=${site}&from=${from}&until=${until}`,
   );
 
   return handleBodyResponse(response);

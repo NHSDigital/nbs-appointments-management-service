@@ -33,7 +33,7 @@ public class GetDailyAvailabilityFunction(IAvailabilityService availabilityServi
 
     protected override async Task<ApiResult<IEnumerable<DailyAvailability>>> HandleRequest(GetDailyAvailabilityRequest request, ILogger logger)
     {
-        var availability = await availabilityService.GetDailyAvailability(request.Site, request.FromDate, request.ToDate);
+        var availability = await availabilityService.GetDailyAvailability(request.Site, request.FromDate, request.UntilDate);
 
         return Success(availability);
     }
@@ -44,9 +44,9 @@ public class GetDailyAvailabilityFunction(IAvailabilityService availabilityServi
 
         var site = req.Query["site"];
         var from = req.Query["from"];
-        var to = req.Query["to"];
+        var until = req.Query["until"];
 
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetDailyAvailabilityRequest request)>
-            ((errors.AsReadOnly(), new GetDailyAvailabilityRequest(site, from, to)));
+            ((errors.AsReadOnly(), new GetDailyAvailabilityRequest(site, from, until)));
     }
 }

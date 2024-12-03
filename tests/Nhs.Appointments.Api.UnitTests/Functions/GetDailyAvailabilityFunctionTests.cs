@@ -97,7 +97,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         {
             var context = new DefaultHttpContext();
             var request = context.Request;
-            request.QueryString = new QueryString("?site=TEST01&from=2024-12-01&to=2024-12-08");
+            request.QueryString = new QueryString("?site=TEST01&from=2024-12-01&until=2024-12-08");
             request.Headers.Add("Authorization", "Test 123");
             return request;
         }

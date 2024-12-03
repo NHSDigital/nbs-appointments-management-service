@@ -48,7 +48,7 @@ namespace Nhs.Appointments.Api.Tests.Validators
             result.IsValid.Should().BeFalse();
             result.Errors.Count.Should().Be(2);
             result.Errors.First().PropertyName.Should().Be(nameof(GetDailyAvailabilityRequest.From));
-            result.Errors.Last().PropertyName.Should().Be(nameof(GetDailyAvailabilityRequest.To));
+            result.Errors.Last().PropertyName.Should().Be(nameof(GetDailyAvailabilityRequest.Until));
         }
 
         [Fact]

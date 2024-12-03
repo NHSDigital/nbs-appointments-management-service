@@ -56,7 +56,7 @@ test('Create single session of RSV availability', async ({ page }) => {
   await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
 });
 
-test('Create weekly session of RSV availability', async ({ page }) => {
+test('Create weekly session of RSV availability', async () => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();

@@ -9,7 +9,6 @@ using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 
-
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
@@ -39,7 +38,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
-                    Created = DateTime.UtcNow,
+                    Created = GetCreationDateTime(BookingType.Confirmed),
                     Status = AppointmentStatus.Booked,
                     AttendeeDetails = new AttendeeDetails
                     {

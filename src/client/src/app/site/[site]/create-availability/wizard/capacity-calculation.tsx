@@ -66,7 +66,7 @@ const calculateCapacity = ({
   const totalMinutesAvailable = endMinutes - startMinutes;
 
   const totalSlots = Math.floor(totalMinutesAvailable / parsedSlotLength);
-  const slotsPerHour = Math.floor(60 / parsedSlotLength);
+  const slotsPerHour = Math.ceil(60 / parsedSlotLength);
 
   const appointmentsPerHour = slotsPerHour * parsedCapacity;
   const appointmentsPerSession = totalSlots * parsedCapacity;

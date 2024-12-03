@@ -1,9 +1,10 @@
 ﻿using CsvHelper.Configuration;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
 
-public class SiteMap : ClassMap<Site>
+public class SiteMap : ClassMap<SiteDocument>
 {
     public SiteMap()
     {
@@ -18,6 +19,7 @@ public class SiteMap : ClassMap<Site>
                 ));
         Map(m => m.IntegratedCareBoard).Name("ICB");
         Map(m => m.Region).Name("Region");
+        Map(m => m.DocumentType).Constant("site");
     }
 }
 

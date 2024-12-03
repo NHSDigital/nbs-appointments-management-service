@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 using System.Text;
 
@@ -7,7 +8,7 @@ namespace CsvDataTool;
 
 public class SiteJsonWriter(FileInfo output)
 {
-    public async Task Write(Site[] sites)
+    public async Task Write(SiteDocument[] sites)
     {
         var serializerSettings = new JsonSerializerSettings
         {

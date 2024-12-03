@@ -12,7 +12,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 
 public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
 {
-    private  HttpResponseMessage _response;
+    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private QueryAvailabilityResponse _actualResponse;
 
@@ -35,16 +35,16 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service,
-            from=ParseNaturalLanguageDateOnly(from),
-            until=ParseNaturalLanguageDateOnly(until),
+            from = ParseNaturalLanguageDateOnly(from),
+            until = ParseNaturalLanguageDateOnly(until),
             queryType = convertedQueryType.ToString()
         };
-            
+
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
-        
+
     [Then(@"the following availability is returned for '(.+)'")]
     [And(@"the following availability is returned for '(.+)'")]
     public async Task Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
@@ -79,7 +79,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         };
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }
-        
+
     [Then(@"a bad request error is returned")]
     public async Task Assert()
     {

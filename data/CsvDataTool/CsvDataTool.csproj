@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
+    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj" />
   </ItemGroup>
 
 </Project>

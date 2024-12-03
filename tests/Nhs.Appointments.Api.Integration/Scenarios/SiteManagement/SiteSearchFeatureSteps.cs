@@ -20,7 +20,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
     private HttpResponseMessage? _response;
     private HttpStatusCode _statusCode;
     private IEnumerable<SiteWithDistance>? _actualResponse;
-    
+
     [When("I make the following request with access needs")]
     public async Task RequestSitesWithAccessNeeds(Gherkin.Ast.DataTable dataTable)
     {
@@ -53,32 +53,32 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
     {
         var expectedSites = dataTable.Rows.Skip(1).Select(row => new SiteWithDistance(
             new Site(
-                id: GetSiteId(row.Cells.ElementAt(0).Value), 
-                name: row.Cells.ElementAt(1).Value,
-                address: row.Cells.ElementAt(2).Value,
-                phoneNumber: row.Cells.ElementAt(3).Value,
-                region: row.Cells.ElementAt(4).Value,
-                integratedCareBoard: row.Cells.ElementAt(5).Value,
-                attributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
-                location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value) })
+                Id: GetSiteId(row.Cells.ElementAt(0).Value),
+                Name: row.Cells.ElementAt(1).Value,
+                Address: row.Cells.ElementAt(2).Value,
+                PhoneNumber: row.Cells.ElementAt(3).Value,
+                Region: row.Cells.ElementAt(4).Value,
+                IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+                AttributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
+                Location: new Location(Type: "Point", Coordinates: new[] { double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value) })
                 ), Distance: int.Parse(row.Cells.ElementAt(9).Value)
             )).ToList();
 
         _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Should().BeEquivalentTo(expectedSites);
     }
-    
+
     public void Dispose()
     {
         var testId = GetTestId;
         DeleteSiteData(Client, testId).GetAwaiter().GetResult();
     }
-    
+
     private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
     {
         const string partitionKey = "site";
         var container = cosmosClient.GetContainer("appts", "index_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId)).ToFeedIterator();        
+        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId)).ToFeedIterator();
         while (feed.HasMoreResults)
         {
             var documentsResponse = await feed.ReadNextAsync();
@@ -89,4 +89,3 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         }
     }
 }
-

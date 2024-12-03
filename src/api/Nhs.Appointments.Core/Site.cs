@@ -2,44 +2,32 @@
 
 namespace Nhs.Appointments.Core;
 
-public record Site
-{
-    public Site() { }
-
-    public Site(string id, string name, string address, string phoneNumber, string region, string integratedCareBoard, IEnumerable<AttributeValue> attributeValues, Location location)
-    {
-        Id = id;
-        Name = name;
-        Address = address;
-        PhoneNumber = phoneNumber;
-        Region = region;
-        IntegratedCareBoard = integratedCareBoard;
-        AttributeValues = attributeValues;
-        Location = location;
-    }
-
+public record Site(
     [JsonProperty("id")]
-    public string Id { get; set; }
+    string Id,
     [JsonProperty("name")]
-    public string Name { get; set; }
+    string Name,
     [JsonProperty("address")]
-    public string Address { get; set; }
+    string Address,
     [JsonProperty("phoneNumber")]
-    public string PhoneNumber { get; set; }
+    string PhoneNumber,
     [JsonProperty("region")]
-    public string Region { get; set; }
+    string Region,
     [JsonProperty("integratedCareBoard")]
-    public string IntegratedCareBoard { get; set; }
+    string IntegratedCareBoard,
     [JsonProperty("attributeValues")]
-    public IEnumerable<AttributeValue> AttributeValues { get; set; }
+    IEnumerable<AttributeValue> AttributeValues,
     [JsonProperty("location")]
-    public Location Location { get; set; }
+    Location Location
+)
+{
+    public IEnumerable<AttributeValue> AttributeValues { get; set; } = AttributeValues;
 }
 
 public record Location
 (
     [property:JsonProperty("type")]
-    string Type, 
+    string Type,
     [property:JsonProperty("coordinates")]
     double[] Coordinates
 );
@@ -47,7 +35,7 @@ public record Location
 public record AttributeValue
 (
     [property:JsonProperty("id")]
-    string Id, 
+    string Id,
     [property:JsonProperty("value")]
     string Value
 );
@@ -57,7 +45,7 @@ public record SiteWithDistance
     [JsonProperty("site")]
     Site Site,
     [JsonProperty("distance")]
-    int Distance 
+    int Distance
 );
 
 public record AttributeRequest

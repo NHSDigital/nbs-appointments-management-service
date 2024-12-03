@@ -24,14 +24,14 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
     {
         var row = dataTable.Rows.ElementAt(1);
         var expectedSite = new Site(
-            id: GetSiteId(row.Cells.ElementAt(0).Value),
-            name: row.Cells.ElementAt(1).Value,
-            address: row.Cells.ElementAt(2).Value,
-            phoneNumber: row.Cells.ElementAt(3).Value,
-            region: row.Cells.ElementAt(4).Value,
-            integratedCareBoard: row.Cells.ElementAt(5).Value,
-            attributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
-            location: new Location(
+            Id: GetSiteId(row.Cells.ElementAt(0).Value),
+            Name: row.Cells.ElementAt(1).Value,
+            Address: row.Cells.ElementAt(2).Value,
+            PhoneNumber: row.Cells.ElementAt(3).Value,
+            Region: row.Cells.ElementAt(4).Value,
+            IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+            AttributeValues: ParseAttributes(row.Cells.ElementAt(6).Value),
+            Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value)])
         );

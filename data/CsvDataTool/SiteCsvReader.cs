@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 
 namespace CsvDataTool;
@@ -23,10 +24,10 @@ public class SiteCsvReader
         _textReader = new Lazy<TextReader>(() => new StringReader(_csvContent));
     }
 
-    public (Site[], SiteRowReportItem[]) Read()
+    public (SiteDocument[], SiteRowReportItem[]) Read()
     {
         int index = 0;
-        var sites = new List<Site>();
+        var sites = new List<SiteDocument>();
         var report = new List<SiteRowReportItem>();
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -51,7 +52,7 @@ public class SiteCsvReader
         {
             csv.Context.RegisterClassMap<SiteMap>();
 
-            var imported = csv.GetRecords<Site>();
+            var imported = csv.GetRecords<SiteDocument>();
             foreach(var site in imported)
             {
                 sites.Add(site);

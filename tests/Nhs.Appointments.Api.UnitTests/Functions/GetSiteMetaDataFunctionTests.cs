@@ -23,13 +23,13 @@ public class GetSiteMetaDataFunctionTests
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public GetSiteMetaDataFunctionTests()
-    {        
+    {
         _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
-  
+
     [Fact]
     public async Task RunAsync_ReturnsNotFound_WhenRequestedSiteIsNotConfigured()
     {
@@ -46,14 +46,14 @@ public class GetSiteMetaDataFunctionTests
         _siteService.Setup(x => x.GetSiteByIdAsync("123", "site_details"))
             .ReturnsAsync(new Site
             (
-                id: "123",
-                name: "Test 123",
-                address: "1 Test Street",
-                phoneNumber: "0113 1111111",
-                region: "R1",
-                integratedCareBoard: "ICB1",
-                attributeValues: [new(attrId, attrVal)],
-                location: new Location("Test", [123.1, 321.3])
+                Id: "123",
+                Name: "Test 123",
+                Address: "1 Test Street",
+                PhoneNumber: "0113 1111111",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                AttributeValues: [new(attrId, attrVal)],
+                Location: new Location("Test", [123.1, 321.3])
             ));
         var request = CreateRequest();
 

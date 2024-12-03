@@ -65,10 +65,10 @@ public class QueryAvailabilityFunctionTests
         
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
-        var response = ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
-        response.Result.Count.Should().Be(2);
-        response.Result[0].site.Should().Be("1000");
-        response.Result[1].site.Should().Be("1001");
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+        response.Count.Should().Be(2);
+        response[0].site.Should().Be("1000");
+        response[1].site.Should().Be("1001");
     }      
     
     [Theory]
@@ -170,7 +170,7 @@ public class QueryAvailabilityFunctionTests
         var request = context.Request;
         var body = $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
         request.Body =  new MemoryStream(Encoding.UTF8.GetBytes(body));
-        request.Headers.Add("Authorization", "Test 123");
+        request.Headers.Append("Authorization", "Test 123");
         return request;
     }       
 

@@ -27,7 +27,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
         
         [Then(@"the following bookings are returned")]
-        public async Task Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
+        public void Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
         {;
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select(
                 (row, index) =>
@@ -64,7 +64,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
         
         [Then(@"the request is successful and no bookings are returned")]
-        public async Task AssertNoAvailability()
+        public void AssertNoAvailability()
         {
             _statusCode.Should().Be(HttpStatusCode.OK);
             _actualResponse.Should().BeEmpty();

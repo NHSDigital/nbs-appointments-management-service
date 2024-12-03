@@ -78,7 +78,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
     }
     
-    private async Task<DailyAvailabilityDocument?> GetOrDefaultAsync(string documentId, string partitionKey)
+    private async Task<DailyAvailabilityDocument> GetOrDefaultAsync(string documentId, string partitionKey)
     {
         return await documentStore.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(documentId, partitionKey);
     }

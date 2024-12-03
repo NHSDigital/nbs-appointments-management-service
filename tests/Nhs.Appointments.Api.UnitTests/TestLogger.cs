@@ -16,9 +16,9 @@ public class TestLogger : ILogger
         throw new NotImplementedException();
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        var formattedLogEntries = state as IReadOnlyList<KeyValuePair<string, object?>>;
+        var formattedLogEntries = state as IReadOnlyList<KeyValuePair<string, object>>;
         _logs.Add(new LogEntry(logLevel, formattedLogEntries.First().Value.ToString(), exception));
     }
 

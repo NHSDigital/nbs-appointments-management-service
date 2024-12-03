@@ -17,6 +17,8 @@ namespace Nhs.Appointments.Api.Functions;
 public class ApplyAvailabilityTemplateFunction(IAvailabilityService availabilityService, IValidator<ApplyAvailabilityTemplateRequest> validator, IUserContextProvider userContextProvider, ILogger<ApplyAvailabilityTemplateFunction> logger, IMetricsRecorder metricsRecorder) 
     : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
+    private readonly IUserContextProvider _userContextProvider = userContextProvider;
+
     [OpenApiOperation(operationId: "ApplyAvailabilityTemplate", tags: ["Availability"], Summary = "Set appointment availability for a date range")]
     [OpenApiRequestBody("application/json", typeof(ApplyAvailabilityTemplateRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
@@ -33,7 +35,7 @@ public class ApplyAvailabilityTemplateFunction(IAvailabilityService availability
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ApplyAvailabilityTemplateRequest request, ILogger logger)
     {
-        var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        var user = _userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
         await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until, request.Template, request.Mode, user);
         return Success(new EmptyResponse());

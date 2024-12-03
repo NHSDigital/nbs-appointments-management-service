@@ -100,7 +100,7 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public T AddOrUpdatePayload<T>(PayloadFactory<T> addFactory, UpdatePayloadFactory<T> updateFactory) where T : class
+        public TT AddOrUpdatePayload<TT>(PayloadFactory<TT> addFactory, UpdatePayloadFactory<TT> updateFactory) where TT : class
         {
             throw new NotImplementedException();
         }
@@ -115,7 +115,7 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public T GetOrAddPayload<T>(PayloadFactory<T> payloadFactory) where T : class
+        public TT GetOrAddPayload<TT>(PayloadFactory<TT> payloadFactory) where TT : class
         {
             throw new NotImplementedException();
         }
@@ -140,7 +140,7 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public Task NotifyConsumed<T>(ConsumeContext<T> context, TimeSpan duration, string consumerType) where T : class
+        public Task NotifyConsumed<TT>(ConsumeContext<TT> context, TimeSpan duration, string consumerType) where TT : class
         {
             throw new NotImplementedException();
         }
@@ -150,22 +150,22 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public Task NotifyFaulted<T>(ConsumeContext<T> context, TimeSpan duration, string consumerType, Exception exception) where T : class
+        public Task NotifyFaulted<TT>(ConsumeContext<TT> context, TimeSpan duration, string consumerType, Exception exception) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(T message, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(TT message, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(T message, IPipe<PublishContext<T>> publishPipe, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(TT message, IPipe<PublishContext<TT>> publishPipe, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(T message, IPipe<PublishContext> publishPipe, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(TT message, IPipe<PublishContext> publishPipe, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
@@ -190,37 +190,42 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(object values, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(object values, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(object values, IPipe<PublishContext<T>> publishPipe, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(object values, IPipe<PublishContext<TT>> publishPipe, CancellationToken cancellationToken = new CancellationToken()) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(object values, IPipe<PublishContext> publishPipe, CancellationToken cancellationToken = default) where T : class
+        public Task Publish<TT>(object values, IPipe<PublishContext<T>> publishPipe, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public void Respond<T>(T message) where T : class
+        public Task Publish<TT>(object values, IPipe<PublishContext> publishPipe, CancellationToken cancellationToken = default) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(T message) where T : class
+        public void Respond<TT>(TT message) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(T message, IPipe<SendContext<T>> sendPipe) where T : class
+        public Task RespondAsync<TT>(TT message) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(T message, IPipe<SendContext> sendPipe) where T : class
+        public Task RespondAsync<TT>(TT message, IPipe<SendContext<TT>> sendPipe) where TT : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RespondAsync<TT>(TT message, IPipe<SendContext> sendPipe) where TT : class
         {
             throw new NotImplementedException();
         }
@@ -245,27 +250,27 @@ public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRoles
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(object values) where T : class
+        public Task RespondAsync<TT>(object values) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(object values, IPipe<SendContext<T>> sendPipe) where T : class
+        public Task RespondAsync<TT>(object values, IPipe<SendContext<TT>> sendPipe) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public Task RespondAsync<T>(object values, IPipe<SendContext> sendPipe) where T : class
+        public Task RespondAsync<TT>(object values, IPipe<SendContext> sendPipe) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public bool TryGetMessage<T>([NotNullWhen(true)] out ConsumeContext<T> consumeContext) where T : class
+        public bool TryGetMessage<TT>([NotNullWhen(true)] out ConsumeContext<TT> consumeContext) where TT : class
         {
             throw new NotImplementedException();
         }
 
-        public bool TryGetPayload<T>([NotNullWhen(true)] out T payload) where T : class
+        public bool TryGetPayload<TT>([NotNullWhen(true)] out TT payload) where TT : class
         {
             throw new NotImplementedException();
         }

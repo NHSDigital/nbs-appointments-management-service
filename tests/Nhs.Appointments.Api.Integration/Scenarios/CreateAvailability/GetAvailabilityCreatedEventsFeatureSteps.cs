@@ -12,9 +12,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
     [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
     public sealed class GetAvailabilityCreatedEventsFeatureSteps : BaseCreateAvailabilityFeatureSteps
     {
-        private HttpResponseMessage _response;
-        private HttpStatusCode _statusCode;
-        private IEnumerable<AvailabilityCreatedEvent> _actualResponse;
+        private new HttpResponseMessage _response;
+        private new HttpStatusCode _statusCode;
+        private new IEnumerable<AvailabilityCreatedEvent> _actualResponse;
 
         [Then("I request Availability Created Events for the current site")]
         public async Task ThenIRequestAvailabilityCreatedEventsForTheCurrentSite()

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "6ddb1181-33d2-4bbb-a631-fad3492086f0",
+		"_postman_id": "2a5010aa-37c4-4257-8b79-80665db57d50",
 		"name": "Appointment Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27520445"
+		"_exporter_id": "39091838"
 	},
 	"item": [
 		{
@@ -1101,6 +1101,44 @@
 						{
 							"key": "site",
 							"value": "{{site}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "daily-availability",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/daily-availability?site=ABC02&from=2024-12-03&until=2024-12-08",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"daily-availability"
+					],
+					"query": [
+						{
+							"key": "site",
+							"value": "ABC02"
+						},
+						{
+							"key": "from",
+							"value": "2024-12-03"
+						},
+						{
+							"key": "until",
+							"value": "2024-12-08"
 						}
 					]
 				}

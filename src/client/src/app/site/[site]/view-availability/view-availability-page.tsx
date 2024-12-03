@@ -46,7 +46,7 @@ export const ViewAvailabilityPage = ({ weeks, searchMonth }: Props) => {
           <br />
           <Link
             className="nhsuk-link"
-            href={`view-availability/week?from=${week.startDate.format('YYYY-MM-DD')}&until=${week.endDate.format('YYYY-MM-DD')}`}
+            href={`view-availability/week?date=${week.startDate.format('YYYY-MM-DD')}`}
           >
             View week
           </Link>

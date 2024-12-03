@@ -6,6 +6,7 @@ import {
   AvailabilitySession,
   AvailabilityTemplate,
   Booking,
+  DailyAvailability,
   Role,
   Site,
   SiteWithAttributes,
@@ -356,6 +357,66 @@ const mockDetailedWeeks: Week[] = [
   },
 ];
 
+const mockDailyAvailability: DailyAvailability[] = [
+  {
+    date: '2024/12/02',
+    sessions: [
+      {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+      {
+        from: '13:00',
+        until: '17:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+    ],
+  },
+  {
+    date: '2024/12/03',
+    sessions: [
+      {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+      {
+        from: '13:00',
+        until: '17:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+    ],
+  },
+  {
+    date: '2024/12/04',
+    sessions: [
+      {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+      {
+        from: '13:00',
+        until: '17:00',
+        services: ['RSV (Adult)'],
+        capacity: 2,
+        slotLength: 5,
+      },
+    ],
+  },
+];
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -372,4 +433,5 @@ export {
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
+  mockDailyAvailability,
 };

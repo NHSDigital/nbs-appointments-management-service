@@ -3,7 +3,7 @@ import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { mockDailyAvailability } from '@testing/data';
 
 describe('View Week Availability Page', () => {
-  it('renders', async () => {
+  it('renders', () => {
     render(<ViewWeekAvailabilityPage availability={mockDailyAvailability} />);
 
     expect(

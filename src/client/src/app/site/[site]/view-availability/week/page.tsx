@@ -4,15 +4,8 @@ import {
   fetchDailyAvailability,
   fetchSite,
 } from '@services/appointmentsService';
-import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
-
-dayjs.extend(isoWeek);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
+import { endOfWeek, startOfWeek } from '@services/timeService';
 
 // TODO: Include site in props
 type PageProps = {
@@ -28,8 +21,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'availability:query');
 
-  const weekStart = dayjs(searchParams.date).startOf('isoWeek');
-  const weekEnd = dayjs(searchParams.date).endOf('isoWeek');
+  const weekStart = startOfWeek(searchParams.date);
+  const weekEnd = endOfWeek(searchParams.date);
 
   const availability = await fetchDailyAvailability(
     params.site,

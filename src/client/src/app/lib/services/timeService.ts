@@ -2,11 +2,13 @@ import { DateComponents, TimeComponents } from '@types';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 dayjs.extend(customParseFormat);
 // Our times are treated as zone agnostic, but if we don't
 // specify this then midnight 2020-09-16 will get formatted as 23:00 2020-09-15
 dayjs.extend(utc);
+dayjs.extend(isoWeek);
 
 export const now = () => dayjs.utc();
 
@@ -86,4 +88,12 @@ export const toTwoDigitFormat = (
 
 export const parseDateString = (dateString: string, format = 'YYYY-MM-DD') => {
   return dayjs.utc(dateString, format, true);
+};
+
+export const startOfWeek = (dateString: string) => {
+  return dayjs(dateString).startOf('isoWeek');
+};
+
+export const endOfWeek = (dateString: string) => {
+  return dayjs(dateString).endOf('isoWeek');
 };

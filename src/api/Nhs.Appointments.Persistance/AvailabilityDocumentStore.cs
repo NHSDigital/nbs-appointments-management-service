@@ -54,9 +54,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
-
-        return mapper.Map<IEnumerable<DailyAvailability>>(documents);
+        return await documentStore.RunQueryAsync<DailyAvailability>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
     }
 
     private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions, string site)

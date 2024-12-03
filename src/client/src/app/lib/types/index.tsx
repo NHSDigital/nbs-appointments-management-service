@@ -215,7 +215,7 @@ type ClinicalService = {
 };
 
 type DailyAvailability = {
-  date: Date;
+  date: string;
   sessions: AvailabilitySession[];
 };
 

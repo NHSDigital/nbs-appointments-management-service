@@ -18,8 +18,6 @@ namespace Nhs.Appointments.Api.Functions;
 public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    private readonly IUserContextProvider _userContextProvider = userContextProvider;
-
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"], Summary = "Set role assignments for a user at a site")]
     [OpenApiRequestBody("application/json", typeof(SetUserRolesRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "User role successfully saved")]
@@ -36,7 +34,7 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetUserRolesRequest request, ILogger logger)
     {
-        if (_userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
+        if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
             return Failed(HttpStatusCode.BadRequest, "You cannot update the role assignments of the currently logged in user.");
         }

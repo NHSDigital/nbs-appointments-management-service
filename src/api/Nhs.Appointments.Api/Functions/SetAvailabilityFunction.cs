@@ -16,8 +16,6 @@ namespace Nhs.Appointments.Api.Functions;
 public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    private readonly IUserContextProvider _userContextProvider = userContextProvider;
-
     [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability for a single day")]
     [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
@@ -34,7 +32,7 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request, ILogger logger)
     {
-        var user = _userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
         await availabilityService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions, request.Mode, user);
         return Success(new EmptyResponse());

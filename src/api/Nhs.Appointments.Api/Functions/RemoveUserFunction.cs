@@ -21,8 +21,6 @@ public class RemoveUserFunction(
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    private readonly IUserContextProvider _userContextProvider = userContextProvider;
-
     [OpenApiOperation(operationId: "RemoveUser", tags: ["User"], Summary = "Remove all assigned roles from a user at the specified site")]
     [OpenApiRequestBody("application/json", typeof(RemoveUserRequest), Required = true)]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(RemoveUserRequest), Description = "Users roles removed for the specified site")]
@@ -40,7 +38,7 @@ public class RemoveUserFunction(
 
     protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request, ILogger logger)
     {
-        if (_userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
+        if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
             return Failed(HttpStatusCode.BadRequest, "You cannot remove the currently logged in user.");
         }

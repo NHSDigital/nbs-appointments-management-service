@@ -1,13 +1,16 @@
-﻿public class InMemoryMetricsRecorder : IMetricsRecorder
+﻿using System.Collections.Concurrent;
+
+public class InMemoryMetricsRecorder : IMetricsRecorder
 {
-    private Stack<string> _scopeStack = new Stack<string>();
+    private ConcurrentStack<string> _scopeStack = new ConcurrentStack<string>();
     private List<(string Path, double Value)> _metrics = new List<(string Path, double Value)>();
 
     public void RecordMetric(string name, double value)
     {
         lock (_metrics)
         {
-            var scopedName = string.Join("/", _scopeStack.Reverse().Concat(new[] { name }));
+            _scopeStack.TryPeek(out var currentName);
+            var scopedName = string.Join("/", [currentName, name]);
             _metrics.Add((scopedName, value));
         }
     }
@@ -16,7 +19,9 @@
 
     public IDisposable BeginScope(string scopeName)
     {
-        _scopeStack.Push(scopeName);
+        _scopeStack.TryPeek(out var currentName);
+        var newScope = String.IsNullOrEmpty(currentName) ? scopeName : currentName + "/" + scopeName;
+        _scopeStack.Push(newScope);
         return new InMemoryMetricsRecorderScope(this);
     }
 
@@ -24,8 +29,11 @@
     {
         public void Dispose()
         {
-            if(recorder._scopeStack.Count > 0) 
-                recorder._scopeStack.Pop();
+            lock (recorder)
+            {
+                if (recorder._scopeStack.Count > 0)
+                    recorder._scopeStack.TryPop(out var _);
+            }
         }
     }
 }

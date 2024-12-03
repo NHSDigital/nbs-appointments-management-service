@@ -64,6 +64,13 @@ describe('Capacity Calculation', () => {
     [10, 0, 9, 0, 5, 1, 0, 0], // start time > end time
     [9, 30, 9, 40, 5, 1, 2, undefined], // time span under an hour
 
+    // Test cases debated in https://nhsd-jira.digital.nhs.uk/browse/APPT-239 and changes requested in 02/12/2024 comment
+    [9, 0, 11, 0, 7, 3, 51, 27],
+    [9, 0, 10, 0, 9, 2, 12, 14],
+    [9, 0, 12, 0, 9, 5, 100, 35],
+    [10, 57, 11, 3, 6, 1, 1, undefined],
+    [9, 57, 11, 3, 6, 1, 11, 10],
+
     // No decimals allowed
     [9.5, 0, 12, 0, 5, 1, 0, 0],
     [9, 0.5, 12, 0, 5, 1, 0, 0],

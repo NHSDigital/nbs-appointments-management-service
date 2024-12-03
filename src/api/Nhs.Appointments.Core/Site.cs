@@ -2,26 +2,38 @@
 
 namespace Nhs.Appointments.Core;
 
-public record Site(
-    [JsonProperty("id")]
-    string Id,
-    [JsonProperty("name")]
-    string Name,
-    [JsonProperty("address")]
-    string Address,
-    [JsonProperty("phoneNumber")]
-    string PhoneNumber,
-    [JsonProperty("region")]
-    string Region,
-    [JsonProperty("integratedCareBoard")]
-    string IntegratedCareBoard,
-    [JsonProperty("attributeValues")]
-    IEnumerable<AttributeValue> AttributeValues,
-    [JsonProperty("location")]
-    Location Location
-)
+public record Site
 {
-    public IEnumerable<AttributeValue> AttributeValues { get; set; } = AttributeValues;
+    public Site() { }
+
+    public Site(string id, string name, string address, string phoneNumber, string region, string integratedCareBoard, IEnumerable<AttributeValue> attributeValues, Location location)
+    {
+        Id = id;
+        Name = name;
+        Address = address;
+        PhoneNumber = phoneNumber;
+        Region = region;
+        IntegratedCareBoard = integratedCareBoard;
+        AttributeValues = attributeValues;
+        Location = location;
+    }
+
+    [JsonProperty("id")]
+    public string Id { get; set; }
+    [JsonProperty("name")]
+    public string Name { get; set; }
+    [JsonProperty("address")]
+    public string Address { get; set; }
+    [JsonProperty("phoneNumber")]
+    public string PhoneNumber { get; set; }
+    [JsonProperty("region")]
+    public string Region { get; set; }
+    [JsonProperty("integratedCareBoard")]
+    public string IntegratedCareBoard { get; set; }
+    [JsonProperty("attributeValues")]
+    public IEnumerable<AttributeValue> AttributeValues { get; set; }
+    [JsonProperty("location")]
+    public Location Location { get; set; }
 }
 
 public record Location

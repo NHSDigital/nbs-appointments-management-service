@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using Nhs.Appointments.Core;
 using System.Globalization;
 
 namespace CsvDataTool;

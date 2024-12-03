@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Nhs.Appointments.Core;
 using System.Globalization;
 using System.Text;
 

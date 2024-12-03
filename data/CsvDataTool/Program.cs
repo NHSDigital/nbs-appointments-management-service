@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using Nhs.Appointments.Core;
 
 namespace CsvDataTool;
 

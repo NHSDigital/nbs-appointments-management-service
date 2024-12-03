@@ -55,14 +55,14 @@ public class GetSitesByAreaFunctionTests
         {
             new (
                 new Site(
-                    Id: "1", 
-                    Name: "Alpha",
-                    Address: "somewhere",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
-                    Location: new Location("point", [0.1, 10])),
+                    id: "1", 
+                    name: "Alpha",
+                    address: "somewhere",
+                    phoneNumber: "0113 1111111",
+                    region: "R1",
+                    integratedCareBoard: "ICB1",
+                    attributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
+                    location: new Location("point", [0.1, 10])),
                 Distance: 100)
         };
         _siteService.Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[]{accessNeeds})).ReturnsAsync(sites);
@@ -83,14 +83,14 @@ public class GetSitesByAreaFunctionTests
         {
             new (
                 new Site(
-                    Id: "1", 
-                    Name: "Alpha", 
-                    Address: "somewhere",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
-                    Location: new Location("point", [0.1, 10])),
+                    id: "1", 
+                    name: "Alpha", 
+                    address: "somewhere",
+                    phoneNumber: "0113 1111111",
+                    region: "R1",
+                    integratedCareBoard: "ICB1",
+                    attributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
+                    location: new Location("point", [0.1, 10])),
                 Distance: 100)
         };
         _siteService.Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>())).ReturnsAsync(sites);

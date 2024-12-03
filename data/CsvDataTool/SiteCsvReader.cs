@@ -6,17 +6,20 @@ namespace CsvDataTool;
 
 public class SiteCsvReader
 {
-    private readonly FileInfo _inputFile;
-    private readonly string _csvContent;
+    private readonly FileInfo? _inputFile;
+    private readonly string? _csvContent;
+    private readonly Lazy<TextReader> _textReader;
 
     public SiteCsvReader(FileInfo inputFile)
     {
         _inputFile = inputFile;
+        _textReader = new Lazy<TextReader>(() => _inputFile.OpenText());
     }
 
     public SiteCsvReader(string csvContent)
     {
         _csvContent = csvContent;
+        _textReader = new Lazy<TextReader>(() => new StringReader(_csvContent));
     }
 
     public (Site[], SiteRowReportItem[]) Read()
@@ -42,8 +45,8 @@ public class SiteCsvReader
             Quote = '"'
         };
 
-        using (var reader = GetCsvStreamReader())
-        using (var csv = new CsvReader(reader, config))
+        using (_textReader.Value)
+        using (var csv = new CsvReader(_textReader.Value, config))
         {
             csv.Context.RegisterClassMap<SiteMap>();
 
@@ -57,20 +60,5 @@ public class SiteCsvReader
         }
 
         return (sites.ToArray(), report.ToArray());
-    }
-
-    private TextReader GetCsvStreamReader()
-    {
-        if (_inputFile != null)
-        {
-            return _inputFile.OpenText();
-        }
-
-        if (!string.IsNullOrEmpty(_csvContent))
-        {
-            return new StringReader(_csvContent);
-        }
-
-        throw new Exception("No CSV data has been provided");
     }
 }

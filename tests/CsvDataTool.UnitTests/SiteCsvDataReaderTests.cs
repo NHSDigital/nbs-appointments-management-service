@@ -17,7 +17,7 @@ namespace CsvDataTool.UnitTests
 
             var input = BuildInputCsv(inputRows);
 
-            var sut = new SiteCsvReader(input, true);
+            var sut = new SiteCsvReader(input);
             var (sites, report) = sut.Read();
             sites.Should().NotBeNull();
             sites.Length.Should().Be(3);

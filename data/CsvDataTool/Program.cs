@@ -27,20 +27,12 @@ public class Program
             getDefaultValue: () => new FileInfo("report.html"));
         reportPathOption.AddAlias("-r");
 
-        var hasHeaderRowOption = new Option<bool>
-        (
-            name: "--has-header-row",
-            description: "Set this to true if the first row of the CSV file contains column names.",
-            getDefaultValue: () => true);
-        hasHeaderRowOption.AddAlias("-h");
-
         var rootCommand = new RootCommand();
         rootCommand.Add(inputPathOption);
         rootCommand.Add(outputPathOption);
         rootCommand.Add(reportPathOption);
-        rootCommand.Add(hasHeaderRowOption);
 
-        rootCommand.SetHandler(async (inputOptionValue, outputOptionValue, reportPathOptionValue, hasHeaderRowOptionValue) =>
+        rootCommand.SetHandler(async (inputOptionValue, outputOptionValue, reportPathOptionValue) =>
         {
             Console.WriteLine("MYA bulk site data importer started");
 
@@ -50,14 +42,8 @@ public class Program
                 return;
             }
 
-            if (!hasHeaderRowOptionValue)
-            {
-                Console.Error.WriteLine("This version of the tool does not support csv files without a header row.");
-                return;
-            }
-
             Console.WriteLine($"Processing csv data from {inputOptionValue}");
-            var reader = new SiteCsvReader(inputOptionValue, hasHeaderRowOptionValue);
+            var reader = new SiteCsvReader(inputOptionValue);
             var (sites, report) = reader.Read();
 
             Console.WriteLine($"Writing sites json to {outputOptionValue}");
@@ -76,7 +62,7 @@ public class Program
                 Console.Error.WriteLine($"Failed: {report.Count(r => !r.Success)}");
             }
         },
-            inputPathOption, outputPathOption, reportPathOption, hasHeaderRowOption);
+            inputPathOption, outputPathOption, reportPathOption);
 
         await rootCommand.InvokeAsync(args);
     }

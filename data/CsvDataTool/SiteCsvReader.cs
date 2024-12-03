@@ -7,29 +7,16 @@ namespace CsvDataTool;
 public class SiteCsvReader
 {
     private readonly FileInfo _inputFile;
-    private readonly bool _hasHeaderRow;
     private readonly string _csvContent;
 
-    public SiteCsvReader(FileInfo inputFile, bool hasHeaderRow)
+    public SiteCsvReader(FileInfo inputFile)
     {
         _inputFile = inputFile;
-        _hasHeaderRow = hasHeaderRow;
-
-        if (!hasHeaderRow)
-        {
-            throw new ArgumentException("Headerless CSV files are not supported in this version of the tool");
-        }
     }
 
-    public SiteCsvReader(string csvContent, bool hasHeaderRow)
+    public SiteCsvReader(string csvContent)
     {
         _csvContent = csvContent;
-        _hasHeaderRow = hasHeaderRow;
-
-        if(!hasHeaderRow)
-        {
-            throw new ArgumentException("Headerless CSV files are not supported in this version of the tool");
-        }
     }
 
     public (Site[], SiteRowReportItem[]) Read()
@@ -40,7 +27,7 @@ public class SiteCsvReader
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            HasHeaderRecord = _hasHeaderRow,
+            HasHeaderRecord = true,
             ReadingExceptionOccurred = args =>
             {
                 report.Add(new SiteRowReportItem(index, "", false, args.Exception.ToString()));

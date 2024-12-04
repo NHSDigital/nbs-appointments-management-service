@@ -355,17 +355,16 @@ const TimeAndCapacityStep = ({
                 return 'Appointment length must be a whole number';
               }
 
-              const startAndEndTimesAreInError =
-                errors.session?.startTime?.message ||
-                errors.session?.endTime?.message;
+              const minutesInSession = sessionLengthInMinutes(
+                form.session.startTime,
+                form.session.endTime,
+              );
+              const shouldSkipApptShorterThanSessionValidation =
+                Number.isNaN(minutesInSession) || minutesInSession <= 0;
 
               if (
-                !startAndEndTimesAreInError &&
-                value >
-                  sessionLengthInMinutes(
-                    form.session.startTime,
-                    form.session.endTime,
-                  )
+                !shouldSkipApptShorterThanSessionValidation &&
+                value > minutesInSession
               ) {
                 return 'Appointment length must be shorter than session length';
               }

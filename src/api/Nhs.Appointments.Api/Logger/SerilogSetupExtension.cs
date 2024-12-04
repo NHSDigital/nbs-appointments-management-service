@@ -1,34 +1,31 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 
-namespace Nhs.Appointments.Api.Logger
+namespace Nhs.Appointments.Api.Logger;
+
+internal static class SerilogSetupExtension
 {
-    internal static class SerilogSetupExtension
+    internal static LoggerConfiguration SetupDefaultLoggerConfiguration(this LoggerConfiguration loggerConfiguration)
     {
-        internal static LoggerConfiguration SetupDefaultLoggerConfiguration(this LoggerConfiguration loggerConfiguration, HostBuilderContext hostingContext)
-        {
-            var (splunkHost, eventCollectorToken) = GetSplunkEventCollectorConfig(hostingContext.Configuration);
+        var (splunkHost, eventCollectorToken) = GetSplunkEventCollectorConfig();
 
-            loggerConfiguration = loggerConfiguration
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.EventCollector(
-                    splunkHost,
-                    eventCollectorToken,
-                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information
-                );
+        loggerConfiguration = loggerConfiguration
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.EventCollector(
+                splunkHost,
+                eventCollectorToken,
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information
+            );
 
-            return loggerConfiguration;
-        }
+        return loggerConfiguration;
+    }
 
-        private static (string splunkHost, string eventCollectorToken) GetSplunkEventCollectorConfig(IConfiguration config)
-        {
-            var splunkHost = Environment.GetEnvironmentVariable("SPLUNK_HOST_URL");
-            var eventCollectorToken = Environment.GetEnvironmentVariable("SPLUNK_HEC_TOKEN");
+    private static (string splunkHost, string eventCollectorToken) GetSplunkEventCollectorConfig()
+    {
+        var splunkHost = Environment.GetEnvironmentVariable("SPLUNK_HOST_URL");
+        var eventCollectorToken = Environment.GetEnvironmentVariable("SPLUNK_HEC_TOKEN");
 
-            return (splunkHost, eventCollectorToken);
-        }
+        return (splunkHost, eventCollectorToken);
     }
 }

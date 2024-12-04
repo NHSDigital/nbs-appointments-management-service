@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace Nhs.Appointments.Api.Logger
+namespace Nhs.Appointments.Api.Logger;
+
+public static class LoggerExtension
 {
-    public static class LoggerExtension
+    public static IHostBuilder UseAppointmentsSerilog(this IHostBuilder builder)
     {
-        public static IHostBuilder UseAppointmentsSerilog(this IHostBuilder builder)
+        return builder.UseSerilog((hostingContext, loggerConfiguration) =>
         {
-            return builder.UseSerilog((hostingContext, loggerConfiguration) =>
-            {
-                loggerConfiguration.SetupDefaultLoggerConfiguration(hostingContext);
-            });
-        }
+            loggerConfiguration.SetupDefaultLoggerConfiguration();
+        });
     }
 }

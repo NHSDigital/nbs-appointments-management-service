@@ -27,39 +27,32 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('availability:query') && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`${site.id}/view-availability`}
-                title="View availability"
-                description="View and manage availability and appointments for your site"
+                title="View availability and manage appointments for your site"
               />
             </li>
           )}
           {permissionsRelevantToCards.includes('availability:set-setup') && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`${site.id}/create-availability`}
                 title="Create availability"
-                description="Create and edit available dates and sessions for your site"
               />
             </li>
           )}
           {permissionsRelevantToCards.includes('users:view') && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-              <Card
-                href={`${site.id}/users`}
-                title="User management"
-                description="Assign roles to users to give them access to features at this site"
-              />
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+              <Card href={`${site.id}/users`} title="Manage users" />
             </li>
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
             permissionsRelevantToCards.includes('site:view')) && (
-            <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`${site.id}/details`}
-                title="Site management"
-                description="Assign accessibility attributes to this site"
+                title="Change site details and accessibility information"
               />
             </li>
           )}

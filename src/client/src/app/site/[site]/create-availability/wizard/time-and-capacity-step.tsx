@@ -355,12 +355,17 @@ const TimeAndCapacityStep = ({
                 return 'Appointment length must be a whole number';
               }
 
+              const startAndEndTimesAreInError =
+                errors.session?.startTime?.message ||
+                errors.session?.endTime?.message;
+
               if (
+                !startAndEndTimesAreInError &&
                 value >
-                sessionLengthInMinutes(
-                  form.session.startTime,
-                  form.session.endTime,
-                )
+                  sessionLengthInMinutes(
+                    form.session.startTime,
+                    form.session.endTime,
+                  )
               ) {
                 return 'Appointment length must be shorter than session length';
               }

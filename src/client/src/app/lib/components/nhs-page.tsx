@@ -37,7 +37,10 @@ const NhsPage = async ({
 
   return (
     <>
-      <Header navigationLinks={navigationLinks}>
+      <Header
+        navigationLinks={navigationLinks}
+        showChangeSiteButton={site !== undefined}
+      >
         {headerAuthComponent ?? NhsHeaderLogOut()}
       </Header>
       <Breadcrumbs

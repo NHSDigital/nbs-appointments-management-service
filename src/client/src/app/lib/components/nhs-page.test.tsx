@@ -245,4 +245,33 @@ describe('Nhs Page', () => {
     ).toBeNull();
     expect(screen.queryByRole('link', { name: 'Manage users' })).toBeNull();
   });
+
+  it('Displays a Change Site link if a site is provided', async () => {
+    fetchPermissionsMock.mockResolvedValue([]);
+
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      site: { id: 'TEST', name: 'Test site', address: '' },
+      breadcrumbs: [],
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('link', { name: 'Change site' }),
+    ).toBeInTheDocument();
+  });
+
+  it('Does not display a Change Site link if no site is provided', async () => {
+    fetchPermissionsMock.mockResolvedValue([]);
+
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      breadcrumbs: [],
+    });
+    render(jsx);
+
+    expect(screen.queryByRole('link', { name: 'Change site' })).toBeNull();
+  });
 });

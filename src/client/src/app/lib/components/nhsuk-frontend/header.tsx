@@ -10,6 +10,7 @@ export type NavigationLink = {
 type Props = {
   children?: ReactNode;
   navigationLinks?: NavigationLink[];
+  showChangeSiteButton?: boolean;
 };
 
 /**
@@ -18,7 +19,11 @@ type Props = {
  * TODO: we're created a transactional header, but from the docs it sounds like we should be using Organisational?
  * @see https://service-manual.nhs.uk/design-system/components/header
  */
-const Header = ({ children, navigationLinks = [] }: Props) => {
+const Header = ({
+  children,
+  navigationLinks = [],
+  showChangeSiteButton = true,
+}: Props) => {
   return (
     <header className="nhsuk-header" role="banner">
       <div className="nhsuk-header__container">
@@ -43,15 +48,17 @@ const Header = ({ children, navigationLinks = [] }: Props) => {
               id="wrap-user-controls"
             >
               {children}
-              <span className="nhsuk-header-custom__user-control">
-                <Link
-                  href="/"
-                  locale={false}
-                  className="nhsuk-header-custom__user-control-link"
-                >
-                  Change site
-                </Link>
-              </span>
+              {showChangeSiteButton && (
+                <span className="nhsuk-header-custom__user-control">
+                  <Link
+                    href="/"
+                    locale={false}
+                    className="nhsuk-header-custom__user-control-link"
+                  >
+                    Change site
+                  </Link>
+                </span>
+              )}
             </div>
           </div>
         </div>

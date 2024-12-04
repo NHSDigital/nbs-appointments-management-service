@@ -27,7 +27,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         await SetUpIntegrationTestUserRoleAssignments(versionDate);
     }
 
-    [And(@"the current user agrees to a EULA with the following date")]
+    [When(@"the current user agrees to a EULA with the following date")]
     public async Task ConsentToLatestEula(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;

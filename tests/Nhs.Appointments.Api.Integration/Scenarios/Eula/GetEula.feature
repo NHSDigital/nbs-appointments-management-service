@@ -4,7 +4,7 @@
     Given the latest EULA is as follows
       | VersionDate |
       | Today       |
-    And I request the latest EULA version
+    When I request the latest EULA version
     Then the following EULA is returned
       | VersionDate |
       | Today       |

@@ -17,7 +17,7 @@ public sealed class GetEulaFeatureSteps : BaseEulaFeatureSteps
     private HttpStatusCode _statusCode;
     private EulaVersion _actualResponse;
 
-    [And(@"I request the latest EULA version")]
+    [When(@"I request the latest EULA version")]
     public async Task RequestLatestEula()
     {
         _response = await Http.GetAsync($"http://localhost:7071/api/eula");

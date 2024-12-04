@@ -5,7 +5,7 @@ namespace Nhs.Appointments.Core;
 
 public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageBus bus) : IUserService
 {
-    public Task<User?> GetUserAsync(string userId)
+    public Task<User> GetUserAsync(string userId)
     {
         return userStore.GetUserAsync(userId);
     }

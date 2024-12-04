@@ -71,3 +71,13 @@ variable "booking_reminders_cron_schedule" {
   type      = string
   sensitive = false
 }
+
+variable "splunk_hec_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "splunk_host_url" {
+  type      = string
+  sensitive = false
+}

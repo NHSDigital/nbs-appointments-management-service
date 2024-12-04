@@ -31,11 +31,12 @@ describe('Site Page', () => {
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
 
     expect(
-      screen.getByRole('link', { name: 'User management' }),
+      screen.getByRole('link', { name: 'Manage users' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'User management' }),
-    ).toHaveAttribute('href', `${mockSite.id}/users`);
+    expect(screen.getByRole('link', { name: 'Manage users' })).toHaveAttribute(
+      'href',
+      `${mockSite.id}/users`,
+    );
   });
 
   it('does not show the user management page if the user may not see it', () => {
@@ -46,7 +47,7 @@ describe('Site Page', () => {
     );
 
     expect(
-      screen.queryByRole('link', { name: 'User management' }),
+      screen.queryByRole('link', { name: 'Manage users' }),
     ).not.toBeInTheDocument();
   });
 
@@ -56,10 +57,14 @@ describe('Site Page', () => {
     render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
 
     expect(
-      screen.getByRole('link', { name: 'Site management' }),
+      screen.getByRole('link', {
+        name: 'Change site details and accessibility information',
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Site management' }),
+      screen.getByRole('link', {
+        name: 'Change site details and accessibility information',
+      }),
     ).toHaveAttribute('href', `${mockSite.id}/details`);
   });
 
@@ -71,7 +76,9 @@ describe('Site Page', () => {
     );
 
     expect(
-      screen.queryByRole('link', { name: 'Site Management' }),
+      screen.queryByRole('link', {
+        name: 'Change site details and accessibility information',
+      }),
     ).not.toBeInTheDocument();
   });
 

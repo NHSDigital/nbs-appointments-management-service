@@ -9,10 +9,10 @@ export default class SitePage extends RootPage {
   constructor(page: Page) {
     super(page);
     this.userManagementCard = this.page.getByRole('link', {
-      name: 'User management',
+      name: 'Manage users',
     });
     this.siteManagementCard = this.page.getByRole('link', {
-      name: 'Site management',
+      name: 'Change site details and accessibility information',
     });
     this.createAvailabilityCard = this.page.getByRole('link', {
       name: 'Create availability',

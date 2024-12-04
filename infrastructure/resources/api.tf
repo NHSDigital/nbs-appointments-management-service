@@ -48,6 +48,8 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     ServiceBusConnectionString                 = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     BookingRemindersCronSchedule               = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule = var.unconfirmed_provisional_bookings_cron_schedule
+    SPLUNK_HOST_URL                            = var.splunk_host_url
+    SPLUNK_HEC_TOKEN                           = var.splunk_hec_token
   }
 
   identity {

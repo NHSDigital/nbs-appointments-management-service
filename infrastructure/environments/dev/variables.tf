@@ -47,3 +47,13 @@ variable "UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE" {
   type      = string
   sensitive = false
 }
+
+variable "SPLUNK_HOST_URL" {
+  type      = string
+  sensitive = false
+}
+
+variable "SPLUNK_HEC_TOKEN" {
+  type      = string
+  sensitive = true
+}

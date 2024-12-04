@@ -52,7 +52,6 @@ const Header = ({
                 <span className="nhsuk-header-custom__user-control">
                   <Link
                     href="/"
-                    locale={false}
                     className="nhsuk-header-custom__user-control-link"
                   >
                     Change site

@@ -7,8 +7,5 @@ public class ConsentToEulaRequestValidator : AbstractValidator<ConsentToEulaRequ
 {
     public ConsentToEulaRequestValidator()
     {
-        RuleFor(x => x.versionDate)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Provide a date in 'yyyy-MM-dd'");
     }
 }

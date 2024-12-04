@@ -65,7 +65,7 @@ const Header = ({ children, navigationLinks = [] }: Props) => {
             role="navigation"
             aria-label="Primary navigation"
           >
-            <ul className="nhsuk-header__navigation-list">
+            <ul className="nhsuk-header__navigation-list-custom">
               {navigationLinks.map((link, linkIndex) => (
                 <li
                   className="nhsuk-header__navigation-item"

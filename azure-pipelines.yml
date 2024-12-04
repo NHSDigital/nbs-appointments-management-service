@@ -22,6 +22,8 @@ stages:
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+          excludeCoverageClasses: "-Startup.cs;-Program.cs;-FunctionConfigurationExtensions.cs;-ServiceRegistration.cs;-ConsoleLogNotifications.cs;"
+          excludeCoverageNameSpaces: "-Nhs.Appointments.Persistance*"
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -62,6 +64,13 @@ stages:
               command: "test"
               projects: $(persistanceUnitTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: reportgenerator@4
+            displayName: "Generate Coverage Report"
+            inputs:
+              reports: "$(Agent.TempDirectory)/**/coverage.opencover.xml"
+              targetdir: "$(Build.SourcesDirectory)/coveragereport"
+              assemblyfilters: "$(excludeCoverageNameSpaces)"
+              classfilters: "$(excludeCoverageClasses)"
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"
           - task: SonarCloudPublish@3

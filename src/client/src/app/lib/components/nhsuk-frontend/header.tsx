@@ -2,7 +2,7 @@ import Link from 'next/link';
 import NhsLogo from '@components/nhsuk-frontend/icons/nhs-logo';
 import { ReactNode } from 'react';
 
-type NavigationLink = {
+export type NavigationLink = {
   label: string;
   href: string;
 };

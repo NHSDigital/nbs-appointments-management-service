@@ -35,12 +35,7 @@ stages:
                 sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
                 sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
                 sonar.scanner.scanAll=false
-                sonar.coverage.exclusions=
-                  **/FunctionConfigurationExtensions.cs, \
-                  **/ServiceRegistration.cs, \
-                  **/ConsoleLogNotifications.cs, \
-                  **/Program.cs, \
-                  **/Nhs.Appointments.Persistance/**
+                sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:

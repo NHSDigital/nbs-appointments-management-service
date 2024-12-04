@@ -131,6 +131,50 @@ Alternatively, you can upload these files one at a time yourself through the [em
 REST calls using an API user must be signed (via HMAC) using the key associated with the api user.
 The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls
 
+## Code Style & Formatting
+
+.NET code style and formatting rules are imposed by [dotnet format](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format) because it is IDE and platform agnostic, and natively included in the .NET SDK. Rule are dictated by an [.editorconfig file](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options).
+
+The warnings and errors about violations of these rules could be surfaced at build time by enabling [Enforce Code Style In Build (<EnforceCodeStyleInBuild>)](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#enforcecodestyleinbuild) in each `.csproj` file.
+
+#### How do I configure my IDE?
+
+Because the `.editorconfig` file is attached to the solution, both Rider and Visual Studio should automatically use its rules in place of their own defaults.
+
+- on Visual Studio, you may need to visit `Analyze -> Code Cleanup -> Configure Code Cleanup`, then change your default profile to include only the `Fix all warnings and errors set in EditorConfig` step.
+- on Rider, you may need to visit `Settings -> Editor -> Inspection Settings` then ensure `Read settings from editorconfig, project settings and rule sets` is ticked.
+
+#### How do I format only one file?
+
+The easiest way is probably through an IDE, configured as per the step above. Most IDEs can format single files if you right-click it in the explorer.
+Failing that, the harder way is to pass an `--include <PATH>` argument to `dotnet format` on the command line, providing it the files you want it to format.
+
+#### How do I run the formatter manually?
+
+You can invoke dotnet format on the command line like so:
+
+```
+dotnet format nbs-manage-your-appointments.sln --verify-no-changes --report dotnet-format-report.json
+```
+
+This will create a report named `dotnet-format-report.json` in the repository root. This has been added to the `.gitignore` file so should not cause a tracked change.
+
+The `--verify-no-changes` argument tells `format` to make no changes. If you want it to automatically apply fixes, simply remove this argument:
+
+```
+dotnet format nbs-manage-your-appointments.sln
+```
+
+If you want to run it against one or more specific directories in the solution (or indeed exclude one or more), these can be specified through the `--include <PATH>` and `--exclude <PATH>` arguments.
+
+If you want to see only errors, or include suggestions, pass a new value to the severity argument (accepted values are `error`, `warn`, and `info`):
+
+```
+dotnet format nbs-manage-your-appointments.sln --severity <SEVERITY>
+```
+
+See the [docs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format) for more on this.
+
 ## Tests
 
 ### Frontend Unit Tests (using Jest)

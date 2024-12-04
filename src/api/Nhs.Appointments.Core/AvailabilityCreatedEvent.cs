@@ -14,7 +14,7 @@ public class AvailabilityCreatedEvent
     public required string Site { get; set; }
 
     [JsonProperty("template")]
-    public Template? Template { get; set; }
+    public Template Template { get; set; }
 
     [JsonProperty("from")]
     public required DateOnly From { get; set; }
@@ -23,5 +23,5 @@ public class AvailabilityCreatedEvent
     public DateOnly? To { get; set; }
 
     [JsonProperty("sessions")]
-    public Session[]? Sessions { get; set; }
+    public Session[] Sessions { get; set; }
 }

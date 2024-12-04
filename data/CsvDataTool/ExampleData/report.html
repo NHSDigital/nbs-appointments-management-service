@@ -1,0 +1,23 @@
+<html><body><table><tr style="background-color:#cfcfcf"><th>Index</th><th>Name</th><th>Success</th><th>Information</th></tr>
+<tr style="background-color:#aff0da"><td>0</td><td>Example site</td><td>Yes</td><td></td></tr>
+<tr style="background-color:#f76363"><td>1</td><td></td><td>No</td><td>CsvHelper.MissingFieldException: Field at index '1' does not exist. You can ignore missing fields by setting MissingFieldFound to null.
+IReader state:
+   ColumnCount: 1
+   CurrentIndex: 1
+   HeaderRecord:
+["ID","Name","Address","PhoneNumber","Longitude","Latitude","ICB","Region","Site type","accessible_toilet","braille_translation_service","disabled_car_parking"," car_parking"," induction_loop","sign_language_service"," step_free_access"," text_relay","wheelchair_access "]
+IParser state:
+   ByteCount: 0
+   CharCount: 341
+   Row: 3
+   RawRow: 3
+   Count: 1
+   RawRecord:
+this is a bad row
+
+   at CsvHelper.Configuration.ConfigurationFunctions.MissingFieldFound(MissingFieldFoundArgs args)
+   at CsvHelper.CsvReader.GetField(Int32 index)
+   at CsvHelper.CsvReader.get_Item(Int32 index)
+   at lambda_method8(Closure)
+   at CsvHelper.CsvReader.GetRecords[T]()+MoveNext()</td></tr>
+</table></body></html>

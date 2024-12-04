@@ -1,6 +1,7 @@
 {
   "id": "cc2.agent@nhs.net",
   "docType": "user",
+  "latestAcceptedEulaVersion": "2024-12-01",
   "roleAssignments": [
     {
       "role": "canned:site-configuration-manager",

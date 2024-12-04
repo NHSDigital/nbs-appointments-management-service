@@ -90,7 +90,7 @@ public class CancelBookingFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
         request.RouteValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary { { "bookingReference", reference } };
-        request.Headers.Add("Authorization", "Test 123");
+        request.Headers.Append("Authorization", "Test 123");
 
         return request;
     }

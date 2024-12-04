@@ -16,7 +16,9 @@ public class CosmosAutoMapperProfile : Profile
 
         CreateMap<AvailabilityCreatedEventDocument, AvailabilityCreatedEvent>()
             .ForAllMembers(opt => opt.AllowNull());
-        CreateMap<BookingDocument, Booking>();        
+        CreateMap<BookingDocument, Booking>();
+
+        CreateMap<EulaDocument, EulaVersion>();
         CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
         CreateMap<Core.RoleAssignment, Models.RoleAssignment>();
         CreateMap<Models.Role, Core.Role>();
@@ -25,9 +27,12 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
 
         CreateMap<UserDocument, User>()
+            .ForMember(x => x.LatestAcceptedEulaVersion, opt => opt.AllowNull())
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
         CreateMap<SiteDocument, Site>();
 
         CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
+
+        CreateMap<DailyAvailabilityDocument, DailyAvailability>();
     }
 }

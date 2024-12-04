@@ -17,9 +17,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
 public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
 {
-    private HttpResponseMessage? _response;
+    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
-    private RemoveUserResponse? _actualResponse;
+    private RemoveUserResponse _actualResponse;
     
     [When(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)
@@ -67,7 +67,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 
-    private async Task<UserDocument?> GetUserDocument(CosmosClient cosmosClient, string user)
+    private async Task<UserDocument> GetUserDocument(CosmosClient cosmosClient, string user)
     {
         var container = cosmosClient.GetContainer("appts", "index_data");
 

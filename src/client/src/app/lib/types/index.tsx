@@ -67,6 +67,10 @@ type AvailabilityTemplate = {
 
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
 
+type EulaVersion = {
+  versionDate: string;
+};
+
 const daysOfTheWeek = [
   'Monday',
   'Tuesday',
@@ -109,6 +113,7 @@ type User = {
 type UserProfile = {
   emailAddress: string;
   availableSites: Site[];
+  latestAcceptedEulaVersion?: string;
 };
 
 type DateComponents = {
@@ -214,6 +219,11 @@ type ClinicalService = {
   value: string;
 };
 
+type DailyAvailability = {
+  date: string;
+  sessions: AvailabilitySession[];
+};
+
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [
   { label: 'RSV (Adult)', value: 'RSV:Adult' },
@@ -233,10 +243,12 @@ export type {
   AvailabilitySession,
   AvailabilityTemplate,
   Booking,
+  DailyAvailability,
   DateComponents,
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
+  EulaVersion,
   Role,
   RoleAssignment,
   Session,

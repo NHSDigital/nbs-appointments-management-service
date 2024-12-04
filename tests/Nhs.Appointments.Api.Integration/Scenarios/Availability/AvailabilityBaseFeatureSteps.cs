@@ -47,7 +47,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
 
     [Then(@"the following availability is returned for '(.+)'")]
     [And(@"the following availability is returned for '(.+)'")]
-    public async Task Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
+    public void Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
     {
         var expectedDate = ParseNaturalLanguageDateOnly(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
@@ -81,7 +81,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     }
 
     [Then(@"a bad request error is returned")]
-    public async Task Assert()
+    public void Assert()
     {
         _response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

@@ -8,8 +8,8 @@ namespace CosmosDbSeeder;
 
 class Program
 {
-    private static CosmosClient? _cosmosClient;
-    private static Database? _database;
+    private static CosmosClient _cosmosClient;
+    private static Database _database;
 
     static async Task Main(string[] args)
     {
@@ -57,7 +57,7 @@ class Program
         Console.WriteLine("Database seeded successfully");
     }
 
-    private static async Task<Database> CreateDatabaseAsync(string? databaseId)
+    private static async Task<Database> CreateDatabaseAsync(string databaseId)
     {
         if (_cosmosClient is null)
             throw new Exception("Cosmos Client was not initialised");

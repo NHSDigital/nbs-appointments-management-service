@@ -51,7 +51,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Validate_ReturnsError_WhenSiteIsInvalid(string? siteId)
+    public void Validate_ReturnsError_WhenSiteIsInvalid(string siteId)
     {
         var request = new ApplyAvailabilityTemplateRequest(
             Site: siteId,

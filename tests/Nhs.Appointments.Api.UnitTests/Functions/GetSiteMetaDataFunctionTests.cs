@@ -72,7 +72,7 @@ public class GetSiteMetaDataFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
         request.QueryString = new QueryString($"?site=123");
-        request.Headers.Add("Authorization", "Test 123");
+        request.Headers.Append("Authorization", "Test 123");
         return request;
     }
 

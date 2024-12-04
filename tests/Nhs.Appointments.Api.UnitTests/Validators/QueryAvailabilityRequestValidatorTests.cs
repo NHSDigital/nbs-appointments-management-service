@@ -107,7 +107,6 @@ public class QueryAvailabilityRequestValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(QueryType.NotSet)]
     public void Validate_ReturnsError_WhenQueryTypeIsNotInRange(QueryType queryType)
     {

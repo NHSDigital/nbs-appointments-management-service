@@ -111,7 +111,7 @@ public class RemoveUserFunctionTests
         return response;
     }
 
-    private static async Task<TRequest> ReadResponseAsync<TRequest>(string? response)
+    private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
     {
         response.Should().NotBeNull();
         if (response is null) throw new NullReferenceException();

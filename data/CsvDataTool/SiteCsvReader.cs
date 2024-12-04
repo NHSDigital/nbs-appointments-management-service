@@ -8,8 +8,8 @@ namespace CsvDataTool;
 
 public class SiteCsvReader
 {
-    private readonly FileInfo? _inputFile;
-    private readonly string? _csvContent;
+    private readonly FileInfo _inputFile;
+    private readonly string _csvContent;
     private readonly Lazy<TextReader> _textReader;
 
     public SiteCsvReader(FileInfo inputFile)

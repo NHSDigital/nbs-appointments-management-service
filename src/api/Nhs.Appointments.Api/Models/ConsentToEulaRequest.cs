@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Nhs.Appointments.Api.Models;
 
 public record ConsentToEulaRequest(
-    [JsonProperty("versionDate", Required = Required.Always)]
+    [property:JsonProperty("versionDate", Required = Required.Always)]
     DateOnly VersionDate
     );
 

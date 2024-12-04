@@ -19,7 +19,7 @@ namespace Nhs.Appointments.ApiClient.Models.Converters
 
     public class DayOfWeekListJsonConverter : JsonConverter<DayOfWeek[]>
     {
-        public override DayOfWeek[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override DayOfWeek[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var options2 = new JsonSerializerOptions(options);
             options2.Converters.Add(new DayOfWeekJsonConverter());

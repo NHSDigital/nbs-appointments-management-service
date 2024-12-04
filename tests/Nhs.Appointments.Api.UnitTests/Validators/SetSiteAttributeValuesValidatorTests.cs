@@ -31,7 +31,7 @@ public class SetSiteAttributeValuesValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Validate_ReturnsError_WhenSiteIsInvalid(string? siteId)
+    public void Validate_ReturnsError_WhenSiteIsInvalid(string siteId)
     {
         var request = new SetSiteAttributesRequest(
             Site: siteId,

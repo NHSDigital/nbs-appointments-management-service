@@ -13,7 +13,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
     public sealed class AvailabilityByDaysFeatureSteps : AvailabilityBaseFeatureSteps
     {
         [Then(@"the following daily availability is returned")]
-        public async Task AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
+        public void AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
         {
             var expectedAvailabilty = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
             (
@@ -32,7 +32,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         }
 
         [Then(@"the request is successful and no availability is returned")]
-        public async Task AssertNoAvailability()
+        public void AssertNoAvailability()
         {
             StatusCode.Should().Be(HttpStatusCode.OK);
             ActualReponse.Should().BeEmpty();

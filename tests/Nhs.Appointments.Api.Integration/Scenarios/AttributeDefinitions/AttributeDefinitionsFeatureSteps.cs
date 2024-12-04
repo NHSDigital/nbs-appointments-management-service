@@ -44,7 +44,7 @@ public sealed class AttributeDefinitionsFeatureSteps : BaseFeatureSteps
     }
     
     [Then("the following attribute definitions are returned")] 
-    public async Task Assert(Gherkin.Ast.DataTable dataTable)
+    public void Assert(Gherkin.Ast.DataTable dataTable)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);
         var expectedAttributeDefinitions = dataTable.Rows.Skip(1).Select(

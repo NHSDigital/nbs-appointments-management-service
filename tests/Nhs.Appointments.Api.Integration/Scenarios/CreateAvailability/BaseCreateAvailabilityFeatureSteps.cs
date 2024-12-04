@@ -20,7 +20,6 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
     protected HttpStatusCode _statusCode;
-    protected EmptyResponse _actualResponse;
 
     [Given("there is no existing availability")]
     public Task NoAvailability()

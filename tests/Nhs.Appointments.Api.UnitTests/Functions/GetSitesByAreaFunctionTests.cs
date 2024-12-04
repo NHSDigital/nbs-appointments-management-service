@@ -112,7 +112,7 @@ public class GetSitesByAreaFunctionTests
         return request;
     }
 
-    private static async Task<TRequest?> ReadResponseAsync<TRequest>(string response)
+    private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
     {
         var body = await new StringReader(response).ReadToEndAsync();
         return JsonConvert.DeserializeObject<TRequest>(body);

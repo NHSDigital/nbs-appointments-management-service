@@ -43,21 +43,21 @@ public class MakeBookingFunctionTests
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
-        var response = ReadResponseAsync<MakeBookingResponse>(result.Content);
-        response.Result.BookingReference.Should().Be("TEST01");
+        var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
+        response.BookingReference.Should().Be("TEST01");
     }
 
     [Fact]
     public async Task RunAsync_ReturnsError_WhenSiteDoesNotExist()
     {
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((Site?)null);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((Site)null);
         
         var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
-        var response = ReadResponseAsync<BadRequestBody>(result.Content);
-        response.Result.message.Should().Be("Site for booking request could not be found");
+        var response = await ReadResponseAsync<BadRequestBody>(result.Content);
+        response.message.Should().Be("Site for booking request could not be found");
     }
 
     [Fact]
@@ -70,8 +70,8 @@ public class MakeBookingFunctionTests
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
-        var response = ReadResponseAsync<BadRequestBody>(result.Content);
-        response.Result.message.Should().Be("The time slot for this booking is not available");
+        var response = await ReadResponseAsync<BadRequestBody>(result.Content);
+        response.message.Should().Be("The time slot for this booking is not available");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class MakeBookingFunctionTests
         string dateOfBirth,
         string email,
         string phoneNumber,
-        object? additionalData,
+        object additionalData,
         bool emailContactConsent = true,
         bool phoneContactConsent = true)
     {
@@ -157,7 +157,7 @@ public class MakeBookingFunctionTests
 
         var body = JsonConvert.SerializeObject(dto);
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-        request.Headers.Add("Authorization", "Test 123");
+        request.Headers.Append("Authorization", "Test 123");
         return request;
     }       
 

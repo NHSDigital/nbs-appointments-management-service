@@ -12,7 +12,7 @@ public class AttributeValuesValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Validate_ReturnsError_WhenIdIsInvalid(string? id)
+    public void Validate_ReturnsError_WhenIdIsInvalid(string id)
     {
         var attributeValue = new AttributeValue(
             Id: id,

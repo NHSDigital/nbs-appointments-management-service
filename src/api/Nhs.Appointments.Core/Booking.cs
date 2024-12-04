@@ -39,7 +39,7 @@ public class Booking
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
 
     [JsonProperty("additionalData")]
-    public object? AdditionalData { get; set; }
+    public object AdditionalData { get; set; }
 }
 
 public class AttendeeDetails

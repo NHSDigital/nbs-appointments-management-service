@@ -35,7 +35,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         }
 
         [Then("the following daily availability is returned")]
-        public async Task AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
+        public void AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
         {
             var expectedDailyAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row =>
                 new DailyAvailability

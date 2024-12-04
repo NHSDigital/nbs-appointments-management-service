@@ -17,9 +17,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 [FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
 public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDisposable
 {
-    private HttpResponseMessage? _response;
+    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
-    private IEnumerable<SiteWithDistance>? _actualResponse;
+    private IEnumerable<SiteWithDistance> _actualResponse;
 
     [When("I make the following request with access needs")]
     public async Task RequestSitesWithAccessNeeds(Gherkin.Ast.DataTable dataTable)

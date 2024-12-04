@@ -2,7 +2,7 @@
 
 public class Scope
 {
-    public static string? GetValue(string scopeType, string scope)
+    public static string GetValue(string scopeType, string scope)
     {
         if(!scope.StartsWith(scopeType + ":"))
         {

@@ -121,7 +121,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return cosmosStore.WriteAsync(document);
     }
     
-    public async Task<User?> GetOrDefaultAsync(string userId)
+    public async Task<User> GetOrDefaultAsync(string userId)
     {
         return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
     }

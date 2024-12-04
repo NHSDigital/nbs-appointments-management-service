@@ -42,7 +42,7 @@ public class GetSitesByAreaFunctionTests
         result?.StatusCode.Should().Be(400);
         _siteService.Verify(x => x.FindSitesByArea(34.6, 2.1, 10, 10, Array.Empty<string>()), Times.Never());
     }
-    
+
     [Fact]
     public async Task RunAsync_ReturnsSuccess_WhenSiteRequestedWithAccessNeeds()
     {
@@ -55,23 +55,23 @@ public class GetSitesByAreaFunctionTests
         {
             new (
                 new Site(
-                    Id: "1", 
+                    Id: "1",
                     Name: "Alpha",
                     Address: "somewhere",
                     PhoneNumber: "0113 1111111",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
+                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")},
                     Location: new Location("point", [0.1, 10])),
                 Distance: 100)
         };
-        _siteService.Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[]{accessNeeds})).ReturnsAsync(sites);
+        _siteService.Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds })).ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, true, accessNeeds);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
-        _siteService.Verify(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[]{accessNeeds}), Times.Once());
+        _siteService.Verify(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }), Times.Once());
     }
-    
+
     [Fact]
     public async Task RunAsync_ReturnsSuccess_WhenSitesRequestedWithoutAccessNeeds()
     {
@@ -83,13 +83,13 @@ public class GetSitesByAreaFunctionTests
         {
             new (
                 new Site(
-                    Id: "1", 
-                    Name: "Alpha", 
+                    Id: "1",
+                    Name: "Alpha",
                     Address: "somewhere",
                     PhoneNumber: "0113 1111111",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")}, 
+                    AttributeValues: new [] {new AttributeValue(Id: "accessibility/attr_1", Value: "true")},
                     Location: new Location("point", [0.1, 10])),
                 Distance: 100)
         };
@@ -111,8 +111,8 @@ public class GetSitesByAreaFunctionTests
         request.QueryString = new QueryString(queryString);
         return request;
     }
-    
-    private static async Task<TRequest?> ReadResponseAsync<TRequest>(string response)
+
+    private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
     {
         var body = await new StringReader(response).ReadToEndAsync();
         return JsonConvert.DeserializeObject<TRequest>(body);

@@ -23,13 +23,13 @@ public class GetSiteMetaDataFunctionTests
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public GetSiteMetaDataFunctionTests()
-    {        
+    {
         _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
-  
+
     [Fact]
     public async Task RunAsync_ReturnsNotFound_WhenRequestedSiteIsNotConfigured()
     {
@@ -72,7 +72,7 @@ public class GetSiteMetaDataFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
         request.QueryString = new QueryString($"?site=123");
-        request.Headers.Add("Authorization", "Test 123");
+        request.Headers.Append("Authorization", "Test 123");
         return request;
     }
 

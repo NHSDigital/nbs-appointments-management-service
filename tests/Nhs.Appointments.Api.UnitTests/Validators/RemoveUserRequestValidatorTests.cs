@@ -11,7 +11,7 @@ public class RemoveUserRequestValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void Validate_ReturnsError_WhenSiteIsNullOrEmpty(string? site)
+    public void Validate_ReturnsError_WhenSiteIsNullOrEmpty(string site)
     {
         var request = new RemoveUserRequest()
         {
@@ -34,7 +34,7 @@ public class RemoveUserRequestValidatorTests
     [InlineData("test@testcom")]
     [InlineData("testtest.com")]
     [InlineData("@test.com")]
-    public void Validate_ReturnsError_WhenUserIsNotValidEmailAddress(string? user)
+    public void Validate_ReturnsError_WhenUserIsNotValidEmailAddress(string user)
     {
         var request = new RemoveUserRequest()
         {

@@ -32,7 +32,7 @@ public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
     }
 
     [Then("The following roles are returned")] 
-    public async Task Assert(Gherkin.Ast.DataTable dataTable)
+    public void Assert(Gherkin.Ast.DataTable dataTable)
     {
         _statusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var expectedRoleItems = dataTable.Rows.Skip(1)

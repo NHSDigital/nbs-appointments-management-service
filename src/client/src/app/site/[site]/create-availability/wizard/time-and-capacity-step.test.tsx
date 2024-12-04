@@ -371,4 +371,47 @@ describe('Time and Capacity Step', () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it('hides the appointment length time validation if start and end times are invalid', async () => {
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          session: {
+            startTime: {
+              hour: 9,
+              minute: 30,
+            },
+            endTime: {
+              hour: 8,
+              minute: 0,
+            },
+          },
+        }}
+      >
+        <TimeAndCapacityStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+        />
+      </MockForm>,
+    );
+
+    const slotLengthInput = screen.getByRole('spinbutton', {
+      name: 'How long are your appointments?',
+    });
+
+    await user.clear(slotLengthInput);
+    await user.type(slotLengthInput, '5');
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(
+      screen.getByText('Session end time must be after the start time'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Appointment length is required')).toBeNull();
+  });
 });

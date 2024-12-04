@@ -56,6 +56,6 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference));
+        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference)));
     }
 }

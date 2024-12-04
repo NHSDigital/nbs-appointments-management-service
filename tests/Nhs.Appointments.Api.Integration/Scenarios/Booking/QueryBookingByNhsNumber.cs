@@ -9,7 +9,6 @@ using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 
-
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
@@ -28,7 +27,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
         
         [Then(@"the following bookings are returned")]
-        public async Task Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
+        public void Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
         {;
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select(
                 (row, index) =>
@@ -39,7 +38,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
-                    Created = DateTime.UtcNow,
+                    Created = GetCreationDateTime(BookingType.Confirmed),
                     Status = AppointmentStatus.Booked,
                     AttendeeDetails = new AttendeeDetails
                     {
@@ -65,7 +64,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
         
         [Then(@"the request is successful and no bookings are returned")]
-        public async Task AssertNoAvailability()
+        public void AssertNoAvailability()
         {
             _statusCode.Should().Be(HttpStatusCode.OK);
             _actualResponse.Should().BeEmpty();

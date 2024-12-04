@@ -27,7 +27,7 @@ public sealed class GetUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
     }
     
     [Then(@"the following list of user role assignments is returned")] 
-    public async Task Assert(Gherkin.Ast.DataTable dataTable)
+    public void Assert(Gherkin.Ast.DataTable dataTable)
     {
         var expectedUserRoleAssignments = dataTable.Rows.Skip(1).Select(
             row => new User

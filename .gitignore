@@ -237,3 +237,5 @@ FakesAssemblies/
 # terraform files
 .terraform*
 
+# dotnet format report
+dotnet-format-report.json

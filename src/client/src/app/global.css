@@ -9,8 +9,15 @@
   color: #fff;
   text-decoration: none;
   font-size: 1.1875rem;
-  padding-right: 16px;
+  padding-right: 24px;
+  padding-left: 24px;
   line-height: normal;
+  text-decoration: underline;
+  color: #fff;
+}
+
+.nhsuk-header-custom__user-control:visited {
+  color: #fff;
 }
 
 @media (max-width: 40.0625em) {
@@ -25,6 +32,12 @@
   padding-inline-end: inherit;
   padding-block-start: inherit;
   padding-block-end: inherit;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.nhsuk-header-custom__user-control-link:visited {
+  color: inherit;
 }
 
 .nhsuk-header-custom__user-control-link:hover {
@@ -156,4 +169,34 @@
   .nhsuk-loader__text {
     color: #fff;
   }
+}
+
+.nhsuk-header__navigation-list-custom {
+  padding: 0;
+  list-style: none;
+  margin: 0 16px; /* [1] */
+  max-width: 960px; /* [2] */
+  /* [4] */
+  width: 100%;
+  display: flex;
+}
+
+@media (min-width: 48.0625em) {
+  .nhsuk-header__navigation-list-custom {
+    margin: 0 32px; /* [3] */
+  }
+}
+@media (min-width: 1024px) {
+  .nhsuk-header__navigation-list-custom {
+    margin: 0 auto;
+  }
+}
+@media (min-width: 48.0625em) {
+  .nhsuk-header__navigation-list-custom {
+    display: flex;
+  }
+}
+
+.js-enabled .nhsuk-header__navigation-list-custom {
+  display: flex;
 }

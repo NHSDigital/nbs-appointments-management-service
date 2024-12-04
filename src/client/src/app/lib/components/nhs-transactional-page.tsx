@@ -10,7 +10,7 @@ type Props = {
 const NhsTransactionalPage = ({ children = null }: Props) => {
   return (
     <>
-      <Header>
+      <Header showChangeSiteButton={false}>
         <NhsHeaderLogOut />
       </Header>
       <NhsMainContainer>{children}</NhsMainContainer>

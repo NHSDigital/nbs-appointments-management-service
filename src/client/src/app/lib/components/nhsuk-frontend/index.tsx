@@ -6,7 +6,7 @@ import Card from './card';
 import CheckBox from './checkbox';
 import CheckBoxes, { CheckBoxOrAll } from './checkboxes';
 import DateInput from './date-input';
-import Header from './header';
+import Header, { NavigationLink } from './header';
 import Fieldset from './fieldset';
 import Footer from './footer';
 import FormGroup from './form-group';
@@ -29,7 +29,8 @@ import {
   WhiteSpinnerWithText,
 } from './spinner';
 import Pagination from './pagination';
-export type { Breadcrumb, SummaryListItem, TagColor };
+
+export type { Breadcrumb, SummaryListItem, TagColor, NavigationLink };
 export {
   BackLink,
   Breadcrumbs,

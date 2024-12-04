@@ -6,7 +6,7 @@ import {
   AvailabilitySession,
   AvailabilityTemplate,
   Booking,
-  DailyAvailability,
+  DayAvailabilityDetails,
   Role,
   Site,
   SiteWithAttributes,
@@ -357,63 +357,63 @@ const mockDetailedWeeks: Week[] = [
   },
 ];
 
-const mockDailyAvailability: DailyAvailability[] = [
+const mockDetailedDays: DayAvailabilityDetails[] = [
   {
     date: '2024/12/02',
-    sessions: [
+    serviceInformation: [
       {
-        from: '09:00',
-        until: '12:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
-      },
-      {
-        from: '13:00',
-        until: '17:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
+        serviceDetails: [
+          {
+            service: 'RSV (Adult)',
+            booked: 5,
+          },
+        ],
+        time: '09:00 - 17:00',
+        capacity: 123,
+        unbooked: 118,
       },
     ],
-  },
-  {
-    date: '2024/12/03',
-    sessions: [
-      {
-        from: '09:00',
-        until: '12:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
-      },
-      {
-        from: '13:00',
-        until: '17:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
-      },
-    ],
+    booked: 5,
+    totalAppointments: 123,
+    unbooked: 118,
   },
   {
     date: '2024/12/04',
-    sessions: [
+    serviceInformation: [
       {
-        from: '09:00',
-        until: '12:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
-      },
-      {
-        from: '13:00',
-        until: '17:00',
-        services: ['RSV (Adult)'],
-        capacity: 2,
-        slotLength: 5,
+        serviceDetails: [
+          {
+            service: 'RSV (Adult)',
+            booked: 15,
+          },
+        ],
+        time: '09:00 - 17:00',
+        capacity: 200,
+        unbooked: 185,
       },
     ],
+    booked: 15,
+    totalAppointments: 200,
+    unbooked: 185,
+  },
+  {
+    date: '2024/12/05',
+    serviceInformation: [
+      {
+        serviceDetails: [
+          {
+            service: 'RSV (Adult)',
+            booked: 20,
+          },
+        ],
+        time: '09:00 - 17:00',
+        capacity: 160,
+        unbooked: 140,
+      },
+    ],
+    booked: 20,
+    totalAppointments: 160,
+    unbooked: 140,
   },
 ];
 
@@ -433,5 +433,5 @@ export {
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
-  mockDailyAvailability,
+  mockDetailedDays,
 };

@@ -1,9 +1,14 @@
 import {
   AvailabilityBlock,
   AvailabilityResponse,
+  AvailabilitySession,
   Booking,
   clinicalServices,
+  DailyAvailability,
+  DayAvailabilityDetails,
   FetchBookingsRequest,
+  ServiceBookingDetails,
+  ServiceInformation,
   Week,
 } from '@types';
 import dayjs, { Dayjs } from 'dayjs';
@@ -11,6 +16,8 @@ import { fetchBookings } from './appointmentsService';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { isSameDay, toTimeComponents } from './timeService';
+import { calculateCapacity } from '../../site/[site]/create-availability/wizard/capacity-calculation';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -172,4 +179,132 @@ export const getDetailedMonthView = async (
   }
 
   return weeks;
+};
+
+const getDaysInWeek = (
+  from: dayjs.Dayjs,
+  until: dayjs.Dayjs,
+): dayjs.Dayjs[] => {
+  const diff = until.diff(from, 'd');
+  const days: dayjs.Dayjs[] = [];
+
+  for (let i = 0; i <= diff; i++) {
+    days.push(from.add(i, 'day').startOf('date'));
+  }
+
+  return days;
+};
+
+// TODO: Add return type
+export const getDetailedWeekView = async (
+  from: dayjs.Dayjs,
+  until: dayjs.Dayjs,
+  siteId: string,
+  availability: DailyAvailability[],
+): Promise<DayAvailabilityDetails[]> => {
+  const payload: FetchBookingsRequest = {
+    from: from.format('YYYY-MM-DD'),
+    to: until.format('YYYY-MM-DD'),
+    site: siteId,
+  };
+
+  const days: DayAvailabilityDetails[] = [];
+  const weekDays = getDaysInWeek(from, until);
+  const bookings = await fetchBookings(payload);
+
+  weekDays.forEach(d => {
+    const bookedAppts =
+      bookings.filter(b => isSameDay(b.from, d) && b.status === 'Booked') ?? [];
+    const availabilityInDay = availability.find(a => isSameDay(a.date, d));
+
+    const day: DayAvailabilityDetails = {
+      date: d.format('dddd D MMMM'),
+      booked: bookedAppts.length,
+      serviceInformation: availabilityInDay
+        ? buildServiceInformation(availabilityInDay, bookedAppts)
+        : [{ capacity: 0, serviceDetails: [], time: '' }],
+    };
+
+    const totalAppts = day.serviceInformation
+      .map(s => s.capacity)
+      .reduce((sum, num) => sum + num);
+    day.totalAppointments = totalAppts;
+    day.unbooked = totalAppts - bookedAppts.length;
+
+    days.push(day);
+  });
+
+  return days;
+};
+
+const totalBookedApptsInSession = (
+  serviceDetails: ServiceBookingDetails[],
+): number => {
+  return serviceDetails.map(sd => sd.booked).reduce((sum, num) => sum + num);
+};
+
+const buildServiceInformation = (
+  availability: DailyAvailability,
+  bookedAppointments: Booking[],
+): ServiceInformation[] => {
+  const serviceInfoList: ServiceInformation[] = [];
+
+  availability.sessions.forEach(session => {
+    const capacity = calculateCapacity({
+      // TODO: Are these the best defaults if we can't parse the time string?
+      startTime: toTimeComponents(session.from) ?? { hour: 0, minute: 0 },
+      endTime: toTimeComponents(session.until) ?? { hour: 0, minute: 0 },
+      slotLength: session.slotLength,
+      capacity: session.capacity,
+    });
+
+    const time = `${session.from} - ${session.until}`;
+    const existingSession = serviceInfoList.find(s => s.time === time);
+
+    if (existingSession) {
+      existingSession.serviceDetails.push(
+        ...buildServiceDetails(session, bookedAppointments),
+      );
+      existingSession.capacity += capacity.appointmentsPerSession;
+
+      const newTotalBookedApptsCount = totalBookedApptsInSession(
+        existingSession.serviceDetails,
+      );
+      existingSession.unbooked =
+        existingSession.capacity - newTotalBookedApptsCount;
+      return;
+    }
+
+    const serviceInfo: ServiceInformation = {
+      time: time,
+      serviceDetails: buildServiceDetails(session, bookedAppointments),
+      capacity: capacity.appointmentsPerSession,
+    };
+
+    const totalBookedAppts = totalBookedApptsInSession(
+      serviceInfo.serviceDetails,
+    );
+    serviceInfo.unbooked = capacity.appointmentsPerSession - totalBookedAppts;
+
+    serviceInfoList.push(serviceInfo);
+  });
+
+  return serviceInfoList;
+};
+
+const buildServiceDetails = (
+  session: AvailabilitySession,
+  bookedAppointments: Booking[],
+): ServiceBookingDetails[] => {
+  const serviceBookingDetails: ServiceBookingDetails[] = [];
+  session.services.forEach(service => {
+    const serviceDetails: ServiceBookingDetails = {
+      service: service, // TODO: Get the display name from clinical services
+      booked: bookedAppointments.filter(b => b.service === service).length,
+    };
+
+    serviceBookingDetails.push(serviceDetails);
+  });
+
+  return serviceBookingDetails;
 };

@@ -1,31 +1,49 @@
 import { Card, Table } from '@components/nhsuk-frontend';
-import { DailyAvailability } from '@types';
+import { DayAvailabilityDetails } from '@types';
 import dayjs from 'dayjs';
 
 type Props = {
-  availability: DailyAvailability[];
+  days: DayAvailabilityDetails[];
 };
 
-export const ViewWeekAvailabilityPage = ({ availability }: Props) => {
+export const ViewWeekAvailabilityPage = ({ days }: Props) => {
   return (
     <>
-      {availability.map((day, i) => (
-        <Card title={dayjs(day.date).format('dddd D MMMM')} key={i}>
+      {days.map((d, i) => (
+        <Card title={dayjs(d.date).format('dddd D MMMM')} key={i}>
           <Table
             headers={['Time', 'Services', 'Booked', 'Unbooked']}
-            rows={day.sessions.map(session => {
+            rows={d.serviceInformation.map(session => {
               return [
-                `${session.from} - ${session.until}`,
-                `${session.services.join(',')}`,
-                '0 booked',
-                '0 unbooked',
+                `${session.time}`,
+                session.serviceDetails.map((sd, k) => {
+                  return (
+                    <span key={k}>
+                      {sd.service}
+                      <br />
+                    </span>
+                  );
+                }),
+                session.serviceDetails.map((sd, j) => {
+                  return (
+                    <span key={j}>
+                      {sd.booked} booked
+                      <br />
+                    </span>
+                  );
+                }),
+                `${session.unbooked ?? 0} unbooked`,
               ];
             })}
           ></Table>
           <br />
           {/* TODO: Add link for add session */}
           <Table
-            headers={['Total appointments: 0', 'Booked: 0', 'Unbooked: 0']}
+            headers={[
+              `Total appointments: ${d.totalAppointments}`,
+              `Booked: ${d.booked}`,
+              `Unbooked: ${d.unbooked}`,
+            ]}
             rows={[]}
           ></Table>
           <br />

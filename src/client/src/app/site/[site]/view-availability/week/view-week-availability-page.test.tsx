@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
-import { mockDailyAvailability } from '@testing/data';
+import { mockDetailedDays } from '@testing/data';
 
 describe('View Week Availability Page', () => {
   it('renders', () => {
-    render(<ViewWeekAvailabilityPage availability={mockDailyAvailability} />);
+    render(<ViewWeekAvailabilityPage days={mockDetailedDays} />);
 
     expect(
       screen.getByRole('heading', { name: 'Monday 2 December' }),

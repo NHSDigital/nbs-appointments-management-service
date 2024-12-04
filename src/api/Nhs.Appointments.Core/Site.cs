@@ -27,7 +27,7 @@ public record Site(
 public record Location
 (
     [property:JsonProperty("type")]
-    string Type, 
+    string Type,
     [property:JsonProperty("coordinates")]
     double[] Coordinates
 );
@@ -35,7 +35,7 @@ public record Location
 public record AttributeValue
 (
     [property:JsonProperty("id")]
-    string Id, 
+    string Id,
     [property:JsonProperty("value")]
     string Value
 );
@@ -45,7 +45,7 @@ public record SiteWithDistance
     [JsonProperty("site")]
     Site Site,
     [JsonProperty("distance")]
-    int Distance 
+    int Distance
 );
 
 public record AttributeRequest

@@ -21,7 +21,7 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         var payload = new SetSiteAttributesRequest(siteId, "*", attributeValues);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", payload);
     }
-    
+
     [Then("the correct information for site '(.+)' is returned")]
     public async Task Assert(Gherkin.Ast.DataTable dataTable)
     {
@@ -40,7 +40,7 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
                 Coordinates: [double.Parse(row.Cells.ElementAt(7).Value), double.Parse(row.Cells.ElementAt(8).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<Site>(GetSiteId(siteId), new Microsoft.Azure.Cosmos.PartitionKey("site"));
         actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }

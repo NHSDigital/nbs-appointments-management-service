@@ -125,8 +125,11 @@ public class BookingsService(
 
     public async Task SendBookingReminders()
     {
-        var bookings = await GetBookings(time.GetLocalNow().DateTime, time.GetLocalNow().AddDays(3).DateTime);
-        foreach (var booking in bookings.Where(b => !b.ReminderSent))
+        var windowStart = time.GetLocalNow().DateTime;
+        var windowEnd = windowStart.AddDays(3);
+
+        var bookings = await GetBookings(windowStart, windowEnd);
+        foreach (var booking in bookings.Where(b => !b.ReminderSent && b.Created < windowStart.AddDays(-1)))
         {
             var reminders = eventFactory.BuildBookingEvents<BookingReminder>(booking);
             await bus.Send(reminders);

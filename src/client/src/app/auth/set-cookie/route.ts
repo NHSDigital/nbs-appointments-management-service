@@ -2,7 +2,11 @@
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { fetchAccessToken } from '@services/appointmentsService';
+import {
+  assertEulaAcceptance,
+  fetchAccessToken,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(request: NextRequest) {
@@ -19,6 +23,9 @@ export async function GET(request: NextRequest) {
 
   cookies().set('token', tokenResponse.token);
   revalidateTag('user');
+
+  const userProfile = await fetchUserProfile();
+  await assertEulaAcceptance(userProfile);
 
   const previousPage = cookies().get('previousPage');
   if (previousPage) {

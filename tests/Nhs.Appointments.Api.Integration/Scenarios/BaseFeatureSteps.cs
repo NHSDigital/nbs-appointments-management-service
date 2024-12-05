@@ -222,6 +222,13 @@ public abstract partial class BaseFeatureSteps : Feature
         return SetupBookings(siteDesignation, dataTable, BookingType.Confirmed);
     }
 
+    [Given("the following recent bookings have been made")]
+    [And("the following recent bookings have been made")]
+    public Task SetupRecentBookings(Gherkin.Ast.DataTable dataTable)
+    {
+        return SetupBookings("A", dataTable, BookingType.Recent);
+    }
+
     [Given("the following provisional bookings have been made")]
     [And("the following provisional bookings have been made")]
     public Task SetupProvisionalBookings(Gherkin.Ast.DataTable dataTable)
@@ -248,7 +255,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
-            Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
+            Created = GetCreationDateTime(bookingType),
             AttendeeDetails = new Core.AttendeeDetails
             {
                 NhsNumber = NhsNumber,
@@ -277,7 +284,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 Id = BookingReferences.GetBookingReference(index, bookingType),
                 NhsNumber = NhsNumber,
                 Status = MapStatus(bookingType),
-                Created = bookingType == BookingType.ExpiredProvisional ? DateTime.UtcNow.AddMinutes(-10) : DateTime.UtcNow,
+                Created = GetCreationDateTime(bookingType),
                 From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             });
 
@@ -293,6 +300,15 @@ public abstract partial class BaseFeatureSteps : Feature
 
         MadeBookings.AddRange(bookings);
     }
+
+    protected static DateTime GetCreationDateTime(BookingType type) => type switch
+    {
+        BookingType.Recent => DateTime.UtcNow.AddHours(-18),
+        BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
+        BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
+        BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
+        _ => throw new ArgumentOutOfRangeException(nameof(type))
+    };
 
     protected static DayOfWeek[] ParseDays(string pattern)
     {
@@ -313,6 +329,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected AppointmentStatus MapStatus(BookingType bookingType) => bookingType switch
     {
+        BookingType.Recent => AppointmentStatus.Booked,
         BookingType.Confirmed => AppointmentStatus.Booked,
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
@@ -415,7 +432,7 @@ public abstract partial class BaseFeatureSteps : Feature
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(notificationConfiguration);
     }
     
-    private async Task SetUpIntegrationTestUserRoleAssignments()
+    protected async Task SetUpIntegrationTestUserRoleAssignments(DateOnly latestAcceptedEulaVersion = default)
     {
         var userAssignments = new UserDocument()
         {
@@ -426,7 +443,8 @@ public abstract partial class BaseFeatureSteps : Feature
             RoleAssignments = [
                 new RoleAssignment()
                     { Role = "system:integration-test-user", Scope = "global" }
-            ]
+            ],
+            LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
         await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
     }
@@ -446,7 +464,7 @@ public abstract partial class BaseFeatureSteps : Feature
         return results;
     }
 
-    public enum BookingType { Confirmed, Provisional, ExpiredProvisional}
+    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional}
 
     [GeneratedRegex("^(?<format>Today|today|Tomorrow|tomorrow|Yesterday|yesterday|(((?<magnitude>[0-9]+) (?<period>days|day|weeks|week|months|month|years|year) (?<direction>from|before) (now|today))))$")]
     private static partial Regex NaturalLanguageRelativeDate();
@@ -458,7 +476,7 @@ public class BookingReferenceManager
 
     public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType)
     {
-        if (bookingType != BaseFeatureSteps.BookingType.Confirmed)
+        if (bookingType != BaseFeatureSteps.BookingType.Confirmed && bookingType != BaseFeatureSteps.BookingType.Recent)
             index += 50;
         
         if(_bookingReferences.ContainsKey(index) == false)

@@ -1,6 +1,7 @@
 {
   "id": "zzz_test_user_2@nhs.net",
   "docType": "user",
+  "latestAcceptedEulaVersion": "2024-12-01",
   "roleAssignments": [
     {
       "role": "system:auditer",

@@ -10,6 +10,9 @@ public class UserDocument : IndexDataCosmosDocument
 
     [JsonProperty("roleAssignments")]
     public RoleAssignment[] RoleAssignments { get; set; }
+
+    [JsonProperty("latestAcceptedEulaVersion")]
+    public DateOnly LatestAcceptedEulaVersion { get; set; }
 }
 
 public class RoleAssignment

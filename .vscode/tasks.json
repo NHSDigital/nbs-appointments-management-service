@@ -31,10 +31,30 @@
       "options": {
         "cwd": "data/CosmosDbSeeder/"
       },
-      "args": ["run", "CosmosDbSeeder.csproj"],
+      "args": ["run", "CosmosDbSeeder.csproj", "delete-containers"],
       "problemMatcher": "$msCompile",
       "dependsOrder": "sequence",
       "dependsOn": ["Clean Cosmos Db Seeder"]
+    },
+    {
+      "label": "Run dotnet format (report only)",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "format",
+        "nbs-manage-your-appointments.sln",
+        "--verify-no-changes",
+        "--report",
+        "dotnet-format-report.json"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Run dotnet format (apply changes)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["format", "nbs-manage-your-appointments.sln"],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

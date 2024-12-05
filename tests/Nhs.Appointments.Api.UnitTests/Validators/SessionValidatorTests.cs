@@ -25,7 +25,6 @@ public class SessionValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(0)]
     [InlineData(-1)]
     public void Validate_ReturnsError_WhenCapacityIsInvalid(int capacity)
@@ -45,7 +44,6 @@ public class SessionValidatorTests
     }
     
     [Theory]
-    [InlineData(null)]
     [InlineData(0)]
     [InlineData(-1)]
     public void Validate_ReturnsError_WhenSlotLengthIsInvalid(int slotLength)

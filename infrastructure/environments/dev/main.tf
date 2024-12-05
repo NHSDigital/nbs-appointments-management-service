@@ -33,4 +33,6 @@ module "api" {
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
   booking_reminders_cron_schedule                = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
+  splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
+  splunk_host_url                                = var.SPLUNK_HOST_URL
 }

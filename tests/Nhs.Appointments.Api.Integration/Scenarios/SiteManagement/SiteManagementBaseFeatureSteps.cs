@@ -14,9 +14,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
 {
-    private ErrorMessageResponseItem? ErrorResponse { get; set; }
-    protected HttpResponseMessage? Response { get; set; }
-    protected Site? ActualResponse { get; set; }
+    private ErrorMessageResponseItem ErrorResponse { get; set; }
+    protected HttpResponseMessage Response { get; set; }
+    protected Site ActualResponse { get; set; }
 
     [Given("The site '(.+)' does not exist in the system")]
     public Task NoSite()

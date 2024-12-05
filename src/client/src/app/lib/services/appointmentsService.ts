@@ -16,6 +16,7 @@ import {
   FetchBookingsRequest,
   Booking,
   DailyAvailability,
+  EulaVersion,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -33,7 +34,19 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
     next: { tags: ['user'] },
   });
 
-  return handleBodyResponse(response);
+  const userProfile = handleBodyResponse(response);
+  await assertEulaAcceptance(userProfile);
+  return userProfile;
+};
+
+export const assertEulaAcceptance = async (userProfile: UserProfile) => {
+  if (userProfile.availableSites.length > 0) {
+    const eulaVersion = await fetchEula();
+
+    if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {
+      redirect('/eula');
+    }
+  }
 };
 
 export async function fetchUsers(site: string) {
@@ -100,6 +113,28 @@ export async function fetchAvailabilityCreatedEvents(site: string) {
   );
 
   return handleBodyResponse(response);
+}
+
+export async function fetchEula() {
+  const response = await appointmentsApi.get<EulaVersion>('eula', {
+    next: { revalidate: 60 * 60 * 24 },
+  });
+  return handleBodyResponse(response);
+}
+
+export async function acceptEula(versionDate: string) {
+  const payload = {
+    versionDate,
+  };
+
+  const response = await appointmentsApi.post(
+    `eula/consent`,
+    JSON.stringify(payload),
+  );
+
+  handleEmptyResponse(response);
+  revalidatePath(`eula`);
+  redirect(`/`);
 }
 
 export async function assertPermission(site: string, permission: string) {

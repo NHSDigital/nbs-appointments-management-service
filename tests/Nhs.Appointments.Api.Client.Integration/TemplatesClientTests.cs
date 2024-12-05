@@ -5,21 +5,21 @@ namespace Nhs.Appointments.Api.Client.Integration
     public class TemplatesClientTests : IntegrationTestBase
     {
         [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
-        public async void CanGetTemplateForSite()
+        public async Task CanGetTemplateForSite()
         {
             var template = await ApiClient.Templates.GetTemplate(KnownSiteId);
             Assert.NotNull(template);
         }
 
         [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
-        public async void CanGetTemplateAssignments()
+        public async Task CanGetTemplateAssignments()
         {
             var assignments = await ApiClient.Templates.GetTemplateAssignments(KnownSiteId);
             Assert.NotNull(assignments);
         }
 
         [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
-        public async void CanSetTemplate()
+        public async Task CanSetTemplate()
         {
             var weekTemplate = new ApiClient.Models.WeekTemplate
             {
@@ -42,7 +42,7 @@ namespace Nhs.Appointments.Api.Client.Integration
         }
 
         [Fact (Skip = "All tests in the Api.Client.Integration project are WIP and are not expected to pass.")]
-        public async void CanSetTemplateAssignment()
+        public async Task CanSetTemplateAssignment()
         {
             TemplateAssignment[] templateAssignments = 
                 [

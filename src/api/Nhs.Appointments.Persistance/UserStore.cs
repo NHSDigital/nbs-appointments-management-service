@@ -16,6 +16,11 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return userDocument.ApiSigningKey;
     }
 
+    public async Task<User> GetUserAsync(string userId)
+    {
+        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
+    }
+
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
         var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId);
@@ -109,7 +114,20 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, userDocumentPatch);
         return new OperationResult(true);
     }
-    
+
+    public async Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate)
+    {
+        var user = await GetOrDefaultAsync(userId);
+        if (user is null)
+        {
+            return new OperationResult(false, "User not found");
+        }
+
+        var updateEulaPatch = PatchOperation.Set("/latestAcceptedEulaVersion", $"{versionDate:yyyy-MM-dd}");
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, updateEulaPatch);
+        return new OperationResult(true);
+    }
+
     public Task<IEnumerable<User>> GetUsersAsync(string site)
     {
         return cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
@@ -121,7 +139,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return cosmosStore.WriteAsync(document);
     }
     
-    public async Task<User?> GetOrDefaultAsync(string userId)
+    public async Task<User> GetOrDefaultAsync(string userId)
     {
         return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
     }

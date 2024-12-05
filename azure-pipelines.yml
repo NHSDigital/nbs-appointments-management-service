@@ -23,6 +23,19 @@ stages:
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
         steps:
+          - task: SonarCloudPrepare@3
+            displayName: "Prepare analysis on SonarCloud"
+            inputs:
+              SonarCloud: "nhsdigital-sonarcloud"
+              organization: "nhsdigital"
+              scannerMode: "dotnet"
+              projectKey: "NHSDigital_nbs-appointments-management-service"
+              projectName: "nbs-appointments-management-service"
+              extraProperties: |
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+                sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
+                sonar.scanner.scanAll=false
+                sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:
@@ -36,17 +49,25 @@ stages:
             displayName: "Run Api Unit Tests"
             inputs:
               command: "test"
-              projects: "$(apiUnitTestProjectPath)"
+              projects: $(apiUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: DotNetCoreCLI@2
             displayName: "Run Core Unit Tests"
             inputs:
               command: "test"
               projects: $(coreUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: DotNetCoreCLI@2
             displayName: "Run Persistance Unit Tests"
             inputs:
               command: "test"
               projects: $(persistanceUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: SonarCloudAnalyze@3
+            displayName: "Run Code Analysis"
+          - task: SonarCloudPublish@3
+            inputs:
+              pollingTimeoutSec: '300'
           - task: ArchiveFiles@2
             displayName: Zip Api
             inputs:

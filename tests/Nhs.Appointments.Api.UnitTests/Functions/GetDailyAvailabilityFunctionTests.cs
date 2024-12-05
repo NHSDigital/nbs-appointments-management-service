@@ -86,11 +86,11 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             result.StatusCode.Should().Be(200);
 
-            var response = await ReadResponseAsync<IEnumerable<DailyAvailability>>(result.Content);
+            var dailyAvailabilities = (await ReadResponseAsync<IEnumerable<DailyAvailability>>(result.Content)).ToList();
 
-            response.Should().NotBeNull();
-            response.Any().Should().BeTrue();
-            response.Count().Should().Be(2);
+            dailyAvailabilities.Should().NotBeNull();
+            dailyAvailabilities.Any().Should().BeTrue();
+            dailyAvailabilities.Count().Should().Be(2);
         }
 
         private static HttpRequest CreateRequest()
@@ -98,7 +98,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var context = new DefaultHttpContext();
             var request = context.Request;
             request.QueryString = new QueryString("?site=TEST01&from=2024-12-01&until=2024-12-08");
-            request.Headers.Add("Authorization", "Test 123");
+            request.Headers.Append("Authorization", "Test 123");
             return request;
         }
 

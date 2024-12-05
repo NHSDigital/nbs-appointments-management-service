@@ -1,6 +1,6 @@
 ﻿Feature: RunReminders
 
-     Scenario: Running reminders sends reminders for upcoming appointments	
+    Scenario: Running reminders sends reminders for upcoming appointments	
         Given the site is configured for MYA
         And the following bookings have been made
             | Date              | Time  | Duration | Service |
@@ -10,6 +10,14 @@
             | Recipient | Notification         |
             | email     | COVID Email Reminder |
             | phone     | COVID SMS Reminder   |
+
+     Scenario: Running reminders does not send reminders for recently made appointments	
+        Given the site is configured for MYA
+        And the following recent bookings have been made
+            | Date              | Time  | Duration | Service |
+            | 2 days from today | 09:20 | 5        | COVID   |
+        When the reminders job runs
+        Then no notifications are sent out            
 
      Scenario: Running reminders targets correct document types
         Given the site is configured for MYA

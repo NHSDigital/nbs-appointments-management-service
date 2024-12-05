@@ -5,7 +5,7 @@ using AutoMapper;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder, IMapper mapper) : IAvailabilityStore
+public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder) : IAvailabilityStore
 {
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
@@ -78,7 +78,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
     }
     
-    private async Task<DailyAvailabilityDocument?> GetOrDefaultAsync(string documentId, string partitionKey)
+    private async Task<DailyAvailabilityDocument> GetOrDefaultAsync(string documentId, string partitionKey)
     {
         return await documentStore.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(documentId, partitionKey);
     }

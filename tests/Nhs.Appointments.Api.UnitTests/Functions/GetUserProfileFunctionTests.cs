@@ -38,7 +38,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             
             await _sut.RunAsync(request);
 
-            _userSiteAssignmentService.Verify(x => x.GetUserRoleAssignments("test@test.com"), Times.Once());
+            _userSiteAssignmentService.Verify(x => x.GetUserAsync("test@test.com"), Times.Once());
         }
 
         [Fact]
@@ -48,6 +48,12 @@ namespace Nhs.Appointments.Api.Tests.Functions
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
+
+            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+            {
+                Id = "test@test.com",
+                RoleAssignments = [],
+            });
 
             var response = await _sut.RunAsync(request) as ContentResult;
             var actualResponse = await ReadResponseAsync<UserProfile>(response.Content);
@@ -61,14 +67,18 @@ namespace Nhs.Appointments.Api.Tests.Functions
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
-            var roleAssignments = new List<RoleAssignment>()
-            {
+            RoleAssignment[] roleAssignments = [
                 new() { Role = "Role1", Scope = "site:1" },
                 new() { Role = "Role2", Scope = "site:1" },
                 new() { Role = "Role1", Scope = "site:2" },
                 new() { Role = "Role2", Scope = "site:2" }
-            };
-            _userSiteAssignmentService.Setup(x => x.GetUserRoleAssignments("test@test.com")).ReturnsAsync(roleAssignments);
+            ];
+
+            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+            {
+                Id = "test@test.com",
+                RoleAssignments = roleAssignments,
+            });
 
             var siteDetails = new[]
             {
@@ -98,12 +108,17 @@ namespace Nhs.Appointments.Api.Tests.Functions
             _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
             var context = new DefaultHttpContext();
             var request = context.Request;
-            var roleAssignments = new List<RoleAssignment>()
-            {
+
+            RoleAssignment[] roleAssignments = [
                 new() { Role = "Role1", Scope = "global" },
                 new() { Role = "Role1", Scope = "site:1" }
-            };
-            _userSiteAssignmentService.Setup(x => x.GetUserRoleAssignments("test@test.com")).ReturnsAsync(roleAssignments);
+            ];
+
+            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+            {
+                Id = "test@test.com",
+                RoleAssignments = roleAssignments,
+            });
 
             var siteDetails = new[]
             {

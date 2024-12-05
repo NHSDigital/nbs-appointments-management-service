@@ -61,17 +61,16 @@ resource "azurerm_storage_account" "nbs_mya_func_storage_account" {
   name                     = "${var.application_short}strgfunc${var.environment}${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
   location                 = data.azurerm_resource_group.nbs_mya_resource_group.location
-  account_replication_type = "LRS"
+  account_replication_type = var.storage_account_replication_type
   account_tier             = "Standard"
 }
 
 ## Storage account and container for concurrency leases
-
 resource "azurerm_storage_account" "nbs_mya_leases_storage_account" {
   name                     = "${var.application_short}strglease${var.environment}${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
   location                 = data.azurerm_resource_group.nbs_mya_resource_group.location
-  account_replication_type = "LRS"
+  account_replication_type = var.storage_account_replication_type
   account_tier             = "Standard"
 }
 
@@ -81,40 +80,15 @@ resource "azurerm_storage_container" "nbs_mya_leases_container" {
 }
 
 ## Application insights
-
 resource "azurerm_application_insights" "nbs_mya_application_insights" {
   name                = "${var.application}-ai-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = data.azurerm_resource_group.nbs_mya_resource_group.location
   application_type    = "web"
-  retention_in_days   = 30
-}
-
-## Cosmos
-
-resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
-  name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
-  location                   = data.azurerm_resource_group.nbs_mya_resource_group.location
-  resource_group_name        = data.azurerm_resource_group.nbs_mya_resource_group.name
-  offer_type                 = "Standard"
-  kind                       = "GlobalDocumentDB"
-  automatic_failover_enabled = false
-  geo_location {
-    location          = data.azurerm_resource_group.nbs_mya_resource_group.location
-    failover_priority = 0
-  }
-
-  capabilities {
-    name = "EnableServerless"
-  }
-
-  consistency_policy {
-    consistency_level = "Session"
-  }
+  sampling_percentage = var.app_insights_sampling_percentage
 }
 
 ## Service Bus
-
 resource "azurerm_servicebus_namespace" "nbs_mya_service_bus" {
   name                = "${var.application}-sb-${var.environment}-${var.loc}"
   location            = data.azurerm_resource_group.nbs_mya_resource_group.location

@@ -35,4 +35,17 @@ module "api" {
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
+  autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
+  web_app_service_sku                            = "B1"
+  web_app_service_plan_default_worker_count      = 1
+  web_app_service_plan_min_worker_count          = 1
+  web_app_service_plan_max_worker_count          = 3
+  web_app_service_plan_scale_out_worker_count    = 1
+  web_app_service_plan_scale_in_worker_count     = 1
+  app_insights_sampling_percentage               = 100
+  storage_account_replication_type               = "LRS"
+  cosmos_automatic_failover_enabled              = false
+  cosmos_capabilities = [{
+    name = "EnableServerless"
+  }]
 }

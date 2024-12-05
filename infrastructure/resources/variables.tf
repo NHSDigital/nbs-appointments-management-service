@@ -23,38 +23,31 @@ variable "loc" {
 }
 
 variable "auth_provider_issuer" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_authorize_uri" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_token_uri" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_jwks_uri" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_challenge_phrase" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_client_id" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "auth_provider_return_uri" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "gov_notify_api_key" {
@@ -63,13 +56,11 @@ variable "gov_notify_api_key" {
 }
 
 variable "unconfirmed_provisional_bookings_cron_schedule" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "booking_reminders_cron_schedule" {
-  type      = string
-  sensitive = false
+  type = string
 }
 
 variable "splunk_hec_token" {
@@ -78,6 +69,64 @@ variable "splunk_hec_token" {
 }
 
 variable "splunk_host_url" {
-  type      = string
-  sensitive = false
+  type = string
+}
+
+variable "cosmos_geo_locations" {
+  type    = list(any)
+  default = []
+}
+variable "cosmos_capabilities" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_booking_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_index_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "web_app_service_sku" {
+  type = string
+}
+
+variable "web_app_service_plan_default_worker_count" {
+  type = number
+}
+
+variable "web_app_service_plan_min_worker_count" {
+  type = number
+}
+
+variable "web_app_service_plan_max_worker_count" {
+  type = number
+}
+
+variable "web_app_service_plan_scale_out_worker_count" {
+  type = number
+}
+
+variable "web_app_service_plan_scale_in_worker_count" {
+  type = string
+}
+
+variable "storage_account_replication_type" {
+  type = string
+}
+
+variable "cosmos_automatic_failover_enabled" {
+  type = bool
+}
+
+variable "app_insights_sampling_percentage" {
+  type = number
+}
+
+variable "autoscale_notification_email_address" {
+  type = string
 }

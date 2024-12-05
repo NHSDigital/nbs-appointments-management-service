@@ -57,3 +57,7 @@ variable "SPLUNK_HEC_TOKEN" {
   type      = string
   sensitive = true
 }
+
+variable "AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS" {
+  type = string
+}

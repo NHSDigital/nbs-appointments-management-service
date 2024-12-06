@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Api.Auth;
+using System.Reflection.Metadata;
+
+namespace Nhs.Appointments.Api.Auth;
 
 public class AuthOptions
 {
@@ -9,4 +11,5 @@ public class AuthOptions
     public string ClientId { get; set; }
     public string ReturnUri { get; set; }   
     public string ChallengePhrase { get; set; }
+    public string ClientCodeExchangeUri { get; set; }
 }

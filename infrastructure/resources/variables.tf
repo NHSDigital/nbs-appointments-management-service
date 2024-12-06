@@ -38,7 +38,7 @@ variable "auth_provider_token_uri" {
 }
 
 variable "auth_provider_client_code_exchange_uri" {
-  type = string
+  type      = string
 }
 
 variable "auth_provider_jwks_uri" {

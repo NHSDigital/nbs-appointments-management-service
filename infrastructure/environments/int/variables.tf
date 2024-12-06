@@ -29,7 +29,7 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
 }
 
 variable "AUTH_PROVIDER_CLIENT_CODE_EXCHANGE_URI" {
-  type = string
+  type      = string
 }
 
 variable "AUTH_PROVIDER_RETURN_URI" {

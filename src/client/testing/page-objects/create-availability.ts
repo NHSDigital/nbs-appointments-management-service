@@ -9,6 +9,7 @@ export default class CreateAvailabilityPage extends RootPage {
   readonly setAndCapacityTitle: Locator;
   readonly saveSessionButton: Locator;
   readonly sessionSuccessMsg: Locator;
+  readonly selectDateErrorMsg: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -35,6 +36,10 @@ export default class CreateAvailabilityPage extends RootPage {
     this.saveSessionButton = page.getByRole('button', {
       name: 'Save session',
     });
+
+    this.selectDateErrorMsg = page.getByText(
+      'Services must run on at least one day',
+    );
 
     this.sessionSuccessMsg = page.getByText(
       'You have successfully created availability for the current site.',
@@ -100,6 +105,10 @@ export default class CreateAvailabilityPage extends RootPage {
   }
 
   async selectDay(day: string) {
+    await this.page.getByRole('checkbox', { name: day }).click();
+  }
+
+  async unSelectDay(day: string) {
     await this.page.getByRole('checkbox', { name: day }).click();
   }
 

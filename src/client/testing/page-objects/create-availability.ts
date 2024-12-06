@@ -102,4 +102,18 @@ export default class CreateAvailabilityPage extends RootPage {
   async selectDay(day: string) {
     await this.page.getByRole('checkbox', { name: day }).click();
   }
+
+  async verifyCapacityCalculator(minute: number, noOfVaccinators: number) {
+    const expectedNoAppointments = (60 / minute) * noOfVaccinators;
+    const expectedAppointmentsMessage =
+      expectedNoAppointments +
+      ' total appointments in the sessionUp to ' +
+      expectedNoAppointments +
+      ' appointments per hour';
+    await expect(
+      this.page.getByText(expectedAppointmentsMessage),
+    ).toBeVisible();
+
+    const a = 0;
+  }
 }

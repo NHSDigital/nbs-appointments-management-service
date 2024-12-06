@@ -9,38 +9,29 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class AuthenticateFunction
-{
-    private readonly AuthOptions _authOptions;
-
-    public AuthenticateFunction(IOptions<AuthOptions> authOptions)
-    {
-        _authOptions = authOptions.Value;
-    }
-
+public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
+{    
     [Function("AuthenticateFunction")]
     [AllowAnonymous]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")] HttpRequest req)
     {
-        var redirectUri = req.Query["redirect_uri"];
-        var cc = GenerateCodeChallenge(_authOptions.ChallengePhrase);
+        var cc = GenerateCodeChallenge(authOptions.Value.ChallengePhrase);
         var queryStringValues = new Dictionary<string, string>
         {
-            { "client_id",  _authOptions.ClientId},
-            { "redirect_uri", _authOptions.ReturnUri },
+            { "client_id",  authOptions.Value.ClientId},
+            { "redirect_uri", authOptions.Value.ReturnUri },
             { "response_type", "code" },
             { "response_mode", "query" },
             { "code_challenge_method", "S256" },
             { "code_challenge", cc },
             { "scope", "openid profile email" },
             { "prompt", "login" },
-            { "state", redirectUri },
-        };
+        };        
 
-        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{_authOptions.AuthorizeUri}", queryStringValues);
+        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{authOptions.Value.AuthorizeUri}", queryStringValues);
         return new RedirectResult(oidcAuthorizeUrl);
     }
 
-    protected virtual string GenerateCodeChallenge(string challengePhrase) => AuthUtilities.GenerateCodeChallenge(_authOptions.ChallengePhrase);    
+    protected virtual string GenerateCodeChallenge(string challengePhrase) => AuthUtilities.GenerateCodeChallenge(authOptions.Value.ChallengePhrase);    
 }

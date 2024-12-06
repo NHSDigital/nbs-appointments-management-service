@@ -20,6 +20,7 @@
     "AuthProvider_JwksUri": "http://localhost:8020/.well-known/openid-configuration/jwks",
     "AuthProvider_ChallengePhrase": "ThisIsntRandomButItNeedsToBe43CharactersLong",
     "AuthProvider_ClientId": "nhs-appts-local",
+    "AuthProvider_ClientCodeExchangeUri": "http://localhost:3000/auth/set-cookie",
     "AuthProvider_ReturnUri": "http://localhost:7071/api/auth-return",
     "Notifications_Provider": "local",
     "GovNotifyApiKey": "test",

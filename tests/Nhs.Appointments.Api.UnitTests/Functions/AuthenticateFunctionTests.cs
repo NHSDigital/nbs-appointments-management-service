@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -34,7 +34,7 @@ public class AuthenticateFunctionTests
     {            
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString("?redirect_uri=123");
+        
         var result = _sut.Run(request);
         result.Should().BeOfType<RedirectResult>();
         (result as RedirectResult).Url.StartsWith("https://test.oauth.com/auth");

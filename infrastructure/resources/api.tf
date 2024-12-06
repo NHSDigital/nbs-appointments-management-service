@@ -42,6 +42,7 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
+    AuthProvider_ClientCodeExchangeUri         = var.auth_provider_client_code_exchange_uri
     AuthProvider_ReturnUri                     = var.auth_provider_return_uri
     Notifications_Provider                     = "azure"
     GovNotifyApiKey                            = var.gov_notify_api_key

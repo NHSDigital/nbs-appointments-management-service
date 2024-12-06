@@ -23,6 +23,10 @@ variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
   sensitive = false
 }
 
+variable "AUTH_PROVIDER_CLIENT_CODE_EXCHANGE_URI" {
+  type      = string
+}
+
 variable "AUTH_PROVIDER_CLIENT_ID" {
   type      = string
   sensitive = false

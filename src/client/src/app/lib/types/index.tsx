@@ -67,6 +67,10 @@ type AvailabilityTemplate = {
 
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
 
+type EulaVersion = {
+  versionDate: string;
+};
+
 const daysOfTheWeek = [
   'Monday',
   'Tuesday',
@@ -109,6 +113,7 @@ type User = {
 type UserProfile = {
   emailAddress: string;
   availableSites: Site[];
+  latestAcceptedEulaVersion?: string;
 };
 
 type DateComponents = {
@@ -243,6 +248,7 @@ export type {
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
+  EulaVersion,
   Role,
   RoleAssignment,
   Session,

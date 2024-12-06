@@ -46,6 +46,22 @@ services:
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
+      - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
+      - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
+
+  
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD=Password1!
+      - SPLUNK_HEC_SSL=false
+    ports:
+      - "8000:8000" # Splunk Web UI
+      - "8088:8088" # Splunk HEC
+    volumes:
+      - splunk-data:/opt/splunk/var
 
   oidc-server:
     image: soluto/oidc-server-mock:latest
@@ -72,3 +88,6 @@ services:
     volumes:
       - ./mock-oidc:/tmp/config:ro
       - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro
+
+volumes:
+  splunk-data:

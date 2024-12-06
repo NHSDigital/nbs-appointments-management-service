@@ -3,7 +3,11 @@
     "Nhs.Appointments.Api": {
       "commandName": "Project",
       "commandLineArgs": "--port 7071",
-      "launchBrowser": false
+      "launchBrowser": false,
+      "environmentVariables": {
+        "SPLUNK_HOST_URL": "http://localhost:8088/services/collector/raw",
+        "SPLUNK_HEC_TOKEN": "e2c421cf-9228-4ab2-a6e8-877741df569a"
+      }
     }
   }
 }

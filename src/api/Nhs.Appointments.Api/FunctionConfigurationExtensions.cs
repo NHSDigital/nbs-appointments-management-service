@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core;
 using Microsoft.Azure.Cosmos;
 using System.Net.Http;
@@ -58,6 +58,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
@@ -69,6 +70,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAttributeDefinitionsService, AttributeDefinitionsService>()
             .AddTransient<IAvailabilityService, AvailabilityService>()
+            .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
@@ -91,13 +93,14 @@ public static class FunctionConfigurationExtensions
         var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
         var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
         var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
-        bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
-        var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
-
+        
         var cosmosClient = new CosmosClient(
                 accountEndpoint: cosmosEndpoint,
                 authKeyOrResourceToken: cosmosToken,
-                clientOptions: cosmosOptions);
+                clientOptions: new CosmosClientOptions
+                {
+                    Serializer = new CosmosJsonSerializer()
+                });
 
         builder.Services.AddSingleton(cosmosClient);
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -113,28 +116,6 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "booking_data", partitionKeyPath: "/site");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
-
-    private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
-    {
-        if(ignoreSslCert)
-        {
-            return new CosmosClientOptions()
-            {
-                HttpClientFactory = () => new HttpClient(new HttpClientHandler()
-                {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                }),                    
-                Serializer = new CosmosJsonSerializer(),
-                ConnectionMode = ConnectionMode.Gateway,
-                LimitToEndpoint = true
-            };                
-        }
-
-        return new()
-        {
-            Serializer = new CosmosJsonSerializer()
-        };            
-    }    
 
     private static IEnumerable<Type> GetTypesToFixInOpenApi()
     {

@@ -31,7 +31,7 @@
       "options": {
         "cwd": "data/CosmosDbSeeder/"
       },
-      "args": ["run", "CosmosDbSeeder.csproj"],
+      "args": ["run", "CosmosDbSeeder.csproj", "delete-containers"],
       "problemMatcher": "$msCompile",
       "dependsOrder": "sequence",
       "dependsOn": ["Clean Cosmos Db Seeder"]

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Json;
 using System.Text.Json;
@@ -331,6 +331,15 @@ namespace Nhs.Appointments.Api.Tests.Json
             results.Count.Should().Be(1);
             results[0].Property.Should().Be("MyProp");
             results[0].Message.Should().Be($"Expected a string value but found {jsonValueKind}");
+        }
+
+        [Fact]
+        public void ValidateConversion_ReturnsErrors_WhenEnumPropertyIsIntegerSentAsString()
+        {
+            var results = JsonToObjectSchemaValidation.ValidateConversion<ClassWithEnumProperty>("{\"MyProp\": \"1\"}");
+            results.Count.Should().Be(1);
+            results[0].Property.Should().Be("MyProp");
+            results[0].Message.Should().Be($"1 is not a valid value");
         }
 
         [Theory]

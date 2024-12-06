@@ -1,5 +1,3 @@
-using System.Reflection.Metadata;
-
 namespace Nhs.Appointments.Api.Auth;
 
 public class AuthOptions

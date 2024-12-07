@@ -89,11 +89,11 @@ test('Create weekly session of RSV availability', async ({ page }) => {
   await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
 });
 
-test('A user can navigate to the Create Availability flow Deselecting all days prompts error', async ({
+test('A user can navigate to the Create Availability flow validating Session end date must be within the next year error', async ({
   page,
 }) => {
   const tomorrowDate = dateUtils.getFutureDate(1);
-  const dayAfterTomorrowDate = dateUtils.getFutureDate(2);
+  const MoreThanAnYearDate = dateUtils.getFutureDate(366);
   await createAvailabilityPage.createAvailabilityButton.click();
   await expect(createAvailabilityPage.sessionTitle).toBeVisible();
   await createAvailabilityPage.selectSession('Weekly sessions');
@@ -104,13 +104,10 @@ test('A user can navigate to the Create Availability flow Deselecting all days p
     tomorrowDate[0],
   );
   await createAvailabilityPage.enterWeeklySessionEndDate(
-    dayAfterTomorrowDate[2],
-    dayAfterTomorrowDate[1],
-    dayAfterTomorrowDate[0],
+    MoreThanAnYearDate[2],
+    MoreThanAnYearDate[1],
+    MoreThanAnYearDate[0],
   );
   await createAvailabilityPage.continueButton.click();
-  await createAvailabilityPage.selectDay('Select all days');
-  await createAvailabilityPage.unSelectDay('Select all days');
-  await createAvailabilityPage.continueButton.click();
-  await expect(createAvailabilityPage.selectDateErrorMsg).toBeVisible();
+  await expect(createAvailabilityPage.sessionEndDateErrorMsg).toBeVisible();
 });

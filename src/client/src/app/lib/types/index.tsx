@@ -226,7 +226,7 @@ type DailyAvailability = {
 
 type DayAvailabilityDetails = {
   date: string;
-  serviceInformation: ServiceInformation[];
+  serviceInformation?: ServiceInformation[];
   totalAppointments?: number;
   booked: number;
   unbooked?: number;

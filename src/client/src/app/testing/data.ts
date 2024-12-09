@@ -6,6 +6,7 @@ import {
   AvailabilitySession,
   AvailabilityTemplate,
   Booking,
+  DailyAvailability,
   DayAvailabilityDetails,
   Role,
   Site,
@@ -298,6 +299,22 @@ const mockBookings: Booking[] = [
     status: 'Booked',
     reminderSet: false,
   },
+  {
+    reference: '8642',
+    from: '2024-12-02T14:05:00',
+    duration: 5,
+    service: 'RSV:Adult',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999995',
+      firstName: 'Brian',
+      lastName: 'Smith',
+      dateOfBirth: new Date(1984, 1, 1),
+    },
+    created: '2024-11-05T10:35:08.0477062',
+    status: 'Booked',
+    reminderSet: false,
+  },
 ];
 
 const mockDetailedWeeks: Week[] = [
@@ -359,7 +376,7 @@ const mockDetailedWeeks: Week[] = [
 
 const mockDetailedDays: DayAvailabilityDetails[] = [
   {
-    date: '2024/12/02',
+    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
     serviceInformation: [
       {
         serviceDetails: [
@@ -378,12 +395,12 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
     unbooked: 118,
   },
   {
-    date: '2024/12/04',
+    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
     serviceInformation: [
       {
         serviceDetails: [
           {
-            service: 'RSV (Adult)',
+            service: 'COVID 75+',
             booked: 15,
           },
         ],
@@ -397,12 +414,12 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
     unbooked: 185,
   },
   {
-    date: '2024/12/05',
+    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
     serviceInformation: [
       {
         serviceDetails: [
           {
-            service: 'RSV (Adult)',
+            service: 'FLU 18-64',
             booked: 20,
           },
         ],
@@ -414,6 +431,57 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
     booked: 20,
     totalAppointments: 160,
     unbooked: 140,
+  },
+];
+
+const mockEmptyDays: DayAvailabilityDetails[] = [
+  {
+    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
+    booked: 0,
+    totalAppointments: 0,
+    unbooked: 0,
+  },
+  {
+    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
+    booked: 0,
+    totalAppointments: 0,
+    unbooked: 0,
+  },
+  {
+    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
+    booked: 0,
+    totalAppointments: 0,
+    unbooked: 0,
+  },
+];
+
+const mockWeekAvailabilityStart = dayjs('2024-12-02');
+const mockWeekAvailabilityEnd = dayjs('2024-12-08');
+
+const mockWeekAvailability: DailyAvailability[] = [
+  {
+    date: mockWeekAvailabilityStart.format('YYYY-MM-DD'),
+    sessions: [
+      {
+        capacity: 2,
+        from: '09:00',
+        until: '16:00',
+        slotLength: 5,
+        services: ['RSV (Adult)'],
+      },
+    ],
+  },
+  {
+    date: mockWeekAvailabilityEnd.format('YYYY-MM-DD'),
+    sessions: [
+      {
+        capacity: 2,
+        from: '09:00',
+        until: '14:00',
+        slotLength: 5,
+        services: ['RSV (Adult)'],
+      },
+    ],
   },
 ];
 
@@ -434,4 +502,8 @@ export {
   mockBookings,
   mockDetailedWeeks,
   mockDetailedDays,
+  mockWeekAvailabilityStart,
+  mockWeekAvailabilityEnd,
+  mockEmptyDays,
+  mockWeekAvailability,
 };

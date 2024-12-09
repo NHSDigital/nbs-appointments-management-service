@@ -98,8 +98,8 @@ export const endOfWeek = (dateString: string) => {
   return dayjs(dateString).endOf('isoWeek');
 };
 
-export const isSameDay = (dateString: string, date: dayjs.Dayjs) => {
-  return date.isSame(dayjs(dateString));
+export const isSameDay = (firstDate: dayjs.Dayjs, date: dayjs.Dayjs) => {
+  return date.isSame(firstDate);
 };
 
 export const toTimeComponents = (time: string): TimeComponents | undefined => {

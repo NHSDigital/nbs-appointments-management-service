@@ -50,7 +50,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
         },
       ]}
     >
-      <ViewWeekAvailabilityPage days={days} />
+      <ViewWeekAvailabilityPage
+        days={days}
+        weekStart={weekStart}
+        weekEnd={weekEnd}
+      />
     </NhsPage>
   );
 };

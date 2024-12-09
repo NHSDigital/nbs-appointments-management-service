@@ -195,7 +195,6 @@ const getDaysInWeek = (
   return days;
 };
 
-// TODO: Add return type
 export const getDetailedWeekView = async (
   from: dayjs.Dayjs,
   until: dayjs.Dayjs,
@@ -214,20 +213,28 @@ export const getDetailedWeekView = async (
 
   weekDays.forEach(d => {
     const bookedAppts =
-      bookings.filter(b => isSameDay(b.from, d) && b.status === 'Booked') ?? [];
-    const availabilityInDay = availability.find(a => isSameDay(a.date, d));
+      bookings.filter(
+        b =>
+          dayjs(b.from).format('YYYY-MM-DD') === d.format('YYYY-MM-DD') &&
+          b.status === 'Booked',
+      ) ?? [];
+
+    const availabilityInDay = availability.find(a =>
+      isSameDay(dayjs(a.date), d),
+    );
 
     const day: DayAvailabilityDetails = {
       date: d.format('dddd D MMMM'),
       booked: bookedAppts.length,
       serviceInformation: availabilityInDay
         ? buildServiceInformation(availabilityInDay, bookedAppts)
-        : [{ capacity: 0, serviceDetails: [], time: '' }],
+        : undefined,
     };
 
-    const totalAppts = day.serviceInformation
-      .map(s => s.capacity)
-      .reduce((sum, num) => sum + num);
+    const totalAppts =
+      day.serviceInformation
+        ?.map(s => s.capacity)
+        .reduce((sum, num) => sum + num) ?? 0;
     day.totalAppointments = totalAppts;
     day.unbooked = totalAppts - bookedAppts.length;
 
@@ -299,7 +306,8 @@ const buildServiceDetails = (
   const serviceBookingDetails: ServiceBookingDetails[] = [];
   session.services.forEach(service => {
     const serviceDetails: ServiceBookingDetails = {
-      service: service, // TODO: Get the display name from clinical services
+      service:
+        clinicalServices.find(cs => cs.value === service)?.label ?? service,
       booked: bookedAppointments.filter(b => b.service === service).length,
     };
 

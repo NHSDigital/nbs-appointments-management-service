@@ -13,6 +13,10 @@ const mockItems: SummaryListItem[] = [
       renderingStrategy: 'server',
     },
   },
+  {
+    title: 'Address',
+    value: ['456 Fake Street', 'second address'],
+  },
 ];
 
 describe('SummaryList', () => {
@@ -36,5 +40,24 @@ describe('SummaryList', () => {
       'href',
       'mock-link',
     );
+  });
+
+  it('renders multiple addresses if provided', () => {
+    render(<SummaryList items={mockItems} />);
+
+    expect(screen.getByRole('term', { name: 'Name' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('definition', { name: 'John Doe' }),
+    ).toBeInTheDocument();
+
+    const labelText = Array.isArray(mockItems[2].value)
+      ? mockItems[2].value.join('')
+      : mockItems[2].value;
+    const addressEl = screen.getByLabelText(labelText);
+
+    expect(addressEl).toBeInTheDocument();
+    expect(addressEl.children.length).toBe(2);
+    expect(addressEl.children[0]).toHaveTextContent(mockItems[2].value[0]);
+    expect(addressEl.children[1]).toHaveTextContent(mockItems[2].value[1]);
   });
 });

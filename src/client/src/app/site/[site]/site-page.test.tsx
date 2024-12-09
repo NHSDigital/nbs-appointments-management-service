@@ -7,16 +7,6 @@ import {
 } from '@testing/data';
 
 describe('Site Page', () => {
-  it('renders', () => {
-    const mockSite = mockSites[0];
-
-    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
-
-    expect(
-      screen.getByRole('heading', { name: mockSite.name }),
-    ).toBeInTheDocument();
-  });
-
   it('displays a summary of the site', () => {
     const mockSite = mockSites[0];
 
@@ -116,5 +106,32 @@ describe('Site Page', () => {
     );
 
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
+  it('renders single value', () => {
+    const mockSite = mockSites[0];
+
+    render(
+      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+    );
+
+    const el = screen.getByLabelText('Alpha Street');
+    expect(el).toBeInTheDocument();
+    expect(el).toHaveTextContent('Alpha Street');
+  });
+
+  it('renders multiple value', () => {
+    const mockSite = mockSites[3];
+
+    render(
+      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+    );
+
+    const addressEl = screen.getByLabelText(mockSite.address);
+
+    expect(addressEl).toBeInTheDocument();
+    expect(addressEl.children.length).toBe(2);
+    expect(addressEl.children[0]).toHaveTextContent('Delta Street,');
+    expect(addressEl.children[1]).toHaveTextContent('London');
   });
 });

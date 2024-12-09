@@ -99,6 +99,8 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  integratedCareBoard: string;
+  region: string;
 };
 
 type SiteWithAttributes = Site & {

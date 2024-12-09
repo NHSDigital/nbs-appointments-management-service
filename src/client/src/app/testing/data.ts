@@ -52,9 +52,34 @@ const mockRoles: Role[] = [
 ];
 
 const mockSites: Site[] = [
-  { id: '1001', name: 'Site Alpha', address: 'Alpha Street' },
-  { id: '1002', name: 'Site Beta', address: 'Beta Street' },
-  { id: '1003', name: 'Site Gamma', address: 'Gamma Street' },
+  {
+    id: '1001',
+    name: 'Site Alpha',
+    address: 'Alpha Street',
+    integratedCareBoard: 'ICB1',
+    region: 'R1',
+  },
+  {
+    id: '1002',
+    name: 'Site Beta',
+    address: 'Beta Street',
+    integratedCareBoard: 'ICB2',
+    region: 'R2',
+  },
+  {
+    id: '1003',
+    name: 'Site Gamma',
+    address: 'Gamma Street',
+    integratedCareBoard: 'ICB3',
+    region: 'R3',
+  },
+  {
+    id: '1004',
+    name: 'Site Delta',
+    address: 'Delta Street, London',
+    integratedCareBoard: 'ICB4',
+    region: 'R4',
+  },
 ];
 
 const mockSite = mockSites[0];
@@ -199,6 +224,8 @@ const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
   name: mockSites[0].name,
+  integratedCareBoard: mockSites[0].integratedCareBoard,
+  region: mockSites[0].region,
   attributeValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
     { id: 'accessibility/attr_1', value: 'true' },

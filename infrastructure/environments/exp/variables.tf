@@ -28,6 +28,9 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
   sensitive = false
 }
 
+variable "AUTH_PROVIDER_CLIENT_CODE_EXCHANGE_URI" {
+  type = string
+}
 variable "AUTH_PROVIDER_RETURN_URI" {
   type      = string
   sensitive = false

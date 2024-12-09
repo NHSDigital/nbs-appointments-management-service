@@ -1,12 +1,12 @@
-
 ## App service plan and app service for web app
 resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
-  name                = "${var.application}-asp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
-  os_type             = "Linux"
-  sku_name            = var.web_app_service_sku
-  worker_count        = var.web_app_service_plan_default_worker_count
+  name                   = "${var.application}-asp-${var.environment}-${var.loc}"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  location               = data.azurerm_resource_group.nbs_mya_resource_group.location
+  os_type                = "Linux"
+  sku_name               = var.web_app_service_sku
+  worker_count           = var.web_app_service_plan_default_worker_count
+  zone_balancing_enabled = var.app_service_plan_zone_redundancy_enabled
 }
 
 resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
@@ -35,6 +35,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
 
 # App service plan autoscale settings
 resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_settings" {
+  count               = var.do_create_autoscale_settings ? 1 : 0
   name                = "NbsMyaWebAppAutoscaleSetting"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = data.azurerm_resource_group.nbs_mya_resource_group.location
@@ -53,7 +54,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
     # CPU auto scale rule
     rule {
       metric_trigger {
-        metric_name        = "Percentage CPU"
+        metric_name        = "CpuPercentage"
         metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -61,7 +62,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "GreaterThan"
         threshold          = 75
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -74,7 +75,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
 
     rule {
       metric_trigger {
-        metric_name        = "Percentage CPU"
+        metric_name        = "CpuPercentage"
         metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -82,7 +83,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "LessThan"
         threshold          = 30
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -104,7 +105,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "GreaterThan"
         threshold          = 70
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -126,7 +127,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "LessThan"
         threshold          = 50
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -148,7 +149,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "GreaterThan"
         threshold          = 20
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -170,7 +171,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_aggregation   = "Average"
         operator           = "LessThan"
         threshold          = 10
-        metric_namespace   = "Microsoft.Web/serverfarms"
+        metric_namespace   = "microsoft.web/serverfarms"
       }
 
       scale_action {
@@ -184,9 +185,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
 
   notification {
     email {
-      send_to_subscription_administrator    = true
-      send_to_subscription_co_administrator = true
-      custom_emails                         = [var.autoscale_notification_email_address]
+      custom_emails = [var.autoscale_notification_email_address]
     }
   }
 }

@@ -35,7 +35,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_path  = "/site"
+  partition_key_paths = ["/site"]
   dynamic "autoscale_settings" {
     for_each = var.cosmos_booking_autoscale_settings
     content {
@@ -49,7 +49,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_path  = "/docType"
+  partition_key_paths = ["/docType"]
 
   dynamic "autoscale_settings" {
     for_each = var.cosmos_index_autoscale_settings

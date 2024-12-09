@@ -35,7 +35,7 @@ variable "auth_provider_token_uri" {
 }
 
 variable "auth_provider_client_code_exchange_uri" {
-  type      = string
+  type = string
 }
 
 variable "auth_provider_jwks_uri" {
@@ -103,20 +103,37 @@ variable "web_app_service_plan_default_worker_count" {
   type = number
 }
 
+variable "app_service_plan_zone_redundancy_enabled" {
+  type = bool
+}
+
+variable "do_create_autoscale_settings" {
+  type = bool
+}
+
 variable "web_app_service_plan_min_worker_count" {
-  type = number
+  type    = number
+  default = 1
 }
 
 variable "web_app_service_plan_max_worker_count" {
-  type = number
+  type    = number
+  default = 1
 }
 
 variable "web_app_service_plan_scale_out_worker_count" {
-  type = number
+  type    = number
+  default = 1
 }
 
 variable "web_app_service_plan_scale_in_worker_count" {
-  type = string
+  type    = number
+  default = 1
+}
+
+variable "autoscale_notification_email_address" {
+  type    = string
+  default = ""
 }
 
 variable "storage_account_replication_type" {
@@ -129,8 +146,4 @@ variable "cosmos_automatic_failover_enabled" {
 
 variable "app_insights_sampling_percentage" {
   type = number
-}
-
-variable "autoscale_notification_email_address" {
-  type = string
 }

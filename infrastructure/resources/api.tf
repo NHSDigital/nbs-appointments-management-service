@@ -76,8 +76,8 @@ resource "azurerm_storage_account" "nbs_mya_leases_storage_account" {
 }
 
 resource "azurerm_storage_container" "nbs_mya_leases_container" {
-  name                 = "leases"
-  storage_account_name = azurerm_storage_account.nbs_mya_leases_storage_account.name
+  name               = "leases"
+  storage_account_id = azurerm_storage_account.nbs_mya_leases_storage_account.id
 }
 
 ## Application insights

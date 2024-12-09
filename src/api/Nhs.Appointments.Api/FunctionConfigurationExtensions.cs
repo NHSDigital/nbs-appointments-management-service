@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core;
 using Microsoft.Azure.Cosmos;
 using System.Net.Http;

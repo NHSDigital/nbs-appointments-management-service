@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -170,8 +170,8 @@ namespace Nhs.Appointments.Api.Json
             {
                 if (json.ValueKind != JsonValueKind.String)
                     errors.Add(new ErrorMessageResponseItem { Property = path, Message = "Expected a string value but found " + json.ValueKind });
-                else if (Enum.TryParse(type, json.GetString(), true, out var val) == false)
-                    errors.Add(new ErrorMessageResponseItem { Property = path, Message = $"{json.GetString()} is not a valid value" });
+                else if (IsValidEnumValue(type, json.GetString()) == false)
+                    errors.Add(new ErrorMessageResponseItem { Property = path, Message = $"{json.GetString()} is not a valid value" });                
             }
 
             var classesToIgnore = new[] { nameof(String) };
@@ -196,5 +196,8 @@ namespace Nhs.Appointments.Api.Json
             var matchByJsonProp = type.GetProperties().Where(p => p.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName == name).SingleOrDefault();
             return matchByJsonProp ?? type.GetProperties().Where(p => p.Name.ToLower() == name.ToLower()).SingleOrDefault();
         }
+
+        private static bool IsValidEnumValue(Type enumType, string value) => Enum.GetNames(enumType).Select(n => n.ToLower()).Contains(value.ToLower());
+        
     }
 }

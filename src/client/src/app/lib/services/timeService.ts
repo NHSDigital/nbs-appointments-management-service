@@ -97,3 +97,22 @@ export const startOfWeek = (dateString: string) => {
 export const endOfWeek = (dateString: string) => {
   return dayjs(dateString).endOf('isoWeek');
 };
+
+export const isSameDay = (firstDate: dayjs.Dayjs, secondDate: dayjs.Dayjs) => {
+  return secondDate.isSame(firstDate);
+};
+
+export const toTimeComponents = (time: string): TimeComponents | undefined => {
+  const [hour, minute] = time.split(':');
+  const parsedHour = Number(hour);
+  const parsedMinute = Number(minute);
+
+  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
+    return undefined;
+  }
+
+  return {
+    hour: parsedHour,
+    minute: parsedMinute,
+  };
+};

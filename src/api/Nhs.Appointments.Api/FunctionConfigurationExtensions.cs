@@ -93,14 +93,13 @@ public static class FunctionConfigurationExtensions
         var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
         var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
         var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
-        
+        bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
+        var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
+
         var cosmosClient = new CosmosClient(
                 accountEndpoint: cosmosEndpoint,
                 authKeyOrResourceToken: cosmosToken,
-                clientOptions: new CosmosClientOptions
-                {
-                    Serializer = new CosmosJsonSerializer()
-                });
+                clientOptions: cosmosOptions);
 
         builder.Services.AddSingleton(cosmosClient);
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -116,6 +115,28 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "booking_data", partitionKeyPath: "/site");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
+
+    private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
+    {
+        if(ignoreSslCert)
+        {
+            return new CosmosClientOptions()
+            {
+                HttpClientFactory = () => new HttpClient(new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                }),                    
+                Serializer = new CosmosJsonSerializer(),
+                ConnectionMode = ConnectionMode.Gateway,
+                LimitToEndpoint = true
+            };                
+        }
+
+        return new()
+        {
+            Serializer = new CosmosJsonSerializer()
+        };            
+    }    
 
     private static IEnumerable<Type> GetTypesToFixInOpenApi()
     {

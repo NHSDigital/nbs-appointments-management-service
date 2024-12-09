@@ -34,6 +34,10 @@ variable "auth_provider_token_uri" {
   type = string
 }
 
+variable "auth_provider_client_code_exchange_uri" {
+  type      = string
+}
+
 variable "auth_provider_jwks_uri" {
   type = string
 }

@@ -1,21 +1,39 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Moq;
+using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
-using System.Text.Encodings.Web;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class AuthenticateCallbackFunctionTests
 {
+    private readonly Mock<IOptions<AuthOptions>> _options = new();
+
     [Fact]
     public void Test()
     {
         var context = new DefaultHttpContext();
         var defaultHttpRequest = context.Request;
-        var url = UrlEncoder.Default.Encode("http://test.some.com");
-        defaultHttpRequest.QueryString = new QueryString($"?code=123&state={url}");
-        var result = AuthenticateCallbackFunction.Run(defaultHttpRequest);
+        defaultHttpRequest.QueryString = new QueryString($"?code=123");
+
+        var options = new Mock<IOptions<AuthOptions>>();
+        options.Setup(x => x.Value).Returns(new AuthOptions
+        {
+            AuthorizeUri = "https://test.oauth.com/auth",
+            ReturnUri = "http://localhost",
+            ClientId = "123",
+            ChallengePhrase = "123",
+            JwksUri = "https://test.oauth.com/jwks",
+            Issuer = "123",
+            TokenUri = "https://test.oauth.com/token",
+            ClientCodeExchangeUri = "http://test.some.com"
+        });
+
+        var sut = new AuthenticateCallbackFunction(options.Object);
+        var result = sut.Run(defaultHttpRequest);
         result.Should().BeOfType<RedirectResult>();
         (result as RedirectResult).Url.Should().Be("http://test.some.com?code=123");
     }

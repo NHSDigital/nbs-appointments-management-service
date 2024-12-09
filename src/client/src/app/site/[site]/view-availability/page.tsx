@@ -52,6 +52,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
     <NhsPage
       title={title}
       caption={site.name}
+      site={site}
       breadcrumbs={[
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },

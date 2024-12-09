@@ -31,6 +31,7 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
+      site={site}
     >
       <UsersPage
         userProfile={userProfile}

@@ -29,6 +29,7 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
+      site={site}
     >
       <SiteDetailsPage site={site} permissions={sitePermissions} />
     </NhsPage>

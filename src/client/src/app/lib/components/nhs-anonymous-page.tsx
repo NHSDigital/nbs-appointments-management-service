@@ -23,7 +23,7 @@ const NhsAnonymousPage = ({
 }: Props) => {
   return (
     <>
-      <Header>{headerAuthComponent}</Header>
+      <Header showChangeSiteButton={false}>{headerAuthComponent}</Header>
       {showHomeBreadcrumb && (
         <Breadcrumbs trail={[{ name: 'Home', href: '/' }]} />
       )}

@@ -2,8 +2,15 @@ import Link from 'next/link';
 import NhsLogo from '@components/nhsuk-frontend/icons/nhs-logo';
 import { ReactNode } from 'react';
 
+export type NavigationLink = {
+  label: string;
+  href: string;
+};
+
 type Props = {
   children?: ReactNode;
+  navigationLinks?: NavigationLink[];
+  showChangeSiteButton?: boolean;
 };
 
 /**
@@ -12,7 +19,11 @@ type Props = {
  * TODO: we're created a transactional header, but from the docs it sounds like we should be using Organisational?
  * @see https://service-manual.nhs.uk/design-system/components/header
  */
-const Header = ({ children }: Props) => {
+const Header = ({
+  children,
+  navigationLinks = [],
+  showChangeSiteButton = true,
+}: Props) => {
   return (
     <header className="nhsuk-header" role="banner">
       <div className="nhsuk-header__container">
@@ -37,10 +48,47 @@ const Header = ({ children }: Props) => {
               id="wrap-user-controls"
             >
               {children}
+              {showChangeSiteButton && (
+                <span className="nhsuk-header-custom__user-control">
+                  <Link
+                    href="/"
+                    className="nhsuk-header-custom__user-control-link"
+                  >
+                    Change site
+                  </Link>
+                </span>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {navigationLinks.length > 0 && (
+        <div className="nhsuk-navigation-container">
+          <nav
+            className="nhsuk-navigation"
+            id="header-navigation"
+            role="navigation"
+            aria-label="Primary navigation"
+          >
+            <ul className="nhsuk-header__navigation-list-custom">
+              {navigationLinks.map((link, linkIndex) => (
+                <li
+                  className="nhsuk-header__navigation-item"
+                  key={`navigation-link-${linkIndex}`}
+                >
+                  <Link
+                    className="nhsuk-header__navigation-link"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

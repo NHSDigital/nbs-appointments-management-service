@@ -49,6 +49,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
           href: `/site/${params.site}/view-availability`,
         },
       ]}
+      site={site}
     >
       <ViewWeekAvailabilityPage
         days={days}

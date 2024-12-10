@@ -2,8 +2,11 @@ import {
   formatTimeString,
   isValidDate,
   parseDateComponents,
+  toTimeComponents,
   toTwoDigitFormat,
 } from '@services/timeService';
+import { TimeComponents } from '@types';
+import dayjs from 'dayjs';
 
 describe('Time Service', () => {
   it.each([
@@ -94,6 +97,19 @@ describe('Time Service', () => {
       });
 
       expect(formattedTime).toBe(expectedResult);
+    },
+  );
+
+  it.each([
+    ['09:00', { hour: 9, minute: 0 }],
+    ['12:45', { hour: 12, minute: 45 }],
+    ['2i:0o', undefined],
+  ])(
+    'parses a time string to time components',
+    (time: string, expectedResult: TimeComponents | undefined) => {
+      const result = toTimeComponents(time);
+
+      expect(result).toEqual(expectedResult);
     },
   );
 });

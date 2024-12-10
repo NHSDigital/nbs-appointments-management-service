@@ -20,7 +20,8 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: succeeded()
+#    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -113,6 +114,9 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
+              ${{ if eq(parameters.env, 'exp') }}:
+                deployToSlotOrASE: true
+                slotName: "web-app-preview"
       - job: DeployApi
         dependsOn: ApplyTerraform
         displayName: "Deploy Api"
@@ -132,7 +136,47 @@ stages:
               appType: "functionApp"
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
-              deploymentMethod: "auto"              
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'exp') }}:
+                deployToSlotOrASE: true
+                slotName: "func-app-preview"
+      - job: WaitForSlotApproval
+        dependsOn: 
+          - DeployWeb
+          - DeployApi
+        condition: ${{ eq(parameters.env, 'exp') }}
+        displayName: "Wait for approval or validation to swap slots"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Wait for approval to swap slots"
+            inputs:
+              notifyUsers: ""
+              instructions: Review preview swap slots and approve
+      - job: SwapWebAppSlots
+        displayName: "Swap web app slots"
+        dependsOn: WaitForSlotApproval
+        condition: ${{ eq(parameters.env, 'exp') }}
+        steps:
+          - task: AzureAppServiceManager@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap preview slots'
+              WebAppName: ${{ parameters.webServerName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'web-app-preview'
+      - job: SwapWebAppSlots
+        displayName: "Swap func app slots"
+        dependsOn: WaitForSlotApproval
+        condition: ${{ eq(parameters.env, 'exp') }}
+        steps:
+          - task: AzureAppServiceManager@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap preview slots'
+              WebAppName: ${{ parameters.apiServerName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'func-app-preview'
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:

@@ -158,7 +158,7 @@ stages:
         dependsOn: WaitForSlotApproval
         condition: ${{ eq(parameters.env, 'exp') }}
         steps:
-          - task: AzureAppServiceManager@0
+          - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
               Action: 'Swap preview slots'
@@ -170,7 +170,7 @@ stages:
         dependsOn: WaitForSlotApproval
         condition: ${{ eq(parameters.env, 'exp') }}
         steps:
-          - task: AzureAppServiceManager@0
+          - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
               Action: 'Swap preview slots'

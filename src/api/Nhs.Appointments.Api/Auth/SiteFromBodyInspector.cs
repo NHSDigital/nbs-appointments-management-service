@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -7,7 +9,7 @@ namespace Nhs.Appointments.Api.Auth;
 
 public class SiteFromBodyInspector : IRequestInspector
 {
-    public async Task<string> GetSiteId(HttpRequestData httpRequest)
+    public async Task<IEnumerable<string>> GetSiteIds(HttpRequestData httpRequest)
     {
         var body = await httpRequest.ReadBodyAsStringAndLeaveIntactAsync();
 
@@ -18,7 +20,7 @@ public class SiteFromBodyInspector : IRequestInspector
                 using var jsonDocument = JsonDocument.Parse(body);
                 if (jsonDocument.RootElement.TryGetProperty("site", out var siteIdValue))
                 {
-                    return siteIdValue.ToString();                    
+                    return [siteIdValue.ToString()];
                 }
             }
             catch (JsonException)
@@ -27,6 +29,6 @@ public class SiteFromBodyInspector : IRequestInspector
             }
         }
 
-        return string.Empty;
+        return Enumerable.Empty<string>();
     }
 }

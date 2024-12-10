@@ -27,7 +27,11 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'site:view');
 
   return (
-    <NhsPage breadcrumbs={[{ name: 'Home', href: '/' }]} title={site.name}>
+    <NhsPage
+      breadcrumbs={[{ name: 'Home', href: '/' }]}
+      title={site.name}
+      site={site}
+    >
       <SitePage site={site} permissions={sitePermissions} />
     </NhsPage>
   );

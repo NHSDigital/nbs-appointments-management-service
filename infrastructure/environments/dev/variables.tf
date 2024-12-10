@@ -1,3 +1,13 @@
+variable "FUNC_APP_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "WEB_APP_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
 variable "AUTH_PROVIDER_ISSUER" {
   type      = string
   sensitive = false

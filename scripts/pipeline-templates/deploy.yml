@@ -183,7 +183,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: ${{ eq(parameters.env, 'exp') }}
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - task: AzureAppServiceManage@0
             inputs:
@@ -195,7 +195,7 @@ stages:
       - job: SwapFuncAppSlots
         displayName: "Swap func app slots"
         dependsOn: WaitForSlotApproval
-        condition: ${{ eq(parameters.env, 'exp') }}
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - task: AzureAppServiceManage@0
             inputs:

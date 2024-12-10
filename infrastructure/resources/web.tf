@@ -35,7 +35,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
 
 resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   count          = var.do_create_swap_slot ? 1 : 0
-  name           = "web-app-preview"
+  name           = "preview"
   app_service_id = azurerm_linux_web_app.nbs_mya_web_app_service.id
 
   site_config {
@@ -46,8 +46,8 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   }
 
   app_settings = {
-    NBS_API_BASE_URL = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview.default_hostname}"
-    AUTH_HOST        = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview.default_hostname}"
+    NBS_API_BASE_URL = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview[0].default_hostname}"
+    AUTH_HOST        = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview[0].default_hostname}"
   }
 
   identity {

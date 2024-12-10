@@ -28,6 +28,10 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     AUTH_HOST        = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
   }
 
+  sticky_settings {
+    app_setting_names = ["NBS_API_BASE_URL", "AUTH_HOST"]
+  }
+
   identity {
     type = "SystemAssigned"
   }

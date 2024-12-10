@@ -185,6 +185,7 @@ stages:
         dependsOn: WaitForSlotApproval
         condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
+          - checkout: none
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
@@ -197,6 +198,7 @@ stages:
         dependsOn: WaitForSlotApproval
         condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
+          - checkout: none
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}

@@ -31,7 +31,6 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
 variable "AUTH_PROVIDER_CLIENT_CODE_EXCHANGE_URI" {
   type = string
 }
-
 variable "AUTH_PROVIDER_RETURN_URI" {
   type      = string
   sensitive = false
@@ -60,4 +59,8 @@ variable "SPLUNK_HOST_URL" {
 variable "SPLUNK_HEC_TOKEN" {
   type      = string
   sensitive = true
+}
+
+variable "AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS" {
+  type = string
 }

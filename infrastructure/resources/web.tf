@@ -33,6 +33,28 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   }
 }
 
+resource "azurerm_linux_web_app_slot" "nbs_mya_func_app_preview" {
+  count          = var.do_create_swap_slot ? 1 : 0
+  name           = "web-app-preview"
+  app_service_id = azurerm_linux_web_app.nbs_mya_web_app_service.id
+
+  site_config {
+    app_command_line = "node standalone/server.js"
+    application_stack {
+      node_version = "20-lts"
+    }
+  }
+
+  app_settings = {
+    NBS_API_BASE_URL = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
+    AUTH_HOST        = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
 # App service plan autoscale settings
 resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_settings" {
   count               = var.do_create_autoscale_settings ? 1 : 0

@@ -147,3 +147,7 @@ variable "cosmos_automatic_failover_enabled" {
 variable "app_insights_sampling_percentage" {
   type = number
 }
+
+variable "do_create_swap_slot" {
+  type = bool
+}

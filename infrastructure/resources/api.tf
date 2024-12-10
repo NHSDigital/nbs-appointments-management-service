@@ -89,8 +89,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
     AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
-    AuthProvider_ClientCodeExchangeUri         = var.auth_provider_client_code_exchange_uri
-    AuthProvider_ReturnUri                     = var.auth_provider_return_uri
+    AuthProvider_ClientCodeExchangeUri         = "https://${azurerm_linux_web_app_slot.nbs_mya_web_app_preview.default_hostname}/set-cookie"
+    AuthProvider_ReturnUri                     = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview.default_hostname}/auth/set-cookie"
     Notifications_Provider                     = "azure"
     GovNotifyApiKey                            = var.gov_notify_api_key
     ServiceBusConnectionString                 = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string

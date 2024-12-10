@@ -140,10 +140,37 @@ stages:
               ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
                 slotName: "func-app-preview"
+      - job: UploadCosmosDocuments
+        displayName: "Upload documents to cosmosdb"
+        dependsOn:
+          - ApplyTerraform
+          - DeployWeb
+          - DeployApi
+        variables:
+          environment: ${{parameters.env}}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
+          - task: DotNetCoreCLI@2
+            displayName: "Seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
       - job: WaitForSlotApproval
         dependsOn: 
           - DeployWeb
           - DeployApi
+          - UploadCosmosDocuments
         condition: ${{ eq(parameters.env, 'exp') }}
         displayName: "Wait for approval or validation to swap slots"
         pool: server
@@ -177,29 +204,3 @@ stages:
               WebAppName: ${{ parameters.apiServerName }}
               ResourceGroupName: ${{ parameters.resourceGroup }}
               SourceSlot: 'func-app-preview'
-      - job: UploadCosmosDocuments
-        displayName: "Upload documents to cosmosdb"
-        dependsOn:
-         - ApplyTerraform
-         - DeployWeb
-         - DeployApi
-        variables:
-          environment: ${{parameters.env}}
-        steps:
-          - checkout: self
-          - task: AzureCLI@2
-            displayName: "Get Cosmos DB account connection string"
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
-              arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
-          - task: DotNetCoreCLI@2
-            displayName: "Seed Cosmos DB containers"
-            inputs:
-              command: "run"
-              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-            env:
-              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-              COSMOS_TOKEN: $(COSMOS_TOKEN)

@@ -116,7 +116,7 @@ stages:
               startUpCommand: "node standalone/server.js"
               ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
-                slotName: "web-app-preview"
+                slotName: "preview"
       - job: DeployApi
         dependsOn: ApplyTerraform
         displayName: "Deploy Api"
@@ -139,7 +139,7 @@ stages:
               deploymentMethod: "auto"
               ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
-                slotName: "func-app-preview"
+                slotName: "preview"
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:

@@ -165,7 +165,7 @@ stages:
               WebAppName: ${{ parameters.webServerName }}
               ResourceGroupName: ${{ parameters.resourceGroup }}
               SourceSlot: 'web-app-preview'
-      - job: SwapWebAppSlots
+      - job: SwapFuncAppSlots
         displayName: "Swap func app slots"
         dependsOn: WaitForSlotApproval
         condition: ${{ eq(parameters.env, 'exp') }}

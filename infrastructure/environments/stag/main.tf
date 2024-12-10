@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-exp-uks"
-    storage_account_name = "myatfexpuks"
+    resource_group_name  = "nbs-mya-rg-stag-uks"
+    storage_account_name = "myatfstaguks"
     container_name       = "tfstate"
-    key                  = "exp.tfstate"
+    key                  = "stag.tfstate"
   }
 
   required_version = ">= 1.6.5"
@@ -21,7 +21,7 @@ provider "azurerm" {
 }
 
 module "api" {
-  environment                                    = "exp"
+  environment                                    = "stag"
   source                                         = "../../resources"
   auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
   auth_provider_authorize_uri                    = var.AUTH_PROVIDER_AUTHORIZE_URI
@@ -38,11 +38,11 @@ module "api" {
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   web_app_service_sku                            = "P2v3"
-  web_app_service_plan_default_worker_count      = 4
+  web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true
   do_create_autoscale_settings                   = true
   web_app_service_plan_min_worker_count          = 1
-  web_app_service_plan_max_worker_count          = 24
+  web_app_service_plan_max_worker_count          = 20
   web_app_service_plan_scale_out_worker_count    = 1
   web_app_service_plan_scale_in_worker_count     = 1
   app_insights_sampling_percentage               = 12.5

@@ -1,6 +1,5 @@
 import {
   formatTimeString,
-  isSameDay,
   isValidDate,
   parseDateComponents,
   toTimeComponents,
@@ -98,18 +97,6 @@ describe('Time Service', () => {
       });
 
       expect(formattedTime).toBe(expectedResult);
-    },
-  );
-
-  it.each([
-    ['2024-12-10', '2024-12-10', true],
-    ['2024-12-10', '2024-12-15', false],
-  ])(
-    'correctly works out if two dates are the same',
-    (firstDate: string, secondDate: string, expectedResult: boolean) => {
-      const result = isSameDay(dayjs(firstDate), dayjs(secondDate));
-
-      expect(result).toBe(expectedResult);
     },
   );
 

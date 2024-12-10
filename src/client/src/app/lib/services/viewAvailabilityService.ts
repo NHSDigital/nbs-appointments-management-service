@@ -16,7 +16,7 @@ import { fetchBookings } from './appointmentsService';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { isSameDay, toTimeComponents } from './timeService';
+import { toTimeComponents } from './timeService';
 import { calculateCapacity } from '../../site/[site]/create-availability/wizard/capacity-calculation';
 
 dayjs.extend(isSameOrAfter);
@@ -219,9 +219,7 @@ export const getDetailedWeekView = async (
           b.status === 'Booked',
       ) ?? [];
 
-    const availabilityInDay = availability.find(a =>
-      isSameDay(dayjs(a.date), d),
-    );
+    const availabilityInDay = availability.find(a => d.isSame(dayjs(a.date)));
 
     const day: DayAvailabilityDetails = {
       date: d.format('dddd D MMMM'),

@@ -113,6 +113,9 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
+              ${{ if eq(parameters.env, 'stag') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: DeployApi
         dependsOn: ApplyTerraform
         displayName: "Deploy Api"
@@ -132,13 +135,16 @@ stages:
               appType: "functionApp"
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
-              deploymentMethod: "auto"              
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'stag') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:
-         - ApplyTerraform
-         - DeployWeb
-         - DeployApi
+          - ApplyTerraform
+          - DeployWeb
+          - DeployApi
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -159,3 +165,43 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+      - job: WaitForSlotApproval
+        dependsOn:
+          - DeployWeb
+          - DeployApi
+          - UploadCosmosDocuments
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        displayName: "Wait for approval to swap slots"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Review deployment slots"
+            inputs:
+              notifyUsers: ""
+              instructions: Review deployment slots for web app / api and approve
+      - job: SwapWebAppSlots
+        displayName: "Swap web app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap Slots'
+              WebAppName: ${{ parameters.webServerName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'preview'
+      - job: SwapFuncAppSlots
+        displayName: "Swap func app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap Slots'
+              WebAppName: ${{ parameters.apiServerName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'preview'

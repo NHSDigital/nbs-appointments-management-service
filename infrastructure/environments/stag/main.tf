@@ -29,8 +29,10 @@ module "api" {
   auth_provider_jwks_uri                         = var.AUTH_PROVIDER_JWKS_URI
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
-  auth_provider_return_uri                       = var.AUTH_PROVIDER_RETURN_URI
-  auth_provider_client_code_exchange_uri         = var.AUTH_PROVIDER_CLIENT_CODE_EXCHANGE_URI
+  func_app_base_uri                              = var.FUNC_APP_BASE_URI
+  func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
+  web_app_base_uri                               = var.WEB_APP_BASE_URI
+  web_app_slot_base_uri                          = var.WEB_APP_SLOT_BASE_URI
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
   booking_reminders_cron_schedule                = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
@@ -40,6 +42,7 @@ module "api" {
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true
+  do_create_swap_slot                            = true
   do_create_autoscale_settings                   = true
   web_app_service_plan_min_worker_count          = 1
   web_app_service_plan_max_worker_count          = 20

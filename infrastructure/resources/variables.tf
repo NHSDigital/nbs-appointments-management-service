@@ -22,6 +22,23 @@ variable "loc" {
   default = "uks"
 }
 
+variable "func_app_base_uri" {
+  type = string
+}
+
+variable "web_app_base_uri" {
+  type = string
+}
+variable "func_app_slot_base_uri" {
+  type    = string
+  default = ""
+}
+
+variable "web_app_slot_base_uri" {
+  type    = string
+  default = ""
+}
+
 variable "auth_provider_issuer" {
   type = string
 }
@@ -34,10 +51,6 @@ variable "auth_provider_token_uri" {
   type = string
 }
 
-variable "auth_provider_client_code_exchange_uri" {
-  type = string
-}
-
 variable "auth_provider_jwks_uri" {
   type = string
 }
@@ -47,10 +60,6 @@ variable "auth_provider_challenge_phrase" {
 }
 
 variable "auth_provider_client_id" {
-  type = string
-}
-
-variable "auth_provider_return_uri" {
   type = string
 }
 
@@ -146,4 +155,8 @@ variable "cosmos_automatic_failover_enabled" {
 
 variable "app_insights_sampling_percentage" {
   type = number
+}
+
+variable "do_create_swap_slot" {
+  type = bool
 }

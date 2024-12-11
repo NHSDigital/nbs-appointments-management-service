@@ -66,6 +66,7 @@ stages:
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"
           - task: SonarCloudPublish@3
+            displayName: "Publish Sonar cloud results"
             inputs:
               pollingTimeoutSec: '300'
           - task: ArchiveFiles@2

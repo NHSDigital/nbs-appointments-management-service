@@ -6,8 +6,8 @@ import {
 } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
+import { getDetailedWeekView } from '@services/viewAvailabilityService';
 
-// TODO: Include site in props
 type PageProps = {
   searchParams: {
     date: string;
@@ -30,6 +30,13 @@ const Page = async ({ searchParams, params }: PageProps) => {
     weekEnd.format('YYYY-MM-DD'),
   );
 
+  const days = await getDetailedWeekView(
+    weekStart,
+    weekEnd,
+    site.id,
+    availability,
+  );
+
   return (
     <NhsPage
       title={`${weekStart.format('D MMMM')} to ${weekEnd.format('D MMMM')}`}
@@ -44,7 +51,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
       ]}
       site={site}
     >
-      <ViewWeekAvailabilityPage availability={availability} />
+      <ViewWeekAvailabilityPage
+        days={days}
+        weekStart={weekStart}
+        weekEnd={weekEnd}
+      />
     </NhsPage>
   );
 };

@@ -1,0 +1,36 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: environments
+    type: object
+    default: ["dev", "int"]
+
+variables:
+  serviceConnectionName: "nbs-mya-rg-dev"
+
+stages:
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job: "Build"
+        variables:
+          toolProjectPath: "data/CsvDataTool/CsvDataTool.csproj"
+          toolUnitTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: "dotnet Publish"
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: $(toolProjectPath)
+              arguments: "--output $(Build.ArtifactStagingDirectory)"
+              zipAfterPublish: false
+              modifyOutputPath: false
+          - task: DotNetCoreCLI@2
+            displayName: "Run Csv Tool Unit Tests"
+            inputs:
+              command: "test"
+              projects: $(toolUnitTestProjectPath)

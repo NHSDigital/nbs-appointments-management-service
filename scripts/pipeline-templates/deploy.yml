@@ -20,8 +20,7 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    condition: succeeded()
-#    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -172,14 +171,14 @@ stages:
           - DeployApi
           - UploadCosmosDocuments
         condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
-        displayName: "Wait for approval or validation to swap slots"
+        displayName: "Wait for approval to swap slots"
         pool: server
         steps:
           - task: ManualValidation@0
-            displayName: "Wait for approval to swap slots"
+            displayName: "Review deployment slots"
             inputs:
               notifyUsers: ""
-              instructions: Review preview swap slots and approve
+              instructions: Review deployment slots for web app / api and approve
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval

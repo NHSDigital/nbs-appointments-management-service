@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using Moq;
 using Nhs.Appointments.Api.Auth;
@@ -15,8 +15,8 @@ public class SiteFromScopeInspectorTests
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         httpRequest.SetBody("{\"scope\": \"site:1234\"}");
-        var actualResult = await _sut.GetSiteId(httpRequest);
-        actualResult.Should().Be("1234");
+        var actualResult = await _sut.GetSiteIds(httpRequest);
+        actualResult.Should().BeEquivalentTo(["1234"]);
     }
     
     [Fact]
@@ -24,8 +24,8 @@ public class SiteFromScopeInspectorTests
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         httpRequest.SetBody("{\"scope\": \"1234\"}");
-        var actualResult = await _sut.GetSiteId(httpRequest);
-        actualResult.Should().Be("");
+        var actualResult = await _sut.GetSiteIds(httpRequest);
+        actualResult.Should().BeEmpty();
     }
     
     [Theory]
@@ -36,7 +36,7 @@ public class SiteFromScopeInspectorTests
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         httpRequest.SetBody(body);
-        var actualResult = await _sut.GetSiteId(httpRequest);
-        actualResult.Should().Be("");
+        var actualResult = await _sut.GetSiteIds(httpRequest);
+        actualResult.Should().BeEmpty();
     }   
 }

@@ -18,6 +18,10 @@
     {
       "role": "canned:availability-manager",
       "scope": "site:ABC01"
+    },
+    {
+      "role": "canned:appointment-manager",
+      "scope": "site:ABC01"
     }
   ]
 }

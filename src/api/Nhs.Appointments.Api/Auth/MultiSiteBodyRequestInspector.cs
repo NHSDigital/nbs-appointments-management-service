@@ -4,10 +4,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 
-
 namespace Nhs.Appointments.Api.Auth;
 
-public class SiteFromScopeInspector : IRequestInspector
+public class MultiSiteBodyRequestInspector : IRequestInspector
 {
     public async Task<IEnumerable<string>> GetSiteIds(HttpRequestData httpRequest)
     {
@@ -18,10 +17,9 @@ public class SiteFromScopeInspector : IRequestInspector
             try
             {
                 using var jsonDocument = JsonDocument.Parse(body);
-                if (jsonDocument.RootElement.TryGetProperty("scope", out var scopeValue))
+                if (jsonDocument.RootElement.TryGetProperty("sites", out var sitesElement))
                 {
-                    if (scopeValue.ToString().StartsWith("site:"))
-                        return [scopeValue.ToString().Replace("site:", "")];
+                    return sitesElement.Deserialize<string[]>();
                 }
             }
             catch (JsonException)

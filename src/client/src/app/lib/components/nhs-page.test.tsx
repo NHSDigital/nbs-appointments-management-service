@@ -67,6 +67,8 @@ describe('Nhs Page', () => {
           id: 'TEST',
           name: 'Test site',
           address: '',
+          integratedCareBoard: 'ICB2',
+          region: 'R2',
         },
       ],
     });

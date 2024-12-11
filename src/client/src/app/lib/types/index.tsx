@@ -99,6 +99,8 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  integratedCareBoard: string;
+  region: string;
 };
 
 type SiteWithAttributes = Site & {
@@ -224,6 +226,26 @@ type DailyAvailability = {
   sessions: AvailabilitySession[];
 };
 
+type DayAvailabilityDetails = {
+  date: string;
+  serviceInformation?: ServiceInformation[];
+  totalAppointments?: number;
+  booked: number;
+  unbooked?: number;
+};
+
+type ServiceInformation = {
+  time: string;
+  serviceDetails: ServiceBookingDetails[];
+  unbooked?: number;
+  capacity: number;
+};
+
+type ServiceBookingDetails = {
+  service: string;
+  booked: number;
+};
+
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [
   { label: 'RSV (Adult)', value: 'RSV:Adult' },
@@ -245,12 +267,15 @@ export type {
   Booking,
   DailyAvailability,
   DateComponents,
+  DayAvailabilityDetails,
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   EulaVersion,
   Role,
   RoleAssignment,
+  ServiceInformation,
+  ServiceBookingDetails,
   Session,
   SetAttributesRequest,
   SetAvailabilityRequest,

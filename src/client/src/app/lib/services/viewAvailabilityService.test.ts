@@ -2,9 +2,16 @@ import { Booking } from '@types';
 import { fetchBookings } from './appointmentsService';
 import {
   getDetailedMonthView,
+  getDetailedWeekView,
   getWeeksInMonth,
 } from './viewAvailabilityService';
-import { mockAvailability, mockBookings } from '@testing/data';
+import {
+  mockAvailability,
+  mockBookings,
+  mockWeekAvailability,
+  mockWeekAvailabilityEnd,
+  mockWeekAvailabilityStart,
+} from '@testing/data';
 
 jest.mock('@services/appointmentsService');
 const fetchBookedAppointmentsMock = fetchBookings as jest.Mock<
@@ -59,5 +66,22 @@ describe('View Availability Service', () => {
       b => b.service === 'RSV (Adult)',
     );
     expect(rsvAppt?.count).toBe(1);
+  });
+
+  it('can build a details week for availability', async () => {
+    const detailedWeekView = await getDetailedWeekView(
+      mockWeekAvailabilityStart,
+      mockWeekAvailabilityEnd,
+      'TEST01',
+      mockWeekAvailability,
+    );
+
+    expect(detailedWeekView.length).toBe(7);
+
+    const firstDay = detailedWeekView[0];
+    expect(firstDay.unbooked).toBe(167);
+    expect(firstDay.booked).toBe(1);
+    expect(firstDay.totalAppointments).toBe(168);
+    expect(firstDay.serviceInformation?.length).toBe(1);
   });
 });

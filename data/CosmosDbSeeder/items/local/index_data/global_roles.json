@@ -58,11 +58,6 @@
       "name": "Auditer",
       "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
       "permissions": [
-        "site:get-config",
-        "site:get-meta-data",
-        "availability:get-setup",
-        "availability:query",
-        "booking:query",
         "users:view",
         "site:view"
       ]

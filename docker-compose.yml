@@ -4,11 +4,9 @@ services:
     build:
       context: src/client/
       dockerfile: web.Dockerfile
-
     environment:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
-
     volumes:
       - ./src/client/src:/app/src
       - ./src/client/public:/app/public

@@ -28,22 +28,19 @@ test.beforeEach(async ({ page }) => {
   notAuthorizedPage = new NotAuthorizedPage(page);
 });
 
-test.fixme(
-  'A user with the appropriate permission can view other users at a site but not edit them',
-  async () => {
-    await rootPage.goto();
-    await rootPage.pageContentLogInButton.click();
-    await oAuthPage.signIn(TEST_USERS.testUser2);
-    await siteSelectionPage.selectSite('Robin Lane Medical Centre');
-    await sitePage.userManagementCard.click();
+test('A user with the appropriate permission can view other users at a site but not edit them', async () => {
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser2);
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.userManagementCard.click();
 
-    await expect(usersPage.title).toBeVisible();
-    await expect(usersPage.emailColumn).toBeVisible();
+  await expect(usersPage.title).toBeVisible();
+  await expect(usersPage.emailColumn).toBeVisible();
 
-    await expect(usersPage.manageColumn).not.toBeVisible();
-    await expect(usersPage.assignStaffRolesLink).not.toBeVisible();
-  },
-);
+  await expect(usersPage.manageColumn).not.toBeVisible();
+  await expect(usersPage.assignStaffRolesLink).not.toBeVisible();
+});
 
 test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
   await rootPage.goto();
@@ -89,7 +86,7 @@ test('Navigating straight to the user management page displays an appropriate er
   await expect(notAuthorizedPage.title).toBeVisible();
 });
 
-test.fixme('permissions are applied per site', async () => {
+test('permissions are applied per site', async () => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser2);

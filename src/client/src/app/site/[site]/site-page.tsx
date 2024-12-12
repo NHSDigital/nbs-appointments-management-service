@@ -1,4 +1,4 @@
-import { Card } from '@nhsuk-frontend-components';
+import { Card, SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 interface SitePageProps {
@@ -16,14 +16,11 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       p === 'availability:query',
   );
 
+  const summaryData = mapSummaryData(site);
+
   return (
     <>
-      <div className="nhsuk-card">
-        <div className="nhsuk-card__content">
-          <h3 className="nhsuk-card__heading">{site.name}</h3>
-          <p className="nhsuk-card__description">{site.address}</p>
-        </div>
-      </div>
+      {summaryData && <SummaryList {...summaryData}></SummaryList>}
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('availability:query') && (
@@ -60,4 +57,24 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       )}
     </>
   );
+};
+
+const mapSummaryData = (site: Site) => {
+  if (!site) {
+    return undefined;
+  }
+
+  const items: SummaryListItem[] = [];
+
+  items.push({
+    title: 'Address',
+    value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
+  });
+  items.push({ title: 'ODS code', value: site.id });
+  items.push({ title: 'ICB', value: site.integratedCareBoard });
+  items.push({ title: 'Region', value: site.region });
+
+  const border = false;
+
+  return { items, border };
 };

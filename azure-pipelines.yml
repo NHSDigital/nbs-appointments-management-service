@@ -167,24 +167,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-          - task: DotNetCoreCLI@2
-            displayName: "Run Integration Tests"
-            inputs:
-              command: "test"
-              projects: "$(integrationTestProjectPath)"
-              arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
-            env:
-              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-              COSMOS_TOKEN: $(COSMOS_TOKEN)
-          - task: PublishTestResults@2
-            displayName: "Publish integration test results"
-            inputs:
-              searchFolder: $(Agent.TempDirectory)
-              testResultsFormat: "VSTest"
-              testResultsFiles: "myaServiceTests.trx"
-              testRunTitle: "NBS Appointments Management Service Integration Tests"
-              publishRunAttachments: true
-            condition: succeededOrFailed()
+
           - task: DotNetCoreCLI@2
             displayName: "Reset and seed Cosmos DB containers"
             inputs:
@@ -223,6 +206,33 @@ stages:
             inputs:
               PathtoPublish: "src/client/test-artifacts"
               ArtifactName: "E2E Test-results"
+          - task: DotNetCoreCLI@2
+            displayName: "Reset and seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: DotNetCoreCLI@2
+            displayName: "Run Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(integrationTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishTestResults@2
+            displayName: "Publish integration test results"
+            inputs:
+              searchFolder: $(Agent.TempDirectory)
+              testResultsFormat: "VSTest"
+              testResultsFiles: "myaServiceTests.trx"
+              testRunTitle: "NBS Appointments Management Service Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
           - task: AzureCLI@2
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())

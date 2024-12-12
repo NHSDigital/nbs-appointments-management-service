@@ -168,7 +168,6 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
           - task: DotNetCoreCLI@2
-            condition: false
             displayName: "Run Integration Tests"
             inputs:
               command: "test"
@@ -185,8 +184,7 @@ stages:
               testResultsFiles: "myaServiceTests.trx"
               testRunTitle: "NBS Appointments Management Service Integration Tests"
               publishRunAttachments: true
-#            condition: succeededOrFailed()
-              condition: false
+            condition: succeededOrFailed()
           - task: DotNetCoreCLI@2
             displayName: "Reset and seed Cosmos DB containers"
             inputs:

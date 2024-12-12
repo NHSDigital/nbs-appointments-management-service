@@ -1,6 +1,7 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
 import { DayAvailabilityDetails } from '@types';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 
 type Props = {
   days: DayAvailabilityDetails[];
@@ -94,6 +95,12 @@ export const ViewWeekAvailabilityPage = ({
               ></Table>
               <br />
               {/* TODO: Add link to view daily appointments */}
+              <Link
+                className="nhsuk-link"
+                href={`view-daily-appointments?date=${d.fullDate}&page=1`}
+              >
+                View daily appointments
+              </Link>
             </>
           ) : (
             <>

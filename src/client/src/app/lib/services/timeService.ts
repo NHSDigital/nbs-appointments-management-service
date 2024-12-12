@@ -54,6 +54,17 @@ export const isSameDayOrBefore = (
   );
 };
 
+export const formatDateTimeToTime = (dateTime: string) => {
+  const date = new Date(dateTime);
+
+  const timeComponents: TimeComponents = {
+    hour: date.getHours().toString(),
+    minute: date.getMinutes().toString(),
+  };
+
+  return formatTimeString(timeComponents);
+};
+
 export const formatTimeString = ({ hour, minute }: TimeComponents) => {
   const parsedHour = Number(hour);
   const parsedMinute = Number(minute);
@@ -111,4 +122,8 @@ export const toTimeComponents = (time: string): TimeComponents | undefined => {
     hour: parsedHour,
     minute: parsedMinute,
   };
+};
+
+export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
+  return dayjs.utc(date).format(format);
 };

@@ -376,6 +376,7 @@ const mockDetailedWeeks: Week[] = [
 
 const mockDetailedDays: DayAvailabilityDetails[] = [
   {
+    fullDate: dayjs().year(2024).month(11).date(2).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
     serviceInformation: [
       {
@@ -395,6 +396,7 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
     unbooked: 118,
   },
   {
+    fullDate: dayjs().year(2024).month(11).date(4).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
     serviceInformation: [
       {
@@ -414,6 +416,7 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
     unbooked: 185,
   },
   {
+    fullDate: dayjs().year(2024).month(11).date(5).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
     serviceInformation: [
       {
@@ -436,18 +439,21 @@ const mockDetailedDays: DayAvailabilityDetails[] = [
 
 const mockEmptyDays: DayAvailabilityDetails[] = [
   {
+    fullDate: dayjs().year(2024).month(11).date(2).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
     booked: 0,
     totalAppointments: 0,
     unbooked: 0,
   },
   {
+    fullDate: dayjs().year(2024).month(11).date(4).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
     booked: 0,
     totalAppointments: 0,
     unbooked: 0,
   },
   {
+    fullDate: dayjs().year(2024).month(11).date(5).format('YYYY-MM-DD'),
     date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
     booked: 0,
     totalAppointments: 0,

@@ -222,6 +222,7 @@ export const getDetailedWeekView = async (
     const availabilityInDay = availability.find(a => d.isSame(dayjs(a.date)));
 
     const day: DayAvailabilityDetails = {
+      fullDate: d.format('YYYY-MM-DD'),
       date: d.format('dddd D MMMM'),
       booked: bookedAppts.length,
       serviceInformation: availabilityInDay

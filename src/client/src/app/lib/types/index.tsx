@@ -225,6 +225,7 @@ type DailyAvailability = {
 };
 
 type DayAvailabilityDetails = {
+  fullDate: string;
   date: string;
   serviceInformation?: ServiceInformation[];
   totalAppointments?: number;
@@ -254,6 +255,7 @@ export type {
   ApiErrorResponse,
   ApiResponse,
   ApiSuccessResponse,
+  AttendeeDetails,
   AttributeDefinition,
   AttributeValue,
   Availability,
@@ -263,6 +265,7 @@ export type {
   AvailabilitySession,
   AvailabilityTemplate,
   Booking,
+  ContactItem,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,

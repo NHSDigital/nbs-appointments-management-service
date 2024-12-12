@@ -1,33 +1,18 @@
 import { Table, Pagination } from '@nhsuk-frontend-components';
 import { PaginationLink } from '../../../../lib/components/nhsuk-frontend/pagination';
-import { fetchBookings } from '../../../../lib/services/appointmentsService';
-import {
-  FetchBookingsRequest,
-  AttendeeDetails,
-  ContactItem,
-  Booking,
-} from '@types';
+import { AttendeeDetails, ContactItem, Booking } from '@types';
 import { formatDateTimeToTime, dateToString } from '@services/timeService';
 import { ReactNode } from 'react';
+import dayjs from 'dayjs';
 
 type Props = {
+  bookings: Booking[];
   page: number;
-  site: string;
   date: string;
 };
 
-export const ViewDailyAppointmentsPage = async ({
-  page,
-  site,
-  date,
-}: Props) => {
+export const ViewDailyAppointmentsPage = ({ bookings, page, date }: Props) => {
   const rowsPerPage = 8;
-  const fetchBookingsRequest: FetchBookingsRequest = {
-    from: new Date('12/12/2024 00:00').toISOString(),
-    to: new Date('12/12/2024 23:59').toISOString(),
-    site: site,
-  };
-  const bookings = await fetchBookings(fetchBookingsRequest);
 
   const hasNextPage = (): boolean => {
     return page * rowsPerPage < bookings.length;
@@ -36,16 +21,16 @@ export const ViewDailyAppointmentsPage = async ({
     if (!hasNextPage()) return null;
 
     return {
-      title: `Page ${Number(page) + 1}`,
-      href: `view-daily-appointments?date=Thursday%2012%20December&page=${Number(page) + 1}`,
+      title: `Page ${page + 1}`,
+      href: `view-daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page + 1}`,
     };
   };
   const buildPreviousPage = (): PaginationLink | null => {
-    if (Number(page) === 1) return null;
+    if (page === 1) return null;
 
     return {
-      title: `Page ${Number(page) - 1}`,
-      href: `view-daily-appointments?date=Thursday%2012%20December&page=${Number(page) - 1}`,
+      title: `Page ${page - 1}`,
+      href: `view-daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page - 1}`,
     };
   };
   const getPagedBookings = (b: Booking[]): Booking[] => {
@@ -73,8 +58,7 @@ export const ViewDailyAppointmentsPage = async ({
       </span>
     );
   };
-
-  const mapTableData = async () => {
+  const mapTableData = () => {
     if (!bookings.length) {
       return undefined;
     }
@@ -103,8 +87,7 @@ export const ViewDailyAppointmentsPage = async ({
 
     return { headers, rows };
   };
-
-  const appointmentsTableData = await mapTableData();
+  const appointmentsTableData = mapTableData();
 
   return (
     <>

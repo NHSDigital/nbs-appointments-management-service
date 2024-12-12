@@ -1,4 +1,5 @@
 import {
+  formatDateTimeToTime,
   formatTimeString,
   isValidDate,
   parseDateComponents,
@@ -112,4 +113,11 @@ describe('Time Service', () => {
       expect(result).toEqual(expectedResult);
     },
   );
+
+  it('formats dateTime to time', async () => {
+    const dateTime = '2024-12-12T12:05:00';
+    const result = formatDateTimeToTime(dateTime);
+
+    expect(result).toEqual('12:05');
+  });
 });

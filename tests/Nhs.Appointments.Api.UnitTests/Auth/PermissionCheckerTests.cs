@@ -1,6 +1,8 @@
-﻿using System.Net;
+using System.Net;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
@@ -12,21 +14,22 @@ public class PermissionCheckerTests
     private readonly PermissionChecker _sut;
     private readonly Mock<IUserService> _userAssignmentService = new();
     private readonly Mock<IRolesService> _roleService = new();
+    private readonly Mock<IMemoryCache> _cache = new();
+    private readonly Mock<ICacheEntry> _cacheEntry = new();
 
     public PermissionCheckerTests()
     {
-        _sut = new PermissionChecker(_userAssignmentService.Object, _roleService.Object);
+        _sut = new PermissionChecker(_userAssignmentService.Object, _roleService.Object, _cache.Object);
+        _cache.Setup(x => x.CreateEntry(It.IsAny<string>())).Returns(_cacheEntry.Object);
     }
 
-    [Theory]
-    [InlineData("Permission3", false)]
-    [InlineData("Permission1", true)]
-    public async Task HasPermissionAsync_ReturnsCorrectResult_BasedOnRequiredPermission(string requiredPermission, bool expectedResult)
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedGloballyAndGeneralRequest()
     {
         const string userId = "test@test.com";
         var roles = new List<Role>
         {
-            new() { Id = "Role1", Name = "Role One", Permissions = ["Permission1", "Permission2"] }
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
         };
         var userAssignments = new List<RoleAssignment>
         {
@@ -35,10 +38,144 @@ public class PermissionCheckerTests
 
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
-        var result = await _sut.HasPermissionAsync(userId, "1", requiredPermission);
-        result.Should().Be(expectedResult);
+        var result = await _sut.HasPermissionAsync(userId, [], "TestPermission");
+        result.Should().BeTrue();
     }
-    
+
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedGloballyAndSiteSpecific()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "global" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test"], "TestPermission");
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedForSite()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "site:test" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test"], "TestPermission");
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsFalse_WhenPermissionNotAssigned()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "site:test" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test"], "OtherPermission");
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsFalse_WhenPermissionAssignedButForDifferentSite()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "site:other" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test"], "OtherPermission");
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_MultiSiteRequest_Scoped()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "site:test" },
+            new() { Role = "Role1", Scope = "site:other" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test", "other"], "TestPermission");
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_MultiSiteRequest_Global()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "global" }
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test", "other"], "TestPermission");
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasPermissions_ReturnsTrue_MultiSiteRequest_ScopedRequiresAll()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "site:test" },
+        };
+
+        _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
+        var result = await _sut.HasPermissionAsync(userId, ["test", "other"], "TestPermission");
+        result.Should().BeFalse();
+    }
+
     [Fact]
     public async Task GetPermissionAsync_ReturnsNoPermissions_WhenUserHasNoRoles()
     {
@@ -158,5 +295,5 @@ public class PermissionCheckerTests
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetPermissionsAsync(userId, "1");
         result.Should().Equal(expectedResult);
-    }
+    }    
 }

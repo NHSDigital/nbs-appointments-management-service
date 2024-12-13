@@ -5,6 +5,7 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import CancelAppointmentPage from './cancel-appointment-page';
+import { notFound } from 'next/navigation';
 
 type PageProps = {
   params: {
@@ -18,6 +19,9 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'booking:cancel');
 
   const booking = await fetchBooking(params.reference);
+  if (!booking || booking.status === 'Cancelled') {
+    notFound();
+  }
 
   return (
     <NhsPage

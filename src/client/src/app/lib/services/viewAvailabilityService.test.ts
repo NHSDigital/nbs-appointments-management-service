@@ -79,9 +79,14 @@ describe('View Availability Service', () => {
     expect(detailedWeekView.length).toBe(7);
 
     const firstDay = detailedWeekView[0];
-    expect(firstDay.unbooked).toBe(167);
+    expect(firstDay.unbooked).toBe(191);
     expect(firstDay.booked).toBe(1);
-    expect(firstDay.totalAppointments).toBe(168);
-    expect(firstDay.serviceInformation?.length).toBe(1);
+    expect(firstDay.totalAppointments).toBe(192);
+    expect(firstDay.serviceInformation?.length).toBe(2);
+
+    if (firstDay.serviceInformation) {
+      expect(firstDay.serviceInformation[0].serviceDetails[0].booked).toBe(1);
+      expect(firstDay.serviceInformation[1].serviceDetails[0].booked).toBe(0);
+    }
   });
 });

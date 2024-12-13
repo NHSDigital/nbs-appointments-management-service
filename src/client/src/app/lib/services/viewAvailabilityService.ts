@@ -209,7 +209,7 @@ export const getDetailedWeekView = async (
 
   const days: DayAvailabilityDetails[] = [];
   const weekDays = getDaysInWeek(from, until);
-  const bookings = await fetchBookings(payload);
+  bookings = await fetchBookings(payload);
 
   weekDays.forEach(d => {
     const bookedAppts =
@@ -225,7 +225,7 @@ export const getDetailedWeekView = async (
       date: d.format('dddd D MMMM'),
       booked: bookedAppts.length,
       serviceInformation: availabilityInDay
-        ? buildServiceInformation(availabilityInDay, bookedAppts)
+        ? buildServiceInformation(availabilityInDay)
         : undefined,
     };
 
@@ -250,11 +250,17 @@ const totalBookedApptsInSession = (
 
 const buildServiceInformation = (
   availability: DailyAvailability,
-  bookedAppointments: Booking[],
 ): ServiceInformation[] => {
   const serviceInfoList: ServiceInformation[] = [];
 
-  availability.sessions.forEach(session => {
+  const orderedSessions = availability.sessions.sort((a, b) =>
+    (toTimeComponents(a.from)?.hour ?? 0) <
+    (toTimeComponents(b.from)?.hour ?? 0)
+      ? -1
+      : 1,
+  );
+
+  orderedSessions.forEach(session => {
     const capacity = calculateCapacity({
       // TODO: Are these the best defaults if we can't parse the time string?
       startTime: toTimeComponents(session.from) ?? { hour: 0, minute: 0 },
@@ -267,10 +273,14 @@ const buildServiceInformation = (
     const existingSession = serviceInfoList.find(s => s.time === time);
 
     if (existingSession) {
-      existingSession.serviceDetails.push(
-        ...buildServiceDetails(session, bookedAppointments),
-      );
       existingSession.capacity += capacity.appointmentsPerSession;
+      existingSession.serviceDetails.push(
+        ...buildServiceDetails(
+          session,
+          existingSession.capacity,
+          dayjs(availability.date).format('YYYY-MM-DD'),
+        ),
+      );
 
       const newTotalBookedApptsCount = totalBookedApptsInSession(
         existingSession.serviceDetails,
@@ -282,7 +292,11 @@ const buildServiceInformation = (
 
     const serviceInfo: ServiceInformation = {
       time: time,
-      serviceDetails: buildServiceDetails(session, bookedAppointments),
+      serviceDetails: buildServiceDetails(
+        session,
+        capacity.appointmentsPerSession,
+        dayjs(availability.date).format('YYYY-MM-DD'),
+      ),
       capacity: capacity.appointmentsPerSession,
     };
 
@@ -299,14 +313,36 @@ const buildServiceInformation = (
 
 const buildServiceDetails = (
   session: AvailabilitySession,
-  bookedAppointments: Booking[],
+  capacity: number,
+  serviceDate: string,
 ): ServiceBookingDetails[] => {
   const serviceBookingDetails: ServiceBookingDetails[] = [];
   session.services.forEach(service => {
+    const serviceAppts = bookings.filter(
+      b =>
+        b.service === service &&
+        dayjs(b.from).format('YYYY-MM-DD') === serviceDate,
+    );
+
+    // If there are more appointments vs capacity for that session
+    // it means we have another session that day for that vaccine
+    const bookedCount: number =
+      serviceAppts.length > capacity ? capacity : serviceAppts.length;
+
+    for (let i = 0; i < bookedCount; i++) {
+      const index = bookings.indexOf(serviceAppts[i]);
+
+      // Remove the bookings from the list as we build the service details
+      // so appointments don't get counted more than once in the table
+      if (index > -1) {
+        bookings.splice(index, 1);
+      }
+    }
+
     const serviceDetails: ServiceBookingDetails = {
       service:
         clinicalServices.find(cs => cs.value === service)?.label ?? service,
-      booked: bookedAppointments.filter(b => b.service === service).length,
+      booked: bookedCount,
     };
 
     serviceBookingDetails.push(serviceDetails);
@@ -314,3 +350,5 @@ const buildServiceDetails = (
 
   return serviceBookingDetails;
 };
+
+let bookings: Booking[] = [];

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,20 +29,20 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
     private async Task<bool> IsAuthorized(FunctionContext context, string requiredPermission, Type requestInspectorType)
     {
         var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
-        
-        var siteId = string.Empty;
+
+        var siteIds = Enumerable.Empty<string>();
         if(requestInspectorType is not null)
         {
             var requestInspector = context.InstanceServices.GetService(requestInspectorType) as IRequestInspector;
             if (requestInspector is not null)
             {
                 var request = await context.GetHttpRequestDataAsync();
-                siteId = await requestInspector.GetSiteId(request);
+                siteIds = await requestInspector.GetSiteIds(request);
             }
         }
         
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
-        return await permissionChecker.HasPermissionAsync(userEmail, siteId, requiredPermission);
+        return await permissionChecker.HasPermissionAsync(userEmail, siteIds, requiredPermission);
     }
     
     protected virtual void HandleUnauthorizedAccess(FunctionContext context)

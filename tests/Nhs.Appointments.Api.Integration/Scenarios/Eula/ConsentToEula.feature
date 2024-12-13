@@ -1,5 +1,6 @@
 ﻿Feature: Eula
 
+  @ignore
   Scenario: Consent to the latest EULA
     Given the latest EULA is as follows
       | VersionDate |

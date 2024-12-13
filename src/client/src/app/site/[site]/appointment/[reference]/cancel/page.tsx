@@ -4,7 +4,7 @@ import {
   fetchBooking,
   fetchSite,
 } from '@services/appointmentsService';
-import { CancelAppointmentPage } from './cancel-appointment-page';
+import CancelAppointmentPage from './cancel-appointment-page';
 
 type PageProps = {
   params: {
@@ -26,7 +26,7 @@ const Page = async ({ params }: PageProps) => {
       breadcrumbs={[{ name: 'Home', href: '/' }]}
       site={site}
     >
-      <CancelAppointmentPage booking={booking} />
+      <CancelAppointmentPage booking={booking} site={site.id} />
     </NhsPage>
   );
 };

@@ -1,32 +1,107 @@
+'use client';
 import {
   Button,
+  FormGroup,
   Radio,
   RadioGroup,
+  Spinner,
   SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
+import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, clinicalServices } from '@types';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
-type Props = {
-  booking: Booking;
+type CancelFormValue = {
+  cancelAppointment: 'yes' | 'no';
 };
 
-export const CancelAppointmentPage = ({ booking }: Props) => {
+const CancelAppointmentPage = ({
+  booking,
+  site,
+}: {
+  booking: Booking;
+  site: string;
+}) => {
+  const { replace } = useRouter();
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitSuccessful },
+  } = useForm<CancelFormValue>({
+    defaultValues: {
+      cancelAppointment: 'yes',
+    },
+  });
   const summaryItems = mapSummaryData(booking);
+
+  const cancelOperation = { ...register('cancelAppointment') };
+
+  const submitForm: SubmitHandler<CancelFormValue> = async (
+    form: CancelFormValue,
+  ) => {
+    if (form.cancelAppointment === 'yes') {
+      await cancelAppointment(booking.reference);
+    }
+
+    const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+
+    replace(
+      `/site/${site}/view-availability/view-daily-appointments?date=${returnDate}&page=1`,
+    );
+  };
 
   return (
     <>
       {summaryItems && <SummaryList {...summaryItems} />}
-      <RadioGroup>
-        <Radio label="Yes, I want to cancel this appointment" />
-        <Radio label="No, I do not want to cancel this appointment" />
-      </RadioGroup>
-      <br />
-      <Button type="button">Continue</Button>
+      <form onSubmit={handleSubmit(submitForm)} noValidate={true}>
+        <FormGroup>
+          <RadioGroup>
+            <Radio
+              label="Yes, I want to cancel this appointment"
+              {...{
+                ...cancelOperation,
+                onChange: e => {
+                  reset({
+                    cancelAppointment: 'yes',
+                  });
+                  cancelOperation.onChange(e);
+                },
+              }}
+              id="cancelOperation-yes"
+              value="yes"
+            />
+            <Radio
+              label="No, I do not want to cancel this appointment"
+              {...{
+                ...cancelOperation,
+                onChange: e => {
+                  reset({
+                    cancelAppointment: 'no',
+                  });
+                  cancelOperation.onChange(e);
+                },
+              }}
+              id="cancelOperation-no"
+              value="no"
+            />
+          </RadioGroup>
+        </FormGroup>
+
+        {isSubmitting || isSubmitSuccessful ? (
+          <Spinner />
+        ) : (
+          <Button type="submit">Continue</Button>
+        )}
+      </form>
     </>
   );
 };
+
+export default CancelAppointmentPage;
 
 const mapSummaryData = (booking: Booking) => {
   if (!booking) {

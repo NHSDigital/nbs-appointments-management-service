@@ -328,7 +328,7 @@ const mockBookings: Booking[] = [
   },
   {
     reference: '8642',
-    from: '2024-12-02T14:05:00',
+    from: '2024-12-02T10:35:00',
     duration: 5,
     service: 'RSV:Adult',
     site: 'TEST01',
@@ -491,10 +491,17 @@ const mockWeekAvailability: DailyAvailability[] = [
     sessions: [
       {
         capacity: 2,
-        from: '09:00',
+        from: '10:00',
         until: '16:00',
         slotLength: 5,
-        services: ['RSV (Adult)'],
+        services: ['RSV:Adult'],
+      },
+      {
+        capacity: 1,
+        from: '12:00',
+        until: '16:00',
+        slotLength: 5,
+        services: ['RSV:Adult'],
       },
     ],
   },
@@ -506,7 +513,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '09:00',
         until: '14:00',
         slotLength: 5,
-        services: ['RSV (Adult)'],
+        services: ['RSV:Adult'],
       },
     ],
   },

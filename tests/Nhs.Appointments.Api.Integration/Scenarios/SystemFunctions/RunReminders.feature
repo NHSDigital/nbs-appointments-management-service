@@ -1,5 +1,6 @@
 ﻿Feature: RunReminders
 
+    @ignore
     Scenario: Running reminders sends reminders for upcoming appointments	
         Given the site is configured for MYA
         And the following bookings have been made

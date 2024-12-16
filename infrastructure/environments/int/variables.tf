@@ -1,3 +1,13 @@
+variable "FUNC_APP_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "WEB_APP_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
 variable "AUTH_PROVIDER_ISSUER" {
   type      = string
   sensitive = false
@@ -24,11 +34,6 @@ variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
 }
 
 variable "AUTH_PROVIDER_CLIENT_ID" {
-  type      = string
-  sensitive = false
-}
-
-variable "AUTH_PROVIDER_RETURN_URI" {
   type      = string
   sensitive = false
 }

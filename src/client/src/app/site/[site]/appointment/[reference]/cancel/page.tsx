@@ -6,6 +6,7 @@ import {
 } from '@services/appointmentsService';
 import CancelAppointmentPage from './cancel-appointment-page';
 import { notFound } from 'next/navigation';
+import dayjs from 'dayjs';
 
 type PageProps = {
   params: {
@@ -23,11 +24,20 @@ const Page = async ({ params }: PageProps) => {
     notFound();
   }
 
+  const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+
   return (
     <NhsPage
       caption="Cancel appointment"
       title="Are you sure you want to cancel this appointment?"
-      breadcrumbs={[{ name: 'Home', href: '/' }]}
+      breadcrumbs={[
+        { name: 'Home', href: '/' },
+        { name: site.name, href: `/site/${params.site}` },
+        {
+          name: 'View daily appointments',
+          href: `/site/${params.site}/view-availability/view-daily-appointments?date=${returnDate}&page=1`,
+        },
+      ]}
       site={site}
     >
       <CancelAppointmentPage booking={booking} site={site.id} />

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { ViewDailyAppointmentsPage } from './view-daily-appointments-page';
 import { mockBookings } from '@testing/data';
 
-describe('View Daily Appointents', () => {
+describe('View Daily Appointments', () => {
   it('renders appointmes', () => {
     render(
       <ViewDailyAppointmentsPage

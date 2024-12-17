@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -36,7 +36,7 @@ public class AuthorizationMiddlewareTests
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(false);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(false);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeFalse();
@@ -56,7 +56,7 @@ public class AuthorizationMiddlewareTests
         
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(true);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeTrue();
@@ -71,13 +71,13 @@ public class AuthorizationMiddlewareTests
         var itemsDictionary = new Dictionary<object, object>(); 
         ConfigureMocks(httpRequest);
 
-        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("");
+        _requestInspector.Setup(x => x.GetSiteIds(It.IsAny<HttpRequestData>())).ReturnsAsync(Enumerable.Empty<string>());
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
         _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "", "permission1")).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(true);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeTrue();
@@ -116,7 +116,7 @@ public class AuthorizationMiddlewareTests
         _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(true);
         _functionTypeInfoFeature.Setup(x => x.RequestInspector).Returns(typeof(NoSiteRequestInspector));
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
-        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("1");
+        _requestInspector.Setup(x => x.GetSiteIds(It.IsAny<HttpRequestData>())).ReturnsAsync(["1"]);
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);

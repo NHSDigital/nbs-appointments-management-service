@@ -3,7 +3,7 @@ import { ViewDailyAppointmentsPage } from './view-daily-appointments-page';
 import { mockBookings } from '@testing/data';
 
 describe('View Daily Appointments', () => {
-  it('renders appointmes', () => {
+  it('renders appointments', () => {
     render(
       <ViewDailyAppointmentsPage
         bookings={mockBookings}

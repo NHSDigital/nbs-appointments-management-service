@@ -11,6 +11,7 @@ import Fieldset from './fieldset';
 import Footer from './footer';
 import FormGroup from './form-group';
 import InsetText from './inset-text';
+import { PaginationLink } from './pagination';
 import NhsLogo from './icons/nhs-logo';
 import Radio from './radio';
 import RadioGroup from './radio-group';
@@ -30,7 +31,13 @@ import {
 } from './spinner';
 import Pagination from './pagination';
 
-export type { Breadcrumb, SummaryListItem, TagColor, NavigationLink };
+export type {
+  Breadcrumb,
+  SummaryListItem,
+  TagColor,
+  NavigationLink,
+  PaginationLink,
+};
 export {
   BackLink,
   Breadcrumbs,

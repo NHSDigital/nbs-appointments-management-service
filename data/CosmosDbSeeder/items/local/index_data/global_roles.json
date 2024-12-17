@@ -3,68 +3,52 @@
   "docType": "roles",
   "roles": [
     {
-      "id": "canned:check-in",
-      "name": "Check-in",
-      "description": "A user can check in/undo check in patients for their bookings.",
-      "permissions": ["booking:query", "booking:set-status"]
+      "id": "canned:availability-manager",
+      "name": "Availability manager",
+      "description": "A user can create, view, and manage site availability.",
+      "permissions": [
+        "availability:setup",
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data"
+      ]
     },
     {
       "id": "canned:appointment-manager",
       "name": "Appointment manager",
-      "description": "A user can create, edit, and cancel bookings.",
-      "permissions": ["booking:make", "booking:query", "booking:cancel"]
-    },
-    {
-      "id": "canned:availability-manager",
-      "name": "Availability manager",
-      "description": "A user can create, view, and manage site availabilty.",
+      "description": "A user can cancel appointments.",
       "permissions": [
-        "availability:get-setup",
-        "availability:set-setup",
-        "availability:query"
+        "availability:query",
+        "booking:cancel",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data"
       ]
     },
     {
-      "id": "canned:site-configuration-manager",
-      "name": "Site configuration manager",
-      "description": "A user can view and manage site information, such as access needs.",
+      "id": "canned:site-details-manager",
+      "name": "Site details manager",
+      "description": "A user can edit site details and accessibility information.",
       "permissions": [
-        "site:get-config",
-        "site:set-config",
-        "site:get-meta-data",
-        "site:set-meta-data"
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:manage",
+        "site:get-meta-data"
       ]
     },
     {
       "id": "canned:user-manager",
       "name": "User manager",
       "description": "A user can view and manage user role assignments.",
-      "permissions": ["users:manage", "users:view"]
-    },
-    {
-      "id": "canned:site-attributes-viewer",
-      "name": "Site attribute viewer",
-      "description": "A user can view site attributes. This is a read-only role.",
-      "permissions": ["site:view"]
-    },
-    {
-      "id": "canned:site-attributes-editor",
-      "name": "Site attribute editor",
-      "description": "A user can view and edit site attributes.",
-      "permissions": ["site:view", "site:manage"]
-    },
-    {
-      "id": "system:auditer",
-      "name": "Auditer",
-      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
       "permissions": [
-        "site:get-config",
-        "site:get-meta-data",
-        "availability:get-setup",
         "availability:query",
         "booking:query",
+        "site:view",
+        "users:manage",
         "users:view",
-        "site:view"
+        "site:get-meta-data"
       ]
     },
     {
@@ -72,24 +56,34 @@
       "name": "Api User",
       "description": "This is a dedicated NBS role",
       "permissions": [
-        "site:get-meta-data",
         "availability:query",
         "booking:make",
-        "booking:query",
         "booking:cancel",
+        "booking:query",
         "sites:query",
+        "site:view",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "system:auditer",
+      "name": "Auditer",
+      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:query",
+        "booking:query",
+        "users:view",
         "site:view"
       ]
     },
     {
       "id": "system:all-permissions",
       "name": "All Permissions",
+      "description": "System role used for full api access for development and test purposes (ONLY FOR USE IN TEST ENVIRONMENTS).",
       "permissions": [
-        "site:get-config",
-        "site:set-config",
         "site:get-meta-data",
-        "availability:get-setup",
-        "availability:set-setup",
+        "availability:setup",
         "availability:query",
         "booking:make",
         "booking:query",
@@ -110,15 +104,11 @@
       "description": "Role for integration test user",
       "permissions": [
         "site:get-meta-data",
-        "site:set-meta-data",
         "availability:query",
         "booking:make",
         "booking:query",
         "booking:cancel",
-        "site:get-config",
-        "site:set-config",
-        "availability:get-setup",
-        "availability:set-setup",
+        "availability:setup",
         "users:manage",
         "users:view",
         "sites:query",

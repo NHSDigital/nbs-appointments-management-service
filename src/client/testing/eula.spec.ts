@@ -19,31 +19,30 @@ test.beforeEach(async ({ page }) => {
   eulaConsentPage = new EulaConsentPage(page);
 });
 
-test.fixme(
-  'A user with an out of date EULA consent version is prompted with the EULA consent page',
-  async ({ page }) => {
-    await rootPage.goto();
-    await rootPage.pageContentLogInButton.click();
+test('A user with an out of date EULA consent version is prompted with the EULA consent page', async ({
+  page,
+}) => {
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
 
-    await oAuthPage.page
-      .getByLabel('Username')
-      .fill(TEST_USERS.testUser5.username);
-    await oAuthPage.page
-      .getByLabel('Password')
-      .fill(TEST_USERS.testUser5.password);
-    await oAuthPage.page.getByLabel('Password').press('Enter');
+  await oAuthPage.page
+    .getByLabel('Username')
+    .fill(TEST_USERS.testUser5.username);
+  await oAuthPage.page
+    .getByLabel('Password')
+    .fill(TEST_USERS.testUser5.password);
+  await oAuthPage.page.getByLabel('Password').press('Enter');
 
-    await page.waitForURL('**/eula');
-    await expect(eulaConsentPage.title).toBeVisible();
+  await page.waitForURL('**/eula');
+  await expect(eulaConsentPage.title).toBeVisible();
 
-    // Try to bypass EULA consent
-    await page.goto('/');
+  // Try to bypass EULA consent
+  await page.goto('/');
 
-    await page.waitForURL('**/eula');
-    await expect(eulaConsentPage.title).toBeVisible();
-    await expect(siteSelectionPage.title).not.toBeVisible();
-  },
-);
+  await page.waitForURL('**/eula');
+  await expect(eulaConsentPage.title).toBeVisible();
+  await expect(siteSelectionPage.title).not.toBeVisible();
+});
 
 test('A user with an out of date EULA version is prompted with the EULA consent page on login, but not again after they have consented', async ({
   page,

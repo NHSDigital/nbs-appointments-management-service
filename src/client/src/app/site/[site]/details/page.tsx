@@ -17,10 +17,7 @@ const Page = async ({ params }: PageProps) => {
 
   const sitePermissions = await fetchPermissions(params.site);
 
-  await assertAllPermissions(site.id, [
-    'site:get-config',
-    'site:get-meta-data',
-  ]);
+  await assertAllPermissions(site.id, ['site:view', 'site:get-meta-data']);
 
   return (
     <NhsPage

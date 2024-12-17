@@ -86,11 +86,8 @@ const mockSites: Site[] = [
 const mockSite = mockSites[0];
 
 const mockAllPermissions = [
-  'site:get-config',
-  'site:set-config',
   'site:get-meta-data',
-  'availability:get-setup',
-  'availability:set-setup',
+  'availability:setup',
   'availability:query',
   'booking:make',
   'booking:query',
@@ -103,9 +100,7 @@ const mockAllPermissions = [
 ];
 
 const mockAuditerPermissions = [
-  'site:get-config',
   'site:get-meta-data',
-  'availability:get-setup',
   'availability:query',
   'booking:query',
   'users:view',

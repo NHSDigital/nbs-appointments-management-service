@@ -74,7 +74,7 @@ describe('Nhs Page', () => {
     });
     fetchPermissionsMock.mockResolvedValue([
       'availability:query',
-      'availability:set-setup',
+      'availability:setup',
       'site:manage',
       'users:view',
     ]);

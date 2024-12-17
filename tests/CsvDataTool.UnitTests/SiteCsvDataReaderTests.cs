@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using System.Text;
 
 namespace CsvDataTool.UnitTests
@@ -10,9 +10,9 @@ namespace CsvDataTool.UnitTests
         {         
             string[] inputRows =
                 [
-                "site1,\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,,,,,,,,,",
-                "site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,,,,,,,,,",
-                "site3,\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,,,,,,,,,",
+                "site1,\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+                "site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+                "site3,\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,true,,False,\"oranges\",\"YES\",no,true,true,NO",
                 ];          
 
             var input = BuildInputCsv(inputRows);
@@ -30,6 +30,15 @@ namespace CsvDataTool.UnitTests
             sites[1].Location.Type.Should().Be("Point");
             sites[1].IntegratedCareBoard.Should().Be("test icb2");
             sites[1].Region.Should().Be("Yorkshire");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/accessible_toilet").Value.Should().Be("True");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/braille_translation_service").Value.Should().Be("True");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/disabled_car_parking").Value.Should().Be("False");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/car_parking").Value.Should().Be("False");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/induction_loop").Value.Should().Be("True");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/sign_language_service").Value.Should().Be("False");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/step_free_access").Value.Should().Be("True");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/text_relay").Value.Should().Be("True");
+            sites[1].AttributeValues.First(x => x.Id == "accessibility/wheelchair_access").Value.Should().Be("False");
 
             report.Length.Should().Be(3);
             report.Any(r => !r.Success).Should().BeFalse();

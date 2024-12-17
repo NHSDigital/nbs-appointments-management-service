@@ -7,7 +7,6 @@ import {
   toTwoDigitFormat,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
-import dayjs from 'dayjs';
 
 describe('Time Service', () => {
   it.each([

@@ -19,7 +19,7 @@ export const ViewDailyAppointmentsPage = ({
   date,
   site,
 }: Props) => {
-  const rowsPerPage = 8;
+  const rowsPerPage = 50;
 
   const hasNextPage = (): boolean => {
     return page * rowsPerPage < bookings.length;

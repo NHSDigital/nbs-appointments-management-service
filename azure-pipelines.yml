@@ -194,6 +194,9 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - script: |
+              docker compose restart api
+            displayName: "Restart api docker container to clear cache"
           - task: UseNode@1
             displayName: "Install Node"
             inputs:

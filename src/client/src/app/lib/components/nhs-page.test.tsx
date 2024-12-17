@@ -167,7 +167,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);
@@ -225,7 +231,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);
@@ -254,7 +266,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);

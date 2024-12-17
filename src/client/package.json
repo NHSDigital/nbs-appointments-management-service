@@ -27,7 +27,7 @@
     "dayjs": "^1.11.13",
     "manage-your-appointments": "file:",
     "next": "14.2.20",
-    "nhsuk-frontend": "^8.3.0",
+    "nhsuk-frontend": "^9.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.54.0"

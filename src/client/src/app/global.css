@@ -200,3 +200,39 @@
 .js-enabled .nhsuk-header__navigation-list-custom {
   display: flex;
 }
+
+/* Region: Tabs */
+.nhsuk-tabs {
+  margin-top: 1px;
+  margin-bottom: 6px;
+}
+
+.nhsuk-tabs__title {
+  margin-bottom: 2px;
+}
+
+.nhsuk-tabs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.nhsuk-tabs__list-item {
+  margin-left: 5px;
+
+  &:before {
+    content: '\2014 ';
+    margin-left: -(5px);
+    padding-right: 1px;
+  }
+}
+
+.nhsuk-tabs__tab {
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+.nhsuk-tabs__panel {
+  margin-bottom: 8px;
+}

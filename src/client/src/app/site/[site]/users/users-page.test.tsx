@@ -53,14 +53,14 @@ describe('Users Page', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('cell', {
-        name: 'Role 1 | Role 2',
+        name: 'Beta Role | Charlie Role',
       }),
     ).toBeInTheDocument();
 
     expect(
       screen.getByRole('cell', { name: 'test.two@nhs.net' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Role 3' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Alfa Role' })).toBeInTheDocument();
   });
 
   it('displays the edit and remove buttons for each user if they may see it', async () => {

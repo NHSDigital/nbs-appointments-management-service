@@ -4,7 +4,7 @@
   "entries": [
     {
       "odsCode": "R1",
-      "displayName": "region 1",
+      "displayName": "Region 1",
       "type": "region"
     },
     {
@@ -13,12 +13,12 @@
       "type": "region"
     },
     {
-      "odsCode": "IBC1",
+      "odsCode": "ICB1",
       "displayName": "Integrated Care Board 1",
       "type": "icb"
     },
     {
-      "odsCode": "IBC2",
+      "odsCode": "ICB2",
       "displayName": "Integrated Care Board 2",
       "type": "icb"
     }

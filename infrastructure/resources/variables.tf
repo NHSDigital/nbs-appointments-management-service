@@ -63,6 +63,10 @@ variable "auth_provider_client_id" {
   type = string
 }
 
+variable "gov_notify_base_uri" {
+  type      = string
+}
+
 variable "gov_notify_api_key" {
   type      = string
   sensitive = true

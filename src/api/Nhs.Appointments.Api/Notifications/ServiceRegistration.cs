@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Functions;
@@ -35,8 +35,10 @@ public static class ServiceRegistration
         }
         else if (userNotificationsProvider == "azure")
         {
+            var notifyBaseUri = Environment.GetEnvironmentVariable("GovNotifyBaseUri");
+            var notifyApiKey = Environment.GetEnvironmentVariable("GovNotifyApiKey");
             services
-                .AddScoped(x => new Notify.Client.NotificationClient(Environment.GetEnvironmentVariable("GovNotifyApiKey")))
+                .AddScoped(x => new Notify.Client.NotificationClient(notifyBaseUri, notifyApiKey))
                 .AddScoped<ISendNotifications, GovNotifyClient>()
                 .AddScoped<IMessageBus, MassTransitBusWrapper>()
                 .AddScoped<NotifyUserRolesChangedFunction>()

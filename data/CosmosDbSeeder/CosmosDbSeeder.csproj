@@ -21,5 +21,14 @@
       <None Update="items\*\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="items\dev\index_data\well_known_ods_codes.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="items\int\index_data\well_known_ods_codes.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="items\stag\index_data\well_known_ods_codes.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>

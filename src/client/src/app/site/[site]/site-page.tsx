@@ -28,7 +28,6 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
               <Card
                 href={`${site.id}/view-availability`}
                 title="View availability and manage appointments for your site"
-                level="h4"
               />
             </li>
           )}
@@ -40,11 +39,6 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
               />
             </li>
           )}
-          {
-            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card href={`${site.id}/users`} title="Manage users" />
-            </li>
-          }
           {(permissionsRelevantToCards.includes('site:manage') ||
             permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
@@ -52,6 +46,11 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
                 href={`${site.id}/details`}
                 title="Change site details and accessibility information"
               />
+            </li>
+          )}
+          {permissionsRelevantToCards.includes('users:view') && (
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+              <Card href={`${site.id}/users`} title="Manage users" />
             </li>
           )}
         </ul>

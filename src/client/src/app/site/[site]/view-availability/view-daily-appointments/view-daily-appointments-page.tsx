@@ -3,14 +3,21 @@ import { AttendeeDetails, ContactItem, Booking } from '@types';
 import { formatDateTimeToTime, dateToString } from '@services/timeService';
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 
 type Props = {
   bookings: Booking[];
   page: number;
   date: string;
+  site: string;
 };
 
-export const ViewDailyAppointmentsPage = ({ bookings, page, date }: Props) => {
+export const ViewDailyAppointmentsPage = ({
+  bookings,
+  page,
+  date,
+  site,
+}: Props) => {
   const rowsPerPage = 50;
 
   const hasNextPage = (): boolean => {
@@ -80,7 +87,12 @@ export const ViewDailyAppointmentsPage = ({ bookings, page, date }: Props) => {
           ? mapContactDetails(booking.contactDetails)
           : null,
         booking.service.split(':')[0],
-        'Cancel', //TODO: Convert to action/link
+        <Link
+          key={`cancel-${booking.reference}`}
+          href={`/site/${site}/appointment/${booking.reference}/cancel`}
+        >
+          Cancel
+        </Link>,
       ];
     });
 

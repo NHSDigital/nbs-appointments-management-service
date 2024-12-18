@@ -7,9 +7,14 @@ parameters:
   - name: environments
     type: object
     default: ["dev", "int"]
+  - name: csvfilename
+    type: string
+    default: "sites.csv"
 
 variables:
   serviceConnectionName: "nbs-mya-rg-dev"
+  accountName: "nbsmyastrgimportsdevuks"
+  containerName: "csvdata"
 
 stages:
   - stage: Build
@@ -19,9 +24,10 @@ stages:
         variables:
           toolProjectPath: "data/CsvDataTool/CsvDataTool.csproj"
           toolUnitTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
+          seederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
         steps:
           - task: DotNetCoreCLI@2
-            displayName: "dotnet Publish"
+            displayName: "dotnet Publish CSV tool"
             inputs:
               command: publish
               publishWebProjects: false
@@ -34,3 +40,31 @@ stages:
             inputs:
               command: "test"
               projects: $(toolUnitTestProjectPath)
+          - task: DotNetCoreCLI@2
+            displayName: "dotnet Publish DB seeder tool"
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: $(seederProjectPath)
+              arguments: "--output $(Build.ArtifactStagingDirectory)"
+              zipAfterPublish: false
+              modifyOutputPath: false
+          - task: AzureCLI@1
+            displayName: 'Fetch CSV data'
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptLocation: inlineScript
+              inlineScript: |
+                mkdir $(Build.ArtifactStagingDirectory)\csvdata
+                az storage blob download --account-name $(accountName) --container-name $(containerName) --file $(Build.ArtifactStagingDirectory)\csvdata --name "{csvfilename}" 
+          - task: CmdLine@2
+            displayName: "Run CSV tool"
+            inputs:
+              workingDirectory: $(Build.ArtifactStagingDirectory)
+              script: CsvDataTool.exe --in csvdata\$(csvfilename) --out csvdata\sites.json --report csvdata\report.html
+          - task: CmdLine@2
+            displayName: "Run DB seeder"
+            inputs:
+              workingDirectory: $$(Build.ArtifactStagingDirectory)
+              script: "echo seeder"
+          

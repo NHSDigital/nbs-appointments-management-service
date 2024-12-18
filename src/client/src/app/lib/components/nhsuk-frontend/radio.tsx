@@ -12,12 +12,12 @@ type Ref = HTMLInputElement;
  * @see https://service-manual.nhs.uk/design-system/components/radios
  */
 export const Radio = forwardRef<Ref, Props>(
-  ({ id, label, hint, ...props }, ref) => (
+  ({ id, label, hint, value, ...props }, ref) => (
     <>
       <input
         className="nhsuk-radios__input"
         type="radio"
-        value="repeating"
+        value={value}
         ref={ref}
         id={id}
         // eslint-disable-next-line react/jsx-props-no-spreading

@@ -35,7 +35,7 @@ class Client {
 
   public post<T = unknown>(
     path: string,
-    payload: BodyInit,
+    payload?: BodyInit,
     config?: RequestInit,
   ): Promise<ApiResponse<T>> {
     const tokenCookie = cookies().get('token');

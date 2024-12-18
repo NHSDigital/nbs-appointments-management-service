@@ -202,37 +202,35 @@
 }
 
 /* Region: Tabs */
-.nhsuk-tabs {
-  margin-top: 1px;
-  margin-bottom: 6px;
-}
-
-.nhsuk-tabs__title {
-  margin-bottom: 2px;
-}
-
 .nhsuk-tabs__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  margin-bottom: 6px;
+  display: block;
+  box-shadow: inset 0 -1px 0 #b1b4b6;
 }
 
 .nhsuk-tabs__list-item {
-  margin-left: 5px;
+  display: inline-block;
+  cursor: pointer;
+  margin: 0 20px 0 0;
+}
 
-  &:before {
-    content: '\2014 ';
-    margin-left: -(5px);
-    padding-right: 1px;
-  }
+.nhsuk-tabs__list-item--selected {
+  border-bottom: 5px solid #2675c4;
+}
+
+.nhsuk-tabs__panel--hidden {
+  display: none;
 }
 
 .nhsuk-tabs__tab {
   display: inline-block;
-  margin-bottom: 2px;
+  text-decoration: none;
+  margin-bottom: 0px;
 }
 
-.nhsuk-tabs__panel {
-  margin-bottom: 8px;
+.nhsuk-tabs__list-item--selected > .nhsuk-tabs__tab {
+  color: #0b0c0c;
+}
+
+.nhsuk-tabs__list-item:before {
+  content: none;
 }

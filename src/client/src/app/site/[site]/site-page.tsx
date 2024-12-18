@@ -10,9 +10,10 @@ import { Site } from '@types';
 interface SitePageProps {
   site: Site;
   permissions: string[];
+  activeTab?: string;
 }
 
-export const SitePage = ({ site, permissions }: SitePageProps) => {
+export const SitePage = ({ site, permissions, activeTab }: SitePageProps) => {
   const permissionsRelevantToCards = permissions.filter(
     p =>
       p === 'users:view' ||
@@ -23,20 +24,13 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
   );
 
   const summaryData = mapSummaryData(site);
-  const tabsChildren: TabsChildren[] = [
-    {
-      id: '1',
-      isSelected: true,
-      tabTitle: 'title1',
-      content: 'test1',
-    },
-    { id: '2', isSelected: false, tabTitle: 'title2', content: 'test2' },
-  ];
+  const tabsChildren = buildTabs(site.id, activeTab);
+
   return (
     <>
       {summaryData && <SummaryList {...summaryData}></SummaryList>}
 
-      <Tabs title="test">{tabsChildren}</Tabs>
+      <Tabs>{tabsChildren}</Tabs>
 
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
@@ -94,4 +88,27 @@ const mapSummaryData = (site: Site) => {
   const border = false;
 
   return { items, border };
+};
+
+const buildTabs = (siteId: string, activeTab?: string): TabsChildren[] => {
+  const tabs = [
+    {
+      isSelected: activeTab === 'title1',
+      url: `/site/${siteId}?tab=title1`,
+      tabTitle: 'title1',
+      content: 'test1',
+    },
+    {
+      isSelected: activeTab === 'title2',
+      url: `/site/${siteId}?tab=title2`,
+      tabTitle: 'title2',
+      content: 'test2',
+    },
+  ];
+
+  if (!tabs.some(t => t.isSelected)) {
+    tabs[0].isSelected = true;
+  }
+
+  return tabs;
 };

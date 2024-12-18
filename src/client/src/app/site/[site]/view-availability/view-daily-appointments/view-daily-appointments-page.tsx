@@ -1,5 +1,4 @@
-import { Table, Pagination } from '@nhsuk-frontend-components';
-import { PaginationLink } from '../../../../lib/components/nhsuk-frontend/pagination';
+import { Table, Pagination, PaginationLink } from '@nhsuk-frontend-components';
 import { AttendeeDetails, ContactItem, Booking } from '@types';
 import { formatDateTimeToTime, dateToString } from '@services/timeService';
 import { ReactNode } from 'react';

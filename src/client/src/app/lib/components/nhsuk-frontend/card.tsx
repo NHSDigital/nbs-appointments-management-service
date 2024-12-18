@@ -7,6 +7,7 @@ type CardType = 'primary' | 'secondary' | 'feature';
 type Props = {
   title: string;
   type?: CardType;
+  level?: 'h2' | 'h4';
   description?: string;
   href?: string;
   children?: ReactNode;
@@ -20,16 +21,18 @@ type Props = {
 const Card = ({
   title,
   type = 'primary',
+  level = 'h2',
   description,
   href,
   children,
 }: Props) => {
+  const HeadingTag = level;
   return (
     <div
       className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
-        <h2 className="nhsuk-card__heading-m">
+        <HeadingTag className="nhsuk-card__heading-m">
           {href ? (
             <Link className="nhsuk-card__link" href={href}>
               {title}
@@ -37,7 +40,7 @@ const Card = ({
           ) : (
             title
           )}
-        </h2>
+        </HeadingTag>
 
         {description ? (
           <p className="nhsuk-card__description">{description}</p>

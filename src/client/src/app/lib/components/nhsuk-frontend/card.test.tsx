@@ -6,7 +6,7 @@ describe('Card', () => {
     render(<Card title="Test title" />);
 
     expect(
-      screen.getByRole('heading', { name: 'Test title' }),
+      screen.getByRole('heading', { name: 'Test title', level: 2 }),
     ).toBeInTheDocument();
   });
 
@@ -32,5 +32,13 @@ describe('Card', () => {
     );
 
     expect(screen.getByText('This is a child component')).toBeInTheDocument();
+  });
+
+  it('renders a card with h4 heading', () => {
+    render(<Card title="Test title" level="h4" />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Test title', level: 4 }),
+    ).toBeInTheDocument();
   });
 });

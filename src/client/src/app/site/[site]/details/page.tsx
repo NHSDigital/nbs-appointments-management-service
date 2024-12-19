@@ -23,14 +23,7 @@ const Page = async ({ params }: PageProps) => {
   ]);
 
   return (
-    <NhsPage
-      title="Site details"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-      site={site}
-    >
+    <NhsPage title="Manage Site" site={site} caption={site.name}>
       <SiteDetailsPage site={site} permissions={sitePermissions} />
     </NhsPage>
   );

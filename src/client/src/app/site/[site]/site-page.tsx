@@ -1,5 +1,5 @@
 import { Card, SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
-import { Site, WellKnownOdsEntry } from '@types';
+import { Site,  } from '@types';
 
 interface SitePageProps {
   site: Site;

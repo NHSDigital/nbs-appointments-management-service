@@ -14,6 +14,7 @@ import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
 import { fetchPermissions } from '@services/appointmentsService';
+import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 
 type Props = {
   children: ReactNode;
@@ -21,6 +22,7 @@ type Props = {
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
   site?: Site;
+  backLink?: NavigationByHrefProps;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -31,6 +33,7 @@ const NhsPage = async ({
   headerAuthComponent = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
+  backLink,
 }: Props) => {
   const notification = cookies().get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
@@ -50,6 +53,13 @@ const NhsPage = async ({
         ]}
       />
       <NhsMainContainer>
+        {backLink && (
+          <BackLink
+            href={backLink.href}
+            renderingStrategy={backLink.renderingStrategy}
+            text={backLink.text}
+          />
+        )}
         <NhsHeading title={title} caption={caption} />
         <NotificationBanner notification={notification} />
         {children}

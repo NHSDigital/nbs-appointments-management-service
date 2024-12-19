@@ -58,6 +58,20 @@ describe('View Week Availability Page', () => {
         name: 'Total appointments: 123 Booked: 5 Unbooked: 118',
       }),
     ).toBeInTheDocument();
+
+    const links = screen.getAllByRole('link', {
+      name: /View daily appointments/i,
+    });
+    expect(links.length).toBe(3);
+    expect(links[0].getAttribute('href')).toBe(
+      'view-daily-appointments?date=2024-12-02&page=1',
+    );
+    expect(links[1].getAttribute('href')).toBe(
+      'view-daily-appointments?date=2024-12-04&page=1',
+    );
+    expect(links[2].getAttribute('href')).toBe(
+      'view-daily-appointments?date=2024-12-05&page=1',
+    );
   });
 
   it('renders pagination options with the correct values', () => {

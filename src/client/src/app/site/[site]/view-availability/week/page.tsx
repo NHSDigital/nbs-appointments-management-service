@@ -7,6 +7,7 @@ import {
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
 import { getDetailedWeekView } from '@services/viewAvailabilityService';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -37,19 +38,17 @@ const Page = async ({ searchParams, params }: PageProps) => {
     availability,
   );
 
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability?date=${searchParams.date}`,
+    text: 'Back to month view',
+  };
+
   return (
     <NhsPage
       title={`${weekStart.format('D MMMM')} to ${weekEnd.format('D MMMM')}`}
-      // TODO: Does the view availability breadcrumb need a date query param? Or date in the name?
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        {
-          name: 'View availability',
-          href: `/site/${params.site}/view-availability`,
-        },
-      ]}
       site={site}
+      backLink={backLink}
     >
       <ViewWeekAvailabilityPage
         days={days}

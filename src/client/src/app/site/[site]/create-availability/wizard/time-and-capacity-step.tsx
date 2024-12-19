@@ -104,9 +104,10 @@ const TimeAndCapacityStep = ({
         <BackLink
           href={returnRouteUponCancellation ?? '/'}
           renderingStrategy="server"
+          text="Go back"
         />
       ) : (
-        <BackLink onClick={onBack} renderingStrategy="client" />
+        <BackLink onClick={onBack} renderingStrategy="client" text="Go back" />
       )}
       <NhsHeading
         title="Set time and capacity for your session"

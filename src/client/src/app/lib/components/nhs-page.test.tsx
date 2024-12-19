@@ -167,7 +167,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);
@@ -225,7 +231,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);
@@ -254,7 +266,13 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: { id: 'TEST', name: 'Test site', address: '' },
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
       breadcrumbs: [],
     });
     render(jsx);
@@ -275,5 +293,35 @@ describe('Nhs Page', () => {
     render(jsx);
 
     expect(screen.queryByRole('link', { name: 'Change site' })).toBeNull();
+  });
+
+  it('displays the back link with the correct title and URL', async () => {
+    fetchPermissionsMock.mockResolvedValue([]);
+
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      site: {
+        id: 'TEST',
+        name: 'Test site',
+        address: '',
+        integratedCareBoard: '',
+        region: '',
+      },
+      breadcrumbs: [],
+      backLink: {
+        href: '/test/url',
+        renderingStrategy: 'server',
+        text: 'Test back link',
+      },
+    });
+
+    render(jsx);
+    expect(
+      screen.getByRole('link', { name: 'Test back link' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Test back link' }),
+    ).toHaveAttribute('href', '/test/url');
   });
 });

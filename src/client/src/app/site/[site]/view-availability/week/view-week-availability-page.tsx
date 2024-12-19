@@ -97,7 +97,7 @@ export const ViewWeekAvailabilityPage = ({
               {/* TODO: Add link to view daily appointments */}
               <Link
                 className="nhsuk-link"
-                href={`view-daily-appointments?date=${d.fullDate}&page=1`}
+                href={`daily-appointments?date=${d.fullDate}&page=1`}
               >
                 View daily appointments
               </Link>

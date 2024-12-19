@@ -64,13 +64,13 @@ describe('View Week Availability Page', () => {
     });
     expect(links.length).toBe(3);
     expect(links[0].getAttribute('href')).toBe(
-      'view-daily-appointments?date=2024-12-02&page=1',
+      'daily-appointments?date=2024-12-02&page=1',
     );
     expect(links[1].getAttribute('href')).toBe(
-      'view-daily-appointments?date=2024-12-04&page=1',
+      'daily-appointments?date=2024-12-04&page=1',
     );
     expect(links[2].getAttribute('href')).toBe(
-      'view-daily-appointments?date=2024-12-05&page=1',
+      'daily-appointments?date=2024-12-05&page=1',
     );
   });
 

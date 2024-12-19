@@ -50,7 +50,7 @@ const CancelAppointmentPage = ({
     const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
 
     replace(
-      `/site/${site}/view-availability/view-daily-appointments?date=${returnDate}&page=1`,
+      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
     );
   };
 

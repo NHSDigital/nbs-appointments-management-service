@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import { ViewDailyAppointmentsPage } from './view-daily-appointments-page';
+import { DailyAppointmentsPage } from './daily-appointments-page';
 import { mockBookings } from '@testing/data';
 
 describe('View Daily Appointments', () => {
   it('renders appointments', () => {
     render(
-      <ViewDailyAppointmentsPage
+      <DailyAppointmentsPage
         bookings={mockBookings}
         page={1}
         date={'2024-12-24'}
         site="TEST01"
+        displayAction={true}
       />,
     );
 
@@ -23,6 +24,6 @@ describe('View Daily Appointments', () => {
         name: '14:05 John Smith 9999999990 1 February 1979 RSV Cancel',
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole('row').length).toBe(5);
+    expect(screen.getAllByRole('row').length).toBe(4);
   });
 });

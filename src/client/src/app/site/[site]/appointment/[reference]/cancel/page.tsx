@@ -35,7 +35,7 @@ const Page = async ({ params }: PageProps) => {
         { name: site.name, href: `/site/${params.site}` },
         {
           name: 'View daily appointments',
-          href: `/site/${params.site}/view-availability/view-daily-appointments?date=${returnDate}&page=1`,
+          href: `/site/${params.site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
         },
       ]}
       site={site}

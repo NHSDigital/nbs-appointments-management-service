@@ -65,6 +65,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteStore, SiteStore>()
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAttributeDefinitionsStore, AttributeDefinitionsStore>()
+            .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
+            .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
             .AddCosmosDataStores()                        
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteService, SiteService>()

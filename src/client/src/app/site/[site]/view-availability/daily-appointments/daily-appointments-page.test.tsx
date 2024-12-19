@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import { ViewDailyAppointmentsPage } from './view-daily-appointments-page';
+import { DailyAppointmentsPage } from './daily-appointments-page';
 import { mockBookings } from '@testing/data';
 
 describe('View Daily Appointments', () => {
   it('renders appointments', () => {
     render(
-      <ViewDailyAppointmentsPage
+      <DailyAppointmentsPage
         bookings={mockBookings}
         page={1}
         date={'2024-12-24'}
         site="TEST01"
+        displayAction={true}
       />,
     );
 

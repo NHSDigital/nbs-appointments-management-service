@@ -21,6 +21,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
   return (
     <>
       {summaryData && <SummaryList {...summaryData}></SummaryList>}
+
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('availability:query') && (

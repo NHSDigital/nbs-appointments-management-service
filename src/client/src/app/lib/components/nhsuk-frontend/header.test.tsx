@@ -12,7 +12,7 @@ describe('Header', () => {
     render(<Header />);
 
     expect(
-      screen.getByRole('link', { name: 'NHS Appointment Book' }),
+      screen.getByRole('link', { name: 'Manage Your Appointments' }),
     ).toBeInTheDocument();
   });
 

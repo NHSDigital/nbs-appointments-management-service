@@ -31,12 +31,12 @@ const Header = ({
           <Link
             className="nhsuk-header__link nhsuk-header__link--service"
             href="/"
-            aria-label="NHS Appointment Book"
+            aria-label="Manage Your Appointments"
           >
             <NhsLogo />
 
             <span className="nhsuk-header__service-name">
-              NHS Appointment Book
+              Manage Your Appointments
             </span>
           </Link>
         </div>

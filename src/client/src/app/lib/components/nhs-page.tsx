@@ -87,7 +87,7 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('availability:set-setup')) {
+  if (permissions.includes('availability:setup')) {
     navigationLinks.push({
       label: 'Create availability',
       href: `/site/${site.id}/create-availability`,

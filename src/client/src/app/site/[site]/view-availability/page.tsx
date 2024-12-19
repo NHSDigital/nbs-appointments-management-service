@@ -49,15 +49,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   );
 
   return (
-    <NhsPage
-      title={title}
-      caption={site.name}
-      site={site}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-    >
+    <NhsPage title={title} caption={site.name} site={site}>
       <ViewAvailabilityPage
         weeks={detailedMonthView}
         searchMonth={searchMonth}

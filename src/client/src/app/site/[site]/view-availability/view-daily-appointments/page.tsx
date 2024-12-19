@@ -4,6 +4,7 @@ import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { ViewDailyAppointmentsPage } from './view-daily-appointments-page';
 import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -33,20 +34,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: site.id,
   };
   const bookings = await fetchBookings(fetchBookingsRequest);
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability/week?date=${searchParams.date}`,
+    text: 'Back to week view',
+  };
 
   return (
-    <NhsPage
-      title={title}
-      caption={site.name}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        {
-          name: 'View daily appointments',
-          href: `/site/${params.site}/view-availability/view-daily-appointments?date=${searchParams.date}&page=${searchParams.page}`,
-        },
-      ]}
-    >
+    <NhsPage title={title} caption={site.name} backLink={backLink}>
       <ViewDailyAppointmentsPage
         bookings={bookings.filter(b => b.status === 'Booked')}
         page={Number(searchParams.page)}

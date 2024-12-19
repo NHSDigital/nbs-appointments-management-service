@@ -14,15 +14,7 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'availability:set-setup');
 
   return (
-    <NhsPage
-      title="Create availability"
-      caption={site.name}
-      site={site}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-    >
+    <NhsPage title="Create availability" caption={site.name} site={site}>
       <CreateAvailabilityPage site={site} />
     </NhsPage>
   );

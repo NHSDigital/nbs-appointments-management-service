@@ -3,14 +3,16 @@ import LeftChevron from './icons/left-chevron';
 
 type Props = NavigationByHrefProps | NavigationByOnClickHandlerProps;
 
-type NavigationByHrefProps = {
+export type NavigationByHrefProps = {
   renderingStrategy: 'server';
   href: string;
+  text: string;
 };
 
 type NavigationByOnClickHandlerProps = {
   renderingStrategy: 'client';
   onClick: () => void;
+  text: string;
 };
 
 /**
@@ -24,7 +26,7 @@ const BackLink = (props: Props) => {
       <div className="nhsuk-back-link">
         <Link role="link" className="nhsuk-back-link__link" href={props.href}>
           <LeftChevron />
-          Go back
+          {props.text}
         </Link>
       </div>
     );
@@ -39,7 +41,7 @@ const BackLink = (props: Props) => {
         onClick={props.onClick}
       >
         <LeftChevron />
-        Go back
+        {props.text}
       </Link>
     </div>
   );

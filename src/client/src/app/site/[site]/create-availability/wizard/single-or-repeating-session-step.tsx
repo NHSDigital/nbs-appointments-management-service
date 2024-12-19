@@ -42,9 +42,14 @@ const SingleOrRepeatingSessionStep = ({
         <BackLink
           href={returnRouteUponCancellation ?? '/'}
           renderingStrategy="server"
+          text="Go back"
         />
       ) : (
-        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+        <BackLink
+          onClick={goToPreviousStep}
+          renderingStrategy="client"
+          text="Go back"
+        />
       )}
       <NhsHeading
         title="What type of session do you want to create?"

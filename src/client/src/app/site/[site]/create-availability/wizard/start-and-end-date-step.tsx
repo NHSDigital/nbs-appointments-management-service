@@ -68,9 +68,14 @@ const StartAndEndDateStep = ({
         <BackLink
           href={returnRouteUponCancellation ?? '/'}
           renderingStrategy="server"
+          text="Go back"
         />
       ) : (
-        <BackLink onClick={goToPreviousStep} renderingStrategy="client" />
+        <BackLink
+          onClick={goToPreviousStep}
+          renderingStrategy="client"
+          text="Go back"
+        />
       )}
       {sessionType === 'single' ? (
         <NhsHeading

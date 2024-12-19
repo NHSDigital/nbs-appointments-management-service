@@ -24,6 +24,6 @@ describe('View Daily Appointments', () => {
         name: '14:05 John Smith 9999999990 1 February 1979 RSV Cancel',
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole('row').length).toBe(4);
+    expect(screen.getAllByRole('row').length).toBe(5);
   });
 });

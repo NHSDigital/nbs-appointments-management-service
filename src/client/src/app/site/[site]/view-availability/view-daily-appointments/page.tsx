@@ -48,9 +48,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
       ]}
     >
       <ViewDailyAppointmentsPage
-        bookings={bookings}
+        bookings={bookings.filter(b => b.status === 'Booked')}
         page={Number(searchParams.page)}
         date={searchParams.date}
+        site={site.id}
       />
     </NhsPage>
   );

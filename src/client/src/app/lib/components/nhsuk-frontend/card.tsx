@@ -29,7 +29,7 @@ const Card = ({
       className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
-        <h2 className="nhsuk-card__heading-m">
+        <h2 className="nhsuk-card__heading nhsuk-heading-m">
           {href ? (
             <Link className="nhsuk-card__link" href={href}>
               {title}

@@ -4,11 +4,11 @@
   "latestAcceptedEulaVersion": "2024-12-01",
   "roleAssignments": [
     {
-      "role": "canned:check-in",
+      "role": "canned:availability-manager",
       "scope": "site:ABC01"
     },
     {
-      "role": "canned:check-in",
+      "role": "canned:availability-manager",
       "scope": "site:ABC02"
     }
   ]

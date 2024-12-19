@@ -11,7 +11,7 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
 
-  await assertPermission(site.id, 'availability:set-setup');
+  await assertPermission(site.id, 'availability:setup');
 
   return (
     <NhsPage

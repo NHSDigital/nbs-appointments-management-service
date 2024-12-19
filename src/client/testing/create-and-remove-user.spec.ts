@@ -53,7 +53,7 @@ test('Can create a user', async ({ newUserName }) => {
   await userManagementPage.emailInput.fill(newUserName);
   await userManagementPage.searchUserButton.click();
 
-  await userManagementPage.selectRole('Check-in');
+  await userManagementPage.selectRole('Appointment manager');
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
@@ -66,7 +66,7 @@ test('Can create a user', async ({ newUserName }) => {
       .filter({
         has: userManagementPage.page.getByText(newUserName),
       })
-      .getByText(/Check-in/),
+      .getByText(/Appointment manager/),
   ).toBeVisible();
 
   await expect(
@@ -89,7 +89,7 @@ test('Cannot create a user without any roles', async ({ newUserName }) => {
   await expect(
     userManagementPage.page.getByText('You have not selected any roles'),
   ).toBeVisible();
-  await userManagementPage.selectRole('Check-in');
+  await userManagementPage.selectRole('Appointment manager');
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
@@ -102,7 +102,7 @@ test('Can remove a user', async ({ newUserName }) => {
 
   await userManagementPage.emailInput.fill(newUserName);
   await userManagementPage.searchUserButton.click();
-  await userManagementPage.selectRole('Check-in');
+  await userManagementPage.selectRole('Appointment manager');
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
@@ -136,7 +136,7 @@ test('Displays a notification banner after removing a user, which disappears whe
 
   await userManagementPage.emailInput.fill(newUserName);
   await userManagementPage.searchUserButton.click();
-  await userManagementPage.selectRole('Check-in');
+  await userManagementPage.selectRole('Appointment manager');
   await userManagementPage.confirmAndSaveButton.click();
   await userManagementPage.page.waitForURL('**/site/ABC01/users');
 

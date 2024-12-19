@@ -1,0 +1,26 @@
+{
+  "id": "well_known_ods_codes",
+  "docType": "system",
+  "entries": [
+    {
+      "odsCode": "R1",
+      "displayName": "Region 1",
+      "type": "region"
+    },
+    {
+      "odsCode": "R2",
+      "displayName": "Region 2",
+      "type": "region"
+    },
+    {
+      "odsCode": "ICB1",
+      "displayName": "Integrated Care Board 1",
+      "type": "icb"
+    },
+    {
+      "odsCode": "ICB2",
+      "displayName": "Integrated Care Board 2",
+      "type": "icb"
+    }
+  ]
+}

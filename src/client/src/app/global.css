@@ -200,3 +200,37 @@
 .js-enabled .nhsuk-header__navigation-list-custom {
   display: flex;
 }
+
+/* Region: Tabs */
+.nhsuk-tabs__list {
+  display: block;
+  box-shadow: inset 0 -1px 0 #b1b4b6;
+}
+
+.nhsuk-tabs__list-item {
+  display: inline-block;
+  cursor: pointer;
+  margin: 0 20px 0 0;
+}
+
+.nhsuk-tabs__list-item--selected {
+  border-bottom: 5px solid #2675c4;
+}
+
+.nhsuk-tabs__panel--hidden {
+  display: none;
+}
+
+.nhsuk-tabs__tab {
+  display: inline-block;
+  text-decoration: none;
+  margin-bottom: 0;
+}
+
+.nhsuk-tabs__list-item--selected > .nhsuk-tabs__tab {
+  color: #0b0c0c;
+}
+
+.nhsuk-tabs__list-item::before {
+  content: none;
+}

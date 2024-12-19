@@ -66,6 +66,6 @@ module "api" {
     max_throughput = 20000
   }]
   cosmos_index_autoscale_settings = [{
-    max_throughput = 10000
+    max_throughput = 20000
   }]
 }

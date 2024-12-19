@@ -11,6 +11,7 @@ export default class CreateAvailabilityPage extends RootPage {
   readonly sessionSuccessMsg: Locator;
   readonly selectDateErrorMsg: Locator;
   readonly sessionEndDateErrorMsg: Locator;
+  readonly sessionDateErrorMsg: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -48,6 +49,10 @@ export default class CreateAvailabilityPage extends RootPage {
 
     this.sessionEndDateErrorMsg = page.getByText(
       'Session end date must be within the next year',
+    );
+
+    this.sessionDateErrorMsg = page.getByText(
+      'Session date must be within the next year',
     );
   }
 
@@ -115,17 +120,5 @@ export default class CreateAvailabilityPage extends RootPage {
 
   async unSelectDay(day: string) {
     await this.page.getByRole('checkbox', { name: day }).click();
-  }
-
-  async verifyCapacityCalculator(minute: number, noOfVaccinators: number) {
-    const expectedNoAppointments = (60 / minute) * noOfVaccinators;
-    const expectedAppointmentsMessage =
-      expectedNoAppointments +
-      ' total appointments in the sessionUp to ' +
-      expectedNoAppointments +
-      ' appointments per hour';
-    await expect(
-      this.page.getByText(expectedAppointmentsMessage),
-    ).toBeVisible();
   }
 }

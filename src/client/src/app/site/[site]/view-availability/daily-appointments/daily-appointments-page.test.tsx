@@ -10,6 +10,7 @@ describe('View Daily Appointments', () => {
         page={1}
         date={'2024-12-24'}
         site="TEST01"
+        displayAction={true}
       />,
     );
 

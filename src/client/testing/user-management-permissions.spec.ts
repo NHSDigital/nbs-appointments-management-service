@@ -97,7 +97,7 @@ test('permissions are applied per site', async () => {
   await expect(usersPage.manageColumn).toBeVisible();
 
   // Then check it does NOT exist at Robin Lane
-  await rootPage.homeBreadcrumb.click();
+  await rootPage.goto();
 
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
 

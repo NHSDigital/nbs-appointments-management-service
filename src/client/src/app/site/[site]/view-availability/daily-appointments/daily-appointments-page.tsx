@@ -10,15 +10,19 @@ type Props = {
   page: number;
   date: string;
   site: string;
+  displayAction: boolean;
+  activeTab?: string;
 };
 
-export const ViewDailyAppointmentsPage = ({
+export const DailyAppointmentsPage = ({
   bookings,
   page,
   date,
   site,
+  displayAction,
+  activeTab,
 }: Props) => {
-  const rowsPerPage = 50;
+  const rowsPerPage = 3;
 
   const hasNextPage = (): boolean => {
     return page * rowsPerPage < bookings.length;
@@ -28,7 +32,7 @@ export const ViewDailyAppointmentsPage = ({
 
     return {
       title: `Page ${page + 1}`,
-      href: `view-daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page + 1}`,
+      href: `daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page + 1}${activeTab ? `&tab=${activeTab}` : ''}`,
     };
   };
   const buildPreviousPage = (): PaginationLink | null => {
@@ -36,7 +40,7 @@ export const ViewDailyAppointmentsPage = ({
 
     return {
       title: `Page ${page - 1}`,
-      href: `view-daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page - 1}`,
+      href: `daily-appointments?date=${dayjs(date).format('YYYY-MM-DD')}&page=${page - 1}${activeTab ? `&tab=${activeTab}` : ''}`,
     };
   };
   const getPagedBookings = (b: Booking[]): Booking[] => {
@@ -75,11 +79,14 @@ export const ViewDailyAppointmentsPage = ({
       'Date of birth',
       'Contact details',
       'Services',
-      'Action',
     ];
 
+    if (displayAction) {
+      headers.push('Action');
+    }
+
     const rows = getPagedBookings(bookings).map(booking => {
-      return [
+      const row = [
         formatDateTimeToTime(booking.from),
         mapNameAndNHSNumber(booking.attendeeDetails),
         dateToString(booking.attendeeDetails.dateOfBirth),
@@ -87,13 +94,20 @@ export const ViewDailyAppointmentsPage = ({
           ? mapContactDetails(booking.contactDetails)
           : null,
         booking.service.split(':')[0],
-        <Link
-          key={`cancel-${booking.reference}`}
-          href={`/site/${site}/appointment/${booking.reference}/cancel`}
-        >
-          Cancel
-        </Link>,
       ];
+
+      if (displayAction) {
+        row.push(
+          <Link
+            key={`cancel-${booking.reference}`}
+            href={`/site/${site}/appointment/${booking.reference}/cancel`}
+          >
+            Cancel
+          </Link>,
+        );
+      }
+
+      return row;
     });
 
     return { headers, rows };

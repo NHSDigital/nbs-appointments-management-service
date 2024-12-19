@@ -1,19 +1,12 @@
-import {
-  Card,
-  SummaryList,
-  SummaryListItem,
-  Tabs,
-  TabsChildren,
-} from '@nhsuk-frontend-components';
+import { Card, SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 interface SitePageProps {
   site: Site;
   permissions: string[];
-  activeTab?: string;
 }
 
-export const SitePage = ({ site, permissions, activeTab }: SitePageProps) => {
+export const SitePage = ({ site, permissions }: SitePageProps) => {
   const permissionsRelevantToCards = permissions.filter(
     p =>
       p === 'users:view' ||
@@ -24,13 +17,10 @@ export const SitePage = ({ site, permissions, activeTab }: SitePageProps) => {
   );
 
   const summaryData = mapSummaryData(site);
-  const tabsChildren = buildTabs(site.id, activeTab);
 
   return (
     <>
       {summaryData && <SummaryList {...summaryData}></SummaryList>}
-
-      <Tabs>{tabsChildren}</Tabs>
 
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
@@ -88,27 +78,4 @@ const mapSummaryData = (site: Site) => {
   const border = false;
 
   return { items, border };
-};
-
-const buildTabs = (siteId: string, activeTab?: string): TabsChildren[] => {
-  const tabs = [
-    {
-      isSelected: activeTab === 'title1',
-      url: `/site/${siteId}?tab=title1`,
-      tabTitle: 'title1',
-      content: 'test1',
-    },
-    {
-      isSelected: activeTab === 'title2',
-      url: `/site/${siteId}?tab=title2`,
-      tabTitle: 'title2',
-      content: 'test2',
-    },
-  ];
-
-  if (!tabs.some(t => t.isSelected)) {
-    tabs[0].isSelected = true;
-  }
-
-  return tabs;
 };

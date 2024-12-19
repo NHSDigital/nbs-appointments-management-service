@@ -15,15 +15,12 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: {
-    tab: string;
-  };
   params: {
     site: string;
   };
 };
 
-const Page = async ({ params, searchParams }: PageProps) => {
+const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   const sitePermissions = await fetchPermissions(params.site);
 
@@ -35,11 +32,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       title={site.name}
       site={site}
     >
-      <SitePage
-        site={site}
-        permissions={sitePermissions}
-        activeTab={searchParams.tab}
-      />
+      <SitePage site={site} permissions={sitePermissions} />
     </NhsPage>
   );
 };

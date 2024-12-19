@@ -45,7 +45,7 @@ const renderTabContents = (tabs: TabsChildren[]) => {
       }`}
       key={key}
     >
-      {tab.content} {tab.isSelected ? 'selected' : 'not selected'}
+      {tab.content}
     </div>
   ));
 };

@@ -48,6 +48,10 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
   sensitive = false
 }
 
+variable "GOV_NOTIFY_BASE_URI" {
+  type      = string
+}
+
 variable "GOV_NOTIFY_API_KEY" {
   type      = string
   sensitive = true

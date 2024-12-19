@@ -31,6 +31,7 @@ module "api" {
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
+  gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
   booking_reminders_cron_schedule                = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE

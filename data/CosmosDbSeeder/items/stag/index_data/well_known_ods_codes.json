@@ -1,0 +1,251 @@
+﻿{
+  "id": "well_known_ods_codes",
+  "docType": "system",
+  "entries": [
+    {
+      "odsCode": "Y61",
+      "displayName": "East Of England Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y56",
+      "displayName": "London Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y60",
+      "displayName": "Midlands Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y63",
+      "displayName": "North East And Yorkshire Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y62",
+      "displayName": "North West Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y59",
+      "displayName": "South East Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "Y58",
+      "displayName": "South West Region",
+      "type": "region"
+    },
+    {
+      "odsCode": "QJG",
+      "displayName": "Suffolk And North East Essex Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QUE",
+      "displayName": "Cambridgeshire And Peterborough Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QM7",
+      "displayName": "Hertfordshire And West Essex Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QHG",
+      "displayName": "Bedfordshire, Luton And Milton Keynes Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QH8",
+      "displayName": "Mid And South Essex Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QMM",
+      "displayName": "Norfolk And Waveney Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QWE",
+      "displayName": "South West London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QKK",
+      "displayName": "South East London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QMF",
+      "displayName": "North East London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QRV",
+      "displayName": "North West London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QMJ",
+      "displayName": "North Central London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QWU",
+      "displayName": "Coventry And Warwickshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QNC",
+      "displayName": "Staffordshire And Stoke-On-Trent Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QUA",
+      "displayName": "Black Country Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QHL",
+      "displayName": "Birmingham And Solihull Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QT1",
+      "displayName": "Nottingham And Nottinghamshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QJ2",
+      "displayName": "Derby And Derbyshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QJM",
+      "displayName": "Lincolnshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QK1",
+      "displayName": "Leicester, Leicestershire And Rutland Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QGH",
+      "displayName": "Herefordshire And Worcestershire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QPM",
+      "displayName": "Northamptonshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QOC",
+      "displayName": "Shropshire, Telford And Wrekin Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QF7",
+      "displayName": "South Yorkshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QOQ",
+      "displayName": "Humber And North Yorkshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QHM",
+      "displayName": "North East And North Cumbria Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QWO",
+      "displayName": "West Yorkshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QYG",
+      "displayName": "Cheshire And Merseyside Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QE1",
+      "displayName": "Lancashire And South Cumbria Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QOP",
+      "displayName": "Greater Manchester Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QRL",
+      "displayName": "Hampshire And Isle Of Wight Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QKS",
+      "displayName": "Kent And Medway Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QNX",
+      "displayName": "Sussex Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QXU",
+      "displayName": "Surrey Heartlands Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QU9",
+      "displayName": "Buckinghamshire, Oxfordshire Berkshire West Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QNQ",
+      "displayName": "Frimley Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QUY",
+      "displayName": "Bristol, North Somerset And South Gloucestershire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QSL",
+      "displayName": "Somerset Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QJK",
+      "displayName": "Devon Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QR1",
+      "displayName": "Gloucestershire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QOX",
+      "displayName": "Bath, Northeast Somerset, Swindon, Wiltshire Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QVV",
+      "displayName": "Dorset Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "QT6",
+      "displayName": "Cornwall And The Isles Of Scilly Integrated Care Board",
+      "type": "icb"
+    }
+  ]
+}

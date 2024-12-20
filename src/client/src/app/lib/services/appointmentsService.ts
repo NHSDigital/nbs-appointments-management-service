@@ -17,6 +17,7 @@ import {
   Booking,
   DailyAvailability,
   EulaVersion,
+  WellKnownOdsEntry,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -88,6 +89,15 @@ export async function fetchAttributeDefinitions() {
   return handleBodyResponse(response);
 }
 
+export async function fetchWellKnownOdsCodeEntries() {
+  const response = await appointmentsApi.get<WellKnownOdsEntry[]>(
+    'wellKnownOdsCodeEntries',
+    {
+      cache: 'force-cache',
+    },
+  );
+  return handleBodyResponse(response);
+}
 export async function fetchRoles() {
   const response = await appointmentsApi.get<{ roles: Role[] }>(
     'roles?tag=canned',

@@ -1,12 +1,17 @@
 import { Card, SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
-import { Site } from '@types';
+import { Site, WellKnownOdsEntry } from '@types';
 
 interface SitePageProps {
   site: Site;
   permissions: string[];
+  wellKnownOdsCodeEntries: WellKnownOdsEntry[];
 }
 
-export const SitePage = ({ site, permissions }: SitePageProps) => {
+export const SitePage = ({
+  site,
+  permissions,
+  wellKnownOdsCodeEntries,
+}: SitePageProps) => {
   const permissionsRelevantToCards = permissions.filter(
     p =>
       p === 'users:view' ||
@@ -16,7 +21,7 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
       p === 'availability:query',
   );
 
-  const summaryData = mapSummaryData(site);
+  const summaryData = mapSummaryData(site, wellKnownOdsCodeEntries);
 
   return (
     <>
@@ -60,7 +65,10 @@ export const SitePage = ({ site, permissions }: SitePageProps) => {
   );
 };
 
-const mapSummaryData = (site: Site) => {
+const mapSummaryData = (
+  site: Site,
+  wellKnownOdsCodeEntries: WellKnownOdsEntry[],
+) => {
   if (!site) {
     return undefined;
   }
@@ -72,8 +80,18 @@ const mapSummaryData = (site: Site) => {
     value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
   });
   items.push({ title: 'ODS code', value: site.id });
-  items.push({ title: 'ICB', value: site.integratedCareBoard });
-  items.push({ title: 'Region', value: site.region });
+  items.push({
+    title: 'ICB',
+    value:
+      wellKnownOdsCodeEntries.find(e => e.odsCode === site.integratedCareBoard)
+        ?.displayName ?? site.integratedCareBoard,
+  });
+  items.push({
+    title: 'Region',
+    value:
+      wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
+        ?.displayName ?? site.region,
+  });
 
   const border = false;
 

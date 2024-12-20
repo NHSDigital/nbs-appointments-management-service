@@ -11,8 +11,8 @@ export default class SiteDetailsPage extends RootPage {
     this.title = page.getByRole('heading', {
       name: 'Site details',
     });
-    this.editSiteAttributesButton = page.getByRole('button', {
-      name: 'Manage site details',
+    this.editSiteAttributesButton = page.getByRole('link', {
+      name: 'Edit access needs',
     });
   }
 
@@ -23,7 +23,7 @@ export default class SiteDetailsPage extends RootPage {
         .filter({
           has: this.page.getByText(attributeName),
         })
-        .getByText('Status: Active'),
+        .getByText('Yes'),
     ).toBeVisible();
   }
 }

@@ -97,6 +97,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
     AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/auth/set-cookie"
     AuthProvider_ReturnUri                     = "${var.func_app_slot_base_uri}/api/auth-return"
     Notifications_Provider                     = "azure"
+    GovNotifyBaseUri                           = var.gov_notify_base_uri
     GovNotifyApiKey                            = var.gov_notify_api_key
     ServiceBusConnectionString                 = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     BookingRemindersCronSchedule               = var.booking_reminders_cron_schedule

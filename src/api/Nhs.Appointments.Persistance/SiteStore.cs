@@ -12,10 +12,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         var query = new QueryDefinition(
                 query: "SELECT site, ROUND(ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]})) as distance " + 
                        "FROM index_data site " + 
-                       "WHERE ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) < @searchRadius")
+                       "WHERE site.docType = @docType AND ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) < @searchRadius")
             .WithParameter("@longitude", longitude)
             .WithParameter("@latitude", latitude)
-            .WithParameter("@searchRadius", searchRadius);
+            .WithParameter("@searchRadius", searchRadius)
+            .WithParameter("@docType", "site");
         return cosmosStore.RunSqlQueryAsync<SiteWithDistance>(query);
     }
     

@@ -14,6 +14,7 @@ import {
   User,
   UserProfile,
   Week,
+  WellKnownOdsEntry,
 } from '@types';
 import dayjs from 'dayjs';
 
@@ -96,6 +97,18 @@ const mockSites: Site[] = [
 
 const mockSite = mockSites[0];
 
+const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
+  {
+    odsCode: 'R1',
+    displayName: 'Region One',
+    type: 'region',
+  },
+  {
+    odsCode: 'ICB1',
+    displayName: 'Integrated Care Board One',
+    type: 'icb',
+  },
+];
 const mockAllPermissions = [
   'site:get-meta-data',
   'availability:setup',
@@ -553,4 +566,5 @@ export {
   mockWeekAvailabilityEnd,
   mockEmptyDays,
   mockWeekAvailability,
+  mockWellKnownOdsCodeEntries,
 };

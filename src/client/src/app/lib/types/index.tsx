@@ -24,6 +24,12 @@ type AttributeValue = {
   value: string;
 };
 
+type WellKnownOdsEntry = {
+  odsCode: string;
+  displayName: string;
+  type: string;
+};
+
 type SetAttributesRequest = {
   scope: string;
   attributeValues: AttributeValue[];
@@ -288,6 +294,7 @@ export type {
   User,
   UserProfile,
   Week,
+  WellKnownOdsEntry,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

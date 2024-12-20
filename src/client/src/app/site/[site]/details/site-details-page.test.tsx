@@ -9,6 +9,7 @@ import {
   mockAttributeDefinitions,
   mockSite,
   mockSiteWithAttributes,
+  mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
@@ -29,6 +30,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -39,6 +41,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -49,54 +52,70 @@ describe('Manage Attributes Page', () => {
       screen.getByRole('term', { name: 'Accessibility attribute 2' }),
     ).toBeVisible();
 
-    expect(
-      screen.getByRole('definition', { name: 'Status: Active' }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole('definition', { name: 'Status: Inactive' }),
-    ).toBeVisible();
+    expect(screen.getByRole('definition', { name: 'Yes' })).toBeVisible();
+    expect(screen.getByRole('definition', { name: 'Yes' })).toBeVisible();
   });
 
-  it('contains a manual go back button which returns to the site page', async () => {
+  it('shows the edit access needs hyperlink if the user has permission', async () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
-    });
-    render(jsx);
-
-    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toBeVisible();
-
-    expect(screen.getAllByRole('link', { name: 'Go back' })[0]).toHaveAttribute(
-      'href',
-      `/site/${mockSite.id}`,
-    );
-  });
-
-  it('shows the manage site details button if the user has permission', async () => {
-    const jsx = await SiteDetailsPage({
-      site: mockSite,
-      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
     expect(
-      screen.getByRole('link', { name: 'Manage site details' }),
+      screen.getByRole('link', { name: 'Edit access needs' }),
     ).toBeVisible();
 
     expect(
-      screen.getByRole('link', { name: 'Manage site details' }),
+      screen.getByRole('link', { name: 'Edit access needs' }),
     ).toHaveAttribute('href', `/site/${mockSite.id}/details/edit-attributes`);
   });
 
-  it('hides the manage site details button if the user does not have permission', async () => {
+  it('hides the edit access needs hyperlink if the user does not have permission', async () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
     expect(
-      screen.queryByRole('link', { name: 'Manage site details' }),
+      screen.queryByRole('link', { name: 'Edit access needs' }),
+    ).toBeNull();
+  });
+
+  it('shows the edit information for citizens hyperlink if the user has permission', async () => {
+    const jsx = await SiteDetailsPage({
+      site: mockSite,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('link', { name: 'Edit information for citizens' }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole('link', { name: 'Edit information for citizens' }),
+    ).toHaveAttribute(
+      'href',
+      `/site/${mockSite.id}/details/edit-information-for-citizens`,
+    );
+  });
+
+  it('hides the edit information for citizens hyperlink if the user does not have permission', async () => {
+    const jsx = await SiteDetailsPage({
+      site: mockSite,
+      permissions: ['site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit information for citizens' }),
     ).toBeNull();
   });
 });

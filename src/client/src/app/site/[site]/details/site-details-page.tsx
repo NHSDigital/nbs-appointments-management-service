@@ -1,17 +1,23 @@
-import { Button, ButtonGroup, SummaryList } from '@components/nhsuk-frontend';
+import { Card, SummaryList } from '@components/nhsuk-frontend';
 import {
   fetchAttributeDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
-import { Site } from '@types';
+import { mapSiteSummaryData } from '@services/siteService';
+import { Site, WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
 
 type Props = {
   site: Site;
   permissions: string[];
+  wellKnownOdsEntries: WellKnownOdsEntry[];
 };
 
-const SiteDetailsPage = async ({ site, permissions }: Props) => {
+const SiteDetailsPage = async ({
+  site,
+  permissions,
+  wellKnownOdsEntries,
+}: Props) => {
   const attributeDefinitions = await fetchAttributeDefinitions();
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
@@ -21,69 +27,53 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
     sa => sa.id === 'site_details/info_for_citizen',
   );
 
+  const siteSummary = mapSiteSummaryData(site, wellKnownOdsEntries);
+
   return (
     <>
-      <h3>Access needs</h3>
-      <p>The access needs your current site offers</p>
-
-      <SummaryList
-        borders={false}
-        items={accessibilityAttributeDefinitions.map(definition => {
-          return {
-            title: definition.displayName,
-            value:
-              siteDetails?.attributeValues.find(
-                value => value.id === definition.id,
-              )?.value === 'true'
-                ? 'Status: Active'
-                : 'Status: Inactive',
-          };
-        })}
-      />
-      {permissions.includes('site:manage') ? (
-        <ButtonGroup>
-          <Link href={`/site/${site.id}/details/edit-attributes`}>
-            <Button>Manage site details</Button>
+      <Card title="Site Details">
+        {siteSummary && <SummaryList {...siteSummary}></SummaryList>}
+        {/* TODO: Add link to edit site details */}
+      </Card>
+      <Card title="Access needs">
+        <SummaryList
+          borders={true}
+          items={accessibilityAttributeDefinitions.map(definition => {
+            return {
+              title: definition.displayName,
+              value:
+                siteDetails?.attributeValues.find(
+                  value => value.id === definition.id,
+                )?.value === 'true'
+                  ? 'Yes'
+                  : 'No',
+            };
+          })}
+        />
+        {permissions.includes('site:manage') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-attributes`}
+            className="nhsuk-link"
+          >
+            Edit access needs
           </Link>
-          <Link href={`/site/${site.id}`}>
-            <Button type="button" styleType="secondary">
-              Go back
-            </Button>
+        ) : null}
+      </Card>
+      <Card title="Information for citizens">
+        {informationForCitizenAttribute ? (
+          <p>{informationForCitizenAttribute.value}</p>
+        ) : (
+          <p>Information for people visiting the site</p>
+        )}
+        {permissions.includes('site:manage') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-information-for-citizens`}
+            className="nhsuk-link"
+          >
+            Edit information for citizens
           </Link>
-        </ButtonGroup>
-      ) : (
-        <Link href={`/site/${site.id}`}>
-          <Button type="button" styleType="secondary">
-            Go back
-          </Button>
-        </Link>
-      )}
-
-      <h3>Information for citizens</h3>
-      <p>Instructions to be shown to people when they arrive</p>
-      {informationForCitizenAttribute ? (
-        <p>{informationForCitizenAttribute.value}</p>
-      ) : (
-        ''
-      )}
-      {permissions.includes('site:manage') ? (
-        <ButtonGroup>
-          <Link href={`/site/${site.id}/details/edit-information-for-citizens`}>
-            <Button>Manage information for citizens</Button>
-          </Link>
-          <Link href={`/site/${site.id}`}>
-            <Button type="button" styleType="secondary">
-              Go back
-            </Button>
-          </Link>
-        </ButtonGroup>
-      ) : (
-        <Link href={`/site/${site.id}`}>
-          <Button type="button" styleType="secondary">
-            Go back
-          </Button>
-        </Link>
-      )}
+        ) : null}
+      </Card>
     </>
   );
 };

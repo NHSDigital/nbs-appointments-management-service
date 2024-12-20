@@ -35,6 +35,9 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
             { "code_verifier", _authOptions.ChallengePhrase }
         };
 
+        if (String.IsNullOrEmpty(_authOptions.ClientSecret) == false)
+            formValues.Add("client_secret", _authOptions.ClientSecret);
+
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);

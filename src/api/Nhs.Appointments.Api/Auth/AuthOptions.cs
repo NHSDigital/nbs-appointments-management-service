@@ -10,4 +10,5 @@ public class AuthOptions
     public string ReturnUri { get; set; }   
     public string ChallengePhrase { get; set; }
     public string ClientCodeExchangeUri { get; set; }
+    public string ClientSecret { get; set; }
 }

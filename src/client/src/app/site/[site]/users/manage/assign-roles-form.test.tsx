@@ -33,7 +33,7 @@ describe('Assign Roles Form', () => {
       />,
     );
 
-    expect(screen.getByRole('checkbox', { name: 'Alfa Role' })).toBeVisible();
+    expect(screen.getByRole('checkbox', { name: 'Alpha Role' })).toBeVisible();
     expect(screen.getByRole('checkbox', { name: 'Beta Role' })).toBeVisible();
     expect(
       screen.getByRole('checkbox', { name: 'Charlie Role' }),
@@ -51,7 +51,7 @@ describe('Assign Roles Form', () => {
     );
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes.length).toBe(3);
-    expect(checkboxes[0].getAttribute('label')).toEqual('Alfa Role');
+    expect(checkboxes[0].getAttribute('label')).toEqual('Alpha Role');
     expect(checkboxes[1].getAttribute('label')).toEqual('Beta Role');
     expect(checkboxes[2].getAttribute('label')).toEqual('Charlie Role');
   });
@@ -70,7 +70,7 @@ describe('Assign Roles Form', () => {
     expect(
       screen.getByRole('checkbox', { name: 'Charlie Role' }),
     ).not.toBeChecked();
-    expect(screen.getByRole('checkbox', { name: 'Alfa Role' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Alpha Role' })).toBeChecked();
   });
   it('display a validation error when attempting to submit the form with no roles selected', async () => {
     const { user } = render(

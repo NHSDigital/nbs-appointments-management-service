@@ -60,7 +60,9 @@ describe('Users Page', () => {
     expect(
       screen.getByRole('cell', { name: 'test.two@nhs.net' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Alfa Role' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Alpha Role' }),
+    ).toBeInTheDocument();
   });
 
   it('displays the edit and remove buttons for each user if they may see it', async () => {

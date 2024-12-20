@@ -46,9 +46,9 @@ const mockRoles: Role[] = [
     description: 'This is a short description of charlie role.',
   },
   {
-    displayName: 'Alfa Role',
+    displayName: 'Alpha Role',
     id: 'role-3',
-    description: 'This is a short description of alfa role.',
+    description: 'This is a short description of alpha role.',
   },
 ];
 

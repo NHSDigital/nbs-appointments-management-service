@@ -10,11 +10,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Options;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 using Microsoft.AspNetCore.Authorization;
-using Nhs.Appointments.Core;
-using System.Security.Claims;
-using System.Linq;
 using System;
-using System.IdentityModel.Tokens.Jwt;
+
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -41,7 +38,9 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
+        Console.WriteLine(response.StatusCode);
         var rawResponse = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(rawResponse);
         var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
         return new OkObjectResult(new { token = tokenResponse.IdToken });
     }

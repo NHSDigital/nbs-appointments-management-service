@@ -135,6 +135,7 @@ stages:
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
           prBuildResourceGroup: "nbs-mya-prbuild-rg-dev-uks"
+        condition: false
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)

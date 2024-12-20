@@ -4,7 +4,11 @@
   "latestAcceptedEulaVersion": "2024-12-01",
   "roleAssignments": [
     {
-      "role": "canned:site-configuration-manager",
+      "role": "canned:availability-manager",
+      "scope": "site:ABC01"
+    },
+    {
+      "role": "canned:site-details-manager",
       "scope": "site:ABC01"
     },
     {
@@ -12,23 +16,19 @@
       "scope": "site:ABC01"
     },
     {
-      "role": "canned:site-attributes-editor",
-      "scope": "site:ABC01"
-    },
-    {
-      "role": "canned:site-configuration-manager",
-      "scope": "site:ABC02"
-    },
-    {
-      "role": "canned:site-attributes-editor",
-      "scope": "site:ABC02"
-    },
-    {
       "role": "canned:availability-manager",
       "scope": "site:ABC02"
     },
     {
       "role": "canned:appointment-manager",
+      "scope": "site:ABC02"
+    },
+    {
+      "role": "canned:site-details-manager",
+      "scope": "site:ABC02"
+    },
+    {
+      "role": "canned:user-manager",
       "scope": "site:ABC02"
     }
   ]

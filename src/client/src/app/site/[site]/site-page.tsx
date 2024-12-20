@@ -1,5 +1,6 @@
-import { Card, SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
-import { Site,  } from '@types';
+import { Card, SummaryList } from '@nhsuk-frontend-components';
+import { mapSiteSummaryData } from '@services/siteService';
+import { Site, WellKnownOdsEntry } from '@types';
 
 interface SitePageProps {
   site: Site;
@@ -21,7 +22,7 @@ export const SitePage = ({
       p === 'availability:query',
   );
 
-  const summaryData = mapSummaryData(site, wellKnownOdsCodeEntries);
+  const summaryData = mapSiteSummaryData(site, wellKnownOdsCodeEntries);
 
   return (
     <>
@@ -63,37 +64,4 @@ export const SitePage = ({
       )}
     </>
   );
-};
-
-const mapSummaryData = (
-  site: Site,
-  wellKnownOdsCodeEntries: WellKnownOdsEntry[],
-) => {
-  if (!site) {
-    return undefined;
-  }
-
-  const items: SummaryListItem[] = [];
-
-  items.push({
-    title: 'Address',
-    value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
-  });
-  items.push({ title: 'ODS code', value: site.id });
-  items.push({
-    title: 'ICB',
-    value:
-      wellKnownOdsCodeEntries.find(e => e.odsCode === site.integratedCareBoard)
-        ?.displayName ?? site.integratedCareBoard,
-  });
-  items.push({
-    title: 'Region',
-    value:
-      wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-        ?.displayName ?? site.region,
-  });
-
-  const border = false;
-
-  return { items, border };
 };

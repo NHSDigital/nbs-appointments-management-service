@@ -1,7 +1,10 @@
 import { SummaryListItem } from '@components/nhsuk-frontend';
-import { Site } from '@types';
+import { Site, WellKnownOdsEntry } from '@types';
 
-export const mapSiteSummaryData = (site: Site) => {
+export const mapSiteSummaryData = (
+  site: Site,
+  wellKnownOdsCodeEntries: WellKnownOdsEntry[],
+) => {
   if (!site) {
     return undefined;
   }
@@ -13,8 +16,18 @@ export const mapSiteSummaryData = (site: Site) => {
     value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
   });
   items.push({ title: 'ODS code', value: site.id });
-  items.push({ title: 'ICB', value: site.integratedCareBoard });
-  items.push({ title: 'Region', value: site.region });
+  items.push({
+    title: 'ICB',
+    value:
+      wellKnownOdsCodeEntries.find(e => e.odsCode === site.integratedCareBoard)
+        ?.displayName ?? site.integratedCareBoard,
+  });
+  items.push({
+    title: 'Region',
+    value:
+      wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
+        ?.displayName ?? site.region,
+  });
 
   const border = false;
 

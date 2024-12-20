@@ -9,6 +9,7 @@ import {
   mockAttributeDefinitions,
   mockSite,
   mockSiteWithAttributes,
+  mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
@@ -29,6 +30,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -39,6 +41,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -57,6 +60,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -73,6 +77,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -85,6 +90,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 
@@ -104,6 +110,7 @@ describe('Manage Attributes Page', () => {
     const jsx = await SiteDetailsPage({
       site: mockSite,
       permissions: ['site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
     render(jsx);
 

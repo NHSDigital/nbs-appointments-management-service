@@ -3,6 +3,7 @@ import {
   assertAllPermissions,
   fetchPermissions,
   fetchSite,
+  fetchWellKnownOdsCodeEntries,
 } from '@services/appointmentsService';
 import SiteDetailsPage from './site-details-page';
 
@@ -14,6 +15,7 @@ export type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
+  const wellKnownOdsCodeEntries = await fetchWellKnownOdsCodeEntries();
 
   const sitePermissions = await fetchPermissions(params.site);
 
@@ -24,7 +26,11 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsPage title="Manage Site" site={site} caption={site.name}>
-      <SiteDetailsPage site={site} permissions={sitePermissions} />
+      <SiteDetailsPage
+        site={site}
+        permissions={sitePermissions}
+        wellKnownOdsEntries={wellKnownOdsCodeEntries}
+      />
     </NhsPage>
   );
 };

@@ -4,15 +4,20 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import { mapSiteSummaryData } from '@services/siteService';
-import { Site } from '@types';
+import { Site, WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
 
 type Props = {
   site: Site;
   permissions: string[];
+  wellKnownOdsEntries: WellKnownOdsEntry[];
 };
 
-const SiteDetailsPage = async ({ site, permissions }: Props) => {
+const SiteDetailsPage = async ({
+  site,
+  permissions,
+  wellKnownOdsEntries,
+}: Props) => {
   const attributeDefinitions = await fetchAttributeDefinitions();
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
@@ -22,7 +27,7 @@ const SiteDetailsPage = async ({ site, permissions }: Props) => {
     sa => sa.id === 'site_details/info_for_citizen',
   );
 
-  const siteSummary = mapSiteSummaryData(site);
+  const siteSummary = mapSiteSummaryData(site, wellKnownOdsEntries);
 
   return (
     <>

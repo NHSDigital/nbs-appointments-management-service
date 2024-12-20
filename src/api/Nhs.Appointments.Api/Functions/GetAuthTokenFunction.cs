@@ -41,10 +41,13 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
-        Console.WriteLine(response.StatusCode);
         var rawResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(rawResponse);
-        var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
-        return new OkObjectResult(new { token = tokenResponse.IdToken });
+        if (response.IsSuccessStatusCode)
+        {
+            var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
+            return new OkObjectResult(new { token = tokenResponse.IdToken });
+        }
+        else
+            throw new InvalidOperationException($"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
 }

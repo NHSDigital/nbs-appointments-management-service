@@ -63,13 +63,13 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
                 Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
                 Role = row.Cells.ElementAt(1).Value
             });
-        var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
+        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 
     private async Task<UserDocument> GetUserDocument(CosmosClient cosmosClient, string user)
     {
-        var container = cosmosClient.GetContainer("appts", "index_data");
+        var container = cosmosClient.GetContainer("appts", "core_data");
 
         using(ResponseMessage response = await container.ReadItemStreamAsync(GetUserId(user), new PartitionKey("user")))
         {

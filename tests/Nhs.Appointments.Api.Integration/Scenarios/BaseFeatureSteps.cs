@@ -83,7 +83,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 } )
         };
-        return Client.GetContainer("appts", "index_data").CreateItemAsync(site);
+        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     [Given("the following sessions")]
@@ -346,7 +346,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var roles = new RolesDocument()
         {
             Id = "global_roles",
-            DocumentType = "roles",
+            DocumentType = "system",
             Roles = [
                 new Role
                     { 
@@ -392,7 +392,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 },
             ]
         };        
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(roles);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(roles);
     }
 
     private async Task SetUpNotificationConfiguration()
@@ -418,7 +418,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 }
             ]
         };
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(notificationConfiguration);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(notificationConfiguration);
     }
     
     protected async Task SetUpIntegrationTestUserRoleAssignments(DateOnly latestAcceptedEulaVersion = default)
@@ -435,7 +435,7 @@ public abstract partial class BaseFeatureSteps : Feature
             ],
             LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(userAssignments);
     }
 
     protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,  Expression<Func<TDocument, bool>> predicate)

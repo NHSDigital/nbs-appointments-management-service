@@ -1,6 +1,6 @@
 {
   "id": "global_roles",
-  "docType": "roles",
+  "docType": "system",
   "roles": [
     {
       "id": "canned:availability-manager",
@@ -63,18 +63,6 @@
         "sites:query",
         "site:view",
         "site:get-meta-data"
-      ]
-    },
-    {
-      "id": "system:auditer",
-      "name": "Auditer",
-      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
-      "permissions": [
-        "site:get-meta-data",
-        "availability:query",
-        "booking:query",
-        "users:view",
-        "site:view"
       ]
     },
     {

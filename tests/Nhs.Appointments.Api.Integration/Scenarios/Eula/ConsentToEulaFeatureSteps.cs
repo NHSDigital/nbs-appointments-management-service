@@ -76,7 +76,6 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
             ],
             LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
-
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(userAssignments);
     }
 }

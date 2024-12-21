@@ -21,6 +21,6 @@ public abstract class BaseEulaFeatureSteps : BaseFeatureSteps
             VersionDate = versionDate
         };
 
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(eulaVersion);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(eulaVersion);
     }
 }

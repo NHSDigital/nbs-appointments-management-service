@@ -1,6 +1,6 @@
 {
   "id": "global_roles",
-  "docType": "roles",
+  "docType": "system",
   "roles": [
     {
       "id": "canned:availability-manager",
@@ -66,20 +66,8 @@
       ]
     },
     {
-      "id": "system:auditer",
-      "name": "Auditer",
-      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
-      "permissions": [
-        "site:get-meta-data",
-        "availability:query",
-        "booking:query",
-        "users:view",
-        "site:view"
-      ]
-    },
-    {
       "id": "system:all-permissions",
-      "name": "All Permissions",
+      "name": "All permissions",
       "description": "System role used for full api access for development and test purposes (ONLY FOR USE IN TEST ENVIRONMENTS).",
       "permissions": [
         "site:get-meta-data",
@@ -89,26 +77,6 @@
         "booking:query",
         "booking:cancel",
         "booking:set-status",
-        "users:manage",
-        "users:view",
-        "sites:query",
-        "site:view",
-        "site:manage",
-        "system:run-reminders",
-        "system:run-provisional-sweep"
-      ]
-    },
-    {
-      "id": "system:integration-test-user",
-      "name": "Integration Test Api User Role",
-      "description": "Role for integration test user",
-      "permissions": [
-        "site:get-meta-data",
-        "availability:query",
-        "booking:make",
-        "booking:query",
-        "booking:cancel",
-        "availability:setup",
         "users:manage",
         "users:view",
         "sites:query",

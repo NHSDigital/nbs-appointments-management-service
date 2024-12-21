@@ -2,8 +2,8 @@
 
 namespace Nhs.Appointments.Persistance.Models;
 
-[CosmosDocumentType("roles")]
-public class RolesDocument : IndexDataCosmosDocument
+[CosmosDocumentType("system")]
+public class RolesDocument : CoreDataCosmosDocument
 {
     [JsonProperty("roles")]
     public Role[] Roles { get; set; }

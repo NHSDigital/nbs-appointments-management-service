@@ -3,7 +3,7 @@
 namespace Nhs.Appointments.Persistance.Models;
 
 [CosmosDocumentType("user")]
-public class UserDocument : IndexDataCosmosDocument
+public class UserDocument : CoreDataCosmosDocument
 {
     [JsonProperty("apiSigningKey")]
     public string ApiSigningKey { get; set; }

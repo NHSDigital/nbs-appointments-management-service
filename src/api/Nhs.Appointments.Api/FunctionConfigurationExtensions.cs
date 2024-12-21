@@ -115,6 +115,7 @@ public static class FunctionConfigurationExtensions
     {
         var database = await cosmosClient.CreateDatabaseIfNotExistsAsync(id: "appts");
         await database.Database.CreateContainerIfNotExistsAsync(id: "booking_data", partitionKeyPath: "/site");
+        await database.Database.CreateContainerIfNotExistsAsync(id: "core_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
 

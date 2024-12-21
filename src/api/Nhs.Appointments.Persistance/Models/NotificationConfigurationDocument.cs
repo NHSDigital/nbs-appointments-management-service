@@ -3,7 +3,7 @@
 namespace Nhs.Appointments.Persistance.Models;
 
 [CosmosDocumentType("system")]
-public class NotificationConfigurationDocument : IndexDataCosmosDocument
+public class NotificationConfigurationDocument : CoreDataCosmosDocument
 {
     [JsonProperty("configs")]
     public NotificationConfigurationItem[] Configs { get; set; }

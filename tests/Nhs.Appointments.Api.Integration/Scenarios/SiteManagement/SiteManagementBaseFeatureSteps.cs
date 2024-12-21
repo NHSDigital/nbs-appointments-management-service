@@ -43,7 +43,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         
         foreach (var site in sites)
         {
-            await Client.GetContainer("appts", "index_data").UpsertItemAsync(site);
+            await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
         }
     }
     

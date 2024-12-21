@@ -23,6 +23,6 @@ public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
             DocumentType = "user",
             RoleAssignments = roleAssignments
         };    
-        await Client.GetContainer("appts", "index_data").CreateItemAsync(userDocument);
+        await Client.GetContainer("appts", "core_data").CreateItemAsync(userDocument);
     }
 }

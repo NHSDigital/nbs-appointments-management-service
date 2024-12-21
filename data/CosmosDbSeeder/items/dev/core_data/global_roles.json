@@ -1,6 +1,6 @@
 {
   "id": "global_roles",
-  "docType": "roles",
+  "docType": "system",
   "roles": [
     {
       "id": "canned:availability-manager",
@@ -66,8 +66,20 @@
       ]
     },
     {
+      "id": "system:auditer",
+      "name": "Auditer",
+      "description": "A user who can see everything (including admin-level data) but take no actions. This is a read-only role.",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:query",
+        "booking:query",
+        "users:view",
+        "site:view"
+      ]
+    },
+    {
       "id": "system:all-permissions",
-      "name": "All permissions",
+      "name": "All Permissions",
       "description": "System role used for full api access for development and test purposes (ONLY FOR USE IN TEST ENVIRONMENTS).",
       "permissions": [
         "site:get-meta-data",

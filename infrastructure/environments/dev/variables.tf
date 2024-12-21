@@ -44,7 +44,7 @@ variable "AUTH_PROVIDER_CLIENT_SECRET" {
 }
 
 variable "GOV_NOTIFY_BASE_URI" {
-  type      = string
+  type = string
 }
 
 variable "GOV_NOTIFY_API_KEY" {

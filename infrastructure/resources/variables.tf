@@ -66,6 +66,7 @@ variable "auth_provider_client_id" {
 variable "auth_provider_client_secret" {
   type      = string
   sensitive = true
+  default   = ""
 }
 
 variable "gov_notify_base_uri" {
@@ -130,8 +131,9 @@ variable "app_service_plan_zone_redundancy_enabled" {
   type = bool
 }
 
-variable "do_create_autoscale_settings" {
-  type = bool
+variable "create_autoscale_settings" {
+  type    = bool
+  default = false
 }
 
 variable "web_app_service_plan_min_worker_count" {
@@ -171,6 +173,12 @@ variable "app_insights_sampling_percentage" {
   type = number
 }
 
-variable "do_create_swap_slot" {
-  type = bool
+variable "create_app_slot" {
+  type    = bool
+  default = false
+}
+
+variable "create_frontdoor" {
+  type    = bool
+  default = false
 }

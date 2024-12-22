@@ -44,8 +44,9 @@ module "api" {
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true
-  do_create_swap_slot                            = true
-  do_create_autoscale_settings                   = true
+  create_app_slot                                = true
+  create_autoscale_settings                      = true
+  create_frontdoor                               = true
   web_app_service_plan_min_worker_count          = 1
   web_app_service_plan_max_worker_count          = 20
   web_app_service_plan_scale_out_worker_count    = 1

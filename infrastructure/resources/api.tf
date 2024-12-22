@@ -66,7 +66,7 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
 }
 
 resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
-  count                      = var.do_create_swap_slot ? 1 : 0
+  count                      = var.create_app_slot ? 1 : 0
   name                       = "preview"
   function_app_id            = azurerm_windows_function_app.nbs_mya_func_app.id
   storage_account_name       = azurerm_storage_account.nbs_mya_func_storage_account.name

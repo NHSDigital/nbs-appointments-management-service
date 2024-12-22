@@ -32,7 +32,7 @@ public sealed class AttributeDefinitionsFeatureSteps : BaseFeatureSteps
                 AttributeDefinitions = attributeDefinitions
             };
         
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(attributeDocument);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(attributeDocument);
     }
     
     [When(@"I query for all attribute definitions")]

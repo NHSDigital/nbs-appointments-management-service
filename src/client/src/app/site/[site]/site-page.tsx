@@ -18,7 +18,7 @@ export const SitePage = ({
       p === 'users:view' ||
       p === 'site:manage' ||
       p === 'site:view' ||
-      p === 'availability:set-setup' ||
+      p === 'availability:setup' ||
       p === 'availability:query',
   );
 
@@ -38,7 +38,7 @@ export const SitePage = ({
               />
             </li>
           )}
-          {permissionsRelevantToCards.includes('availability:set-setup') && (
+          {permissionsRelevantToCards.includes('availability:setup') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`${site.id}/create-availability`}

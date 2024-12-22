@@ -63,8 +63,13 @@ variable "auth_provider_client_id" {
   type = string
 }
 
-variable "gov_notify_base_uri" {
+variable "auth_provider_client_secret" {
   type      = string
+  sensitive = true
+}
+
+variable "gov_notify_base_uri" {
+  type = string
 }
 
 variable "gov_notify_api_key" {
@@ -99,6 +104,11 @@ variable "cosmos_capabilities" {
 }
 
 variable "cosmos_booking_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_core_autoscale_settings" {
   type    = list(any)
   default = []
 }

@@ -13,6 +13,7 @@ import {
   ButtonGroup,
   SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
+import { sortRolesByName } from '@sorting';
 
 type FormFields = {
   roles: string[];
@@ -30,6 +31,7 @@ const AssignRolesForm = ({
   assignments: RoleAssignment[];
 }) => {
   const { replace } = useRouter();
+  const sortedRoles = roles.toSorted(sortRolesByName);
   const {
     register,
     handleSubmit,
@@ -57,7 +59,7 @@ const AssignRolesForm = ({
         legend="Roles"
       >
         <CheckBoxes>
-          {roles.map(r => (
+          {sortedRoles.map(r => (
             <CheckBox
               id={r.id}
               label={r.displayName}

@@ -83,7 +83,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 } )
         };
-        return Client.GetContainer("appts", "index_data").CreateItemAsync(site);
+        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     [Given("the following sessions")]
@@ -346,7 +346,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var roles = new RolesDocument()
         {
             Id = "global_roles",
-            DocumentType = "roles",
+            DocumentType = "system",
             Roles = [
                 new Role
                     { 
@@ -359,50 +359,40 @@ public abstract partial class BaseFeatureSteps : Feature
                             "booking:make", 
                             "booking:query", 
                             "booking:cancel", 
-                            "site:get-config", 
-                            "site:set-config", 
-                            "availability:get-setup", 
                             "users:manage", 
                             "users:view", 
                             "sites:query",
                             "site:view",
                             "site:manage",
-                            "availability:set-setup",
+                            "availability:setup",
                             "system:run-provisional-sweep",
                             "system:run-reminders"
                         ] 
                     },
                 new Role
                 { 
-                    Id = "canned:site-configuration-manager", 
-                    Name = "Site configuration manager",
-                    Description = "A user can view and manage site information, such as access needs.",
-                    Permissions = ["site:get-config", "site:set-config" ] 
-                },
-                new Role
-                { 
                     Id = "canned:availability-manager", 
                     Name = "Availability manager",
                     Description = "A user can create, view, and manage site availability.",
-                    Permissions = ["availability:get-setup", "availability:set-setup", "availability:query"] 
+                    Permissions = ["availability:setup", "availability:query", "booking:query", "site:view", "site:get-meta-data"]
                 },
                 new Role
                 { 
                     Id = "canned:appointment-manager", 
                     Name = "Appointment manager",
-                    Description = "A user can create, edit, and cancel bookings.",
-                    Permissions = ["booking:make", "booking:query", "booking:cancel"] 
+                    Description = "A user can cancel appointments.",
+                    Permissions = ["availability:query", "booking:cancel", "booking:query", "site:view", "site:get-meta-data"]
                 },
                 new Role
-                { 
-                    Id = "canned:check-in", 
-                    Name = "Check-in",
-                    Description = "A user can check in/undo check in patients for their bookings.",
-                    Permissions = ["booking:query", "booking:set-status"] 
-                }
+                {
+                    Id = "canned:site-details-manager",
+                    Name = "Site details manager",
+                    Description = "A user can edit site details and accessibility information.",
+                    Permissions = ["availability:query", "booking:query", "site:view", "site:manage", "site:get-meta-data"]
+                },
             ]
         };        
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(roles);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(roles);
     }
 
     private async Task SetUpNotificationConfiguration()
@@ -428,7 +418,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 }
             ]
         };
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(notificationConfiguration);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(notificationConfiguration);
     }
     
     protected async Task SetUpIntegrationTestUserRoleAssignments(DateOnly latestAcceptedEulaVersion = default)
@@ -445,7 +435,7 @@ public abstract partial class BaseFeatureSteps : Feature
             ],
             LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(userAssignments);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(userAssignments);
     }
 
     protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,  Expression<Func<TDocument, bool>> predicate)

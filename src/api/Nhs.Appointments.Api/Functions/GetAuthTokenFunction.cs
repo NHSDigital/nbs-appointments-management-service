@@ -10,11 +10,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Options;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 using Microsoft.AspNetCore.Authorization;
-using Nhs.Appointments.Core;
-using System.Security.Claims;
-using System.Linq;
 using System;
-using System.IdentityModel.Tokens.Jwt;
+
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -38,11 +35,19 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
             { "code_verifier", _authOptions.ChallengePhrase }
         };
 
+        if (String.IsNullOrEmpty(_authOptions.ClientSecret) == false)
+            formValues.Add("client_secret", _authOptions.ClientSecret);
+
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
         var rawResponse = await response.Content.ReadAsStringAsync();
-        var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
-        return new OkObjectResult(new { token = tokenResponse.IdToken });
+        if (response.IsSuccessStatusCode)
+        {
+            var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
+            return new OkObjectResult(new { token = tokenResponse.IdToken });
+        }
+        else
+            throw new InvalidOperationException($"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
 }

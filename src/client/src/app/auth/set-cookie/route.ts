@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
   const previousPage = cookies().get('previousPage');
   if (previousPage) {
     cookies().delete('previousPage');
-    redirect(previousPage.value);
+    redirect(`${process.env.CLIENT_BASE_PATH}/${previousPage.value}`);
   }
 
-  redirect('/');
+  redirect(process.env.CLIENT_BASE_PATH ?? '/');
 }

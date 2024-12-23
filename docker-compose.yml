@@ -43,7 +43,7 @@ services:
       - AuthProvider_ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - AuthProvider_ClientId=nhs-appts-local
       - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
-      - AuthProvider_ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie
+      - AuthProvider_ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *

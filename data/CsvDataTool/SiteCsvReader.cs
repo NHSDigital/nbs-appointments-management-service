@@ -1,6 +1,5 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 
@@ -18,21 +17,18 @@ public class SiteCsvReader
         _textReader = new Lazy<TextReader>(() => _inputFile.OpenText());
     }
 
-    public SiteCsvReader(string csvContent)
+    public async Task<IEnumerable<SiteRowReportItem>> ReadAndProcessAsync(Func<SiteDocument, Task> process)
     {
-        _csvContent = csvContent;
-        _textReader = new Lazy<TextReader>(() => new StringReader(_csvContent));
-    }
-
-    public (SiteDocument[], SiteRowReportItem[]) Read()
-    {
-        int index = 0;
-        var sites = new List<SiteDocument>();
+        int index = -1;
         var report = new List<SiteRowReportItem>();
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true,
+            ShouldSkipRecord = args => { 
+                index++;
+                return false;
+            }, 
             ReadingExceptionOccurred = args =>
             {
                 report.Add(new SiteRowReportItem(index, "", false, args.Exception.ToString()));
@@ -55,12 +51,18 @@ public class SiteCsvReader
             var imported = csv.GetRecords<SiteDocument>();
             foreach(var site in imported)
             {
-                sites.Add(site);
-                report.Add(new SiteRowReportItem(index, site.Name, true, ""));
-                index++;
+                try
+                {
+                    await process(site);
+                    report.Add(new SiteRowReportItem(index, site.Name, true, ""));
+                }
+                catch (Exception ex)
+                {
+                    report.Add(new SiteRowReportItem(index, site.Name, false, ex.Message));
+                }
             }       
         }
 
-        return (sites.ToArray(), report.ToArray());
+        return report.ToArray();
     }
 }

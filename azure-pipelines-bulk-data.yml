@@ -1,0 +1,72 @@
+﻿trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: ""
+    values: ["dev", "int", "stag"]
+  - name: csvFileName
+    displayName: "Filename of the CSV file to import"
+    type: string
+    default: ""
+
+variables:
+  environment: ${{parameters.env}}
+  csvFile: ${{parameters.csvFileName}}
+  storageAccountName: "nbsmyastrgimportsdevuks"
+  containerName: "csvdata"
+  cosmosCoreDataPath: "data/CosmosDbSeeder/items/$(environment)/core_data"
+  cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
+  resourceGroupName: "nbs-mya-rg-$(environment)-uks"
+
+stages:
+  - stage: "BulkDataImport"
+    displayName: "Bulk data import"
+    jobs:
+      - job: "BulkDataImport"
+        displayName: "Bulk data import"
+        steps:
+          - pwsh: |
+              Remove-Item '$(cosmosCoreDataPath)/*'
+            displayName: "Remove existing cosmos files"
+          - task: AzureCLI@2
+            displayName: "Download csv file"
+            inputs:
+              azureSubscription: "nbs-mya-rg-dev"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/download_blob.ps1"
+              arguments: "-storageAccountName $(storageAccountName) -containerName $(containerName) -blobName $(csvFile) -outputFilePath $(csvFile)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run CSV tool"
+            inputs:
+              command: "run"
+              projects: "data/CsvDataTool/CsvDataTool.csproj"
+              arguments: "--in $(csvFile) --out $(cosmosCoreDataPath)"
+          - pwsh: |
+              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/csv_conversion_report.md"
+            displayName: "Attach CSV conversion report"
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-$(environment)"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+              arguments: "--no-overwrites"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - pwsh: |
+              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/data_import_report.md"
+            displayName: "Attach data import report" 

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Nhs.Appointments.Core;
 using System.Text.Json;
 
@@ -20,10 +20,13 @@ public class BookingDocument : BookingDataCosmosDocument
     public string Service { get; set; }    
 
     [JsonProperty("created")]
-    public DateTime Created { get; set; }
+    public DateTimeOffset Created { get; set; }
 
     [JsonProperty("status")]
     public AppointmentStatus Status { get; set; }
+
+    [JsonProperty("statusUpdated")]
+    public DateTimeOffset StatusUpdated { get; set; }
 
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }

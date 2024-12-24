@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Collections.Concurrent;
@@ -90,8 +90,9 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
     }
 
     private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)

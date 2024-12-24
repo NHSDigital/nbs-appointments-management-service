@@ -103,7 +103,7 @@ resource "azurerm_cdn_frontdoor_route" "nbs_mya_web_route" {
 
   forwarding_protocol    = "MatchRequest"
   https_redirect_enabled = false
-  patterns_to_match      = ["/manage-your-appointments/*"]
+  patterns_to_match      = ["/manage-your-appointments/*", "/manage-your-appointments"]
   supported_protocols    = ["Https"]
 
   link_to_default_domain = true

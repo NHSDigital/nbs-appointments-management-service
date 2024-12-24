@@ -8,13 +8,14 @@ parameters:
     displayName: "Environment to import data into"
     type: string
     default: ""
-    values: ["exp"]
+    values: ["dev", "int", "stag"]
   - name: csvFileName
     displayName: "Filename of the CSV file to import"
     type: string
     default: ""
 
 variables:
+  isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
   environment: ${{parameters.env}}
   csvFile: ${{parameters.csvFileName}}
   storageAccountName: "nbsmyastrgimportsdevuks"
@@ -29,6 +30,7 @@ stages:
     jobs:
       - job: "BulkDataImport"
         displayName: "Bulk Data Import"
+        condition: eq($(isMain), true)
         steps:
           - task: DotNetCoreCLI@2
             displayName: "Run CSV tool unit tests"
@@ -63,7 +65,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: "nbs-mya-rg-dev"
+              azureSubscription: "nbs-mya-rg-$(environment)"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"

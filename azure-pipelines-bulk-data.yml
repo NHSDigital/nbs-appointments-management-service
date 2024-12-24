@@ -30,7 +30,7 @@ stages:
     jobs:
       - job: "BulkDataImport"
         displayName: "Bulk Data Import"
-        condition: eq($(isMain), true)
+        condition: eq(variables.main, true)
         steps:
           - task: DotNetCoreCLI@2
             displayName: "Run CSV tool unit tests"

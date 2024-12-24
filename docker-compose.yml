@@ -8,6 +8,7 @@ services:
     environment:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
+      CLIENT_BASE_PATH: /manage-your-appointments
 
     volumes:
       - ./src/client/src:/app/src
@@ -43,14 +44,13 @@ services:
       - AuthProvider_ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - AuthProvider_ClientId=nhs-appts-local
       - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
-      - AuthProvider_ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie
+      - AuthProvider_ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
 
-  
   splunk:
     image: splunk/splunk:latest
     container_name: splunk

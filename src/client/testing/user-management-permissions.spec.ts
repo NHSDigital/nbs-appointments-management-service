@@ -66,7 +66,7 @@ test('Navigating straight to the user management page works as expected', async 
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
 
-  await page.goto('/site/ABC01/users');
+  await page.goto('/manage-your-appointments/site/ABC01/users');
   await expect(usersPage.title).toBeVisible();
 });
 
@@ -77,11 +77,11 @@ test('Navigating straight to the user management page displays an appropriate er
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser3);
 
-  await page.goto('/site/ABC01/users');
+  await page.goto('/manage-your-appointments/site/ABC01/users');
   await expect(usersPage.emailColumn).not.toBeVisible();
   await expect(notAuthorizedPage.title).toBeVisible();
 
-  await page.goto('/site/ABC01/users/manage');
+  await page.goto('/manage-your-appointments/site/ABC01/users/manage');
   await expect(userManagementPage.emailInput).not.toBeVisible();
   await expect(notAuthorizedPage.title).toBeVisible();
 });

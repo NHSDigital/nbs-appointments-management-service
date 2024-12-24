@@ -5,6 +5,7 @@ import { DailyAppointmentsPage } from './daily-appointments-page';
 import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
 import { Tabs, TabsChildren } from '@nhsuk-frontend-components';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -76,19 +77,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const tabsChildren = buildTabs(site.id, searchParams.tab);
 
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability/week?date=${searchParams.date}`,
+    text: 'Back to week view',
+  };
+
   return (
-    <NhsPage
-      title={title}
-      caption={site.name}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        {
-          name: 'View daily appointments',
-          href: `/site/${params.site}/view-availability/daily-appointments?date=${searchParams.date}&page=${searchParams.page}`,
-        },
-      ]}
-    >
+    <NhsPage title={title} caption={site.name} backLink={backLink}>
       <Tabs>{tabsChildren}</Tabs>
     </NhsPage>
   );

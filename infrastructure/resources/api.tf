@@ -44,7 +44,7 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
     AuthProvider_ClientSecret                  = var.auth_provider_client_secret
-    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_base_uri}/auth/set-cookie"
+    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_base_uri}/manage-your-appointments/auth/set-cookie"
     AuthProvider_ReturnUri                     = "${var.func_app_base_uri}/api/auth-return"
     Notifications_Provider                     = "azure"
     GovNotifyBaseUri                           = var.gov_notify_base_uri
@@ -96,7 +96,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
     AuthProvider_ClientSecret                  = var.auth_provider_client_secret
-    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/auth/set-cookie"
+    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/manage-your-appointments/auth/set-cookie"
     AuthProvider_ReturnUri                     = "${var.func_app_slot_base_uri}/api/auth-return"
     Notifications_Provider                     = "azure"
     GovNotifyBaseUri                           = var.gov_notify_base_uri

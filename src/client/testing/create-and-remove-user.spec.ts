@@ -161,20 +161,26 @@ test('Displays a notification banner after removing a user, which disappears whe
 });
 
 test('Receives 403 error when trying to remove self', async ({ page }) => {
-  await page.goto(`/site/ABC01/users/remove?user=zzz_test_user_1@nhs.net`);
+  await page.goto(
+    `/manage-your-appointments/site/ABC01/users/remove?user=zzz_test_user_1@nhs.net`,
+  );
 
   await expect(notAuthorizedPage.title).toBeVisible();
 });
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
-  await page.goto(`/site/ABC01/users/remove?user=not-a-user`);
+  await page.goto(
+    `/manage-your-appointments/site/ABC01/users/remove?user=not-a-user`,
+  );
 
   await expect(notFoundPage.title).toBeVisible();
   await expect(notFoundPage.notFoundMessageText).toBeVisible();
 });
 
 test('Receives 403 error when trying to edit self', async ({ page }) => {
-  await page.goto(`/site/ABC01/users/manage?user=zzz_test_user_1@nhs.net`);
+  await page.goto(
+    `/manage-your-appointments/site/ABC01/users/manage?user=zzz_test_user_1@nhs.net`,
+  );
 
   await expect(notAuthorizedPage.title).toBeVisible();
 });

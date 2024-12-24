@@ -59,14 +59,15 @@ class Program
             await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
         }
         
-        OutputReport();
+        OutputReport("data_import_report.md");
+        OutputReport("data_import_summary.md", 100);
 
         Console.WriteLine("Database seeded successfully");
     }
 
-    private static void OutputReport()
+    private static void OutputReport(string filePath, int maxErrorRows = 0)
     {
-        using var reportWriter = MarkdownWriter.Create("data_import_report.md");
+        using var reportWriter = MarkdownWriter.Create(filePath);
         reportWriter.WriteHeading1("Data Import Report");
         reportWriter.WriteBold(_report.TotalDocumentsFound.ToString());
         reportWriter.WriteString($" items found to import");
@@ -80,7 +81,8 @@ class Program
         if (_report.DocumentsImported != _report.TotalDocumentsFound)
         {
             reportWriter.WriteHeading2("Import errors");
-            foreach (var item in _report.DocumentErrors)
+            var errors = maxErrorRows > 0 ? _report.DocumentErrors.Take(maxErrorRows) : _report.DocumentErrors;
+            foreach (var item in errors)
             {
                 reportWriter.WriteHeading3(item.Item1);
                 reportWriter.WriteBulletItem(item.Item2);

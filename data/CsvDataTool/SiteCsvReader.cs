@@ -7,19 +7,21 @@ namespace CsvDataTool;
 
 public class SiteCsvReader
 {
-    private readonly FileInfo _inputFile;
-    private readonly string _csvContent;
     private readonly Lazy<TextReader> _textReader;
 
     public SiteCsvReader(FileInfo inputFile)
     {
-        _inputFile = inputFile;
-        _textReader = new Lazy<TextReader>(() => _inputFile.OpenText());
+        _textReader = new Lazy<TextReader>(inputFile.OpenText);
+    }
+
+    public SiteCsvReader(TextReader csvReader)
+    {
+        _textReader = new Lazy<TextReader>(() => csvReader);
     }
 
     public async Task<IEnumerable<SiteRowReportItem>> ReadAndProcessAsync(Func<SiteDocument, Task> process)
     {
-        int index = -1;
+        var index = -1;
         var report = new List<SiteRowReportItem>();
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)

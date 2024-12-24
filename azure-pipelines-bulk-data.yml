@@ -25,16 +25,21 @@ variables:
 
 stages:
   - stage: "BulkDataImport"
-    displayName: "Bulk data import"
+    displayName: "Bulk Data Import"
     jobs:
       - job: "BulkDataImport"
-        displayName: "Bulk data import"
+        displayName: "Bulk Data Import"
         steps:
+          - task: DotNetCoreCLI@2
+            displayName: "Run CSV tool unit tests"
+            inputs:
+              command: "test"
+              projects: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           - pwsh: |
               Remove-Item '$(cosmosCoreDataPath)/*'
             displayName: "Remove existing cosmos files"
           - task: AzureCLI@2
-            displayName: "Download csv file"
+            displayName: "Download CSV file"
             inputs:
               azureSubscription: "nbs-mya-rg-dev"
               scriptType: pscore
@@ -42,7 +47,7 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/download_blob.ps1"
               arguments: "-storageAccountName $(storageAccountName) -containerName $(containerName) -blobName $(csvFile) -outputFilePath $(csvFile)"
           - task: DotNetCoreCLI@2
-            displayName: "Run CSV tool"
+            displayName: "Run CSV conversion tool"
             inputs:
               command: "run"
               projects: "data/CsvDataTool/CsvDataTool.csproj"

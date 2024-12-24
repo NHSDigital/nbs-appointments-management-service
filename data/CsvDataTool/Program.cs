@@ -47,9 +47,14 @@ public class Program
             var reader = new SiteCsvReader(inputOptionValue);
             var report = await reader.ReadAndProcessAsync(s => WriteSiteDocument(s, outputOptionValue));
             
-            Console.WriteLine($"Writing report to {reportPathOptionValue}");
+            Console.WriteLine($"Writing full report to {reportPathOptionValue}");
             var reportWriter = new SiteReportWriter(reportPathOptionValue);
             reportWriter.Write(report);
+            
+            var summaryReportFileInfo = GenerateShortReportName(reportPathOptionValue);
+            Console.WriteLine($"Writing summary report to {summaryReportFileInfo}");
+            var summaryWriter = new SiteReportWriter(summaryReportFileInfo);
+            summaryWriter.Write(report);
 
             Console.WriteLine($"Processed {report.Count()} rows.");
             Console.WriteLine($"Succeeded: {report.Count(r => r.Success)} rows.");
@@ -69,5 +74,11 @@ public class Program
         outputDirectory.Create();
         var filePath = Path.Combine(outputDirectory.FullName, $"site_{siteDocument.Id}.json");
         return SiteJsonWriter.Write(siteDocument, filePath);
+    }
+
+    private static FileInfo GenerateShortReportName(FileInfo reportFileInfo)
+    {
+        var pathStub = Path.GetFileNameWithoutExtension(reportFileInfo.FullName);
+        return new FileInfo($"{pathStub}_summary.md");
     }
 }

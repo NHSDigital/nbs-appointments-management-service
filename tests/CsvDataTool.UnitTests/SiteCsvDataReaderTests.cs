@@ -1,12 +1,13 @@
 using FluentAssertions;
 using System.Text;
+using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool.UnitTests
 {
     public class SiteCsvDataReaderTests
     {
         [Fact]
-        public void CanReadSiteData()
+        public async Task  CanReadSiteData()
         {         
             string[] inputRows =
                 [
@@ -16,11 +17,17 @@ namespace CsvDataTool.UnitTests
                 ];          
 
             var input = BuildInputCsv(inputRows);
+            var sites = new List<SiteDocument>();
 
-            var sut = new SiteCsvReader(input);
-            var (sites, report) = sut.Read();
+            var sut = new SiteCsvReader(new StringReader(input));
+            var report = await sut.ReadAndProcessAsync(
+                s =>
+                {
+                    sites.Add(s);
+                    return Task.CompletedTask;
+                });
             sites.Should().NotBeNull();
-            sites.Length.Should().Be(3);
+            sites.Count.Should().Be(3);
             sites[1].Name.Should().Be("test site 2");
             sites[1].Id.Should().Be("site2");
             sites[1].Address.Should().Be("123 test street");
@@ -40,7 +47,7 @@ namespace CsvDataTool.UnitTests
             sites[1].AttributeValues.First(x => x.Id == "accessibility/text_relay").Value.Should().Be("True");
             sites[1].AttributeValues.First(x => x.Id == "accessibility/wheelchair_access").Value.Should().Be("False");
 
-            report.Length.Should().Be(3);
+            report.Count().Should().Be(3);
             report.Any(r => !r.Success).Should().BeFalse();
         }
 

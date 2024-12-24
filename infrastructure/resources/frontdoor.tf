@@ -1,6 +1,6 @@
 resource "azurerm_cdn_frontdoor_profile" "nbs_mya_frontdoor_profile" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "${var.application}-fdtest-${var.environment}-${var.loc}"
+  name                     = "${var.application}-fd-${var.environment}-${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
   sku_name                 = "Standard_AzureFrontDoor"
   response_timeout_seconds = 60
@@ -15,7 +15,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "nbs_mya_endpoint" {
 # Api
 resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_api_origin_group" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "mya-api-test"
+  name                     = "mya-api"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
   session_affinity_enabled = false
 
@@ -30,7 +30,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_api_origin_group" {
 
 resource "azurerm_cdn_frontdoor_origin" "nbs_mya_api_origin" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "mya-api-test"
+  name                          = "mya-api"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_api_origin_group[0].id
   enabled                       = true
 
@@ -46,7 +46,7 @@ resource "azurerm_cdn_frontdoor_origin" "nbs_mya_api_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "nbs_mya_api_route" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "apitest-route"
+  name                          = "api-route"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.nbs_mya_endpoint[0].id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_api_origin_group[0].id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.nbs_mya_api_origin[0].id]
@@ -64,7 +64,7 @@ resource "azurerm_cdn_frontdoor_route" "nbs_mya_api_route" {
 # Web app
 resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_web_origin_group" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "mya-web-test"
+  name                     = "mya-web"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
   session_affinity_enabled = false
 
@@ -79,7 +79,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_web_origin_group" {
 
 resource "azurerm_cdn_frontdoor_origin" "nbs_mya_web_origin" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "mya-web-test"
+  name                          = "mya-web"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_web_origin_group[0].id
   enabled                       = true
 
@@ -95,7 +95,7 @@ resource "azurerm_cdn_frontdoor_origin" "nbs_mya_web_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "nbs_mya_web_route" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "webtest-route"
+  name                          = "web-route"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.nbs_mya_endpoint[0].id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_web_origin_group[0].id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.nbs_mya_web_origin[0].id]

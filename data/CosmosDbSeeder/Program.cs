@@ -41,7 +41,7 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
-            var knownEnvironments = new [] { "local", "dev", "int", "stag", "prod" };
+            var knownEnvironments = new [] { "local", "dev", "exp", "int", "stag", "prod" };
             
             if (string.IsNullOrWhiteSpace(environment))
                 throw new ArgumentException("Environment must be provided");
@@ -59,13 +59,13 @@ class Program
             await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
         }
         
-        OutputReport("data_import_report.md");
-        OutputReport("data_import_summary.md", 100);
+        OutputReport("data_import_report.md", true);
+        OutputReport("data_import_summary.md", false);
 
         Console.WriteLine("Database seeded successfully");
     }
 
-    private static void OutputReport(string filePath, int maxErrorRows = 0)
+    private static void OutputReport(string filePath, bool includeErrors)
     {
         using var reportWriter = MarkdownWriter.Create(filePath);
         reportWriter.WriteHeading1("Data Import Report");
@@ -78,11 +78,11 @@ class Program
         reportWriter.WriteLine();
         reportWriter.WriteLine();
 
-        if (_report.DocumentsImported != _report.TotalDocumentsFound)
+        if (includeErrors && _report.DocumentsImported != _report.TotalDocumentsFound)
         {
             reportWriter.WriteHeading2("Import errors");
-            var errors = maxErrorRows > 0 ? _report.DocumentErrors.Take(maxErrorRows) : _report.DocumentErrors;
-            foreach (var item in errors)
+            
+            foreach (var item in _report.DocumentErrors)
             {
                 reportWriter.WriteHeading3(item.Item1);
                 reportWriter.WriteBulletItem(item.Item2);

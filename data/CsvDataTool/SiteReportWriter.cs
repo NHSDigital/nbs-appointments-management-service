@@ -4,7 +4,7 @@ namespace CsvDataTool;
 
 public class SiteReportWriter(FileInfo output)
 {
-    public void Write(IEnumerable<SiteRowReportItem> report, int errorRowLimit = 0)
+    public void Write(IEnumerable<SiteRowReportItem> report, bool includeErrors)
     {
         var totalRowCount = report.GroupBy(r => r.Index).Count();
         
@@ -20,13 +20,11 @@ public class SiteReportWriter(FileInfo output)
             reportWriter.WriteLine();
             reportWriter.WriteLine();
 
-            if (report.Any(r => r.Success == false))
+            if (includeErrors && report.Any(r => r.Success == false))
             {
                 reportWriter.WriteHeading2("Conversion errors");
                 var errors = report.Where(r => r.Success == false).GroupBy(r => r.Index);
-                if(errorRowLimit > 0) 
-                    errors = errors.Take(errorRowLimit);
-
+            
                 foreach (var errorGroup in errors)
                 {
                     

@@ -49,12 +49,12 @@ public class Program
             
             Console.WriteLine($"Writing full report to {reportPathOptionValue}");
             var reportWriter = new SiteReportWriter(reportPathOptionValue);
-            reportWriter.Write(report);
+            reportWriter.Write(report, true);
             
             var summaryReportFileInfo = GenerateShortReportName(reportPathOptionValue);
             Console.WriteLine($"Writing summary report to {summaryReportFileInfo}");
             var summaryWriter = new SiteReportWriter(summaryReportFileInfo);
-            summaryWriter.Write(report);
+            summaryWriter.Write(report, false);
 
             Console.WriteLine($"Processed {report.Count()} rows.");
             Console.WriteLine($"Succeeded: {report.Count(r => r.Success)} rows.");

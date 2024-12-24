@@ -8,7 +8,7 @@ parameters:
     displayName: "Environment to import data into"
     type: string
     default: ""
-    values: ["dev", "int", "stag"]
+    values: ["exp"]
   - name: csvFileName
     displayName: "Filename of the CSV file to import"
     type: string
@@ -52,13 +52,18 @@ stages:
               command: "run"
               projects: "data/CsvDataTool/CsvDataTool.csproj"
               arguments: "--in $(csvFile) --out $(cosmosCoreDataPath)"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish CSV conversion report"
+            inputs:
+              PathtoPublish: "csv_conversion_report.md"
+              ArtifactName: "CSV Conversion Report"
           - pwsh: |
-              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/csv_conversion_report.md"
-            displayName: "Attach CSV conversion report"
+              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/csv_conversion_report_summary.md"
+            displayName: "Attach CSV conversion summary report"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: "nbs-mya-rg-$(environment)"
+              azureSubscription: "nbs-mya-rg-dev"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
@@ -72,6 +77,11 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish full data import report"
+            inputs:
+              PathtoPublish: "data_import_report.md"
+              ArtifactName: "Data Import Report"
           - pwsh: |
-              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/data_import_report.md"
-            displayName: "Attach data import report" 
+              Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/data_import_summary.md"
+            displayName: "Attach data import summary report" 

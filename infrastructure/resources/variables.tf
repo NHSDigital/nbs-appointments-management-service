@@ -131,11 +131,6 @@ variable "app_service_plan_zone_redundancy_enabled" {
   type = bool
 }
 
-variable "create_autoscale_settings" {
-  type    = bool
-  default = false
-}
-
 variable "web_app_service_plan_min_worker_count" {
   type    = number
   default = 1
@@ -173,12 +168,14 @@ variable "app_insights_sampling_percentage" {
   type = number
 }
 
+variable "create_autoscale_settings" {
+  type    = bool
+}
+
 variable "create_app_slot" {
   type    = bool
-  default = false
 }
 
 variable "create_frontdoor" {
   type    = bool
-  default = false
 }

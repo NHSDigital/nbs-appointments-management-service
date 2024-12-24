@@ -27,6 +27,7 @@
 }
 
 .nhsuk-header-custom__user-control-link {
+  color: #fff;
   cursor: pointer;
   padding-inline-start: inherit;
   padding-inline-end: inherit;
@@ -41,6 +42,7 @@
 }
 
 .nhsuk-header-custom__user-control-link:hover {
+  color: #fff;
   box-shadow: 'none';
   text-decoration: underline;
 }
@@ -224,13 +226,13 @@
 .nhsuk-tabs__tab {
   display: inline-block;
   text-decoration: none;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .nhsuk-tabs__list-item--selected > .nhsuk-tabs__tab {
   color: #0b0c0c;
 }
 
-.nhsuk-tabs__list-item:before {
+.nhsuk-tabs__list-item::before {
   content: none;
 }

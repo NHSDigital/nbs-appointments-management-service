@@ -22,6 +22,6 @@ export default class RootPage {
   }
 
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto('/manage-your-appointments/');
   }
 }

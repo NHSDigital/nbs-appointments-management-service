@@ -64,7 +64,7 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
 
   await eulaConsentPage.acceptAndContinueButton.click();
 
-  await page.waitForURL('/');
+  await page.waitForURL('**/');
   await expect(siteSelectionPage.title).toBeVisible();
 
   await rootPage.logOutButton.click();
@@ -78,6 +78,6 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
   await oAuthPage.page.getByLabel('Password').press('Enter');
 
   // do not expect to see the EULA consent page again
-  await page.waitForURL('/');
+  await page.waitForURL('**/');
   await expect(siteSelectionPage.title).toBeVisible();
 });

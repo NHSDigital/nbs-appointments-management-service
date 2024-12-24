@@ -15,13 +15,13 @@ describe('Home Page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Alpha' })).toHaveAttribute(
       'href',
-      `site/1001`,
+      `/site/1001`,
     );
 
     expect(screen.getByRole('link', { name: 'Site Beta' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Beta' })).toHaveAttribute(
       'href',
-      `site/1002`,
+      `/site/1002`,
     );
 
     expect(
@@ -29,7 +29,7 @@ describe('Home Page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Gamma' })).toHaveAttribute(
       'href',
-      `site/1003`,
+      `/site/1003`,
     );
   });
 });

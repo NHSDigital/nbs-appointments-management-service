@@ -1,6 +1,5 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 
@@ -8,31 +7,30 @@ namespace CsvDataTool;
 
 public class SiteCsvReader
 {
-    private readonly FileInfo _inputFile;
-    private readonly string _csvContent;
     private readonly Lazy<TextReader> _textReader;
 
     public SiteCsvReader(FileInfo inputFile)
     {
-        _inputFile = inputFile;
-        _textReader = new Lazy<TextReader>(() => _inputFile.OpenText());
+        _textReader = new Lazy<TextReader>(inputFile.OpenText);
     }
 
-    public SiteCsvReader(string csvContent)
+    public SiteCsvReader(TextReader csvReader)
     {
-        _csvContent = csvContent;
-        _textReader = new Lazy<TextReader>(() => new StringReader(_csvContent));
+        _textReader = new Lazy<TextReader>(() => csvReader);
     }
 
-    public (SiteDocument[], SiteRowReportItem[]) Read()
+    public async Task<IEnumerable<SiteRowReportItem>> ReadAndProcessAsync(Func<SiteDocument, Task> process)
     {
-        int index = 0;
-        var sites = new List<SiteDocument>();
+        var index = -1;
         var report = new List<SiteRowReportItem>();
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true,
+            ShouldSkipRecord = args => { 
+                index++;
+                return false;
+            }, 
             ReadingExceptionOccurred = args =>
             {
                 report.Add(new SiteRowReportItem(index, "", false, args.Exception.ToString()));
@@ -55,12 +53,18 @@ public class SiteCsvReader
             var imported = csv.GetRecords<SiteDocument>();
             foreach(var site in imported)
             {
-                sites.Add(site);
-                report.Add(new SiteRowReportItem(index, site.Name, true, ""));
-                index++;
+                try
+                {
+                    await process(site);
+                    report.Add(new SiteRowReportItem(index, site.Name, true, ""));
+                }
+                catch (Exception ex)
+                {
+                    report.Add(new SiteRowReportItem(index, site.Name, false, ex.Message));
+                }
             }       
         }
 
-        return (sites.ToArray(), report.ToArray());
+        return report.ToArray();
     }
 }

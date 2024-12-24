@@ -30,22 +30,27 @@ export const fetchAccessToken = async (code: string) => {
   return handleBodyResponse(response);
 };
 
-export const fetchUserProfile = async (): Promise<UserProfile> => {
+export const fetchUserProfile = async (
+  eulaRoute = '/eula',
+): Promise<UserProfile> => {
   const response = await appointmentsApi.get<UserProfile>('user/profile', {
     next: { tags: ['user'] },
   });
 
   const userProfile = handleBodyResponse(response);
-  await assertEulaAcceptance(userProfile);
+  await assertEulaAcceptance(userProfile, eulaRoute);
   return userProfile;
 };
 
-export const assertEulaAcceptance = async (userProfile: UserProfile) => {
+export const assertEulaAcceptance = async (
+  userProfile: UserProfile,
+  eulaRoute = '/eula',
+) => {
   if (userProfile.availableSites.length > 0) {
     const eulaVersion = await fetchEula();
 
     if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {
-      redirect('/eula');
+      redirect(eulaRoute);
     }
   }
 };

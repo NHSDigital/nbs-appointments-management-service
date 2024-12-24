@@ -78,7 +78,7 @@ describe('<SiteList>', () => {
     render(<SiteList sites={testSites} />);
     expect(screen.getByRole('link', { name: 'Site Alpha' })).toHaveAttribute(
       'href',
-      'site/1000',
+      '/site/1000',
     );
   });
 });

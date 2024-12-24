@@ -1,25 +1,45 @@
-﻿using System.Text;
+﻿using DotMarkdown;
 
 namespace CsvDataTool;
 
 public class SiteReportWriter(FileInfo output)
 {
-    public async Task Write(IEnumerable<SiteRowReportItem> report)
+    public void Write(IEnumerable<SiteRowReportItem> report, bool includeErrors)
     {
-        var result = new StringBuilder("<html><body><table>");
-        result.AppendLine("<tr style=\"background-color:#cfcfcf\"><th>Index</th><th>Name</th><th>Success</th><th>Information</th></tr>");
-        foreach(var item in report)
+        var totalRowCount = report.GroupBy(r => r.Index).Count();
+        
+        using (var reportWriter = MarkdownWriter.Create(output.OpenWrite()))
         {
-            var bgcolour = item.Success ? "#aff0da" : "#f76363";
-            result.AppendLine($"<tr style=\"background-color:{bgcolour}\"><td>{item.Index}</td><td>{item.Name}</td><td>{(item.Success ? "Yes" : "No")}</td><td>{item.Message}</td></tr>");
-        }
+            reportWriter.WriteHeading1("Csv Converter Report");
+            reportWriter.WriteBold(totalRowCount.ToString());
+            reportWriter.WriteString($" rows in import data");
+            reportWriter.WriteLine();
+            reportWriter.WriteLine();
+            reportWriter.WriteBold(report.Count(r => r.Success).ToString());
+            reportWriter.WriteString($" items converted successfully");
+            reportWriter.WriteLine();
+            reportWriter.WriteLine();
 
-        result.AppendLine("</table></body></html>");
-
-        using (var writer = output.OpenWrite())
-        {
-            await writer.WriteAsync(Encoding.UTF8.GetBytes(result.ToString()));
+            if (includeErrors && report.Any(r => r.Success == false))
+            {
+                reportWriter.WriteHeading2("Conversion errors");
+                var errors = report.Where(r => r.Success == false).GroupBy(r => r.Index);
+            
+                foreach (var errorGroup in errors)
+                {
+                    
+                    reportWriter.WriteHeading3(GetItemName(errorGroup.ElementAt(0)));
+                    foreach (var error in errorGroup)
+                    {
+                        reportWriter.WriteBulletItem(error.Message);
+                    }
+                    
+                    reportWriter.WriteLine();
+                    reportWriter.WriteLine();
+                }
+            }
         }
     }
+    
+    private string GetItemName(SiteRowReportItem item) => String.IsNullOrEmpty(item.Name) ? $"Row {item.Index+1} (no name)" : item.Name;
 }
-

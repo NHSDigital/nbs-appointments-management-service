@@ -42,7 +42,7 @@ module "api" {
   web_app_service_sku                            = "B1"
   web_app_service_plan_default_worker_count      = 1
   app_service_plan_zone_redundancy_enabled       = false
-  create_frontdoor                               = false
+  create_frontdoor                               = true
   app_insights_sampling_percentage               = 100
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false

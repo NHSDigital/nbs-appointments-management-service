@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using DotMarkdown;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -10,9 +11,13 @@ class Program
 {
     private static CosmosClient _cosmosClient;
     private static Database _database;
+    private static Report _report;
+    private static WriteMode _writeMode;
 
     static async Task Main(string[] args)
     {
+        _writeMode = args.Contains("--no-overwrites") ? WriteMode.ErrorOnOverwrite : WriteMode.AllowOverwrite; 
+        
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -24,7 +29,7 @@ class Program
         var environment = configuration["ENVIRONMENT"];
         var databaseName = configuration["CosmosSettings:DatabaseName"];
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
-
+        _report = new Report();
 
         var cosmosOptions = GetCosmosOptions();
 
@@ -53,8 +58,38 @@ class Program
 
             await AddItemsToContainerAsync(container.Name, container.PartitionKey, environment);
         }
+        
+        OutputReport("data_import_report.md", true);
+        OutputReport("data_import_summary.md", false);
 
         Console.WriteLine("Database seeded successfully");
+    }
+
+    private static void OutputReport(string filePath, bool includeErrors)
+    {
+        using var reportWriter = MarkdownWriter.Create(filePath);
+        reportWriter.WriteHeading1("Data Import Report");
+        reportWriter.WriteBold(_report.TotalDocumentsFound.ToString());
+        reportWriter.WriteString($" items found to import");
+        reportWriter.WriteLine();
+        reportWriter.WriteLine();
+        reportWriter.WriteBold(_report.DocumentsImported.ToString());
+        reportWriter.WriteString($" items imported successfully");
+        reportWriter.WriteLine();
+        reportWriter.WriteLine();
+
+        if (includeErrors && _report.DocumentsImported != _report.TotalDocumentsFound)
+        {
+            reportWriter.WriteHeading2("Import errors");
+            
+            foreach (var item in _report.DocumentErrors)
+            {
+                reportWriter.WriteHeading3(item.Item1);
+                reportWriter.WriteBulletItem(item.Item2);
+            }
+            reportWriter.WriteLine();
+            reportWriter.WriteLine();
+        }
     }
 
     private static async Task<Database> CreateDatabaseAsync(string databaseId)
@@ -114,11 +149,19 @@ class Program
             foreach (var file in jsonFiles)
             {
                 var fileName = file.Split($"{containerName}").Last();
-                var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
-                var response = await container.UpsertItemAsync(item);
-                Console.WriteLine(response.StatusCode == HttpStatusCode.Created
-                    ? $"Created {fileName} in {containerName}"
-                    : $"Replaced {fileName} in {containerName}");
+                try
+                {
+                    _report.TotalDocumentsFound++;
+                    var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
+
+                    var response = _writeMode == WriteMode.AllowOverwrite ? await container.UpsertItemAsync(item) : await container.CreateItemAsync(item);
+                    Console.WriteLine(response.StatusCode == HttpStatusCode.Created ? $"Created {fileName} in {containerName}" : $"Replaced {fileName} in {containerName}");
+                    _report.DocumentsImported++;
+                }
+                catch (Exception ex)
+                {
+                    _report.DocumentErrors.Add((fileName, ex.Message));
+                }
             }
         }
     }
@@ -144,8 +187,21 @@ class Program
     }
 }
 
+public enum WriteMode
+{
+    ErrorOnOverwrite,
+    AllowOverwrite
+}
+
 public class ContainerConfig
 {
     public required string Name { get; set; }
     public required string PartitionKey { get; set; }
+}
+
+public class Report
+{
+    public int TotalDocumentsFound { get; set; }
+    public int DocumentsImported { get; set; }
+    public List<(string, string)> DocumentErrors { get; set; }  = new List<(string, string)>();
 }

@@ -1,5 +1,5 @@
 ﻿using System.CommandLine;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
 
@@ -14,18 +14,18 @@ public class Program
             getDefaultValue: () => new FileInfo("sites.csv"));
         inputPathOption.AddAlias("-i");
 
-        var outputPathOption = new Option<FileInfo>
+        var outputPathOption = new Option<DirectoryInfo>
         (
             name: "--out",
             description: "The output location for the json file.",
-            getDefaultValue: () => new FileInfo("sites.json"));
+            getDefaultValue: () => new DirectoryInfo("sites"));
         outputPathOption.AddAlias("-o");
 
         var reportPathOption = new Option<FileInfo>
         (
             name: "--report",
-            description: "The output location for the report html file.",
-            getDefaultValue: () => new FileInfo("report.html"));
+            description: "The output location for the report markdown file.",
+            getDefaultValue: () => new FileInfo("csv_conversion_report.md"));
         reportPathOption.AddAlias("-r");
 
         var rootCommand = new RootCommand();
@@ -45,18 +45,19 @@ public class Program
 
             Console.WriteLine($"Processing csv data from {inputOptionValue}");
             var reader = new SiteCsvReader(inputOptionValue);
-            var (sites, report) = reader.Read();
-
-            Console.WriteLine($"Writing sites json to {outputOptionValue}");
-            var writer = new SiteJsonWriter(outputOptionValue);
-            await writer.Write(sites);
-
-            Console.WriteLine($"Writing report to {reportPathOptionValue}");
+            var report = await reader.ReadAndProcessAsync(s => WriteSiteDocument(s, outputOptionValue));
+            
+            Console.WriteLine($"Writing full report to {reportPathOptionValue}");
             var reportWriter = new SiteReportWriter(reportPathOptionValue);
-            await reportWriter.Write(report);
+            reportWriter.Write(report, true);
+            
+            var summaryReportFileInfo = GenerateShortReportName(reportPathOptionValue);
+            Console.WriteLine($"Writing summary report to {summaryReportFileInfo}");
+            var summaryWriter = new SiteReportWriter(summaryReportFileInfo);
+            summaryWriter.Write(report, false);
 
-            Console.WriteLine($"Processed {report.Length} rows.");
-            Console.WriteLine($"Succeeded: {sites.Length}");
+            Console.WriteLine($"Processed {report.Count()} rows.");
+            Console.WriteLine($"Succeeded: {report.Count(r => r.Success)} rows.");
 
             if (report.Any(r => !r.Success))
             {
@@ -67,5 +68,17 @@ public class Program
 
         await rootCommand.InvokeAsync(args);
     }
-}
 
+    private static Task WriteSiteDocument(SiteDocument siteDocument, DirectoryInfo outputDirectory)
+    {
+        outputDirectory.Create();
+        var filePath = Path.Combine(outputDirectory.FullName, $"site_{siteDocument.Id}.json");
+        return SiteJsonWriter.Write(siteDocument, filePath);
+    }
+
+    private static FileInfo GenerateShortReportName(FileInfo reportFileInfo)
+    {
+        var pathStub = Path.GetFileNameWithoutExtension(reportFileInfo.FullName);
+        return new FileInfo($"{pathStub}_summary.md");
+    }
+}

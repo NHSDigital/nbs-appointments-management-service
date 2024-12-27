@@ -58,6 +58,10 @@ public class Program
             Console.WriteLine($"Processing csv data from {inputOptionValue}");
             var report  = await dataImportHandler.ProcessFile(inputOptionValue, outputOptionValue);
 
+            Console.WriteLine($"Writing full report to {reportPathOptionValue}");
+            var reportWriter = new ReportWriter(reportPathOptionValue);
+            reportWriter.Write(report, true);
+
             var summaryReportFileInfo = GenerateShortReportName(reportPathOptionValue);
             Console.WriteLine($"Writing summary report to {summaryReportFileInfo}");
             var summaryWriter = new ReportWriter(summaryReportFileInfo);
@@ -70,8 +74,6 @@ public class Program
             {
                 Console.Error.WriteLine($"Failed: {report.Count(r => !r.Success)}");
             }
-
-
         },
             inputPathOption, outputPathOption, reportPathOption, itemTypeOption);
 

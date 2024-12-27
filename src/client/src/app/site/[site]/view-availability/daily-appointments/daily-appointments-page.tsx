@@ -1,5 +1,5 @@
 'use client';
-import { Table, ButtonGroup } from '@nhsuk-frontend-components';
+import { Table, Pagination } from '@nhsuk-frontend-components';
 import { AttendeeDetails, ContactItem, Booking } from '@types';
 import { formatDateTimeToTime, dateToString } from '@services/timeService';
 import { ReactNode } from 'react';
@@ -107,28 +107,28 @@ export const DailyAppointmentsPage = ({
     <>
       {appointmentsTableData && <Table {...appointmentsTableData}></Table>}
 
-      {/* TODO: Implement the pagination component and in the first screenshot of https://nhsd-jira.digital.nhs.uk/browse/APPT-367 and replace these links
-      // (styles mismatch raised as a defect by testers whilst testing) */}
-      <ButtonGroup>
-        {page > 1 && (
-          <Link
-            onClick={() => {
-              params.set('page', String(page - 1));
-              window.history.pushState(null, '', `?${params.toString()}`);
-            }}
-            href={''}
-          >{`Page ${page - 1}`}</Link>
-        )}
-        {hasNextPage() && (
-          <Link
-            onClick={() => {
-              params.set('page', String(page + 1));
-              window.history.pushState(null, '', `?${params.toString()}`);
-            }}
-            href={''}
-          >{`Page ${page + 1}`}</Link>
-        )}
-      </ButtonGroup>
+      <Pagination
+        previous={{
+          title: `Page ${page - 1}`,
+          href: '',
+          onClick: () => {
+            params.set('page', String(page - 1));
+            window.history.pushState(null, '', `?${params.toString()}`);
+          },
+        }}
+        next={
+          hasNextPage()
+            ? {
+                title: `Page ${page + 1}`,
+                href: '',
+                onClick: () => {
+                  params.set('page', String(page + 1));
+                  window.history.pushState(null, '', `?${params.toString()}`);
+                },
+              }
+            : null
+        }
+      />
     </>
   );
 };

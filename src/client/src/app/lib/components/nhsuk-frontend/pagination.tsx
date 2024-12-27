@@ -3,6 +3,7 @@ import Link from 'next/link';
 export type PaginationLink = {
   title: string;
   href: string;
+  onClick?: () => void;
 };
 
 type PaginationProps = {
@@ -29,6 +30,7 @@ const Pagination = ({ previous, next }: PaginationProps) => {
             <Link
               className="nhsuk-pagination__link nhsuk-pagination__link--prev"
               href={previous.href}
+              onClick={previous.onClick}
             >
               <span className="nhsuk-pagination__title">Previous</span>
               <span className="nhsuk-u-visually-hidden">:</span>
@@ -51,6 +53,7 @@ const Pagination = ({ previous, next }: PaginationProps) => {
             <Link
               className="nhsuk-pagination__link nhsuk-pagination__link--next"
               href={next.href}
+              onClick={next.onClick}
             >
               <span className="nhsuk-pagination__title">Next</span>
               <span className="nhsuk-u-visually-hidden">:</span>

@@ -4,8 +4,8 @@ pool:
   vmImage: "ubuntu-latest"
 
 schedules:
-  - cron: "*/5 * * * *"
-#  - cron: "0 2 * * *"
+#  - cron: "*/5 * * * *"
+  - cron: "0 2 * * *"
     displayName: "Booking data extract schedule"
     branches:
       include:

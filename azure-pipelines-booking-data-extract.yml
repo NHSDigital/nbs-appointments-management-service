@@ -4,13 +4,26 @@ pool:
   vmImage: "ubuntu-latest"
 
 schedules:
-  - cron: "0 2 * * *"
+  - cron: "*/5 * * * *"
+#  - cron: "0 2 * * *"
     displayName: "Booking data extract schedule"
     branches:
       include:
       - APPT-352/*
     batch: false
     always: true
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "exp"
+    values: ["dev", "exp", "int", "stag"]
+    
+variables:
+  environment: ${{parameters.env}}
+  cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
+  resourceGroupName: "nbs-mya-rg-$(environment)-uks"
 
 stages:
   - stage: "CreateDailyExtract"
@@ -19,8 +32,24 @@ stages:
       - job: "GenerateBookingDailyExtract"
         displayName: "Generate and send booking extract"
         steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-dev"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to create booking data extract"
             inputs:
               command: "run"
               projects: "data/BookingsDataExtract/BookingsDataExtract.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish parquet file"
+            inputs:
+              PathtoPublish: "bookings.parquet"
+              ArtifactName: "Bookings Data Extract"

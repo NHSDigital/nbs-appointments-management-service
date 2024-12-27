@@ -46,7 +46,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage title={title} caption={site.name} backLink={backLink}>
-      <Tabs initialTab={searchParams.tab === 'Cancelled' ? 1 : 0}>
+      <Tabs>
         <Tab title="Scheduled">
           <DailyAppointmentsPage
             bookings={bookings.filter(b => b.status === 'Booked')}

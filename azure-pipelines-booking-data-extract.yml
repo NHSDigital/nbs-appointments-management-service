@@ -44,7 +44,7 @@ stages:
             displayName: "Run tool to create booking data extract"
             inputs:
               command: "run"
-              projects: "data/BookingsDataExtract/BookingsDataExtract.csproj"
+              projects: "data/BookingsDataExtracts/BookingsDataExtracts.csproj"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

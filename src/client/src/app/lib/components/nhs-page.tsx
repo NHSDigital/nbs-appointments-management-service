@@ -49,7 +49,9 @@ const NhsPage = async ({
       <Breadcrumbs
         trail={[
           ...breadcrumbs,
-          ...(!omitTitleFromBreadcrumbs ? [{ name: title }] : []),
+          ...(breadcrumbs.length > 0 && !omitTitleFromBreadcrumbs
+            ? [{ name: title }]
+            : []),
         ]}
       />
       <NhsMainContainer>

@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 using System.Text;
 
 namespace CsvDataTool;
 
-public static class SiteJsonWriter
+public static class DocumentJsonWriter
 {
-    public static async Task Write(SiteDocument site, string path)
+    public static async Task Write<TDcoument>(TDcoument site, string path) where TDcoument : TypedCosmosDocument
     {
         var serializerSettings = new JsonSerializerSettings
         {

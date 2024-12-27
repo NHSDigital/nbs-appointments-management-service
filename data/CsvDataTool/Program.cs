@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
@@ -28,12 +28,22 @@ public class Program
             getDefaultValue: () => new FileInfo("csv_conversion_report.md"));
         reportPathOption.AddAlias("-r");
 
-        var rootCommand = new RootCommand();
-        rootCommand.Add(inputPathOption);
-        rootCommand.Add(outputPathOption);
-        rootCommand.Add(reportPathOption);
+        var itemTypeOption = new Option<string>
+        (
+            name: "--itemType",
+            description: "The type of item being imported."
+        );
+        itemTypeOption.AddAlias("-it");
 
-        rootCommand.SetHandler(async (inputOptionValue, outputOptionValue, reportPathOptionValue) =>
+        var rootCommand = new RootCommand
+        {
+            inputPathOption,
+            outputPathOption,
+            reportPathOption,
+            itemTypeOption
+        };
+
+        rootCommand.SetHandler(async (inputOptionValue, outputOptionValue, reportPathOptionValue, itemTypeOptionValue) =>
         {
             Console.WriteLine("MYA bulk site data importer started");
 
@@ -43,17 +53,14 @@ public class Program
                 return;
             }
 
+            var dataImportHandler = DataImportHandlerFactory.GetHandler(itemTypeOptionValue);
+
             Console.WriteLine($"Processing csv data from {inputOptionValue}");
-            var reader = new SiteCsvReader(inputOptionValue);
-            var report = await reader.ReadAndProcessAsync(s => WriteSiteDocument(s, outputOptionValue));
-            
-            Console.WriteLine($"Writing full report to {reportPathOptionValue}");
-            var reportWriter = new SiteReportWriter(reportPathOptionValue);
-            reportWriter.Write(report, true);
-            
+            var report  = await dataImportHandler.ProcessFile(inputOptionValue, outputOptionValue);
+
             var summaryReportFileInfo = GenerateShortReportName(reportPathOptionValue);
             Console.WriteLine($"Writing summary report to {summaryReportFileInfo}");
-            var summaryWriter = new SiteReportWriter(summaryReportFileInfo);
+            var summaryWriter = new ReportWriter(summaryReportFileInfo);
             summaryWriter.Write(report, false);
 
             Console.WriteLine($"Processed {report.Count()} rows.");
@@ -63,18 +70,13 @@ public class Program
             {
                 Console.Error.WriteLine($"Failed: {report.Count(r => !r.Success)}");
             }
+
+
         },
-            inputPathOption, outputPathOption, reportPathOption);
+            inputPathOption, outputPathOption, reportPathOption, itemTypeOption);
 
         await rootCommand.InvokeAsync(args);
-    }
-
-    private static Task WriteSiteDocument(SiteDocument siteDocument, DirectoryInfo outputDirectory)
-    {
-        outputDirectory.Create();
-        var filePath = Path.Combine(outputDirectory.FullName, $"site_{siteDocument.Id}.json");
-        return SiteJsonWriter.Write(siteDocument, filePath);
-    }
+    }    
 
     private static FileInfo GenerateShortReportName(FileInfo reportFileInfo)
     {

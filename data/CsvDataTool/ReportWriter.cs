@@ -1,10 +1,10 @@
-﻿using DotMarkdown;
+using DotMarkdown;
 
 namespace CsvDataTool;
 
-public class SiteReportWriter(FileInfo output)
+public class ReportWriter(FileInfo output)
 {
-    public void Write(IEnumerable<SiteRowReportItem> report, bool includeErrors)
+    public void Write(IEnumerable<ReportItem> report, bool includeErrors)
     {
         var totalRowCount = report.GroupBy(r => r.Index).Count();
         
@@ -41,5 +41,5 @@ public class SiteReportWriter(FileInfo output)
         }
     }
     
-    private string GetItemName(SiteRowReportItem item) => String.IsNullOrEmpty(item.Name) ? $"Row {item.Index+1} (no name)" : item.Name;
+    private string GetItemName(ReportItem item) => String.IsNullOrEmpty(item.Name) ? $"Row {item.Index+1} (no name)" : item.Name;
 }

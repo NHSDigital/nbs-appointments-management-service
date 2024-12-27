@@ -22,6 +22,7 @@ stages:
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+          csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -62,6 +63,12 @@ stages:
             inputs:
               command: "test"
               projects: $(persistanceUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run CSV tool unit tests"
+            inputs:
+              command: "test"
+              projects: $(csvDataToolTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"

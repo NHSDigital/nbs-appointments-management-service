@@ -13,11 +13,17 @@ parameters:
     displayName: "Filename of the CSV file to import"
     type: string
     default: ""
+  - name: importItemType
+    displayName: "Select type of data to import:"
+    type: string
+    default: ""
+    values: ["site", "user"]
 
 variables:
   isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
   environment: ${{parameters.env}}
   csvFile: ${{parameters.csvFileName}}
+  importItemType: ${{parameters.importItemType}}
   storageAccountName: "nbsmyastrgimportsdevuks"
   containerName: "csvdata"
   cosmosCoreDataPath: "data/CosmosDbSeeder/items/$(environment)/core_data"
@@ -30,13 +36,8 @@ stages:
     jobs:
       - job: "BulkDataImport"
         displayName: "Bulk Data Import"
-        condition: eq(variables.main, true)
+        condition: eq(variables.isMain, true)
         steps:
-          - task: DotNetCoreCLI@2
-            displayName: "Run CSV tool unit tests"
-            inputs:
-              command: "test"
-              projects: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           - pwsh: |
               Remove-Item '$(cosmosCoreDataPath)/*'
             displayName: "Remove existing cosmos files"
@@ -53,7 +54,7 @@ stages:
             inputs:
               command: "run"
               projects: "data/CsvDataTool/CsvDataTool.csproj"
-              arguments: "--in $(csvFile) --out $(cosmosCoreDataPath)"
+              arguments: "--in $(csvFile) --out $(cosmosCoreDataPath) --itemType $(importItemType)"
           - task: PublishBuildArtifacts@1
             displayName: "Publish CSV conversion report"
             inputs:

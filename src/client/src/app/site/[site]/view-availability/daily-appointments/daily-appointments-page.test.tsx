@@ -1,17 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import { DailyAppointmentsPage } from './daily-appointments-page';
 import { mockBookings } from '@testing/data';
+import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
+import { ReadonlyURLSearchParams } from 'next/navigation';
 
 describe('View Daily Appointments', () => {
   it('renders appointments', () => {
     render(
-      <DailyAppointmentsPage
-        bookings={mockBookings}
-        page={1}
-        date={'2024-12-24'}
-        site="TEST01"
-        displayAction={true}
-      />,
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={true}
+        />
+      </SearchParamsContext.Provider>,
     );
 
     expect(

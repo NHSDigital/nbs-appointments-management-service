@@ -36,7 +36,7 @@ stages:
     jobs:
       - job: "BulkDataImport"
         displayName: "Bulk Data Import"
-        condition: eq(variables.main, true)
+        condition: eq(variables.isMain, true)
         steps:
           - pwsh: |
               Remove-Item '$(cosmosCoreDataPath)/*'

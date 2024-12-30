@@ -19,7 +19,7 @@ import RightChevron from './icons/right-chevron';
 import Select from './select';
 import SummaryList, { SummaryListItem } from './summary-list';
 import Table from './table';
-import Tabs, { TabsChildren } from './tabs';
+import Tabs, { Tab } from './tabs';
 import Tag, { TagColor } from './tag';
 import TextArea from './text-area';
 import TextInput from './text-input';
@@ -35,7 +35,6 @@ import Pagination from './pagination';
 export type {
   Breadcrumb,
   SummaryListItem,
-  TabsChildren,
   TagColor,
   NavigationLink,
   PaginationLink,
@@ -68,6 +67,7 @@ export {
   SummaryList,
   Table,
   Tabs,
+  Tab,
   Tag,
   TextArea,
   TextInput,

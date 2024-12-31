@@ -4,7 +4,7 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Persistance.Models;
 
 [CosmosDocumentType("site")]
-public class SiteDocument : CoreDataCosmosDocument
+public class SiteDocument : SiteDataCosmosDocument
 {
     [JsonProperty("name")]
     public string Name { get; set; }

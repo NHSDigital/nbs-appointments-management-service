@@ -18,6 +18,12 @@ public class BookingDataCosmosDocument : TypedCosmosDocument
     public string Site { get; set; }
 }
 
+[CosmosDocument("site_data", "docType")]
+public class SiteDataCosmosDocument : TypedCosmosDocument
+{
+
+}
+
 [CosmosDocument("core_data", "docType")]
 public class CoreDataCosmosDocument : TypedCosmosDocument
 {

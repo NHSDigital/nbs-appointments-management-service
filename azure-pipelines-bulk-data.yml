@@ -27,6 +27,7 @@ variables:
   storageAccountName: "nbsmyastrgimportsdevuks"
   containerName: "csvdata"
   cosmosCoreDataPath: "data/CosmosDbSeeder/items/$(environment)/core_data"
+  cosmosSiteDataPath: "data/CosmosDbSeeder/items/$(environment)/site_data"
   cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
   resourceGroupName: "nbs-mya-rg-$(environment)-uks"
 
@@ -36,11 +37,11 @@ stages:
     jobs:
       - job: "BulkDataImport"
         displayName: "Bulk Data Import"
-        condition: eq(variables.isMain, true)
+#        condition: eq(variables.isMain, true)
         steps:
-          - pwsh: |
-              Remove-Item '$(cosmosCoreDataPath)/*'
-            displayName: "Remove existing cosmos files"
+          - ${{ if ne(variables.importItemType, "site" }}:
+            - pwsh: Remove-Item '$(cosmosCoreDataPath)/*'
+              displayName: "Remove existing cosmos core files"
           - task: AzureCLI@2
             displayName: "Download CSV file"
             inputs:
@@ -50,11 +51,16 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/download_blob.ps1"
               arguments: "-storageAccountName $(storageAccountName) -containerName $(containerName) -blobName $(csvFile) -outputFilePath $(csvFile)"
           - task: DotNetCoreCLI@2
+            variables:
+              ${{ if eq(variables.importItemType, "site" }}:
+                fileOutputPath: $(cosmosSiteDataPath)
+              ${{ else }}:
+                fileOutputPath: $(cosmosCoreDataPath)
             displayName: "Run CSV conversion tool"
             inputs:
               command: "run"
               projects: "data/CsvDataTool/CsvDataTool.csproj"
-              arguments: "--in $(csvFile) --out $(cosmosCoreDataPath) --itemType $(importItemType)"
+              arguments: "--in $(csvFile) --out $(fileOutputPath) --itemType $(importItemType)"
           - task: PublishBuildArtifacts@1
             displayName: "Publish CSV conversion report"
             inputs:

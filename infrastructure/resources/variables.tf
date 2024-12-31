@@ -109,6 +109,11 @@ variable "cosmos_booking_autoscale_settings" {
   default = []
 }
 
+variable "cosmos_site_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
 variable "cosmos_core_autoscale_settings" {
   type    = list(any)
   default = []
@@ -169,13 +174,13 @@ variable "app_insights_sampling_percentage" {
 }
 
 variable "create_autoscale_settings" {
-  type    = bool
+  type = bool
 }
 
 variable "create_app_slot" {
-  type    = bool
+  type = bool
 }
 
 variable "create_frontdoor" {
-  type    = bool
+  type = bool
 }

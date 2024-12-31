@@ -30,6 +30,11 @@ variables:
   cosmosSiteDataPath: "data/CosmosDbSeeder/items/$(environment)/site_data"
   cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
   resourceGroupName: "nbs-mya-rg-$(environment)-uks"
+  ${{ if eq(variables.importItemType, "site") }}:
+    fileOutputPath: $(cosmosSiteDataPath)
+  ${{ else }}:
+    fileOutputPath: $(cosmosCoreDataPath)
+
 
 stages:
   - stage: "BulkDataImport"
@@ -51,11 +56,6 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/download_blob.ps1"
               arguments: "-storageAccountName $(storageAccountName) -containerName $(containerName) -blobName $(csvFile) -outputFilePath $(csvFile)"
           - task: DotNetCoreCLI@2
-            variables:
-              ${{ if eq(variables.importItemType, "site") }}:
-                fileOutputPath: $(cosmosSiteDataPath)
-              ${{ else }}:
-                fileOutputPath: $(cosmosCoreDataPath)
             displayName: "Run CSV conversion tool"
             inputs:
               command: "run"

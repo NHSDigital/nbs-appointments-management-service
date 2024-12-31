@@ -30,7 +30,7 @@ variables:
   cosmosSiteDataPath: "data/CosmosDbSeeder/items/$(environment)/site_data"
   cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
   resourceGroupName: "nbs-mya-rg-$(environment)-uks"
-  ${{ if eq(variables.importItemType, "site") }}:
+  ${{ if eq(variables.importItemType, 'site') }}:
     fileOutputPath: $(cosmosSiteDataPath)
   ${{ else }}:
     fileOutputPath: $(cosmosCoreDataPath)
@@ -44,7 +44,7 @@ stages:
         displayName: "Bulk Data Import"
 #        condition: eq(variables.isMain, true)
         steps:
-          - ${{ if ne(variables.importItemType, "site") }}:
+          - ${{ if ne(variables.importItemType, 'site') }}:
             - pwsh: Remove-Item '$(cosmosCoreDataPath)/*'
               displayName: "Remove existing cosmos core files"
           - task: AzureCLI@2

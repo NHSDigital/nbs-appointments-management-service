@@ -44,6 +44,7 @@ stages:
         displayName: "Bulk Data Import"
 #        condition: eq(variables.isMain, true)
         steps:
+          - script: printenv
           - ${{ if ne(variables.importItemType, 'site') }}:
             - pwsh: Remove-Item '$(cosmosCoreDataPath)/*'
               displayName: "Remove existing cosmos core files"

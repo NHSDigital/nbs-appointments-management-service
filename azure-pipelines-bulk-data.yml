@@ -45,9 +45,9 @@ stages:
 #        condition: eq(variables.isMain, true)
         steps:
           - script: printenv
-          - ${{ if ne(variables.importItemType, 'site') }}:
-            - pwsh: Remove-Item '$(cosmosCoreDataPath)/*'
-              displayName: "Remove existing cosmos core files"
+          - pwsh: | 
+              Remove-Item '$(cosmosCoreDataPath)/*'
+            displayName: "Remove existing cosmos core files"
           - task: AzureCLI@2
             displayName: "Download CSV file"
             inputs:

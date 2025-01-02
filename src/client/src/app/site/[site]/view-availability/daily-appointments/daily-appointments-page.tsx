@@ -103,7 +103,7 @@ export const DailyAppointmentsPage = ({
 
   const appointmentsTableData = mapTableData();
 
-  const hasPreviousPage = page > 1 && hasNextPage();
+  const hasPreviousPage = page > 1;
 
   return (
     <>

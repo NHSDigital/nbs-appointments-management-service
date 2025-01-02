@@ -22,7 +22,7 @@ type TabsProps = {
   title?: string;
   children: ReactNode;
   initialTab?: number;
-  setParamsOnTabChange?: { key: string; value: string }[];
+  paramsToSetOnTabChange?: { key: string; value: string }[];
 };
 
 /**
@@ -34,7 +34,7 @@ const Tabs = ({
   title,
   children,
   initialTab = 0,
-  setParamsOnTabChange,
+  paramsToSetOnTabChange,
 }: TabsProps) => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
@@ -61,8 +61,8 @@ const Tabs = ({
                 href={''}
                 onClick={() => {
                   params.set('tab', String(index));
-                  if (setParamsOnTabChange) {
-                    setParamsOnTabChange.forEach(p => {
+                  if (paramsToSetOnTabChange) {
+                    paramsToSetOnTabChange.forEach(p => {
                       params.set(p.key, p.value);
                     });
                   }

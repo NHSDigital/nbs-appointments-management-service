@@ -49,7 +49,9 @@ const NhsPage = async ({
       <Breadcrumbs
         trail={[
           ...breadcrumbs,
-          ...(!omitTitleFromBreadcrumbs ? [{ name: title }] : []),
+          ...(breadcrumbs.length > 0 && !omitTitleFromBreadcrumbs
+            ? [{ name: title }]
+            : []),
         ]}
       />
       <NhsMainContainer>
@@ -87,7 +89,7 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('availability:set-setup')) {
+  if (permissions.includes('availability:setup')) {
     navigationLinks.push({
       label: 'Create availability',
       href: `/site/${site.id}/create-availability`,

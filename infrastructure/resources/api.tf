@@ -43,7 +43,8 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
     AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
-    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_base_uri}/auth/set-cookie"
+    AuthProvider_ClientSecret                  = var.auth_provider_client_secret
+    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_base_uri}/manage-your-appointments/auth/set-cookie"
     AuthProvider_ReturnUri                     = "${var.func_app_base_uri}/api/auth-return"
     Notifications_Provider                     = "azure"
     GovNotifyBaseUri                           = var.gov_notify_base_uri
@@ -65,7 +66,7 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
 }
 
 resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
-  count                      = var.do_create_swap_slot ? 1 : 0
+  count                      = var.create_app_slot ? 1 : 0
   name                       = "preview"
   function_app_id            = azurerm_windows_function_app.nbs_mya_func_app.id
   storage_account_name       = azurerm_storage_account.nbs_mya_func_storage_account.name
@@ -94,7 +95,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
     AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
     AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
     AuthProvider_ClientId                      = var.auth_provider_client_id
-    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/auth/set-cookie"
+    AuthProvider_ClientSecret                  = var.auth_provider_client_secret
+    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/manage-your-appointments/auth/set-cookie"
     AuthProvider_ReturnUri                     = "${var.func_app_slot_base_uri}/api/auth-return"
     Notifications_Provider                     = "azure"
     GovNotifyBaseUri                           = var.gov_notify_base_uri

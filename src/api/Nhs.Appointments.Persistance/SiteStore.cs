@@ -11,7 +11,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         var query = new QueryDefinition(
                 query: "SELECT site, ROUND(ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]})) as distance " + 
-                       "FROM index_data site " + 
+                       "FROM core_data site " + 
                        "WHERE site.docType = @docType AND ST_DISTANCE(site.location, {\"type\": \"Point\", \"coordinates\":[@longitude, @latitude]}) < @searchRadius")
             .WithParameter("@longitude", longitude)
             .WithParameter("@latitude", latitude)

@@ -38,7 +38,7 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
                 ]
             };
         
-        await Client.GetContainer("appts", "index_data").UpsertItemAsync(wellKnownOdsCodesDocument);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(wellKnownOdsCodesDocument);
     }
     
     [When(@"I query for well known ods code entries")]

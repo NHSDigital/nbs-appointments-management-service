@@ -29,6 +29,7 @@ module "api" {
   auth_provider_jwks_uri                         = var.AUTH_PROVIDER_JWKS_URI
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
+  auth_provider_client_secret                    = var.AUTH_PROVIDER_CLIENT_SECRET
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
   gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI
@@ -37,11 +38,12 @@ module "api" {
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
+  create_app_slot                                = false
+  create_autoscale_settings                      = false
+  create_frontdoor                               = false
   web_app_service_sku                            = "B1"
   web_app_service_plan_default_worker_count      = 1
   app_service_plan_zone_redundancy_enabled       = false
-  do_create_swap_slot                            = false
-  do_create_autoscale_settings                   = false
   app_insights_sampling_percentage               = 100
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false

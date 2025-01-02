@@ -12,9 +12,9 @@
       | Site | Roles                       |
       | A    | canned:availability-manager |
       | B    | canned:availability-manager |
-      | C    | canned:check-in             |
+      | C    | canned:site-details-manager |
     When I remove user 'test-two' from site 'A'
     Then user 'test-two' would have the following role assignments
-      | Scope | Roles                      |
+      | Scope | Roles                       |
       | B     | canned:availability-manager |
-      | C     | canned:check-in            |
+      | C     | canned:site-details-manager |

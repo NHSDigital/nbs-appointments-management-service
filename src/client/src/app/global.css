@@ -27,6 +27,7 @@
 }
 
 .nhsuk-header-custom__user-control-link {
+  color: #fff;
   cursor: pointer;
   padding-inline-start: inherit;
   padding-inline-end: inherit;
@@ -41,6 +42,7 @@
 }
 
 .nhsuk-header-custom__user-control-link:hover {
+  color: #fff;
   box-shadow: 'none';
   text-decoration: underline;
 }

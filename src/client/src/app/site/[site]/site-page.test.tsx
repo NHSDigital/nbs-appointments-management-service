@@ -76,7 +76,7 @@ describe('Site Page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Manage users' })).toHaveAttribute(
       'href',
-      `${mockSite.id}/users`,
+      `/site/${mockSite.id}/users`,
     );
   });
 
@@ -116,7 +116,7 @@ describe('Site Page', () => {
       screen.getByRole('link', {
         name: 'Change site details and accessibility information',
       }),
-    ).toHaveAttribute('href', `${mockSite.id}/details`);
+    ).toHaveAttribute('href', `/site/${mockSite.id}/details`);
   });
 
   it('does not show the site management page if the user may not see it', () => {
@@ -154,7 +154,7 @@ describe('Site Page', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Create availability' }),
-    ).toHaveAttribute('href', `${mockSite.id}/create-availability`);
+    ).toHaveAttribute('href', `/site/${mockSite.id}/create-availability`);
   });
 
   it('does not show the create availability page if the user may not see it', () => {

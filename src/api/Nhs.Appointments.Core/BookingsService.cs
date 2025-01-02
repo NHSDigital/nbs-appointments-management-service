@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -55,7 +55,7 @@ public class BookingsService(
 
             if (canBook)
             {
-                booking.Created = time.GetUtcNow().DateTime;
+                booking.Created = time.GetUtcNow();
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await bookingDocumentStore.InsertAsync(booking);

@@ -26,6 +26,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   app_settings = {
     NBS_API_BASE_URL = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
     AUTH_HOST        = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
+    CLIENT_BASE_PATH = "/manage-your-appointments"
   }
 
   sticky_settings {
@@ -38,7 +39,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
 }
 
 resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
-  count          = var.do_create_swap_slot ? 1 : 0
+  count          = var.create_app_slot ? 1 : 0
   name           = "preview"
   app_service_id = azurerm_linux_web_app.nbs_mya_web_app_service.id
 
@@ -52,6 +53,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   app_settings = {
     NBS_API_BASE_URL = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview[0].default_hostname}"
     AUTH_HOST        = "https://${azurerm_windows_function_app_slot.nbs_mya_func_app_preview[0].default_hostname}"
+    CLIENT_BASE_PATH = "/manage-your-appointments"
   }
 
   identity {
@@ -61,7 +63,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
 
 # App service plan autoscale settings
 resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_settings" {
-  count               = var.do_create_autoscale_settings ? 1 : 0
+  count               = var.create_autoscale_settings ? 1 : 0
   name                = "NbsMyaWebAppAutoscaleSetting"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = data.azurerm_resource_group.nbs_mya_resource_group.location

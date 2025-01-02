@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -53,6 +53,7 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var bookingDocument = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
         bookingDocument.Resource.Status.Should().Be(expectedStatus);
+        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
 
         var indexDocument = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
         indexDocument.Resource.Status.Should().Be(expectedStatus);

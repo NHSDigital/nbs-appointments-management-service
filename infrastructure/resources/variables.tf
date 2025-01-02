@@ -63,8 +63,14 @@ variable "auth_provider_client_id" {
   type = string
 }
 
-variable "gov_notify_base_uri" {
+variable "auth_provider_client_secret" {
   type      = string
+  sensitive = true
+  default   = ""
+}
+
+variable "gov_notify_base_uri" {
+  type = string
 }
 
 variable "gov_notify_api_key" {
@@ -103,6 +109,11 @@ variable "cosmos_booking_autoscale_settings" {
   default = []
 }
 
+variable "cosmos_core_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
 variable "cosmos_index_autoscale_settings" {
   type    = list(any)
   default = []
@@ -117,10 +128,6 @@ variable "web_app_service_plan_default_worker_count" {
 }
 
 variable "app_service_plan_zone_redundancy_enabled" {
-  type = bool
-}
-
-variable "do_create_autoscale_settings" {
   type = bool
 }
 
@@ -161,6 +168,14 @@ variable "app_insights_sampling_percentage" {
   type = number
 }
 
-variable "do_create_swap_slot" {
-  type = bool
+variable "create_autoscale_settings" {
+  type    = bool
+}
+
+variable "create_app_slot" {
+  type    = bool
+}
+
+variable "create_frontdoor" {
+  type    = bool
 }

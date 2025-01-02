@@ -4,7 +4,8 @@ import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
 import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
-import { Tabs, TabsChildren } from '@nhsuk-frontend-components';
+import { Tab, Tabs } from '@nhsuk-frontend-components';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -21,6 +22,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'availability:query');
   const title = dayjs(searchParams.date).format('dddd D MMMM');
+
   const fetchBookingsRequest: FetchBookingsRequest = {
     from: dayjs(searchParams.date)
       .hour(0)
@@ -35,61 +37,31 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: site.id,
   };
   const bookings = await fetchBookings(fetchBookingsRequest);
-  const buildTabContent = (
-    bookingStatus: string,
-    displayAction: boolean,
-    activeTab?: string,
-  ) => {
-    return (
-      <DailyAppointmentsPage
-        bookings={bookings.filter(b => b.status === bookingStatus)}
-        page={Number(searchParams.page)}
-        date={searchParams.date}
-        site={site.id}
-        displayAction={displayAction}
-        activeTab={activeTab}
-      />
-    );
+
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability/week?date=${searchParams.date}`,
+    text: 'Back to week view',
   };
-  const buildTabs = (siteId: string, activeTab?: string): TabsChildren[] => {
-    const tabs = [
-      {
-        isSelected: activeTab === 'Scheduled',
-        url: `/site/${siteId}/view-availability/daily-appointments?date=${searchParams.date}&page=1&tab=Scheduled`,
-        tabTitle: 'Scheduled',
-        content: buildTabContent('Booked', true, activeTab),
-      },
-      {
-        isSelected: activeTab === 'Cancelled',
-        url: `/site/${siteId}/view-availability/daily-appointments?date=${searchParams.date}&page=1&tab=Cancelled`,
-        tabTitle: 'Cancelled',
-        content: buildTabContent('Cancelled', false, activeTab),
-      },
-    ];
-
-    if (!tabs.some(t => t.isSelected)) {
-      tabs[0].isSelected = true;
-    }
-
-    return tabs;
-  };
-
-  const tabsChildren = buildTabs(site.id, searchParams.tab);
 
   return (
-    <NhsPage
-      title={title}
-      caption={site.name}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        {
-          name: 'View daily appointments',
-          href: `/site/${params.site}/view-availability/daily-appointments?date=${searchParams.date}&page=${searchParams.page}`,
-        },
-      ]}
-    >
-      <Tabs>{tabsChildren}</Tabs>
+    <NhsPage title={title} caption={site.name} backLink={backLink}>
+      <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
+        <Tab title="Scheduled">
+          <DailyAppointmentsPage
+            bookings={bookings.filter(b => b.status === 'Booked')}
+            site={site.id}
+            displayAction
+          />
+        </Tab>
+        <Tab title="Cancelled">
+          <DailyAppointmentsPage
+            bookings={bookings.filter(b => b.status === 'Cancelled')}
+            site={site.id}
+            displayAction={false}
+          />
+        </Tab>
+      </Tabs>
     </NhsPage>
   );
 };

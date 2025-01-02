@@ -1,23 +1,22 @@
-﻿using Newtonsoft.Json;
-using Nhs.Appointments.Core;
+using Newtonsoft.Json;
 using Nhs.Appointments.Persistance.Models;
 using System.Globalization;
 using System.Text;
 
 namespace CsvDataTool;
 
-public class SiteJsonWriter(FileInfo output)
+public static class DocumentJsonWriter
 {
-    public async Task Write(SiteDocument[] sites)
+    public static async Task Write<TDcoument>(TDcoument site, string path) where TDcoument : TypedCosmosDocument
     {
         var serializerSettings = new JsonSerializerSettings
         {
             Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new Newtonsoft.Json.Converters.StringEnumConverter() }
         };
 
-        var json = JsonConvert.SerializeObject(sites, serializerSettings);
+        var json = JsonConvert.SerializeObject(site, serializerSettings);
 
-        using(var writer = output.OpenWrite())
+        using(var writer = File.OpenWrite(path))
         {
             await writer.WriteAsync(Encoding.UTF8.GetBytes(json));
         }

@@ -37,19 +37,30 @@ const getMockUserAssignments = (site: string): User[] => [
 
 const mockRoles: Role[] = [
   {
-    displayName: 'Role 1',
+    displayName: 'Beta Role',
     id: 'role-1',
-    description: 'This is a short description of role 1.',
+    description: 'This is a short description of beta role.',
   },
   {
-    displayName: 'Role 2',
+    displayName: 'Charlie Role',
     id: 'role-2',
-    description: 'This is a short description of role 2.',
+    description: 'This is a short description of charlie role.',
   },
   {
-    displayName: 'Role 3',
+    displayName: 'Alpha Role',
     id: 'role-3',
-    description: 'This is a short description of role 3.',
+    description: 'This is a short description of alpha role.',
+  },
+];
+
+const mockAssignments = [
+  {
+    role: 'role-1',
+    scope: 'site:TEST',
+  },
+  {
+    role: 'role-3',
+    scope: 'site:TEST',
   },
 ];
 
@@ -99,11 +110,8 @@ const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
   },
 ];
 const mockAllPermissions = [
-  'site:get-config',
-  'site:set-config',
   'site:get-meta-data',
-  'availability:get-setup',
-  'availability:set-setup',
+  'availability:setup',
   'availability:query',
   'booking:make',
   'booking:query',
@@ -116,9 +124,7 @@ const mockAllPermissions = [
 ];
 
 const mockAuditerPermissions = [
-  'site:get-config',
   'site:get-meta-data',
-  'availability:get-setup',
   'availability:query',
   'booking:query',
   'users:view',
@@ -542,6 +548,7 @@ export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
   mockRoles,
+  mockAssignments,
   mockSite,
   mockSites,
   mockAllPermissions,

@@ -33,6 +33,7 @@ public static class ServiceRegistration
             opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
             opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
             opts.ClientCodeExchangeUri = Environment.GetEnvironmentVariable("AuthProvider_ClientCodeExchangeUri");
+            opts.ClientSecret = Environment.GetEnvironmentVariable("AuthProvider_ClientSecret");
         })
         .Configure<SignedRequestAuthenticator.Options>(opts =>
         {

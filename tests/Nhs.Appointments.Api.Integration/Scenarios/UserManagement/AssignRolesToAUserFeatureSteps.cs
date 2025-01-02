@@ -49,7 +49,7 @@ public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSt
                 Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
                 Role = row.Cells.ElementAt(1).Value
             });
-        var actualResult = await Client.GetContainer("appts", "index_data").ReadItemAsync<UserDocument>(userId, new Microsoft.Azure.Cosmos.PartitionKey("user"));
+        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new Microsoft.Azure.Cosmos.PartitionKey("user"));
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 }

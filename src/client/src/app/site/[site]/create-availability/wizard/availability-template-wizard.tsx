@@ -81,32 +81,30 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
       : router.push(`/site/${site.id}/view-availability/week?date=${date}`);
   };
 
+  const getInitialStep = (): number => {
+    return dateIsNotProvided() ? 1 : 4;
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(submitForm)}>
         <Wizard
           id="create-availability-wizard"
-          initialStep={1}
+          initialStep={getInitialStep()}
           returnRouteUponCancellation={`/site/${site.id}/create-availability`}
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);
           }}
         >
-          {dateIsNotProvided() && (
-            <WizardStep>
-              {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
-            </WizardStep>
-          )}
-          {dateIsNotProvided() && (
-            <WizardStep>
-              {stepProps => <StartAndEndDateStep {...stepProps} />}
-            </WizardStep>
-          )}
-          {dateIsNotProvided() && (
-            <WizardStep>
-              {stepProps => <DaysOfWeekStep {...stepProps} />}
-            </WizardStep>
-          )}
+          <WizardStep>
+            {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <StartAndEndDateStep {...stepProps} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <DaysOfWeekStep {...stepProps} />}
+          </WizardStep>
           <WizardStep>
             {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>

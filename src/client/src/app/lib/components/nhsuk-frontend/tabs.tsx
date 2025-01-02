@@ -22,7 +22,7 @@ type TabsProps = {
   title?: string;
   children: ReactNode;
   initialTab?: number;
-  onSwitchTab?: (params: URLSearchParams) => void;
+  setParamsOnTabChange?: { key: string; value: string }[];
 };
 
 /**
@@ -30,7 +30,12 @@ type TabsProps = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/tabs
  */
-const Tabs = ({ title, children, initialTab = 0, onSwitchTab }: TabsProps) => {
+const Tabs = ({
+  title,
+  children,
+  initialTab = 0,
+  setParamsOnTabChange,
+}: TabsProps) => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
   const activeTab = Number(params.get('tab')) ?? initialTab;
@@ -56,8 +61,10 @@ const Tabs = ({ title, children, initialTab = 0, onSwitchTab }: TabsProps) => {
                 href={''}
                 onClick={() => {
                   params.set('tab', String(index));
-                  if (onSwitchTab) {
-                    onSwitchTab(params);
+                  if (setParamsOnTabChange) {
+                    setParamsOnTabChange.forEach(p => {
+                      params.set(p.key, p.value);
+                    });
                   }
                   window.history.pushState(null, '', `?${params.toString()}`);
                 }}

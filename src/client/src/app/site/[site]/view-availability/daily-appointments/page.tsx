@@ -46,11 +46,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage title={title} caption={site.name} backLink={backLink}>
-      <Tabs
-        onSwitchTab={searchParameters => {
-          searchParameters.set('page', '1');
-        }}
-      >
+      <Tabs setParamsOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">
           <DailyAppointmentsPage
             bookings={bookings.filter(b => b.status === 'Booked')}

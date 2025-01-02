@@ -6,6 +6,7 @@ public static class DataImportHandlerFactory
     {
         "site" => new SiteDataImportHandler(new SystemFileOperations()),
         "user" => new UserDataImportHandler(new SystemFileOperations()),
+        "apiUser" => new ApiUserDataImportHandler(new SystemFileOperations()),
         _ => throw new NotSupportedException($"Import of {itemType} items is not supported")
     };
 }

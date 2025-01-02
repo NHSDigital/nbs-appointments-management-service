@@ -63,6 +63,56 @@ public class CsvProcessorTests
         report.Count().Should().Be(4);
         report.Any(r => !r.Success).Should().BeFalse();        
     }
+    
+    [Fact]
+    public async Task CanReadApiUserData()
+    {
+        string[] inputRows =
+            [
+            "test1,ABC123",
+            "test2,DEF345"
+            ];
+
+        var expectedUserDocuments = new UserDocument[]
+        {
+            new()
+            {
+                Id = "api@test1",
+                DocumentType = "user",
+                ApiSigningKey = "ABC123",
+                LatestAcceptedEulaVersion = DateOnly.MinValue,
+                RoleAssignments =
+                [
+                    new() {Role = "system:api-user", Scope = "global"}
+                ]
+            },
+            new()
+            {
+                Id = "api@test2",
+                DocumentType = "user",   
+                ApiSigningKey = "DEF345",
+                LatestAcceptedEulaVersion = DateOnly.MinValue,
+                RoleAssignments =
+                [
+                    new() {Role = "system:api-user", Scope = "global"}
+                ]
+            }
+        };
+        
+        var input = BuildInputCsv(ApiUserHeader, inputRows);
+        var actualUserDocuments = new List<UserDocument>();
+        var mockFileOperations = new Mock<IFileOperations>();
+        mockFileOperations.Setup(x => x.OpenText(It.IsAny<FileInfo>())).Returns(new StringReader(input));
+        mockFileOperations.Setup(x => x.WriteDocument<UserDocument>(It.IsAny<UserDocument>(), It.IsAny<string>())).Callback<UserDocument, string>((doc, path) => actualUserDocuments.Add(doc));
+
+        var sut = new ApiUserDataImportHandler(mockFileOperations.Object);
+        var report = await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("/out"));
+
+        actualUserDocuments.Should().BeEquivalentTo(expectedUserDocuments);
+        
+        report.Count().Should().Be(2);
+        report.Any(r => !r.Success).Should().BeFalse();        
+    }
 
     [Fact]
     public async Task  CanReadSiteData()
@@ -179,4 +229,5 @@ public class CsvProcessorTests
 
     private const string SitesHeader = "ID,Name,Address,PhoneNumber,Longitude,Latitude,ICB,Region,Site type,accessible_toilet,braille_translation_service,disabled_car_parking,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
     private const string UsersHeader = "User,Site";
+    private const string ApiUserHeader = "ClientId,ApiSigningKey";
 }

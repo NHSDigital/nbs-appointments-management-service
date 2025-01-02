@@ -57,6 +57,18 @@
       "eventType": "BookingReminder"
     },
     {
+      "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
+      "emailTemplate": "2bb90de1-2d7d-45b9-bc6e-88d0c04f0021",
+      "smsTemplate": "2ef9995c-32b9-4088-a630-97c2546062d0",
+      "eventType": "BookingCancelled"
+    },
+    {
+      "services": [ "FLU:18_64", "FLU:65" ],
+      "emailTemplate": "2bb90de1-2d7d-45b9-bc6e-88d0c04f0021",
+      "smsTemplate": "2ef9995c-32b9-4088-a630-97c2546062d0",
+      "eventType": "BookingCancelled"
+    },
+    {
       "services": [ "RSV:Adult" ],
       "emailTemplate": "2bb90de1-2d7d-45b9-bc6e-88d0c04f0021",
       "smsTemplate": "2ef9995c-32b9-4088-a630-97c2546062d0",

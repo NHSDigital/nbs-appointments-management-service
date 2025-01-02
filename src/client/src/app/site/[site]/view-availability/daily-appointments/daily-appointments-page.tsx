@@ -103,19 +103,25 @@ export const DailyAppointmentsPage = ({
 
   const appointmentsTableData = mapTableData();
 
+  const hasPreviousPage = page > 1;
+
   return (
     <>
       {appointmentsTableData && <Table {...appointmentsTableData}></Table>}
 
       <Pagination
-        previous={{
-          title: `Page ${page - 1}`,
-          href: '',
-          onClick: () => {
-            params.set('page', String(page - 1));
-            window.history.pushState(null, '', `?${params.toString()}`);
-          },
-        }}
+        previous={
+          hasPreviousPage
+            ? {
+                title: `Page ${page - 1}`,
+                href: '',
+                onClick: () => {
+                  params.set('page', String(page - 1));
+                  window.history.pushState(null, '', `?${params.toString()}`);
+                },
+              }
+            : null
+        }
         next={
           hasNextPage()
             ? {

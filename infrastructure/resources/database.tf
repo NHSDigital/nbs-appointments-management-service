@@ -72,6 +72,19 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
       max_throughput = autoscale_settings.value["max_throughput"]
     }
   }
+
+  indexing_policy {
+    indexing_mode = "consistent"
+    included_path {
+      path = "/*"
+    }
+    excluded_path {
+      path = "/_etag/?"
+    }
+    spatial_index {
+      path = "/location/?"
+    }
+  }
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {

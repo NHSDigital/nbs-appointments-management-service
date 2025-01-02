@@ -12,6 +12,7 @@ import TimeAndCapacityStep from './time-and-capacity-step';
 import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
 import { ChangeEvent } from 'react';
+import dayjs from 'dayjs';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -23,6 +24,7 @@ export type CreateAvailabilityFormValues = {
 
 type Props = {
   site: Site;
+  date: string | null;
 };
 
 export const handlePositiveBoundedNumberInput = (
@@ -41,7 +43,8 @@ export const handlePositiveBoundedNumberInput = (
   return asNumber;
 };
 
-const AvailabilityTemplateWizard = ({ site }: Props) => {
+const AvailabilityTemplateWizard = ({ site, date }: Props) => {
+  const startDate = dayjs(date, 'YYYY-MM-DD');
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
       days: [],
@@ -50,9 +53,19 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
         break: 'no',
         services: [],
       },
+      startDate: date
+        ? {
+            year: startDate.year(),
+            month: startDate.month() + 1,
+            day: startDate.date(),
+          }
+        : undefined,
     },
   });
   const router = useRouter();
+  const dateIsNotProvided = () => {
+    return typeof date !== 'string';
+  };
 
   const submitForm: SubmitHandler<CreateAvailabilityFormValues> = async (
     form: CreateAvailabilityFormValues,
@@ -62,7 +75,10 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
     // TODO: This redirect is blocked by awaiting the submit request, which could cause a delay to users.
     // We need to handle this better, potentially with a loading spinner or something
     // Maybe a <Suspense> object
-    router.push(`/site/${site.id}/create-availability`);
+
+    dateIsNotProvided()
+      ? router.push(`/site/${site.id}/create-availability`)
+      : router.push(`/site/${site.id}/view-availability/week?date=${date}`);
   };
 
   return (
@@ -76,15 +92,21 @@ const AvailabilityTemplateWizard = ({ site }: Props) => {
             methods.handleSubmit(submitForm);
           }}
         >
-          <WizardStep>
-            {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
-          </WizardStep>
-          <WizardStep>
-            {stepProps => <StartAndEndDateStep {...stepProps} />}
-          </WizardStep>
-          <WizardStep>
-            {stepProps => <DaysOfWeekStep {...stepProps} />}
-          </WizardStep>
+          {dateIsNotProvided() && (
+            <WizardStep>
+              {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}
+            </WizardStep>
+          )}
+          {dateIsNotProvided() && (
+            <WizardStep>
+              {stepProps => <StartAndEndDateStep {...stepProps} />}
+            </WizardStep>
+          )}
+          {dateIsNotProvided() && (
+            <WizardStep>
+              {stepProps => <DaysOfWeekStep {...stepProps} />}
+            </WizardStep>
+          )}
           <WizardStep>
             {stepProps => <TimeAndCapacityStep {...stepProps} />}
           </WizardStep>

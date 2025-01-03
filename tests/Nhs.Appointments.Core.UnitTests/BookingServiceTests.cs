@@ -268,6 +268,58 @@ namespace Nhs.Appointments.Core.UnitTests
             _messageBus.VerifyAll();
         }
 
+        [Fact]
+        public async Task GetBookings_ReturnsOrderedBookingsForSite()
+        {
+            var site = "some-site";
+            IEnumerable<Booking> bookings = new List<Booking> {
+                new Booking{ 
+                    From = new DateTime(2025, 01, 01, 14, 0, 0), 
+                    Reference = "1", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Daniel", 
+                        LastName = "Dixon"
+                    }, 
+                },
+                new Booking{
+                    From = new DateTime(2025, 01, 01, 14, 0, 0),
+                    Reference = "2",
+                    AttendeeDetails = new AttendeeDetails{
+                        FirstName = "Alexander",
+                        LastName = "Cooper"
+                    },
+                },
+                new Booking{
+                    From = new DateTime(2025, 01, 01, 14, 0, 0), 
+                    Reference = "3", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Alexander", 
+                        LastName = "Brown"
+                    }, 
+                },
+                new Booking{ 
+                    From = new DateTime(2025, 01, 01, 10, 0, 0), 
+                    Reference = "4", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Bob", 
+                        LastName = "Dawson"
+                    }, 
+                }
+            };
+
+            _bookingsDocumentStore
+                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
+                .ReturnsAsync(bookings);
+
+            var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site);
+
+            Assert.Multiple(
+                () => Assert.True(response.ToArray()[0].Reference == "4"),
+                () => Assert.True(response.ToArray()[1].Reference == "3"),
+                () => Assert.True(response.ToArray()[2].Reference == "2"),
+                () => Assert.True(response.ToArray()[3].Reference == "1")
+            );
+        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

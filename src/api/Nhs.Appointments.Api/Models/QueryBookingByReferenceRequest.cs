@@ -1,3 +1,3 @@
-﻿namespace Nhs.Appointments.Api.Models;
+namespace Nhs.Appointments.Api.Models;
 
-public record QueryBookingByReferenceRequest(string bookingReference);
+public record QueryBookingByReferenceRequest(string bookingReference, string site);

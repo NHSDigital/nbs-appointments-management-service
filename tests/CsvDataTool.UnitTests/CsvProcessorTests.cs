@@ -30,8 +30,12 @@ public class CsvProcessorTests
                 [
                     new() {Role = "canned:user-manager", Scope = "site:ABC01"},
                     new() {Role = "canned:site-details-manager", Scope = "site:ABC01"},
+                    new() {Role = "canned:availability-manager", Scope = "site:ABC01"},
+                    new() {Role = "canned:appointment-manager", Scope = "site:ABC01"},
                     new() {Role = "canned:user-manager", Scope = "site:ABC02"},
                     new() {Role = "canned:site-details-manager", Scope = "site:ABC02"},
+                    new() {Role = "canned:availability-manager", Scope = "site:ABC02"},
+                    new() {Role = "canned:appointment-manager", Scope = "site:ABC02"}
                 ]
             },
             new()
@@ -43,8 +47,13 @@ public class CsvProcessorTests
                 [
                     new() {Role = "canned:user-manager", Scope = "site:ABC01"},
                     new() {Role = "canned:site-details-manager", Scope = "site:ABC01"},
+                    new() {Role = "canned:availability-manager", Scope = "site:ABC01"},
+                    new() {Role = "canned:appointment-manager", Scope = "site:ABC01"},
                     new() {Role = "canned:user-manager", Scope = "site:ABC03"},
                     new() {Role = "canned:site-details-manager", Scope = "site:ABC03"},
+                    new() {Role = "canned:availability-manager", Scope = "site:ABC03"},
+                    new() {Role = "canned:appointment-manager", Scope = "site:ABC03"}
+
                 ]
             }
         };

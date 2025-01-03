@@ -114,7 +114,7 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployApi
@@ -137,7 +137,7 @@ stages:
               appName: ${{parameters.apiServerName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: UploadCosmosDocuments
@@ -171,7 +171,7 @@ stages:
           - DeployWeb
           - DeployApi
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -183,7 +183,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -196,7 +196,7 @@ stages:
       - job: SwapFuncAppSlots
         displayName: "Swap func app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0

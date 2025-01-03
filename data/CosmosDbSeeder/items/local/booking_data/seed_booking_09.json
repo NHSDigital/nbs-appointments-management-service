@@ -3,9 +3,9 @@
   "from": "2025-07-01T10:20:00",
   "duration": 10,
   "service": "RSV:Adult",
-  "created": "2025-09-30T17:20:15.789012+00:00",
+  "created": "2025-01-30T17:20:15.789012+00:00",
   "status": "Cancelled",
-  "statusUpdated": "0001-01-01T00:00:00+00:00",
+  "statusUpdated": "2025-06-26T08:23:53.00+00:00",
   "attendeeDetails": {
     "nhsNumber": "4384388941",
     "firstName": "Frank",

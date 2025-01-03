@@ -22,6 +22,10 @@ public static class ServiceRegistration
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
+        if (userNotificationsProvider == "none")
+        {
+            services.AddScoped<IMessageBus, NullMessageBus>();
+        }
         if (userNotificationsProvider == "local")
         {
             services

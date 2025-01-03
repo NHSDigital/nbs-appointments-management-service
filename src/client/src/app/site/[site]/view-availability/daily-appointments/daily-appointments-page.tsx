@@ -73,21 +73,7 @@ export const DailyAppointmentsPage = ({
       headers.push('Action');
     }
 
-    const sortedBookings = bookings.sort((a, b) => {
-      const timeComparison = a.from.localeCompare(b.from);
-      if (timeComparison !== 0) return timeComparison;
-
-      const firstNameComparison = a.attendeeDetails.firstName.localeCompare(
-        b.attendeeDetails.firstName,
-      );
-      if (firstNameComparison !== 0) return firstNameComparison;
-
-      return a.attendeeDetails.lastName.localeCompare(
-        b.attendeeDetails.lastName,
-      );
-    });
-
-    const rows = getPagedBookings(sortedBookings).map(booking => {
+    const rows = getPagedBookings(bookings).map(booking => {
       const row = [
         formatDateTimeToTime(booking.from),
         mapNameAndNHSNumber(booking.attendeeDetails),

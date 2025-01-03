@@ -26,9 +26,13 @@ public class BookingsService(
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 { 
-    public Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
-        return bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookings
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.AttendeeDetails.FirstName)
+            .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)

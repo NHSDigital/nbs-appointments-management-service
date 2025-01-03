@@ -2,6 +2,7 @@ import { Card, Pagination, Table } from '@components/nhsuk-frontend';
 import { DayAvailabilityDetails } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { isInTheFuture } from '@services/timeService';
 
 type Props = {
   days: DayAvailabilityDetails[];
@@ -84,7 +85,14 @@ export const ViewWeekAvailabilityPage = ({
                 }
               ></Table>
               <br />
-              {/* TODO: Add link for add session */}
+              {isInTheFuture(d.fullDate) && (
+                <Link
+                  className="nhsuk-link"
+                  href={`/site/ABC02/create-availability/wizard?date=${d.fullDate}`}
+                >
+                  Add Session
+                </Link>
+              )}
               <Table
                 headers={[
                   `Total appointments: ${d.totalAppointments}`,

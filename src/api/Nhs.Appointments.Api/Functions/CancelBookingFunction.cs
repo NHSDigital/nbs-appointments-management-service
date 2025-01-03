@@ -38,7 +38,7 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request, ILogger logger)
     {
-        var result = await bookingService.CancelBooking(request.bookingReference);
+        var result = await bookingService.CancelBooking(request.bookingReference, request.site);
 
         switch(result)
         {

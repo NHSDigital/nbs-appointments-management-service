@@ -57,7 +57,19 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
   }
 
   sticky_settings {
-    app_setting_names = ["AuthProvider_ClientCodeExchangeUri", "AuthProvider_ReturnUri", "Notifications_Provider", "ServiceBusConnectionString"]
+    app_setting_names = [
+      "AuthProvider_ClientCodeExchangeUri",
+      "AuthProvider_ReturnUri",
+      "Notifications_Provider",
+      "ServiceBusConnectionString",
+      "AzureWebJobs_NotifyUserRolesChanged_Disabled",
+      "AzureWebJobs_NotifyBookingMade_Disabled",
+      "AzureWebJobs_NotifyBookingRescheduled_Disabled",
+      "AzureWebJobs_NotifyBookingCancelled_Disabled",
+      "AzureWebJobs_SendBookingReminders_Disabled",
+      "AzureWebJobs_NotifyBookingReminder_Disabled",
+      "AzureWebJobs_RemoveUnconfirmedProvisionalBookings_Disabled"
+    ]
   }
 
   identity {

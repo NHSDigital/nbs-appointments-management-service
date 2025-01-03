@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -12,7 +12,7 @@ public class QueryBookingByReferenceRequestValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenSiteIsBlank()
     {
-        var testRequest = new QueryBookingByReferenceRequest("");
+        var testRequest = new QueryBookingByReferenceRequest("", string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -22,7 +22,7 @@ public class QueryBookingByReferenceRequestValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
-        var testRequest = new QueryBookingByReferenceRequest("ref");
+        var testRequest = new QueryBookingByReferenceRequest("ref", string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

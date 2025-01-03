@@ -393,8 +393,10 @@ export const fetchBooking = async (reference: string, site: string) => {
   return handleBodyResponse(response);
 };
 
-export const cancelAppointment = async (reference: string) => {
-  const response = await appointmentsApi.post(`booking/${reference}/cancel`);
+export const cancelAppointment = async (reference: string, site: string) => {
+  const response = await appointmentsApi.post(
+    `booking/${reference}/cancel?site=${site}`,
+  );
 
   return handleEmptyResponse(response);
 };

@@ -231,7 +231,7 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
         {
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(null));
-            var result = await _bookingsService.CancelBooking("some-reference");
+            var result = await _bookingsService.CancelBooking("some-reference", "TEST01");
             Assert.Equal(BookingCancellationResult.NotFound, result);
         }
 
@@ -244,9 +244,9 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
 
-            await _bookingsService.CancelBooking(bookingRef);
+            await _bookingsService.CancelBooking(bookingRef, site);
 
-            _bookingsDocumentStore.VerifyAll();            
+            _bookingsDocumentStore.VerifyAll();
         }
 
         [Fact]
@@ -263,9 +263,23 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e => e[0].Site == site && e[0].Reference == bookingRef && e[0].ContactDetails[0].Type == ContactItemType.Email))).Verifiable(Times.Once);
 
-            await _bookingsService.CancelBooking(bookingRef);
+            await _bookingsService.CancelBooking(bookingRef, site);
 
             _messageBus.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+
+            var result = await _bookingsService.CancelBooking(bookingRef, "some-other-site");
+
+            result.Should().Be(BookingCancellationResult.NotFound);
         }
 
         [Fact]

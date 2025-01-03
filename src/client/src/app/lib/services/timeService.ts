@@ -127,3 +127,9 @@ export const toTimeComponents = (time: string): TimeComponents | undefined => {
 export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
   return dayjs.utc(date).format(format);
 };
+
+export const isInTheFuture = (date: string, format = 'YYYY-MM-DD') => {
+  const inputDate = dayjs(date, format);
+  const today = dayjs().startOf('day');
+  return inputDate.isAfter(today);
+};

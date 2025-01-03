@@ -1,0 +1,27 @@
+{
+  "reference": "seed-booking-reference-08",
+  "from": "2025-07-01T10:10:00",
+  "duration": 10,
+  "service": "RSV:Adult",
+  "created": "2025-08-12T13:45:00.654321+00:00",
+  "status": "Booked",
+  "statusUpdated": "0001-01-01T00:00:00+00:00",
+  "attendeeDetails": {
+    "nhsNumber": "7278225602",
+    "firstName": "Emily",
+    "lastName": "Davis",
+    "dateOfBirth": "1988-09-05"
+  },
+  "contactDetails": [],
+  "additionalData": {
+    "isCallCentreBooking": true,
+    "callCentreHandlerEmail": "test@example.com",
+    "isAppBooking": false,
+    "selfReferralOccupation": "test",
+    "decisionReason": "test"
+  },
+  "reminderSent": false,
+  "site": "ABC02",
+  "id": "seed-booking-reference-08",
+  "docType": "booking"
+}

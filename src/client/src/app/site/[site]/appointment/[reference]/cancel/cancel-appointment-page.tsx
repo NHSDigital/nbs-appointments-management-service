@@ -44,7 +44,7 @@ const CancelAppointmentPage = ({
     form: CancelFormValue,
   ) => {
     if (form.cancelAppointment === 'yes') {
-      await cancelAppointment(booking.reference);
+      await cancelAppointment(booking.reference, site);
     }
 
     const returnDate = dayjs(booking.from).format('YYYY-MM-DD');

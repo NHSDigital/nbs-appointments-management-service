@@ -41,7 +41,7 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<Site>(GetSiteId(siteId), new Microsoft.Azure.Cosmos.PartitionKey("site"));
+        var actualResult = await Client.GetContainer("appts", "site_data").ReadItemAsync<Site>(GetSiteId(siteId), new Microsoft.Azure.Cosmos.PartitionKey("site"));
         actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
 }

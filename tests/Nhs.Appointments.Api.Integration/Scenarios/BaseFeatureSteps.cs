@@ -83,7 +83,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 } )
         };
-        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        return Client.GetContainer("appts", "site_data").CreateItemAsync(site);
     }
 
     [Given("the following sessions")]

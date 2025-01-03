@@ -77,7 +77,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
     private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
     {
         const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
+        var container = cosmosClient.GetContainer("appts", "site_data");
         using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId)).ToFeedIterator();
         while (feed.HasMoreResults)
         {

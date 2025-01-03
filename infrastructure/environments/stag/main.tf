@@ -67,6 +67,9 @@ module "api" {
   cosmos_booking_autoscale_settings = [{
     max_throughput = 20000
   }]
+  cosmos_site_autoscale_settings = [{
+    max_throughput = 20000
+  }]
   cosmos_core_autoscale_settings = [{
     max_throughput = 20000
   }]

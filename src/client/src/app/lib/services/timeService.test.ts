@@ -1,12 +1,14 @@
 import {
   formatDateTimeToTime,
   formatTimeString,
+  isInTheFuture,
   isValidDate,
   parseDateComponents,
   toTimeComponents,
   toTwoDigitFormat,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
+import dayjs from 'dayjs';
 
 describe('Time Service', () => {
   it.each([
@@ -119,4 +121,16 @@ describe('Time Service', () => {
 
     expect(result).toEqual('12:05');
   });
+
+  it.each([
+    [dayjs().add(1, 'day').format('YYYY-MM-DD'), true],
+    [dayjs().subtract(1, 'day').format('YYYY-MM-DD'), false],
+  ])(
+    'check if date is in the future',
+    (dateToCheck: string, expectedOutcome: boolean) => {
+      const result = isInTheFuture(dateToCheck);
+
+      expect(result).toBe(expectedOutcome);
+    },
+  );
 });

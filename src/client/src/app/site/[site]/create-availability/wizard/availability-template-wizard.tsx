@@ -63,9 +63,6 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
     },
   });
   const router = useRouter();
-  const dateIsNotProvided = () => {
-    return typeof date !== 'string';
-  };
 
   const submitForm: SubmitHandler<CreateAvailabilityFormValues> = async (
     form: CreateAvailabilityFormValues,
@@ -76,13 +73,9 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
     // We need to handle this better, potentially with a loading spinner or something
     // Maybe a <Suspense> object
 
-    dateIsNotProvided()
-      ? router.push(`/site/${site.id}/create-availability`)
-      : router.push(`/site/${site.id}/view-availability/week?date=${date}`);
-  };
-
-  const getInitialStep = (): number => {
-    return dateIsNotProvided() ? 1 : 4;
+    date
+      ? router.push(`/site/${site.id}/view-availability/week?date=${date}`)
+      : router.push(`/site/${site.id}/create-availability`);
   };
 
   return (
@@ -90,7 +83,7 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
       <form onSubmit={methods.handleSubmit(submitForm)}>
         <Wizard
           id="create-availability-wizard"
-          initialStep={getInitialStep()}
+          initialStep={date ? 4 : 1}
           returnRouteUponCancellation={`/site/${site.id}/create-availability`}
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);

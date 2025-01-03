@@ -19,7 +19,7 @@ const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'booking:cancel');
 
-  const booking = await fetchBooking(params.reference);
+  const booking = await fetchBooking(params.reference, site.id);
   if (!booking || booking.status === 'Cancelled') {
     notFound();
   }

@@ -282,8 +282,16 @@ namespace Nhs.Appointments.Core.UnitTests
                     }, 
                 },
                 new Booking{
+                    From = new DateTime(2025, 01, 01, 14, 0, 0),
+                    Reference = "2",
+                    AttendeeDetails = new AttendeeDetails{
+                        FirstName = "Alexander",
+                        LastName = "Cooper"
+                    },
+                },
+                new Booking{
                     From = new DateTime(2025, 01, 01, 14, 0, 0), 
-                    Reference = "2", 
+                    Reference = "3", 
                     AttendeeDetails = new AttendeeDetails{ 
                         FirstName = "Alexander", 
                         LastName = "Brown"
@@ -291,7 +299,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 },
                 new Booking{ 
                     From = new DateTime(2025, 01, 01, 10, 0, 0), 
-                    Reference = "3", 
+                    Reference = "4", 
                     AttendeeDetails = new AttendeeDetails{ 
                         FirstName = "Bob", 
                         LastName = "Dawson"
@@ -306,9 +314,10 @@ namespace Nhs.Appointments.Core.UnitTests
             var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site);
 
             Assert.Multiple(
-                () => Assert.True(response.ToArray()[0].Reference == "3"),
-                () => Assert.True(response.ToArray()[1].Reference == "2"),
-                () => Assert.True(response.ToArray()[2].Reference == "1")
+                () => Assert.True(response.ToArray()[0].Reference == "4"),
+                () => Assert.True(response.ToArray()[1].Reference == "3"),
+                () => Assert.True(response.ToArray()[2].Reference == "2"),
+                () => Assert.True(response.ToArray()[3].Reference == "1")
             );
         }
     }

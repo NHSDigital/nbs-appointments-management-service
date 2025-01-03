@@ -1,10 +1,12 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
+using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Options;
 
 namespace BookingsDataExtracts;
 
-public class CosmosStore<TDocument>(CosmosClient cosmosClient, string databaseName, string containerName)
+public class CosmosStore<TDocument>(CosmosClient cosmosClient, IOptions<CosmosStoreOptions> options)
 {
     public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate, Expression<Func<TDocument, TModel>> projection)
     {
@@ -36,6 +38,17 @@ public class CosmosStore<TDocument>(CosmosClient cosmosClient, string databaseNa
         return results;
     }
 
-    protected Container GetContainer() => cosmosClient.GetContainer(databaseName, containerName);
+    private string GetContainerName() => typeof(TDocument).Name switch
+    {
+        nameof(BookingDocument) => "booking_data",
+        nameof(SiteDocument) => "core_data",
+        _ => throw new NotSupportedException()
+    };
+
+    protected Container GetContainer() => cosmosClient.GetContainer(options.Value.DatabaseName, GetContainerName());
 }
 
+public class CosmosStoreOptions
+{
+    public string DatabaseName { get; set; }
+}

@@ -1,4 +1,4 @@
-﻿using BookingsDataExtracts.Documents;
+using BookingsDataExtracts.Documents;
 using Parquet;
 using Parquet.Data;
 using Parquet.Schema;
@@ -7,13 +7,14 @@ namespace BookingsDataExtracts;
 
 public class BookingDataExtract(
     CosmosStore<BookingDocument> bookingsStore, 
-    CosmosStore<SiteDocument> sitesStore)
+    CosmosStore<SiteDocument> sitesStore,
+    TimeProvider timeProvider)
 {
-    public async Task RunAsync()
+    public async Task RunAsync(FileInfo outputFile)
     {
         Console.WriteLine("Loading bookings");
-
-        var allBookings = await bookingsStore.RunQueryAsync<BookingDocument>(b => b.DocumentType == "booking" && b.From > DateTime.Today && b.From < DateTime.Today.AddMonths(3), b => b);
+        
+        var allBookings = await bookingsStore.RunQueryAsync<BookingDocument>(b => b.DocumentType == "booking" && b.From > timeProvider.GetLocalNow().Date.AddDays(-1) && b.From < timeProvider.GetLocalNow().Date, b => b);
         var bookings = allBookings.Where(b => b.Status != AppointmentStatus.Provisional).ToList();
 
         Console.WriteLine("Loading sites");
@@ -56,11 +57,11 @@ public class BookingDataExtract(
 
         Console.WriteLine("Preparing to write");
 
-        using (Stream fs = File.OpenWrite("bookings.parquet"))
+        using (Stream fs = outputFile.OpenWrite())
         {
-            using (ParquetWriter writer = await ParquetWriter.CreateAsync(schema, fs))
+            using (var writer = await ParquetWriter.CreateAsync(schema, fs))
             {
-                using (ParquetRowGroupWriter groupWriter = writer.CreateRowGroup())
+                using (var groupWriter = writer.CreateRowGroup())
                 {
 
                     await groupWriter.WriteColumnAsync(odsColumn);
@@ -83,6 +84,5 @@ public class BookingDataExtract(
         }
 
         Console.WriteLine("done");
-
     }
 }

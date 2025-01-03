@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -23,6 +23,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\src\api\Nhs.Appointments.Api\Nhs.Appointments.Api.csproj" />
+    <ProjectReference Include="..\..\src\libraries\Nbs.MeshClient\Nbs.MeshClient.csproj" />
   </ItemGroup>
 
 </Project>

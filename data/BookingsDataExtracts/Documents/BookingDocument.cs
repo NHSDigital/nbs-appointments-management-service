@@ -1,15 +1,9 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace BookingsDataExtracts.Documents;
 
-public class BookingDocument 
-{
-    [JsonProperty("id")]
-    public string Id { get; set; }
-
-    [JsonProperty("docType")]
-    public string DocumentType { get; set; }
-
+public class BookingDocument : CosmosDocument
+{   
     [JsonProperty("site")]
     public string Site { get; set; }
 
@@ -42,4 +36,13 @@ public class BookingDocument
 
     [JsonProperty("reminderSent")]
     public Boolean ReminderSent { get; set; }
+}
+
+public abstract class CosmosDocument
+{
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonProperty("docType")]
+    public string DocumentType { get; set; }    
 }

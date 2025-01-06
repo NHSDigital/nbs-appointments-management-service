@@ -31,7 +31,7 @@ namespace Nbs.MeshClient
         public Task<IApiResponse> AcknowledgeMessageAsync(string mailboxId, string messageId);
 
         [Post("/messageexchange/{sourceMailboxId}/outbox")]
-        public Task<IApiResponse<SendMessageResponse>> SendMessageAsync(string sourceMailboxId, [Header("mex-to")] string recipientMailboxId, [Header("mex-workflowid")] string workflowId, [Body] HttpContent content, [Header("mex-chunk-range")] string? chunkRange = null);
+        public Task<IApiResponse<SendMessageResponse>> SendMessageAsync(string sourceMailboxId, [Header("mex-to")] string recipientMailboxId, [Header("mex-workflowid")] string workflowId, [Body] HttpContent content, [Header("mex-chunk-range")] string? chunkRange = null, [Header("mex-filename")] string? fileName = null);
 
         [Post("/messageexchange/{sourceMailboxId}/outbox/{messageId}/{messagePart}")]
         public Task<IApiResponse> SendMessagePartAsync(string sourceMailboxId, string messageId, int messagePart, [Header("mex-chunk-range")] string chunkRange, [Body] HttpContent content);

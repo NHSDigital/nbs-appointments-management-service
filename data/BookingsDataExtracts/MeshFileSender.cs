@@ -17,7 +17,7 @@ public class MeshFileSender(IMeshMailbox meshMailbox)
                 fileStream.Read(data, (int)fileStream.Position, (int)bytesToRead);
                 var content = new ByteArrayContent(data);
                 if (chunksSent == 0)
-                    messageId = await meshMailbox.SendMessageAsync(destinationMailBox, workflowId, content, totalChunks);
+                    messageId = await meshMailbox.SendMessageAsync(destinationMailBox, workflowId, content, totalChunks, file.Name);
                 else
                     await meshMailbox.SendMessagePartAsync(messageId, chunksSent + 1, totalChunks, content);
             }

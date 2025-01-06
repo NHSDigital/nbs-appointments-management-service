@@ -2,6 +2,7 @@ using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nbs.MeshClient;
+using Nbs.MeshClient.Auth;
 
 namespace BookingsDataExtracts;
 
@@ -43,7 +44,20 @@ public static class ServiceRegistration
             .AddSingleton<CosmosStore<BookingDocument>>()
             .AddSingleton<CosmosStore<SiteDocument>>()
             .AddSingleton<BookingDataExtract>()
-            .AddMesh(configuration);
+        .AddMesh(configuration);
+
+        var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
+        if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
+        {
+            services.Configure<AzureKeyVaultConfiguration>(opts =>
+            {
+                opts.KeyVaultName = azureKeyVaultConfig.KeyVaultName;
+                opts.ClientId = azureKeyVaultConfig.ClientId;
+                opts.TenantId = azureKeyVaultConfig.TenantId;
+                opts.ClientSecret = azureKeyVaultConfig.ClientSecret;
+            });
+            services.AddSingleton<ICertificateProvider, KeyVaultCertificateProvider>();
+        }        
 
         return services;
     }

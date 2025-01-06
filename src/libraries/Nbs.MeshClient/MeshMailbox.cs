@@ -148,7 +148,7 @@ namespace Nbs.MeshClient
             EnsureSuccess(result);
         }
 
-        public async Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1)
+        public async Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1, string fileName = null)
         {
             string? chunkRange = null;
             if (totalParts < 1)
@@ -160,7 +160,7 @@ namespace Nbs.MeshClient
                 chunkRange = $"1:{totalParts}";
             }
 
-            var result = await _meshClient.SendMessageAsync(MailboxId, recipientMailboxId, workflowId, content, chunkRange).ConfigureAwait(false);
+            var result = await _meshClient.SendMessageAsync(MailboxId, recipientMailboxId, workflowId, content, chunkRange, fileName).ConfigureAwait(false);
             EnsureSuccessAndContent(result);
             return result.Content!.MessageId ?? throw new InvalidDataException("Message ID was expected but not found.");
         }

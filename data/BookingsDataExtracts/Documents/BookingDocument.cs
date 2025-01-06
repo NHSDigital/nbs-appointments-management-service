@@ -25,6 +25,9 @@ public class BookingDocument : CosmosDocument
     [JsonProperty("status")]
     public AppointmentStatus Status { get; set; }
 
+    [JsonProperty("statusUpdated")]
+    public DateTimeOffset StatusUpdated { get; set; }
+
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
 

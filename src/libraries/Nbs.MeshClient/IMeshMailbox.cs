@@ -54,8 +54,9 @@ namespace Nbs.MeshClient
         /// <param name="workflowId">The ID of the workflow for the message.</param>
         /// <param name="content">The content of the message.</param>
         /// <param name="totalParts">The total number of parts to the message.</param>
+        /// <param name="fileName">Optional filename to be sent with the message</param>
         /// <returns>The ID of the message.</returns>
-        Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1);
+        Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1, string? fileName = null);
 
         /// <summary>
         /// Sends a message part.

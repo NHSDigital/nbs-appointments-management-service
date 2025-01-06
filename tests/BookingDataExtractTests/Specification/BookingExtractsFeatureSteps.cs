@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Parquet.Serialization;
 using FluentAssertions;
 using BookingsDataExtracts.Documents;
+using Microsoft.Azure.Amqp.Framing;
 
 namespace BookingDataExtractTests.Specification;
 
@@ -72,7 +73,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
             {
                 Id = row.Cells.ElementAt(1).Value,
                 Reference = row.Cells.ElementAt(1).Value,
-                Created = DateTime.UtcNow.AddHours(int.Parse(row.Cells.ElementAt(0).Value)*-1),
+                Created = DateTimeOffset.Now,
                 From = DateTime.Today.AddDays(5).AddHours(9),
                 Duration = 5,
                 Service = "COVID:18_74",
@@ -80,7 +81,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 Site = site.Id,
                 DocumentType = "booking",
                 Status = Enum.Parse<Nhs.Appointments.Core.AppointmentStatus>(row.Cells.ElementAt(2).Value),
-                StatusUpdated = DateTime.MinValue,
+                StatusUpdated = DateTimeOffset.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd HH:mm", null),
                 ContactDetails = [],
                 AttendeeDetails = new Nhs.Appointments.Core.AttendeeDetails
                 {
@@ -130,15 +131,22 @@ public sealed class BookingExtractsFeatureSteps : Feature
         await _targetMailbox.ClearMessages();
     }
 
-    [When("the booking data extract runs")]
-    public async Task RunDataExtract()
+    [When(@"the booking data extract runs on '(\d{4}-\d{2}-\d{2} \d{2}:\d{2})'")]
+    public async Task RunDataExtract(string dateTime)
     {
         var serviceCollection = new ServiceCollection();
-        BookingsDataExtracts.ServiceRegistration.AddDataExtractServices(serviceCollection, _configurationBuilder);
+        BookingsDataExtracts.ServiceRegistration.AddDataExtractServices(serviceCollection, _configurationBuilder);        
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);
-        serviceCollection.AddSingleton<TestableDataExtractWorker>();        
+
+        var mockTimeProvider = new Mock<TimeProvider>();
+        var date = DateTimeOffset.ParseExact(dateTime, "yyyy-MM-dd HH:mm", null);
+        mockTimeProvider.Setup(x => x.GetUtcNow()).Returns(date);
+
+        serviceCollection.AddSingleton(mockTimeProvider.Object);    
+
+        serviceCollection.AddSingleton<TestableDataExtractWorker>();
 
         var services = serviceCollection.BuildServiceProvider();
         var sut = services.GetRequiredService<TestableDataExtractWorker>();
@@ -149,14 +157,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
     public async Task AssertData(Gherkin.Ast.DataTable expectedAppointments)
     {
         var response = await _targetMailbox.CheckInboxAsync();
-        response.Messages.Count.Should().Be(1);        
+        response.Messages.Count.Should().Be(1);
 
-        var outputFolder = new DirectoryInfo("./recieved");
-        outputFolder.Create();
-        var file = await _targetMailbox.GetMessageAsFileAsync(response.Messages.First(), outputFolder);
-
-        var pfile = new FileInfo(Path.Combine(outputFolder.FullName, file));
-        var results = await ParquetSerializer.DeserializeAsync<BookingExtactDataRow>(pfile.FullName);
+        var results = await ReadFromResultsFile(response.Messages.First());
         results.Count.Should().Be(expectedAppointments.Rows.Count() - 1);
 
         results.Select(r => r.BOOKING_REFERENCE_NUMBER).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));                       
@@ -168,16 +171,30 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var response = await _targetMailbox.CheckInboxAsync();
         response.Messages.Count.Should().Be(1);
 
-        // TODO: Check that the file is empty
+        var results = await ReadFromResultsFile(response.Messages.First());
+        results.Count.Should().Be(0);
     }
 
-    [Then("a file is recieved with the name 'MYA_booking_{yyyy-MM-ddTHHmm}.parquet'")]
-    public async Task AssertFileName()
+    [Then(@"a file is recieved with the name '(.+)'")]
+    public async Task AssertFileName(string expectedFileName)
     {
         var response = await _targetMailbox.CheckInboxAsync();
         response.Messages.Count.Should().Be(1);
 
-        // TODO: Check that the file name
+        var outputFolder = new DirectoryInfo("./recieved");
+        outputFolder.Create();
+        var actualFileName = await _targetMailbox.GetMessageAsFileAsync(response.Messages.First(), outputFolder);
+        actualFileName.Should().Be(expectedFileName);
+    }
+
+    private async Task<List<BookingExtactDataRow>> ReadFromResultsFile(string messageId)
+    {
+        var outputFolder = new DirectoryInfo("./recieved");
+        outputFolder.Create();
+        var file = await _targetMailbox.GetMessageAsFileAsync(messageId, outputFolder);
+
+        var pfile = new FileInfo(Path.Combine(outputFolder.FullName, file));
+        return (await ParquetSerializer.DeserializeAsync<BookingExtactDataRow>(pfile.FullName)).ToList();
     }
 
     private MeshMailbox SetupMailboxClient(string mailboxId)

@@ -14,11 +14,11 @@ public class BookingDataExtract(
     {
         Console.WriteLine("Loading bookings");
         
-        var allBookings = await bookingsStore.RunQueryAsync(b => b.DocumentType == "booking" && b.Created > timeProvider.GetUtcNow().Date.AddDays(-1) && b.Created < timeProvider.GetUtcNow().Date, b => b);
+        var allBookings = await bookingsStore.RunQueryAsync(b => b.DocumentType == "booking" && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1) && b.StatusUpdated < timeProvider.GetUtcNow().Date, b => b);
         var bookings = allBookings.Where(b => b.Status != AppointmentStatus.Provisional).ToList();
 
         Console.WriteLine("Loading sites");
-        var sites = await sitesStore.RunQueryAsync<SiteDocument>(s => s.DocumentType == "site", s => s);
+        var sites = await sitesStore.RunQueryAsync(s => s.DocumentType == "site", s => s);
 
         var schema = new ParquetSchema(
             new DataField<string>("ODS_CODE"),

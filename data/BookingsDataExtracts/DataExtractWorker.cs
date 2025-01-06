@@ -8,12 +8,13 @@ public class DataExtractWorker(
     IOptions<MeshSendOptions> meshSendOptions,
     IOptions<MeshAuthorizationOptions> meshAuthOptions,
     IMeshFactory meshFactory,
+    TimeProvider timeProvider,
     BookingDataExtract bookingDataExtract
     ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var outputFile = new FileInfo($"MYA_booking_{DateTime.UtcNow:yyyy-MM-ddTHHmm}.parquet");        
+        var outputFile = new FileInfo(GenerateFileName());        
         await bookingDataExtract.RunAsync(outputFile);
 
         await SendViaMesh(outputFile);
@@ -25,12 +26,11 @@ public class DataExtractWorker(
     {
         if (string.IsNullOrEmpty(meshSendOptions.Value.DestinationMailboxId) == false)
         {
-            //services.Configure<AzureKeyVaultConfiguration>(configuration.GetSection(AzureKeyVaultConfiguration.DefaultConfigSectionName));
-            //services.AddSingleton<ICertificateProvider, KeyVaultCertificateProvider>();
-            
             var meshMailbox = meshFactory.GetMailbox(meshAuthOptions.Value.MailboxId);
             var meshFileSender = new MeshFileSender(meshMailbox);
             await meshFileSender.SendFile(fileToSend, meshSendOptions.Value.DestinationMailboxId, meshSendOptions.Value.WorkflowId);
         }
     }
+
+    private string GenerateFileName() => $"MYA_booking_{timeProvider.GetUtcNow():yyyy-MM-ddTHHmm}.parquet";
 }

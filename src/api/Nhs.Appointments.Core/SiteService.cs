@@ -57,18 +57,17 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {
-        if ((lat1 == lat2) && (lon1 == lon2))
-        {
+        var epsilon = 0.000001f;
+        var deltaLatitude = lat1 - lat2;
+        var deltaLongitude = lon1 - lon2;
+
+        if( Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon )
             return 0;
-        }
-        else
-        {
-            var theta = lon1 - lon2;
-            var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) + Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) * Math.Cos(DegreesToRadians(theta));
-            dist = Math.Acos(dist);
-            dist = RadiansToDegrees(dist);
-            return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
-        }
+
+        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) + Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) * Math.Cos(DegreesToRadians(deltaLongitude));
+        dist = Math.Acos(dist);
+        dist = RadiansToDegrees(dist);
+        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);        
     }
 
     private double DegreesToRadians(double deg) => (deg * Math.PI / 180.0);

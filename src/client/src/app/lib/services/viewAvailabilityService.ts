@@ -322,7 +322,8 @@ const buildServiceDetails = (
     const serviceAppts = bookings.filter(
       b =>
         b.service === service &&
-        dayjs(b.from).format('YYYY-MM-DD') === serviceDate,
+        dayjs(b.from).format('YYYY-MM-DD') === serviceDate &&
+        (b.status === 'Booked' || 'Provisional'),
     );
 
     // If there are more appointments vs capacity for that session

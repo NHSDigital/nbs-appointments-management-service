@@ -1,9 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
@@ -28,16 +29,17 @@ public class CancelBookingFunctionTests
         _sut = new CancelBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _bookingService.Setup(x => x.CancelBooking(null)).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        _bookingService.Setup(x => x.CancelBooking(null, string.Empty)).Returns(Task.FromResult(BookingCancellationResult.NotFound));
     }
 
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenBookingCancelled()
     {
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult(BookingCancellationResult.Success));
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site)).Returns(Task.FromResult(BookingCancellationResult.Success));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest(bookingRef, site);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -48,9 +50,10 @@ public class CancelBookingFunctionTests
     public async Task RunAsync_CallsBookingServiceOnce_WhenBookingCancelled()
     {
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(bookingRef)).Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site)).Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest(bookingRef, site);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -61,9 +64,10 @@ public class CancelBookingFunctionTests
     public async Task RunAsync_ReturnsNotFoundResponse_WhenBookingInvalid()
     {
         var bookingRef = "some-booking";
-        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest(bookingRef, site);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -74,10 +78,11 @@ public class CancelBookingFunctionTests
     public async Task RunAsync_Fails_WhenServiceReturnsUnexpected()
     {
         var bookingRef = "some-booking";
+        var site = "TEST01";
         var invalidResultCode = 99;
-        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
-        var request = BuildRequest(bookingRef);
+        var request = BuildRequest(bookingRef, site);
 
         var response = await _sut.RunAsync(request) as InternalServerErrorResult;
 
@@ -85,11 +90,12 @@ public class CancelBookingFunctionTests
         Assert.Equal(500, response.StatusCode);
     }
 
-    private static HttpRequest BuildRequest(string reference)
+    private static HttpRequest BuildRequest(string reference, string site)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.RouteValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary { { "bookingReference", reference } };
+        request.RouteValues = new RouteValueDictionary { { "bookingReference", reference } };
+        request.QueryString = new QueryString($"?site={site}");
         request.Headers.Append("Authorization", "Test 123");
 
         return request;

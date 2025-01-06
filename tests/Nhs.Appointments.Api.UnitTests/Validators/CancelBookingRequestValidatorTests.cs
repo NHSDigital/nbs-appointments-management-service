@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -11,7 +11,7 @@ public class CancelBookingRequestValidatorTests
     [Fact]
     public void Validate_ReturnError_WhenBookingReferenceIsBlank()
     {
-        var testRequest = new CancelBookingRequest(string.Empty);            
+        var testRequest = new CancelBookingRequest(string.Empty, string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -21,7 +21,7 @@ public class CancelBookingRequestValidatorTests
     [Fact]
     public void Validate_ReturnsTrue_WhenRequestIsValid()
     {
-        var testRequest = new CancelBookingRequest("ref");
+        var testRequest = new CancelBookingRequest("ref", string.Empty);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

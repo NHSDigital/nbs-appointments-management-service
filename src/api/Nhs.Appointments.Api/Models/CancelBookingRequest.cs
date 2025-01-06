@@ -1,3 +1,3 @@
-﻿namespace Nhs.Appointments.Api.Models;
+namespace Nhs.Appointments.Api.Models;
 
-public record CancelBookingRequest(string bookingReference);
+public record CancelBookingRequest(string bookingReference, string site);

@@ -12,7 +12,7 @@ public class UserDataImportHandler(IFileOperations fileOperations) : IDataImport
         using var fileReader = fileOperations.OpenText(inputFile);
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        string[] rolesToAssign = ["canned:site-details-manager", "canned:user-manager"];
+        string[] rolesToAssign = ["canned:site-details-manager", "canned:user-manager", "canned:availability-manager", "canned:appointment-manager"];
         
         foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId))
         {

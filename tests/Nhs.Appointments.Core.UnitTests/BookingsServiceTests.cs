@@ -4,7 +4,7 @@ using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core.UnitTests
 {
-    public class BookingServiceTests
+    public class BookingsServiceTests
     {
         private readonly BookingsService _bookingsService;
         private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
@@ -13,7 +13,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
 
-        public BookingServiceTests()
+        public BookingsServiceTests()
         {
             _bookingsService = new BookingsService(
                 _bookingsDocumentStore.Object,
@@ -231,7 +231,7 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
         {
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(null));
-            var result = await _bookingsService.CancelBooking("some-reference");
+            var result = await _bookingsService.CancelBooking("some-reference", "TEST01");
             Assert.Equal(BookingCancellationResult.NotFound, result);
         }
 
@@ -244,9 +244,9 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
 
-            await _bookingsService.CancelBooking(bookingRef);
+            await _bookingsService.CancelBooking(bookingRef, site);
 
-            _bookingsDocumentStore.VerifyAll();            
+            _bookingsDocumentStore.VerifyAll();
         }
 
         [Fact]
@@ -263,11 +263,77 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e => e[0].Site == site && e[0].Reference == bookingRef && e[0].ContactDetails[0].Type == ContactItemType.Email))).Verifiable(Times.Once);
 
-            await _bookingsService.CancelBooking(bookingRef);
+            await _bookingsService.CancelBooking(bookingRef, site);
 
             _messageBus.VerifyAll();
         }
 
+        [Fact]
+        public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+
+            var result = await _bookingsService.CancelBooking(bookingRef, "some-other-site");
+
+            result.Should().Be(BookingCancellationResult.NotFound);
+        }
+
+        [Fact]
+        public async Task GetBookings_ReturnsOrderedBookingsForSite()
+        {
+            var site = "some-site";
+            IEnumerable<Booking> bookings = new List<Booking> {
+                new Booking{ 
+                    From = new DateTime(2025, 01, 01, 16, 0, 0), 
+                    Reference = "1", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Daniel", 
+                        LastName = "Dixon"
+                    }, 
+                },
+                new Booking{
+                    From = new DateTime(2025, 01, 01, 14, 0, 0),
+                    Reference = "2",
+                    AttendeeDetails = new AttendeeDetails{
+                        FirstName = "Alexander",
+                        LastName = "Cooper"
+                    },
+                },
+                new Booking{
+                    From = new DateTime(2025, 01, 01, 14, 0, 0), 
+                    Reference = "3", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Alexander", 
+                        LastName = "Brown"
+                    }, 
+                },
+                new Booking{ 
+                    From = new DateTime(2025, 01, 01, 10, 0, 0), 
+                    Reference = "4", 
+                    AttendeeDetails = new AttendeeDetails{ 
+                        FirstName = "Bob", 
+                        LastName = "Dawson"
+                    }, 
+                }
+            };
+
+            _bookingsDocumentStore
+                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
+                .ReturnsAsync(bookings);
+
+            var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site);
+
+            Assert.Multiple(
+                () => Assert.True(response.ToArray()[0].Reference == "4"),
+                () => Assert.True(response.ToArray()[1].Reference == "3"),
+                () => Assert.True(response.ToArray()[2].Reference == "2"),
+                () => Assert.True(response.ToArray()[3].Reference == "1")
+            );
+        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

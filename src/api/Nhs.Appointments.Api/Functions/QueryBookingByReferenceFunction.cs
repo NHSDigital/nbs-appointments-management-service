@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +26,7 @@ public class QueryBookingByReferenceFunction(IBookingsService bookingsService, I
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("booking:query", typeof(NoSiteRequestInspector))]
+    [RequiresPermission("booking:query", typeof(SiteFromQueryStringInspector))]
     [Function("QueryBookingByBookingReference")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "booking/{bookingReference}")] HttpRequest req)
@@ -38,17 +38,16 @@ public class QueryBookingByReferenceFunction(IBookingsService bookingsService, I
     {
         var booking = await bookingsService.GetBookingByReference(request.bookingReference);
 
-        if (booking is null)
-        {
-            return Failed(HttpStatusCode.NotFound, "Booking not found");
-        }
-
-        return Success(booking);
+        return booking is null
+            || (!string.IsNullOrEmpty(request.site) && request.site != booking.Site)
+                ? Failed(HttpStatusCode.NotFound, "Booking not found")
+                : Success(booking);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryBookingByReferenceRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
-        return Task.FromResult((ErrorMessageResponseItem.None, new QueryBookingByReferenceRequest(bookingReference)));
+        var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
+        return Task.FromResult((ErrorMessageResponseItem.None, new QueryBookingByReferenceRequest(bookingReference, site)));
     }
 }

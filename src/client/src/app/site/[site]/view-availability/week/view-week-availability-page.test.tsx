@@ -6,6 +6,7 @@ import {
   mockWeekAvailabilityEnd,
   mockWeekAvailabilityStart,
 } from '@testing/data';
+import dayjs from 'dayjs';
 
 describe('View Week Availability Page', () => {
   it('renders', () => {
@@ -92,5 +93,28 @@ describe('View Week Availability Page', () => {
         name: 'Previous : 25 November-1 December 2024',
       }),
     ).toBeInTheDocument();
+  });
+
+  it('Add Session only available for future date', () => {
+    const detailedDays = mockDetailedDays;
+    detailedDays[0].fullDate = dayjs().format('YYYY-MM-DD');
+    detailedDays[0].date = dayjs().format('dddd D MMMM');
+    detailedDays[1].fullDate = dayjs().add(1, 'day').format('YYYY-MM-DD');
+    detailedDays[1].date = dayjs().add(1, 'day').format('dddd D MMMM');
+    detailedDays[2].fullDate = dayjs().add(2, 'day').format('YYYY-MM-DD');
+    detailedDays[2].date = dayjs().add(2, 'day').format('dddd D MMMM');
+
+    render(
+      <ViewWeekAvailabilityPage
+        days={mockDetailedDays}
+        weekStart={mockWeekAvailabilityStart}
+        weekEnd={mockWeekAvailabilityEnd}
+      />,
+    );
+
+    const links = screen.getAllByRole('link', {
+      name: /Add Session/i,
+    });
+    expect(links.length).toBe(2);
   });
 });

@@ -23,7 +23,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         }
 
         var sitesWithDistance = sites
-                .Select(s => new SiteWithDistance(s, (int)(CalculateDistance(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude, 'K') * 1000)));
+                .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
         Func<SiteWithDistance, bool> filterPredicate = attributeIds.Any() ?
             s => attributeIds.All(attr => s.Site.AttributeValues.SingleOrDefault(a => a.Id == attr)?.Value == "true") :
@@ -55,7 +55,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
     }
 
-    private double CalculateDistance(double lat1, double lon1, double lat2, double lon2, char unit)
+    private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {
         if ((lat1 == lat2) && (lon1 == lon2))
         {
@@ -63,36 +63,15 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         }
         else
         {
-            double theta = lon1 - lon2;
-            double dist = Math.Sin(deg2rad(lat1)) * Math.Sin(deg2rad(lat2)) + Math.Cos(deg2rad(lat1)) * Math.Cos(deg2rad(lat2)) * Math.Cos(deg2rad(theta));
+            var theta = lon1 - lon2;
+            var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) + Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) * Math.Cos(DegreesToRadians(theta));
             dist = Math.Acos(dist);
-            dist = rad2deg(dist);
-            dist = dist * 60 * 1.1515;
-            if (unit == 'K')
-            {
-                dist = dist * 1.609344;
-            }
-            else if (unit == 'N')
-            {
-                dist = dist * 0.8684;
-            }
-            return (dist);
+            dist = RadiansToDegrees(dist);
+            return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
         }
     }
 
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    //::  This function converts decimal degrees to radians             :::
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    private double deg2rad(double deg)
-    {
-        return (deg * Math.PI / 180.0);
-    }
+    private double DegreesToRadians(double deg) => (deg * Math.PI / 180.0);
 
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    //::  This function converts radians to decimal degrees             :::
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    private double rad2deg(double rad)
-    {
-        return (rad / Math.PI * 180.0);
-    }
+    private double RadiansToDegrees(double rad) => (rad / Math.PI * 180.0);    
 }

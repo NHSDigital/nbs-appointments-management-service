@@ -11,6 +11,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
+        private readonly Mock<IAvailabilityStore> _availabilityStore = new();
         private readonly Mock<IMessageBus> _messageBus = new();
 
         public BookingsServiceTests()
@@ -20,6 +21,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
                 _availabilityCalculator.Object,
+                _availabilityStore.Object,
                 new EventFactory(),
                 _messageBus.Object,
                 TimeProvider.System);
@@ -39,7 +41,9 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
             var leaseManager = new FakeLeaseManager();
-            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object, leaseManager, _availabilityCalculator.Object, new EventFactory(), _messageBus.Object, TimeProvider.System);
+            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object,
+                leaseManager, _availabilityCalculator.Object, _availabilityStore.Object, new EventFactory(),
+                _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             await Task.Delay(100);

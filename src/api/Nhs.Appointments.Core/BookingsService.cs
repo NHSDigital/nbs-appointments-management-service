@@ -22,6 +22,7 @@ public class BookingsService(
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
+        IAvailabilityStore availabilityStore,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
@@ -144,5 +145,43 @@ public class BookingsService(
     public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
         return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
+    }
+
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var bookings = (await GetBookings(dayStart, dayEnd, site))
+            .OrderBy(b => b.Created);
+
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, day, day))
+            .ToList();
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
+        var recalculatedScheduledBookings = new List<Booking>();
+
+        foreach (var booking in bookings)
+        {
+            var availableSlots =
+                availabilityCalculator.GetAvailableSlots(sessionsOnThatDay, recalculatedScheduledBookings);
+            var canScheduleBooking = availableSlots.Any(sl =>
+                sl.From == booking.From && (int)sl.Duration.TotalMinutes == extantBooking.Duration);
+
+            if (canScheduleBooking)
+            {
+                recalculatedScheduledBookings.Add(booking);
+                if (booking.Status != AppointmentStatus.Booked)
+                {
+                    await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
+                }
+            }
+
+            if (booking.Status == AppointmentStatus.Booked)
+            {
+                await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
+            }
+        }
     }
 }

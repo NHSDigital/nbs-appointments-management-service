@@ -4,7 +4,7 @@ using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core.UnitTests
 {
-    public class BookingServiceTests
+    public class BookingsServiceTests
     {
         private readonly BookingsService _bookingsService;
         private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
@@ -13,7 +13,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
 
-        public BookingServiceTests()
+        public BookingsServiceTests()
         {
             _bookingsService = new BookingsService(
                 _bookingsDocumentStore.Object,
@@ -288,7 +288,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var site = "some-site";
             IEnumerable<Booking> bookings = new List<Booking> {
                 new Booking{ 
-                    From = new DateTime(2025, 01, 01, 14, 0, 0), 
+                    From = new DateTime(2025, 01, 01, 16, 0, 0), 
                     Reference = "1", 
                     AttendeeDetails = new AttendeeDetails{ 
                         FirstName = "Daniel", 

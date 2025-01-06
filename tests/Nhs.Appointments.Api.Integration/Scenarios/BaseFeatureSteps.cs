@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -255,6 +255,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
             Created = GetCreationDateTime(bookingType),
+            StatusUpdated = GetCreationDateTime(bookingType),
             AttendeeDetails = new Core.AttendeeDetails
             {
                 NhsNumber = NhsNumber,

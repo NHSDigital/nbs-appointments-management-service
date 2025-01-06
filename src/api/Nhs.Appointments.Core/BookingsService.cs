@@ -31,7 +31,6 @@ public class BookingsService(
         var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
         return bookings
             .OrderBy(b => b.From)
-            .ThenBy(b => b.AttendeeDetails.FirstName)
             .ThenBy(b => b.AttendeeDetails.LastName);
     }
 

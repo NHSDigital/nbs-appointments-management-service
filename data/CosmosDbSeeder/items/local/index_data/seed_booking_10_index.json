@@ -1,0 +1,10 @@
+{
+  "reference": "seed-booking-reference-10",
+  "site": "ABC02",
+  "nhsNumber": "9597745660",
+  "from": "2025-07-01T10:30:00",
+  "created": "2025-10-22T11:55:45.123456+00:00",
+  "status": "Booked",
+  "id": "seed-booking-reference-10",
+  "docType": "booking_index"
+}

@@ -1,3 +1,3 @@
-﻿namespace Nhs.Appointments.Api.Models;
+namespace Nhs.Appointments.Api.Models;
 
-public record GetSitesByAreaRequest(double longitude, double latitude, int searchRadius, int maximumRecords, string[] accessNeeds);
+public record GetSitesByAreaRequest(double longitude, double latitude, int searchRadius, int maximumRecords, string[] accessNeeds, bool ignoreCache);

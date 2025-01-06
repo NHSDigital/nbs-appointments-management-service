@@ -20,7 +20,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
 {
     private readonly CosmosClient _cosmosClient;
     private readonly ConfigurationBuilder _configurationBuilder = new();
-    private readonly List<Nhs.Appointments.Persistance.Models.BookingDocument> _testAppointments;
+    private readonly List<Nhs.Appointments.Persistance.Models.BookingDocument> _testAppointments = new();
     private MeshMailbox _targetMailbox;
 
     public BookingExtractsFeatureSteps()
@@ -45,24 +45,43 @@ public sealed class BookingExtractsFeatureSteps : Feature
     private string CosmosEndpoint => Environment.GetEnvironmentVariable("COSMOS_ENDPOINT") ?? "https://localhost:8081/";
     private string CosmosToken => Environment.GetEnvironmentVariable("COSMOS_TOKEN") ?? "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
+    public async Task<SiteDocument> SetupSite()
+    {
+        var site = new SiteDocument
+        {
+            Id = "BookingExtractDataTests",
+            Name = "Test Site",
+            Region = "North",
+            IntegratedCareBoard = "ICB01",
+            DocumentType = "site",
+            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+        };
+        await _cosmosClient.GetContainer("appts", "core_data").UpsertItemAsync(site);
+        return site;
+    }
+
     [Given("I have some bookings")]
     public async Task SetupBookings(Gherkin.Ast.DataTable bookingData)
     {
-        var bookings = bookingData.Rows.Skip(1).Select(row =>        
+        var site = await SetupSite();
+
+        await _cosmosClient.GetContainer("appts", "booking_data").DeleteAllItemsByPartitionKeyStreamAsync(new PartitionKey(site.Id));
+
+        var bookings = bookingData.Rows.Skip(1).Select(row =>
             new Nhs.Appointments.Persistance.Models.BookingDocument
             {
                 Id = row.Cells.ElementAt(1).Value,
                 Reference = row.Cells.ElementAt(1).Value,
-                Created = DateTime.UtcNow.AddHours(int.Parse(row.Cells.ElementAt(0).Value)),
+                Created = DateTime.UtcNow.AddHours(int.Parse(row.Cells.ElementAt(0).Value)*-1),
                 From = DateTime.Today.AddDays(5).AddHours(9),
                 Duration = 5,
                 Service = "COVID:18_74",
                 ReminderSent = true,
-                Site = "ABC01",
+                Site = site.Id,
                 DocumentType = "booking",
-                Status = Nhs.Appointments.Core.AppointmentStatus.Booked,
+                Status = Enum.Parse<Nhs.Appointments.Core.AppointmentStatus>(row.Cells.ElementAt(2).Value),
                 StatusUpdated = DateTime.MinValue,
-                ContactDetails = new Nhs.Appointments.Core.ContactItem[0],
+                ContactDetails = [],
                 AttendeeDetails = new Nhs.Appointments.Core.AttendeeDetails
                 {
                     FirstName = "Test",
@@ -81,6 +100,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         foreach (var booking in bookings)
         {
             await _cosmosClient.GetContainer("appts", "booking_data").CreateItemAsync(booking);
+            _testAppointments.Add(booking);
         }
     }
 
@@ -126,19 +146,38 @@ public sealed class BookingExtractsFeatureSteps : Feature
     }
 
     [Then("booking data is available in the target mailbox")]
-    public async Task AssertData()
+    public async Task AssertData(Gherkin.Ast.DataTable expectedAppointments)
     {
         var response = await _targetMailbox.CheckInboxAsync();
-        //response.Messages.Count.Should().Be(1);
+        response.Messages.Count.Should().Be(1);        
 
-        foreach (var message in response.Messages)
-        {
-            var outputFile = new FileInfo(message);
-            await _targetMailbox.GetMessageAsFileAsync(message, outputFile);
+        var outputFolder = new DirectoryInfo("./recieved");
+        outputFolder.Create();
+        var file = await _targetMailbox.GetMessageAsFileAsync(response.Messages.First(), outputFolder);
 
-            var results = await ParquetSerializer.DeserializeAsync<BookingExtactDataRow>(outputFile.FullName);
-            results.Count.Should().Be(1);
-        }
+        var pfile = new FileInfo(Path.Combine(outputFolder.FullName, file));
+        var results = await ParquetSerializer.DeserializeAsync<BookingExtactDataRow>(pfile.FullName);
+        results.Count.Should().Be(expectedAppointments.Rows.Count() - 1);
+
+        results.Select(r => r.BOOKING_REFERENCE_NUMBER).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));                       
+    }
+
+    [Then("an empty file is recieved")]
+    public async Task AssertEmptyFile()
+    {
+        var response = await _targetMailbox.CheckInboxAsync();
+        response.Messages.Count.Should().Be(1);
+
+        // TODO: Check that the file is empty
+    }
+
+    [Then("a file is recieved with the name 'MYA_booking_{yyyy-MM-ddTHHmm}.parquet'")]
+    public async Task AssertFileName()
+    {
+        var response = await _targetMailbox.CheckInboxAsync();
+        response.Messages.Count.Should().Be(1);
+
+        // TODO: Check that the file name
     }
 
     private MeshMailbox SetupMailboxClient(string mailboxId)

@@ -1,4 +1,7 @@
-﻿namespace BookingDataExtractTests;
+using Parquet.Schema;
+using Parquet;
+
+namespace BookingDataExtractTests;
 
 public class BookingExtactDataRow
 {

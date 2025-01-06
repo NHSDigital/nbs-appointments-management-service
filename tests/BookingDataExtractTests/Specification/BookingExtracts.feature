@@ -3,10 +3,11 @@ As a data analyst
 I want data about the last 24 hours of booking updates
 So that I can collate information about bookings across the nation
 
-Scenario: Booking data is sent via MESH
+Scenario: Provisional booking data is not sent
 	Given I have some bookings
-  | Hours Since Creation | Booking Ref |
-  | 23                   | AB-01-1234  |
+  | Hours Since Creation | Booking Ref | Status      |
+  | 23                   | AB-01-1234  | Provisional |
+  | 22                   | AB-01-1235  | Booked      |
   And the system is configured as follows
   | Target Mailbox | Workflow Id                     |
   | X26ABC2        | MYA_INBOUND_NATIONAL_BOOKINGS_1 |
@@ -14,4 +15,4 @@ Scenario: Booking data is sent via MESH
 	When the booking data extract runs
 	Then booking data is available in the target mailbox
   | Booking Ref |
-  | AB-01-1234  |
+  | AB-01-1235  |

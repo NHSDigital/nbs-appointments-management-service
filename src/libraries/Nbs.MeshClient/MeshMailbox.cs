@@ -69,9 +69,12 @@ namespace Nbs.MeshClient
             }
         }
 
-        public async Task GetMessageAsFileAsync(string messageId, FileInfo file)
+        public async Task<string> GetMessageAsFileAsync(string messageId, DirectoryInfo folder, string fileName = null)
         {
             var result = await _meshClient.GetMessageBytesAsync(MailboxId, messageId);
+            fileName = fileName ?? result.Headers.GetValues("mex-filename").FirstOrDefault() ?? messageId;
+            var file = new FileInfo(Path.Combine(folder.FullName, fileName));
+
             EnsureSuccess(result);
 
             using(var outputStream = file.OpenWrite())
@@ -102,6 +105,7 @@ namespace Nbs.MeshClient
                 }
             }
 
+            return fileName;
         }
 
         public async Task<string> GetMessageAsync(string messageId)

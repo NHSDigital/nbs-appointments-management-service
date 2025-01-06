@@ -343,6 +343,110 @@ public class SiteServiceTests
     }
 
     [Fact]
+    public async Task FindSitesByArea_ReadsFromCache_WhenPresent()
+    {
+        var sites = new List<SiteWithDistance>()
+        {
+            new SiteWithDistance(new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                Distance: 3573),
+        };
+        object? outSites = sites.Select(s => s.Site);
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        result.Should().BeEquivalentTo(sites);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never());
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_IgnoresCache_WhenRequiredTo()
+    {
+        var sites = new List<SiteWithDistance>()
+        {
+            new SiteWithDistance(new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                Distance: 3573),
+        };
+        object? outSites = sites.Take(1).Select(s => s.Site);
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
+        result.Should().BeEquivalentTo(sites);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_WritesToCache_AfterCacheMiss()
+    {
+        var sites = new List<SiteWithDistance>()
+        {
+            new SiteWithDistance(new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                Distance: 3573),
+        };
+        object? outSites = null;
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
+        result.Should().BeEquivalentTo(sites);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
+    }
+
+    [Fact]
     public async Task GetSiteByIdAsync_ReturnsRequestedSite()
     {
         const string siteId = "ABC01";

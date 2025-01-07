@@ -155,6 +155,7 @@ public class BookingsService(
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
         var bookings = (await GetBookings(dayStart, dayEnd, site))
+            .Where(b => b.Status is not AppointmentStatus.Cancelled)
             .OrderBy(b => b.Created);
 
         var sessionsOnThatDay =

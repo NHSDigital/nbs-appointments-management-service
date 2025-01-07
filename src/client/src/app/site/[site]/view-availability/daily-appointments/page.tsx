@@ -37,6 +37,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: site.id,
   };
   const bookings = await fetchBookings(fetchBookingsRequest);
+  const orhpanedAppointments = bookings.filter(b => b.status === 'Orphaned');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
@@ -59,6 +60,23 @@ const Page = async ({ params, searchParams }: PageProps) => {
             bookings={bookings.filter(b => b.status === 'Cancelled')}
             site={site.id}
             displayAction={false}
+          />
+        </Tab>
+        <Tab title="Manual Cancellations">
+          {orhpanedAppointments.length > 0 ? (
+            <p>
+              {orhpanedAppointments.length} booked appointments are affected.
+              You'll need to manually cancel these appointments.
+            </p>
+          ) : (
+            <p>
+              There are no booked appointments affected by availability changes.
+            </p>
+          )}
+          <DailyAppointmentsPage
+            bookings={orhpanedAppointments}
+            site={site.id}
+            displayAction
           />
         </Tab>
       </Tabs>

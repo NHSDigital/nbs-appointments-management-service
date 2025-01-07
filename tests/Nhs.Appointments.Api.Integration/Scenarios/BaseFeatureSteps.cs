@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -309,6 +310,39 @@ public abstract partial class BaseFeatureSteps : Feature
         }
 
         MadeBookings.AddRange(bookings);
+    }
+
+    [And(@"the original booking has been '(\w+)'")]
+    public Task AssertRescheduledBookingStatus(string outcome) => AssertBookingStatus(outcome);
+
+    [Then(@"the booking has been '(\w+)'")]
+    public async Task AssertBookingStatus(string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+    }
+
+    [Then(@"the booking with reference '(.+)' has been '(.+)'")]
+    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+    }
+
+    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status)
+    {
+        var siteId = GetSiteId();
+        var bookingDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        bookingDocument.Resource.Status.Should().Be(status);
+        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+
+        var indexDocument = await Client.GetContainer("appts", "index_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));
+        indexDocument.Resource.Status.Should().Be(status);
     }
 
     protected static DateTime GetCreationDateTime(BookingType type) => type switch

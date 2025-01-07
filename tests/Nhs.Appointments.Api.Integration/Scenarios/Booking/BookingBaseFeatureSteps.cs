@@ -40,42 +40,6 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
     }
     
-    [And(@"the original booking has been '(\w+)'")]
-    public Task AssertRescheduledBookingStatus(string outcome)
-    {
-        return AssertBookingStatus(outcome);
-    }
-    
-    [Then(@"the booking has been '(\w+)'")]
-    public async Task AssertBookingStatus(string status)
-    {
-        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-
-        await AssertBookingStatusByReference(bookingReference, expectedStatus);
-    }
-
-    [Then(@"the booking with reference '(.+)' has been '(.+)'")]
-    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
-    {
-        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-
-        await AssertBookingStatusByReference(bookingReference, expectedStatus);
-    }
-
-    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status)
-    {
-        var siteId = GetSiteId();
-        var bookingDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-        bookingDocument.Resource.Status.Should().Be(status);
-        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
-
-        var indexDocument = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));
-        indexDocument.Resource.Status.Should().Be(status);
-    }
-    
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 }

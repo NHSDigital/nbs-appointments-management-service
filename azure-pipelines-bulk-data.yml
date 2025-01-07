@@ -17,7 +17,7 @@ parameters:
     displayName: "Select type of data to import:"
     type: string
     default: ""
-    values: ["site", "user"]
+    values: ["site", "user", "apiUser"]
 
 variables:
   isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

@@ -385,14 +385,18 @@ export const fetchDailyAvailability = async (
   return handleBodyResponse(response);
 };
 
-export const fetchBooking = async (reference: string) => {
-  const response = await appointmentsApi.get<Booking>(`booking/${reference}`);
+export const fetchBooking = async (reference: string, site: string) => {
+  const response = await appointmentsApi.get<Booking>(
+    `booking/${reference}?site=${site}`,
+  );
 
   return handleBodyResponse(response);
 };
 
-export const cancelAppointment = async (reference: string) => {
-  const response = await appointmentsApi.post(`booking/${reference}/cancel`);
+export const cancelAppointment = async (reference: string, site: string) => {
+  const response = await appointmentsApi.post(
+    `booking/${reference}/cancel?site=${site}`,
+  );
 
   return handleEmptyResponse(response);
 };

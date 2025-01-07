@@ -44,13 +44,13 @@ const CancelAppointmentPage = ({
     form: CancelFormValue,
   ) => {
     if (form.cancelAppointment === 'yes') {
-      await cancelAppointment(booking.reference);
+      await cancelAppointment(booking.reference, site);
     }
 
     const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
 
     replace(
-      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
+      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
     );
   };
 

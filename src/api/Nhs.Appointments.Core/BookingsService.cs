@@ -10,7 +10,7 @@ public interface IBookingsService
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
-    Task<BookingCancellationResult> CancelBooking(string bookingReference);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
@@ -26,9 +26,12 @@ public class BookingsService(
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 { 
-    public Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
-        return bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookings
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
@@ -73,11 +76,11 @@ public class BookingsService(
         }            
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
-        if (booking == null)
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
         {
             return BookingCancellationResult.NotFound;
         }

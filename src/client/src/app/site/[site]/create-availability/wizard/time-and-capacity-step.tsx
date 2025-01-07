@@ -276,6 +276,7 @@ const TimeAndCapacityStep = ({
                       <input
                         aria-labelledby="end-time-accessibility-label-minute"
                         className="nhsuk-input nhsuk-time-input-custom__input nhsuk-input--width-2"
+                        id="end-time-minute"
                         onChange={e =>
                           field.onChange(
                             handleTwoDigitPositiveBoundedNumberInput(e, 59),

@@ -53,7 +53,7 @@ export const UsersPage = ({
             ...(canSeeAdminControls
               ? [
                   ...(userProfile.emailAddress === user.id
-                    ? []
+                    ? ['', '']
                     : [
                         <EditRoleAssignmentsButton
                           key={`edit-${user.id}`}

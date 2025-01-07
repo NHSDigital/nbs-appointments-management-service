@@ -1,4 +1,4 @@
-﻿using BookingsDataExtracts.Documents;
+using BookingsDataExtracts.Documents;
 
 namespace BookingsDataExtracts;
 
@@ -14,7 +14,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public double ExtractLatitude(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Location.Coordinates[1];
 
-    public static string ExtractOdsCode(BookingDocument booking) => booking.Site.Split('_')[0];
+    public static string ExtractOdsCode(BookingDocument booking) => booking.Site.Split('-')[0];
 
     public static string ExtractNhsNumber(BookingDocument booking) => booking.AttendeeDetails.NhsNumber;
 
@@ -38,4 +38,6 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
     public static string ExtractBookingReference(BookingDocument booking) => booking.Reference;
 
     public static string ExtractService(BookingDocument booking) => booking.Service;
+
+    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty;
 }

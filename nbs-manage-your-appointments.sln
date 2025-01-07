@@ -48,7 +48,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libraries", "libraries", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nbs.MeshClient", "src\libraries\Nbs.MeshClient\Nbs.MeshClient.csproj", "{E21E9360-94E9-4DBF-8345-3C09D2D459B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtractTests", "tests\BookingDataExtractTests\BookingDataExtractTests.csproj", "{9B6DA00D-547C-48FE-812E-810668E8E2C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtract.Integration", "tests\BookingDataExtractTests\BookingDataExtract.Integration.csproj", "{9B6DA00D-547C-48FE-812E-810668E8E2C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingDataExtracts.UnitTests", "tests\BookingDataExtracts.UnitTests\BookingDataExtracts.UnitTests.csproj", "{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,6 +122,10 @@ Global
 		{9B6DA00D-547C-48FE-812E-810668E8E2C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B6DA00D-547C-48FE-812E-810668E8E2C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B6DA00D-547C-48FE-812E-810668E8E2C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{0AC295FA-EAA0-473D-8A38-0C5CAB7612E4} = {894B36CF-9551-4913-9460-995F2A5F1859}
 		{E21E9360-94E9-4DBF-8345-3C09D2D459B7} = {0AC295FA-EAA0-473D-8A38-0C5CAB7612E4}
 		{9B6DA00D-547C-48FE-812E-810668E8E2C3} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
+		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

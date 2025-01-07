@@ -171,16 +171,17 @@ public class BookingsService(
 
             if (canScheduleBooking)
             {
-                recalculatedScheduledBookings.Add(booking);
                 if (booking.Status != AppointmentStatus.Booked)
                 {
                     await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
+                    booking.Status = AppointmentStatus.Booked;
                 }
 
-                return;
+                recalculatedScheduledBookings.Add(booking);
+                continue;
             }
 
-            if (booking.Status == AppointmentStatus.Booked)
+            if (booking.Status is AppointmentStatus.Booked or AppointmentStatus.Provisional)
             {
                 await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
             }

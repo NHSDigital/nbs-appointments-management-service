@@ -339,7 +339,7 @@ namespace Nhs.Appointments.Core.UnitTests
             );
         }
 
-        public class RecalculateAppointmentStatuses_Tests
+        public class RecalculateAppointmentStatusesTests
         {
             private readonly BookingsService _bookingsService;
             private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
@@ -349,7 +349,9 @@ namespace Nhs.Appointments.Core.UnitTests
             private readonly Mock<IMessageBus> _messageBus = new();
             private readonly Mock<TimeProvider> _timeProvider = new();
 
-            public RecalculateAppointmentStatuses_Tests()
+            private const string MockSite = "some-site";
+
+            public RecalculateAppointmentStatusesTests()
             {
                 var availabilityCalculator = new AvailabilityCalculator(_availabilityStore.Object,
                     _bookingsDocumentStore.Object,
@@ -369,7 +371,6 @@ namespace Nhs.Appointments.Core.UnitTests
             [Fact]
             public async Task RecalculateAppointmentStatuses_MakesNoChangesIfAllAppointmentsAreStillValid()
             {
-                var site = "some-site";
                 IEnumerable<Booking> bookings = new List<Booking>
                 {
                     new()
@@ -407,7 +408,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -420,22 +421,191 @@ namespace Nhs.Appointments.Core.UnitTests
 
                 _availabilityStore
                     .Setup(x => x.GetSessions(
-                        It.Is<string>(s => s == "some-site"),
+                        It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
                         It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
-                await _bookingsService.RecalculateAppointmentStatuses(site, new DateOnly(2025, 1, 1));
+                await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
                 _availabilityStore.Verify(a =>
-                    a.GetSessions("some-site", new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
+                    a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
 
                 var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
-                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, site));
+                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
 
                 _bookingsDocumentStore.Verify(x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>()),
                     Times.Never);
+            }
+
+            [Fact]
+            public async Task RecalculateAppointmentStatuses_SchedulesOrpanedAppointmentsIfPossible()
+            {
+                IEnumerable<Booking> bookings = new List<Booking>
+                {
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 0, 0),
+                        Reference = "1",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                        Status = AppointmentStatus.Orphaned,
+                        Duration = 10
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 10, 0),
+                        Reference = "2",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                        Status = AppointmentStatus.Orphaned,
+                        Duration = 10
+                    }
+                };
+
+                _bookingsDocumentStore
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .ReturnsAsync(bookings);
+
+                var sessions = new List<SessionInstance>
+                {
+                    new(new DateTime(2025, 01, 01, 9, 0, 0), new DateTime(2025, 01, 1, 12, 0, 0))
+                    {
+                        Services = ["Service 1"], SlotLength = 10, Capacity = 1
+                    }
+                };
+
+                _availabilityStore
+                    .Setup(x => x.GetSessions(
+                        It.Is<string>(s => s == MockSite),
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<DateOnly>()))
+                    .ReturnsAsync(sessions);
+
+                await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "1"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                    Times.Once);
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "2"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                    Times.Once);
+            }
+
+            [Fact]
+            public async Task RecalculateAppointmentStatuses_OrphansLiveAppointmentsIfTheyCannotBeFulfilled()
+            {
+                IEnumerable<Booking> bookings = new List<Booking>
+                {
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 0, 0),
+                        Reference = "1",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                        Status = AppointmentStatus.Booked,
+                        Duration = 10
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 10, 0),
+                        Reference = "2",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                        Status = AppointmentStatus.Provisional,
+                        Duration = 10
+                    }
+                };
+
+                _bookingsDocumentStore
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .ReturnsAsync(bookings);
+
+                var sessions = new List<SessionInstance>
+                {
+                    new(new DateTime(2025, 01, 01, 10, 0, 0), new DateTime(2025, 01, 1, 12, 0, 0))
+                    {
+                        Services = ["Service 1"], SlotLength = 10, Capacity = 1
+                    }
+                };
+
+                _availabilityStore
+                    .Setup(x => x.GetSessions(
+                        It.Is<string>(s => s == MockSite),
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<DateOnly>()))
+                    .ReturnsAsync(sessions);
+
+                await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "1"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
+                    Times.Once);
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "2"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
+                    Times.Once);
+            }
+
+            [Fact]
+            public async Task RecalculateAppointmentStatuses_PrioritisesAppointmentsByCreatedDate()
+            {
+                IEnumerable<Booking> bookings = new List<Booking>
+                {
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 0, 0),
+                        Reference = "1",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                        Status = AppointmentStatus.Orphaned,
+                        Service = "Service 1",
+                        Duration = 10,
+                        Created = new DateTime(2024, 12, 01, 12, 0, 0)
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 0, 0),
+                        Reference = "2",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                        Status = AppointmentStatus.Orphaned,
+                        Service = "Service 1",
+                        Duration = 10,
+                        Created = new DateTime(2024, 11, 01, 12, 0, 0)
+                    }
+                };
+
+                _bookingsDocumentStore
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .ReturnsAsync(bookings);
+
+                var sessions = new List<SessionInstance>
+                {
+                    new(new DateTime(2025, 01, 01, 9, 0, 0), new DateTime(2025, 01, 1, 12, 0, 0))
+                    {
+                        Services = ["Service 1"], SlotLength = 10, Capacity = 1
+                    }
+                };
+
+                _availabilityStore
+                    .Setup(x => x.GetSessions(
+                        It.Is<string>(s => s == MockSite),
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<DateOnly>()))
+                    .ReturnsAsync(sessions);
+
+                await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "1"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                    Times.Never);
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                        It.Is<string>(s => s == "2"),
+                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                    Times.Once);
             }
         }
 

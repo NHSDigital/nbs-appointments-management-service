@@ -10,8 +10,8 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
-        private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
 
         public BookingsServiceTests()
@@ -338,6 +338,107 @@ namespace Nhs.Appointments.Core.UnitTests
                 () => Assert.True(response.ToArray()[3].Reference == "1")
             );
         }
+
+        public class RecalculateAppointmentStatuses_Tests
+        {
+            private readonly BookingsService _bookingsService;
+            private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
+            private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
+            private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+            private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+            private readonly Mock<IMessageBus> _messageBus = new();
+            private readonly Mock<TimeProvider> _timeProvider = new();
+
+            public RecalculateAppointmentStatuses_Tests()
+            {
+                var availabilityCalculator = new AvailabilityCalculator(_availabilityStore.Object,
+                    _bookingsDocumentStore.Object,
+                    _timeProvider.Object);
+
+                _bookingsService = new BookingsService(
+                    _bookingsDocumentStore.Object,
+                    _referenceNumberProvider.Object,
+                    _siteLeaseManager.Object,
+                    availabilityCalculator,
+                    _availabilityStore.Object,
+                    new EventFactory(),
+                    _messageBus.Object,
+                    TimeProvider.System);
+            }
+
+            [Fact]
+            public async Task RecalculateAppointmentStatuses_MakesNoChangesIfAllAppointmentsAreStillValid()
+            {
+                var site = "some-site";
+                IEnumerable<Booking> bookings = new List<Booking>
+                {
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 0, 0),
+                        Reference = "1",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                        Status = AppointmentStatus.Booked,
+                        Duration = 10
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 10, 0),
+                        Reference = "2",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                        Status = AppointmentStatus.Booked,
+                        Duration = 10
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 20, 0),
+                        Reference = "3",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Brown" },
+                        Status = AppointmentStatus.Booked,
+                        Duration = 10
+                    },
+                    new()
+                    {
+                        From = new DateTime(2025, 01, 01, 9, 30, 0),
+                        Reference = "4",
+                        AttendeeDetails = new AttendeeDetails { FirstName = "Bob", LastName = "Dawson" },
+                        Status = AppointmentStatus.Booked,
+                        Duration = 10
+                    }
+                };
+
+                _bookingsDocumentStore
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
+                    .ReturnsAsync(bookings);
+
+                var sessions = new List<SessionInstance>
+                {
+                    new(new DateTime(2025, 01, 01, 9, 0, 0), new DateTime(2025, 01, 1, 12, 0, 0))
+                    {
+                        Services = ["Service 1"], SlotLength = 10, Capacity = 1
+                    }
+                };
+
+                _availabilityStore
+                    .Setup(x => x.GetSessions(
+                        It.Is<string>(s => s == "some-site"),
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<DateOnly>()))
+                    .ReturnsAsync(sessions);
+
+                await _bookingsService.RecalculateAppointmentStatuses(site, new DateOnly(2025, 1, 1));
+
+                _availabilityStore.Verify(a =>
+                    a.GetSessions("some-site", new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
+
+                var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
+                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, site));
+
+                _bookingsDocumentStore.Verify(x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>()),
+                    Times.Never);
+            }
+        }
+
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

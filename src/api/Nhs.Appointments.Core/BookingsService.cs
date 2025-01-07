@@ -167,7 +167,7 @@ public class BookingsService(
             var availableSlots =
                 availabilityCalculator.GetAvailableSlots(sessionsOnThatDay, recalculatedScheduledBookings);
             var canScheduleBooking = availableSlots.Any(sl =>
-                sl.From == booking.From && (int)sl.Duration.TotalMinutes == extantBooking.Duration);
+                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
 
             if (canScheduleBooking)
             {
@@ -176,6 +176,8 @@ public class BookingsService(
                 {
                     await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
                 }
+
+                return;
             }
 
             if (booking.Status == AppointmentStatus.Booked)

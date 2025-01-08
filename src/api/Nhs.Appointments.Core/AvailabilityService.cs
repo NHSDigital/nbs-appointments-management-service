@@ -1,6 +1,9 @@
 ﻿namespace Nhs.Appointments.Core;
 
-public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabilityCreatedEventStore availabilityCreatedEventStore) : IAvailabilityService
+public class AvailabilityService(
+    IAvailabilityStore availabilityStore,
+    IAvailabilityCreatedEventStore availabilityCreatedEventStore,
+    IBookingsService bookingsService) : IAvailabilityService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
@@ -23,6 +26,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
         foreach (var date in dates)
         {
             await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
+            await bookingsService.RecalculateAppointmentStatuses(site, date);
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
@@ -31,6 +35,7 @@ public class AvailabilityService(IAvailabilityStore availabilityStore, IAvailabi
     public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode, string user)
     {
         await SetAvailabilityAsync(date, site, sessions, mode);
+        await bookingsService.RecalculateAppointmentStatuses(site, date);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 

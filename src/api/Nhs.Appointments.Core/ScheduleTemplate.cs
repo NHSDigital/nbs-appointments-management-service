@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core;
@@ -34,6 +34,8 @@ public class SessionInstance : TimePeriod
     public string[] Services { get; set; }
     public int SlotLength { get; set; }
     public int Capacity { get; set; }
+    public IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
+                new SessionInstance(sl) { Services = Services, Capacity = Capacity });
 }
 
 public class Template

@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentAssertions;
+using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
@@ -14,6 +16,8 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
+using Feature = Xunit.Gherkin.Quick.Feature;
+using Location = Nhs.Appointments.Core.Location;
 using Role = Nhs.Appointments.Persistance.Models.Role;
 using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 
@@ -88,14 +92,14 @@ public abstract partial class BaseFeatureSteps : Feature
 
     [Given("the following sessions")]
     [And("the following sessions")]
-    public Task SetupSessions(Gherkin.Ast.DataTable dataTable)
+    public Task SetupSessions(DataTable dataTable)
     {
         return SetupSessions("A", dataTable);
     }
 
     [Given(@"the following sessions for site '(\w)'")]
     [And(@"the following sessions for site '(\w)'")]
-    public async Task SetupSessions(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+    public async Task SetupSessions(string siteDesignation, DataTable dataTable)
     {
         var site = GetSiteId(siteDesignation);
         var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable);
@@ -115,7 +119,8 @@ public abstract partial class BaseFeatureSteps : Feature
         return nhsNumber == "*" ? NhsNumber : nhsNumber;
     }
 
-    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site, Gherkin.Ast.DataTable dataTable)
+    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site,
+        DataTable dataTable)
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
@@ -210,52 +215,57 @@ public abstract partial class BaseFeatureSteps : Feature
 
     [Given("the following bookings have been made")]
     [And("the following bookings have been made")]
-    public Task SetupBookings(Gherkin.Ast.DataTable dataTable)
+    public Task SetupBookings(DataTable dataTable)
     {
         return SetupBookings("A", dataTable);
     }
 
     [And(@"the following bookings have been made for site '(\w)'")]
-    public Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable)
+    public Task SetupBookings(string siteDesignation, DataTable dataTable)
     {
         return SetupBookings(siteDesignation, dataTable, BookingType.Confirmed);
     }
 
     [Given("the following recent bookings have been made")]
     [And("the following recent bookings have been made")]
-    public Task SetupRecentBookings(Gherkin.Ast.DataTable dataTable)
+    public Task SetupRecentBookings(DataTable dataTable)
     {
         return SetupBookings("A", dataTable, BookingType.Recent);
     }
 
     [Given("the following provisional bookings have been made")]
     [And("the following provisional bookings have been made")]
-    public Task SetupProvisionalBookings(Gherkin.Ast.DataTable dataTable)
+    public Task SetupProvisionalBookings(DataTable dataTable)
     {
         return SetupBookings("A", dataTable, BookingType.Provisional);
     }
 
     [Given("the following expired provisional bookings have been made")]
     [And("the following expired provisional bookings have been made")]
-    public Task SetupExpiredProvisionalBookings(Gherkin.Ast.DataTable dataTable)
+    public Task SetupExpiredProvisionalBookings(DataTable dataTable)
     {
         return SetupBookings("A", dataTable, BookingType.ExpiredProvisional);
     }
 
-    protected async Task SetupBookings(string siteDesignation, Gherkin.Ast.DataTable dataTable, BookingType bookingType)
+    [And("the following orphaned bookings exist")]
+    public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("A", dataTable, BookingType.Orphaned);
+
+    protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) => new BookingDocument
         {
-            Id = BookingReferences.GetBookingReference(index, bookingType),
+            Id = row.Cells.ElementAtOrDefault(4)?.Value ??
+                 BookingReferences.GetBookingReference(index, bookingType),
             DocumentType = "booking",
-            Reference = BookingReferences.GetBookingReference(index, bookingType),
+            Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
+                        BookingReferences.GetBookingReference(index, bookingType),
             From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(row.Cells.ElementAt(2).Value),
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
             Created = GetCreationDateTime(bookingType),
-            AttendeeDetails = new Core.AttendeeDetails
+            AttendeeDetails = new AttendeeDetails
             {
                 NhsNumber = NhsNumber,
                 FirstName = "FirstName",
@@ -277,10 +287,12 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select(
             (row, index) => new BookingIndexDocument
             {
-                Reference = BookingReferences.GetBookingReference(index, bookingType),
+                Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
+                            BookingReferences.GetBookingReference(index, bookingType),
                 Site = GetSiteId(),
                 DocumentType = "booking_index",
-                Id = BookingReferences.GetBookingReference(index, bookingType),
+                Id = row.Cells.ElementAtOrDefault(4)?.Value ??
+                     BookingReferences.GetBookingReference(index, bookingType),
                 NhsNumber = NhsNumber,
                 Status = MapStatus(bookingType),
                 Created = GetCreationDateTime(bookingType),
@@ -300,12 +312,46 @@ public abstract partial class BaseFeatureSteps : Feature
         MadeBookings.AddRange(bookings);
     }
 
+    [And(@"the original booking has been '(\w+)'")]
+    public Task AssertRescheduledBookingStatus(string outcome) => AssertBookingStatus(outcome);
+
+    [Then(@"the booking has been '(\w+)'")]
+    public async Task AssertBookingStatus(string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+    }
+
+    [Then(@"the booking with reference '(.+)' has been '(.+)'")]
+    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+    }
+
+    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status)
+    {
+        var siteId = GetSiteId();
+        var bookingDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        bookingDocument.Resource.Status.Should().Be(status);
+        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+
+        var indexDocument = await Client.GetContainer("appts", "index_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));
+        indexDocument.Resource.Status.Should().Be(status);
+    }
+
     protected static DateTime GetCreationDateTime(BookingType type) => type switch
     {
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),
         BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
         BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
+        BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 
@@ -332,6 +378,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Confirmed => AppointmentStatus.Booked,
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
+        BookingType.Orphaned => AppointmentStatus.Orphaned,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
     };
     
@@ -453,7 +500,7 @@ public abstract partial class BaseFeatureSteps : Feature
         return results;
     }
 
-    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional}
+    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned }
 
     [GeneratedRegex("^(?<format>Today|today|Tomorrow|tomorrow|Yesterday|yesterday|(((?<magnitude>[0-9]+) (?<period>days|day|weeks|week|months|month|years|year) (?<direction>from|before) (now|today))))$")]
     private static partial Regex NaturalLanguageRelativeDate();

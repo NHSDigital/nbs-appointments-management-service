@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
+using Nhs.Appointments.Persistance.Models;
 
 namespace BookingsDataExtracts;
 
@@ -41,7 +42,7 @@ public static class ServiceRegistration
             })
             .AddSingleton<TimeProvider>(TimeProvider.System)
             .AddSingleton(cosmos)
-            .AddSingleton<CosmosStore<BookingDocument>>()
+            .AddSingleton<CosmosStore<NbsBookingDocument>>()
             .AddSingleton<CosmosStore<SiteDocument>>()
             .AddSingleton<BookingDataExtract>()
         .AddMesh(configuration);

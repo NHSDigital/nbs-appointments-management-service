@@ -1,6 +1,13 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
+using Nhs.Appointments.Persistance.Models;
 
 namespace BookingsDataExtracts.Documents;
+
+public class NbsBookingDocument : BookingDocument
+{
+    [JsonProperty("additionalData")]
+    public new NbsAdditionalData AdditionalData { get; set; }
+}
 
 public record NbsAdditionalData
 {

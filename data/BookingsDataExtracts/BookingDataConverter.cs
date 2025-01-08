@@ -1,4 +1,6 @@
 using BookingsDataExtracts.Documents;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 
 namespace BookingsDataExtracts;
 
@@ -23,15 +25,16 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
     public static string ExtractCreatedDateTime(BookingDocument booking) => booking.Created.ToString("yyyy-MM-dd HH:mm:ss");
 
     public static string ExtractAppointmentStatus(BookingDocument booking) => booking.Status switch
-    {
+    {        
+        AppointmentStatus.Orphaned => "B",
         AppointmentStatus.Booked => "B",
         AppointmentStatus.Cancelled => "C",
         _ => throw new ArgumentOutOfRangeException(nameof(booking.Status)),
     };
 
-    public static bool ExtractSelfReferral(BookingDocument booking) => booking.AdditionalData.ReferralType == "SelfReferred";
+    public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData.ReferralType == "SelfReferred";
 
-    public static string ExtractSource(BookingDocument booking) => booking.AdditionalData.Source;
+    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData.Source;
 
     public static string ExtractDateOfBirth(BookingDocument booking) => booking.AttendeeDetails.DateOfBirth.ToString("yyyy-MM-dd");
 

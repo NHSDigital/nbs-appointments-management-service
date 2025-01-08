@@ -1,6 +1,8 @@
 using BookingsDataExtracts;
 using BookingsDataExtracts.Documents;
 using FluentAssertions;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 
 namespace BookingDataExtracts.UnitTests;
 
@@ -9,7 +11,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractAppointmentDateTime_GetsCorrectData()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             From = new DateTime(2025, 01, 02, 15, 23, 00)
         };
@@ -22,7 +24,7 @@ public class BookingDataConverterTests
     [InlineData(AppointmentStatus.Cancelled, "C")]
     public void ExtractAppointmentStatus_ConvertsStatus(AppointmentStatus status, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Status = status
         };
@@ -35,7 +37,7 @@ public class BookingDataConverterTests
     [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "2025-01-01 14:44:00")]
     public void ExtractCancelledDateTime_GetDateTime_OnlyWhenCancelled(AppointmentStatus status, string statusDateTime, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Status = status,
             StatusUpdated = DateTimeOffset.ParseExact(statusDateTime, "yyyy-MM-dd HH:mm", null)
@@ -47,7 +49,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractCreatedDateTime_FormatsDate()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Created = new DateTime(2025, 01, 02, 13, 14, 15)
         };
@@ -58,7 +60,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractDateOfBirth_FormatsDate()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             AttendeeDetails = new()
             {
@@ -74,7 +76,7 @@ public class BookingDataConverterTests
     [InlineData("FD123-01", "FD123")]
     public void ExtractOdsCode_RemovesSuffixes(string siteId, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = siteId
         };
@@ -89,7 +91,7 @@ public class BookingDataConverterTests
     [InlineData("UnexpectedValue", false)]
     public void ExtractSelfReferral_ConvertsData(string selfReferralValue, bool expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             AdditionalData = new()
             {
@@ -103,7 +105,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractService_GetsCorrectData()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Service = "Test:Service"
         };
@@ -118,7 +120,7 @@ public class BookingDataConverterTests
     [InlineData(false, true, "NHS Call Centre")]
     public void ExtractSource_GetsCorrectData(bool isNhsApp, bool isCallCentre, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             AdditionalData = new()
             {
@@ -133,7 +135,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractBookingReference_GetsCorrectData()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Reference = "01-02-1234567"
         };
@@ -144,7 +146,7 @@ public class BookingDataConverterTests
     [Fact]
     public void ExtractNhsNumber_GetsNhsNumber()
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             AttendeeDetails = new()
             {
@@ -161,7 +163,7 @@ public class BookingDataConverterTests
     [InlineData("2", "Site Two")]
     public void ExtractSiteName_GetsName_FromCorrectSite(string site, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = site
         };
@@ -175,7 +177,7 @@ public class BookingDataConverterTests
     [InlineData("2", "RGN02")]
     public void ExtractRegion_GetsRegion_FromCorrectSite(string site, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = site
         };
@@ -189,7 +191,7 @@ public class BookingDataConverterTests
     [InlineData("2", "ICB02")]
     public void ExtractICB_GetsICB_FromCorrectSite(string site, string expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = site
         };
@@ -203,7 +205,7 @@ public class BookingDataConverterTests
     [InlineData("2", 0.2)]
     public void ExtractLatitude_GetsLatitude_FromCorrectSite(string site, double expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = site
         };
@@ -217,7 +219,7 @@ public class BookingDataConverterTests
     [InlineData("2", 2.0)]
     public void ExtractLongitude_GetsLongitude_FromCorrectSite(string site, double expectedData)
     {
-        var testDocument = new BookingDocument
+        var testDocument = new NbsBookingDocument
         {
             Site = site
         };

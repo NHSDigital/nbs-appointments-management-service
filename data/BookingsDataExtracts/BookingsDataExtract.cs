@@ -1,11 +1,13 @@
 using BookingsDataExtracts.Documents;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 using Parquet;
 using Parquet.Schema;
 
 namespace BookingsDataExtracts;
 
 public class BookingDataExtract(
-    CosmosStore<BookingDocument> bookingsStore, 
+    CosmosStore<NbsBookingDocument> bookingsStore,
     CosmosStore<SiteDocument> sitesStore,
     TimeProvider timeProvider)
 {
@@ -26,8 +28,8 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.NhsNumber, BookingDataConverter.ExtractNhsNumber),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentDateTime, BookingDataConverter.ExtractAppointmentDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentStatus, BookingDataConverter.ExtractAppointmentStatus),
-            new DataFactory<BookingDocument, bool>(BookingDataExtractFields.SelfRerral, BookingDataConverter.ExtractSelfReferral),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.Source, BookingDataConverter.ExtractSource),
+            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfRerral, BookingDataConverter.ExtractSelfReferral),
+            new DataFactory<NbsBookingDocument, string>(BookingDataExtractFields.Source, BookingDataConverter.ExtractSource),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.DateOfBirth, BookingDataConverter.ExtractDateOfBirth),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingReferenceNumber, BookingDataConverter.ExtractBookingReference),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.Service, BookingDataConverter.ExtractService),
@@ -39,7 +41,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CanellationReason, doc => null),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => null),
         };
            
         Console.WriteLine("Preparing to write");

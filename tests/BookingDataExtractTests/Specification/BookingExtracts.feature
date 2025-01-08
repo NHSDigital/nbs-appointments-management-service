@@ -47,6 +47,21 @@ Scenario: Cancelled booking data is sent
   | AB-01-1234  |
   | AB-01-1235  |
 
+Scenario: Orphaned booking data is sent
+	Given I have some bookings
+  | Created On       | Booking Ref | Status   |
+  | 2026-01-08 16:45 | AB-01-1234  | Orphaned |
+  | 2026-01-08 16:45 | AB-01-1235  | Booked   |
+  And the system is configured as follows
+  | Target Mailbox | Workflow Id                     |
+  | X26ABC2        | MYA_INBOUND_NATIONAL_BOOKINGS_1 |
+  And the target mailbox is empty
+	When the booking data extract runs on '2026-01-09 15:45'
+	Then booking data is available in the target mailbox
+  | Booking Ref |
+  | AB-01-1234  |
+  | AB-01-1235  |
+
 Scenario: Provisional booking data is not sent
 	Given I have some bookings
   | Created On       | Booking Ref | Status      |

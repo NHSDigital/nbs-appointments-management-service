@@ -19,6 +19,6 @@ public static class BookingDataExtractFields
     public static string IntegratedCareBoard => "ICB";
     public static string BookingSystem => "BOOKING_SYSTEM";
     public static string CancelledDateTime => "CANCELLED_DATE_TIME";
-    public static string CanellationReason => "CANCELLATION_REASON";
+    public static string CancellationReason => "CANCELLATION_REASON";
 
 }

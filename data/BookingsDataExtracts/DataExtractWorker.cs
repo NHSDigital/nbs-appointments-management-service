@@ -30,6 +30,8 @@ public class DataExtractWorker(
             var meshFileSender = new MeshFileSender(meshMailbox);
             await meshFileSender.SendFile(fileToSend, meshSendOptions.Value.DestinationMailboxId, meshSendOptions.Value.WorkflowId);
         }
+        else
+            throw new InvalidOperationException("Destination mailbox was not configured");
     }
 
     private string GenerateFileName() => $"MYA_booking_{timeProvider.GetUtcNow():yyyy-MM-ddTHHmm}.parquet";

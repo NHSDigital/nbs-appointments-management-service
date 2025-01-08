@@ -12,7 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Parquet.Serialization;
 using FluentAssertions;
 using BookingsDataExtracts.Documents;
-using Microsoft.Azure.Amqp.Framing;
+using Nhs.Appointments.Persistance.Models;
+using Nhs.Appointments.Core;
 
 namespace BookingDataExtractTests.Specification;
 

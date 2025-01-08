@@ -23,6 +23,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\src\api\Nhs.Appointments.Api\Nhs.Appointments.Api.csproj" />
+    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj" />
     <ProjectReference Include="..\..\src\libraries\Nbs.MeshClient\Nbs.MeshClient.csproj" />
   </ItemGroup>
 

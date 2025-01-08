@@ -3,6 +3,7 @@ using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Persistance.Models;
 
 namespace BookingsDataExtracts;
 
@@ -40,7 +41,7 @@ public class CosmosStore<TDocument>(CosmosClient cosmosClient, IOptions<CosmosSt
 
     private string GetContainerName() => typeof(TDocument).Name switch
     {
-        nameof(BookingDocument) => "booking_data",
+        nameof(NbsBookingDocument) => "booking_data",
         nameof(SiteDocument) => "core_data",
         _ => throw new NotSupportedException()
     };

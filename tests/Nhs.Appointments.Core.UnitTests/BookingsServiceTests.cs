@@ -379,7 +379,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                         Status = AppointmentStatus.Booked,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     },
                     new()
                     {
@@ -387,7 +388,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                         Status = AppointmentStatus.Booked,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     },
                     new()
                     {
@@ -395,7 +397,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "3",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Brown" },
                         Status = AppointmentStatus.Booked,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     },
                     new()
                     {
@@ -403,7 +406,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "4",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Bob", LastName = "Dawson" },
                         Status = AppointmentStatus.Booked,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     }
                 };
 
@@ -450,7 +454,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                         Status = AppointmentStatus.Orphaned,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     },
                     new()
                     {
@@ -458,7 +463,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                         Status = AppointmentStatus.Orphaned,
-                        Duration = 10
+                        Duration = 10,
+                        Service = "Service 1"
                     }
                 };
 

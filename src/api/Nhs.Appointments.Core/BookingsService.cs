@@ -162,25 +162,23 @@ public class BookingsService(
             (await availabilityStore.GetSessions(site, day, day))
             .ToList();
 
+        var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
+
         using var leaseContent = siteLeaseManager.Acquire(site);
-        var recalculatedScheduledBookings = new List<Booking>();
-
+        
         foreach (var booking in bookings)
-        {
-            var availableSlots =
-                availabilityCalculator.GetAvailableSlots(sessionsOnThatDay, recalculatedScheduledBookings);
-            var canScheduleBooking = availableSlots.Any(sl =>
-                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
+        {            
+            var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
+                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration && sl.Services.Contains(booking.Service));
 
-            if (canScheduleBooking)
+            if (targetSlot != null)
             {
                 if (booking.Status != AppointmentStatus.Booked)
                 {
                     await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
                     booking.Status = AppointmentStatus.Booked;
                 }
-
-                recalculatedScheduledBookings.Add(booking);
+                targetSlot.Capacity--;
                 continue;
             }
 

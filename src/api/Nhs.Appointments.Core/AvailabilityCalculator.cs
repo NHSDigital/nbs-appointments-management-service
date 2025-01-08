@@ -1,11 +1,8 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public interface IAvailabilityCalculator
 {
-    Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
-
-    IEnumerable<SessionInstance> GetAvailableSlots(IEnumerable<SessionInstance> sessions,
-        IEnumerable<Booking> bookings);
+    Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);    
 }
 
 public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore, TimeProvider time) : IAvailabilityCalculator
@@ -26,18 +23,13 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
             until.ToDateTime(new TimeOnly(23, 59)), site);
 
         return GetAvailableSlots(filteredSessions, bookings);
-    }
+    }        
 
-    public IEnumerable<SessionInstance> GetAvailableSlots(IEnumerable<SessionInstance> sessions,
+    private IEnumerable<SessionInstance> GetAvailableSlots(IEnumerable<SessionInstance> sessions,
         IEnumerable<Booking> bookings)
     {
-        var slots = new List<SessionInstance>();
-        foreach (var session in sessions)
-        {
-            slots.AddRange(session.Divide(TimeSpan.FromMinutes(session.SlotLength)).Select(sl =>
-                new SessionInstance(sl) { Services = session.Services, Capacity = session.Capacity }));
-        }
-
+        var slots = sessions.SelectMany(session => session.ToSlots()).ToList();
+        
         if (slots.Count == 0)
         {
             return [];

@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using System.Text.Json;
 
 namespace Nhs.Appointments.Core;
 
@@ -76,5 +75,6 @@ public enum AppointmentStatus
     Unknown,
     Provisional,
     Booked,
-    Cancelled
+    Cancelled,
+    Orphaned
 }

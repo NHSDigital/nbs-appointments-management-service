@@ -12,12 +12,14 @@ type Props = {
   bookings: Booking[];
   site: string;
   displayAction: boolean;
+  message?: string;
 };
 
 export const DailyAppointmentsPage = ({
   bookings,
   site,
   displayAction,
+  message,
 }: Props) => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
@@ -107,6 +109,8 @@ export const DailyAppointmentsPage = ({
 
   return (
     <>
+      {message && <p>{message}</p>}
+
       {appointmentsTableData && <Table {...appointmentsTableData}></Table>}
 
       <Pagination

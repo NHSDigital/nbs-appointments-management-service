@@ -91,7 +91,7 @@ describe('View Availability Service', () => {
 
     const mockPayload = {
       to: '2024-12-08 23:59:59',
-      from: '2024-12-02',
+      from: '2024-12-02 00:00:00',
       site: 'TEST01',
     };
     expect(fetchBookedAppointmentsMock).toHaveBeenCalledWith(mockPayload);

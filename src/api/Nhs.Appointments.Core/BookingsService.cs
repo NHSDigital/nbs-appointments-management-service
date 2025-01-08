@@ -15,6 +15,7 @@ public interface IBookingsService
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
+    Task RecalculateAppointmentStatuses(string site, DateOnly day);
 }    
 
 public class BookingsService(
@@ -22,6 +23,7 @@ public class BookingsService(
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
+        IAvailabilityStore availabilityStore,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
@@ -86,6 +88,7 @@ public class BookingsService(
         }
 
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
         {
@@ -144,5 +147,45 @@ public class BookingsService(
     public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
         return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
+    }
+
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var bookings = (await GetBookings(dayStart, dayEnd, site))
+            .Where(b => b.Status is not AppointmentStatus.Cancelled)
+            .OrderBy(b => b.Created);
+
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, day, day))
+            .ToList();
+
+        var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
+        
+        foreach (var booking in bookings)
+        {            
+            var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
+                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration && sl.Services.Contains(booking.Service));
+
+            if (targetSlot != null)
+            {
+                if (booking.Status != AppointmentStatus.Booked)
+                {
+                    await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
+                    booking.Status = AppointmentStatus.Booked;
+                }
+                targetSlot.Capacity--;
+                continue;
+            }
+
+            if (booking.Status is AppointmentStatus.Booked or AppointmentStatus.Provisional)
+            {
+                await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
+            }
+        }
     }
 }

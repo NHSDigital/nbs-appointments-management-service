@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -14,7 +17,7 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
     protected HttpResponseMessage Response { get; set; }
     
     [When("I make a provisional appointment with the following details")]
-    public async Task MakeProvisionalBooking(Gherkin.Ast.DataTable dataTable)
+    public async Task MakeProvisionalBooking(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
@@ -37,31 +40,6 @@ public abstract class BookingBaseFeatureSteps : BaseFeatureSteps
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking", payload);
     }
     
-    [And(@"the original booking has been '(\w+)'")]
-    public Task AssertRescheduledBookingStatus(string outcome)
-    {
-        return AssertBookingStatus(outcome);
-    }
-    
-    [Then(@"the booking has been '(\w+)'")]
-    public async Task AssertBookingStatus(string status)
-    {
-        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-        var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        var bookingDocument = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));            
-        bookingDocument.Resource.Status.Should().Be(expectedStatus);
-        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
-
-        var indexDocument = await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index"));
-        indexDocument.Resource.Status.Should().Be(expectedStatus);
-    }
-    
     [Then(@"the call should fail with (\d*)")]
-    public void AssertFailureCode(int statusCode)
-    {
-        Response.StatusCode.Should().Be((System.Net.HttpStatusCode)statusCode);
-    }
+    public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 }

@@ -5,12 +5,11 @@ public class AvailabilityServiceTests
     private readonly AvailabilityService _sut;
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+    private readonly Mock<IBookingsService> _bookingsService = new();
 
 
-    public AvailabilityServiceTests()
-    {
-        _sut = new AvailabilityService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
-    }
+    public AvailabilityServiceTests() => _sut = new AvailabilityService(_availabilityStore.Object,
+        _availabilityCreatedEventStore.Object, _bookingsService.Object);
 
     [Theory]
     [InlineData("")]
@@ -163,6 +162,42 @@ public class AvailabilityServiceTests
     }
 
     [Fact]
+    public async Task ApplyTemplateAsync_CallsBookingServiceToRecalculateAppointmentStatuses_WithDatesForRequestedDays()
+    {
+        const string site = "ABC01";
+        const string user = "mock.user@nhs.net";
+        var from = new DateOnly(2025, 01, 06);
+        var until = new DateOnly(2025, 01, 8);
+        Session[] sessions =
+        [
+            new()
+            {
+                Capacity = 1,
+                From = new TimeOnly(09, 00),
+                Until = new TimeOnly(10, 00),
+                SlotLength = 5,
+                Services = ["Service 1"]
+            }
+        ];
+
+        var template = new Template
+        {
+            Days =
+            [
+                DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday,
+                DayOfWeek.Saturday, DayOfWeek.Sunday
+            ],
+            Sessions = sessions
+        };
+
+        await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
+
+        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)), Times.Once);
+        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)), Times.Once);
+        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)), Times.Once);
+    }
+
+    [Fact]
     public async Task ApplySingleDateSessionAsync_CallsAvailabilityCreatedEventStore()
     {
         const string site = "ABC01";
@@ -185,6 +220,30 @@ public class AvailabilityServiceTests
 
         _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
         _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user), Times.Once);
+    }
+
+    [Fact]
+    public async Task ApplySingleDateSessionAsync_CallsBookingServiceToRecalculateAppointmentStatuses()
+    {
+        const string site = "ABC01";
+        const string user = "mock.user@nhs.net";
+        var date = new DateOnly(2024, 10, 10);
+
+        var sessions = new List<Session>
+        {
+            new()
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
+        }.ToArray();
+
+        await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
+
+        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)), Times.Once);
     }
 
     [Theory]

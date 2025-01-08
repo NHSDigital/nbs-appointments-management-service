@@ -169,13 +169,13 @@ variable "app_insights_sampling_percentage" {
 }
 
 variable "create_autoscale_settings" {
-  type    = bool
+  type = bool
 }
 
 variable "create_app_slot" {
-  type    = bool
+  type = bool
 }
 
 variable "create_frontdoor" {
-  type    = bool
+  type = bool
 }

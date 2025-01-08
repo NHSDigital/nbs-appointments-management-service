@@ -57,7 +57,19 @@ resource "azurerm_windows_function_app" "nbs_mya_func_app" {
   }
 
   sticky_settings {
-    app_setting_names = ["AuthProvider_ClientCodeExchangeUri", "AuthProvider_ReturnUri"]
+    app_setting_names = [
+      "AuthProvider_ClientCodeExchangeUri",
+      "AuthProvider_ReturnUri",
+      "Notifications_Provider",
+      "ServiceBusConnectionString",
+      "AzureWebJobs.NotifyUserRolesChanged.Disabled",
+      "AzureWebJobs.NotifyBookingMade.Disabled",
+      "AzureWebJobs.NotifyBookingRescheduled.Disabled",
+      "AzureWebJobs.NotifyBookingCancelled.Disabled",
+      "AzureWebJobs.SendBookingReminders.Disabled",
+      "AzureWebJobs.NotifyBookingReminder.Disabled",
+      "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"
+    ]
   }
 
   identity {
@@ -83,29 +95,35 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_func_app_preview" {
   }
 
   app_settings = {
-    FUNCTIONS_WORKER_RUNTIME                   = "dotnet-isolated"
-    WEBSITE_RUN_FROM_PACKAGE                   = 1
-    COSMOS_ENDPOINT                            = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
-    COSMOS_TOKEN                               = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
-    LEASE_MANAGER_CONNECTION                   = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
-    APPLICATIONINSIGHTS_CONNECTION_STRING      = azurerm_application_insights.nbs_mya_application_insights.connection_string
-    AuthProvider_Issuer                        = var.auth_provider_issuer
-    AuthProvider_AuthorizeUri                  = var.auth_provider_authorize_uri
-    AuthProvider_TokenUri                      = var.auth_provider_token_uri
-    AuthProvider_JwksUri                       = var.auth_provider_jwks_uri
-    AuthProvider_ChallengePhrase               = var.auth_provider_challenge_phrase
-    AuthProvider_ClientId                      = var.auth_provider_client_id
-    AuthProvider_ClientSecret                  = var.auth_provider_client_secret
-    AuthProvider_ClientCodeExchangeUri         = "${var.web_app_slot_base_uri}/manage-your-appointments/auth/set-cookie"
-    AuthProvider_ReturnUri                     = "${var.func_app_slot_base_uri}/api/auth-return"
-    Notifications_Provider                     = "azure"
-    GovNotifyBaseUri                           = var.gov_notify_base_uri
-    GovNotifyApiKey                            = var.gov_notify_api_key
-    ServiceBusConnectionString                 = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
-    BookingRemindersCronSchedule               = var.booking_reminders_cron_schedule
-    UnconfirmedProvisionalBookingsCronSchedule = var.unconfirmed_provisional_bookings_cron_schedule
-    SPLUNK_HOST_URL                            = var.splunk_host_url
-    SPLUNK_HEC_TOKEN                           = var.splunk_hec_token
+    FUNCTIONS_WORKER_RUNTIME                                     = "dotnet-isolated"
+    WEBSITE_RUN_FROM_PACKAGE                                     = 1
+    COSMOS_ENDPOINT                                              = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
+    COSMOS_TOKEN                                                 = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
+    LEASE_MANAGER_CONNECTION                                     = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
+    APPLICATIONINSIGHTS_CONNECTION_STRING                        = azurerm_application_insights.nbs_mya_application_insights.connection_string
+    AuthProvider_Issuer                                          = var.auth_provider_issuer
+    AuthProvider_AuthorizeUri                                    = var.auth_provider_authorize_uri
+    AuthProvider_TokenUri                                        = var.auth_provider_token_uri
+    AuthProvider_JwksUri                                         = var.auth_provider_jwks_uri
+    AuthProvider_ChallengePhrase                                 = var.auth_provider_challenge_phrase
+    AuthProvider_ClientId                                        = var.auth_provider_client_id
+    AuthProvider_ClientSecret                                    = var.auth_provider_client_secret
+    AuthProvider_ClientCodeExchangeUri                           = "${var.web_app_slot_base_uri}/manage-your-appointments/auth/set-cookie"
+    AuthProvider_ReturnUri                                       = "${var.func_app_slot_base_uri}/api/auth-return"
+    Notifications_Provider                                       = "none"
+    "AzureWebJobs.NotifyUserRolesChanged.Disabled"               = true
+    "AzureWebJobs.NotifyBookingMade.Disabled"                    = true
+    "AzureWebJobs.NotifyBookingRescheduled.Disabled"             = true
+    "AzureWebJobs.NotifyBookingCancelled.Disabled"               = true
+    "AzureWebJobs.SendBookingReminders.Disabled"                 = true
+    "AzureWebJobs.NotifyBookingReminder.Disabled"                = true
+    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
+    GovNotifyBaseUri                                             = var.gov_notify_base_uri
+    GovNotifyApiKey                                              = var.gov_notify_api_key
+    BookingRemindersCronSchedule                                 = var.booking_reminders_cron_schedule
+    UnconfirmedProvisionalBookingsCronSchedule                   = var.unconfirmed_provisional_bookings_cron_schedule
+    SPLUNK_HOST_URL                                              = var.splunk_host_url
+    SPLUNK_HEC_TOKEN                                             = var.splunk_hec_token
   }
 
   identity {

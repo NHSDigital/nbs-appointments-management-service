@@ -30,4 +30,21 @@ describe('View Daily Appointments', () => {
     ).toBeInTheDocument();
     expect(screen.getAllByRole('row').length).toBe(5);
   });
+
+  it('displays a message above the table if one is supplied', async () => {
+    render(
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={true}
+          message="Test message"
+        />
+      </SearchParamsContext.Provider>,
+    );
+
+    expect(screen.getByText('Test message')).toBeInTheDocument();
+  });
 });

@@ -88,5 +88,12 @@ describe('View Availability Service', () => {
       expect(firstDay.serviceInformation[0].serviceDetails[0].booked).toBe(1);
       expect(firstDay.serviceInformation[1].serviceDetails[0].booked).toBe(0);
     }
+
+    const mockPayload = {
+      to: '2024-12-08 23:59:59',
+      from: '2024-12-02',
+      site: 'TEST01',
+    };
+    expect(fetchBookedAppointmentsMock).toHaveBeenCalledWith(mockPayload);
   });
 });

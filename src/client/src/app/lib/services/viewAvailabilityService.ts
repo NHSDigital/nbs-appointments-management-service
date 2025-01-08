@@ -47,7 +47,13 @@ const BuildWeeks = (year: number, month: number): Week[] => {
       startYear: year,
       endYear: year,
       bookedAppointments: [],
-      endDate: dayjs().year(year).month(month).date(end),
+      endDate: dayjs()
+        .year(year)
+        .month(month)
+        .date(end)
+        .hour(23)
+        .minute(59)
+        .second(59),
       startDate: dayjs().year(year).month(month).date(start),
     });
     start = end + 1;
@@ -203,7 +209,7 @@ export const getDetailedWeekView = async (
 ): Promise<DayAvailabilityDetails[]> => {
   const payload: FetchBookingsRequest = {
     from: from.format('YYYY-MM-DD'),
-    to: until.format('YYYY-MM-DD'),
+    to: until.format('YYYY-MM-DD HH:mm:ss'),
     site: siteId,
   };
 
@@ -323,7 +329,7 @@ const buildServiceDetails = (
       b =>
         b.service === service &&
         dayjs(b.from).format('YYYY-MM-DD') === serviceDate &&
-        (b.status === 'Booked' || 'Provisional'),
+        (b.status === 'Booked' || b.status === 'Provisional'),
     );
 
     // If there are more appointments vs capacity for that session

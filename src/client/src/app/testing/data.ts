@@ -508,7 +508,7 @@ const mockEmptyDays: DayAvailabilityDetails[] = [
 ];
 
 const mockWeekAvailabilityStart = dayjs('2024-12-02');
-const mockWeekAvailabilityEnd = dayjs('2024-12-08');
+const mockWeekAvailabilityEnd = dayjs('2024-12-08 23:59:59');
 
 const mockWeekAvailability: DailyAvailability[] = [
   {

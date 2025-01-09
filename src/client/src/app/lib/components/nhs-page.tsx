@@ -15,6 +15,7 @@ import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
 import { fetchPermissions } from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
+import FeedbackBanner from '@components/feedback-banner';
 
 type Props = {
   children: ReactNode;
@@ -46,6 +47,7 @@ const NhsPage = async ({
       >
         {headerAuthComponent ?? NhsHeaderLogOut()}
       </Header>
+      <FeedbackBanner />
       <Breadcrumbs
         trail={[
           ...breadcrumbs,

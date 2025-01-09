@@ -1,9 +1,11 @@
 using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Nhs.Appointments.Api.Json;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 using Nhs.Appointments.Persistance.Models;
+using Azure.Identity;
 
 namespace BookingsDataExtracts;
 
@@ -61,5 +63,26 @@ public static class ServiceRegistration
         }        
 
         return services;
+    }
+
+    public static IConfigurationBuilder AddNbsAzureKeyVault(this IConfigurationBuilder builder, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
+    {
+        var tempConfig = builder.Build();
+        var config = tempConfig.GetAzureKeyVaultConfiguration(configSectionName);
+
+        if (config is null || string.IsNullOrEmpty(config?.KeyVaultName))
+        {            
+            return builder;            
+        }
+
+        var keyVaultUri = new Uri($"https://{config.KeyVaultName}.vault.azure.net/");
+        var credential = new ClientSecretCredential(config.TenantId, config.ClientId, config.ClientSecret);
+
+        return builder.AddAzureKeyVault(keyVaultUri, credential);
+    }
+
+    public static AzureKeyVaultConfiguration? GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
+    {
+        return configuration.GetSection(configSectionName)?.Get<AzureKeyVaultConfiguration>();
     }
 }

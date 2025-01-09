@@ -14,12 +14,20 @@ public class DataExtractWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var outputFile = new FileInfo(GenerateFileName());        
-        await bookingDataExtract.RunAsync(outputFile);
+        try
+        {
+            var outputFile = new FileInfo(GenerateFileName());
+            await bookingDataExtract.RunAsync(outputFile);
 
-        await SendViaMesh(outputFile);
+            await SendViaMesh(outputFile);
 
-        hostApplicationLifetime.StopApplication();
+            hostApplicationLifetime.StopApplication();
+        }
+        catch (Exception ex)
+        {            
+            Console.WriteLine(ex.ToString());
+            Environment.ExitCode = -1;
+        }        
     }
 
     private async Task SendViaMesh(FileInfo fileToSend)

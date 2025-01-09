@@ -1,4 +1,4 @@
-﻿trigger: none
+trigger: none
 
 pool:
   vmImage: "ubuntu-latest"
@@ -21,9 +21,8 @@ parameters:
     values: ["dev", "exp", "int", "stag"]
     
 variables:
-  environment: ${{parameters.env}}
-  cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"
-  resourceGroupName: "nbs-mya-rg-$(environment)-uks"
+  - group: covid19bookingkv${{parameters.env}}uks
+  - group: mya-booking-extract-${{parameters.env}}
 
 stages:
   - stage: "CreateDailyExtract"
@@ -48,8 +47,17 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(meshWorkflowId)
+              KeyVault_KeyVaultName: covid19bookingkv${{parameters.env}}uks
+              KeyVault_TenantId: $(tenantId)
+              KeyVault_ClientId: $(ClientId)
+              KeyVault_ClientSecret: $(ClientSecret)
+              MeshClientOptions_BaseUrl: $(meshApiBaseUri)
+              MeshAuthorizationOptions_MailboxId: $(fromMeshMailboxId)
+              MeshAuthorizationOptions_CertificateName: $(meshCertificateName)
           - task: PublishBuildArtifacts@1
             displayName: "Publish parquet file"
             inputs:
-              PathtoPublish: "bookings.parquet"
+              PathtoPublish: "*.parquet"
               ArtifactName: "Bookings Data Extract"

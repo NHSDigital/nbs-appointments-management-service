@@ -54,6 +54,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         days={days}
         weekStart={weekStart}
         weekEnd={weekEnd}
+        site={params.site}
       />
     </NhsPage>
   );

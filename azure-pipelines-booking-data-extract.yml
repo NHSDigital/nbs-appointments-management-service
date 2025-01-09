@@ -55,9 +55,4 @@ stages:
               KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
-              MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
-          - task: PublishBuildArtifacts@1
-            displayName: "Publish parquet file"
-            inputs:
-              PathtoPublish: "*.parquet"
-              ArtifactName: "Bookings Data Extract"
+              MeshAuthorizationOptions__CertificateName: $(meshCertificateName)          

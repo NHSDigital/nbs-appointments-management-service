@@ -20,14 +20,16 @@ public class DataExtractWorker(
             await bookingDataExtract.RunAsync(outputFile);
 
             await SendViaMesh(outputFile);
-
-            hostApplicationLifetime.StopApplication();
         }
         catch (Exception ex)
         {            
             Console.WriteLine(ex.ToString());
             Environment.ExitCode = -1;
-        }        
+        }
+        finally
+        {
+            hostApplicationLifetime.StopApplication();
+        }
     }
 
     private async Task SendViaMesh(FileInfo fileToSend)

@@ -32,7 +32,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
         _ => throw new ArgumentOutOfRangeException(nameof(booking.Status)),
     };
 
-    public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData.ReferralType == "SelfReferred";
+    public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData?.ReferralType == "SelfReferred";
 
     public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData.Source;
 

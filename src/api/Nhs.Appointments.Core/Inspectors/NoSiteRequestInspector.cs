@@ -1,5 +1,4 @@
 using Microsoft.Azure.Functions.Worker.Http;
-using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Core.Inspectors;
 

@@ -59,6 +59,11 @@ public class AvailabilityService(
         if (sessions is null || sessions.Length == 0)
             throw new ArgumentException("Availability must contain one or more sessions.");
 
+        if (mode is ApplyAvailabilityMode.Edit && sessionToEdit is null)
+        {
+            throw new ArgumentException("When editing a session a session to edit must be supplied.");
+        }
+
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
     }
 

@@ -57,27 +57,28 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {
         var dayDocument = await GetOrDefaultAsync(documentId, site);
+        var extantSessions = dayDocument.Sessions.ToList();
 
-        var sessionsInDocumentMatchingSessionToEdit = dayDocument.Sessions
-            .Where(session =>
+        var firstMatchingSession = extantSessions
+            .FirstOrDefault(session =>
                 session.From == sessionToEdit.From
                 && session.Until == sessionToEdit.Until
-                && session.Services == sessionToEdit.Services
+                && session.Services.SequenceEqual(sessionToEdit.Services)
                 && session.SlotLength == sessionToEdit.SlotLength
-                && session.Capacity == sessionToEdit.Capacity)
-            .ToList();
-
-        if (sessionsInDocumentMatchingSessionToEdit.Count == 0)
+                && session.Capacity == sessionToEdit.Capacity);
+        if (firstMatchingSession is null)
         {
             throw new InvalidOperationException(
                 "The requested Session to edit could not be found in the sessions for that day.");
         }
 
-        var newSessions = dayDocument.Sessions.ToList();
-        newSessions.Remove(sessionsInDocumentMatchingSessionToEdit.First());
-        newSessions.Append(newSession);
+        extantSessions.Remove(firstMatchingSession);
 
-        await PatchAvailabilityDocument(documentId, newSessions.ToArray(), site, dayDocument);
+        var patchedSessions = extantSessions
+            .Append(newSession)
+            .ToArray();
+
+        await PatchAvailabilityDocument(documentId, patchedSessions, site, dayDocument, false);
     }
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
@@ -99,12 +100,21 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         await documentStore.WriteAsync(document);
     }
 
-    private async Task PatchAvailabilityDocument(string documentId, Session[] sessions, string site, DailyAvailabilityDocument originalDocument)
+    private async Task PatchAvailabilityDocument(string documentId, Session[] sessions, string site,
+        DailyAvailabilityDocument originalDocument, bool concatSessions = true)
     {
-        var originalSessions = originalDocument.Sessions;
-        var newSessions = originalSessions.Concat(sessions);
-        var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", newSessions);
-        await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
+        if (concatSessions)
+        {
+            var originalSessions = originalDocument.Sessions;
+            var newSessions = originalSessions.Concat(sessions);
+            var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", newSessions);
+            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
+        }
+        else
+        {
+            var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", sessions);
+            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
+        }
     }
     
     private async Task<DailyAvailabilityDocument> GetOrDefaultAsync(string documentId, string partitionKey)

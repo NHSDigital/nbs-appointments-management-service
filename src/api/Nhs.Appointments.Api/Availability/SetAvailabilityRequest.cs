@@ -13,6 +13,6 @@ public record SetAvailabilityRequest(
     Session[] Sessions,
     [property:JsonProperty("mode", Required = Required.Always)]
     ApplyAvailabilityMode Mode,
-    [property: JsonProperty("sessionToEdit", Required = Required.AllowNull)]
+    [property: JsonProperty("sessionToEdit", Required = Required.Default)]
     Session SessionToEdit = null
 );

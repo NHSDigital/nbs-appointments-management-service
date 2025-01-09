@@ -61,3 +61,31 @@
     Then the request is successful and the following daily availability sessions are created
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
+
+  Scenario: Edit one of multiple sessions
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+      | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
+      | Tomorrow | 14:00 | 16:00 | FLU      | 10          | 1        |
+    When I edit the following availability
+      | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
+      | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
+    Then the request is successful and the following daily availability sessions are created
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
+      | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
+      | Tomorrow | 14:00 | 16:00 | FLU      | 10          | 1        |
+
+  Scenario: Edit one of two identical sessions
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+    When I edit the following availability
+      | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
+      | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
+    Then the request is successful and the following daily availability sessions are created
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |

@@ -40,9 +40,6 @@ namespace Nbs.MeshClient.Auth
 
         protected internal string GetHash(string message)
         {
-            Console.WriteLine(MailboxPassword.Length);
-            Console.WriteLine(SharedKey.Length);
-
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(SharedKey)))
             {
                 return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "").ToLowerInvariant();

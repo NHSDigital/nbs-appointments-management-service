@@ -50,8 +50,11 @@ public static class ServiceRegistration
         .AddMesh(configuration);
 
         var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
+        Console.WriteLine("KV Config = " + azureKeyVaultConfig?.KeyVaultName);
+        Console.WriteLine("KV Config = " + azureKeyVaultConfig?.ClientId);
         if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
         {
+            Console.WriteLine("Adding key vault and cert provider");
             services.Configure<AzureKeyVaultConfiguration>(opts =>
             {
                 opts.KeyVaultName = azureKeyVaultConfig.KeyVaultName;

@@ -54,7 +54,13 @@ const BuildWeeks = (year: number, month: number): Week[] => {
         .hour(23)
         .minute(59)
         .second(59),
-      startDate: dayjs().year(year).month(month).date(start),
+      startDate: dayjs()
+        .year(year)
+        .month(month)
+        .date(start)
+        .hour(0)
+        .minute(0)
+        .second(0),
     });
     start = end + 1;
     end = end + 7;
@@ -208,7 +214,7 @@ export const getDetailedWeekView = async (
   availability: DailyAvailability[],
 ): Promise<DayAvailabilityDetails[]> => {
   const payload: FetchBookingsRequest = {
-    from: from.format('YYYY-MM-DD'),
+    from: from.format('YYYY-MM-DD HH:mm:ss'),
     to: until.format('YYYY-MM-DD HH:mm:ss'),
     site: siteId,
   };

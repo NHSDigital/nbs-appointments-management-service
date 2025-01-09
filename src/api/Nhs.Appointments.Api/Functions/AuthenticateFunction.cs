@@ -7,13 +7,15 @@ using Nhs.Appointments.Api.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 using Nhs.Appointments.Audit;
+using Nhs.Appointments.Audit.Functions;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
 {    
     [Function("AuthenticateFunction")]
-    [RequiresAudit(requestSiteInspector: null)]
+    [RequiresAudit(typeof(NoSiteRequestInspector))]
     [AllowAnonymous]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")] HttpRequest req)

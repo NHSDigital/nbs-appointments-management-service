@@ -14,6 +14,8 @@ using System;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Audit;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -30,6 +32,7 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("booking:cancel", typeof(SiteFromQueryStringInspector))]
+    [RequiresAudit(typeof(SiteFromQueryStringInspector))]
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/cancel")] HttpRequest req)

@@ -11,6 +11,7 @@ using Nhs.Appointments.Core;
 using System.Net;
 using System.Threading.Tasks;
 using Nhs.Appointments.Audit;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;

@@ -10,20 +10,6 @@ namespace Nhs.Appointments.Api.Auth;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddRequestInspectors(this IServiceCollection services)
-    {
-        var inspectorTypes = typeof(IRequestInspector).Assembly
-        .GetTypes()
-        .Where(t => typeof(IRequestInspector).IsAssignableFrom(t) && t.IsClass && t.IsAbstract == false);
-
-        foreach (var type in inspectorTypes)
-        {                                
-            services.AddSingleton(type);
-        }
-
-        return services;
-    }
-
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services) =>services
         .Configure<AuthOptions>(opts =>
         {
@@ -43,7 +29,6 @@ public static class ServiceRegistration
         })
         .AddScoped<IUserContextProvider, UserContextProvider>()
         .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
-        .AddRequestInspectors()
         .AddSingleton<SignedRequestAuthenticator>()
         .AddSingleton<BearerTokenRequestAuthenticator>()
         .AddSingleton<IJwksRetriever, JwksRetriever>()

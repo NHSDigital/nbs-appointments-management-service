@@ -1,5 +1,4 @@
 import Tag from '@components/nhsuk-frontend/tag';
-import '../../global.css';
 
 const FeedbackBanner = () => {
   return (

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
-using AutoMapper;
+using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -29,14 +28,15 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         return results;
     }
 
-    public async Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions, ApplyAvailabilityMode mode)
+    public async Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions,
+        ApplyAvailabilityMode mode, Session sessionToEdit = null)
     {
         var documentType = documentStore.GetDocumentType();
         var documentId = date.ToString("yyyyMMdd");
         
         switch (mode)
         {
-            case (ApplyAvailabilityMode.Overwrite):
+            case ApplyAvailabilityMode.Overwrite:
                 await WriteDocument(date, documentType, documentId, sessions, site);
                 break;
             case ApplyAvailabilityMode.Additive:
@@ -46,9 +46,38 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
                 else 
                     await PatchAvailabilityDocument(documentId, sessions, site, originalDocument);
                 break;
+            case ApplyAvailabilityMode.Edit:
+                await EditExistingSession(documentId, site, sessions.Single(), sessionToEdit);
+                break;
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
+    {
+        var dayDocument = await GetOrDefaultAsync(documentId, site);
+
+        var sessionsInDocumentMatchingSessionToEdit = dayDocument.Sessions
+            .Where(session =>
+                session.From == sessionToEdit.From
+                && session.Until == sessionToEdit.Until
+                && session.Services == sessionToEdit.Services
+                && session.SlotLength == sessionToEdit.SlotLength
+                && session.Capacity == sessionToEdit.Capacity)
+            .ToList();
+
+        if (sessionsInDocumentMatchingSessionToEdit.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "The requested Session to edit could not be found in the sessions for that day.");
+        }
+
+        var newSessions = dayDocument.Sessions.ToList();
+        newSessions.Remove(sessionsInDocumentMatchingSessionToEdit.First());
+        newSessions.Append(newSession);
+
+        await PatchAvailabilityDocument(documentId, newSessions.ToArray(), site, dayDocument);
     }
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)

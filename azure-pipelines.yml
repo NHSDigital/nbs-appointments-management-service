@@ -177,7 +177,7 @@ stages:
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
-                cd ./data/BookingDataExtracts && docker compose up --build --detach
+                cd data/BookingsDataExtracts && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
               docker compose up --build --detach

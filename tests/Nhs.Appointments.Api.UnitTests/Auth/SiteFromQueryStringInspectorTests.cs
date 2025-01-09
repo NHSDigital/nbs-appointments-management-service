@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using Moq;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 

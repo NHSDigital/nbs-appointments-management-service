@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
-using Nhs.Appointments.Core;
 
-
-namespace Nhs.Appointments.Api.Auth;
+namespace Nhs.Appointments.Core.Inspectors;
 
 public class SiteFromPathInspector : IRequestInspector
 {

@@ -2,6 +2,7 @@
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Logger;
+using Nhs.Appointments.Audit;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(builder =>
@@ -10,6 +11,7 @@ var host = new HostBuilder()
             .UseMiddleware<TypeDecoratorMiddleware>()            
             .UseMiddleware<AuthenticationMiddleware>()
             .UseMiddleware<AuthorizationMiddleware>()
+            .UseMiddleware<AuditMiddleware>()
             .ConfigureFunctionDependencies();
     })
     .UseAppointmentsSerilog()

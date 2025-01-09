@@ -6,12 +6,14 @@ using Microsoft.Azure.Functions.Worker;
 using Nhs.Appointments.Api.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
+using Nhs.Appointments.Audit;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
 {    
     [Function("AuthenticateFunction")]
+    [RequiresAudit(requestSiteInspector: null)]
     [AllowAnonymous]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")] HttpRequest req)

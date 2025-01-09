@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -10,6 +8,10 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using System.Net;
+using System.Threading.Tasks;
+using Nhs.Appointments.Audit;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,6 +25,7 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [RequiresPermission("availability:setup", typeof(SiteFromBodyInspector))]
+    [RequiresAudit(typeof(SiteFromBodyInspector))]
     [Function("SetAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability")] HttpRequest req)

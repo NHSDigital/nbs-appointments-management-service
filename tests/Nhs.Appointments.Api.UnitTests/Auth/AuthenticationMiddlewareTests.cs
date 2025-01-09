@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using System.Security.Claims;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Auth
 {

@@ -14,6 +14,7 @@ using System;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 

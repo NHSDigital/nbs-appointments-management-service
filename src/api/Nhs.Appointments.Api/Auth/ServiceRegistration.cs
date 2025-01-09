@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System;
 using System.Linq;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Auth;
 

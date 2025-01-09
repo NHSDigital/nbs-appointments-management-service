@@ -1,0 +1,29 @@
+{
+  "date": "2025-08-05",
+  "sessions": [
+    {
+      "from": "09:00",
+      "until": "10:00",
+      "services": ["RSV:Adult"],
+      "slotLength": 10,
+      "capacity": 1
+    },
+    {
+      "from": "09:00",
+      "until": "10:00",
+      "services": ["RSV:Adult"],
+      "slotLength": 10,
+      "capacity": 1
+    },
+    {
+      "from": "12:00",
+      "until": "17:00",
+      "services": ["RSV:Adult"],
+      "slotLength": 10,
+      "capacity": 2
+    }
+  ],
+  "site": "ABC02",
+  "id": "20250805",
+  "docType": "daily_availability"
+}

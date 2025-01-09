@@ -265,7 +265,5 @@
 @media (min-width: 40.0625em) {
   .feedback-banner__container {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    justify-content: space-between;
   }
 }

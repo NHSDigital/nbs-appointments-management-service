@@ -49,13 +49,13 @@ stages:
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
               MESH_WORKFLOW: $(meshWorkflowId)
-              KeyVault_KeyVaultName: covid19bookingkv${{parameters.env}}uks
-              KeyVault_TenantId: $(tenantId)
-              KeyVault_ClientId: $(ClientId)
-              KeyVault_ClientSecret: $(ClientSecret)
-              MeshClientOptions_BaseUrl: $(meshApiBaseUri)
-              MeshAuthorizationOptions_MailboxId: $(fromMeshMailboxId)
-              MeshAuthorizationOptions_CertificateName: $(meshCertificateName)
+              KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
+              KeyVault__TenantId: $(tenantId)
+              KeyVault__ClientId: $(ClientId)
+              KeyVault__ClientSecret: $(ClientSecret)
+              MeshClientOptions__BaseUrl: $(meshApiBaseUri)
+              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
+              MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
           - task: PublishBuildArtifacts@1
             displayName: "Publish parquet file"
             inputs:

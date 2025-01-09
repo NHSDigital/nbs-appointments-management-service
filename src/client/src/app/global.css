@@ -238,8 +238,7 @@
 }
 
 .feedback-banner {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   padding-top: 8px;
   padding-bottom: 8px;
   background-color: #fff;

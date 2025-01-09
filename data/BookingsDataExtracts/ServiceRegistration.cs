@@ -74,10 +74,12 @@ public static class ServiceRegistration
         var config = tempConfig.GetAzureKeyVaultConfiguration(configSectionName);
 
         if (config is null || string.IsNullOrEmpty(config?.KeyVaultName))
-        {            
+        {
+            Console.WriteLine("Failed to add key vault config");
             return builder;            
         }
 
+        Console.WriteLine("Added key vault config");
         var keyVaultUri = new Uri($"https://{config.KeyVaultName}.vault.azure.net/");
         var credential = new ClientSecretCredential(config.TenantId, config.ClientId, config.ClientSecret);
 

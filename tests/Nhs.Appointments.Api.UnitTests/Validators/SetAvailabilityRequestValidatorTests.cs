@@ -172,7 +172,7 @@ namespace Nhs.Appointments.Api.Tests.Validators
                 {
                     Capacity = 1,
                     From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
-                    Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 12, 0, 0)),
+                    Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
                     Services = ["RSV", "COVID"],
                     SlotLength = 5
                 },

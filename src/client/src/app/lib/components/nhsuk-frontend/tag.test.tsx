@@ -34,4 +34,23 @@ describe('Tag', () => {
       expect(screen.getByText('Test')).toHaveClass(expectedClass);
     },
   );
+
+  it('renders without a color prop', () => {
+    render(<Tag text="Default" />);
+
+    const tagElement = screen.getByText('Default');
+    expect(tagElement).toBeInTheDocument();
+
+    expect(tagElement).toHaveClass('nhsuk-tag');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--white');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--grey');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--green');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--aqua-green');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--blue');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--purple');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--pink');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--red');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--orange');
+    expect(tagElement).not.toHaveClass('nhsuk-tag--yellow');
+  });
 });

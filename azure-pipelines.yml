@@ -204,6 +204,15 @@ stages:
               publishRunAttachments: true
             condition: succeededOrFailed()
           - task: DotNetCoreCLI@2
+            displayName: "Reset and seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:
               command: "test"

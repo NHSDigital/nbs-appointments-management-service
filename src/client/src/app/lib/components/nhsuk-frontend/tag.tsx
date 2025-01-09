@@ -14,7 +14,7 @@ export type TagColor =
 
 type Props = {
   text: string;
-  color: TagColor;
+  color?: TagColor;
 };
 
 /**
@@ -23,7 +23,11 @@ type Props = {
  * @see https://service-manual.nhs.uk/design-system/components/tag
  */
 const Tag = ({ text, color }: Props) => {
-  return <strong className={`nhsuk-tag nhsuk-tag--${color}`}>{text}</strong>;
+  return (
+    <strong className={`nhsuk-tag ${color ? `nhsuk-tag--${color}` : ''}`}>
+      {text}
+    </strong>
+  );
 };
 
 export default Tag;

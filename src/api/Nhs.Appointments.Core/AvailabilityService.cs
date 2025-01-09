@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public class AvailabilityService(
     IAvailabilityStore availabilityStore,
@@ -64,6 +64,9 @@ public class AvailabilityService(
     {
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
+
+    public async Task<SessionInstance> GetSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
+        => await availabilityStore.GetSession(site, date, from, until, services, slotLength, capacity);
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {

@@ -16,7 +16,8 @@ public interface IBookingsService
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
-}    
+    Task OrphanAppointments(string site, DateTime from, DateTime until);
+}
 
 public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,
@@ -186,6 +187,17 @@ public class BookingsService(
             {
                 await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
             }
+        }
+    }
+
+    public async Task OrphanAppointments(string site, DateTime from, DateTime until)
+    {
+        var bookingsInSession = (await GetBookings(from, until, site))
+            .Where(b => b.Status is not AppointmentStatus.Cancelled and not AppointmentStatus.Orphaned);
+
+        foreach (var booking in bookingsInSession)
+        {
+            await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
         }
     }
 }

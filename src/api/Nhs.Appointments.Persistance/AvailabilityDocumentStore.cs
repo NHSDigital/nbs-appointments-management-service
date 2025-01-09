@@ -1,7 +1,8 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
 using AutoMapper;
+using System.Globalization;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -55,6 +56,38 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
     {
         var docType = documentStore.GetDocumentType();
         return await documentStore.RunQueryAsync<DailyAvailability>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+    }
+
+    public async Task<SessionInstance> GetSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
+    {
+        var docType = documentStore.GetDocumentType();
+        var document = (await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
+            b.DocumentType == docType &&
+            b.Site == site &&
+            b.Date == date)).FirstOrDefault();
+
+        if (document is null)
+            return null;
+
+        var fromTime = TimeOnly.ParseExact(from, "HH:mm", CultureInfo.InvariantCulture);
+        var untilTime = TimeOnly.ParseExact(until, "HH:mm", CultureInfo.InvariantCulture);
+
+        var session = document.Sessions.Where(s =>
+            s.From == fromTime &&
+            s.Until == untilTime &&
+            s.Services.SequenceEqual(services) &&
+            s.SlotLength == slotLength &&
+            s.Capacity == capacity).FirstOrDefault();
+
+        if (session is null)
+            return null;
+
+        return new SessionInstance(document.Date.ToDateTime(session.From), document.Date.ToDateTime(session.Until))
+        {
+            Services = session.Services,
+            SlotLength = session.SlotLength,
+            Capacity = session.Capacity,
+        };
     }
 
     private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions, string site)

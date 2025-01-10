@@ -72,8 +72,19 @@ public class AvailabilityService(
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
 
-    public async Task<SessionInstance> GetSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
-        => await availabilityStore.GetSession(site, date, from, until, services, slotLength, capacity);
+    public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
+    {
+        var sessionToCancel = new Session
+        {
+            Capacity = capacity,
+            From = TimeOnly.Parse(from),
+            Until = TimeOnly.Parse(until),
+            Services = services,
+            SlotLength = slotLength,
+        };
+
+        await availabilityStore.CancelSession(site, date, sessionToCancel);
+    }
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {

@@ -33,7 +33,7 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger)
     {
-        var session = await availabilityService.GetSession(
+        await availabilityService.CancelSession(
             request.Site,
             request.Date,
             request.From,
@@ -42,12 +42,7 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
             request.SlotLength,
             request.Capacity);
 
-        if (session is null)
-        {
-            return Failed(HttpStatusCode.NotFound, "The specified session was not found.");
-        }
-
-        await bookingService.OrphanAppointments(request.Site, session.From, session.Until);
+        await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
 
         return Success(new EmptyResponse());
     }

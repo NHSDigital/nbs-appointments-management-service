@@ -8,5 +8,5 @@ public interface IAvailabilityService
         string user, Session sessionToEdit = null);
     Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
-    Task<SessionInstance> GetSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
+    Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
 }

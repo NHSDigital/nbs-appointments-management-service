@@ -490,49 +490,13 @@ public class AvailabilityServiceTests
     }
 
     [Fact]
-    public async Task GetSession_CallsAvailabilityStore_AndReturnsSession()
+    public async Task CancelSession_CallsAvailabilityStore()
     {
         var site = "TEST01";
         var date = new DateOnly(2025, 1, 10);
-        var from = "09:00";
-        var until = "12:00";
-        string[] services = ["RSV:Adult"];
-        var slotLength = 5;
-        var capacity = 2;
 
-        _availabilityStore.Setup(x => x.GetSession(site, date, from, until, services, slotLength, capacity))
-            .ReturnsAsync(new SessionInstance(DateTime.Today.AddDays(1), DateTime.Today.AddDays(2))
-            {
-                Capacity = capacity,
-                Services = services,
-                SlotLength = slotLength,
-            });
+        await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
 
-        var result = await _sut.GetSession(site, date, from, until, services, slotLength, capacity);
-
-        result.Capacity.Should().Be(capacity);
-        result.SlotLength.Should().Be(slotLength);
-        result.Services.Should().BeEquivalentTo(services);
-
-        _availabilityStore.Verify(x => x.GetSession(site, date, from, until, services, slotLength, capacity), Times.Once());
-    }
-
-    [Fact]
-    public async Task GetSession_ReturnsNull()
-    {
-        var site = "TEST01";
-        var date = new DateOnly(2025, 1, 10);
-        var from = "09:00";
-        var until = "12:00";
-        string[] services = ["RSV:Adult"];
-        var slotLength = 5;
-        var capacity = 2;
-
-        _availabilityStore.Setup(x => x.GetSession(site, date, from, until, services, slotLength, capacity))
-            .ReturnsAsync(() => null);
-
-        var result = await _sut.GetSession(site, date, from, until, services, slotLength, capacity);
-
-        result.Should().BeNull();
+        _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
     }
 }

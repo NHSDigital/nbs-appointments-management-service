@@ -6,5 +6,5 @@ public interface IAvailabilityStore
    Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions, ApplyAvailabilityMode mode,
         Session sessionToEdit = null);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
-    Task<SessionInstance> GetSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
+    Task<SessionInstance> CancelSession(string site, DateOnly date, Session session);
 }

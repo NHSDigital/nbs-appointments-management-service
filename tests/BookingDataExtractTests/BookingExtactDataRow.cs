@@ -1,7 +1,4 @@
-using Parquet.Schema;
-using Parquet;
-
-namespace BookingDataExtractTests;
+namespace BookingDataExtracts.Integration;
 
 public class BookingExtactDataRow
 {
@@ -9,7 +6,7 @@ public class BookingExtactDataRow
 
     public string NHS_NUMBER { get; set; }
 
-    public string APPOINTMENT_DATE_TIME {  get; set; }
+    public string APPOINTMENT_DATE_TIME { get; set; }
 
     public string APPOINTMENT_STATUS { get; set; }
 

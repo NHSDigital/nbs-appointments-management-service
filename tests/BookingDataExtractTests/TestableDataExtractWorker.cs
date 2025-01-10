@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 
-namespace BookingDataExtractTests;
+namespace BookingDataExtracts.Integration;
 
 public class TestableDataExtractWorker(
     IHostApplicationLifetime hostApplicationLifetime,
@@ -19,5 +19,5 @@ public class TestableDataExtractWorker(
     public Task Test()
     {
         return ExecuteAsync(new CancellationToken());
-    }    
+    }
 }

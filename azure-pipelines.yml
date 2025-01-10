@@ -147,7 +147,7 @@ stages:
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-          bookingDataExtractTestProjectPath: "tests/BookingDataExtractTests/BookingDataExtract.Integration.csproj"
+          bookingDataExtractTestProjectPath: "tests/BookingDataExtractTests/BookingDataExtracts.Integration.csproj"
           cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
           prBuildResourceGroup: "nbs-mya-prbuild-rg-dev-uks"
         steps:

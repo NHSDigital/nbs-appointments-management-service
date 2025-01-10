@@ -14,15 +14,16 @@ using FluentAssertions;
 using BookingsDataExtracts.Documents;
 using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
+using Microsoft.Azure.Cosmos.Linq;
 
-namespace BookingDataExtractTests.Specification;
+namespace BookingDataExtracts.Integration.Specification;
 
 [FeatureFile("./Specification/BookingExtracts.feature")]
 public sealed class BookingExtractsFeatureSteps : Feature
 {
     private readonly CosmosClient _cosmosClient;
     private readonly ConfigurationBuilder _configurationBuilder = new();
-    private readonly List<Nhs.Appointments.Persistance.Models.BookingDocument> _testAppointments = new();
+    private readonly List<BookingDocument> _testAppointments = new();
     private MeshMailbox _targetMailbox;
 
     public BookingExtractsFeatureSteps()
@@ -67,10 +68,10 @@ public sealed class BookingExtractsFeatureSteps : Feature
     {
         var site = await SetupSite();
 
-        await _cosmosClient.GetContainer("appts", "booking_data").DeleteAllItemsByPartitionKeyStreamAsync(new PartitionKey(site.Id));
+        await DeleteBookingFromPreviousTests();
 
         var bookings = bookingData.Rows.Skip(1).Select(row =>
-            new Nhs.Appointments.Persistance.Models.BookingDocument
+            new BookingDocument
             {
                 Id = row.Cells.ElementAt(1).Value,
                 Reference = row.Cells.ElementAt(1).Value,
@@ -81,10 +82,10 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 ReminderSent = true,
                 Site = site.Id,
                 DocumentType = "booking",
-                Status = Enum.Parse<Nhs.Appointments.Core.AppointmentStatus>(row.Cells.ElementAt(2).Value),
+                Status = Enum.Parse<AppointmentStatus>(row.Cells.ElementAt(2).Value),
                 StatusUpdated = DateTimeOffset.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd HH:mm", null),
                 ContactDetails = [],
-                AttendeeDetails = new Nhs.Appointments.Core.AttendeeDetails
+                AttendeeDetails = new AttendeeDetails
                 {
                     FirstName = "Test",
                     LastName = "User",
@@ -96,7 +97,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
                     IsAppBooking = true,
                     ReferralType = "",
                     IsCallCentreBooking = false
-                }            
+                }
             });
 
         foreach (var booking in bookings)
@@ -111,7 +112,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
     {
         var targetMailboxId = table.Rows.ElementAt(1).Cells.ElementAt(0).Value;
         var workflowId = table.Rows.ElementAt(1).Cells.ElementAt(1).Value;
-        _configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+        _configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
         {
             { "COSMOS_ENDPOINT", CosmosEndpoint },
             { "COSMOS_TOKEN", CosmosToken },
@@ -136,7 +137,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
     public async Task RunDataExtract(string dateTime)
     {
         var serviceCollection = new ServiceCollection();
-        BookingsDataExtracts.ServiceRegistration.AddDataExtractServices(serviceCollection, _configurationBuilder);        
+        BookingsDataExtracts.ServiceRegistration.AddDataExtractServices(serviceCollection, _configurationBuilder);
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);
@@ -145,7 +146,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var date = DateTimeOffset.ParseExact(dateTime, "yyyy-MM-dd HH:mm", null);
         mockTimeProvider.Setup(x => x.GetUtcNow()).Returns(date);
 
-        serviceCollection.AddSingleton(mockTimeProvider.Object);    
+        serviceCollection.AddSingleton(mockTimeProvider.Object);
 
         serviceCollection.AddSingleton<TestableDataExtractWorker>();
 
@@ -163,7 +164,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var results = await ReadFromResultsFile(response.Messages.First());
         results.Count.Should().Be(expectedAppointments.Rows.Count() - 1);
 
-        results.Select(r => r.BOOKING_REFERENCE_NUMBER).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));                       
+        results.Select(r => r.BOOKING_REFERENCE_NUMBER).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));
     }
 
     [Then("an empty file is recieved")]
@@ -186,6 +187,28 @@ public sealed class BookingExtractsFeatureSteps : Feature
         outputFolder.Create();
         var actualFileName = await _targetMailbox.GetMessageAsFileAsync(response.Messages.First(), outputFolder);
         actualFileName.Should().Be(expectedFileName);
+    }
+
+    private async Task DeleteBookingFromPreviousTests()
+    {
+        // This feature does not work, it does not delete data or throw an error
+        //await _cosmosClient.GetContainer("appts", "booking_data").DeleteAllItemsByPartitionKeyStreamAsync(new PartitionKey(site.Id));
+        var container = _cosmosClient.GetContainer("appts", "booking_data");
+        var iterator = container.GetItemLinqQueryable<BookingDocument>().Where(bd => bd.DocumentType == "booking").ToFeedIterator();
+
+        var bookingsToDelete = new List<string>();
+        using (iterator)
+        {
+            while (iterator.HasMoreResults)
+            {
+                var resultSet = await iterator.ReadNextAsync();
+                bookingsToDelete.AddRange(resultSet.Select(bd => bd.Reference));                
+            }
+        }        
+
+        var partitionKey = new PartitionKey("BookingExtractDataTests");
+        foreach (var bookingRef in bookingsToDelete)
+            await container.DeleteItemAsync<BookingDocument>(bookingRef, partitionKey);
     }
 
     private async Task<List<BookingExtactDataRow>> ReadFromResultsFile(string messageId)

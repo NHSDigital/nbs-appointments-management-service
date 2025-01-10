@@ -48,9 +48,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libraries", "libraries", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nbs.MeshClient", "src\libraries\Nbs.MeshClient\Nbs.MeshClient.csproj", "{E21E9360-94E9-4DBF-8345-3C09D2D459B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtract.Integration", "tests\BookingDataExtractTests\BookingDataExtract.Integration.csproj", "{9B6DA00D-547C-48FE-812E-810668E8E2C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtracts.Integration", "tests\BookingDataExtractTests\BookingDataExtracts.Integration.csproj", "{9B6DA00D-547C-48FE-812E-810668E8E2C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingDataExtracts.UnitTests", "tests\BookingDataExtracts.UnitTests\BookingDataExtracts.UnitTests.csproj", "{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtracts.UnitTests", "tests\BookingDataExtracts.UnitTests\BookingDataExtracts.UnitTests.csproj", "{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

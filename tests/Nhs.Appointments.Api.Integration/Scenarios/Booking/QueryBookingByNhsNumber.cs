@@ -29,12 +29,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         // TODO: Need to add this to the base class along with new tests for QueryByReference
         [Then(@"the following bookings are returned")]
         public void Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
-        {;
+        {
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select(
                 (row, index) =>
                 new Core.Booking()
                 {
-                    Reference = row.Cells.ElementAt(4)?.Value ?? BookingReferences.GetBookingReference(index, BookingType.Confirmed),
+                    Reference = row.Cells.ElementAtOrDefault(4)?.Value ?? BookingReferences.GetBookingReference(index, BookingType.Confirmed),
                     From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,

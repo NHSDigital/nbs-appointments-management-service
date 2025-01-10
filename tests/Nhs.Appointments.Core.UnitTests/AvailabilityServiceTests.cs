@@ -488,4 +488,15 @@ public class AvailabilityServiceTests
         result.Any().Should().BeTrue();
         result.Count().Should().Be(2);
     }
+
+    [Fact]
+    public async Task CancelSession_CallsAvailabilityStore()
+    {
+        var site = "TEST01";
+        var date = new DateOnly(2025, 1, 10);
+
+        await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
+
+        _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
+    }
 }

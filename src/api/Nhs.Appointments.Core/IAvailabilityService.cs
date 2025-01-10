@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public interface IAvailabilityService
 {
@@ -8,4 +8,5 @@ public interface IAvailabilityService
         string user, Session sessionToEdit = null);
     Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
+    Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
 }

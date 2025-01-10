@@ -10,7 +10,7 @@ parameters:
     default: ["dev", "int", "stag"]
 
 variables:
-  serviceConnectionName: "nbs-mya-rg-dev"
+  prBuildServiceConnectionName: "nbs-myacicd-rg-int"
 
 stages:
   - stage: Build
@@ -141,25 +141,26 @@ stages:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
           cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-          prBuildResourceGroup: "nbs-mya-prbuild-rg-dev-uks"
+          prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
+          subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
         steps:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
-              $CosmosAccountName = "nbs-mya-prbuild-$ShortCommitHash-cdb-dev-uks"
+              $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-dev-uks"
               Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
             displayName: Set short commit hash
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
-              azureSubscription: $(serviceConnectionName)
+              azureSubscription: $(prBuildServiceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
-              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(serviceConnectionName)
+              azureSubscription: $(prBuildServiceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
@@ -237,11 +238,11 @@ stages:
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
-              azureSubscription: $(serviceConnectionName)
+              azureSubscription: $(prBuildServiceConnectionName)
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
-              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
 
   - ${{ each env in parameters.environments }}:
       - template: "scripts/pipeline-templates/deploy.yml"

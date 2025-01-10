@@ -14,8 +14,8 @@ public class MeshFileSender(IMeshMailbox meshMailbox)
             {
                 var bytesToRead = Math.Min(chunkSizeBytes, file.Length - fileStream.Position);
                 var data = new byte[bytesToRead];
-                fileStream.Read(data, (int)fileStream.Position, (int)bytesToRead);
-                var content = new ByteArrayContent(data);
+                var bytesRead = fileStream.Read(data, (int)fileStream.Position, (int)bytesToRead);
+                var content = new ByteArrayContent(data, 0, bytesRead);
                 if (chunksSent == 0)
                     messageId = await meshMailbox.SendMessageAsync(destinationMailBox, workflowId, content, totalChunks, file.Name);
                 else

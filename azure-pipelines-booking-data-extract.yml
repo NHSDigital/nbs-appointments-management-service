@@ -4,12 +4,11 @@ pool:
   vmImage: "ubuntu-latest"
 
 schedules:
-#  - cron: "*/5 * * * *"
   - cron: "0 2 * * *"
     displayName: "Booking data extract schedule"
     branches:
       include:
-      - APPT-352/*
+      - main
     batch: false
     always: true
 
@@ -17,8 +16,8 @@ parameters:
   - name: env
     displayName: "Environment to import data into"
     type: string
-    default: "exp"
-    values: ["dev", "exp", "int", "stag"]
+    default: "prod"
+    values: ["dev", "int", "stag", "prod"]
     
 variables:
   - group: covid19bookingkv${{parameters.env}}uks

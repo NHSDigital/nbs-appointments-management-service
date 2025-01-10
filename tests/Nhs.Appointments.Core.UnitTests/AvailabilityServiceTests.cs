@@ -218,7 +218,8 @@ public class AvailabilityServiceTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite, null), Times.Once);
         _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user), Times.Once);
     }
 
@@ -282,7 +283,68 @@ public class AvailabilityServiceTests
 
         await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite, null), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetAvailability_CanEditSessions()
+    {
+        var sessions = new List<Session>
+        {
+            new()
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
+        }.ToArray();
+
+        var sessionToEdit = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+
+        var date = new DateOnly(2024, 10, 10);
+        var site = "test-site";
+
+        await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Edit, sessionToEdit);
+
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Edit, sessionToEdit),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenModeIsEditButSessionToEditIsNull()
+    {
+        var sessions = new List<Session>
+        {
+            new()
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
+        }.ToArray();
+
+        var date = new DateOnly(2024, 10, 10);
+        var site = "test-site";
+
+        var setAvailability = async () =>
+        {
+            await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Edit);
+        };
+        await setAvailability.Should()
+            .ThrowAsync<ArgumentException>("When editing a session a session to edit must be supplied.");
     }
 
     [Fact]

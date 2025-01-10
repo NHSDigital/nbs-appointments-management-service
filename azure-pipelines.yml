@@ -181,7 +181,7 @@ stages:
             displayName: "Start MESH docker container"
           - script: |
               docker compose up --build --detach
-            displayName: "Start docker containers"
+            displayName: "Start application docker containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

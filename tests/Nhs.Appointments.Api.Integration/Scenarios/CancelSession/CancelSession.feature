@@ -19,8 +19,11 @@ Feature: Cancel a session
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
-      | Tomorrow | 09:45 | 5        | COVID   | 97531-43579 |
+      | Tomorrow | 09:45 | 5        | COVID   | 97531-43576 |
     When I cancel the following session
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    Then the booking with reference '97531-43579' has been 'Booked'
+    When I query for a booking with the reference number '97531-43576'
+    Then the following booking is returned
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:45 | 5        | COVID   | 97531-43576 |

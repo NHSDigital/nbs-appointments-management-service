@@ -614,7 +614,6 @@ namespace Nhs.Appointments.Core.UnitTests
                     Times.Once);
             }
         }
-
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

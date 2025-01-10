@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using Nhs.Appointments.Api.Availability;
-using System;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Validators
 {
@@ -24,6 +25,16 @@ namespace Nhs.Appointments.Api.Validators
 
             RuleForEach(x => x.Sessions)
                 .SetValidator(new SessionValidator());
+
+            RuleFor(x => x.SessionToEdit)
+                .NotNull()
+                .When(x => x.Mode == ApplyAvailabilityMode.Edit)
+                .WithMessage("A session to edit must be provided when mode is set to Edit");
+
+            RuleFor(x => x.Sessions)
+                .Must(x => x.Length == 1)
+                .When(x => x.Mode == ApplyAvailabilityMode.Edit)
+                .WithMessage("Only one edited session can be provided when mode is set to Edit");
         }
     }
 }

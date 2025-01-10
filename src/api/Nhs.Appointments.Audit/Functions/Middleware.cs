@@ -42,7 +42,6 @@ public class Middleware : IFunctionsWorkerMiddleware
             siteId = (await requestInspector.GetSiteIds(request)).SingleOrDefault();
         }
         
-        //TODO get eventId from somewhere?
         return new Models.Audit(DateTime.UtcNow, userId, actionType, siteId);
     }
 

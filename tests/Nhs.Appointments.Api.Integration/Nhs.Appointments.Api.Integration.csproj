@@ -41,4 +41,8 @@
 	  <None Remove="Nhs.Appointments.Api.Integration\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="Scenarios\CancelSession\CancelSession.feature" />
+	</ItemGroup>
+
 </Project>

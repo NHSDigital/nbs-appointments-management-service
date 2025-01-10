@@ -35,9 +35,9 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
     {
         var session = await availabilityService.GetSession(
             request.Site,
-            DateOnly.FromDateTime(request.From.Date),
-            request.From.ToShortTimeString(),
-            request.Until.ToShortTimeString(),
+            request.Date,
+            request.From,
+            request.Until,
             request.Services,
             request.SlotLength,
             request.Capacity);

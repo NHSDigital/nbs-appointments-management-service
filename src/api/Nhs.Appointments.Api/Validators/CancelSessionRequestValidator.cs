@@ -11,11 +11,17 @@ public class CancelSessionRequestValidator : AbstractValidator<CancelSessionRequ
             .NotEmpty()
             .WithMessage("Provide a valid site.");
 
+        RuleFor(x => x.Date)
+            .GreaterThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
+            .WithMessage("From date must be in the future.");
+
         RuleFor(x => x.From)
-            .GreaterThanOrEqualTo(DateTime.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
-            .WithMessage("From date must be at least one day in the future.")
-            .LessThanOrEqualTo(x => x.Until)
-            .WithMessage("From date must be before Until date.");
+            .NotEmpty()
+            .WithMessage("Provide a from time");
+
+        RuleFor(x => x.Until)
+            .NotEmpty()
+            .WithMessage("Provide an until time");
 
         RuleFor(x => x.Services)
             .NotEmpty()

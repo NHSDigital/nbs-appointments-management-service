@@ -1200,7 +1200,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"site\": \"ABC02\",\r\n    \"from\": \"2025-01-15 09:00\",\r\n    \"until\": \"2025-01-15 16:00\",\r\n    \"services\": [\r\n        \"RSV:Adult\"\r\n    ],\r\n    \"slotLength\": 5,\r\n    \"capacity\": 2\r\n}",
+					"raw": "{\r\n    \"site\": \"ABC02\",\r\n    \"date\": \"2025-01-15\",\r\n    \"from\": \"09:00\",\r\n    \"until\": \"16:00\",\r\n    \"services\": [\r\n        \"RSV:Adult\"\r\n    ],\r\n    \"slotLength\": 5,\r\n    \"capacity\": 2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

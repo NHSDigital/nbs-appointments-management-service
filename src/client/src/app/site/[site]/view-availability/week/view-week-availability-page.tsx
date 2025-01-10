@@ -1,11 +1,11 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { DayAvailabilityDetails } from '@types';
+import { DaySummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { isInTheFuture } from '@services/timeService';
 
 type Props = {
-  days: DayAvailabilityDetails[];
+  days: DaySummary[];
   weekStart: dayjs.Dayjs;
   weekEnd: dayjs.Dayjs;
   site: string;
@@ -56,58 +56,55 @@ export const ViewWeekAvailabilityPage = ({
     <>
       <Pagination previous={previous} next={next} />
       {days.map((d, i) => (
-        <Card title={d.date} key={i}>
-          {d.serviceInformation ? (
+        <Card title={d.date.format('dddd D MMMM')} key={i}>
+          {d.sessions.length > 0 ? (
             <>
               <Table
                 headers={['Time', 'Services', 'Booked', 'Unbooked']}
-                rows={
-                  d.serviceInformation?.map(session => {
-                    return [
-                      `${session.time}`,
-                      session.serviceDetails.map((sd, k) => {
-                        return (
-                          <span key={k}>
-                            {sd.service}
-                            <br />
-                          </span>
-                        );
-                      }),
-                      session.serviceDetails.map((sd, j) => {
-                        return (
-                          <span key={j}>
-                            {sd.booked} booked
-                            <br />
-                          </span>
-                        );
-                      }),
-                      `${session.unbooked ?? 0} unbooked`,
-                    ];
-                  }) ?? []
-                }
+                rows={d.sessions.map(session => {
+                  return [
+                    `${session.start.format('HH:mm')} - ${session.end.format('HH:mm')}`,
+                    Object.keys(session.bookings).map((service, k) => {
+                      return (
+                        <span key={k}>
+                          {service}
+                          <br />
+                        </span>
+                      );
+                    }),
+                    Object.keys(session.bookings).map((service, j) => {
+                      return (
+                        <span key={j}>
+                          {session.bookings[service].length} booked
+                          <br />
+                        </span>
+                      );
+                    }),
+                    `${session.maximumCapacity - session.totalBookings} unbooked`,
+                  ];
+                })}
               ></Table>
               <br />
-              {isInTheFuture(d.fullDate) && (
+              {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
                 <Link
                   className="nhsuk-link"
-                  href={`/site/${site}/create-availability/wizard?date=${d.fullDate}`}
+                  href={`/site/${site}/create-availability/wizard?date=${d.date.format('YYYY-MM-DD')}`}
                 >
                   Add Session
                 </Link>
               )}
               <Table
                 headers={[
-                  `Total appointments: ${d.totalAppointments}`,
-                  `Booked: ${d.booked}`,
-                  `Unbooked: ${d.unbooked}`,
+                  `Total appointments: ${d.maximumCapacity}`,
+                  `Booked: ${d.bookedAppointments}`,
+                  `Unbooked: ${d.remainingCapacity}`,
                 ]}
                 rows={[]}
-              ></Table>
+              />
               <br />
-              {/* TODO: Add link to view daily appointments */}
               <Link
                 className="nhsuk-link"
-                href={`daily-appointments?date=${d.fullDate}&page=1`}
+                href={`daily-appointments?date=${d.date.format('YYYY-MM-DD')}&page=1`}
               >
                 View daily appointments
               </Link>

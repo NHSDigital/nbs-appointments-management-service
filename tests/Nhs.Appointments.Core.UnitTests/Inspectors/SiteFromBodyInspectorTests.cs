@@ -1,22 +1,20 @@
-using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
-using Moq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core.Inspectors;
 
-namespace Nhs.Appointments.Api.Tests.Auth;
-public class MultiSiteBodyRequestInspectorTests
+namespace Nhs.Appointments.Core.UnitTests.Inspectors;
+
+public class SiteFromBodyInspectorTests
 {
     private readonly Mock<FunctionContext> _functionContext = new();
-    private readonly MultiSiteBodyRequestInspector _sut = new();
+    private readonly SiteFromBodyInspector _sut = new();
 
     [Fact]
-    public async Task GetSiteIds_ReturnsSiteIds_WhenPresentInBody()
+    public async Task GetSiteId_ReturnsSiteId_WhenPresentInBody()
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
-        httpRequest.SetBody("{\"sites\": [\"1234\", \"5678\"]}");
+        httpRequest.SetBody("{\"site\": \"1234\"}");
         var actualResult = await _sut.GetSiteIds(httpRequest);
-        actualResult.Should().BeEquivalentTo(["1234", "5678"]);
+        actualResult.Should().BeEquivalentTo(["1234"]);
     }
 
     [Theory]
@@ -29,5 +27,5 @@ public class MultiSiteBodyRequestInspectorTests
         httpRequest.SetBody(body);
         var actualResult = await _sut.GetSiteIds(httpRequest);
         actualResult.Should().BeEmpty();
-    }
+    }    
 }

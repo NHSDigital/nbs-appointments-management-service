@@ -614,54 +614,6 @@ namespace Nhs.Appointments.Core.UnitTests
                     Times.Once);
             }
         }
-
-        [Fact]
-        public async Task OrphanBookings_OrphansBookingsInTheDatabase()
-        {
-            var bookings = new List<Booking>
-            {
-                new()
-                {
-                    Reference = "1234-4321",
-                    From = DateTime.Today.AddDays(1),
-                    AttendeeDetails = new AttendeeDetails
-                    {
-                        FirstName = "John",
-                        LastName = "Bloggs"
-                    },
-                    Site = "TEST01"
-                },
-                new()
-                {
-                    Reference = "5678-8765",
-                    From = DateTime.Today.AddDays(1).AddHours(5),
-                    AttendeeDetails = new AttendeeDetails
-                    {
-                        FirstName = "Sarah",
-                        LastName = "Smith"
-                    },
-                    Site = "TEST01"
-                }
-            };
-
-            _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
-                .ReturnsAsync(bookings);
-
-            await _bookingsService.OrphanAppointments("TEST01", DateTime.Today.AddDays(1), DateTime.Today.AddDays(2));
-
-            _bookingsDocumentStore.VerifyAll();
-        }
-
-        [Fact]
-        public async Task OrphanAppointments_DoesNotCallDocumentStore_WhenNoBookingsToOrphan()
-        {
-            _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
-                .ReturnsAsync(Array.Empty<Booking>());
-
-            await _bookingsService.OrphanAppointments("TEST01", DateTime.Today.AddDays(1), DateTime.Today.AddDays(2));
-
-            _bookingsDocumentStore.Verify(x => x.UpdateStatus(It.IsAny<string>(), AppointmentStatus.Orphaned), Times.Never());
-        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

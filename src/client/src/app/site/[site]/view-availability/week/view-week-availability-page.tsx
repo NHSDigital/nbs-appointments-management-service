@@ -114,8 +114,15 @@ export const ViewWeekAvailabilityPage = ({
             </>
           ) : (
             <>
-              <span>No availability</span>
-              {/* TODO: Add link to add session */}
+              <div style={{ marginBottom: '20px' }}>No availability</div>
+              {isInTheFuture(d.fullDate) && (
+                <Link
+                  className="nhsuk-link"
+                  href={`/site/${site}/create-availability/wizard?date=${d.fullDate}`}
+                >
+                  Add Session
+                </Link>
+              )}
             </>
           )}
         </Card>

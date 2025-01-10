@@ -8,12 +8,14 @@ type Props = {
   days: DayAvailabilityDetails[];
   weekStart: dayjs.Dayjs;
   weekEnd: dayjs.Dayjs;
+  site: string;
 };
 
 export const ViewWeekAvailabilityPage = ({
   days,
   weekStart,
   weekEnd,
+  site,
 }: Props) => {
   const nextWeek = weekStart.add(1, 'week');
   const previousWeek = weekStart.add(-1, 'week');
@@ -88,7 +90,7 @@ export const ViewWeekAvailabilityPage = ({
               {isInTheFuture(d.fullDate) && (
                 <Link
                   className="nhsuk-link"
-                  href={`/site/ABC02/create-availability/wizard?date=${d.fullDate}`}
+                  href={`/site/${site}/create-availability/wizard?date=${d.fullDate}`}
                 >
                   Add Session
                 </Link>
@@ -112,8 +114,15 @@ export const ViewWeekAvailabilityPage = ({
             </>
           ) : (
             <>
-              <span>No availability</span>
-              {/* TODO: Add link to add session */}
+              <div style={{ marginBottom: '20px' }}>No availability</div>
+              {isInTheFuture(d.fullDate) && (
+                <Link
+                  className="nhsuk-link"
+                  href={`/site/${site}/create-availability/wizard?date=${d.fullDate}`}
+                >
+                  Add Session
+                </Link>
+              )}
             </>
           )}
         </Card>

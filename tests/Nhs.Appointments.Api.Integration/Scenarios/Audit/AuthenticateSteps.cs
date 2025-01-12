@@ -5,7 +5,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Authentication;
 
-[FeatureFile("./Scenarios/Authentication/Authenticate.feature")]
+[FeatureFile("./Scenarios/Audit/Authenticate.feature")]
 public sealed class AuthenticateSteps : BaseFeatureSteps
 {
     private HttpResponseMessage _response;

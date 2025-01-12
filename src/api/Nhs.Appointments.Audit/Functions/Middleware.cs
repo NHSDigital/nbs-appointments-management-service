@@ -3,12 +3,13 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Audit.Persistance;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Audit.Functions;
 
-public class Middleware(IAuditDocumentStore auditDocumentStore) : IFunctionsWorkerMiddleware
+public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorkerMiddleware
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
@@ -25,13 +26,8 @@ public class Middleware(IAuditDocumentStore auditDocumentStore) : IFunctionsWork
         await next(context);
     }
 
-    private async Task<AuditFunctionDocument> BuildAuditFunctionDocument(FunctionContext context,
-        RequiresAuditAttribute requiresAudit)
+    private static async Task<string> ExtractSiteId(FunctionContext context, Type requestSiteInspectorType)
     {
-        var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
-        var requestSiteInspectorType = requiresAudit.RequestSiteInspector;
-        var userId = userContextProvider.UserPrincipal?.Claims.GetUserEmail();
-        var functionName = context.FunctionDefinition.Name;
         var siteId = string.Empty;
         if (context.InstanceServices.GetService(requestSiteInspectorType) is IRequestInspector requestInspector)
         {
@@ -47,13 +43,10 @@ public class Middleware(IAuditDocumentStore auditDocumentStore) : IFunctionsWork
             siteId = sites.SingleOrDefault();
         }
 
-        return new AuditFunctionDocument
-        {
-            Timestamp = DateTime.UtcNow, UserId = userId, ActionType = functionName, SiteId = siteId
-        };
+        return siteId;
     }
 
-    private RequiresAuditAttribute? GetRequiresAudit(FunctionContext context)
+    private RequiresAuditAttribute GetRequiresAudit(FunctionContext context)
     {
         var assembly = Assembly.LoadFrom(context.FunctionDefinition.PathToAssembly);
         var typeName = string.Join(".", context.FunctionDefinition.EntryPoint.Split('.')[..^1]);
@@ -67,7 +60,10 @@ public class Middleware(IAuditDocumentStore auditDocumentStore) : IFunctionsWork
 
     private async Task RecordAudit(FunctionContext context, RequiresAuditAttribute requiresAudit)
     {
-        var auditFunctionDocument = await BuildAuditFunctionDocument(context, requiresAudit);
-        await auditDocumentStore.InsertAsync(auditFunctionDocument);
+        var userId = context.InstanceServices.GetRequiredService<IUserContextProvider>().UserPrincipal?.Claims.GetUserEmail();
+        var functionName = context.FunctionDefinition.Name;
+        var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
+        
+        await auditWriteService.RecordFunction(DateTime.UtcNow, userId, functionName, siteId);
     }
 }

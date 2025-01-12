@@ -44,10 +44,41 @@ public class MiddlewareTests
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
 
+    [Fact]
+    public async Task Invoke_RecordFunctionThrows_MiddlewareNotStopped()
+    {
+        const string userId = "test@test.com";
+        var functionType = typeof(AuthenticateFunction);
+        var method = "Run";
+
+        var httpRequest = new TestHttpRequestData(_functionContext.Object);
+
+        ConfigureMocks(httpRequest, userId, functionType, method);
+
+        _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(new NoSiteRequestInspector());
+
+        _auditWriteService.Setup(s =>
+                s.RecordFunction(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Throws<NotImplementedException>();
+
+        await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
+
+        //TODO refactor in a more robust way
+        await Task.Delay(100);
+
+        // Assert
+        //TODO add execution time middleware to verify timestamp logged?
+        _auditWriteService.Verify(s => s.RecordFunction(It.IsAny<DateTime>(), userId, functionType.Name, null),
+            Times.Once);
+
+        _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
+    }
+
     [Theory]
     [InlineData("test@test.com", "site-A", typeof(CancelBookingFunction), "RunAsync")]
     [InlineData("user@test.com", "site-B", typeof(CancelBookingFunction), "RunAsync")]
-    public async Task Invoke_SiteFromQueryStringInspector_RecordFunction(string userId, string siteId, Type functionType,
+    public async Task Invoke_SiteFromQueryStringInspector_RecordFunction(string userId, string siteId,
+        Type functionType,
         string method)
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
@@ -99,7 +130,8 @@ public class MiddlewareTests
     [InlineData("test@test.com", typeof(GetSiteMetaDataFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(TriggerBookingRemindersFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(AuthenticateCallbackFunction), "Run")]
-    public async Task Invoke_NoRequiredAuditAttribute_DoesNot_RecordFunction(string userId, Type functionType, string method)
+    public async Task Invoke_NoRequiredAuditAttribute_DoesNot_RecordFunction(string userId, Type functionType,
+        string method)
     {
         ConfigureMocks(new TestHttpRequestData(_functionContext.Object), userId, functionType, method);
 

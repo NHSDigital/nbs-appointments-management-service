@@ -2,7 +2,6 @@ using System.Reflection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
-using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
@@ -20,9 +19,9 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
             await next(context);
             return;
         }
-
+        
         _ = Task.Run(() => RecordAudit(context, requiresAudit));
-
+        
         await next(context);
     }
 

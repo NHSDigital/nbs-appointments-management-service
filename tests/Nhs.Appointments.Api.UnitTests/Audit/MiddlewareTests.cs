@@ -12,6 +12,7 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
 
@@ -173,51 +174,5 @@ public class MiddlewareTests
         public override string Name => name;
         public override IImmutableDictionary<string, BindingMetadata> InputBindings { get; }
         public override IImmutableDictionary<string, BindingMetadata> OutputBindings { get; }
-    }
-
-    private class TestHttpRequestData(FunctionContext functionContext) : HttpRequestData(functionContext)
-    {
-        private readonly HttpHeadersCollection _headers = new();
-
-        private readonly NameValueCollection _query = new();
-
-        private string _body;
-
-        // This is required so that the request data extension method works
-        private HttpRequest _httpRequest = new DefaultHttpContext().Request;
-
-        public override Stream Body => GetBodyStream();
-
-        public override HttpHeadersCollection Headers => _headers;
-
-        public override IReadOnlyCollection<IHttpCookie> Cookies => throw new NotImplementedException();
-
-        public override Uri Url => throw new NotImplementedException();
-
-        public override IEnumerable<ClaimsIdentity> Identities => throw new NotImplementedException();
-
-        public override string Method => throw new NotImplementedException();
-
-        public override NameValueCollection Query => _query;
-
-        public void SetBody(string body)
-        {
-            _body = body;
-        }
-
-        private Stream GetBodyStream()
-        {
-            if (string.IsNullOrEmpty(_body) == false)
-            {
-                return new MemoryStream(Encoding.UTF8.GetBytes(_body));
-            }
-
-            return new MemoryStream();
-        }
-
-        public override HttpResponseData CreateResponse()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

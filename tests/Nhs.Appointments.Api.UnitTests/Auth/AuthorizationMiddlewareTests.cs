@@ -7,6 +7,7 @@ using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 
@@ -135,26 +136,4 @@ public class AuthorizationMiddlewareTests
 
         public bool IsAuthorized => _isAuthorized;
     }
-
-    private class TestHttpRequestData(FunctionContext functionContext) : HttpRequestData(functionContext)
-    {
-        private readonly HttpHeadersCollection _headers = new();
-
-        public override Stream Body => throw new NotImplementedException();
-
-        public override HttpHeadersCollection Headers => _headers;
-
-        public override IReadOnlyCollection<IHttpCookie> Cookies => throw new NotImplementedException();
-
-        public override Uri Url => throw new NotImplementedException();
-
-        public override IEnumerable<ClaimsIdentity> Identities => throw new NotImplementedException();
-
-        public override string Method => throw new NotImplementedException();
-
-        public override HttpResponseData CreateResponse()
-        {
-            throw new NotImplementedException();
-        }
-    } 
 }

@@ -30,6 +30,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\api\Nhs.Appointments.Api\Nhs.Appointments.Api.csproj" />
+      <ProjectReference Include="..\Nhs.Appointments.Core.UnitTests\Nhs.Appointments.Core.UnitTests.csproj" />
     </ItemGroup>
 
 

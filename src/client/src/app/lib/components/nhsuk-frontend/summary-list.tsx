@@ -33,10 +33,13 @@ const SummaryList = ({ items, borders = true }: Props) => {
     <dl
       className={`nhsuk-summary-list ${borders ? '' : 'nhsuk-summary-list--no-border'}`}
     >
+      {' '}
+      role="list"
       {items.map((item, index) => {
         return (
           <div
             className="nhsuk-summary-list__row"
+            role="listitem"
             key={`summary-list-row-${index}`}
           >
             <dt className="nhsuk-summary-list__key" aria-label={item.title}>

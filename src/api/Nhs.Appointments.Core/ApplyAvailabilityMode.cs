@@ -3,5 +3,6 @@
 public enum ApplyAvailabilityMode
 {
     Overwrite,
-    Additive
+    Additive,
+    Edit
 }

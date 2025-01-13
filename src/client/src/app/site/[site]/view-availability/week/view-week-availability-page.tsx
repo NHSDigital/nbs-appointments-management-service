@@ -112,10 +112,10 @@ export const ViewWeekAvailabilityPage = ({
           ) : (
             <>
               <div style={{ marginBottom: '20px' }}>No availability</div>
-              {isInTheFuture(d.fullDate) && (
+              {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
                 <Link
                   className="nhsuk-link"
-                  href={`/site/${site}/create-availability/wizard?date=${d.fullDate}`}
+                  href={`/site/${site}/create-availability/wizard?date=${d.date.format('YYYY-MM-DD')}`}
                 >
                   Add Session
                 </Link>

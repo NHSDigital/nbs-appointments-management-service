@@ -88,11 +88,11 @@ const summariseDay = (
     if (matchingSlot && sessionSlotCameFrom) {
       // 1. Reduce the matching slot's capacity
       matchingSlot.capacity -= 1;
+
       // 2. Add the booking to the session's bookings
-      sessionSlotCameFrom.bookings[booking.service] = sessionSlotCameFrom
-        ?.bookings[booking.service]
-        ? sessionSlotCameFrom?.bookings[booking.service].concat(booking)
-        : [booking];
+      sessionSlotCameFrom.bookings[booking.service] =
+        sessionSlotCameFrom.bookings[booking.service].concat(booking);
+
       // 3. Add the booking to the session's total bookings
       sessionSlotCameFrom.totalBookings += 1;
     }
@@ -176,12 +176,17 @@ const mapSessionsAndSlots = (
       session,
     );
 
+    const bookingsByService: Record<string, Booking[]> = {};
+    session.services.forEach(service => {
+      bookingsByService[service] = [];
+    });
+
     const sessionSummary: SessionSummary = {
       start: startTime,
       end: endTime,
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
-      bookings: {},
+      bookings: bookingsByService,
     };
 
     return {

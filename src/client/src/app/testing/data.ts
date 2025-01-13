@@ -446,7 +446,7 @@ const mockDaySummaries: DaySummary[] = [
         maximumCapacity: 123,
         totalBookings: 5,
         bookings: {
-          'RSV (Adult)': mockBookings,
+          'RSV (Adult)': mockBookings.length,
         },
       },
     ],
@@ -463,7 +463,7 @@ const mockDaySummaries: DaySummary[] = [
         maximumCapacity: 200,
         totalBookings: 15,
         bookings: {
-          'COVID 75+': mockBookings,
+          'COVID 75+': mockBookings.length,
         },
       },
     ],
@@ -480,7 +480,7 @@ const mockDaySummaries: DaySummary[] = [
         maximumCapacity: 200,
         totalBookings: 20,
         bookings: {
-          'FLU 18-64': mockBookings,
+          'FLU 18-64': mockBookings.length,
         },
       },
     ],

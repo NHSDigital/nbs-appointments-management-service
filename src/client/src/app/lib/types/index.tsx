@@ -254,7 +254,7 @@ type SessionSummary = {
   end: dayjs.Dayjs;
   maximumCapacity: number;
   totalBookings: number;
-  bookings: Record<string, Booking[]>;
+  bookings: Record<string, number>;
 };
 
 type DaySummary = {

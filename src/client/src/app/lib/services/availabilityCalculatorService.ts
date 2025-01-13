@@ -90,8 +90,7 @@ const summariseDay = (
       matchingSlot.capacity -= 1;
 
       // 2. Add the booking to the session's bookings
-      sessionSlotCameFrom.bookings[booking.service] =
-        sessionSlotCameFrom.bookings[booking.service].concat(booking);
+      sessionSlotCameFrom.bookings[booking.service] += 1;
 
       // 3. Add the booking to the session's total bookings
       sessionSlotCameFrom.totalBookings += 1;
@@ -176,9 +175,9 @@ const mapSessionsAndSlots = (
       session,
     );
 
-    const bookingsByService: Record<string, Booking[]> = {};
+    const bookingsByService: Record<string, number> = {};
     session.services.forEach(service => {
-      bookingsByService[service] = [];
+      bookingsByService[service] = 0;
     });
 
     const sessionSummary: SessionSummary = {

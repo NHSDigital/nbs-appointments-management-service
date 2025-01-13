@@ -75,7 +75,7 @@ export const ViewWeekAvailabilityPage = ({
                     Object.keys(session.bookings).map((service, j) => {
                       return (
                         <span key={j}>
-                          {session.bookings[service].length} booked
+                          {session.bookings[service]} booked
                           <br />
                         </span>
                       );

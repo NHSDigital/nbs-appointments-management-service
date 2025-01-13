@@ -8,6 +8,11 @@ variable "WEB_APP_BASE_URI" {
   sensitive = false
 }
 
+variable "WEB_APP_ALLOWED_ORIGIN" {
+  type      = string
+  sensitive = false
+}
+
 variable "FUNC_APP_SLOT_BASE_URI" {
   type      = string
   sensitive = false

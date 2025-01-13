@@ -1,17 +1,16 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Options;
-using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using System;
-
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Nhs.Appointments.Api.Auth;
+using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -22,10 +21,11 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
     [Function("GetAuthTokenFunction")]
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")]
+        HttpRequest req)
     {
         var code = await req.ReadAsStringAsync();
-        var formValues = new Dictionary<string, string>()
+        var formValues = new Dictionary<string, string>
         {
             { "client_id", _authOptions.ClientId },
             { "code", code },
@@ -35,8 +35,10 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
             { "code_verifier", _authOptions.ChallengePhrase }
         };
 
-        if (String.IsNullOrEmpty(_authOptions.ClientSecret) == false)
+        if (string.IsNullOrEmpty(_authOptions.ClientSecret) == false)
+        {
             formValues.Add("client_secret", _authOptions.ClientSecret);
+        }
 
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
@@ -45,13 +47,14 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
         if (response.IsSuccessStatusCode)
         {
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
-            
+
             // //decode token jwt
             // _ = Task.Run(() => RecordAudit(context, principal));
             //
             return new OkObjectResult(new { token = tokenResponse.IdToken });
         }
-        else
-            throw new InvalidOperationException($"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
+
+        throw new InvalidOperationException(
+            $"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
 }

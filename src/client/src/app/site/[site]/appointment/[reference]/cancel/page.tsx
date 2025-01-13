@@ -38,6 +38,7 @@ const Page = async ({ params }: PageProps) => {
           href: `/site/${params.site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
         },
       ]}
+      originPage="appointment-cancel"
       site={site}
     >
       <CancelAppointmentPage booking={booking} site={site.id} />

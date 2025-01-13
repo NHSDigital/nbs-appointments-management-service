@@ -7,7 +7,10 @@ const Page = async () => {
   const latestVersion = await fetchEula();
 
   return (
-    <NhsAnonymousPage title="Agree to the End User Licence Agreement">
+    <NhsAnonymousPage
+      title="Agree to the End User Licence Agreement"
+      originPage="eula"
+    >
       <InsetText>
         You must read the End-User Licence Agreement before using this
         application.

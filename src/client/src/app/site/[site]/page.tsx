@@ -29,7 +29,7 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'site:view');
 
   return (
-    <NhsPage title={site.name} site={site}>
+    <NhsPage title={site.name} site={site} originPage="site">
       <SitePage
         site={site}
         permissions={sitePermissions}

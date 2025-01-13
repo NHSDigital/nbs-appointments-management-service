@@ -8,7 +8,6 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
-
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class SetAvailabilityFunctionTests
@@ -60,7 +59,9 @@ public class SetAvailabilityFunctionTests
 
         result.IsSuccess.Should().BeTrue();
 
-        _availabilityService.Verify(x => x.ApplySingleDateSessionAsync(request.Date, request.Site, sessions, ApplyAvailabilityMode.Overwrite, "test.user3@nhs.net"), Times.Once);
+        _availabilityService.Verify(
+            x => x.ApplySingleDateSessionAsync(request.Date, request.Site, sessions, ApplyAvailabilityMode.Overwrite,
+                "test.user3@nhs.net", null), Times.Once);
     }
 
     private class SetAvailabilityFunctionTestProxy(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)

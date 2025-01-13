@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using System.Net;
+using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -8,8 +10,6 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -34,7 +34,8 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
-        await availabilityService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions, request.Mode, user);
+        await availabilityService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,
+            request.Mode, user, request.SessionToEdit);
         return Success(new EmptyResponse());
     }
 }

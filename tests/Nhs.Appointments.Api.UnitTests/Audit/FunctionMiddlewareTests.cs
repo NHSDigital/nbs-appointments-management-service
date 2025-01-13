@@ -12,7 +12,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
 
-public class MiddlewareTests
+public class FunctionMiddlewareTests
 {
     private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly Mock<FunctionContext> _functionContext = new();

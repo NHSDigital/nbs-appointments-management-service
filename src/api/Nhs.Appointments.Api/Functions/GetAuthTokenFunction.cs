@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,11 +11,13 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Audit.Persistance;
+using Nhs.Appointments.Audit.Services;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions)
+public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWriteService auditWriteService, IOptions<AuthOptions> authOptions)
 {
     private readonly AuthOptions _authOptions = authOptions.Value;
 
@@ -48,13 +51,18 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
         {
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
 
-            // //decode token jwt
-            // _ = Task.Run(() => RecordAudit(context, principal));
-            //
+            _ = Task.Run(() => RecordAuditLogin(tokenResponse.AccessToken));
+            
             return new OkObjectResult(new { token = tokenResponse.IdToken });
         }
 
         throw new InvalidOperationException(
             $"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
+    }
+    
+    private async Task RecordAuditLogin(string accessToken)
+    {
+        var token = new JwtSecurityToken(accessToken);
+        await auditWriteService.RecordAuth(token.Id, DateTime.UtcNow, token.Subject, AuditAuthActionType.Login);
     }
 }

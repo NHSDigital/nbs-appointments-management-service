@@ -78,9 +78,6 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
       path = "/status/?"
     }
     excluded_path {
-      path = "/statusUpdated/?"
-    }
-    excluded_path {
       path = "/attendeeDetails/*"
     }
     excluded_path {

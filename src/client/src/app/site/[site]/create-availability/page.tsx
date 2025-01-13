@@ -14,7 +14,12 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'availability:setup');
 
   return (
-    <NhsPage title="Create availability" caption={site.name} site={site}>
+    <NhsPage
+      title="Create availability"
+      caption={site.name}
+      site={site}
+      originPage="create-availability"
+    >
       <CreateAvailabilityPage site={site} />
     </NhsPage>
   );

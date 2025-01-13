@@ -25,7 +25,7 @@ const Page = async ({ params }: PageProps) => {
   await assertAnyPermissions(site.id, ['users:view', 'users:view']);
 
   return (
-    <NhsPage title="Manage Staff Roles" site={site}>
+    <NhsPage title="Manage Staff Roles" site={site} originPage="users">
       <UsersPage
         userProfile={userProfile}
         users={users}

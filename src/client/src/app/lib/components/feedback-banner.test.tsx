@@ -4,7 +4,8 @@ import FeedbackBanner from './feedback-banner';
 
 describe('Feedback Banner', () => {
   it('renders', () => {
-    render(<FeedbackBanner />);
+    const originPage = 'view-availability-week';
+    render(<FeedbackBanner originPage={originPage} />);
 
     //Tag
     const tagElement = screen.getByText('Feedback');
@@ -18,7 +19,7 @@ describe('Feedback Banner', () => {
     expect(linkElement).toBeInTheDocument();
     expect(linkElement).toHaveAttribute(
       'href',
-      'https://feedback.digital.nhs.uk/jfe/form/SV_5AROlphcOb5wfEq',
+      `https://feedback.digital.nhs.uk/jfe/form/SV_0I2qLDukSOJtvjU?origin=${originPage}`,
     );
     expect(linkElement).toHaveAttribute('target', '_blank');
     expect(linkElement).toHaveAttribute('rel', 'noopener noreferrer');

@@ -60,7 +60,7 @@ public class BookingsService(
 
             if (canBook)
             {
-                booking.Created = time.GetUtcNow();
+                booking.Created = time.GetUtcNow();                
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await bookingDocumentStore.InsertAsync(booking);

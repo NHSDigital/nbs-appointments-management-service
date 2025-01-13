@@ -59,8 +59,8 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
 
     private async Task RecordAudit(FunctionContext context, RequiresAuditAttribute requiresAudit)
     {
-        var userId = context.InstanceServices.GetRequiredService<IUserContextProvider>().UserPrincipal?.Claims
-            .GetUserEmail();
+        var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        var userId = userProvider.UserPrincipal?.Claims.GetUserEmail();
         var functionName = context.FunctionDefinition.Name;
         var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
 

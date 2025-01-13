@@ -1,24 +1,21 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Collections.Generic;
-using Microsoft.Azure.Functions.Worker;
-using Nhs.Appointments.Api.Auth;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
-using Nhs.Appointments.Audit;
-using Nhs.Appointments.Audit.Functions;
-using Nhs.Appointments.Core.Inspectors;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Options;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
-{    
+{
     [Function("AuthenticateFunction")]
-    [RequiresAudit(typeof(NoSiteRequestInspector))]
     [AllowAnonymous]
     public IActionResult Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")]
+        HttpRequest req)
     {
         var cc = GenerateCodeChallenge(authOptions.Value.ChallengePhrase);
         var queryStringValues = new Dictionary<string, string>
@@ -37,5 +34,6 @@ public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
         return new RedirectResult(oidcAuthorizeUrl);
     }
 
-    protected virtual string GenerateCodeChallenge(string challengePhrase) => AuthUtilities.GenerateCodeChallenge(authOptions.Value.ChallengePhrase);    
+    protected virtual string GenerateCodeChallenge(string challengePhrase) =>
+        AuthUtilities.GenerateCodeChallenge(authOptions.Value.ChallengePhrase);
 }

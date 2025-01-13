@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit.Gherkin.Quick;
 
-namespace Nhs.Appointments.Api.Integration.Scenarios.Authentication;
+namespace Nhs.Appointments.Api.Integration.Scenarios.Audit;
 
 [FeatureFile("./Scenarios/Audit/Authenticate.feature")]
 public sealed class AuthenticateSteps : BaseFeatureSteps

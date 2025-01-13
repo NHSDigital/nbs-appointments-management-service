@@ -24,43 +24,21 @@ public class MiddlewareTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private Middleware _sut;
 
-    [Theory]
-    [InlineData("test@test.com", typeof(AuthenticateFunction), "Run")]
-    [InlineData("user@test.com", typeof(AuthenticateFunction), "Run")]
-    public async Task Invoke_NoSiteRequestInspector_RecordFunction(string user, Type functionType, string method)
-    {
-        var httpRequest = new TestHttpRequestData(_functionContext.Object);
-
-        ConfigureMocks(httpRequest, user, functionType, method);
-
-        _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(new NoSiteRequestInspector());
-
-        await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
-
-        //TODO refactor in a more robust way
-        await Task.Delay(100);
-
-        // Assert
-        //TODO add execution time middleware to verify timestamp logged?
-        _auditWriteService.Verify(
-            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
-                null),
-            Times.Once);
-        _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
-    }
-
     [Fact]
     public async Task Invoke_RecordFunctionThrows_MiddlewareNotStopped()
     {
         const string user = "test@test.com";
-        var functionType = typeof(AuthenticateFunction);
-        var method = "Run";
+        const string site = "Site-A";
+        var functionType = typeof(CancelBookingFunction);
+        var method = "RunAsync";
 
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
+        httpRequest.Query.Add("site", site);
 
         ConfigureMocks(httpRequest, user, functionType, method);
 
-        _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(new NoSiteRequestInspector());
+        _serviceProvider.Setup(x => x.GetService(typeof(SiteFromQueryStringInspector)))
+            .Returns(new SiteFromQueryStringInspector());
 
         _auditWriteService.Setup(s =>
                 s.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -75,8 +53,7 @@ public class MiddlewareTests
         // Assert
         //TODO add execution time middleware to verify timestamp logged?
         _auditWriteService.Verify(
-            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
-                null),
+            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name, site),
             Times.Once);
 
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -134,6 +111,7 @@ public class MiddlewareTests
     }
 
     [Theory]
+    [InlineData("test@test.com", typeof(AuthenticateFunction), "Run")]
     [InlineData("test@test.com", typeof(QueryAvailabilityFunction), "RunAsync")]
     [InlineData("user@test.com", typeof(NotifyBookingCancelledFunction), "NotifyBookingCancelledAsync")]
     [InlineData("test@test.com", typeof(MakeBookingFunction), "RunAsync")]

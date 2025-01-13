@@ -45,6 +45,10 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
         if (response.IsSuccessStatusCode)
         {
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
+            
+            // //decode token jwt
+            // _ = Task.Run(() => RecordAudit(context, principal));
+            //
             return new OkObjectResult(new { token = tokenResponse.IdToken });
         }
         else

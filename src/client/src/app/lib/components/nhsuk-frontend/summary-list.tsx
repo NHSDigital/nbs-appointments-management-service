@@ -32,9 +32,8 @@ const SummaryList = ({ items, borders = true }: Props) => {
   return (
     <dl
       className={`nhsuk-summary-list ${borders ? '' : 'nhsuk-summary-list--no-border'}`}
-    >
-      {' '}
       role="list"
+    >
       {items.map((item, index) => {
         return (
           <div

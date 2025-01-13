@@ -1,17 +1,23 @@
 using Nhs.Appointments.Audit.Persistance;
+using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Audit.Services;
 
-public class AuditWriteService(IAuditDocumentStore auditDocumentStore) : IAuditWriteService
+public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> auditFunctionStore) : IAuditWriteService
 {
-    public async Task RecordFunction(DateTime timestamp, string userId, string functionName, string siteId)
+    public async Task RecordFunction(string id, DateTime timestamp, string user, string functionName, string site)
     {
-        await auditDocumentStore.InsertAsync(new AuditFunctionDocument()
+        var docType = auditFunctionStore.GetDocumentType();
+        var doc = new AuditFunctionDocument
         {
+            Id = id,
+            DocumentType = docType,
             Timestamp = timestamp,
-            UserId = userId, 
-            ActionType = functionName, 
-            SiteId = siteId
-        });
+            User = user,
+            FunctionName = functionName,
+            Site = site,
+        };
+
+        await auditFunctionStore.WriteAsync(doc);
     }
 }

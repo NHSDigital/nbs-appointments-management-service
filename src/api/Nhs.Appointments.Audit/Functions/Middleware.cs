@@ -19,9 +19,9 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
             await next(context);
             return;
         }
-        
+
         _ = Task.Run(() => RecordAudit(context, requiresAudit));
-        
+
         await next(context);
     }
 
@@ -59,10 +59,13 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
 
     private async Task RecordAudit(FunctionContext context, RequiresAuditAttribute requiresAudit)
     {
-        var userId = context.InstanceServices.GetRequiredService<IUserContextProvider>().UserPrincipal?.Claims.GetUserEmail();
+        var userId = context.InstanceServices.GetRequiredService<IUserContextProvider>().UserPrincipal?.Claims
+            .GetUserEmail();
         var functionName = context.FunctionDefinition.Name;
         var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
-        
-        await auditWriteService.RecordFunction(DateTime.UtcNow, userId, functionName, siteId);
+
+        var functionAuditId = $"{context.FunctionId}_{context.InvocationId}";
+
+        await auditWriteService.RecordFunction(functionAuditId, DateTime.UtcNow, userId, functionName, siteId);
     }
 }

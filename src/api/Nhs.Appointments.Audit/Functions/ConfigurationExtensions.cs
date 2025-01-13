@@ -12,10 +12,11 @@ public static class ConfigurationExtensions
     public static IFunctionsWorkerApplicationBuilder AddAudit(this IFunctionsWorkerApplicationBuilder builder)
     {
         builder.UseMiddleware<Middleware>();
-        builder.Services.AddTransient<IAuditDocumentStore, AuditCosmosDocumentStore>();
-        builder.Services.AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>, TypedDocumentCosmosStore<AuditFunctionDocument>>();
+        builder.Services
+            .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>,
+                TypedDocumentCosmosStore<AuditFunctionDocument>>();
         builder.Services.AddTransient<IAuditWriteService, AuditWriteService>();
-        
+
         return builder;
     }
 }

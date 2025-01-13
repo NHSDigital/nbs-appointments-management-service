@@ -1,8 +1,6 @@
-using Nhs.Appointments.Audit.Persistance;
-
 namespace Nhs.Appointments.Audit.Services;
 
 public interface IAuditWriteService
 {
-    public Task RecordFunction(DateTime timestamp, string userId, string functionName, string siteId);
+    public Task RecordFunction(string id, DateTime timestamp, string user, string functionName, string site);
 }

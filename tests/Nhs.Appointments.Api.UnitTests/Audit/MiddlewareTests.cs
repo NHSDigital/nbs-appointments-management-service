@@ -17,6 +17,9 @@ public class MiddlewareTests
     private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly Mock<FunctionContext> _functionContext = new();
     private readonly Mock<FunctionExecutionDelegate> _functionExecutionDelegate = new();
+
+    private readonly string _functionId = Guid.NewGuid().ToString();
+    private readonly string _invocationId = Guid.NewGuid().ToString();
     private readonly Mock<IServiceProvider> _serviceProvider = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private Middleware _sut;
@@ -24,11 +27,11 @@ public class MiddlewareTests
     [Theory]
     [InlineData("test@test.com", typeof(AuthenticateFunction), "Run")]
     [InlineData("user@test.com", typeof(AuthenticateFunction), "Run")]
-    public async Task Invoke_NoSiteRequestInspector_RecordFunction(string userId, Type functionType, string method)
+    public async Task Invoke_NoSiteRequestInspector_RecordFunction(string user, Type functionType, string method)
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
 
-        ConfigureMocks(httpRequest, userId, functionType, method);
+        ConfigureMocks(httpRequest, user, functionType, method);
 
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(new NoSiteRequestInspector());
 
@@ -39,7 +42,9 @@ public class MiddlewareTests
 
         // Assert
         //TODO add execution time middleware to verify timestamp logged?
-        _auditWriteService.Verify(s => s.RecordFunction(It.IsAny<DateTime>(), userId, functionType.Name, null),
+        _auditWriteService.Verify(
+            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+                null),
             Times.Once);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
@@ -47,18 +52,19 @@ public class MiddlewareTests
     [Fact]
     public async Task Invoke_RecordFunctionThrows_MiddlewareNotStopped()
     {
-        const string userId = "test@test.com";
+        const string user = "test@test.com";
         var functionType = typeof(AuthenticateFunction);
         var method = "Run";
 
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
 
-        ConfigureMocks(httpRequest, userId, functionType, method);
+        ConfigureMocks(httpRequest, user, functionType, method);
 
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(new NoSiteRequestInspector());
 
         _auditWriteService.Setup(s =>
-                s.RecordFunction(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                s.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(),
+                    It.IsAny<string>()))
             .Throws<NotImplementedException>();
 
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
@@ -68,7 +74,9 @@ public class MiddlewareTests
 
         // Assert
         //TODO add execution time middleware to verify timestamp logged?
-        _auditWriteService.Verify(s => s.RecordFunction(It.IsAny<DateTime>(), userId, functionType.Name, null),
+        _auditWriteService.Verify(
+            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+                null),
             Times.Once);
 
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -77,14 +85,14 @@ public class MiddlewareTests
     [Theory]
     [InlineData("test@test.com", "site-A", typeof(CancelBookingFunction), "RunAsync")]
     [InlineData("user@test.com", "site-B", typeof(CancelBookingFunction), "RunAsync")]
-    public async Task Invoke_SiteFromQueryStringInspector_RecordFunction(string userId, string siteId,
+    public async Task Invoke_SiteFromQueryStringInspector_RecordFunction(string user, string siteId,
         Type functionType,
         string method)
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         httpRequest.Query.Add("site", siteId);
 
-        ConfigureMocks(httpRequest, userId, functionType, method);
+        ConfigureMocks(httpRequest, user, functionType, method);
 
         _serviceProvider.Setup(x => x.GetService(typeof(SiteFromQueryStringInspector)))
             .Returns(new SiteFromQueryStringInspector());
@@ -94,7 +102,9 @@ public class MiddlewareTests
         //TODO refactor in a more robust way
         await Task.Delay(100);
 
-        _auditWriteService.Verify(x => x.RecordFunction(It.IsAny<DateTime>(), userId, functionType.Name, siteId),
+        _auditWriteService.Verify(
+            x => x.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+                siteId),
             Times.Once);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
@@ -102,12 +112,12 @@ public class MiddlewareTests
     [Theory]
     [InlineData("test@test.com", typeof(ApplyAvailabilityTemplateFunction), "RunAsync")]
     [InlineData("user@test.com", typeof(SetAvailabilityFunction), "RunAsync")]
-    public async Task Invoke_SiteFromBodyInspector_RecordFunction(string userId, Type functionType, string method)
+    public async Task Invoke_SiteFromBodyInspector_RecordFunction(string user, Type functionType, string method)
     {
         var httpRequest = new TestHttpRequestData(_functionContext.Object);
         httpRequest.SetBody("{\"site\": \"site-A\"}");
 
-        ConfigureMocks(httpRequest, userId, functionType, method);
+        ConfigureMocks(httpRequest, user, functionType, method);
 
         _serviceProvider.Setup(x => x.GetService(typeof(SiteFromBodyInspector))).Returns(new SiteFromBodyInspector());
 
@@ -116,7 +126,9 @@ public class MiddlewareTests
         //TODO refactor in a more robust way
         await Task.Delay(100);
 
-        _auditWriteService.Verify(x => x.RecordFunction(It.IsAny<DateTime>(), userId, functionType.Name, "site-A"),
+        _auditWriteService.Verify(
+            x => x.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+                "site-A"),
             Times.Once);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
@@ -130,10 +142,10 @@ public class MiddlewareTests
     [InlineData("test@test.com", typeof(GetSiteMetaDataFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(TriggerBookingRemindersFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(AuthenticateCallbackFunction), "Run")]
-    public async Task Invoke_NoRequiredAuditAttribute_DoesNot_RecordFunction(string userId, Type functionType,
+    public async Task Invoke_NoRequiredAuditAttribute_DoesNot_RecordFunction(string user, Type functionType,
         string method)
     {
-        ConfigureMocks(new TestHttpRequestData(_functionContext.Object), userId, functionType, method);
+        ConfigureMocks(new TestHttpRequestData(_functionContext.Object), user, functionType, method);
 
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
 
@@ -142,14 +154,15 @@ public class MiddlewareTests
 
         // Assert
         _auditWriteService.Verify(
-            s => s.RecordFunction(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>()),
             Times.Never);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
     }
 
-    private void ConfigureMocks(HttpRequestData httpRequestData, string userId, Type functionType, string method)
+    private void ConfigureMocks(HttpRequestData httpRequestData, string user, Type functionType, string method)
     {
-        var userPrincipal = UserDataGenerator.CreateUserPrincipal(userId);
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal(user);
 
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider);
 
@@ -162,6 +175,8 @@ public class MiddlewareTests
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
+        _functionContext.Setup(x => x.FunctionId).Returns(_functionId);
+        _functionContext.Setup(x => x.InvocationId).Returns(_invocationId);
 
         var assemblyLocation = functionType.Assembly.Location;
 

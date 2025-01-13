@@ -108,7 +108,7 @@ export const startOfWeek = (dateString: string) => {
 };
 
 export const endOfWeek = (dateString: string) => {
-  return dayjs(dateString).endOf('isoWeek').hour(0).minute(0).second(0);
+  return dayjs(dateString).endOf('isoWeek').hour(23).minute(59).second(59);
 };
 
 export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {

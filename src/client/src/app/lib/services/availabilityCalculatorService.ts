@@ -48,8 +48,9 @@ export const summariseWeek = async (
       };
     }
 
-    const bookings = dailyBookings.filter(booking =>
-      dayjs(booking.from).isSame(day, 'date'),
+    const bookings = dailyBookings.filter(
+      booking =>
+        dayjs(booking.from).isSame(day, 'date') && booking.status === 'Booked',
     );
 
     return summariseDay(day, bookings, availability);
@@ -63,55 +64,45 @@ const summariseDay = (
   bookings: Booking[],
   availability: DailyAvailability,
 ): DaySummary => {
-  let liveBookings = bookings.filter(booking => booking.status === 'Booked');
+  const sessionsAndSlots = mapSessionsAndSlots(date, availability.sessions);
 
-  const sessionSummaries: SessionSummary[] = availability.sessions.map(
-    session => {
-      const start = toTimeComponents(session.from);
-      const end = toTimeComponents(session.until);
+  const slots = sessionsAndSlots
+    .map(sessionAndSlot => sessionAndSlot.slots)
+    .flat();
 
-      const startTime = date
-        .hour(Number(start?.hour))
-        .minute(Number(start?.minute));
-      const endTime = date.hour(Number(end?.hour)).minute(Number(end?.minute));
+  bookings.forEach(booking => {
+    const matchingSlot = slots.find(slot => {
+      return (
+        slot.capacity > 0 &&
+        slot.from.isSame(dayjs(booking.from)) &&
+        slot.length === booking.duration &&
+        slot.services.includes(booking.service)
+      );
+    });
 
-      const slots = divideSessionIntoSlots(startTime, endTime, session);
+    if (matchingSlot) {
+      const sessionSlotCameFrom = sessionsAndSlots.find(
+        sessionAndSlot =>
+          sessionAndSlot.sessionIndex === matchingSlot.sessionIndex,
+      )?.session;
+      if (!sessionSlotCameFrom) {
+        throw new Error("this shouldn't be possible");
+      }
 
-      const maximumCapacity = slots.length * session.capacity;
+      // 1. Reduce the matching slot's capacity
+      matchingSlot.capacity -= 1;
+      // 2. Add the booking to the session's bookings
+      sessionSlotCameFrom.bookings[booking.service] = sessionSlotCameFrom
+        ?.bookings[booking.service]
+        ? sessionSlotCameFrom?.bookings[booking.service].concat(booking)
+        : [booking];
+      // 3. Add the booking to the session's total bookings
+      sessionSlotCameFrom.totalBookings += 1;
+    }
+  });
 
-      const bookingsByService: Record<string, Booking[]> = {};
-      let totalBookings = 0;
-      liveBookings.forEach(booking => {
-        const matchingSlot = slots.find(
-          slot =>
-            slot.capacity > 0 &&
-            slot.from.isSame(dayjs(booking.from)) &&
-            slot.length === booking.duration &&
-            slot.services.includes(booking.service),
-        );
-
-        if (matchingSlot) {
-          bookingsByService[booking.service] = bookingsByService[
-            booking.service
-          ]
-            ? bookingsByService[booking.service].concat(booking)
-            : [booking];
-          totalBookings += 1;
-          liveBookings = liveBookings.splice(liveBookings.indexOf(booking), 1);
-
-          matchingSlot.capacity -= 1;
-          slots[slots.indexOf(matchingSlot)] = matchingSlot;
-        }
-      });
-
-      return {
-        start: startTime,
-        end: endTime,
-        maximumCapacity,
-        totalBookings,
-        bookings: bookingsByService,
-      };
-    },
+  const sessionSummaries = sessionsAndSlots.map(
+    sessionAndSlot => sessionAndSlot.session,
   );
 
   const maximumCapacity = sessionSummaries.reduce(
@@ -137,6 +128,7 @@ const summariseDay = (
 };
 
 const divideSessionIntoSlots = (
+  sessionIndex: number,
   startTime: dayjs.Dayjs,
   endTime: dayjs.Dayjs,
   session: AvailabilitySession,
@@ -148,6 +140,7 @@ const divideSessionIntoSlots = (
     isBeforeOrEqual(currentSlot, endTime.add(session.slotLength * -1, 'minute'))
   ) {
     slots.push({
+      sessionIndex,
       from: currentSlot,
       services: session.services,
       length: session.slotLength,
@@ -158,3 +151,44 @@ const divideSessionIntoSlots = (
 
   return slots;
 };
+
+type SessionAndSlots = {
+  sessionIndex: number;
+  session: SessionSummary;
+  slots: AvailabilitySlot[];
+};
+
+const mapSessionsAndSlots = (
+  date: dayjs.Dayjs,
+  sessions: AvailabilitySession[],
+): SessionAndSlots[] =>
+  sessions.map((session, index) => {
+    const start = toTimeComponents(session.from);
+    const end = toTimeComponents(session.until);
+
+    const startTime = date
+      .hour(Number(start?.hour))
+      .minute(Number(start?.minute));
+    const endTime = date.hour(Number(end?.hour)).minute(Number(end?.minute));
+
+    const slotsInSession = divideSessionIntoSlots(
+      index,
+      startTime,
+      endTime,
+      session,
+    );
+
+    const sessionSummary: SessionSummary = {
+      start: startTime,
+      end: endTime,
+      maximumCapacity: slotsInSession.length * session.capacity,
+      totalBookings: 0,
+      bookings: {},
+    };
+
+    return {
+      sessionIndex: index,
+      session: sessionSummary,
+      slots: slotsInSession,
+    };
+  });

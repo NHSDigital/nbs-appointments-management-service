@@ -1,9 +1,10 @@
 import {
   mockBookings,
   mockWeekAvailability,
-  mockWeekAvailabilityEnd,
-  mockWeekAvailabilityStart,
-} from '@testing/data';
+  expectedWeeklySummary,
+  mondayThe10thOfJune2024,
+  sundayThe16thOfJune2024,
+} from '@testing/availability-and-bookings-mock-data';
 import { summariseWeek } from './availabilityCalculatorService';
 import {
   fetchDailyAvailability,
@@ -25,23 +26,13 @@ describe('Availability Calculator Service', () => {
     fetchBookingsMock.mockReturnValue(Promise.resolve(mockBookings));
   });
 
-  it('can build a details week for availability', async () => {
+  it('summarises a week of availability with bookings', async () => {
     const weekSummary = await summariseWeek(
-      mockWeekAvailabilityStart,
-      mockWeekAvailabilityEnd,
+      mondayThe10thOfJune2024,
+      sundayThe16thOfJune2024,
       'TEST01',
     );
 
-    expect(weekSummary.length).toBe(7);
-
-    const firstDay = weekSummary[0];
-
-    expect(firstDay.remainingCapacity).toBe(191);
-    expect(firstDay.bookedAppointments).toBe(1);
-    expect(firstDay.maximumCapacity).toBe(192);
-    expect(firstDay.sessions).toHaveLength(2);
-
-    expect(Object.keys(firstDay.sessions[0].bookings)).toHaveLength(1);
-    expect(Object.keys(firstDay.sessions[1].bookings)).toHaveLength(0);
+    expect(weekSummary).toEqual(expectedWeeklySummary);
   });
 });

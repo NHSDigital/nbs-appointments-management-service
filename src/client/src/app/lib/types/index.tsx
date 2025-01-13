@@ -97,6 +97,7 @@ type AvailabilitySession = {
 };
 
 type AvailabilitySlot = {
+  sessionIndex: number;
   from: dayjs.Dayjs;
   length: number;
   services: string[];

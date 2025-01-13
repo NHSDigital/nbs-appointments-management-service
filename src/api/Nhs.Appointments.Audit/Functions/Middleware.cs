@@ -38,8 +38,14 @@ public class Middleware : IFunctionsWorkerMiddleware
         {
             var request = await context.GetHttpRequestDataAsync();
 
-            //TODO not expecting multiple site matches in first usages??
-            siteId = (await requestInspector.GetSiteIds(request)).SingleOrDefault();
+            var sites = (await requestInspector.GetSiteIds(request)).ToList();
+
+            if (sites.Count > 1)
+            {
+                throw new NotImplementedException("Auditing a function with multiple sites is not currently supported");
+            }
+            
+            siteId = sites.SingleOrDefault();
         }
         
         return new Models.Audit(DateTime.UtcNow, userId, actionType, siteId);

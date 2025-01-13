@@ -20,7 +20,6 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
 
@@ -124,21 +123,7 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "core_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
-
-    public static IServiceCollection AddRequestInspectors(this IServiceCollection services)
-    {
-        var inspectorTypes = typeof(IRequestInspector).Assembly
-            .GetTypes()
-            .Where(t => typeof(IRequestInspector).IsAssignableFrom(t) && t.IsClass && t.IsAbstract == false);
-
-        foreach (var type in inspectorTypes)
-        {
-            services.AddSingleton(type);
-        }
-
-        return services;
-    }
-
+    
     private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
     {
         if (ignoreSslCert)

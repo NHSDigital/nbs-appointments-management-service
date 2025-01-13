@@ -50,7 +50,12 @@ const Page = async ({ params, searchParams }: PageProps) => {
   };
 
   return (
-    <NhsPage title={title} caption={site.name} backLink={backLink}>
+    <NhsPage
+      title={title}
+      caption={site.name}
+      backLink={backLink}
+      originPage="view-availability-daily-appointments"
+    >
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">
           <DailyAppointmentsPage

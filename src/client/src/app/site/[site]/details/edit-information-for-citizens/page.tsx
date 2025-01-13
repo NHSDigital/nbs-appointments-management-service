@@ -25,6 +25,7 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
+      originPage="eedit-information-for-citizens"
     >
       <h3>Manage information for citizens</h3>
       <EditInformationForCitizensPage

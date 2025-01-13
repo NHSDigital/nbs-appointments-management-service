@@ -37,6 +37,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
         { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}
+      originPage="users-manage"
     >
       <ManageUsersPage
         userIsSpecified={userIsSpecified()}

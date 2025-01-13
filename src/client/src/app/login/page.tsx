@@ -20,6 +20,7 @@ const Page = async ({ searchParams }: LoginPageProps) => {
     <NhsAnonymousPage
       title="Manage your appointments"
       headerAuthComponent={NhsHeaderLogIn({ redirectUrl })}
+      originPage="login"
     >
       <p>
         You are currently not signed in. You must sign in to access this

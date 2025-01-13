@@ -49,6 +49,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`${weekStart.format('D MMMM')} to ${weekEnd.format('D MMMM')}`}
       site={site}
       backLink={backLink}
+      originPage="view-availability-week"
     >
       <ViewWeekAvailabilityPage
         days={days}

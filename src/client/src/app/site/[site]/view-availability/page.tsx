@@ -49,7 +49,12 @@ const Page = async ({ params, searchParams }: PageProps) => {
   );
 
   return (
-    <NhsPage title={title} caption={site.name} site={site}>
+    <NhsPage
+      title={title}
+      caption={site.name}
+      site={site}
+      originPage="view-availability"
+    >
       <ViewAvailabilityPage
         weeks={detailedMonthView}
         searchMonth={searchMonth}

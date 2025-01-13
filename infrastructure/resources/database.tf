@@ -42,6 +42,54 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
       max_throughput = autoscale_settings.value["max_throughput"]
     }
   }
+  indexing_policy {
+    indexing_mode = "consistent"
+    included_path {
+      path = "/*"
+    }
+    excluded_path {
+      path = "/_etag/?"
+    }
+    excluded_path {
+      path = "/created/?"
+    }
+    excluded_path {
+      path = "/by/?"
+    }
+    excluded_path {
+      path = "/template/*"
+    }
+    excluded_path {
+      path = "/to/?"
+    }
+    excluded_path {
+      path = "/sessions/*"
+    }
+    excluded_path {
+      path = "/reference/?"
+    }
+    excluded_path {
+      path = "/duration/?"
+    }
+    excluded_path {
+      path = "/service/?"
+    }
+    excluded_path {
+      path = "/status/?"
+    }
+    excluded_path {
+      path = "/attendeeDetails/*"
+    }
+    excluded_path {
+      path = "/contactDetails/*"
+    }
+    excluded_path {
+      path = "/additionalData/*"
+    }
+    excluded_path {
+      path = "/reminderSent/?"
+    }
+  }
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
@@ -55,19 +103,6 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
     for_each = var.cosmos_core_autoscale_settings
     content {
       max_throughput = autoscale_settings.value["max_throughput"]
-    }
-  }
-
-  indexing_policy {
-    indexing_mode = "consistent"
-    included_path {
-      path = "/*"
-    }
-    excluded_path {
-      path = "/_etag/?"
-    }
-    spatial_index {
-      path = "/location/?"
     }
   }
 }

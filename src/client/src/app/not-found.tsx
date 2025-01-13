@@ -8,6 +8,7 @@ export default function NotFound() {
     <NhsAnonymousPage
       title="Sorry, we could not find that page"
       showHomeBreadcrumb
+      originPage="not-found"
     >
       <p>
         You may have typed or pasted the web address incorrectly.{' '}

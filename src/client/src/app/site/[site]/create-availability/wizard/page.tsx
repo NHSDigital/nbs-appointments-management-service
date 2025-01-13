@@ -15,7 +15,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
 
   return (
-    <NhsTransactionalPage>
+    <NhsTransactionalPage originPage="create-availability-wizard">
       <AvailabilityTemplateWizard site={site} date={searchParams.date} />
     </NhsTransactionalPage>
   );

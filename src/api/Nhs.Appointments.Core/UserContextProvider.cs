@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Nhs.Appointments.Api.Auth;
+namespace Nhs.Appointments.Core;
 
 public class UserContextProvider : IUserContextProvider
 {

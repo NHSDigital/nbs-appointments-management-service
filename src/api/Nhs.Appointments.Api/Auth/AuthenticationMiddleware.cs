@@ -6,6 +6,7 @@ using Nhs.Appointments.Api.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Auth;
 

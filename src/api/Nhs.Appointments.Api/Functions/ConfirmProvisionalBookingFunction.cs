@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
 using System;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 

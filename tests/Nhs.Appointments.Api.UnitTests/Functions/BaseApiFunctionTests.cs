@@ -8,6 +8,7 @@ using Nhs.Appointments.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

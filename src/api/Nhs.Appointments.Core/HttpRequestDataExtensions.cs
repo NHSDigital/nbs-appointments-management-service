@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Nhs.Appointments.Api.Auth
+namespace Nhs.Appointments.Core
 {
     public static class HttpRequestDataExtensions
     {

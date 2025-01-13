@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Nhs.Appointments.Api.Auth;
+namespace Nhs.Appointments.Core.Inspectors;
 
-public class MultiSiteBodyRequestInspector : IRequestInspector
+public class SiteFromScopeInspector : IRequestInspector
 {
     public async Task<IEnumerable<string>> GetSiteIds(HttpRequestData httpRequest)
     {
@@ -17,9 +14,10 @@ public class MultiSiteBodyRequestInspector : IRequestInspector
             try
             {
                 using var jsonDocument = JsonDocument.Parse(body);
-                if (jsonDocument.RootElement.TryGetProperty("sites", out var sitesElement))
+                if (jsonDocument.RootElement.TryGetProperty("scope", out var scopeValue))
                 {
-                    return sitesElement.Deserialize<string[]>();
+                    if (scopeValue.ToString().StartsWith("site:"))
+                        return [scopeValue.ToString().Replace("site:", "")];
                 }
             }
             catch (JsonException)

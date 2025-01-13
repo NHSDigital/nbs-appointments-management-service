@@ -80,15 +80,12 @@ const summariseDay = (
       );
     });
 
-    if (matchingSlot) {
-      const sessionSlotCameFrom = sessionsAndSlots.find(
-        sessionAndSlot =>
-          sessionAndSlot.sessionIndex === matchingSlot.sessionIndex,
-      )?.session;
-      if (!sessionSlotCameFrom) {
-        throw new Error("this shouldn't be possible");
-      }
+    const sessionSlotCameFrom = sessionsAndSlots.find(
+      sessionAndSlot =>
+        sessionAndSlot.sessionIndex === matchingSlot?.sessionIndex,
+    )?.session;
 
+    if (matchingSlot && sessionSlotCameFrom) {
       // 1. Reduce the matching slot's capacity
       matchingSlot.capacity -= 1;
       // 2. Add the booking to the session's bookings
@@ -101,6 +98,13 @@ const summariseDay = (
     }
   });
 
+  return buildDaySummary(date, sessionsAndSlots);
+};
+
+const buildDaySummary = (
+  date: dayjs.Dayjs,
+  sessionsAndSlots: SessionAndSlots[],
+): DaySummary => {
   const sessionSummaries = sessionsAndSlots.map(
     sessionAndSlot => sessionAndSlot.session,
   );
@@ -152,12 +156,6 @@ const divideSessionIntoSlots = (
   return slots;
 };
 
-type SessionAndSlots = {
-  sessionIndex: number;
-  session: SessionSummary;
-  slots: AvailabilitySlot[];
-};
-
 const mapSessionsAndSlots = (
   date: dayjs.Dayjs,
   sessions: AvailabilitySession[],
@@ -192,3 +190,9 @@ const mapSessionsAndSlots = (
       slots: slotsInSession,
     };
   });
+
+type SessionAndSlots = {
+  sessionIndex: number;
+  session: SessionSummary;
+  slots: AvailabilitySlot[];
+};

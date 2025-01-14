@@ -16,7 +16,7 @@ public interface IBookingsService
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
-}    
+}
 
 public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,

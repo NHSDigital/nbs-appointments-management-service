@@ -33,6 +33,7 @@ module "api" {
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
+  web_app_allowed_origin                         = var.WEB_APP_ALLOWED_ORIGIN 
   web_app_slot_base_uri                          = var.WEB_APP_SLOT_BASE_URI
   gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
@@ -65,12 +66,12 @@ module "api" {
       zone_redundant    = false
   }]
   cosmos_booking_autoscale_settings = [{
-    max_throughput = 20000
+    max_throughput = 30000
   }]
   cosmos_core_autoscale_settings = [{
     max_throughput = 20000
   }]
   cosmos_index_autoscale_settings = [{
-    max_throughput = 10000
+    max_throughput = 4000
   }]
 }

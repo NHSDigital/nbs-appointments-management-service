@@ -11,7 +11,11 @@ export default function Error({
 }) {
   if ((error.digest as ErrorType) === 'UnauthorizedError') {
     return (
-      <NhsAnonymousPage title="You cannot access this page" showHomeBreadcrumb>
+      <NhsAnonymousPage
+        title="You cannot access this page"
+        showHomeBreadcrumb
+        originPage="error"
+      >
         <p>This might be because: </p>
         <ul>
           <li>you don't have an account to access this service</li>
@@ -27,6 +31,7 @@ export default function Error({
     <NhsAnonymousPage
       title="Sorry, there is a problem with this service"
       showHomeBreadcrumb
+      originPage="error"
     >
       <ContactUs />
     </NhsAnonymousPage>

@@ -89,6 +89,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('heading', { name: /Test title/i })).toBeVisible();
@@ -102,6 +103,7 @@ describe('Nhs Page', () => {
         { name: 'Level One', href: '/' },
         { name: 'Level Two', href: '/' },
       ],
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
@@ -118,6 +120,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
@@ -140,6 +143,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
 
@@ -157,6 +161,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
 
@@ -175,6 +180,7 @@ describe('Nhs Page', () => {
         region: '',
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -219,6 +225,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -239,6 +246,7 @@ describe('Nhs Page', () => {
         region: '',
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -274,6 +282,7 @@ describe('Nhs Page', () => {
         region: '',
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -289,6 +298,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -314,6 +324,7 @@ describe('Nhs Page', () => {
         renderingStrategy: 'server',
         text: 'Test back link',
       },
+      originPage: '',
     });
 
     render(jsx);

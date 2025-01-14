@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Auth
 {

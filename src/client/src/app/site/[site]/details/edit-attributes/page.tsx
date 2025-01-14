@@ -25,6 +25,7 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
+      originPage="edit-attributes"
     >
       <EditAttributesPage site={params.site} permissions={sitePermissions} />
     </NhsPage>

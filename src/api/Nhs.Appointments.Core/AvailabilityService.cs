@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public class AvailabilityService(
     IAvailabilityStore availabilityStore,
@@ -32,9 +32,10 @@ public class AvailabilityService(
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
     }
 
-    public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode, string user)
+    public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions,
+        ApplyAvailabilityMode mode, string user, Session sessionToEdit = null)
     {
-        await SetAvailabilityAsync(date, site, sessions, mode);
+        await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
         await bookingsService.RecalculateAppointmentStatuses(site, date);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
@@ -49,7 +50,8 @@ public class AvailabilityService(
             .ThenBy(e => e.To);
     }
 
-    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode)
+    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
+        Session sessionToEdit = null)
     {
         if (string.IsNullOrEmpty(site))
             throw new ArgumentException("Site must have a value.");
@@ -57,12 +59,31 @@ public class AvailabilityService(
         if (sessions is null || sessions.Length == 0)
             throw new ArgumentException("Availability must contain one or more sessions.");
 
-        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode);
+        if (mode is ApplyAvailabilityMode.Edit && sessionToEdit is null)
+        {
+            throw new ArgumentException("When editing a session a session to edit must be supplied.");
+        }
+
+        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
     }
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         return await availabilityStore.GetDailyAvailability(site, from, to);
+    }
+
+    public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
+    {
+        var sessionToCancel = new Session
+        {
+            Capacity = capacity,
+            From = TimeOnly.Parse(from),
+            Until = TimeOnly.Parse(until),
+            Services = services,
+            SlotLength = slotLength,
+        };
+
+        await availabilityStore.CancelSession(site, date, sessionToCancel);
     }
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)

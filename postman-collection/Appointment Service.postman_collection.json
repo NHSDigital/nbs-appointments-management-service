@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2a5010aa-37c4-4257-8b79-80665db57d50",
+		"_postman_id": "97279d4c-a1ca-4269-93a0-42b217a78f0f",
 		"name": "Appointment Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "39091838"
@@ -1179,6 +1179,43 @@
 					"path": [
 						"api",
 						"wellKnownOdsCodeEntries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "session/cancel",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"site\": \"ABC02\",\r\n    \"date\": \"2025-01-15\",\r\n    \"from\": \"09:00\",\r\n    \"until\": \"16:00\",\r\n    \"services\": [\r\n        \"RSV:Adult\"\r\n    ],\r\n    \"slotLength\": 5,\r\n    \"capacity\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/session/cancel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"session",
+						"cancel"
 					]
 				}
 			},

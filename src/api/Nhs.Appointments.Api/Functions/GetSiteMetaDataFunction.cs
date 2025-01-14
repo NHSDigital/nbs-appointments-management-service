@@ -12,6 +12,7 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.OpenApi.Models;
 using System.Linq;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 

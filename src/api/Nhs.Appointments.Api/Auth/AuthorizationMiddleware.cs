@@ -7,6 +7,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 
 namespace Nhs.Appointments.Api.Auth;

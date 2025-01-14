@@ -21,26 +21,22 @@ type PageProps = {
 const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
   await assertPermission(site.id, 'availability:query');
-  const title = dayjs(searchParams.date).format('dddd D MMMM');
+  const date = dayjs(searchParams.date);
 
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: dayjs(searchParams.date)
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .format('YYYY-MM-DDTHH:mm:ssZ'),
-    to: dayjs(searchParams.date)
-      .hour(23)
-      .minute(59)
-      .second(59)
-      .format('YYYY-MM-DDTHH:mm:ssZ'),
+    from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
+    to: date.hour(23).minute(59).second(59).format('YYYY-MM-DDTHH:mm:ssZ'),
     site: site.id,
   };
+
   const bookings = await fetchBookings(fetchBookingsRequest);
-  const orhpanedAppointments = bookings?.filter(b => b.status === 'Orphaned');
+  const scheduledBookings = bookings.filter(b => b.status === 'Booked');
+  const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
+  const orphanedAppointments = bookings.filter(b => b.status === 'Orphaned');
+
   const orphanedMessage =
-    orhpanedAppointments?.length > 0
-      ? `${orhpanedAppointments.length} booked appointments are affected. You'll need to manually cancel these appointments.`
+    orphanedAppointments.length > 0
+      ? `${orphanedAppointments.length} booked appointments are affected. You'll need to manually cancel these appointments.`
       : 'There are no booked appointments affected by availability changes.';
 
   const backLink: NavigationByHrefProps = {
@@ -50,25 +46,30 @@ const Page = async ({ params, searchParams }: PageProps) => {
   };
 
   return (
-    <NhsPage title={title} caption={site.name} backLink={backLink}>
+    <NhsPage
+      title={date.format('dddd D MMMM')}
+      caption={site.name}
+      backLink={backLink}
+      originPage="view-availability-daily-appointments"
+    >
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">
           <DailyAppointmentsPage
-            bookings={bookings?.filter(b => b.status === 'Booked')}
+            bookings={scheduledBookings}
             site={site.id}
             displayAction
           />
         </Tab>
         <Tab title="Cancelled">
           <DailyAppointmentsPage
-            bookings={bookings?.filter(b => b.status === 'Cancelled')}
+            bookings={cancelledBookings}
             site={site.id}
             displayAction={false}
           />
         </Tab>
         <Tab title="Manual Cancellations">
           <DailyAppointmentsPage
-            bookings={orhpanedAppointments}
+            bookings={orphanedAppointments}
             site={site.id}
             displayAction={false}
             message={orphanedMessage}

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import {
-  mockDetailedDays,
+  mockDaySummaries,
   mockEmptyDays,
   mockWeekAvailabilityEnd,
   mockWeekAvailabilityStart,
@@ -12,9 +12,10 @@ describe('View Week Availability Page', () => {
   it('renders', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDetailedDays}
+        days={mockDaySummaries}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
       />,
     );
 
@@ -30,6 +31,7 @@ describe('View Week Availability Page', () => {
         days={mockEmptyDays}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
       />,
     );
 
@@ -42,9 +44,10 @@ describe('View Week Availability Page', () => {
   it('renders correct information for a day', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDetailedDays}
+        days={mockDaySummaries}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
       />,
     );
 
@@ -78,9 +81,10 @@ describe('View Week Availability Page', () => {
   it('renders pagination options with the correct values', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDetailedDays}
+        days={mockDaySummaries}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
       />,
     );
 
@@ -96,19 +100,17 @@ describe('View Week Availability Page', () => {
   });
 
   it('Add Session only available for future date', () => {
-    const detailedDays = mockDetailedDays;
-    detailedDays[0].fullDate = dayjs().format('YYYY-MM-DD');
-    detailedDays[0].date = dayjs().format('dddd D MMMM');
-    detailedDays[1].fullDate = dayjs().add(1, 'day').format('YYYY-MM-DD');
-    detailedDays[1].date = dayjs().add(1, 'day').format('dddd D MMMM');
-    detailedDays[2].fullDate = dayjs().add(2, 'day').format('YYYY-MM-DD');
-    detailedDays[2].date = dayjs().add(2, 'day').format('dddd D MMMM');
+    const daySummaries = mockDaySummaries;
+    daySummaries[0].date = dayjs();
+    daySummaries[1].date = dayjs().add(1, 'day');
+    daySummaries[2].date = dayjs().add(2, 'day');
 
     render(
       <ViewWeekAvailabilityPage
-        days={mockDetailedDays}
+        days={daySummaries}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
       />,
     );
 

@@ -1,27 +1,27 @@
-using Microsoft.Extensions.DependencyInjection;
-using Nhs.Appointments.Core;
-using Microsoft.Azure.Cosmos;
-using System.Net.Http;
-using Nhs.Appointments.Api.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
-using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Persistance;
-using Nhs.Appointments.Api.Auth;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using Nhs.Appointments.Api.Notifications;
-using Nhs.Appointments.Core.Messaging;
-using System.Collections.Generic;
-using Nhs.Appointments.Api.Models;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api;
 
@@ -29,24 +29,24 @@ public static class FunctionConfigurationExtensions
 {
     public static IFunctionsWorkerApplicationBuilder ConfigureFunctionDependencies(this IFunctionsWorkerApplicationBuilder builder)
     {
-        builder.Services.AddCustomAuthentication();            
-        
+        builder.Services.AddRequestInspectors();
+        builder.Services.AddCustomAuthentication();
+
         builder.Services
-            .AddSingleton<IOpenApiConfigurationOptions>(_ => 
+            .AddSingleton<IOpenApiConfigurationOptions>(_ =>
             {
-                var options = new OpenApiConfigurationOptions()
+                var options = new OpenApiConfigurationOptions
                 {
-                    Info = new OpenApiInfo()
-                    {
-                        Version = "0.0.1",
-                        Title = "Manage Your Appointment API"
-                    },
+                    Info = new OpenApiInfo { Version = "0.0.1", Title = "Manage Your Appointment API" },
                     Servers = DefaultOpenApiConfigurationOptions.GetHostNames(),
                     OpenApiVersion = OpenApiVersionType.V2,
                     IncludeRequestingHostName = true,
                     ForceHttps = false,
                     ForceHttp = false,
-                    DocumentFilters = new List<IDocumentFilter> { new TypeFixDocumentFilter(GetTypesToFixInOpenApi(), TimeProvider.System) }
+                    DocumentFilters = new List<IDocumentFilter>
+                    {
+                        new TypeFixDocumentFilter(GetTypesToFixInOpenApi(), TimeProvider.System)
+                    }
                 };
                 return options;
             });
@@ -67,7 +67,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAttributeDefinitionsStore, AttributeDefinitionsStore>()
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
-            .AddCosmosDataStores()                        
+            .AddCosmosDataStores()
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAttributeDefinitionsService, AttributeDefinitionsService>()
@@ -77,7 +77,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
-            .AddTransient<IPermissionChecker, PermissionChecker>()     
+            .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
@@ -86,29 +86,34 @@ public static class FunctionConfigurationExtensions
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")
+        {
             builder.Services.AddInMemoryLeasing();
+        }
         else
+        {
             builder.Services.AddAzureBlobStoreLeasing(leaseManagerConnection, "leases");
+        }
 
         builder.Services.AddHttpClient();
 
         var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT", EnvironmentVariableTarget.Process);
         var cosmosToken = Environment.GetEnvironmentVariable("COSMOS_TOKEN", EnvironmentVariableTarget.Process);
-        var ignoreSslCertSetting = Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
+        var ignoreSslCertSetting =
+            Environment.GetEnvironmentVariable("COSMOS_IGNORE_SSL_CERT", EnvironmentVariableTarget.Process);
         bool.TryParse(ignoreSslCertSetting, out var ignoreSslCert);
         var cosmosOptions = GetCosmosOptions(cosmosEndpoint, ignoreSslCert);
 
         var cosmosClient = new CosmosClient(
-                accountEndpoint: cosmosEndpoint,
-                authKeyOrResourceToken: cosmosToken,
-                clientOptions: cosmosOptions);
+            accountEndpoint: cosmosEndpoint,
+            authKeyOrResourceToken: cosmosToken,
+            clientOptions: cosmosOptions);
 
         builder.Services.AddSingleton(cosmosClient);
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();    
-
-    return builder;
+        SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();
+        
+        return builder;
     }
 
     private static async Task SetupCosmosDatabase(CosmosClient cosmosClient)
@@ -118,36 +123,35 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "core_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
     }
-
+    
     private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
     {
-        if(ignoreSslCert)
+        if (ignoreSslCert)
         {
-            return new CosmosClientOptions()
+            return new CosmosClientOptions
             {
-                HttpClientFactory = () => new HttpClient(new HttpClientHandler()
+                HttpClientFactory = () => new HttpClient(new HttpClientHandler
                 {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                }),                    
+                    ServerCertificateCustomValidationCallback =
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                }),
                 Serializer = new CosmosJsonSerializer(),
                 ConnectionMode = ConnectionMode.Gateway,
                 LimitToEndpoint = true
-            };                
+            };
         }
 
-        return new()
-        {
-            Serializer = new CosmosJsonSerializer()
-        };            
-    }    
+        return new() { Serializer = new CosmosJsonSerializer() };
+    }
 
     private static IEnumerable<Type> GetTypesToFixInOpenApi()
     {
-        var functionEntryPoints = typeof(BaseApiFunction<,>).Assembly.GetTypes().Where(t => t.GetMethods().Any(t => t.Name == "RunAsync")).Select(t => t.GetMethod("RunAsync"));
+        var functionEntryPoints = typeof(BaseApiFunction<,>).Assembly.GetTypes()
+            .Where(t => t.GetMethods().Any(t => t.Name == "RunAsync")).Select(t => t.GetMethod("RunAsync"));
         var openApiPayloadMarkers = functionEntryPoints
             .SelectMany(t => t.GetCustomAttributes<OpenApiRequestBodyAttribute>()).Cast<OpenApiPayloadAttribute>()
             .Concat(functionEntryPoints.SelectMany(t => t.GetCustomAttributes<OpenApiResponseWithBodyAttribute>()));
-        
+
         var payloadTypes = openApiPayloadMarkers
             .Select(t => t.BodyType)
             .Where(t => t.FullName.StartsWith("System") == false)
@@ -164,7 +168,7 @@ public static class FunctionConfigurationExtensions
             typeof(Template),
             typeof(AvailabilityCreatedEvent),
             typeof(ContactItem),
-            typeof(AttendeeDetails),            
+            typeof(AttendeeDetails),
         ]);
 
         return payloadTypes;

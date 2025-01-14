@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
 import { InsetText } from '@components/nhsuk-frontend';
-import { SessionSummaryTable } from '../../session-summary-table';
+import { SessionSummaryTable } from '@components/session-summary-table';
 
 type PageProps = {
   searchParams: {
@@ -38,7 +38,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
         text: 'Go back',
       }}
-      originPage="cancel-session"
+      originPage="edit-session"
     >
       <SessionSummaryTable sessionSummary={sessionSummary} />
       <InsetText>
@@ -49,7 +49,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
       </InsetText>
       <EditSessionDecision
         site={site}
-        sessionSummary={sessionSummary}
+        sessionSummary={searchParams.session}
+        date={searchParams.date}
       ></EditSessionDecision>
     </NhsPage>
   );

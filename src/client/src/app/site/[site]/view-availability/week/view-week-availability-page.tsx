@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { isInTheFuture } from '@services/timeService';
 import { UrlObject } from 'url';
-import { SessionSummaryTable } from '../session-summary-table';
 
 type Props = {
   days: DaySummary[];
@@ -138,9 +137,6 @@ export const ViewWeekAvailabilityPage = ({
     </>
   );
 };
-
-// site/[site]/availability/edit/session/[session]
-// site/[site]/availability/cancel/session/[session]
 
 const buildEditSessionLink = (
   siteId: string,

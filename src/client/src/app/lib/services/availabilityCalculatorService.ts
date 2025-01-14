@@ -15,6 +15,7 @@ import {
   DailyAvailability,
   DaySummary,
   SessionSummary,
+  TimeComponents,
 } from '@types';
 
 export const summariseWeek = async (
@@ -201,4 +202,14 @@ type SessionAndSlots = {
   sessionIndex: number;
   session: SessionSummary;
   slots: AvailabilitySlot[];
+};
+
+export const sessionLengthInMinutes = (
+  startTime: TimeComponents,
+  endTime: TimeComponents,
+): number => {
+  const startMinutes = Number(startTime.hour) * 60 + Number(startTime.minute);
+  const endMinutes = Number(endTime.hour) * 60 + Number(endTime.minute);
+
+  return endMinutes - startMinutes;
 };

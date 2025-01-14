@@ -6,28 +6,39 @@ import {
   Radio,
   RadioGroup,
 } from '@components/nhsuk-frontend';
-import { SessionSummary, Site } from '@types';
+import { Site } from '@types';
+import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type EditSessionDecisionProps = {
   site: Site;
-  sessionSummary: SessionSummary;
+  sessionSummary: string;
+  date: string;
 };
 
 type EditSessionDecisionFormData = {
   action: 'edit-session' | 'cancel-session';
 };
 
-export const EditSessionDecision = ({}: EditSessionDecisionProps) => {
+export const EditSessionDecision = ({
+  site,
+  sessionSummary,
+  date,
+}: EditSessionDecisionProps) => {
+  const router = useRouter();
   const methods = useForm<EditSessionDecisionFormData>({});
 
   const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
     form: EditSessionDecisionFormData,
   ) => {
     if (form.action === 'edit-session') {
-      // Redirect to edit session page
+      router.push(
+        `/site/${site.id}/availability/edit?session=${sessionSummary}&date=${date}`,
+      );
     } else {
-      // Redirect to cancel session page
+      router.push(
+        `/site/${site.id}/availability/cancel?session=${sessionSummary}&date=${date}`,
+      );
     }
   };
 

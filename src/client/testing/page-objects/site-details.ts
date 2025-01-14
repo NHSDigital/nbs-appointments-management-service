@@ -5,6 +5,10 @@ import RootPage from './root';
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
   readonly editSiteAttributesButton: Locator;
+  readonly editInformationCitizenButton: Locator;
+  readonly closeNotificationBannerButton: Locator;
+  readonly successBanner =
+    "You have successfully updated the current site's information.";
 
   constructor(page: Page) {
     super(page);
@@ -14,16 +18,38 @@ export default class SiteDetailsPage extends RootPage {
     this.editSiteAttributesButton = page.getByRole('link', {
       name: 'Edit access needs',
     });
+    this.editInformationCitizenButton = page.getByRole('link', {
+      name: 'Edit information for citizens',
+    });
+
+    this.closeNotificationBannerButton = page.getByRole('button', {
+      name: 'Close',
+    });
   }
 
   async attributeIsTrue(attributeName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({
-          has: this.page.getByText(attributeName),
-        })
+        .filter({ has: this.page.getByText(attributeName) })
         .getByText('Yes'),
     ).toBeVisible();
+  }
+
+  async verifyInformationSaved(information: string) {
+    await expect(this.page.getByText(`${this.successBanner}`)).toBeVisible();
+    await expect(this.page.getByText(information)).toBeVisible();
+    await this.closeNotificationBannerButton.click();
+    await expect(this.closeNotificationBannerButton).not.toBeVisible();
+  }
+
+  async verifyInformationNotSaved(
+    oldInformation: string,
+    newInformation: string,
+  ) {
+    //Will uncomment below line once related defect is fixed.
+    //await expect(this.page.getByText(`${this.successBanner}`)).not.toBeVisible();
+    await expect(this.page.getByText(oldInformation)).toBeVisible();
+    await expect(this.page.getByText(newInformation)).not.toBeVisible();
   }
 }

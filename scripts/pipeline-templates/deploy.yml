@@ -184,10 +184,7 @@ stages:
         dependsOn:
           - ApplyTerraform
           - DeployWeb
-          - DeployHttpFunctionApp
-          - DeployHighLoadFunctionApp
-          - DeployServiceBusFunctionApp
-          - DeployTimerFunctionApp
+          - DeployFunctionApps
         variables:
           environment: ${{parameters.env}}
         steps:

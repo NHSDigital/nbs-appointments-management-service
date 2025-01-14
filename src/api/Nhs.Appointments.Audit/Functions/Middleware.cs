@@ -20,15 +20,15 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
             return;
         }
 
-        var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
-        _ = Task.Run(() => RecordAudit(context, siteId));
+        var auditData = await ExtractAuditData(context, requiresAudit.RequestSiteInspector);
+        _ = Task.Run(() => auditWriteService.RecordFunction(auditData.id, DateTime.UtcNow, auditData.user, auditData.function, auditData.site));
 
         await next(context);
     }
 
-    private static async Task<string> ExtractSiteId(FunctionContext context, Type requestSiteInspectorType)
+    private static async Task<(string id, string user, string function, string site)> ExtractAuditData(FunctionContext context, Type requestSiteInspectorType)
     {
-        var siteId = string.Empty;
+        var site = string.Empty;
         if (context.InstanceServices.GetService(requestSiteInspectorType) is IRequestInspector requestInspector)
         {
             var request = await context.GetHttpRequestDataAsync();
@@ -39,10 +39,15 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
                 throw new NotImplementedException("Auditing a function with multiple sites is not currently supported");
             }
             
-            siteId = sites.SingleOrDefault();
+            site = sites.SingleOrDefault();
         }
+        
+        var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        var user = userProvider.UserPrincipal?.Claims.GetUserEmail();
+        var functionName = context.FunctionDefinition.Name;
+        var functionAuditId = $"{context.FunctionId}_{context.InvocationId}";
 
-        return siteId;
+        return (functionAuditId, user, functionName, site);
     }
 
     private RequiresAuditAttribute GetRequiresAudit(FunctionContext context)
@@ -55,15 +60,5 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
         var methodInfo = type?.GetMethod(methodName);
 
         return methodInfo?.GetCustomAttribute<RequiresAuditAttribute>();
-    }
-
-    private async Task RecordAudit(FunctionContext context, string siteId)
-    {
-        var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
-        var userId = userProvider.UserPrincipal?.Claims.GetUserEmail();
-        var functionName = context.FunctionDefinition.Name;
-        var functionAuditId = $"{context.FunctionId}_{context.InvocationId}";
-
-        await auditWriteService.RecordFunction(functionAuditId, DateTime.UtcNow, userId, functionName, siteId);
     }
 }

@@ -234,7 +234,7 @@ stages:
               ResourceGroupName: ${{ parameters.resourceGroup }}
               SourceSlot: 'preview'
       - job: SwapFuncAppSlots
-        displayName: "Swap func app slots"
+        displayName: "Swap slots for function apps"
         dependsOn: WaitForSlotApproval
         condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
@@ -242,7 +242,28 @@ stages:
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: 'Swap Slots'
-              WebAppName: ${{ parameters.apiServerName }}
+              Action: 'Swap slots for http function app'
+              WebAppName: ${{ parameters.httpFunctionAppName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'preview'
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap slots for high load app'
+              WebAppName: ${{ parameters.highLoadFunctionAppName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'preview'
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap slots for servicebus function app'
+              WebAppName: ${{ parameters.serviceBusFunctionAppName }}
+              ResourceGroupName: ${{ parameters.resourceGroup }}
+              SourceSlot: 'preview'
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: 'Swap slots for timer function app'
+              WebAppName: ${{ parameters.timerFunctionAppName }}
               ResourceGroupName: ${{ parameters.resourceGroup }}
               SourceSlot: 'preview'

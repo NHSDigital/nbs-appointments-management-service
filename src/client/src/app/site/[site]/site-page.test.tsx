@@ -149,6 +149,11 @@ describe('Site Page', () => {
       />,
     );
 
+    expect(screen.queryByTestId('site-page-card-group')).toBeInTheDocument();
+    expect(screen.queryAllByTestId('site-page-card-group-item')).toHaveLength(
+      4,
+    );
+
     expect(
       screen.getByRole('link', { name: 'Create availability' }),
     ).toBeInTheDocument();
@@ -184,7 +189,12 @@ describe('Site Page', () => {
       />,
     );
 
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('site-page-card-group'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('site-page-card-group-item')).toHaveLength(
+      0,
+    );
   });
 
   it('renders single value', () => {

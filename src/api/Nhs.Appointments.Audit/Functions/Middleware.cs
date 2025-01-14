@@ -20,7 +20,8 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
             return;
         }
 
-        _ = Task.Run(() => RecordAudit(context, requiresAudit));
+        var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
+        _ = Task.Run(() => RecordAudit(context, siteId));
 
         await next(context);
     }
@@ -31,7 +32,6 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
         if (context.InstanceServices.GetService(requestSiteInspectorType) is IRequestInspector requestInspector)
         {
             var request = await context.GetHttpRequestDataAsync();
-
             var sites = (await requestInspector.GetSiteIds(request)).ToList();
 
             if (sites.Count > 1)
@@ -57,13 +57,11 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
         return methodInfo?.GetCustomAttribute<RequiresAuditAttribute>();
     }
 
-    private async Task RecordAudit(FunctionContext context, RequiresAuditAttribute requiresAudit)
+    private async Task RecordAudit(FunctionContext context, string siteId)
     {
         var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
         var userId = userProvider.UserPrincipal?.Claims.GetUserEmail();
         var functionName = context.FunctionDefinition.Name;
-        var siteId = await ExtractSiteId(context, requiresAudit.RequestSiteInspector);
-
         var functionAuditId = $"{context.FunctionId}_{context.InvocationId}";
 
         await auditWriteService.RecordFunction(functionAuditId, DateTime.UtcNow, userId, functionName, siteId);

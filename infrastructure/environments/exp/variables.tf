@@ -8,6 +8,16 @@ variable "WEB_APP_BASE_URI" {
   sensitive = false
 }
 
+variable "FUNC_APP_SLOT_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "WEB_APP_SLOT_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
 variable "AUTH_PROVIDER_ISSUER" {
   type      = string
   sensitive = false
@@ -41,7 +51,6 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
 variable "AUTH_PROVIDER_CLIENT_SECRET" {
   type      = string
   sensitive = true
-  default   = ""
 }
 
 variable "GOV_NOTIFY_BASE_URI" {
@@ -72,3 +81,4 @@ variable "SPLUNK_HEC_TOKEN" {
   type      = string
   sensitive = true
 }
+

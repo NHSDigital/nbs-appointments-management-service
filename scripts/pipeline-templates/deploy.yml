@@ -120,10 +120,9 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: DeployFunctionApps
         dependsOn: ApplyTerraform
         displayName: "Deploy http function apps"
@@ -144,20 +143,20 @@ stages:
               appName: ${{parameters.httpFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy high load function app"
+            condition: eq(${{parameters.env}}, 'stag')
             inputs:
-              ${{ if eq(parameters.env, 'exp') }}:
-                connectedServiceNameARM: ${{parameters.serviceConnectionName}}
-                appType: "functionApp"
-                appName: ${{parameters.highLoadFunctionAppName}}
-                package: "$(Pipeline.Workspace)/drop_api/*.zip"
-                deploymentMethod: "auto"
-                deployToSlotOrASE: true
-                slotName: "preview"
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.highLoadFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              deployToSlotOrASE: true
+              slotName: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy service bus function app"
             inputs:
@@ -166,7 +165,7 @@ stages:
               appName: ${{parameters.serviceBusFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
           - task: AzureFunctionApp@2
@@ -177,7 +176,7 @@ stages:
               appName: ${{parameters.timerFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: UploadCosmosDocuments
@@ -214,7 +213,7 @@ stages:
           - DeployWeb
           - DeployFunctionApps
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -226,7 +225,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -239,7 +238,7 @@ stages:
       - job: SwapHttpFuncAppSlots
         displayName: "Swap function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0

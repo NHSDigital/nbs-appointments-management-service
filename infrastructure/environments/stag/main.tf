@@ -20,7 +20,7 @@ provider "azurerm" {
   features {}
 }
 
-module "api" {
+module "mya_application_stag" {
   environment                                    = "stag"
   source                                         = "../../resources"
   auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
@@ -33,7 +33,7 @@ module "api" {
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
-  web_app_allowed_origin                         = var.WEB_APP_ALLOWED_ORIGIN 
+  web_app_allowed_origin                         = var.WEB_APP_ALLOWED_ORIGIN
   web_app_slot_base_uri                          = var.WEB_APP_SLOT_BASE_URI
   gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY
@@ -42,6 +42,8 @@ module "api" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
+  disable_query_availability_function            = true
+  create_high_load_function_app                  = true
   create_app_slot                                = true
   create_autoscale_settings                      = true
   create_frontdoor                               = true

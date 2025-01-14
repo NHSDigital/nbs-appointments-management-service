@@ -31,8 +31,8 @@ variable "web_app_base_uri" {
 }
 
 variable "web_app_allowed_origin" {
-  type      = string
-  default   = ""
+  type    = string
+  default = ""
 }
 
 variable "func_app_slot_base_uri" {
@@ -172,6 +172,14 @@ variable "cosmos_automatic_failover_enabled" {
 
 variable "app_insights_sampling_percentage" {
   type = number
+}
+
+variable "disable_query_availability_function" {
+  type = bool
+}
+
+variable "create_high_load_function_app" {
+  type = bool
 }
 
 variable "create_autoscale_settings" {

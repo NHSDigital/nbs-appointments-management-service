@@ -20,7 +20,7 @@ provider "azurerm" {
   features {}
 }
 
-module "api" {
+module "mya_application_int" {
   environment                                    = "int"
   source                                         = "../../resources"
   auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
@@ -38,6 +38,8 @@ module "api" {
   unconfirmed_provisional_bookings_cron_schedule = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
+  disable_query_availability_function            = false
+  create_high_load_function_app                  = false
   create_app_slot                                = false
   create_autoscale_settings                      = false
   create_frontdoor                               = false

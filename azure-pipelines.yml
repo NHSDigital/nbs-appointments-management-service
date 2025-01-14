@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag"]
+    default: ["dev", "exp", "int", "stag"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"

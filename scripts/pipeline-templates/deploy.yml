@@ -3,7 +3,13 @@
     type: string
   - name: variable_group
     type: string
-  - name: apiServerName
+  - name: httpFunctionAppName
+    type: string
+  - name: highLoadFunctionAppName
+    type: string
+  - name: serviceBusFunctionAppName
+    type: string
+  - name: timerFunctionAppName
     type: string
   - name: webServerName
     type: string
@@ -20,7 +26,8 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+#    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: succeeded()
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -113,7 +120,7 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployApi
@@ -133,12 +140,46 @@ stages:
             inputs:
               connectedServiceNameARM: ${{parameters.serviceConnectionName}}
               appType: "functionApp"
-              appName: ${{parameters.apiServerName}}
+              appName: ${{parameters.httpFunctionAppName}}
               package: "$(Pipeline.Workspace)/**/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if eq(parameters.env, 'exp') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
+          - task: AzureFunctionApp@2
+            displayName: Deploy Api
+            inputs:
+              ${{ if eq(parameters.env, 'exp') }}:
+                connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+                appType: "functionApp"
+                appName: ${{parameters.highLoadFunctionAppName}}
+                package: "$(Pipeline.Workspace)/**/*.zip"
+                deploymentMethod: "auto"
+                deployToSlotOrASE: true
+                slotName: "preview"
+          - task: AzureFunctionApp@2
+            displayName: Deploy Api
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.serviceBusFunctionAppName}}
+              package: "$(Pipeline.Workspace)/**/*.zip"
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'exp') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+          - task: AzureFunctionApp@2
+            displayName: Deploy Api
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.timerFunctionAppName}}
+              package: "$(Pipeline.Workspace)/**/*.zip"
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'exp') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:
@@ -170,7 +211,7 @@ stages:
           - DeployWeb
           - DeployApi
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -182,7 +223,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -195,7 +236,7 @@ stages:
       - job: SwapFuncAppSlots
         displayName: "Swap func app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0

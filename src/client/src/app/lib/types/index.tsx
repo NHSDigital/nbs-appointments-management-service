@@ -255,6 +255,8 @@ type SessionSummary = {
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
+  capacity: number;
+  slotLength: number;
 };
 
 type DaySummary = {

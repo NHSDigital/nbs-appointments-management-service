@@ -186,6 +186,8 @@ const mapSessionsAndSlots = (
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
       bookings: bookingsByService,
+      capacity: session.capacity,
+      slotLength: session.slotLength,
     };
 
     return {

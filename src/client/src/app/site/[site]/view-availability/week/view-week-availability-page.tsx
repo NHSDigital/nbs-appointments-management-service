@@ -1,8 +1,10 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { DaySummary } from '@types';
+import { clinicalServices, DaySummary, SessionSummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { isInTheFuture } from '@services/timeService';
+import { UrlObject } from 'url';
+import { SessionSummaryTable } from '../session-summary-table';
 
 type Props = {
   days: DaySummary[];
@@ -60,14 +62,17 @@ export const ViewWeekAvailabilityPage = ({
           {d.sessions.length > 0 ? (
             <>
               <Table
-                headers={['Time', 'Services', 'Booked', 'Unbooked']}
+                headers={['Time', 'Services', 'Booked', 'Unbooked', 'Action']}
                 rows={d.sessions.map(session => {
                   return [
                     `${session.start.format('HH:mm')} - ${session.end.format('HH:mm')}`,
                     Object.keys(session.bookings).map((service, k) => {
                       return (
                         <span key={k}>
-                          {service}
+                          {
+                            clinicalServices.find(cs => cs.value === service)
+                              ?.label
+                          }
                           <br />
                         </span>
                       );
@@ -81,6 +86,12 @@ export const ViewWeekAvailabilityPage = ({
                       );
                     }),
                     `${session.maximumCapacity - session.totalBookings} unbooked`,
+                    <Link
+                      key={0}
+                      href={buildEditSessionLink(site, d.date, session)}
+                    >
+                      Change
+                    </Link>,
                   ];
                 })}
               ></Table>
@@ -126,4 +137,25 @@ export const ViewWeekAvailabilityPage = ({
       ))}
     </>
   );
+};
+
+// site/[site]/availability/edit/session/[session]
+// site/[site]/availability/cancel/session/[session]
+
+const buildEditSessionLink = (
+  siteId: string,
+  date: dayjs.Dayjs,
+  sessionSummary: SessionSummary,
+): UrlObject => {
+  const encodedSummary = btoa(JSON.stringify(sessionSummary));
+
+  const editSessionLink: UrlObject = {
+    pathname: `/site/${siteId}/view-availability/week/edit-session`,
+    query: {
+      date: date.format('YYYY-MM-DD'),
+      session: encodedSummary,
+    },
+  };
+
+  return editSessionLink;
 };

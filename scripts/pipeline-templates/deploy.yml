@@ -225,7 +225,10 @@ stages:
         dependsOn:
           - ApplyTerraform
           - DeployWeb
-          - DeployApi
+          - DeployHttpFunctionApp
+          - DeployHighLoadFunctionApp
+          - DeployServiceBusFunctionApp
+          - DeployTimerFunctionApp
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -249,7 +252,10 @@ stages:
       - job: WaitForSlotApproval
         dependsOn:
           - DeployWeb
-          - DeployApi
+          - DeployHttpFunctionApp
+          - DeployHighLoadFunctionApp
+          - DeployServiceBusFunctionApp
+          - DeployTimerFunctionApp
           - UploadCosmosDocuments
         condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
         displayName: "Wait for approval to swap slots"

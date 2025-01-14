@@ -125,7 +125,7 @@ stages:
                 slotName: "preview"
       - job: DeployFunctionApps
         dependsOn: ApplyTerraform
-        displayName: "Deploy http function apps"
+        displayName: "Deploy function apps"
         steps:
           - checkout: none
           - task: DownloadBuildArtifacts@0
@@ -148,7 +148,7 @@ stages:
                 slotName: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy high load function app"
-            condition: eq(${{parameters.env}}, 'stag')
+            condition: ${{ eq(parameters.env, 'stag') }}
             inputs:
               connectedServiceNameARM: ${{parameters.serviceConnectionName}}
               appType: "functionApp"

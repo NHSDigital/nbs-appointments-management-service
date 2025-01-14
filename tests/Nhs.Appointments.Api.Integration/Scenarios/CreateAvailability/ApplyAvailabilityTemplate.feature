@@ -13,6 +13,7 @@
     And the following availability created events are created
       | Type     | By       | FromDate | ToDate            | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | Template | api@test | Tomorrow | 3 days from today | Relative      | 09:00    | 10:00     | 5          | 1        | COVID    |
+    And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Overwrites existing daily availability
     Given the following sessions

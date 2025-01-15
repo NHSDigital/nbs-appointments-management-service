@@ -1,9 +1,24 @@
+variable "NHS_HOST_URL" {
+  type      = string
+  sensitive = false
+}
+
 variable "FUNC_APP_BASE_URI" {
   type      = string
   sensitive = false
 }
 
 variable "WEB_APP_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "FUNC_APP_SLOT_BASE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "WEB_APP_SLOT_BASE_URI" {
   type      = string
   sensitive = false
 }
@@ -72,3 +87,4 @@ variable "SPLUNK_HEC_TOKEN" {
   type      = string
   sensitive = true
 }
+

@@ -228,6 +228,7 @@ stages:
           - DeployHighLoadFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
+        condition: or(succeeded(), skipped())
         steps:
           - checkout: self
           - task: AzureCLI@2

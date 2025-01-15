@@ -121,8 +121,15 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  phoneNumber: string;
   integratedCareBoard: string;
   region: string;
+  location: Location;
+};
+
+type Location = {
+  type: string;
+  coordinates: number[];
 };
 
 type SiteWithAttributes = Site & {

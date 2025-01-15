@@ -1,5 +1,5 @@
 import { Card, SummaryList } from '@nhsuk-frontend-components';
-import { mapSiteSummaryData } from '@services/siteService';
+import { mapSiteOverviewSummaryData } from '@services/siteService';
 import { Site, WellKnownOdsEntry } from '@types';
 
 interface SitePageProps {
@@ -22,11 +22,14 @@ export const SitePage = ({
       p === 'availability:query',
   );
 
-  const summaryData = mapSiteSummaryData(site, wellKnownOdsCodeEntries);
+  const overviewData = mapSiteOverviewSummaryData(
+    site,
+    wellKnownOdsCodeEntries,
+  );
 
   return (
     <>
-      {summaryData && <SummaryList {...summaryData}></SummaryList>}
+      {overviewData && <SummaryList {...overviewData}></SummaryList>}
 
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">

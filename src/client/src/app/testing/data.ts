@@ -68,30 +68,50 @@ const mockSites: Site[] = [
   {
     id: '1001',
     name: 'Site Alpha',
+    phoneNumber: '01189998819991197253',
     address: 'Alpha Street',
     integratedCareBoard: 'ICB1',
     region: 'R1',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: '1002',
     name: 'Site Beta',
+    phoneNumber: '01189998819991197253',
     address: 'Beta Street',
     integratedCareBoard: 'ICB2',
     region: 'R2',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: '1003',
     name: 'Site Gamma',
+    phoneNumber: '01189998819991197253',
     address: 'Gamma Street',
     integratedCareBoard: 'ICB3',
     region: 'R3',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: '1004',
     name: 'Site Delta',
+    phoneNumber: '01189998819991197253',
     address: 'Delta Street, London',
     integratedCareBoard: 'ICB4',
     region: 'R4',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
 ];
 
@@ -243,9 +263,11 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
 const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
+  phoneNumber: mockSites[0].phoneNumber,
   name: mockSites[0].name,
   integratedCareBoard: mockSites[0].integratedCareBoard,
   region: mockSites[0].region,
+  location: mockSites[0].location,
   attributeValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
     { id: 'accessibility/attr_1', value: 'true' },

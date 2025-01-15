@@ -3,7 +3,10 @@ import {
   fetchAttributeDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
-import { mapSiteSummaryData } from '@services/siteService';
+import {
+  mapCoreSiteSummaryData,
+  mapAdminSiteSummaryData,
+} from '@services/siteService';
 import { Site, WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
 
@@ -27,13 +30,32 @@ const SiteDetailsPage = async ({
     sa => sa.id === 'site_details/info_for_citizen',
   );
 
-  const siteSummary = mapSiteSummaryData(site, wellKnownOdsEntries);
+  const siteCoreSummary = mapCoreSiteSummaryData(site);
+  const siteAdminSummary = mapAdminSiteSummaryData(site, wellKnownOdsEntries);
 
   return (
     <>
       <Card title="Site Details">
-        {siteSummary && <SummaryList {...siteSummary}></SummaryList>}
-        {/* TODO: Add link to edit site details */}
+        {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
+        {permissions.includes('site:manage') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-details`}
+            className="nhsuk-link"
+          >
+            Edit site details
+          </Link>
+        ) : null}
+      </Card>
+      <Card title="Code Details">
+        {siteAdminSummary && <SummaryList {...siteAdminSummary}></SummaryList>}
+        {permissions.includes('site:manage') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-codes`}
+            className="nhsuk-link"
+          >
+            Edit code details
+          </Link>
+        ) : null}
       </Card>
       <Card title="Access needs">
         <SummaryList

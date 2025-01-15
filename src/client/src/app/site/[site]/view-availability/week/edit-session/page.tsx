@@ -40,7 +40,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
       originPage="edit-session"
     >
-      <SessionSummaryTable sessionSummary={sessionSummary} />
+      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
       <InsetText>
         <p>
           You can only reduce time and/or capacity from this screen. If you want

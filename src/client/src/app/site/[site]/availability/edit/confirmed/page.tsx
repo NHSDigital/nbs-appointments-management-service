@@ -29,7 +29,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`Edit time and capacity for ${date.format('DD MMMM YYYY')}`}
       caption={'Edit session'}
     >
-      <SessionSummaryTable sessionSummary={sessionSummary} />
+      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
       <InsetText>
         <p>
           Some booked appointments may be affected by this change. If so, you'll

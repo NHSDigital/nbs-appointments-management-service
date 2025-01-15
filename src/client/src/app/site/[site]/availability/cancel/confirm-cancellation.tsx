@@ -40,7 +40,7 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
 
   return (
     <form onSubmit={methods.handleSubmit(submitForm)}>
-      <SessionSummaryTable sessionSummary={sessionSummary} />
+      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
 
       <InsetText>
         <p>You'll need to manually cancel any affected appointments.</p>

@@ -3,6 +3,7 @@ import { clinicalServices, SessionSummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { UrlObject } from 'url';
+import { now } from '@services/timeService';
 
 type SessionSummaryTableProps = {
   sessionSummaries: SessionSummary[];
@@ -61,7 +62,7 @@ export const getSessionSummaryRows = (
         );
       }),
       `${sessionSummary.maximumCapacity - sessionSummary.totalBookings} unbooked`,
-      ...(showChangeSessionLinkProps
+      ...(showChangeSessionLinkProps && sessionSummary.start.isAfter(now())
         ? [
             <Link
               key={`session-${sessionIndex}-action-link`}

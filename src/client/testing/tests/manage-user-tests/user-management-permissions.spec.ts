@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import env from './testEnvironment';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
-import SiteSelectionPage from './page-objects/site-selection';
-import SitePage from './page-objects/site';
-import UsersPage from './page-objects/users';
-import UserManagementPage from './page-objects/user-management';
-import NotAuthorizedPage from './page-objects/unauthorized';
+import env from '../../testEnvironment';
+import RootPage from '../../page-objects/root';
+import OAuthLoginPage from '../../page-objects/oauth';
+import SiteSelectionPage from '../../page-objects/site-selection';
+import SitePage from '../../page-objects/site';
+import UsersPage from '../../page-objects/manage-users/users-page';
+import UserManagementPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
+import NotAuthorizedPage from '../../page-objects/unauthorized';
 
 const { TEST_USERS } = env;
 

@@ -1,5 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-import RootPage from './root';
+import RootPage from '../root';
 
 export default class UsersPage extends RootPage {
   readonly title: Locator;
@@ -21,5 +21,14 @@ export default class UsersPage extends RootPage {
     this.assignStaffRolesLink = page.getByRole('link', {
       name: 'Assign Staff Roles',
     });
+  }
+
+  async verifyUserRoles(roleName: string, newUserName: string) {
+    await expect(
+      this.page
+        .getByRole('row')
+        .filter({ has: this.page.getByText(newUserName) })
+        .getByText(roleName),
+    ).toBeVisible();
   }
 }

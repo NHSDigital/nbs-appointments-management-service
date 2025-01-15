@@ -1,9 +1,9 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { clinicalServices, DaySummary, SessionSummary } from '@types';
+import { DaySummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { isInTheFuture } from '@services/timeService';
-import { UrlObject } from 'url';
+import { SessionSummaryTable } from '@components/session-summary-table';
 
 type Props = {
   days: DaySummary[];
@@ -60,40 +60,13 @@ export const ViewWeekAvailabilityPage = ({
         <Card title={d.date.format('dddd D MMMM')} key={i}>
           {d.sessions.length > 0 ? (
             <>
-              <Table
-                headers={['Time', 'Services', 'Booked', 'Unbooked', 'Action']}
-                rows={d.sessions.map(session => {
-                  return [
-                    `${session.start.format('HH:mm')} - ${session.end.format('HH:mm')}`,
-                    Object.keys(session.bookings).map((service, k) => {
-                      return (
-                        <span key={k}>
-                          {
-                            clinicalServices.find(cs => cs.value === service)
-                              ?.label
-                          }
-                          <br />
-                        </span>
-                      );
-                    }),
-                    Object.keys(session.bookings).map((service, j) => {
-                      return (
-                        <span key={j}>
-                          {session.bookings[service]} booked
-                          <br />
-                        </span>
-                      );
-                    }),
-                    `${session.maximumCapacity - session.totalBookings} unbooked`,
-                    <Link
-                      key={0}
-                      href={buildEditSessionLink(site, d.date, session)}
-                    >
-                      Change
-                    </Link>,
-                  ];
-                })}
-              ></Table>
+              <SessionSummaryTable
+                sessionSummaries={d.sessions}
+                showChangeSessionLink={{
+                  siteId: site,
+                  date: d.date,
+                }}
+              />
               <br />
               {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
                 <Link
@@ -136,22 +109,4 @@ export const ViewWeekAvailabilityPage = ({
       ))}
     </>
   );
-};
-
-const buildEditSessionLink = (
-  siteId: string,
-  date: dayjs.Dayjs,
-  sessionSummary: SessionSummary,
-): UrlObject => {
-  const encodedSummary = btoa(JSON.stringify(sessionSummary));
-
-  const editSessionLink: UrlObject = {
-    pathname: `/site/${siteId}/view-availability/week/edit-session`,
-    query: {
-      date: date.format('YYYY-MM-DD'),
-      session: encodedSummary,
-    },
-  };
-
-  return editSessionLink;
 };

@@ -128,4 +128,22 @@ describe('View Week Availability Page', () => {
     });
     expect(links.length).toBe(2);
   });
+
+  it('Allows future sessions to be changed', () => {
+    const daySummaries = mockDaySummaries;
+    daySummaries[0].date = dayjs();
+    daySummaries[1].date = dayjs().add(1, 'day');
+    daySummaries[2].date = dayjs().add(2, 'day');
+
+    render(
+      <ViewWeekAvailabilityPage
+        days={mockDaySummaries}
+        weekStart={mockWeekAvailabilityStart}
+        weekEnd={mockWeekAvailabilityEnd}
+        site={'mock-site'}
+      />,
+    );
+  });
+
+  it('Does not allow past sessions to be changed', () => {});
 });

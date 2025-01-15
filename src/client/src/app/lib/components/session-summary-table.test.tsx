@@ -1,5 +1,5 @@
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 
@@ -43,5 +43,44 @@ describe('Session summary table', () => {
         name: '13:00 - 17:30 RSV (Adult) 0 booked 54 unbooked',
       }),
     ).toBeInTheDocument();
+  });
+
+  it('renders action column when showChangeSessionLink is provided', () => {
+    render(
+      <SessionSummaryTable
+        sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        showChangeSessionLink={{
+          siteId: 'TEST01',
+          date: mockWeekAvailability__Summary[0].date,
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole('row', {
+        name: 'Time Services Booked Unbooked Action',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(
+        screen.getByRole('row', {
+          name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked Change',
+        }),
+      ).getByRole('link', { name: 'Change' }),
+    ).toBeInTheDocument();
+
+    const changeLink = within(
+      screen.getByRole('row', {
+        name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked Change',
+      }),
+    ).getByRole('link', { name: 'Change' });
+
+    const href = changeLink.getAttribute('href');
+    expect(
+      href?.startsWith(
+        '/site/TEST01/view-availability/week/edit-session?date=2024-06-10&session=',
+      ),
+    ).toBe(true);
   });
 });

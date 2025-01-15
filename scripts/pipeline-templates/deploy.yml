@@ -222,13 +222,21 @@ stages:
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:
-          - ApplyTerraform
           - DeployWeb
           - DeployHttpFunctionApp
           - DeployHighLoadFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-        condition: or(succeeded(), skipped())
+        condition: |
+          and
+          (
+            in(dependencies.DeployWeb.result, 'Succeeded'),
+            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployHighLoadFunctionApp.result, 'Succeeded', 'Skipped'),
+            in(dependencies.DeployServiceBusFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded'),
+          )
         steps:
           - checkout: self
           - task: AzureCLI@2

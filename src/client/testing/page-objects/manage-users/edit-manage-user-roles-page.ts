@@ -1,8 +1,8 @@
 import { type Locator, type Page } from '@playwright/test';
 import { expect } from '@playwright/test';
-import RootPage from './root';
+import RootPage from '../root';
 
-export default class UserManagementPage extends RootPage {
+export default class EditManageUserRolesPage extends RootPage {
   readonly title: Locator;
   readonly emailInput: Locator;
   readonly searchUserButton: Locator;

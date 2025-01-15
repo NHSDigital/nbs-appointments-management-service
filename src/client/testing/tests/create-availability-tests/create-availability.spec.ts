@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
-import SiteSelectionPage from './page-objects/site-selection';
-import SitePage from './page-objects/site';
-import CreateAvailabilityPage from './page-objects/create-availability';
-import SummaryPage from './page-objects/create-availability/summary-page';
-import { getDateInFuture } from './utils/date-utility';
+import RootPage from '../../page-objects/root';
+import OAuthLoginPage from '../../page-objects/oauth';
+import SiteSelectionPage from '../../page-objects/site-selection';
+import SitePage from '../../page-objects/site';
+import CreateAvailabilityPage from '../../page-objects/create-availability';
+import SummaryPage from '../../page-objects/create-availability/summary-page';
+import { getDateInFuture } from '../../utils/date-utility';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;

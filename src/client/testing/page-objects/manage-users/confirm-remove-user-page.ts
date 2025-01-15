@@ -1,5 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-import RootPage from './root';
+import RootPage from '../root';
 
 export default class ConfirmRemoverUserPage extends RootPage {
   readonly title: Locator;

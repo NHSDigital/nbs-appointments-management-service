@@ -1,6 +1,9 @@
 import { Table, InsetText } from '@components/nhsuk-frontend';
-import { SessionSummary, Site, clinicalServices } from '@types';
-import dayjs from 'dayjs';
+import {
+  SessionServicesCell,
+  SessionTimesCell,
+} from '@components/session-summary-table';
+import { SessionSummary, Site } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
@@ -16,19 +19,14 @@ const EditSessionConfirmed = ({ sessionSummary, site, date }: PageProps) => {
         headers={['Time', 'Services']}
         rows={[
           [
-            <strong
+            <SessionTimesCell
               key={`session-0-start-and-end-time`}
-            >{`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}</strong>,
-            Object.keys(sessionSummary.bookings).map(
-              (service, serviceIndex) => {
-                return (
-                  <span key={`session-0-service-name-${serviceIndex}`}>
-                    {clinicalServices.find(cs => cs.value === service)?.label}
-                    <br />
-                  </span>
-                );
-              },
-            ),
+              sessionSummary={sessionSummary}
+            />,
+            <SessionServicesCell
+              key={`session-0-service-name`}
+              sessionSummary={sessionSummary}
+            />,
           ],
         ]}
       />

@@ -40,28 +40,22 @@ export const getSessionSummaryRows = (
 ): Cell[][] =>
   sessionSummaries.map((sessionSummary, sessionIndex) => {
     return [
-      <strong
+      <SessionTimesCell
         key={`session-${sessionIndex}-start-and-end-time`}
-      >{`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}</strong>,
-      Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
-        return (
-          <span key={`session-${sessionIndex}-service-name-${serviceIndex}`}>
-            {clinicalServices.find(cs => cs.value === service)?.label}
-            <br />
-          </span>
-        );
-      }),
-      Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
-        return (
-          <span
-            key={`session-${sessionIndex}-service-bookings-${serviceIndex}`}
-          >
-            {sessionSummary.bookings[service]} booked
-            <br />
-          </span>
-        );
-      }),
-      `${sessionSummary.maximumCapacity - sessionSummary.totalBookings} unbooked`,
+        sessionSummary={sessionSummary}
+      />,
+      <SessionServicesCell
+        key={`session-${sessionIndex}-service-name`}
+        sessionSummary={sessionSummary}
+      />,
+      <SessionBookingsCell
+        key={`session-${sessionIndex}-service-bookings`}
+        sessionSummary={sessionSummary}
+      />,
+      <SessionUnbookedCell
+        key={`session-${sessionIndex}-unbooked`}
+        sessionSummary={sessionSummary}
+      />,
       ...(showChangeSessionLinkProps && sessionSummary.start.isAfter(now())
         ? [
             <Link
@@ -78,6 +72,68 @@ export const getSessionSummaryRows = (
         : []),
     ];
   });
+
+export const SessionTimesCell = ({
+  sessionSummary,
+}: {
+  sessionSummary: SessionSummary;
+}) => {
+  return (
+    <strong>
+      {`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}
+    </strong>
+  );
+};
+
+export const SessionServicesCell = ({
+  sessionSummary,
+}: {
+  sessionSummary: SessionSummary;
+}) => {
+  return (
+    <>
+      {Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
+        return (
+          <span key={`service-name-${serviceIndex}`}>
+            {clinicalServices.find(cs => cs.value === service)?.label}
+            <br />
+          </span>
+        );
+      })}
+    </>
+  );
+};
+
+export const SessionBookingsCell = ({
+  sessionSummary,
+}: {
+  sessionSummary: SessionSummary;
+}) => {
+  return (
+    <>
+      {Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
+        return (
+          <span key={`service-bookings-${serviceIndex}`}>
+            {sessionSummary.bookings[service]} booked
+            <br />
+          </span>
+        );
+      })}
+    </>
+  );
+};
+
+export const SessionUnbookedCell = ({
+  sessionSummary,
+}: {
+  sessionSummary: SessionSummary;
+}) => {
+  return (
+    <>
+      {sessionSummary.maximumCapacity - sessionSummary.totalBookings} unbooked
+    </>
+  );
+};
 
 const buildEditSessionLink = (
   siteId: string,

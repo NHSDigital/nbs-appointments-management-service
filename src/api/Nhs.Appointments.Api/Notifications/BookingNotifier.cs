@@ -64,8 +64,8 @@ public class BookingNotifier(
         _ => throw new NotSupportedException("Unknown notification type")
     };
 
-    const string MobileNumberRegex = @"^\s*07(?=\d{9,11}(\s*)$)[\d]+(?:\s[\d]+)*\s*$|^(?(?=(\s*(\+\(44\)|\(\+44\)|\+44)))\s*(\+\(44\)|\(\+44\)|\+44)\s?((07|7)(?=\d{9,11}(\s*)$)[\d]+(?:\s[\d]+)*\s*)|(?(?=(\s*(\+\(\d{2}\)|\(\+\d{2}\)|\+\d{2})))(\s*(\+\(\d{2}\)|\(\+\d{2}\)|\+\d{2}))\s?(?=.{8,19}(\s*)$)[\d]+(?:\s[\d]+)*\s*))$";
-    const string EmailAddressRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";    
+    private static readonly Regex MobileNumberRegex = new (@"^\s*07(?=\d{9,11}(\s*)$)[\d]+(?:\s[\d]+)*\s*$|^(?(?=(\s*(\+\(44\)|\(\+44\)|\+44)))\s*(\+\(44\)|\(\+44\)|\+44)\s?((07|7)(?=\d{9,11}(\s*)$)[\d]+(?:\s[\d]+)*\s*)|(?(?=(\s*(\+\(\d{2}\)|\(\+\d{2}\)|\+\d{2})))(\s*(\+\(\d{2}\)|\(\+\d{2}\)|\+\d{2}))\s?(?=.{8,19}(\s*)$)[\d]+(?:\s[\d]+)*\s*))$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
+    private static readonly Regex EmailAddressRegex = new (@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.None, TimeSpan.FromMilliseconds(100));    
 
     private bool ValidateDestination(NotificationType type, string destination)
     {
@@ -74,8 +74,8 @@ public class BookingNotifier(
 
         switch(type)
         {
-            case NotificationType.Email: return Regex.Match(destination, EmailAddressRegex).Success;
-            case NotificationType.Sms: return Regex.Match(destination, MobileNumberRegex).Success;
+            case NotificationType.Email: return EmailAddressRegex.IsMatch(destination);
+            case NotificationType.Sms: return MobileNumberRegex.IsMatch(destination);
             default: throw new NotSupportedException();
         }
     }

@@ -235,7 +235,7 @@ stages:
             in(dependencies.DeployHighLoadFunctionApp.result, 'Succeeded', 'Skipped'),
             in(dependencies.DeployServiceBusFunctionApp.result, 'Succeeded'),
             in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded')
           )
         steps:
           - checkout: self

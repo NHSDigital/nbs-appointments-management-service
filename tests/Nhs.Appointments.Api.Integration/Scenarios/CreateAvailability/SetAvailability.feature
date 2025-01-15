@@ -49,10 +49,14 @@
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:30 | 5        | COVID   | 79237-10283 |
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking with reference '37492-16293' has been 'Booked'
+    And the booking with reference '79237-10283' has status 'Provisional'
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit an existing session

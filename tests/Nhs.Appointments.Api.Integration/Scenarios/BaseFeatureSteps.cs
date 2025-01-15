@@ -337,20 +337,34 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [Then(@"the booking with reference '(.+)' has been '(.+)'")]
-    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    [And(@"the booking with reference '(.+)' has been '(.+)'")]
+    public async Task AssertSpecificBookingStatusChange(string bookingReference, string status)
     {
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
 
         await AssertBookingStatusByReference(bookingReference, expectedStatus);
     }
 
-    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status)
+    [Then(@"the booking with reference '(.+)' has status '(.+)'")]
+    [And(@"the booking with reference '(.+)' has status '(.+)'")]
+    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus, false);
+    }
+
+    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,
+        bool expectStatusToHaveChanged = true)
     {
         var siteId = GetSiteId();
         var bookingDocument = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         bookingDocument.Resource.Status.Should().Be(status);
-        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        if (expectStatusToHaveChanged)
+        {
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        }
 
         var indexDocument = await Client.GetContainer("appts", "index_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));

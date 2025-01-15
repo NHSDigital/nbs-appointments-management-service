@@ -63,6 +63,6 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWr
     private async Task RecordAuditLogin(string idToken)
     {
         var token = new JwtSecurityToken(idToken);
-        await auditWriteService.RecordAuth(token.Id, DateTime.UtcNow, token.Subject, AuditAuthActionType.Login);
+        await auditWriteService.RecordAuth($"{Guid.NewGuid()}", DateTime.UtcNow, token.Subject, AuditAuthActionType.Login);
     }
 }

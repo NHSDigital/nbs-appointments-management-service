@@ -42,12 +42,12 @@ public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorker
             site = sites.SingleOrDefault();
         }
         
+        var id = $"{Guid.NewGuid()}";
         var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
         var user = userProvider.UserPrincipal?.Claims.GetUserEmail();
         var functionName = context.FunctionDefinition.Name;
-        var functionAuditId = $"{context.FunctionId}_{context.InvocationId}";
 
-        return (functionAuditId, user, functionName, site);
+        return (id, user, functionName, site);
     }
 
     private RequiresAuditAttribute GetRequiresAudit(FunctionContext context)

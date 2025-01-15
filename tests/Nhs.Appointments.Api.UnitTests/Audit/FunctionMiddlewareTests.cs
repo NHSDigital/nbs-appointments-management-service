@@ -17,9 +17,6 @@ public class FunctionMiddlewareTests
     private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly Mock<FunctionContext> _functionContext = new();
     private readonly Mock<FunctionExecutionDelegate> _functionExecutionDelegate = new();
-
-    private readonly string _functionId = Guid.NewGuid().ToString();
-    private readonly string _invocationId = Guid.NewGuid().ToString();
     private readonly Mock<IServiceProvider> _serviceProvider = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private Middleware _sut;
@@ -53,7 +50,7 @@ public class FunctionMiddlewareTests
         // Assert
         //TODO add execution time middleware to verify timestamp logged?
         _auditWriteService.Verify(
-            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name, site),
+            s => s.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), user, functionType.Name, site),
             Times.Once);
 
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -80,7 +77,7 @@ public class FunctionMiddlewareTests
         await Task.Delay(100);
 
         _auditWriteService.Verify(
-            x => x.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+            x => x.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), user, functionType.Name,
                 siteId),
             Times.Once);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -104,7 +101,7 @@ public class FunctionMiddlewareTests
         await Task.Delay(100);
 
         _auditWriteService.Verify(
-            x => x.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), user, functionType.Name,
+            x => x.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), user, functionType.Name,
                 "site-A"),
             Times.Once);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -132,7 +129,7 @@ public class FunctionMiddlewareTests
 
         // Assert
         _auditWriteService.Verify(
-            s => s.RecordFunction($"{_functionId}_{_invocationId}", It.IsAny<DateTime>(), It.IsAny<string>(),
+            s => s.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>()),
             Times.Never);
         _functionExecutionDelegate.Verify(x => x(_functionContext.Object), Times.Once);
@@ -153,8 +150,6 @@ public class FunctionMiddlewareTests
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
-        _functionContext.Setup(x => x.FunctionId).Returns(_functionId);
-        _functionContext.Setup(x => x.InvocationId).Returns(_invocationId);
 
         var assemblyLocation = functionType.Assembly.Location;
 

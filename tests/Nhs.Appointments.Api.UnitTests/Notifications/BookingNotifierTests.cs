@@ -23,7 +23,7 @@ public class BookingNotifierTests
     private Mock<ISendNotifications> _notificationClient = new();
     private Mock<ISiteService> _siteService = new();
     private Mock<INotificationConfigurationService> _notificationConfigurationService = new();
-    private Mock<ILogger> _logger = new();
+    private Mock<ILogger<BookingNotifier>> _logger = new();
 
     public BookingNotifierTests()
     {

@@ -12,5 +12,6 @@ public class AuditAuthDocument : AuditDataCosmosDocument
 
 public enum AuditAuthActionType
 {
-    Login = 0
+    Undefined = 0,
+    Login = 1
 }

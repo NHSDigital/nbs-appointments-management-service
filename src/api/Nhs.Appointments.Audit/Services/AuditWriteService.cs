@@ -24,6 +24,11 @@ public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> 
     
     public async Task RecordAuth(string id, DateTime timestamp, string user, AuditAuthActionType actionType)
     {
+        if (actionType == AuditAuthActionType.Undefined)
+        {
+            throw new ArgumentException("AuditAuthActionType is undefined.", nameof(actionType));
+        }
+        
         var docType = auditAuthStore.GetDocumentType();
         var doc = new AuditAuthDocument
         {

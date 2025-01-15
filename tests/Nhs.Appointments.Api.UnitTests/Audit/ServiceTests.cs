@@ -43,7 +43,7 @@ public class ServiceTests
     }
     
     [Fact]
-    public async Task RecordAuth_WriteAsync_IsCalled()
+    public async Task RecordAuth_LoginAction_WriteAsync_IsCalled()
     {
         var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object);
 
@@ -60,6 +60,18 @@ public class ServiceTests
                 && y.Timestamp == timestamp
                 && y.User == user
         )), Times.Once);
+    }
+    
+    [Fact]
+    public async Task RecordAuth_UndefinedAction_ThrowsArgumentException()
+    {
+        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object);
+
+        var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
+        var user = "abd-123@test.com";
+        var timestamp = DateTime.UtcNow;
+
+        await Assert.ThrowsAsync<ArgumentException>(async () => await sut.RecordAuth(id, timestamp, user, AuditAuthActionType.Undefined));
     }
 
     [Fact]

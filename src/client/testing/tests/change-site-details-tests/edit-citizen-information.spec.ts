@@ -1,12 +1,11 @@
-import { test, expect } from '../../fixtures';
+import { test } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
-import SiteManagementPage from '../../page-objects/site-management';
-import SiteDetailsPage from '../../page-objects/site-details';
-import EditInformationForCitizensPage from '../../page-objects/change-site-details-pages/edit-citizenship-information';
+import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
+import EditInformationForCitizensPage from '../../page-objects/change-site-details-pages/edit-citizen-information';
 
 const { TEST_USERS } = env;
 

@@ -58,10 +58,16 @@ export default class EditInformationForCitizensPage extends RootPage {
   async VerifyValidationMessage() {
     await this.informationTextField.clear();
     await this.informationTextField.fill(`${this.testUrl}`);
-
+    await this.confirmSiteDetailsButton.click();
+    await expect(
+      this.page.getByText(`${this.validationMessage}`),
+    ).toBeVisible();
     await this.informationTextField.clear();
     await this.informationTextField.fill(`${this.informationWithInvalidChar}`);
-
+    await this.confirmSiteDetailsButton.click();
+    await expect(
+      this.page.getByText(`${this.validationMessage}`),
+    ).toBeVisible();
     await this.cancelButton.click();
   }
 }

@@ -184,7 +184,7 @@ describe('Site Page', () => {
       />,
     );
 
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   });
 
   it('renders single value', () => {

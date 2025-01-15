@@ -1,9 +1,8 @@
 import { assertPermission, fetchSite } from '@services/appointmentsService';
-import { clinicalServices, SessionSummary } from '@types';
+import { SessionSummary } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
-import { InsetText, Table } from '@components/nhsuk-frontend';
-import Link from 'next/link';
+import EditSessionConfirmed from './edit-session-confirmed';
 
 type PageProps = {
   searchParams: {
@@ -33,37 +32,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
         text: 'Back to week view',
       }}
     >
-      <Table
-        headers={['Time', 'Services']}
-        rows={[
-          [
-            <strong
-              key={`session-0-start-and-end-time`}
-            >{`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}</strong>,
-            Object.keys(sessionSummary.bookings).map(
-              (service, serviceIndex) => {
-                return (
-                  <span key={`session-0-service-name-${serviceIndex}`}>
-                    {clinicalServices.find(cs => cs.value === service)?.label}
-                    <br />
-                  </span>
-                );
-              },
-            ),
-          ],
-        ]}
+      <EditSessionConfirmed
+        sessionSummary={sessionSummary}
+        site={site}
+        date={searchParams.date}
       />
-      <InsetText>
-        <p>
-          Some booked appointments may be affected by this change. If so, you'll
-          need to cancel these appointments manually.
-        </p>
-        <Link
-          href={`/site/${site.id}/view-availability/daily-appointments?date=${searchParams.date}&page=1&tab=2`}
-        >
-          Cancel appointments
-        </Link>
-      </InsetText>
     </NhsPage>
   );
 };

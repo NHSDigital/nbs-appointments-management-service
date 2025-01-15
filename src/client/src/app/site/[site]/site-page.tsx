@@ -29,15 +29,9 @@ export const SitePage = ({
       {summaryData && <SummaryList {...summaryData}></SummaryList>}
 
       {permissionsRelevantToCards.length > 0 && (
-        <ul
-          className="nhsuk-grid-row nhsuk-card-group"
-          data-testid="site-page-card-group"
-        >
+        <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('availability:query') && (
-            <li
-              className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-              data-testid="site-page-card-group-item"
-            >
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`/site/${site.id}/view-availability`}
                 title="View availability and manage appointments for your site"
@@ -45,10 +39,7 @@ export const SitePage = ({
             </li>
           )}
           {permissionsRelevantToCards.includes('availability:setup') && (
-            <li
-              className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-              data-testid="site-page-card-group-item"
-            >
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`/site/${site.id}/create-availability`}
                 title="Create availability"
@@ -57,10 +48,7 @@ export const SitePage = ({
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
             permissionsRelevantToCards.includes('site:view')) && (
-            <li
-              className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-              data-testid="site-page-card-group-item"
-            >
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card
                 href={`/site/${site.id}/details`}
                 title="Change site details and accessibility information"
@@ -68,10 +56,7 @@ export const SitePage = ({
             </li>
           )}
           {permissionsRelevantToCards.includes('users:view') && (
-            <li
-              className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-              data-testid="site-page-card-group-item"
-            >
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card href={`/site/${site.id}/users`} title="Manage users" />
             </li>
           )}

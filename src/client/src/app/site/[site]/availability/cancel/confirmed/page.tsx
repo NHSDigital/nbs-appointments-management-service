@@ -3,6 +3,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import CancellationConfirmed from './cancellation-confirmed';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -22,11 +23,18 @@ const Page = async ({ searchParams, params }: PageProps) => {
     notFound();
   }
 
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
+    text: 'Back to week view',
+  };
+
   return (
     <NhsPage
       title={`Cancelled session for ${dayjs(searchParams.date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"
+      backLink={backLink}
     >
       <CancellationConfirmed
         session={searchParams.session}

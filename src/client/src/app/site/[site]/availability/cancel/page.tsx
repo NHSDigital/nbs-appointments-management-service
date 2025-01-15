@@ -2,6 +2,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 import ConfirmCancellation from './confirm-cancellation';
 import NhsPage from '@components/nhs-page';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   searchParams: {
@@ -21,11 +22,18 @@ const Page = async ({ searchParams, params }: PageProps) => {
     notFound();
   }
 
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${site.id}/view-availability/week/edit-session?session=${searchParams.session}&date=${searchParams.date}`,
+    text: 'Go back',
+  };
+
   return (
     <NhsPage
       title="Are you sure you want to cancel this session?"
       caption="Cancel session"
       originPage="edit-session"
+      backLink={backLink}
     >
       <ConfirmCancellation
         date={searchParams.date}

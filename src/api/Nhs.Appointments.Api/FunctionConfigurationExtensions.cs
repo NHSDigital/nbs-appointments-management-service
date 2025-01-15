@@ -78,6 +78,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
+            .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()

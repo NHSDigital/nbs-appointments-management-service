@@ -14,7 +14,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
+    <ProjectReference Include="..\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Nhs.Appointments.Api.UnitTests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

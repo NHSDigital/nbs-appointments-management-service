@@ -7,6 +7,14 @@ import {
   mockWeekAvailabilityStart,
 } from '@testing/data';
 import dayjs from 'dayjs';
+import { now } from '@services/timeService';
+
+jest.mock('@services/timeService', () => ({
+  ...jest.requireActual('@services/timeService'),
+  now: jest.fn(),
+}));
+
+const mockNow = now as jest.Mock<dayjs.Dayjs>;
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
@@ -18,6 +26,12 @@ jest.mock('@types', () => ({
 }));
 
 describe('View Week Availability Page', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+
+    mockNow.mockReturnValue(dayjs('2023-06-10 08:34:00'));
+  });
+
   it('renders', () => {
     render(
       <ViewWeekAvailabilityPage

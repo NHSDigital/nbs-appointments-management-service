@@ -45,8 +45,14 @@ const EditSessionTimeAndCapacityForm = ({
         capacity: existingSession.capacity,
       },
       newSession: {
-        startTime: toTimeComponents(existingSessionStart),
-        endTime: toTimeComponents(existingSessionEnd),
+        startTime: {
+          hour: existingSessionStart.split(':')[0],
+          minute: existingSessionStart.split(':')[1],
+        },
+        endTime: {
+          hour: existingSessionEnd.split(':')[0],
+          minute: existingSessionEnd.split(':')[1],
+        },
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
@@ -133,7 +139,7 @@ const EditSessionTimeAndCapacityForm = ({
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(submitForm)}>
         <BackLink
-          href={'/site/${site.id}/view-availability/week?date=${date}'}
+          href={`/site/${site.id}/view-availability/week?date=${date}`}
           renderingStrategy="server"
           text="Go back"
         />
@@ -255,6 +261,17 @@ const EditSessionTimeAndCapacityForm = ({
                 if (minutesBetweenStartAndEnd <= 5) {
                   return 'Session length must be more than 5 minutes';
                 }
+
+                const originalSessionLengthInMinutes = sessionLengthInMinutes(
+                  form.sessionToEdit.startTime,
+                  form.sessionToEdit.endTime,
+                );
+
+                if (
+                  minutesBetweenStartAndEnd > originalSessionLengthInMinutes
+                ) {
+                  return 'Enter a start or end time that reduces the length of this session.';
+                }
               },
             }}
             render={() => (
@@ -337,11 +354,15 @@ const EditSessionTimeAndCapacityForm = ({
               required: { value: true, message: 'Capacity is required' },
               min: { value: 1, message: 'Capacity must be at least 1' },
               validate: value => {
-                if (!Number.isInteger(Number(value))) {
+                const candidate = Number(value);
+                if (!Number.isInteger(candidate)) {
                   return 'Capacity must be a whole number';
                 }
-                if (Number(value) > 99) {
+                if (candidate > 99) {
                   return 'Capacity must be less than 100';
+                }
+                if (candidate > existingSession.capacity) {
+                  return 'Enter a number that reduces the vaccinators or vaccinator spaces in this session.';
                 }
               },
             }}

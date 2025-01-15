@@ -68,34 +68,54 @@ const mockSites: Site[] = [
   {
     id: '34e990af-5dc9-43a6-8895-b9123216d699',
     name: 'Site Alpha',
+    phoneNumber: '01189998819991197253',
     address: 'Alpha Street',
     odsCode: '1001',
     integratedCareBoard: 'ICB1',
     region: 'R1',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
     name: 'Site Beta',
+    phoneNumber: '01189998819991197253',
     address: 'Beta Street',
     odsCode: '1002',
     integratedCareBoard: 'ICB2',
     region: 'R2',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: 'd79bec60-8968-4101-b553-67dec04e1019',
     name: 'Site Gamma',
+    phoneNumber: '01189998819991197253',
     address: 'Gamma Street',
     odsCode: '1003',
     integratedCareBoard: 'ICB3',
     region: 'R3',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
     id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
     name: 'Site Delta',
+    phoneNumber: '01189998819991197253',
     address: 'Delta Street, London',
     odsCode: '1004',
     integratedCareBoard: 'ICB4',
     region: 'R4',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
 ];
 
@@ -247,10 +267,12 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
 const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
+  phoneNumber: mockSites[0].phoneNumber,
   name: mockSites[0].name,
   odsCode: mockSites[0].odsCode,
   integratedCareBoard: mockSites[0].integratedCareBoard,
   region: mockSites[0].region,
+  location: mockSites[0].location,
   attributeValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
     { id: 'accessibility/attr_1', value: 'true' },

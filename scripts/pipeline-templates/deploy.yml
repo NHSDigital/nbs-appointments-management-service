@@ -143,7 +143,7 @@ stages:
               appName: ${{parameters.httpFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
 
@@ -191,7 +191,7 @@ stages:
               appName: ${{parameters.serviceBusFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
 
@@ -215,7 +215,7 @@ stages:
               appName: ${{parameters.timerFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'exp') }}:
+              ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
 
@@ -254,7 +254,7 @@ stages:
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -267,7 +267,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -280,7 +280,7 @@ stages:
       - job: SwapHttpFuncAppSlots
         displayName: "Swap slots for http function app"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -293,7 +293,7 @@ stages:
       - job: SwapHighLoadFuncAppSlots
         displayName: "Swap slots for high load function app"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -306,7 +306,7 @@ stages:
       - job: SwapServiceBusFuncAppSlots
         displayName: "Swap slots for servicebus function app"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -319,7 +319,7 @@ stages:
       - job: SwapTimerFuncAppSlots
         displayName: "Swap slots for timer function app"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'exp') }})
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0

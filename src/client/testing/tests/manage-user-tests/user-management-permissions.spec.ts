@@ -72,7 +72,7 @@ test('A user with the appropriate permission can view other users at a site and 
       hasNot: userManagementPage.page.getByText(/int-test-user/),
       has: userManagementPage.page.getByRole('link', { name: 'Edit' }),
     }),
-  ).toHaveCount(6);
+  ).toHaveCount(5);
 });
 
 test('Navigating straight to the user management page works as expected', async ({

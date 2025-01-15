@@ -76,7 +76,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var expectedUntil = expectedFrom.AddDays(1);
             var availability = new[] { new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = new[] { "TSERV" } } };
 
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem()], AttendeeDetails = new AttendeeDetails(), Status = AppointmentStatus.Booked };
+            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10, ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@test.com" }], AttendeeDetails = new AttendeeDetails(), Status = AppointmentStatus.Booked };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
@@ -265,7 +265,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking { Reference = bookingRef, Site = site, ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org"}] }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
 
-            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e => e[0].Site == site && e[0].Reference == bookingRef && e[0].ContactDetails[0].Type == ContactItemType.Email))).Verifiable(Times.Once);
+            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e => e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email && e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
 
             await _bookingsService.CancelBooking(bookingRef, site);
 

@@ -125,6 +125,11 @@ variable "cosmos_index_autoscale_settings" {
   default = []
 }
 
+variable "cosmos_audit_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
 variable "web_app_service_sku" {
   type = string
 }

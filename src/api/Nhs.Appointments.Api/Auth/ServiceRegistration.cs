@@ -35,5 +35,4 @@ public static class ServiceRegistration
         .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
         .AddTransient<IRequestSigner, RequestSigner>()
         .AddMemoryCache();
-    
 }

@@ -22,6 +22,10 @@ variable "loc" {
   default = "uks"
 }
 
+variable "nhs_host_url" {
+  type    = string
+  default = ""
+}
 variable "func_app_base_uri" {
   type = string
 }

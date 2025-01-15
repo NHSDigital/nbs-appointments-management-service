@@ -41,6 +41,7 @@ variable "AUTH_PROVIDER_CLIENT_ID" {
 variable "AUTH_PROVIDER_CLIENT_SECRET" {
   type      = string
   sensitive = true
+  default   = ""
 }
 
 variable "GOV_NOTIFY_BASE_URI" {

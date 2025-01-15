@@ -33,7 +33,6 @@ module "api" {
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
-  web_app_allowed_origin                         = var.WEB_APP_ALLOWED_ORIGIN 
   web_app_slot_base_uri                          = var.WEB_APP_SLOT_BASE_URI
   gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                             = var.GOV_NOTIFY_API_KEY

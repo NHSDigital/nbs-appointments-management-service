@@ -27,7 +27,6 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     NBS_API_BASE_URL = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
     AUTH_HOST        = "https://${azurerm_windows_function_app.nbs_mya_func_app.default_hostname}"
     CLIENT_BASE_PATH = "/manage-your-appointments"
-    ALLOWED_ORIGIN   = var.web_app_allowed_origin
   }
 
   sticky_settings {

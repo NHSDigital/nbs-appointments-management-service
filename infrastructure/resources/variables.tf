@@ -30,11 +30,6 @@ variable "web_app_base_uri" {
   type = string
 }
 
-variable "web_app_allowed_origin" {
-  type      = string
-  default   = ""
-}
-
 variable "func_app_slot_base_uri" {
   type    = string
   default = ""

@@ -13,7 +13,7 @@ public class BookingNotifier(
     INotificationConfigurationService notificationConfigurationService,
     ISiteService siteService, 
     IPrivacyUtil privacy,
-    ILogger logger) : IBookingNotifier
+    ILogger<BookingNotifier> logger) : IBookingNotifier
 {
     public async Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, NotificationType notificationType, string destination)
     {

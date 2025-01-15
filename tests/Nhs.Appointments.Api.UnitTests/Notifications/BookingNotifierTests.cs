@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
@@ -22,10 +23,11 @@ public class BookingNotifierTests
     private Mock<ISendNotifications> _notificationClient = new();
     private Mock<ISiteService> _siteService = new();
     private Mock<INotificationConfigurationService> _notificationConfigurationService = new();
+    private Mock<ILogger> _logger = new();
 
     public BookingNotifierTests()
     {
-       _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationService.Object, _siteService.Object, new PrivacyUtil());
+       _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationService.Object, _siteService.Object, new PrivacyUtil(), _logger.Object);
     }
 
     [Fact]

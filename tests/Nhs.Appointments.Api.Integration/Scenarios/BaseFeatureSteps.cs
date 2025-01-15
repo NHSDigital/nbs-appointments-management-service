@@ -25,7 +25,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract partial class BaseFeatureSteps : Feature
 {
-    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned }
+    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned, Cancelled }
 
     protected const string ApiSigningKey =
         "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
@@ -257,6 +257,11 @@ public abstract partial class BaseFeatureSteps : Feature
         return SetupBookings("A", dataTable, BookingType.ExpiredProvisional);
     }
 
+    [Given("the following cancelled bookings have been made")]
+    [And("the following cancelled bookings have been made")]
+    public Task SetupCancelledBookings(DataTable dataTable) =>
+        SetupBookings("A", dataTable, BookingType.Cancelled);
+
     [And("the following orphaned bookings exist")]
     public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("A", dataTable, BookingType.Orphaned);
 
@@ -277,7 +282,9 @@ public abstract partial class BaseFeatureSteps : Feature
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
-            Created = GetCreationDateTime(bookingType),
+            Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
+                ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
+                : GetCreationDateTime(bookingType),
             AttendeeDetails = new AttendeeDetails
             {
                 NhsNumber = NhsNumber,
@@ -378,6 +385,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
         BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
         BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
+        BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 
@@ -414,6 +422,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
         BookingType.Orphaned => AppointmentStatus.Orphaned,
+        BookingType.Cancelled => AppointmentStatus.Cancelled,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
     };
 

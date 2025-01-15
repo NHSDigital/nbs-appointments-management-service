@@ -99,4 +99,52 @@
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
+      And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
+
+  Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
+    Given there is no existing availability
+    And the following cancelled bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:30 | 5        | COVID   | 48232-10293 |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
+    Then the booking with reference '10293-45957' has status 'Cancelled'
+    And the booking with reference '48232-10293' has status 'Provisional'
+
+  Scenario: Provisional bookings are still considered live and prevent orphaned appointments taking their place
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   | Created                  |
+      | Tomorrow | 09:20 | 5        | COVID   | 56923-19232 | 2024-12-01T09:00:00.000Z |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   | Created                  |
+      | Tomorrow | 09:20 | 5        | COVID   | 19283-30492 | 2024-12-02T09:00:00.000Z |
+    And the following orphaned bookings exist
+      | Date     | Time  | Duration | Service | Reference   | Created                  |
+      | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 | 2024-12-03T09:00:00.000Z |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
+    Then the booking with reference '56923-19232' has status 'Booked'
+    And the booking with reference '19283-30492' has status 'Provisional'
+    And the booking with reference '45721-10293' has status 'Orphaned'
+
+  Scenario: Bookings are prioritised by created date
+    Given there is no existing availability
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   | Created                  |
+      | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
+    And the following orphaned bookings exist
+      | Date     | Time  | Duration | Service | Reference   | Created                  |
+      | Tomorrow | 09:20 | 5        | COVID   | 45853-10293 | 2024-11-03T09:00:00.000Z |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
+    Then the booking with reference '34482-10293' has status 'Orphaned'
+    And the booking with reference '45853-10293' has status 'Booked'

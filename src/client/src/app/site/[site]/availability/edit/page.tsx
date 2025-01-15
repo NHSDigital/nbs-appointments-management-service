@@ -26,6 +26,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`Edit time and capacity for ${date.format('DD MMMM YYYY')}`}
       caption={'Edit session'}
       originPage="edit-session"
+      backLink={{
+        href: `/site/${site.id}/view-availability/week/edit-session?session=${searchParams.session}&date=${searchParams.date}`,
+        renderingStrategy: 'server',
+        text: 'Go back',
+      }}
     >
       <EditSessionTimeAndCapacityForm
         date={searchParams.date}

@@ -4,7 +4,6 @@ import { Site, SessionSummary, Session } from '@types';
 import { useRouter } from 'next/navigation';
 import { editSession } from '@services/appointmentsService';
 import {
-  BackLink,
   Button,
   FormGroup,
   InsetText,
@@ -138,12 +137,6 @@ const EditSessionTimeAndCapacityForm = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(submitForm)}>
-        <BackLink
-          href={`/site/${site.id}/view-availability/week?date=${date}`}
-          renderingStrategy="server"
-          text="Go back"
-        />
-
         <InsetText>
           <p>
             {existingSession.totalBookings} booked appointments in this session.

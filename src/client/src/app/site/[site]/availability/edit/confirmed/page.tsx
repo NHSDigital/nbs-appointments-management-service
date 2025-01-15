@@ -1,9 +1,8 @@
 import { assertPermission, fetchSite } from '@services/appointmentsService';
-import { SessionSummary } from '@types';
+import { clinicalServices, SessionSummary } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
-import { SessionSummaryTable } from '@components/session-summary-table';
-import { InsetText } from '@components/nhsuk-frontend';
+import { InsetText, Table } from '@components/nhsuk-frontend';
 import Link from 'next/link';
 
 type PageProps = {
@@ -27,9 +26,33 @@ const Page = async ({ searchParams, params }: PageProps) => {
     <NhsPage
       originPage="edit-session"
       title={`Edit time and capacity for ${date.format('DD MMMM YYYY')}`}
-      caption={'Edit session'}
+      caption={site.name}
+      backLink={{
+        href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
+        renderingStrategy: 'server',
+        text: 'Back to week view',
+      }}
     >
-      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
+      <Table
+        headers={['Time', 'Services']}
+        rows={[
+          [
+            <strong
+              key={`session-0-start-and-end-time`}
+            >{`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}</strong>,
+            Object.keys(sessionSummary.bookings).map(
+              (service, serviceIndex) => {
+                return (
+                  <span key={`session-0-service-name-${serviceIndex}`}>
+                    {clinicalServices.find(cs => cs.value === service)?.label}
+                    <br />
+                  </span>
+                );
+              },
+            ),
+          ],
+        ]}
+      />
       <InsetText>
         <p>
           Some booked appointments may be affected by this change. If so, you'll

@@ -75,4 +75,7 @@ module "mya_application_stag" {
   cosmos_index_autoscale_settings = [{
     max_throughput = 4000
   }]
+  cosmos_audit_autoscale_settings = [{
+    max_throughput = 4000
+  }]
 }

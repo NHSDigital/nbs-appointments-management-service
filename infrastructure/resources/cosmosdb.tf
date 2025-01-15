@@ -121,3 +121,18 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
     }
   }
 }
+
+resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_container" {
+  name                = "audit_data"
+  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  partition_key_paths = ["/user"]
+
+  dynamic "autoscale_settings" {
+    for_each = var.cosmos_audit_autoscale_settings
+    content {
+      max_throughput = autoscale_settings.value["max_throughput"]
+    }
+  }
+}

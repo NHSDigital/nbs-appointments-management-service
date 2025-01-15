@@ -32,6 +32,11 @@ public class TestHttpRequestData(FunctionContext functionContext) : HttpRequestD
 
     public override NameValueCollection Query => _query;
 
+    public override HttpResponseData CreateResponse()
+    {
+        throw new NotImplementedException();
+    }
+
     public void SetBody(string body)
     {
         _body = body;
@@ -45,10 +50,5 @@ public class TestHttpRequestData(FunctionContext functionContext) : HttpRequestD
         }
 
         return new MemoryStream();
-    }
-
-    public override HttpResponseData CreateResponse()
-    {
-        throw new NotImplementedException();
     }
 }

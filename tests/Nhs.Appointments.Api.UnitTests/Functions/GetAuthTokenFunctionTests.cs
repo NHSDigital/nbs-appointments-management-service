@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -11,6 +12,7 @@ public class GetAuthTokenFunctionTests
 {
     private readonly GetAuthTokenFunction _sut;
     private readonly Mock<IHttpClientFactory> _httpClientFactory = new();
+    private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly Mock<IOptions<AuthOptions>> _options = new();
     public GetAuthTokenFunctionTests()
     {
@@ -25,7 +27,7 @@ public class GetAuthTokenFunctionTests
             TokenUri = "https://test.oauth.com/token"
         });
 
-        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object);
+        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _auditWriteService.Object, _options.Object);
     }
 
     public void Test()

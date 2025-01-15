@@ -173,7 +173,7 @@ public class BookingsService(
 
             if (targetSlot != null)
             {
-                if (booking.Status != AppointmentStatus.Booked)
+                if (booking.Status != AppointmentStatus.Booked && booking.Status != AppointmentStatus.Provisional)
                 {
                     await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
                     booking.Status = AppointmentStatus.Booked;

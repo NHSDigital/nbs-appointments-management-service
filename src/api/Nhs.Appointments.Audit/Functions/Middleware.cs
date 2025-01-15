@@ -2,12 +2,13 @@ using System.Reflection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Audit.Functions;
 
-public class Middleware : IFunctionsWorkerMiddleware
+public class Middleware(IAuditWriteService auditWriteService) : IFunctionsWorkerMiddleware
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
@@ -18,26 +19,19 @@ public class Middleware : IFunctionsWorkerMiddleware
             await next(context);
             return;
         }
-        
-        //TODO make sure not awaiting model being built as part of fire and forget?
-        var audit = await BuildAuditModel(context, requiresAudit);
 
-        _ = RecordAudit(audit);
-        
+        var auditData = await ExtractAuditData(context, requiresAudit.RequestSiteInspector);
+        _ = Task.Run(() => auditWriteService.RecordFunction(auditData.id, DateTime.UtcNow, auditData.user, auditData.function, auditData.site));
+
         await next(context);
     }
 
-    private async Task<Models.Audit> BuildAuditModel(FunctionContext context, RequiresAuditAttribute requiresAudit)
+    private static async Task<(string id, string user, string function, string site)> ExtractAuditData(FunctionContext context, Type requestSiteInspectorType)
     {
-        var userContextProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
-        var requestSiteInspectorType = requiresAudit.RequestSiteInspector;
-        var userId = userContextProvider.UserPrincipal?.Claims.GetUserEmail();
-        var actionType = context.FunctionDefinition.Name;
-        var siteId = string.Empty;
+        var site = string.Empty;
         if (context.InstanceServices.GetService(requestSiteInspectorType) is IRequestInspector requestInspector)
         {
             var request = await context.GetHttpRequestDataAsync();
-
             var sites = (await requestInspector.GetSiteIds(request)).ToList();
 
             if (sites.Count > 1)
@@ -45,13 +39,18 @@ public class Middleware : IFunctionsWorkerMiddleware
                 throw new NotImplementedException("Auditing a function with multiple sites is not currently supported");
             }
             
-            siteId = sites.SingleOrDefault();
+            site = sites.SingleOrDefault();
         }
         
-        return new Models.Audit(DateTime.UtcNow, userId, actionType, siteId);
+        var id = $"{Guid.NewGuid()}";
+        var userProvider = context.InstanceServices.GetRequiredService<IUserContextProvider>();
+        var user = userProvider.UserPrincipal?.Claims.GetUserEmail();
+        var functionName = context.FunctionDefinition.Name;
+
+        return (id, user, functionName, site);
     }
 
-    private RequiresAuditAttribute? GetRequiresAudit(FunctionContext context)
+    private RequiresAuditAttribute GetRequiresAudit(FunctionContext context)
     {
         var assembly = Assembly.LoadFrom(context.FunctionDefinition.PathToAssembly);
         var typeName = string.Join(".", context.FunctionDefinition.EntryPoint.Split('.')[..^1]);
@@ -61,10 +60,5 @@ public class Middleware : IFunctionsWorkerMiddleware
         var methodInfo = type?.GetMethod(methodName);
 
         return methodInfo?.GetCustomAttribute<RequiresAuditAttribute>();
-    }
-
-    protected virtual async Task RecordAudit(Models.Audit auditToWrite)
-    {
-        //TODO fire and forget to CosmosDB with structured audit record?
     }
 }

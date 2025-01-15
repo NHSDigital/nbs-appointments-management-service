@@ -173,7 +173,7 @@ describe('Site Page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not show any cards when if the user may not see any of them', () => {
+  it('does not show any links when the user may not see any of them', () => {
     const mockSite = mockSites[0];
 
     render(
@@ -184,7 +184,27 @@ describe('Site Page', () => {
       />,
     );
 
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', {
+        name: 'View availability and manage appointments for your site',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', { name: 'Create Availability' }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', {
+        name: 'Change site details and accessibility information',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', {
+        name: 'Manage users',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders single value', () => {

@@ -10,10 +10,15 @@ public sealed class CancelFeatureSteps : BookingBaseFeatureSteps
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel", null);
+        var site = GetSiteId();
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+            null);
     }
 
     [When(@"I cancel the appointment with reference '(.+)'")]
-    public async Task CancelAppointmentWithReference(string reference) => Response =
-        await Http.PostAsync($"http://localhost:7071/api/booking/{reference}/cancel", null);
+    public async Task CancelAppointmentWithReference(string reference)
+    {
+        var site = GetSiteId();
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{reference}/cancel?site={site}", null);
+    }
 }

@@ -9,6 +9,7 @@
       | Tomorrow | 09:20 | 5        | COVID   |
     When I cancel the appointment
     Then the booking has been 'Cancelled'
+    And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment
     Given the following sessions
@@ -23,3 +24,4 @@
     When I cancel the appointment with reference '68374-29374'
     Then the booking with reference '68374-29374' has been 'Cancelled'
     Then the booking with reference '85032-19283' has been 'Booked'
+    And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'

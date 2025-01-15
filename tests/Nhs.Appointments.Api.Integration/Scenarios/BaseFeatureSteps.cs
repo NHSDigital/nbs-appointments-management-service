@@ -25,7 +25,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract partial class BaseFeatureSteps : Feature
 {
-    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned }
+    public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned, Cancelled }
 
     protected const string ApiSigningKey =
         "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
@@ -257,6 +257,11 @@ public abstract partial class BaseFeatureSteps : Feature
         return SetupBookings("A", dataTable, BookingType.ExpiredProvisional);
     }
 
+    [Given("the following cancelled bookings have been made")]
+    [And("the following cancelled bookings have been made")]
+    public Task SetupCancelledBookings(DataTable dataTable) =>
+        SetupBookings("A", dataTable, BookingType.Cancelled);
+
     [And("the following orphaned bookings exist")]
     public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("A", dataTable, BookingType.Orphaned);
 
@@ -277,7 +282,9 @@ public abstract partial class BaseFeatureSteps : Feature
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
-            Created = GetCreationDateTime(bookingType),
+            Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
+                ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
+                : GetCreationDateTime(bookingType),
             AttendeeDetails = new AttendeeDetails
             {
                 NhsNumber = NhsNumber,
@@ -337,20 +344,34 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [Then(@"the booking with reference '(.+)' has been '(.+)'")]
-    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    [And(@"the booking with reference '(.+)' has been '(.+)'")]
+    public async Task AssertSpecificBookingStatusChange(string bookingReference, string status)
     {
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
 
         await AssertBookingStatusByReference(bookingReference, expectedStatus);
     }
 
-    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status)
+    [Then(@"the booking with reference '(.+)' has status '(.+)'")]
+    [And(@"the booking with reference '(.+)' has status '(.+)'")]
+    public async Task AssertSpecificBookingStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+
+        await AssertBookingStatusByReference(bookingReference, expectedStatus, false);
+    }
+
+    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,
+        bool expectStatusToHaveChanged = true)
     {
         var siteId = GetSiteId();
         var bookingDocument = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         bookingDocument.Resource.Status.Should().Be(status);
-        bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        if (expectStatusToHaveChanged)
+        {
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        }
 
         var indexDocument = await Client.GetContainer("appts", "index_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));
@@ -364,6 +385,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
         BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
         BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
+        BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 
@@ -400,6 +422,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
         BookingType.Orphaned => AppointmentStatus.Orphaned,
+        BookingType.Cancelled => AppointmentStatus.Cancelled,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
     };
 

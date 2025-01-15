@@ -51,7 +51,7 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWr
         {
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
 
-            _ = Task.Run(() => RecordAuditLogin(tokenResponse.AccessToken));
+            _ = Task.Run(() => RecordAuditLogin(tokenResponse.IdToken));
             
             return new OkObjectResult(new { token = tokenResponse.IdToken });
         }
@@ -60,9 +60,9 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWr
             $"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
     
-    private async Task RecordAuditLogin(string accessToken)
+    private async Task RecordAuditLogin(string idToken)
     {
-        var token = new JwtSecurityToken(accessToken);
+        var token = new JwtSecurityToken(idToken);
         await auditWriteService.RecordAuth(token.Id, DateTime.UtcNow, token.Subject, AuditAuthActionType.Login);
     }
 }

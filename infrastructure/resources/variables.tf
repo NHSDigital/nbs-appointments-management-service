@@ -22,6 +22,10 @@ variable "loc" {
   default = "uks"
 }
 
+variable "nhs_host_url" {
+  type    = string
+  default = ""
+}
 variable "func_app_base_uri" {
   type = string
 }
@@ -172,6 +176,14 @@ variable "cosmos_automatic_failover_enabled" {
 
 variable "app_insights_sampling_percentage" {
   type = number
+}
+
+variable "disable_query_availability_function" {
+  type = bool
+}
+
+variable "create_high_load_function_app" {
+  type = bool
 }
 
 variable "create_autoscale_settings" {

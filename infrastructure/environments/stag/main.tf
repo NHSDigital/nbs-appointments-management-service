@@ -20,7 +20,7 @@ provider "azurerm" {
   features {}
 }
 
-module "api" {
+module "mya_application_stag" {
   environment                                    = "stag"
   source                                         = "../../resources"
   auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
@@ -41,6 +41,8 @@ module "api" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
+  disable_query_availability_function            = true
+  create_high_load_function_app                  = true
   create_app_slot                                = true
   create_autoscale_settings                      = true
   create_frontdoor                               = true

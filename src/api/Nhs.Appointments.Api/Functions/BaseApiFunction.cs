@@ -12,6 +12,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 

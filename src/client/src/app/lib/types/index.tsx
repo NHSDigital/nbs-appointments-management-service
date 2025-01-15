@@ -96,6 +96,14 @@ type AvailabilitySession = {
   capacity: number;
 };
 
+type AvailabilitySlot = {
+  sessionIndex: number;
+  from: dayjs.Dayjs;
+  length: number;
+  services: string[];
+  capacity: number;
+};
+
 type RoleAssignment = {
   scope: string;
   role: string;
@@ -241,6 +249,22 @@ type DayAvailabilityDetails = {
   unbooked?: number;
 };
 
+type SessionSummary = {
+  start: dayjs.Dayjs;
+  end: dayjs.Dayjs;
+  maximumCapacity: number;
+  totalBookings: number;
+  bookings: Record<string, number>;
+};
+
+type DaySummary = {
+  date: dayjs.Dayjs;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  remainingCapacity: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -271,9 +295,11 @@ export type {
   AvailabilityResponse,
   AvailabilityCreatedEvent,
   AvailabilitySession,
+  AvailabilitySlot,
   AvailabilityTemplate,
   Booking,
   ContactItem,
+  DaySummary,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
@@ -286,6 +312,7 @@ export type {
   ServiceInformation,
   ServiceBookingDetails,
   Session,
+  SessionSummary,
   SetAttributesRequest,
   SetAvailabilityRequest,
   Site,

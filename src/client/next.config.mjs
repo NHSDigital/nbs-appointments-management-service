@@ -4,11 +4,6 @@ const nextConfig = {
   env: {
     BUILD_NUMBER: process.env.BUILD_BUILDNUMBER ?? '',
   },
-  experimental: {
-    serverActions: {
-      allowedOrigins: [process.env.ALLOWED_ORIGIN]
-    }
-  },
   output: 'standalone',  
   basePath: process.env.CLIENT_BASE_PATH,
   redirects: async () => {

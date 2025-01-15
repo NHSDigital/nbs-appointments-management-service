@@ -1,11 +1,8 @@
 import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
-import { SessionSummary } from '@types';
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
-import { InsetText } from '@components/nhsuk-frontend';
-import { SessionSummaryTable } from '@components/session-summary-table';
 
 type PageProps = {
   searchParams: {
@@ -26,8 +23,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     notFound();
   }
 
-  const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
-
   return (
     <NhsPage
       title={`Change availability for ${date.format('DD MMMM YYYY')}`}
@@ -40,13 +35,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
       originPage="edit-session"
     >
-      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
-      <InsetText>
-        <p>
-          You can only reduce time and/or capacity from this screen. If you want
-          to increase availability for this day, you must create a new session.
-        </p>
-      </InsetText>
       <EditSessionDecision
         site={site}
         sessionSummary={searchParams.session}

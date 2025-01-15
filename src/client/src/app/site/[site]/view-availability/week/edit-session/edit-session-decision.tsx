@@ -3,10 +3,12 @@ import {
   Button,
   ButtonGroup,
   FormGroup,
+  InsetText,
   Radio,
   RadioGroup,
 } from '@components/nhsuk-frontend';
-import { Site } from '@types';
+import { SessionSummaryTable } from '@components/session-summary-table';
+import { SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -42,29 +44,40 @@ export const EditSessionDecision = ({
     }
   };
 
+  const session: SessionSummary = JSON.parse(atob(sessionSummary));
+
   return (
-    <form onSubmit={methods.handleSubmit(submitForm)}>
-      <FormGroup legend="What do you want to do?">
-        <RadioGroup>
-          <Radio
-            label="Change the length or capacity of this session"
-            hint="Shorten the session length or remove capacity"
-            id="edit-session"
-            value="edit-session"
-            {...methods.register('action')}
-          />
-          <Radio
-            label="Cancel this session"
-            hint="Cancel all booked appointments, and remove this session"
-            id="cancel-session"
-            value="cancel-session"
-            {...methods.register('action')}
-          />
-        </RadioGroup>
-      </FormGroup>
-      <ButtonGroup>
-        <Button type="submit">Continue</Button>
-      </ButtonGroup>
-    </form>
+    <>
+      <SessionSummaryTable sessionSummaries={[session]} />
+      <InsetText>
+        <p>
+          You can only reduce time and/or capacity from this screen. If you want
+          to increase availability for this day, you must create a new session.
+        </p>
+      </InsetText>
+      <form onSubmit={methods.handleSubmit(submitForm)}>
+        <FormGroup legend="What do you want to do?">
+          <RadioGroup>
+            <Radio
+              label="Change the length or capacity of this session"
+              hint="Shorten the session length or remove capacity"
+              id="edit-session"
+              value="edit-session"
+              {...methods.register('action')}
+            />
+            <Radio
+              label="Cancel this session"
+              hint="Cancel all booked appointments, and remove this session"
+              id="cancel-session"
+              value="cancel-session"
+              {...methods.register('action')}
+            />
+          </RadioGroup>
+        </FormGroup>
+        <ButtonGroup>
+          <Button type="submit">Continue</Button>
+        </ButtonGroup>
+      </form>
+    </>
   );
 };

@@ -8,6 +8,15 @@ import {
 } from '@testing/data';
 import dayjs from 'dayjs';
 
+jest.mock('@types', () => ({
+  ...jest.requireActual('@types'),
+  clinicalServices: [
+    { label: 'RSV (Adult)', value: 'RSV:Adult' },
+    { label: 'FLU 18-64', value: 'FLU:18_64' },
+    { label: 'COVID 75+', value: 'COVID:75+' },
+  ],
+}));
+
 describe('View Week Availability Page', () => {
   it('renders', () => {
     render(
@@ -53,7 +62,7 @@ describe('View Week Availability Page', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '09:00 - 17:00 RSV (Adult) 5 booked 118 unbooked',
+        name: '09:00 - 17:00 RSV (Adult) 5 booked 118 unbooked Change',
       }),
     ).toBeInTheDocument();
 

@@ -522,4 +522,36 @@ public class SiteServiceTests
         var result = await _sut.GetSiteByIdAsync(siteId, scope);
         result.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetAllSites_ReturnsAllSites()
+    {
+        var sites = new List<Site>()
+        {
+            new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+            new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
+        };
+
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+
+        var result = await _sut.GetAllSites();
+
+        result.Count().Should().Be(sites.Count());
+    }
 }

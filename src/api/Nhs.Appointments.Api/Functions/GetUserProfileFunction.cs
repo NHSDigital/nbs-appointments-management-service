@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Collections.Generic;
@@ -37,14 +36,27 @@ namespace Nhs.Appointments.Api.Functions
                 return Success(new UserProfile(userEmail, [], null));
             }
 
-            var siteIdsForUser = user.RoleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
             var siteInfoList = new List<UserProfileSite>();
 
-            foreach (var site in siteIdsForUser.Distinct())
+            if (IsAdminUser(user))
             {
-                var siteInfo = await siteService.GetSiteByIdAsync(site);
-                if(siteInfo != null)
-                    siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
+                var allSites = await siteService.GetAllSites();
+
+                foreach (var site in allSites)
+                {
+                    siteInfoList.Add(new UserProfileSite(site.Id, site.Name, site.Address));
+                }
+            }
+            else
+            {
+                var siteIdsForUser = user.RoleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
+
+                foreach (var site in siteIdsForUser.Distinct())
+                {
+                    var siteInfo = await siteService.GetSiteByIdAsync(site);
+                    if(siteInfo != null)
+                        siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
+                }
             }
 
             return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList, user.LatestAcceptedEulaVersion));
@@ -53,6 +65,10 @@ namespace Nhs.Appointments.Api.Functions
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
         {
             return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
+        }
+
+        private bool IsAdminUser(User user) {
+            return user.RoleAssignments.Any(ra => ra.Role == "system:admin-user");
         }
     }
 }

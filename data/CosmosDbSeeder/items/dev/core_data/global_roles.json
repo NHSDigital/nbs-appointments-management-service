@@ -78,6 +78,18 @@
       ]
     },
     {
+      "id": "system:admin-user",
+      "name": "Admin User",
+      "description": "Admin user can view all areas that exist in MYA.",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data",
+        "users:view"
+      ]
+    },
+    {
       "id": "system:all-permissions",
       "name": "All Permissions",
       "description": "System role used for full api access for development and test purposes (ONLY FOR USE IN TEST ENVIRONMENTS).",

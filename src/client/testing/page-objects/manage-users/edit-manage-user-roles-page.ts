@@ -29,7 +29,7 @@ export default class EditManageUserRolesPage extends RootPage {
   }
 
   async selectRole(role: string) {
-    await this.page.getByRole('checkbox', { name: role }).click();
+    await this.page.getByRole('checkbox', { name: role }).check();
   }
 
   async userExists(email: string) {
@@ -40,5 +40,9 @@ export default class EditManageUserRolesPage extends RootPage {
     await expect(
       this.page.getByRole('cell', { name: email }),
     ).not.toBeVisible();
+  }
+
+  async selectStaffRole(roleName: string) {
+    await this.page.getByLabel(roleName).check();
   }
 }

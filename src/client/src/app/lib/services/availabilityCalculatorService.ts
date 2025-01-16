@@ -105,9 +105,20 @@ const buildDaySummary = (
   date: dayjs.Dayjs,
   sessionsAndSlots: SessionAndSlots[],
 ): DaySummary => {
-  const sessionSummaries = sessionsAndSlots.map(
-    sessionAndSlot => sessionAndSlot.session,
-  );
+  const sessionSummaries = sessionsAndSlots
+    .map(sessionAndSlot => sessionAndSlot.session)
+    .sort((a, b) => {
+      if (a.start.isBefore(b.start)) {
+        return -1;
+      }
+      if (a.end.isBefore(b.end)) {
+        return -1;
+      }
+      if (a.bookings > b.bookings) {
+        return -1;
+      }
+      return 0;
+    });
 
   const maximumCapacity = sessionSummaries.reduce(
     (accumulator, sessionSummary) =>

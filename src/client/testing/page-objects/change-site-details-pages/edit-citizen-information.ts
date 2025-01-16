@@ -57,7 +57,9 @@ export default class EditInformationForCitizensPage extends RootPage {
         exact: true,
       }),
     ).toBeVisible();
-    await expect(this.page.getByText(`${this.textLimitMsg}`)).toBeVisible();
+    await expect(
+      this.page.getByRole('main').filter({ hasText: `${this.textLimitMsg}` }),
+    ).toBeVisible();
   }
 
   async VerifyValidationMessage() {

@@ -28,8 +28,8 @@ export default class EditManageUserRolesPage extends RootPage {
     });
   }
 
-  async selectStaffRole(roleName: string) {
-    await this.page.getByLabel(roleName).check();
+  async selectRole(role: string) {
+    await this.page.getByRole('checkbox', { name: role }).check();
   }
 
   async verifyUserRedirectedToEditRolePage(
@@ -58,5 +58,9 @@ export default class EditManageUserRolesPage extends RootPage {
           ),
         }),
     ).toBeVisible();
+  }
+
+  async selectStaffRole(roleName: string) {
+    await this.page.getByLabel(roleName).check();
   }
 }

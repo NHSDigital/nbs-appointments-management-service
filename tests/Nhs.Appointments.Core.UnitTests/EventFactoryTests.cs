@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core.UnitTests
@@ -63,24 +63,35 @@ namespace Nhs.Appointments.Core.UnitTests
 
         private void BuildsEventCorrectly<T>() where T : PatientBookingNotificationEventBase, new()
         {
+            var expectedNotifications = new T[]
+            {
+                new()
+                {
+                    FirstName = "firstname",
+                    LastName = "lastname",
+                    From = new DateTime(2024, 11, 14),
+                    Reference = "reference",
+                    Service = "service",
+                    Site = "site",
+                    NotificationType = NotificationType.Email,
+                    Destination = "test@tempuri.org"
+                },
+                new()
+                {
+                    FirstName = "firstname",
+                    LastName = "lastname",
+                    From = new DateTime(2024, 11, 14),
+                    Reference = "reference",
+                    Service = "service",
+                    Site = "site",
+                    NotificationType = NotificationType.Sms,
+                    Destination = "1234567890"
+                }
+            };
             var booking = BuildBooking();
             var events = _sut.BuildBookingEvents<T>(booking);
 
-            events.Any(e => e.NotificationType == NotificationType.Email).Should().BeTrue();
-            events.Any(e => e.NotificationType == NotificationType.Sms).Should().BeTrue();
-
-            foreach (var e in events)
-            {
-                e.FirstName.Should().Be(booking.AttendeeDetails.FirstName);
-                e.LastName.Should().Be(booking.AttendeeDetails.LastName);
-                e.From.Should().Be(booking.From);
-                e.Reference.Should().Be(booking.Reference);
-                e.Service.Should().Be(booking.Service);
-                e.Site.Should().Be(booking.Site);
-                e.ContactDetails.Should().NotBeNull();
-                e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Email && c.Value == "test@tempuri.org");
-                e.ContactDetails.Should().Contain(c => c.Type == ContactItemType.Phone && c.Value == "1234567890");
-            }
+            events.Should().BeEquivalentTo(expectedNotifications);
         }
 
         private static Booking BuildBooking(bool withContact = true)

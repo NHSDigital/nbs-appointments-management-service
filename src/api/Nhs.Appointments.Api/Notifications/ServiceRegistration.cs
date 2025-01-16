@@ -15,10 +15,7 @@ public static class ServiceRegistration
         var userNotificationsProvider = Environment.GetEnvironmentVariable("Notifications_Provider");
 
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
-                .AddTransient<IBookingMadeNotifier, BookingNotifier>()
-                .AddTransient<IBookingRescheduledNotifier, BookingNotifier>()
-                .AddTransient<IBookingReminderNotifier, BookingNotifier>()
-                .AddTransient<IBookingCancelledNotifier, BookingNotifier>()
+                .AddTransient<IBookingNotifier, BookingNotifier>()
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
                 .AddScoped<NotifyBookingReminderFunction>();
 

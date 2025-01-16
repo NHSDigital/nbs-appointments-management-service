@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Notifications;
 
 // Depends on an email template hosted in Gov Notify. See template.txt for details 
-public class UserRolesChangedNotifier(ISendNotifications notificationClient, INotificationConfigurationStore notificationConfigurationStore, IRolesStore rolesStore, ISiteService siteService) : IUserRolesChangedNotifier
+public class UserRolesChangedNotifier(ISendNotifications notificationClient, INotificationConfigurationService notificationConfigurationService, IRolesStore rolesStore, ISiteService siteService) : IUserRolesChangedNotifier
 {
     public async Task Notify(string eventType, string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
@@ -30,7 +30,7 @@ public class UserRolesChangedNotifier(ISendNotifications notificationClient, INo
             {"site", siteName }
         };
 
-            var templateConfig = await notificationConfigurationStore.GetNotificationConfiguration(eventType);
+            var templateConfig = await notificationConfigurationService.GetNotificationConfigurationsAsync(eventType);
 
             await notificationClient.SendEmailAsync(user, templateConfig.EmailTemplateId, templateValues);
         }

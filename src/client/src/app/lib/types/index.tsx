@@ -37,6 +37,10 @@ type SetAttributesRequest = {
 
 type SetSiteDetailsRequest = {
   name: string;
+  address: string;
+  phoneNumber: string;
+  latitude: string;
+  longitude: string;
 };
 
 type Role = {

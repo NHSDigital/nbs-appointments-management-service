@@ -50,17 +50,34 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
     
-    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name)
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, string latitude, string longitude)
     {
+        //TODO move away parsing?
+        var latitideParseResult = decimal.TryParse(latitude, out var latitudeDecimal);
+        var longitudeParseResult = decimal.TryParse(longitude, out var longitudeDecimal);
+
+        if (!latitideParseResult || !longitudeParseResult)
+        {
+            return new OperationResult(false, "The specified lat/long values are not valid decimals.");
+        }
+        
+        decimal[] coords = [latitudeDecimal, longitudeDecimal];
+        
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
         {
             return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        var updateStatusPatch = PatchOperation.Replace("/name", name);
+        PatchOperation[] detailsPatchOperations =
+        [
+            PatchOperation.Replace("/name", name),
+            PatchOperation.Replace("/address", address),
+            PatchOperation.Replace("/phoneNumber", phoneNumber),
+            PatchOperation.Replace("/location/coordinates", coords),
+        ];
 
-        await cosmosStore.PatchDocument(documentType, siteId, updateStatusPatch);
+        await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
         return new OperationResult(true);
     }
     

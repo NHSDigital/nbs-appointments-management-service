@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
 export default class UsersPage extends RootPage {
@@ -23,23 +23,22 @@ export default class UsersPage extends RootPage {
     });
   }
 
-  // async verifyUserRoles(roleName: string, newUserName: string) {
-  //   await expect(
-  //     this.page
-  //       .getByRole('row')
-  //       .filter({ has: this.page.getByText(newUserName) })
-  //       .getByText(roleName),
-  //   ).toBeVisible();
-  // }
-
   async verifyUserRoles(roleName: string, newUserName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({
-          has: this.page.getByText(newUserName),
-        })
-        .getByLabel(roleName),
+        .filter({ has: this.page.getByText(newUserName) })
+        .getByText(roleName),
     ).toBeVisible();
+  }
+
+  async userExists(email: string) {
+    await expect(this.page.getByRole('cell', { name: email })).toBeVisible();
+  }
+
+  async userDoesNotExist(email: string) {
+    await expect(
+      this.page.getByRole('cell', { name: email }),
+    ).not.toBeVisible();
   }
 }

@@ -12,7 +12,8 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope,
         IEnumerable<AttributeValue> attributeValues);
 
-    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name);
+    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
+        string latitude, string longitude);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -70,9 +71,9 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name)
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, string latitude, string longitude)
     {
-        return siteStore.UpdateSiteDetails(siteId, name);
+        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, latitude, longitude);
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)

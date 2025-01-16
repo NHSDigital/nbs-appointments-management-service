@@ -59,5 +59,13 @@ public record AttributeRequest
 public record DetailsRequest
 (
     [JsonProperty("name")]
-    string Name
+    string Name,
+    [JsonProperty("phoneNumber")]
+    string PhoneNumber,
+    [JsonProperty("address")]
+    string Address,
+    [JsonProperty("latitude")]
+    string Latitude,
+    [JsonProperty("longitude")]
+    string Longitude
 );

@@ -35,6 +35,10 @@ type SetAttributesRequest = {
   attributeValues: AttributeValue[];
 };
 
+type SetSiteDetailsRequest = {
+  name: string;
+};
+
 type Role = {
   displayName: string;
   id: string;
@@ -354,6 +358,7 @@ export type {
   UserProfile,
   Week,
   WellKnownOdsEntry,
+  SetSiteDetailsRequest,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

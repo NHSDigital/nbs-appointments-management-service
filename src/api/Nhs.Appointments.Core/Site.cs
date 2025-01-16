@@ -48,3 +48,9 @@ public record SitePreview
     [JsonProperty("name")]
     string Name
 );
+
+public record DetailsRequest
+(
+    [JsonProperty("name")]
+    string Name
+);

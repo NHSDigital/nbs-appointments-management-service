@@ -4,10 +4,14 @@ namespace Nhs.Appointments.Core;
 
 public interface ISiteService
 {
-    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
+    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius,
+        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
+
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
     Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
+
+    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -42,12 +46,17 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     {
         var site = await siteStore.GetSiteById(siteId);
         if (site is null)
+        {
             return default;
+        }
 
         if (scope == "*")
+        {
             return site;
+        }
 
-        site.AttributeValues = site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
+        site.AttributeValues =
+            site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
     }
@@ -67,6 +76,11 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
     {
         return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
+    }
+
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name)
+    {
+        return siteStore.UpdateSiteDetails(siteId, name);
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)

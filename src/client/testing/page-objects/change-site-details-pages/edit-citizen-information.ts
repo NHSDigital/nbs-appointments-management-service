@@ -42,8 +42,8 @@ export default class EditInformationForCitizensPage extends RootPage {
     await this.informationTextField.fill(information);
   }
 
-  async save_Cancel_InformationForCitizen(actionType: string) {
-    if (actionType == 'Save') {
+  async save_Cancel_InformationForCitizen(actionType: 'Save' | 'Cancel') {
+    if (actionType === 'Save') {
       await this.confirmSiteDetailsButton.click();
     } else {
       await this.cancelButton.click();
@@ -51,7 +51,12 @@ export default class EditInformationForCitizensPage extends RootPage {
   }
 
   async verifyInformationForCitizenPageDetails() {
-    await expect(this.page.getByText(`${this.headerMsg}`).last()).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', {
+        name: `${this.headerMsg}`,
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(this.page.getByText(`${this.textLimitMsg}`)).toBeVisible();
   }
 
@@ -60,13 +65,17 @@ export default class EditInformationForCitizensPage extends RootPage {
     await this.informationTextField.fill(`${this.testUrl}`);
     await this.confirmSiteDetailsButton.click();
     await expect(
-      this.page.getByText(`${this.validationMessage}`),
+      this.page
+        .getByRole('main')
+        .filter({ hasText: `${this.validationMessage}` }),
     ).toBeVisible();
     await this.informationTextField.clear();
     await this.informationTextField.fill(`${this.informationWithInvalidChar}`);
     await this.confirmSiteDetailsButton.click();
     await expect(
-      this.page.getByText(`${this.validationMessage}`),
+      this.page
+        .getByRole('main')
+        .filter({ hasText: `${this.validationMessage}` }),
     ).toBeVisible();
     await this.cancelButton.click();
   }

@@ -40,9 +40,9 @@ export default class EditAccessNeedsPage extends RootPage {
     ).not.toBeChecked();
   }
 
-  async verifyAceessNeedsCheckedOrUnchecked(
+  async verifyAccessNeedsCheckedOrUnchecked(
     optionName: string,
-    checkboxState: string,
+    checkboxState: 'Checked' | 'UnChecked',
   ) {
     if (checkboxState == 'Checked') {
       await expect(this.page.getByLabel(optionName)).toBeChecked();

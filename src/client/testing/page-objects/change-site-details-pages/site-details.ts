@@ -63,25 +63,35 @@ export default class SiteDetailsPage extends RootPage {
   }
 
   async verifySitepage() {
-    await expect(this.page.getByText(`${this.headerMsg}`).last()).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: `${this.headerMsg}` }),
+    ).toBeVisible();
     await expect(
       this.page.getByRole('heading', { name: `${this.siteDetailsheaderMsg}` }),
     ).toBeVisible();
-    await expect(this.page.getByText(`${this.addressText}`)).toBeVisible();
-    await expect(this.page.getByText(`${this.oDSCodeText}`)).toBeVisible();
-    await expect(this.page.getByText(`${this.iCBText}`)).toBeVisible();
     await expect(
-      this.page.getByText(`${this.regionText}`).first(),
-    ).toBeVisible();
-    await expect(
-      this.page.getByText(`${this.accessNeedsheaderMsg}`).first(),
+      this.page
+        .getByRole('listitem')
+        .filter({ hasText: `${this.addressText}` }),
     ).toBeVisible();
     await expect(
       this.page
-        .getByRole('heading', {
-          name: `${this.informationForCitizensheaderMsg}`,
-        })
-        .first(),
+        .getByRole('listitem')
+        .filter({ hasText: `${this.oDSCodeText}` }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('listitem').filter({ hasText: `${this.iCBText}` }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('listitem').filter({ hasText: `${this.regionText}` }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: `${this.accessNeedsheaderMsg}` }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', {
+        name: `${this.informationForCitizensheaderMsg}`,
+      }),
     ).toBeVisible();
   }
 }

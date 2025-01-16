@@ -55,14 +55,14 @@ test('Update access attributes for a site', async ({ page }) => {
 
   // Reload page
   await editAccessNeedstPage.page.reload();
-  await page.waitForTimeout(10000);
+  await page.waitForURL('**/site/ABC02/details/edit-attributes');
 
   // Check selected attributes are still correctly toggled after page reload
-  await editAccessNeedstPage.verifyAceessNeedsCheckedOrUnchecked(
+  await editAccessNeedstPage.verifyAccessNeedsCheckedOrUnchecked(
     'Accessible toilet',
     'Checked',
   );
-  await editAccessNeedstPage.verifyAceessNeedsCheckedOrUnchecked(
+  await editAccessNeedstPage.verifyAccessNeedsCheckedOrUnchecked(
     'Step free access',
     'UnChecked',
   );

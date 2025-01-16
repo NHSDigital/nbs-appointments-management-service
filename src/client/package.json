@@ -20,8 +20,7 @@
     "test": "jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@next/env": "^14.2.23",

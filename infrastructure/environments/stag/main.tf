@@ -30,6 +30,7 @@ module "mya_application_stag" {
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
   auth_provider_client_secret                    = var.AUTH_PROVIDER_CLIENT_SECRET
+  nhs_host_url                                   = var.NHS_HOST_URL
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI

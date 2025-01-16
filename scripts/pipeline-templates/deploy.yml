@@ -148,7 +148,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: ${{ eq(parameters.env, 'stag') }}
+        condition: and(succeeded(), eq(${{parameters.env}}, 'stag'))
         displayName: "Deploy high load function app"
         steps:
           - checkout: none

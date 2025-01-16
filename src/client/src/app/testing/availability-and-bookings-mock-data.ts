@@ -4,6 +4,11 @@ import dayjs from 'dayjs';
 const mondayThe10thOfJune2024 = dayjs('2024-06-10T00:00:00');
 const sundayThe16thOfJune2024 = dayjs('2024-06-10T23:59:59');
 
+/**
+ * A mock week of availability as we'd expect it to be returned from the API.
+ * The expected mapping of this is found in @mockWeekAvailability__Summary below.
+ * Do not modify one of these without updating the other.
+ */
 const mockWeekAvailability: DailyAvailability[] = [
   {
     date: mondayThe10thOfJune2024.format('YYYY-MM-DD'),
@@ -189,7 +194,11 @@ const mockBookings: Booking[] = [
   mockBooking5,
 ];
 
-const expectedWeeklySummary: DaySummary[] = [
+/**
+ * The weekly summary we'd expect to be generated from @mockWeekAvailability above.
+ * Do not modify one of these without updating the other.
+ */
+const mockWeekAvailability__Summary: DaySummary[] = [
   {
     date: dayjs('2024-06-10 00:00:00'),
     sessions: [
@@ -199,6 +208,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 72,
         totalBookings: 2,
         bookings: { 'RSV:Adult': 2 },
+        capacity: 2,
+        slotLength: 5,
       },
       {
         start: dayjs('2024-06-10 13:00:00'),
@@ -206,6 +217,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 54,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
+        capacity: 1,
+        slotLength: 5,
       },
     ],
     maximumCapacity: 126,
@@ -221,6 +234,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 36,
         totalBookings: 2,
         bookings: { 'RSV:Adult': 1, 'FLU 18-64': 1 },
+        capacity: 2,
+        slotLength: 10,
       },
       {
         start: dayjs('2024-06-11 09:00:00'),
@@ -228,6 +243,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 36,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
+        capacity: 2,
+        slotLength: 10,
       },
     ],
     maximumCapacity: 72,
@@ -243,6 +260,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU 18-64': 0 },
+        capacity: 4,
+        slotLength: 10,
       },
     ],
     maximumCapacity: 96,
@@ -258,6 +277,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
+        capacity: 2,
+        slotLength: 5,
       },
       {
         start: dayjs('2024-06-13 15:00:00'),
@@ -265,6 +286,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 18,
         totalBookings: 0,
         bookings: { 'FLU 18-64': 0 },
+        capacity: 1,
+        slotLength: 10,
       },
     ],
     maximumCapacity: 114,
@@ -280,6 +303,8 @@ const expectedWeeklySummary: DaySummary[] = [
         maximumCapacity: 72,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU 18-64': 0 },
+        capacity: 3,
+        slotLength: 10,
       },
     ],
     maximumCapacity: 72,
@@ -305,7 +330,7 @@ const expectedWeeklySummary: DaySummary[] = [
 export {
   mockBookings,
   mockWeekAvailability,
-  expectedWeeklySummary,
+  mockWeekAvailability__Summary,
   mondayThe10thOfJune2024,
   sundayThe16thOfJune2024,
 };

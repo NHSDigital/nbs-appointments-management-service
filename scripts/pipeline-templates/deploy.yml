@@ -237,6 +237,8 @@ stages:
             in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
             in(dependencies.DeployTimerFunctionApp.result, 'Succeeded')
           )
+        variables:
+          environment: ${{parameters.env}}
         steps:
           - checkout: self
           - task: AzureCLI@2

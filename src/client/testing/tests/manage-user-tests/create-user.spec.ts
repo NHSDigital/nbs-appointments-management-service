@@ -47,10 +47,14 @@ test.beforeEach(async ({ page }) => {
 //   await cosmosDbSeeder.clearUsers();
 // });
 
-test('Verify user manager able to create new user', async ({ newUserName }) => {
+test('Verify user manager able to create new user', async ({
+  newUserName,
+  page,
+}) => {
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();
+  await page.waitForTimeout(10000);
   await editManageUserRolesPage.selectRole('Appointment manager');
   await editManageUserRolesPage.selectRole('Availability manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();

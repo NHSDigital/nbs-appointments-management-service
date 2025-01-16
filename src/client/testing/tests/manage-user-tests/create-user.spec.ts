@@ -54,10 +54,10 @@ test('Verify user manager able to create new user', async ({
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();
-  await page.waitForTimeout(10000);
-  await editManageUserRolesPage.selectRole('Appointment manager');
-  await editManageUserRolesPage.selectRole('Availability manager');
+  await editManageUserRolesPage.selectStaffRole('Appointment manager');
+  await editManageUserRolesPage.selectStaffRole('Availability manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
+  await page.waitForTimeout(20000);
   await editManageUserRolesPage.userExists(newUserName);
   await usersPage.verifyUserRoles('Appointment manager', newUserName);
   await usersPage.verifyUserRoles('Availability manager', newUserName);

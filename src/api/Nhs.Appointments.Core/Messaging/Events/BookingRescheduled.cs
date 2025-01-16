@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.Messaging.Events;
+namespace Nhs.Appointments.Core.Messaging.Events;
 
 public class BookingRescheduled : PatientBookingNotificationEventBase
 {
@@ -14,7 +14,7 @@ public abstract class PatientBookingNotificationEventBase
     public string Site { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public ContactItem[] ContactDetails { get; set; }
+    public string Destination { get; set; }
 }
 
 public enum NotificationType

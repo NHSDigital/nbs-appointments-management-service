@@ -61,5 +61,4 @@ export default class EditManageUserRolesPage extends RootPage {
   async selectStaffRole(roleName: string) {
     await this.page.getByLabel(roleName).check();
   }
-
 }

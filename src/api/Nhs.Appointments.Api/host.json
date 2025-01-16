@@ -9,9 +9,6 @@
     }
   },
   "extensions": {
-    "http": {
-      "routePrefix": "manage-your-appointments/api"
-    },
     "serviceBus": {
       "prefetchCount": 32,
       "messageHandlerOptions": {

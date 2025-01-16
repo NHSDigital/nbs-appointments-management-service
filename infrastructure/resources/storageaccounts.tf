@@ -28,7 +28,7 @@ resource "azurerm_storage_account" "nbs_mya_servicebus_func_storage_account" {
 
 # Timer trigger function app storage account
 resource "azurerm_storage_account" "nbs_mya_timer_func_storage_account" {
-  name                     = "${var.application_short}strgtimefunc${var.environment}${var.loc}"
+  name                     = "${var.application_short}strgtmfunc${var.environment}${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
   location                 = data.azurerm_resource_group.nbs_mya_resource_group.location
   account_replication_type = var.storage_account_replication_type

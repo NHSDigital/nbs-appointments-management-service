@@ -18,6 +18,10 @@ import { formatTimeString } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 
+type TimeAndCapacityStepProps = {
+  goToPreviousStepOverride?: () => void;
+};
+
 const TimeAndCapacityStep = ({
   goToNextStep,
   goToLastStep,
@@ -25,7 +29,8 @@ const TimeAndCapacityStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
   setCurrentStep,
-}: InjectedWizardProps) => {
+  goToPreviousStepOverride,
+}: InjectedWizardProps & TimeAndCapacityStepProps) => {
   const { watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;
@@ -63,6 +68,11 @@ const TimeAndCapacityStep = ({
   };
 
   const onBack = async () => {
+    if (goToPreviousStepOverride) {
+      goToPreviousStepOverride();
+      return;
+    }
+
     if (getValues('sessionType') === 'repeating') {
       goToPreviousStep();
     } else {

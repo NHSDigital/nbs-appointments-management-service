@@ -55,3 +55,9 @@ public record AttributeRequest
     [JsonProperty("attributeValues")]
     IEnumerable<AttributeValue> AttributeValues
 );
+
+public record DetailsRequest
+(
+    [JsonProperty("name")]
+    string Name
+);

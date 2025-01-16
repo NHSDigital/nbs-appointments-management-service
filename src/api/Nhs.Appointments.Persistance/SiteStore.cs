@@ -50,6 +50,20 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
     
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return new OperationResult(false, "The specified site was not found.");
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        var updateStatusPatch = PatchOperation.Replace("/name", name);
+
+        await cosmosStore.PatchDocument(documentType, siteId, updateStatusPatch);
+        return new OperationResult(true);
+    }
+    
     private async Task<Site> GetOrDefault(string siteId)
     {
         try

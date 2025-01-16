@@ -1,7 +1,7 @@
 import {
   mockBookings,
   mockWeekAvailability,
-  expectedWeeklySummary,
+  mockWeekAvailability__Summary,
   mondayThe10thOfJune2024,
   sundayThe16thOfJune2024,
 } from '@testing/availability-and-bookings-mock-data';
@@ -33,6 +33,6 @@ describe('Availability Calculator Service', () => {
       'TEST01',
     );
 
-    expect(weekSummary).toEqual(expectedWeeklySummary);
+    expect(weekSummary).toEqual(mockWeekAvailability__Summary);
   });
 });

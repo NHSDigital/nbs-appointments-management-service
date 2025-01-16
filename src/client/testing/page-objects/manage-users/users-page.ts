@@ -23,23 +23,12 @@ export default class UsersPage extends RootPage {
     });
   }
 
-  // async verifyUserRoles(roleName: string, newUserName: string) {
-  //   await expect(
-  //     this.page
-  //       .getByRole('row')
-  //       .filter({ has: this.page.getByText(newUserName) })
-  //       .getByText(roleName),
-  //   ).toBeVisible();
-  // }
-
   async verifyUserRoles(roleName: string, newUserName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({
-          has: this.page.getByText(newUserName),
-        })
-        .getByLabel(roleName),
+        .filter({ has: this.page.getByText(newUserName) })
+        .getByText(roleName),
     ).toBeVisible();
   }
 

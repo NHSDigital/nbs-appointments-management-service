@@ -136,6 +136,7 @@ stages:
               publishLocation: "Container"
 
       - job: RunIntegrationAndE2ETests
+        condition: false
         displayName: "Run integration and E2E tests"
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"

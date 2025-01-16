@@ -38,7 +38,10 @@ const BackLink = (props: Props) => {
         role="link"
         className="nhsuk-back-link__link"
         href={''}
-        onClick={props.onClick}
+        onClick={e => {
+          e.preventDefault();
+          props.onClick();
+        }}
       >
         <LeftChevron />
         {props.text}

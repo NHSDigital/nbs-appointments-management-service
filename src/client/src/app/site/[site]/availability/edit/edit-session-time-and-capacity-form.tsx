@@ -10,7 +10,11 @@ import {
   TextInput,
 } from '@components/nhsuk-frontend';
 import { Controller } from 'react-hook-form';
-import { formatTimeString, toTimeComponents } from '@services/timeService';
+import {
+  compareTimes,
+  formatTimeString,
+  toTimeComponents,
+} from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 
@@ -61,6 +65,7 @@ const EditSessionTimeAndCapacityForm = ({
   const { control, formState } = methods;
   const { errors } = formState;
 
+  const sessionToEditWatch = methods.watch('sessionToEdit');
   const router = useRouter();
 
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
@@ -162,6 +167,12 @@ const EditSessionTimeAndCapacityForm = ({
                 if (formatTimeString(value) === undefined) {
                   return 'Enter a valid start time';
                 }
+
+                if (
+                  compareTimes(value, sessionToEditWatch.startTime) == 'earlier'
+                ) {
+                  return 'Enter a start or end time that reduces the length of this session.';
+                }
               },
             }}
             render={() => (
@@ -255,13 +266,8 @@ const EditSessionTimeAndCapacityForm = ({
                   return 'Session length must be more than 5 minutes';
                 }
 
-                const originalSessionLengthInMinutes = sessionLengthInMinutes(
-                  form.sessionToEdit.startTime,
-                  form.sessionToEdit.endTime,
-                );
-
                 if (
-                  minutesBetweenStartAndEnd > originalSessionLengthInMinutes
+                  compareTimes(value, sessionToEditWatch.endTime) == 'later'
                 ) {
                   return 'Enter a start or end time that reduces the length of this session.';
                 }

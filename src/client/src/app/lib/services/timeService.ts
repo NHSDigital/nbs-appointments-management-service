@@ -152,3 +152,19 @@ export const isBeforeOrEqual = (
   second: dayjs.Dayjs,
   units: 'minute' = 'minute',
 ) => first.isSameOrBefore(second, units);
+
+export const compareTimes = (
+  first: TimeComponents,
+  second: TimeComponents,
+): 'earlier' | 'equal' | 'later' => {
+  const minutesInFirstTime = Number(first.hour) * 60 + Number(first.minute);
+  const minutesInSecondTime = Number(second.hour) * 60 + Number(second.minute);
+
+  if (minutesInFirstTime < minutesInSecondTime) {
+    return 'earlier';
+  }
+  if (minutesInFirstTime > minutesInSecondTime) {
+    return 'later';
+  }
+  return 'equal';
+};

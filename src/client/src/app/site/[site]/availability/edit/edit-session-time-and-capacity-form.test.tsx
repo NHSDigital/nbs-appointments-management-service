@@ -159,6 +159,7 @@ describe('Edit Session Time And Capacity Form', () => {
     ['09', '00', '13', '00'],
     ['09', '00', '12', '15'],
     ['15', '00', '19', '00'],
+    ['09', '40', '12', '10'],
   ])(
     'forbids extending the session',
     async (

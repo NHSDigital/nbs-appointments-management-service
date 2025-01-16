@@ -34,7 +34,9 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
       await cancelSession(sessionSummary, site);
       router.push(`cancel/confirmed?session=${session}&date=${date}`);
     } else {
-      router.push(`/site/${site}/view-availability/week?date=${date}`);
+      router.push(
+        `/site/${site}/view-availability/daily-appointments?date=${date}&page=1&tab=0`,
+      );
     }
   };
 

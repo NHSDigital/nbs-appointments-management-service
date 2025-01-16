@@ -43,7 +43,10 @@ test.beforeEach(async ({ page }) => {
 //   await cosmosDbSeeder.clearUsers();
 // });
 
-test('Verify user manager able to create new user', async ({ newUserName }) => {
+test('Verify user manager able to create new user', async ({
+  newUserName,
+  page,
+}) => {
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();

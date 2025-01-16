@@ -336,10 +336,7 @@ const EditSessionTimeAndCapacityForm = ({
           />
         </FormGroup>
         <br />
-        <FormGroup
-          legend="Capacity"
-          hint="Enter your capacity to calculate appointment numbers for this session."
-        >
+        <FormGroup legend="Capacity">
           <Controller
             control={control}
             name="newSession.capacity"

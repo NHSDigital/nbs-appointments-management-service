@@ -1,14 +1,19 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import EditSessionConfirmed from './edit-session-confirmed';
-import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import { mockSite } from '@testing/data';
 
 describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {
     render(
       <EditSessionConfirmed
-        sessionSummary={mockWeekAvailability__Summary[0].sessions[0]}
+        updatedSession={{
+          from: '09:00',
+          until: '12:00',
+          services: ['RSV:Adult'],
+          capacity: 10,
+          slotLength: 5,
+        }}
         date="2025-01-15"
         site={mockSite}
       />,
@@ -22,7 +27,13 @@ describe('Cancellation Confirmed Page', () => {
   it('renders a link back to the cancel appointments page', () => {
     render(
       <EditSessionConfirmed
-        sessionSummary={mockWeekAvailability__Summary[0].sessions[0]}
+        updatedSession={{
+          from: '09:00',
+          until: '12:00',
+          services: ['RSV:Adult'],
+          capacity: 10,
+          slotLength: 5,
+        }}
         date="2025-01-15"
         site={mockSite}
       />,

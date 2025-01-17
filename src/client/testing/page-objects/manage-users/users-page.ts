@@ -41,4 +41,12 @@ export default class UsersPage extends RootPage {
       this.page.getByRole('cell', { name: email }),
     ).not.toBeVisible();
   }
+
+  async removeFromThisSiteLink(newUserName: string) {
+    await this.page
+      .getByRole('row')
+      .filter({ has: this.page.getByText(newUserName) })
+      .getByRole('link', { name: 'Remove from this site' })
+      .click();
+  }
 }

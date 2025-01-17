@@ -9,6 +9,7 @@ import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage
 import ConfirmRemoveUserPage from '../../page-objects/manage-users/confirm-remove-user-page';
 import NotFoundPage from '../../page-objects/not-found';
 import NotAuthorizedPage from '../../page-objects/unauthorized';
+import CreateUserPage from '../../page-objects/manage-users/create-user-page';
 
 const { TEST_USERS } = env;
 
@@ -17,6 +18,7 @@ let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let usersPage: UsersPage;
+let createUserPage: CreateUserPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let confirmRemoveUserPage: ConfirmRemoveUserPage;
 let notFoundPage: NotFoundPage;
@@ -28,6 +30,7 @@ test.beforeEach(async ({ page }) => {
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   usersPage = new UsersPage(page);
+  createUserPage = new CreateUserPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   confirmRemoveUserPage = new ConfirmRemoveUserPage(page);
   notFoundPage = new NotFoundPage(page);
@@ -57,25 +60,44 @@ test('Verify user manager able to create new user', async ({ newUserName }) => {
   await usersPage.userExists(newUserName);
   await usersPage.verifyUserRoles('Appointment manager', newUserName);
   await usersPage.verifyUserRoles('Availability manager', newUserName);
+  await usersPage.removeFromThisSiteLink(newUserName);
+  await confirmRemoveUserPage.confirmRemoveButton.click();
 });
 
-// test('Cannot create a user without any roles', async ({ newUserName }) => {
-//   await usersPage.assignStaffRolesLink.click();
+test('Cannot create a user without any roles', async ({ newUserName }) => {
+  await usersPage.assignStaffRolesLink.click();
+  await editManageUserRolesPage.emailInput.fill(newUserName);
+  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await createUserPage.notSelectedAnyRolesErrorMsg();
+  //   await expect(
+  //     userManagementPage.page.getByText('You have not selected any roles'),
+  //   ).toBeVisible();
+  //   await userManagementPage.selectRole('Appointment manager');
+  //   await userManagementPage.selectRole('Availability manager');
 
-//   await userManagementPage.emailInput.fill(newUserName);
-//   await userManagementPage.searchUserButton.click();
+  //   await userManagementPage.confirmAndSaveButton.click();
+  //   await userManagementPage.page.waitForURL('**/site/ABC01/users');
+  //   await userManagementPage.userExists(newUserName);
+});
 
-//   await userManagementPage.confirmAndSaveButton.click();
-//   await expect(
-//     userManagementPage.page.getByText('You have not selected any roles'),
-//   ).toBeVisible();
-//   await userManagementPage.selectRole('Appointment manager');
-//   await userManagementPage.selectRole('Availability manager');
+test('Cannot create a user with non NHS email Id', async ({
+  nonNhsEmailId,
+}) => {
+  await usersPage.assignStaffRolesLink.click();
+  await editManageUserRolesPage.emailInput.fill(nonNhsEmailId);
+  await editManageUserRolesPage.searchUserButton.click();
+  await createUserPage.notEnteredValidEmailAddressErrorMsg();
+});
 
-//   await userManagementPage.confirmAndSaveButton.click();
-//   await userManagementPage.page.waitForURL('**/site/ABC01/users');
-//   await userManagementPage.userExists(newUserName);
-// });
+test('Verify users are redirected to users page upon cancel button clicked', async ({
+  newUserName,
+}) => {
+  await usersPage.assignStaffRolesLink.click();
+  await editManageUserRolesPage.emailInput.fill(newUserName);
+  await editManageUserRolesPage.cancelButton.click();
+  await usersPage.title.isVisible();
+});
 
 // test('Can remove a user', async ({ newUserName }) => {
 //   await usersPage.assignStaffRolesLink.click();

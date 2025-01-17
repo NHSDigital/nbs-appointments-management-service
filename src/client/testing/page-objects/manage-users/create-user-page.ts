@@ -27,4 +27,20 @@ export default class CreateUserPage extends RootPage {
       name: 'Confirm and save',
     });
   }
+
+  async notSelectedAnyRolesErrorMsg() {
+    await expect(
+      this.page.getByText('You have not selected any roles'),
+    ).toBeVisible();
+  }
+
+  async notEnteredValidEmailAddressErrorMsg() {
+    await expect(
+      this.page.getByText('You have not entered a valid NHS email address'),
+    ).toBeVisible();
+  }
+
+  async selectStaffRole(roleName: string) {
+    await this.page.getByLabel(roleName).check();
+  }
 }

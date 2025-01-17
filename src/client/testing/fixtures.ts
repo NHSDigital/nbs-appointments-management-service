@@ -13,3 +13,13 @@ export const test = baseTest.extend<object, { newUserName: string }>({
     { scope: 'worker' },
   ],
 });
+
+export const test1 = baseTest.extend<object, { nonNhsEmailId: string }>({
+  nonNhsEmailId: [
+    async ({}, use) => {
+      const userName = `int-test-user-${test.info().workerIndex}@gmail.com`;
+      await use(userName);
+    },
+    { scope: 'worker' },
+  ],
+});

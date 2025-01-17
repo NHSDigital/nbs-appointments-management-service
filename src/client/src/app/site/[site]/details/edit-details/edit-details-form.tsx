@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   SmallSpinnerWithText,
   TextInput,
+  TextArea,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -33,9 +34,11 @@ const EditDetailsForm = ({
   } = useForm<FormFields>({
     defaultValues: {
       name: siteWithAttributes.name,
-      address: siteWithAttributes.address,
-      phoneNumber: siteWithAttributes.phoneNumber,
-      //TODO deciml controls?
+      //add in line breaks at each comma
+      address: siteWithAttributes.address.replace(/, /g, ',\n'),
+      //strip out whitespace from phone number so that it can be a 'number' control
+      phoneNumber: siteWithAttributes.phoneNumber.replace(/\s/g, ''),
+      //TODO decimal controls?
       latitude: siteWithAttributes.location.coordinates[0].toString(),
       longitude: siteWithAttributes.location.coordinates[1].toString(),
     },
@@ -50,7 +53,8 @@ const EditDetailsForm = ({
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetSiteDetailsRequest = {
       name: form.name,
-      address: form.address,
+      //remove the line breaks and save back
+      address: form.address.replace(/\n/g, ' '),
       phoneNumber: form.phoneNumber,
       latitude: form.latitude,
       longitude: form.longitude,
@@ -62,30 +66,17 @@ const EditDetailsForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      {/* <h3>Site name</h3> */}
+      <h3>Site name</h3>
       <FormGroup>
-        <TextInput id="name" label="Name" {...register('name')}></TextInput>
-        <TextInput
-          id="address"
-          label="Address"
-          {...register('address')}
-        ></TextInput>
-        <TextInput
-          id="phoneNumber"
-          label="Phone number"
-          {...register('phoneNumber')}
-        ></TextInput>
+        <TextInput id="name" {...register('name')}></TextInput>
       </FormGroup>
 
-      {/* <h3>Site address</h3> */}
+      <FormGroup>
+        <h3>Site address</h3>
+        <TextArea id="address" label="" {...register('address')}></TextArea>
+      </FormGroup>
 
-      {/* <FormGroup>
-        <TextInput id="line1" label="Address line 1"></TextInput>
-        <TextInput id="line2" label="Address line 2"></TextInput>
-        <TextInput id="townCity" label="Town or city"></TextInput>
-        <TextInput id="county" label="County (optional)"></TextInput>
-        <TextInput id="postcode" label="Postcode"></TextInput>
-      </FormGroup> */}
+      <h3>Latitude and longitude</h3>
       <FormGroup>
         <TextInput
           id="latitude"
@@ -99,13 +90,17 @@ const EditDetailsForm = ({
         ></TextInput>
       </FormGroup>
 
+      <h3>Phone number</h3>
+      <FormGroup>
+        <TextInput id="phoneNumber" {...register('phoneNumber')}></TextInput>
+      </FormGroup>
+
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Updating details..." />
       ) : (
         <ButtonGroup>
-          <Button type="submit">Save and continue</Button>
-          <Button styleType="secondary" onClick={cancel}>
-            Cancel
+          <Button type="submit" style={{ marginTop: '30px' }}>
+            Save and continue
           </Button>
         </ButtonGroup>
       )}

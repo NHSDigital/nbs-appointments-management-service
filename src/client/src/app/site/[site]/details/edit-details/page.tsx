@@ -1,10 +1,7 @@
 import NhsPage from '@components/nhs-page';
-import {
-  assertPermission,
-  fetchPermissions,
-  fetchSite,
-} from '@services/appointmentsService';
+import { assertPermission } from '@services/appointmentsService';
 import { EditDetailsPage } from './edit-details-page';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 export type PageProps = {
   params: {
@@ -13,21 +10,19 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-  const sitePermissions = await fetchPermissions(params.site);
+  // const sitePermissions = await fetchPermissions(params.site);
 
-  await assertPermission(site.id, 'site:manage');
+  await assertPermission(params.site, 'site:manage');
+
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}`,
+    text: 'Back',
+  };
 
   return (
-    <NhsPage
-      title="Site management"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-      originPage="edit"
-    >
-      <EditDetailsPage site={params.site} permissions={sitePermissions} />
+    <NhsPage backLink={backLink} title="" originPage="edit">
+      <EditDetailsPage site={params.site} />
     </NhsPage>
   );
 };

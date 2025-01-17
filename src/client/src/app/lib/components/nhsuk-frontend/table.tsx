@@ -6,7 +6,7 @@ type TableProps = {
   rows: Cell[][];
 };
 
-type Cell = string | ReactNode;
+export type Cell = string | ReactNode;
 
 type TableCardinality = 'two-column' | 'three-or-more-column';
 

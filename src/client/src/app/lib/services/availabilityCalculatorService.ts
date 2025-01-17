@@ -15,6 +15,7 @@ import {
   DailyAvailability,
   DaySummary,
   SessionSummary,
+  TimeComponents,
 } from '@types';
 
 export const summariseWeek = async (
@@ -104,9 +105,20 @@ const buildDaySummary = (
   date: dayjs.Dayjs,
   sessionsAndSlots: SessionAndSlots[],
 ): DaySummary => {
-  const sessionSummaries = sessionsAndSlots.map(
-    sessionAndSlot => sessionAndSlot.session,
-  );
+  const sessionSummaries = sessionsAndSlots
+    .map(sessionAndSlot => sessionAndSlot.session)
+    .sort((a, b) => {
+      if (a.start.isBefore(b.start)) {
+        return -1;
+      }
+      if (a.end.isBefore(b.end)) {
+        return -1;
+      }
+      if (a.bookings > b.bookings) {
+        return -1;
+      }
+      return 0;
+    });
 
   const maximumCapacity = sessionSummaries.reduce(
     (accumulator, sessionSummary) =>
@@ -186,6 +198,8 @@ const mapSessionsAndSlots = (
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
       bookings: bookingsByService,
+      capacity: session.capacity,
+      slotLength: session.slotLength,
     };
 
     return {
@@ -199,4 +213,14 @@ type SessionAndSlots = {
   sessionIndex: number;
   session: SessionSummary;
   slots: AvailabilitySlot[];
+};
+
+export const sessionLengthInMinutes = (
+  startTime: TimeComponents,
+  endTime: TimeComponents,
+): number => {
+  const startMinutes = Number(startTime.hour) * 60 + Number(startTime.minute);
+  const endMinutes = Number(endTime.hour) * 60 + Number(endTime.minute);
+
+  return endMinutes - startMinutes;
 };

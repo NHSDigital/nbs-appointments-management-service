@@ -3,6 +3,7 @@ import { DaySummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { isInTheFuture } from '@services/timeService';
+import { SessionSummaryTable } from '@components/session-summary-table';
 
 type Props = {
   days: DaySummary[];
@@ -59,31 +60,13 @@ export const ViewWeekAvailabilityPage = ({
         <Card title={d.date.format('dddd D MMMM')} key={i}>
           {d.sessions.length > 0 ? (
             <>
-              <Table
-                headers={['Time', 'Services', 'Booked', 'Unbooked']}
-                rows={d.sessions.map(session => {
-                  return [
-                    `${session.start.format('HH:mm')} - ${session.end.format('HH:mm')}`,
-                    Object.keys(session.bookings).map((service, k) => {
-                      return (
-                        <span key={k}>
-                          {service}
-                          <br />
-                        </span>
-                      );
-                    }),
-                    Object.keys(session.bookings).map((service, j) => {
-                      return (
-                        <span key={j}>
-                          {session.bookings[service]} booked
-                          <br />
-                        </span>
-                      );
-                    }),
-                    `${session.maximumCapacity - session.totalBookings} unbooked`,
-                  ];
-                })}
-              ></Table>
+              <SessionSummaryTable
+                sessionSummaries={d.sessions}
+                showChangeSessionLink={{
+                  siteId: site,
+                  date: d.date,
+                }}
+              />
               <br />
               {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
                 <Link

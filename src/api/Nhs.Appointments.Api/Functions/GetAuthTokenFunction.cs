@@ -17,7 +17,10 @@ using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWriteService auditWriteService, IOptions<AuthOptions> authOptions)
+public class GetAuthTokenFunction(
+    IHttpClientFactory httpClientFactory,
+    IAuditWriteService auditWriteService,
+    IOptions<AuthOptions> authOptions)
 {
     private readonly AuthOptions _authOptions = authOptions.Value;
 
@@ -52,17 +55,18 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IAuditWr
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
 
             _ = Task.Run(() => RecordAuditLogin(tokenResponse.IdToken));
-            
+
             return new OkObjectResult(new { token = tokenResponse.IdToken });
         }
 
         throw new InvalidOperationException(
             $"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
-    
+
     private async Task RecordAuditLogin(string idToken)
     {
         var token = new JwtSecurityToken(idToken);
-        await auditWriteService.RecordAuth($"{Guid.NewGuid()}", DateTime.UtcNow, token.Subject, AuditAuthActionType.Login);
+        var email = AuthUtilities.GetEmailFromToken(token);
+        await auditWriteService.RecordAuth($"{Guid.NewGuid()}", DateTime.UtcNow, email, AuditAuthActionType.Login);
     }
 }

@@ -552,6 +552,6 @@ public class SiteServiceTests
 
         var result = await _sut.GetAllSites();
 
-        result.Count().Should().Be(sites.Count());
+        result.Count().Should().Be(2);
     }
 }

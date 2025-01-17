@@ -1,5 +1,5 @@
 import { assertPermission, fetchSite } from '@services/appointmentsService';
-import { SessionSummary } from '@types';
+import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
 import EditSessionConfirmed from './edit-session-confirmed';
@@ -7,7 +7,7 @@ import EditSessionConfirmed from './edit-session-confirmed';
 type PageProps = {
   searchParams: {
     date: string;
-    session: string;
+    updatedSession: string;
   };
   params: {
     site: string;
@@ -19,7 +19,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(site.id, 'availability:setup');
   const date = dayjs(searchParams.date, 'YYYY-MM-DD');
 
-  const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
+  const updatedSession: AvailabilitySession = JSON.parse(
+    atob(searchParams.updatedSession),
+  );
 
   return (
     <NhsPage
@@ -33,7 +35,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditSessionConfirmed
-        sessionSummary={sessionSummary}
+        updatedSession={updatedSession}
         site={site}
         date={searchParams.date}
       />

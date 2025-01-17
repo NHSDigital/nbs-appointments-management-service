@@ -1,32 +1,33 @@
 import { Table, InsetText } from '@components/nhsuk-frontend';
-import {
-  SessionServicesCell,
-  SessionTimesCell,
-} from '@components/session-summary-table';
-import { SessionSummary, Site } from '@types';
+import { AvailabilitySession, clinicalServices, Site } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
-  sessionSummary: SessionSummary;
+  updatedSession: AvailabilitySession;
   site: Site;
   date: string;
 };
 
-const EditSessionConfirmed = ({ sessionSummary, site, date }: PageProps) => {
+const EditSessionConfirmed = ({ updatedSession, site, date }: PageProps) => {
   return (
     <>
       <Table
         headers={['Time', 'Services']}
         rows={[
           [
-            <SessionTimesCell
-              key={`session-0-start-and-end-time`}
-              sessionSummary={sessionSummary}
-            />,
-            <SessionServicesCell
-              key={`session-0-service-name`}
-              sessionSummary={sessionSummary}
-            />,
+            <strong key={`session-0-start-and-end-time`}>
+              {`${updatedSession.from} - ${updatedSession.until}`}
+            </strong>,
+            <>
+              {updatedSession.services.map((service, serviceIndex) => {
+                return (
+                  <span key={`service-name-${serviceIndex}`}>
+                    {clinicalServices.find(cs => cs.value === service)?.label}
+                    <br />
+                  </span>
+                );
+              })}
+            </>,
           ],
         ]}
       />

@@ -1,6 +1,6 @@
 'use client';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
-import { Site, SessionSummary, Session } from '@types';
+import { Site, SessionSummary, Session, AvailabilitySession } from '@types';
 import { useRouter } from 'next/navigation';
 import { editSession } from '@services/appointmentsService';
 import {
@@ -71,19 +71,19 @@ const EditSessionTimeAndCapacityForm = ({
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
+    const updatedSession: AvailabilitySession = {
+      from: formatTimeString(form.newSession.startTime) ?? '',
+      until: formatTimeString(form.newSession.endTime) ?? '',
+      slotLength: form.newSession.slotLength,
+      capacity: form.newSession.capacity,
+      services: form.newSession.services,
+    };
+
     await editSession({
       date,
       site: site.id,
       mode: 'Edit',
-      sessions: [
-        {
-          from: formatTimeString(form.newSession.startTime) ?? '',
-          until: formatTimeString(form.newSession.endTime) ?? '',
-          slotLength: form.newSession.slotLength,
-          capacity: form.newSession.capacity,
-          services: form.newSession.services,
-        },
-      ],
+      sessions: [updatedSession],
       sessionToEdit: {
         from: formatTimeString(form.sessionToEdit.startTime) ?? '',
         until: formatTimeString(form.sessionToEdit.endTime) ?? '',
@@ -94,7 +94,7 @@ const EditSessionTimeAndCapacityForm = ({
     });
 
     router.push(
-      `edit/confirmed?session=${btoa(JSON.stringify(existingSession))}&date=${date}`,
+      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
   };
 

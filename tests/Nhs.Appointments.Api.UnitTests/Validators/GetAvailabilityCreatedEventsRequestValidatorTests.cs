@@ -31,7 +31,7 @@ public class GetAvailabilityCreatedEventsRequestValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenFromIsBlank()
     {
-        var testRequest = new GetAvailabilityCreatedEventsRequest("ABC02", "");
+        var testRequest = new GetAvailabilityCreatedEventsRequest("cb5596bc-ef41-42c9-a8f1-57d713d6cc91", "");
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -41,7 +41,7 @@ public class GetAvailabilityCreatedEventsRequestValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenFromIsNull()
     {
-        var testRequest = new GetAvailabilityCreatedEventsRequest("ABC02", null);
+        var testRequest = new GetAvailabilityCreatedEventsRequest("cb5596bc-ef41-42c9-a8f1-57d713d6cc91", null);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -51,7 +51,7 @@ public class GetAvailabilityCreatedEventsRequestValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenFromIsInWrongFormat()
     {
-        var testRequest = new GetAvailabilityCreatedEventsRequest("ABC02", "20:01:2031");
+        var testRequest = new GetAvailabilityCreatedEventsRequest("cb5596bc-ef41-42c9-a8f1-57d713d6cc91", "20:01:2031");
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -61,7 +61,7 @@ public class GetAvailabilityCreatedEventsRequestValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
-        var testRequest = new GetAvailabilityCreatedEventsRequest("ABC02", "2020-01-01");
+        var testRequest = new GetAvailabilityCreatedEventsRequest("cb5596bc-ef41-42c9-a8f1-57d713d6cc91", "2020-01-01");
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

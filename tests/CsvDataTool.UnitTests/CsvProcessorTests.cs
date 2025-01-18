@@ -19,10 +19,10 @@ public class CsvProcessorTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,ABC01",
-            "test1@nhs.net,ABC02",
-            "test2@nhs.net,ABC01",
-            "test2@nhs.net,ABC03",
+            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19",
+            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb",
+            "test2@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19",
+            "test2@nhs.net,9a06bacd-e916-4c10-8263-21451ca751b8",
         ];
 
         var expectedUserDocuments = new UserDocument[]
@@ -34,14 +34,14 @@ public class CsvProcessorTests
                 LatestAcceptedEulaVersion = DateOnly.MinValue,
                 RoleAssignments =
                 [
-                    new() { Role = "canned:user-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:site-details-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:availability-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:appointment-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:user-manager", Scope = "site:ABC02" },
-                    new() { Role = "canned:site-details-manager", Scope = "site:ABC02" },
-                    new() { Role = "canned:availability-manager", Scope = "site:ABC02" },
-                    new() { Role = "canned:appointment-manager", Scope = "site:ABC02" }
+                    new() { Role = "canned:user-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:site-details-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:availability-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:appointment-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:user-manager", Scope = "site:308d515c-2002-450e-b248-4ba36f6667bb" },
+                    new() { Role = "canned:site-details-manager", Scope = "site:308d515c-2002-450e-b248-4ba36f6667bb" },
+                    new() { Role = "canned:availability-manager", Scope = "site:308d515c-2002-450e-b248-4ba36f6667bb" },
+                    new() { Role = "canned:appointment-manager", Scope = "site:308d515c-2002-450e-b248-4ba36f6667bb" }
                 ]
             },
             new()
@@ -51,14 +51,14 @@ public class CsvProcessorTests
                 LatestAcceptedEulaVersion = DateOnly.MinValue,
                 RoleAssignments =
                 [
-                    new() { Role = "canned:user-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:site-details-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:availability-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:appointment-manager", Scope = "site:ABC01" },
-                    new() { Role = "canned:user-manager", Scope = "site:ABC03" },
-                    new() { Role = "canned:site-details-manager", Scope = "site:ABC03" },
-                    new() { Role = "canned:availability-manager", Scope = "site:ABC03" },
-                    new() { Role = "canned:appointment-manager", Scope = "site:ABC03" }
+                    new() { Role = "canned:user-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:site-details-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:availability-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:appointment-manager", Scope = "site:d3793464-b421-41f3-9bfa-53b06e7b3d19" },
+                    new() { Role = "canned:user-manager", Scope = "site:9a06bacd-e916-4c10-8263-21451ca751b8" },
+                    new() { Role = "canned:site-details-manager", Scope = "site:9a06bacd-e916-4c10-8263-21451ca751b8" },
+                    new() { Role = "canned:availability-manager", Scope = "site:9a06bacd-e916-4c10-8263-21451ca751b8" },
+                    new() { Role = "canned:appointment-manager", Scope = "site:9a06bacd-e916-4c10-8263-21451ca751b8" }
                 ]
             }
         };

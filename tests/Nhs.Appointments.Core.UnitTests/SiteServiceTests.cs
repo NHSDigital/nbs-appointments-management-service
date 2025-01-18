@@ -628,7 +628,7 @@ public class SiteServiceTests
     [InlineData("site_details")]
     public async Task GetSiteByIdAsync_ReturnsDefault_WhenSiteIsNotFound(string scope)
     {
-        const string siteId = "ABC01";
+        const string siteId = "9a06bacd-e916-4c10-8263-21451ca751b8";
         _siteStore.Setup(x => x.GetSiteById(siteId)).ReturnsAsync((Site)null!);
 
         var result = await _sut.GetSiteByIdAsync(siteId, scope);

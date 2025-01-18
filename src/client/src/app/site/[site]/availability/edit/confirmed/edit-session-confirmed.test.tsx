@@ -46,7 +46,7 @@ describe('Cancellation Confirmed Page', () => {
       screen.getByRole('link', { name: 'Cancel appointments' }),
     ).toHaveAttribute(
       'href',
-      '/site/1001/view-availability/daily-appointments?date=2025-01-15&page=1&tab=2',
+      '/site/34e990af-5dc9-43a6-8895-b9123216d699/view-availability/daily-appointments?date=2025-01-15&page=1&tab=2',
     );
   });
 });

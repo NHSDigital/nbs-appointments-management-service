@@ -64,9 +64,10 @@ describe('Nhs Page', () => {
       emailAddress: 'test@nhs.net',
       availableSites: [
         {
-          id: 'TEST',
+          id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
           name: 'Test site',
           address: '',
+          odsCode: 'K12',
           integratedCareBoard: 'ICB2',
           region: 'R2',
         },
@@ -173,9 +174,10 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
       },
@@ -184,7 +186,9 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).toHaveBeenCalledWith('TEST');
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(
+      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    );
 
     expect(
       screen.getByRole('navigation', { name: 'Primary navigation' }),
@@ -204,20 +208,26 @@ describe('Nhs Page', () => {
     expect(viewAvailabilityLink).toBeVisible();
     expect(viewAvailabilityLink).toHaveAttribute(
       'href',
-      '/site/TEST/view-availability',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/view-availability',
     );
 
     expect(createAvailabilityLink).toBeVisible();
     expect(createAvailabilityLink).toHaveAttribute(
       'href',
-      '/site/TEST/create-availability',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/create-availability',
     );
 
     expect(manageSiteLink).toBeVisible();
-    expect(manageSiteLink).toHaveAttribute('href', '/site/TEST/details');
+    expect(manageSiteLink).toHaveAttribute(
+      'href',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details',
+    );
 
     expect(viewUsersLink).toBeVisible();
-    expect(viewUsersLink).toHaveAttribute('href', '/site/TEST/users');
+    expect(viewUsersLink).toHaveAttribute(
+      'href',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/users',
+    );
   });
 
   it('Does not request permissions if not site is provided', async () => {
@@ -239,9 +249,10 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
       },
@@ -250,7 +261,9 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).toHaveBeenCalledWith('TEST');
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(
+      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    );
 
     expect(
       screen.queryByRole('navigation', { name: 'Primary navigation' }),
@@ -275,9 +288,10 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
       },
@@ -312,9 +326,10 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
       },

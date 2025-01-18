@@ -13,12 +13,8 @@ public class RemoveUserRequestValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenSiteIsNullOrEmpty(string site)
     {
-        var request = new RemoveUserRequest()
-        {
-            User = "test.user@nhs.net",
-            Site = site
-        };
-        
+        var request = new RemoveUserRequest { User = "test.user@nhs.net", Site = site };
+
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -36,11 +32,7 @@ public class RemoveUserRequestValidatorTests
     [InlineData("@test.com")]
     public void Validate_ReturnsError_WhenUserIsNotValidEmailAddress(string user)
     {
-        var request = new RemoveUserRequest()
-        {
-            User = user,
-            Site = "1001"
-        };
+        var request = new RemoveUserRequest { User = user, Site = "34e990af-5dc9-43a6-8895-b9123216d699" };
 
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
@@ -61,10 +53,9 @@ public class RemoveUserRequestValidatorTests
     [Fact]
     public void Validate_ReturnsSuccess_WhenRequestIsValid()
     {
-        var request = new RemoveUserRequest()
+        var request = new RemoveUserRequest
         {
-            User = "test.user@nhs.net",
-            Site = "1001"
+            User = "test.user@nhs.net", Site = "34e990af-5dc9-43a6-8895-b9123216d699"
         };
 
         var result = _sut.Validate(request);

@@ -103,7 +103,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following sessions")]
     public Task SetupSessions(DataTable dataTable)
     {
-        return SetupSessions("A", dataTable);
+        return SetupSessions("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
     }
 
     [Given(@"the following sessions for site '(\w)'")]
@@ -227,7 +227,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following bookings have been made")]
     public Task SetupBookings(DataTable dataTable)
     {
-        return SetupBookings("A", dataTable);
+        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
     }
 
     [And(@"the following bookings have been made for site '(\w)'")]
@@ -240,30 +240,30 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following recent bookings have been made")]
     public Task SetupRecentBookings(DataTable dataTable)
     {
-        return SetupBookings("A", dataTable, BookingType.Recent);
+        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Recent);
     }
 
     [Given("the following provisional bookings have been made")]
     [And("the following provisional bookings have been made")]
     public Task SetupProvisionalBookings(DataTable dataTable)
     {
-        return SetupBookings("A", dataTable, BookingType.Provisional);
+        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Provisional);
     }
 
     [Given("the following expired provisional bookings have been made")]
     [And("the following expired provisional bookings have been made")]
     public Task SetupExpiredProvisionalBookings(DataTable dataTable)
     {
-        return SetupBookings("A", dataTable, BookingType.ExpiredProvisional);
+        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.ExpiredProvisional);
     }
 
     [Given("the following cancelled bookings have been made")]
     [And("the following cancelled bookings have been made")]
     public Task SetupCancelledBookings(DataTable dataTable) =>
-        SetupBookings("A", dataTable, BookingType.Cancelled);
+        SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Cancelled);
 
     [And("the following orphaned bookings exist")]
-    public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("A", dataTable, BookingType.Orphaned);
+    public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Orphaned);
 
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
@@ -426,7 +426,9 @@ public abstract partial class BaseFeatureSteps : Feature
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
     };
 
-    protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
+    protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>
+        $"{_testId}-{siteDesignation}";
+
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
 
     private async Task SetUpRoles()

@@ -3,28 +3,28 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class GetSiteMetaDataFunctionTests
 {
-    private readonly GetSiteMetaDataFunction _sut;
-    private readonly Mock<ISiteService> _siteService = new();
-    private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetSiteMetaDataFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<ISiteService> _siteService = new();
+    private readonly GetSiteMetaDataFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<SiteBasedResourceRequest>> _validator = new();
 
     public GetSiteMetaDataFunctionTests()
     {
-        _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new GetSiteMetaDataFunction(_siteService.Object, _validator.Object, _userContextProvider.Object,
+            _logger.Object, _metricsRecorder.Object);
         _validator
             .Setup(x => x.ValidateAsync(It.IsAny<SiteBasedResourceRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -43,13 +43,14 @@ public class GetSiteMetaDataFunctionTests
     [InlineData("attr_one/test_attr", "Another test", "")]
     public async Task RunAsync_ReturnsInformationForCitizen(string attrId, string attrVal, string expectedInformation)
     {
-        _siteService.Setup(x => x.GetSiteByIdAsync("123", "site_details"))
+        _siteService.Setup(x => x.GetSiteByIdAsync("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "site_details"))
             .ReturnsAsync(new Site
             (
-                Id: "123",
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                 Name: "Test 123",
                 Address: "1 Test Street",
                 PhoneNumber: "0113 1111111",
+                OdsCode: "15N",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 AttributeValues: [new(attrId, attrVal)],
@@ -71,7 +72,7 @@ public class GetSiteMetaDataFunctionTests
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString($"?site=123");
+        request.QueryString = new QueryString("?site=6877d86e-c2df-4def-8508-e1eccf0ea6ba");
         request.Headers.Append("Authorization", "Test 123");
         return request;
     }

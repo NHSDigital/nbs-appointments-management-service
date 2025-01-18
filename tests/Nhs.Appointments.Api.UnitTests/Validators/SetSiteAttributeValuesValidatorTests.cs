@@ -16,7 +16,7 @@ public class SetSiteAttributeValuesValidatorTests
     public void Validate_ReturnSuccess_WhenRequestIsValid(string value)
     {
         var testRequest = new SetSiteAttributesRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             Scope: "*",
             AttributeValues: new[]
             {
@@ -52,7 +52,7 @@ public class SetSiteAttributeValuesValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsNull()
     {
-        var request = new SetSiteAttributesRequest(Site: "ABC01", Scope: "*", AttributeValues: null);
+        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Scope: "*", AttributeValues: null);
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -62,7 +62,7 @@ public class SetSiteAttributeValuesValidatorTests
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsEmpty()
     {
-        var request = new SetSiteAttributesRequest(Site: "ABC01", Scope: "*", AttributeValues: Array.Empty<AttributeValue>());
+        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Scope: "*", AttributeValues: Array.Empty<AttributeValue>());
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);

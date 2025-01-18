@@ -39,7 +39,7 @@ test.beforeEach(async ({ page }) => {
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
 
-  await page.waitForURL('**/site/ABC01/users');
+  await page.waitForURL('**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users');
 });
 
 // TODO: Maybe something like this to clear up all the users created along the way?
@@ -93,7 +93,9 @@ test('Cannot create a user without any roles', async ({ newUserName }) => {
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
-  await userManagementPage.page.waitForURL('**/site/ABC01/users');
+  await userManagementPage.page.waitForURL(
+    '**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
   await userManagementPage.userExists(newUserName);
 });
 
@@ -106,7 +108,9 @@ test('Can remove a user', async ({ newUserName }) => {
   await userManagementPage.selectRole('Availability manager');
 
   await userManagementPage.confirmAndSaveButton.click();
-  await userManagementPage.page.waitForURL('**/site/ABC01/users');
+  await userManagementPage.page.waitForURL(
+    '**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
   await userManagementPage.userExists(newUserName);
 
   await userManagementPage.page
@@ -124,7 +128,9 @@ test('Can remove a user', async ({ newUserName }) => {
   ).toBeVisible();
 
   await confirmRemoveUserPage.confirmRemoveButton.click();
-  await confirmRemoveUserPage.page.waitForURL('**/site/ABC01/users');
+  await confirmRemoveUserPage.page.waitForURL(
+    '**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
 
   await userManagementPage.userDoesNotExist(newUserName);
 });
@@ -138,7 +144,9 @@ test('Displays a notification banner after removing a user, which disappears whe
   await userManagementPage.searchUserButton.click();
   await userManagementPage.selectRole('Appointment manager');
   await userManagementPage.confirmAndSaveButton.click();
-  await userManagementPage.page.waitForURL('**/site/ABC01/users');
+  await userManagementPage.page.waitForURL(
+    '**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
 
   await userManagementPage.page
     .getByRole('row')
@@ -155,14 +163,16 @@ test('Displays a notification banner after removing a user, which disappears whe
   ).toBeVisible();
 
   await confirmRemoveUserPage.confirmRemoveButton.click();
-  await confirmRemoveUserPage.page.waitForURL('**/site/ABC01/users');
+  await confirmRemoveUserPage.page.waitForURL(
+    '**/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
 
   await userManagementPage.userDoesNotExist(newUserName);
 });
 
 test('Receives 403 error when trying to remove self', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/ABC01/users/remove?user=zzz_test_user_1@nhs.net`,
+    `/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users/remove?user=zzz_test_user_1@nhs.net`,
   );
 
   await expect(notAuthorizedPage.title).toBeVisible();
@@ -170,7 +180,7 @@ test('Receives 403 error when trying to remove self', async ({ page }) => {
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/ABC01/users/remove?user=not-a-user`,
+    `/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users/remove?user=not-a-user`,
   );
 
   await expect(notFoundPage.title).toBeVisible();
@@ -179,7 +189,7 @@ test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
 
 test('Receives 403 error when trying to edit self', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/ABC01/users/manage?user=zzz_test_user_1@nhs.net`,
+    `/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users/manage?user=zzz_test_user_1@nhs.net`,
   );
 
   await expect(notAuthorizedPage.title).toBeVisible();

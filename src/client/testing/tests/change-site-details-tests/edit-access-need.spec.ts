@@ -29,10 +29,12 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/ABC02/details');
+  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
   await siteDetailsPage.editSiteAttributesButton.click();
 
-  await page.waitForURL('**/site/ABC02/details/edit-attributes');
+  await page.waitForURL(
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+  );
 });
 
 test('Update access attributes for a site', async ({ page }) => {
@@ -48,14 +50,18 @@ test('Update access attributes for a site', async ({ page }) => {
 
   // Go back into edit UI to assert on checkbox state:
   await siteDetailsPage.editSiteAttributesButton.click();
-  await page.waitForURL('**/site/ABC02/details/edit-attributes');
+  await page.waitForURL(
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+  );
 
   await editAccessNeedstPage.attributeChecked('Accessible toilet');
   await editAccessNeedstPage.attributeNotChecked('Step free access');
 
   // Reload page
   await editAccessNeedstPage.page.reload();
-  await page.waitForURL('**/site/ABC02/details/edit-attributes');
+  await page.waitForURL(
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+  );
 
   // Check selected attributes are still correctly toggled after page reload
   await editAccessNeedstPage.verifyAccessNeedsCheckedOrUnchecked(

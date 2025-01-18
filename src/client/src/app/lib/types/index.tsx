@@ -121,6 +121,7 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  odsCode: string;
   integratedCareBoard: string;
   region: string;
 };

@@ -15,7 +15,7 @@ export const mapSiteSummaryData = (
     title: 'Address',
     value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
   });
-  items.push({ title: 'ODS code', value: site.id });
+  items.push({ title: 'ODS code', value: site.odsCode });
   items.push({
     title: 'ICB',
     value:

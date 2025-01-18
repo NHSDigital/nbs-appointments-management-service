@@ -87,7 +87,7 @@ describe('Edit Session Time And Capacity Form', () => {
     expect(editSessionMock).toHaveBeenCalledTimes(1);
     expect(editSessionMock).toHaveBeenCalledWith({
       date: '2024-06-10 07:00:00',
-      site: '1001',
+      site: '34e990af-5dc9-43a6-8895-b9123216d699',
       mode: 'Edit',
       sessions: [
         {

@@ -65,7 +65,7 @@ public class GetSiteMetaDataFunctionTests
         var response = await ReadResponseAsync<GetSiteMetaDataResponse>(result.Content);
 
         response.AdditionalInformation.Should().Be(expectedInformation);
-        response.Site.Should().Be("Test 123");
+        response.SiteName.Should().Be("Test 123");
     }
 
     private static HttpRequest CreateRequest()

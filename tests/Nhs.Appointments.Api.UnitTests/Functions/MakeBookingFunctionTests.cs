@@ -42,8 +42,7 @@ public class MakeBookingFunctionTests
                 "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-            "FirstName", "LastName",
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
@@ -57,8 +56,7 @@ public class MakeBookingFunctionTests
     {
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((Site)null);
 
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 09:30", "COVID", "9999999999",
-            "FirstName", "LastName",
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
@@ -76,8 +74,7 @@ public class MakeBookingFunctionTests
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 09:30", "COVID", "9999999999",
-            "FirstName", "LastName",
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
@@ -97,12 +94,11 @@ public class MakeBookingFunctionTests
 
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-            "FirstName", "LastName",
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
         var expectedBooking = new Booking
         {
-            Site = "34e990af-5dc9-43a6-8895-b9123216d699",
+            Site = "1001",
             Duration = 5,
             Service = "COVID",
             From = new DateTime(2077, 1, 1, 10, 30, 0),
@@ -158,9 +154,9 @@ public class MakeBookingFunctionTests
                     DateOfBirth = DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")
                 },
             contactDetails = new[]
-            {
-                new { type = "email", value = email }, new { type = "phone", value = phoneNumber }
-            },
+                {
+                    new { type = "email", value = email }, new { type = "phone", value = phoneNumber }
+                },
             additionalData,
             kind = "booked"
         };

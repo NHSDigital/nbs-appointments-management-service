@@ -1,26 +1,25 @@
 ﻿using FluentAssertions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using FluentValidation.Results;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class GetAvailabilityCreatedEventsFunctionTests
 {
-    private readonly Mock<IAvailabilityService> availabilityService = new();
-    private readonly Mock<IValidator<GetAvailabilityCreatedEventsRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetAvailabilityCreatedEventsFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly GetAvailabilityCreatedEventsFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<GetAvailabilityCreatedEventsRequest>> _validator = new();
+    private readonly Mock<IAvailabilityService> availabilityService = new();
 
     public GetAvailabilityCreatedEventsFunctionTests()
     {
@@ -39,7 +38,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString($"?site=1000&from=2000-01-01");
+        request.QueryString = new QueryString("?site=1000&from=2000-01-01");
         return request;
     }
 
@@ -47,14 +46,17 @@ public class GetAvailabilityCreatedEventsFunctionTests
     public async Task RunsAsync_Gets_Availability_Created_Events()
     {
         availabilityService.Setup(
-            x => x.GetAvailabilityCreatedEventsAsync("1000", DateOnly.FromDateTime(new DateTime(2000, 1, 1))))
-            .ReturnsAsync([new AvailabilityCreatedEvent()
-            {
-                Created = DateTime.UtcNow,
-                By = "test@test.com",
-                Site = "1000",
-                From = DateOnly.FromDateTime(DateTime.Now),
-            }]);
+                x => x.GetAvailabilityCreatedEventsAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    DateOnly.FromDateTime(new DateTime(2000, 1, 1))))
+            .ReturnsAsync([
+                new AvailabilityCreatedEvent
+                {
+                    Created = DateTime.UtcNow,
+                    By = "test@test.com",
+                    Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    From = DateOnly.FromDateTime(DateTime.Now),
+                }
+            ]);
 
         var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
@@ -67,7 +69,8 @@ public class GetAvailabilityCreatedEventsFunctionTests
 
         response.Single().By.Should().Be("test@test.com");
         availabilityService.Verify(
-            x => x.GetAvailabilityCreatedEventsAsync("1000", DateOnly.FromDateTime(new DateTime(2000, 1, 1))),
+            x => x.GetAvailabilityCreatedEventsAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                DateOnly.FromDateTime(new DateTime(2000, 1, 1))),
             Times.Once);
     }
 

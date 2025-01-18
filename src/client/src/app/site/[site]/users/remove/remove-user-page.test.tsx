@@ -40,7 +40,9 @@ describe('Remove User Page', () => {
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await user.click(cancelButton);
 
-    expect(mockReplace).toHaveBeenCalledWith('/site/1001/users');
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/34e990af-5dc9-43a6-8895-b9123216d699/users',
+    );
   });
 
   it('calls the save function when saved', async () => {
@@ -53,7 +55,7 @@ describe('Remove User Page', () => {
     );
 
     expect(mockSaveUserRoleAssignments).toHaveBeenCalledWith(
-      '1001',
+      '34e990af-5dc9-43a6-8895-b9123216d699',
       'mock.user@nhs.net',
     );
   });

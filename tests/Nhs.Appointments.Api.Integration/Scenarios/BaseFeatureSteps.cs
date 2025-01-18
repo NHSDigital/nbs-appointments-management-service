@@ -426,7 +426,9 @@ public abstract partial class BaseFeatureSteps : Feature
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
     };
 
-    protected string GetSiteId(string siteDesignation = "A") => $"{_testId}-{siteDesignation}";
+    protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>
+        $"{_testId}-{siteDesignation}";
+
     protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
 
     private async Task SetUpRoles()

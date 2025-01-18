@@ -8,11 +8,11 @@ public class SiteDocument : CoreDataCosmosDocument
 {
     [JsonProperty("name")] public string Name { get; set; }
 
-    [JsonProperty("odsCode")] public string OdsCode { get; set; }
-
     [JsonProperty("address")] public string Address { get; set; }
 
     [JsonProperty("phoneNumber")] public string PhoneNumber { get; set; }
+
+    [JsonProperty("odsCode")] public string OdsCode { get; set; }
 
     [JsonProperty("region")] public string Region { get; set; }
 

@@ -1,0 +1,11 @@
+{
+  "id": "admin_test_user@nhs.net",
+  "docType": "user",
+  "latestAcceptedEulaVersion": "2024-12-01",
+  "roleAssignments": [
+    {
+      "role": "system:admin-user",
+      "scope": "global"
+    }
+  ]
+}

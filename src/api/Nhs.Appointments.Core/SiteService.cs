@@ -6,6 +6,7 @@ public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
+    Task<IEnumerable<Site>> GetAllSites();
     Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
 }
 
@@ -48,7 +49,12 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         site.AttributeValues = site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
-    }    
+    }
+
+    public async Task<IEnumerable<Site>> GetAllSites()
+    {
+        return await siteStore.GetAllSites();
+    }
 
     public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
     {

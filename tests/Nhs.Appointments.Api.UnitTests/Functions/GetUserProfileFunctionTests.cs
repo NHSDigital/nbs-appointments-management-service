@@ -1,11 +1,10 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -136,6 +135,47 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
             actualResponse.AvailableSites.Should().BeEquivalentTo(expectedUserProfileSiteDetails);
+        }
+
+        [Fact]
+        public async Task RunAsync_ReturnsAllSites_ForAdminUser()
+        {
+            var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
+            _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+            var context = new DefaultHttpContext();
+            var request = context.Request;
+
+            RoleAssignment[] roleAssignments = [
+                new() { Role = "Role1", Scope = "site:1" },
+                new() { Role = "system:admin-user", Scope = "global" }
+            ];
+
+            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+            {
+                Id = "test@test.com",
+                RoleAssignments = roleAssignments,
+            });
+
+            var siteDetails = new[]
+{
+                new Site("1", "Alpha", "somewhere", "0113 1111111", "R1", "ICB1",new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
+                new Site("2", "Beta", "somewhere else", "0113 222222", "R2", "ICB2",new [] {new AttributeValue(Id: "Attribute 2", Value: "true")}, new Location("point", new []{0.2, 11}))
+            };
+
+            var expectedUserProfileSiteDetails = new[]
+{
+                new UserProfileSite("1", "Alpha", "somewhere"),
+                new UserProfileSite("2", "Beta", "somewhere else")
+            };
+            _siteSearchService.Setup(x => x.GetAllSites()).ReturnsAsync(siteDetails);
+
+
+            var result = await _sut.RunAsync(request) as ContentResult;
+
+            var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
+            actualResponse.AvailableSites.Should().BeEquivalentTo(expectedUserProfileSiteDetails);
+            _siteSearchService.Verify(x => x.GetAllSites(), Times.Once);
+            _siteSearchService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
         
         private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)

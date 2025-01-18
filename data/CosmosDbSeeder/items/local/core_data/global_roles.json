@@ -52,6 +52,18 @@
       ]
     },
     {
+      "id": "system:admin-user",
+      "name": "Admin User",
+      "description": "Admin user can view all areas that exist in MYA.",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data",
+        "users:view"
+      ]
+    },
+    {
       "id": "system:api-user",
       "name": "Api User",
       "description": "This is a dedicated NBS role",

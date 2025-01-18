@@ -14,7 +14,7 @@ public class SetUserRoleValidatorTests
     {
         var testRequest = new SetUserRolesRequest
         {
-            Scope = "site:1000", User = "test.one@test.com", Roles = ["Role1", "Role2"]
+            Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f", User = "test.one@test.com", Roles = ["Role1", "Role2"]
         };
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
@@ -50,7 +50,7 @@ public class SetUserRoleValidatorTests
     [InlineData("@test.com")]
     public void Validate_ReturnError_WhenUserIsNotValidEmailAddress(string user)
     {
-        var testRequest = new SetUserRolesRequest { Scope = "site:1000", User = user, Roles = ["Role1", "Role2"] };
+        var testRequest = new SetUserRolesRequest { Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f", User = user, Roles = ["Role1", "Role2"] };
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -64,7 +64,7 @@ public class SetUserRoleValidatorTests
     [InlineData("", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")]
     public void Validate_ReturnsError_WhenRolesIsNullOrEmpty(params string[] roles)
     {
-        var testRequest = new SetUserRolesRequest { Scope = "site:1000", User = "test@test.com", Roles = roles };
+        var testRequest = new SetUserRolesRequest { Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f", User = "test@test.com", Roles = roles };
         var result = _sut.TestValidate(testRequest);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
@@ -76,7 +76,7 @@ public class SetUserRoleValidatorTests
     {
         var testRequest = new SetUserRolesRequest
         {
-            Scope = "site:1000", User = "test@test.com", Roles = Array.Empty<string>()
+            Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f", User = "test@test.com", Roles = Array.Empty<string>()
         };
         var result = _sut.TestValidate(testRequest);
         result.IsValid.Should().BeFalse();

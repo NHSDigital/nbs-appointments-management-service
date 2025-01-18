@@ -38,7 +38,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString("?site=1000&from=2000-01-01");
+        request.QueryString = new QueryString("?site=2de5bb57-060f-4cb5-b14d-16587d0c2e8f&from=2000-01-01");
         return request;
     }
 

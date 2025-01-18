@@ -1,12 +1,11 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
 
-public class CsvProcessor<TDocument, TMap>(
-    Func<TDocument, Task> processRow,
-    Func<TDocument, string> getItemName)
+public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Func<TDocument, string> getItemName)
     where TMap : ClassMap
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
@@ -40,9 +39,21 @@ public class CsvProcessor<TDocument, TMap>(
         {
             csv.Context.RegisterClassMap<TMap>();
 
-            var imported = csv.GetRecords<TDocument>();
+            var imported = csv.GetRecords<TDocument>().ToList();
 
-            foreach (var item in imported)
+            //hacky way to generate a Site ID not provided in the CSV or mapping
+            if (typeof(TDocument) == typeof(SiteDocument))
+            {
+                var siteDocs = imported as List<SiteDocument>;
+                foreach (var siteDoc in siteDocs!)
+                {
+                    siteDoc.Id = $"{Guid.NewGuid()}";
+                }
+
+                imported = siteDocs as List<TDocument>;
+            }
+
+            foreach (var item in imported!)
             {
                 try
                 {

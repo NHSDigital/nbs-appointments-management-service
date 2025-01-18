@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core.UnitTests;
+
 public class SiteServiceTests
 {
-    private readonly SiteService _sut;
-    private readonly Mock<ISiteStore> _siteStore = new();
-    private readonly Mock<IMemoryCache> _memoryCache = new();    
     private readonly Mock<ICacheEntry> _cacheEntry = new();
+    private readonly Mock<IMemoryCache> _memoryCache = new();
+    private readonly Mock<ISiteStore> _siteStore = new();
+    private readonly SiteService _sut;
 
     public SiteServiceTests()
     {
@@ -17,71 +18,95 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnsSitesOrderedByDistance_InAscendingOrder()
     {
-        var sites = new List<Site>()
+        var sites = new List<Site>
         {
-            new (
-                    Id: "ABC02",
-                    Name: "Site 2",
-                    Address: "2 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65]),
-                    AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),                
-            new (
-                    Id: "ABC03",
-                    Name: "Site 3",
-                    Address: "3 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),                
-            new (
-                    Id: "ABC01",
-                    Name: "Site 1",
-                    Address: "1 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.505, 65]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")})                
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
+                Name: "Site 3",
+                Address: "3 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC03",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                })
         };
 
-        var expectedSites = new List<SiteWithDistance>()
+        var expectedSites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.505, 65.0]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 234),
             new SiteWithDistance(new Site(
-                    Id: "ABC03",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
                     Name: "Site 3",
                     Address: "3 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 281),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
-                    AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 328)
         };
-        
+
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
@@ -91,61 +116,81 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnsRequestedNumberOfSites()
     {
-        var sites = new List<Site>()
+        var sites = new List<Site>
         {
-            new (
-                    Id: "ABC02",
-                    Name: "Site 2",
-                    Address: "2 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65]),
-                    AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
-            new (
-                    Id: "ABC03",
-                    Name: "Site 3",
-                    Address: "3 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
-            new (
-                    Id: "ABC01",
-                    Name: "Site 1",
-                    Address: "1 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.505, 65]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")})
-        };
-
-        var expectedSites = new List<SiteWithDistance>()
-        {
-            new SiteWithDistance(new Site(
-                Id: "ABC01",
-                Name: "Site 1",
-                Address: "1 Park Row",
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
                 PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65.0]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
-                Distance: 234),
-            new SiteWithDistance(new Site(
-                Id: "ABC03",
+                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
                 Name: "Site 3",
                 Address: "3 Park Row",
                 PhoneNumber: "0113 1111111",
+                OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
-                AttributeValues: new List<AttributeValue>() {new AttributeValue(Id: "accessibility/access_need_1", Value: "true")}),
+                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                })
+        };
+
+        var expectedSites = new List<SiteWithDistance>
+        {
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [.505, 65.0]),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    }),
+                Distance: 234),
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
+                    Name: "Site 3",
+                    Address: "3 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC03",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 281)
         };
-        
+
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, []);
@@ -155,39 +200,45 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnsSites_WithRequestedAccessNeeds()
     {
-        var sites = new List<Site>()
+        var sites = new List<Site>
         {
-            new (
-                    Id: "ABC01",
-                    Name: "Site 1",
-                    Address: "1 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),                
-            new (
-                    Id: "ABC02",
-                    Name: "Site 2",
-                    Address: "2 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),                
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
+                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_1", Value: "true") }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
+                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_1", Value: "false") }),
         };
 
-        var expectedSites = new List<SiteWithDistance>()
+        var expectedSites = new List<SiteWithDistance>
         {
-            new (new Site(
-                    Id: "ABC01",
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.505, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 357),
         };
 
@@ -200,26 +251,34 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnsNoSites_IfNoAccessNeedMatchesAreFound()
     {
-        var sites = new List<Site>()
+        var sites = new List<Site>
         {
-            new (
-                    Id: "ABC01",
-                    Name: "Site 1",
-                    Address: "1 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/accessibility/access_need_1", Value: "false")}),                
-            new (
-                    Id: "ABC02",
-                    Name: "Site 2",
-                    Address: "2 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/accessibility/access_need_1", Value: "false")}),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new(Id: "accessibility/accessibility/access_need_1", Value: "false")
+                }),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.05, 50.0]),
+                AttributeValues: new List<AttributeValue>
+                {
+                    new(Id: "accessibility/accessibility/access_need_1", Value: "false")
+                }),
         };
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
@@ -231,27 +290,35 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnSitesBasedOnDistanceAndMaxRecords_IfNoAccessNeedsAreRequested()
     {
-        var sites = new List<SiteWithDistance>()
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 2858),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_2", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_2", Value: "true")
+                    }),
                 Distance: 3573),
         };
 
@@ -263,38 +330,44 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_DoesNotReturnSitesWithNoAttributeValues_IfAccessNeedsAreRequested()
     {
-        var sites = new List<Site>()
+        var sites = new List<Site>
         {
             new(
-                    Id: "ABC01",
-                    Name: "Site 1",
-                    Address: "1 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                    AttributeValues: Array.Empty<AttributeValue>()),
-            new (
-                    Id: "ABC02",
-                    Name: "Site 2",
-                    Address: "2 Park Row",
-                    PhoneNumber: "0113 1111111",
-                    Region: "R1",
-                    IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_2", Value: "true")})            
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                AttributeValues: Array.Empty<AttributeValue>()),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
+                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_2", Value: "true") })
         };
-        var expectedSites = new List<SiteWithDistance>()
+        var expectedSites = new List<SiteWithDistance>
         {
-            new (new Site(
-                    Id: "ABC02",
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_2", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_2", Value: "true")
+                    }),
                 Distance: 13213),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
@@ -305,27 +378,35 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReturnsSites_IfRequestedAccessNeedsAreEmpty()
     {
-        var sites = new List<SiteWithDistance>()
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 2858),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
                 Distance: 3573),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
@@ -345,27 +426,35 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_ReadsFromCache_WhenPresent()
     {
-        var sites = new List<SiteWithDistance>()
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 2858),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
                 Distance: 3573),
         };
         object? outSites = sites.Select(s => s.Site);
@@ -378,27 +467,35 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_IgnoresCache_WhenRequiredTo()
     {
-        var sites = new List<SiteWithDistance>()
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 2858),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
                 Distance: 3573),
         };
         object? outSites = sites.Take(1).Select(s => s.Site);
@@ -413,27 +510,35 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_WritesToCache_AfterCacheMiss()
     {
-        var sites = new List<SiteWithDistance>()
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
-                    Id: "ABC01",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                     Name: "Site 1",
                     Address: "1 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
                 Distance: 2858),
             new SiteWithDistance(new Site(
-                    Id: "ABC02",
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                     Name: "Site 2",
                     Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")}),
+                    AttributeValues: new List<AttributeValue>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
                 Distance: 3573),
         };
         object? outSites = null;
@@ -449,27 +554,29 @@ public class SiteServiceTests
     [Fact]
     public async Task GetSiteByIdAsync_ReturnsRequestedSite()
     {
-        const string siteId = "ABC01";
+        const string siteId = "6877d86e-c2df-4def-8508-e1eccf0ea6ba";
         var site = new Site(
             Id: siteId,
             Name: "Site 1",
             Address: "1 Park Row",
             PhoneNumber: "0113 1111111",
+            OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: new List<AttributeValue>() { new AttributeValue(Id: "Attribute 1", Value: "true") });
+            AttributeValues: new List<AttributeValue> { new AttributeValue(Id: "Attribute 1", Value: "true") });
 
         var expectedSite = new Site(
             Id: siteId,
             Name: "Site 1",
             Address: "1 Park Row",
             PhoneNumber: "0113 1111111",
+            OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: new List<AttributeValue>() { new AttributeValue(Id: "Attribute 1", Value: "true") });
-        _siteStore.Setup(x => x.GetSiteById("ABC01")).ReturnsAsync(site);
+            AttributeValues: new List<AttributeValue> { new AttributeValue(Id: "Attribute 1", Value: "true") });
+        _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
         var result = await _sut.GetSiteByIdAsync(siteId);
         result.Should().BeEquivalentTo(expectedSite);
@@ -478,16 +585,18 @@ public class SiteServiceTests
     [Fact]
     public async Task GetSiteByIdAsync_ReturnsRequestedSite_AndFiltersAttributesByScope()
     {
-        const string siteId = "ABC01";
+        const string siteId = "6877d86e-c2df-4def-8508-e1eccf0ea6ba";
         var site = new Site(
             Id: siteId,
             Name: "Site 1",
             Address: "1 Park Row",
             PhoneNumber: "0113 1111111",
+            OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: [
+            AttributeValues:
+            [
                 new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
                 new AttributeValue(Id: "Attribute 2", Value: "true"),
                 new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
@@ -497,14 +606,17 @@ public class SiteServiceTests
             Id: siteId,
             Name: "Site 1",
             Address: "1 Park Row",
-            PhoneNumber: "0113 1111111", Region: "R1",
+            PhoneNumber: "0113 1111111",
+            Region: "R1",
+            OdsCode: "ABC01",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: [
+            AttributeValues:
+            [
                 new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
                 new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
             ]);
-        _siteStore.Setup(x => x.GetSiteById("ABC01")).ReturnsAsync(site);
+        _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
         var result = await _sut.GetSiteByIdAsync(siteId, "test_scope");
 

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -17,17 +16,18 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class MakeBookingFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
-    private readonly MakeBookingFunction _sut;
     private readonly Mock<IBookingsService> _bookingService = new();
-    private readonly Mock<ISiteService> _siteService = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<ISiteService> _siteService = new();
+    private readonly MakeBookingFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -35,11 +35,15 @@ public class MakeBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessResponse_WhenAppointmentIsRequested()
     {
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10,0), new TimeOnly(11,0), TimeSpan.FromMinutes(5));
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
+            TimeSpan.FromMinutes(5));
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+            new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
+                "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
+
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName",
+            "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
@@ -51,8 +55,9 @@ public class MakeBookingFunctionTests
     public async Task RunAsync_ReturnsError_WhenSiteDoesNotExist()
     {
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((Site)null);
-        
-        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
+
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName",
+            "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -63,10 +68,14 @@ public class MakeBookingFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsError_WhenAppointmentSlotIsNotAvailable()
     {
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
-        
-        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID","9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+            new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
+                "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
+            TimeSpan.FromMinutes(5));
+
+        var request = CreateRequest("1001", "2077-01-01 09:30", "COVID", "9999999999", "FirstName", "LastName",
+            "1958-06-08", "test@tempuri.org", "0123456789", null);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
@@ -77,12 +86,16 @@ public class MakeBookingFunctionTests
     [Fact]
     public void RunAsync_InvokesBookingService_WithCorrectDetails()
     {
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new Site("A", "Test Site", "Nowhere", "2929292", "North", "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0), TimeSpan.FromMinutes(5));
-        
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+            new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
+                "Test Board", Enumerable.Empty<AttributeValue>(), new Location("Point", [0, 0])));
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
+            TimeSpan.FromMinutes(5));
+
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        
-        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName", "1958-06-08", "test@tempuri.org", "0123456789", null);
+
+        var request = CreateRequest("1001", "2077-01-01 10:30", "COVID", "9999999999", "FirstName", "LastName",
+            "1958-06-08", "test@tempuri.org", "0123456789", null);
         var expectedBooking = new Booking
         {
             Site = "1001",
@@ -90,24 +103,17 @@ public class MakeBookingFunctionTests
             Service = "COVID",
             From = new DateTime(2077, 1, 1, 10, 30, 0),
             Status = AppointmentStatus.Booked,
-            AttendeeDetails = new Core.AttendeeDetails
+            AttendeeDetails = new AttendeeDetails
             {
                 FirstName = "FirstName",
                 LastName = "LastName",
                 NhsNumber = "9999999999",
-                DateOfBirth = new DateOnly(1958,6,8)
+                DateOfBirth = new DateOnly(1958, 6, 8)
             },
-            ContactDetails = [
-            new Core.ContactItem
-            {
-                Value = "test@tempuri.org",
-                Type = ContactItemType.Email
-            },
-            new Core.ContactItem
-            {
-                Value = "0123456789",
-                Type = ContactItemType.Phone
-            }
+            ContactDetails =
+            [
+                new ContactItem { Value = "test@tempuri.org", Type = ContactItemType.Email },
+                new ContactItem { Value = "0123456789", Type = ContactItemType.Phone }
             ]
         };
         _sut.RunAsync(request);
@@ -139,18 +145,18 @@ public class MakeBookingFunctionTests
             from,
             duration = 5,
             service,
-            attendeeDetails = new
-            {
-                NhsNumber = nhsNumber,
-                FirstName = firstName,
-                LastName = lastName,
-                DateOfBirth = DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")
-            },
+            attendeeDetails =
+                new
+                {
+                    NhsNumber = nhsNumber,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    DateOfBirth = DateOnly.ParseExact(dateOfBirth, "yyyy-MM-dd")
+                },
             contactDetails = new[]
-            {
-                new { type = "email", value = email },
-                new { type = "phone", value = phoneNumber }
-            },
+                {
+                    new { type = "email", value = email }, new { type = "phone", value = phoneNumber }
+                },
             additionalData,
             kind = "booked"
         };
@@ -159,7 +165,7 @@ public class MakeBookingFunctionTests
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;
-    }       
+    }
 
     private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
     {

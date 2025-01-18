@@ -1,11 +1,13 @@
+using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using System.Globalization;
+using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
 
-public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Func<TDocument, string> getItemName) where TMap : ClassMap
-{ 
+public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Func<TDocument, string> getItemName)
+    where TMap : ClassMap
+{
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
     {
         var index = -1;
@@ -14,14 +16,15 @@ public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Fun
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true,
-            ShouldSkipRecord = args => { 
+            ShouldSkipRecord = args =>
+            {
                 index++;
                 return false;
-            }, 
+            },
             ReadingExceptionOccurred = args =>
             {
                 report.Add(new ReportItem(index, "", false, args.Exception.ToString()));
-                
+
                 return false;
             },
             BadDataFound = args =>
@@ -31,13 +34,26 @@ public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Fun
             Delimiter = ",",
             Quote = '"'
         };
-        
+
         using (var csv = new CsvReader(csvReader, config))
         {
             csv.Context.RegisterClassMap<TMap>();
 
-            var imported = csv.GetRecords<TDocument>();
-            foreach(var item in imported)
+            var imported = csv.GetRecords<TDocument>().ToList();
+
+            //hacky way to generate a Site ID not provided in the CSV or mapping
+            if (typeof(TDocument) == typeof(SiteDocument))
+            {
+                var siteDocs = imported as List<SiteDocument>;
+                foreach (var siteDoc in siteDocs!)
+                {
+                    siteDoc.Id = $"{Guid.NewGuid()}";
+                }
+
+                imported = siteDocs as List<TDocument>;
+            }
+
+            foreach (var item in imported!)
             {
                 try
                 {
@@ -48,9 +64,9 @@ public class CsvProcessor<TDocument, TMap>(Func<TDocument, Task> processRow, Fun
                 {
                     report.Add(new ReportItem(index, getItemName(item), false, ex.Message));
                 }
-            }       
+            }
         }
 
         return report.ToArray();
-    }    
+    }
 }

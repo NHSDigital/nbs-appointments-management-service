@@ -49,16 +49,10 @@ public record SitePreview
     string Name
 );
 
-public record DetailsRequest
-(
-    [JsonProperty("name")]
-    string Name,
-    [JsonProperty("phoneNumber")]
-    string PhoneNumber,
-    [JsonProperty("address")]
-    string Address,
-    [JsonProperty("latitude")]
-    string Latitude,
-    [JsonProperty("longitude")]
-    string Longitude
+public record DetailsRequest(
+    [JsonProperty("name")] string Name,
+    [JsonProperty("phoneNumber")] string PhoneNumber,
+    [JsonProperty("address")] string Address,
+    [JsonProperty("latitude")] string Latitude,
+    [JsonProperty("longitude")] string Longitude
 );

@@ -1,7 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import RootPage from '../root';
-import { stat } from 'fs';
 
 export default class EditManageUserRolesPage extends RootPage {
   readonly title: Locator;
@@ -75,5 +74,21 @@ export default class EditManageUserRolesPage extends RootPage {
     } else {
       await expect(this.page.getByLabel(roleName)).not.toBeChecked();
     }
+  }
+
+  async unselectStaffRole(roleName: string) {
+    await this.page.getByLabel(roleName).uncheck();
+  }
+
+  async verifyValidationMsgForNoRoles() {
+    await expect(
+      this.page
+        .getByRole('main')
+        .filter({
+          has: this.page.getByText(
+            `You have not selected any roles for this user`,
+          ),
+        }),
+    ).toBeVisible();
   }
 }

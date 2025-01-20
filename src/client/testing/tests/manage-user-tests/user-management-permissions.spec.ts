@@ -110,3 +110,16 @@ test('permissions are applied per site', async () => {
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).not.toBeVisible();
 });
+
+test('Verify user manager cannot edit or remove self account', async () => {
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser1);
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.userManagementCard.click();
+  await usersPage.verifyLinkNotVisible(TEST_USERS.testUser1, 'Edit');
+  await usersPage.verifyLinkNotVisible(
+    TEST_USERS.testUser1,
+    'Remove from this site',
+  );
+});

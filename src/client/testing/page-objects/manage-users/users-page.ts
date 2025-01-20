@@ -6,6 +6,7 @@ export default class UsersPage extends RootPage {
   readonly emailColumn: Locator;
   readonly assignStaffRolesLink: Locator;
   readonly manageColumn: Locator;
+  readonly removeUserSuccessBanner;
 
   constructor(page: Page) {
     super(page);
@@ -21,6 +22,9 @@ export default class UsersPage extends RootPage {
     this.assignStaffRolesLink = page.getByRole('link', {
       name: 'Assign Staff Roles',
     });
+    this.removeUserSuccessBanner = page.getByText(
+      'You have successfully removed zzz_test_user_2@nhs.net from the current site.',
+    );
   }
 
   async verifyUserRoles(roleName: string, newUserName: string) {

@@ -56,13 +56,11 @@ export default class UsersPage extends RootPage {
 
   async verifyRemoveUserSuccessBannerDisplayed(userName: string) {
     await expect(
-      this.page
-        .getByRole('main')
-        .filter({
-          has: this.page.getByText(
-            `You have successfully removed ${userName} from the current site.`,
-          ),
-        }),
+      this.page.getByRole('main').filter({
+        has: this.page.getByText(
+          `You have successfully removed ${userName} from the current site.`,
+        ),
+      }),
     ).toBeVisible();
   }
 
@@ -72,13 +70,37 @@ export default class UsersPage extends RootPage {
 
   async verifyRemoveUserSuccessBannerNotDisplayed(userName: string) {
     await expect(
+      this.page.getByRole('main').filter({
+        has: this.page.getByText(
+          `You have successfully removed ${userName} from the current site.`,
+        ),
+      }),
+    ).not.toBeVisible();
+  }
+
+  async clickEditLink(newUserName: string) {
+    await this.page
+      .getByRole('row')
+      .filter({ has: this.page.getByText(newUserName) })
+      .getByRole('link', { name: 'Edit' })
+      .click();
+  }
+
+  async verifyUserRoleRemoved(roleName: string, newUserName: string) {
+    await expect(
       this.page
-        .getByRole('main')
-        .filter({
-          has: this.page.getByText(
-            `You have successfully removed ${userName} from the current site.`,
-          ),
-        }),
+        .getByRole('row')
+        .filter({ has: this.page.getByText(newUserName) })
+        .getByText(roleName),
+    ).not.toBeVisible();
+  }
+
+  async verifyLinkNotVisible(newUserName: any, linkName: string) {
+    await expect(
+      this.page
+        .getByRole('row')
+        .filter({ has: this.page.getByText(newUserName) })
+        .getByRole('link', { name: `${linkName}` }),
     ).not.toBeVisible();
   }
 }

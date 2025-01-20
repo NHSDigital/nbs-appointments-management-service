@@ -71,7 +71,7 @@ export const mapAdminSiteSummaryData = (
   }
 
   const items: SummaryListItem[] = [
-    { title: 'ODS code', value: site.id },
+    { title: 'ODS code', value: site.odsCode },
     {
       title: 'ICB',
       value:

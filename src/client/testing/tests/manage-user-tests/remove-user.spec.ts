@@ -1,4 +1,4 @@
-import { test, nonNhsEmailId, expect } from '../../fixtures';
+import { test } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -41,14 +41,8 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-
   await page.waitForURL('**/site/ABC01/users');
 });
-
-// TODO: Maybe something like this to clear up all the users created along the way?
-// test.afterEach(async ({ page }) => {
-//   await cosmosDbSeeder.clearUsers();
-// });
 
 test('Verify user manager able to create new user', async ({ newUserName }) => {
   await usersPage.assignStaffRolesLink.click();
@@ -64,31 +58,7 @@ test('Verify user manager able to create new user', async ({ newUserName }) => {
   await removeUserPage.confirmRemoveButton.click();
 });
 
-test('Cannot create a user without any roles', async ({ newUserName }) => {
-  await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
-  await createUserPage.notSelectedAnyRolesErrorMsg();
-});
-
-test('Cannot create a user with non NHS email Id', async () => {
-  await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(nonNhsEmailId);
-  await editManageUserRolesPage.searchUserButton.click();
-  await createUserPage.notEnteredValidEmailAddressErrorMsg();
-});
-
-test('Verify users are redirected to users page upon cancel button clicked', async ({
-  newUserName,
-}) => {
-  await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.cancelButton.click();
-  await usersPage.userDoesNotExist(newUserName);
-});
-
-test('Verify users are redirected to edit roles page when emailId already exists', async ({
+test('Verify user manager is able to remove a user', async ({
   newUserName,
 }) => {
   await usersPage.assignStaffRolesLink.click();
@@ -97,11 +67,42 @@ test('Verify users are redirected to edit roles page when emailId already exists
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.userExists(newUserName);
+  await usersPage.removeFromThisSiteLink(newUserName);
+  await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);
+  await removeUserPage.clickButton('Remove this account');
+  await usersPage.userDoesNotExist(newUserName);
+});
+
+test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
+  newUserName,
+}) => {
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();
-  await editManageUserRolesPage.verifyUserRedirectedToEditRolePage(
-    'Appointment manager',
-    'Checked',
-  );
+  await editManageUserRolesPage.selectStaffRole('Appointment manager');
+  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await usersPage.userExists(newUserName);
+  await usersPage.removeFromThisSiteLink(newUserName);
+  await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);
+  await removeUserPage.clickButton('Remove this account');
+  await usersPage.verifyRemoveUserSuccessBannerDisplayed(newUserName);
+  await usersPage.closeBanner();
+  await usersPage.verifyRemoveUserSuccessBannerNotDisplayed(newUserName);
 });
+
+// test('Receives 404 when trying to remove an invalid user', async ({ page }) )=> {
+//   await page.goto(
+//     `/manage-your-appointments/site/ABC01/users/remove?user=not-a-user`,
+//   );
+
+//   await expect(notFoundPage.title).toBeVisible();
+//   await expect(notFoundPage.notFoundMessageText).toBeVisible();
+// });
+
+// test('Receives 403 error when trying to edit self', async ({ page }) => {
+//   await page.goto(
+//     `/manage-your-appointments/site/ABC01/users/manage?user=zzz_test_user_1@nhs.net`,
+//   );
+
+//   await expect(notAuthorizedPage.title).toBeVisible();
+// });

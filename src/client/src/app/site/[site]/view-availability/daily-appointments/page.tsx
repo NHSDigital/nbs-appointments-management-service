@@ -71,7 +71,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           <DailyAppointmentsPage
             bookings={orphanedAppointments}
             site={site.id}
-            displayAction={false}
+            displayAction
             message={orphanedMessage}
           />
         </Tab>

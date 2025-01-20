@@ -47,4 +47,42 @@ describe('View Daily Appointments', () => {
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
   });
+
+  it('renders the action column', () => {
+    render(
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={true}
+          message="Test message"
+        />
+      </SearchParamsContext.Provider>,
+    );
+
+    expect(
+      screen.getByRole('columnheader', { name: 'Action' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not render the action column', () => {
+    render(
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={false}
+          message="Test message"
+        />
+      </SearchParamsContext.Provider>,
+    );
+
+    expect(
+      screen.queryByRole('columnheader', { name: 'Action' }),
+    ).not.toBeInTheDocument();
+  });
 });

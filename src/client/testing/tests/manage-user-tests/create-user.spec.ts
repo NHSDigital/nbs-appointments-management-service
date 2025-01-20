@@ -1,4 +1,4 @@
-import { test, nonNhsEmailId, expect } from '../../fixtures';
+import { test, nonNhsEmailId } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -7,8 +7,6 @@ import SitePage from '../../page-objects/site';
 import UsersPage from '../../page-objects/manage-users/users-page';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
-import NotFoundPage from '../../page-objects/not-found';
-import NotAuthorizedPage from '../../page-objects/unauthorized';
 import CreateUserPage from '../../page-objects/manage-users/create-user-page';
 
 const { TEST_USERS } = env;
@@ -21,8 +19,6 @@ let usersPage: UsersPage;
 let createUserPage: CreateUserPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
-let notFoundPage: NotFoundPage;
-let notAuthorizedPage: NotAuthorizedPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -33,15 +29,12 @@ test.beforeEach(async ({ page }) => {
   createUserPage = new CreateUserPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   removeUserPage = new RemoveUserPage(page);
-  notFoundPage = new NotFoundPage(page);
-  notAuthorizedPage = new NotAuthorizedPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-
   await page.waitForURL('**/site/ABC01/users');
 });
 

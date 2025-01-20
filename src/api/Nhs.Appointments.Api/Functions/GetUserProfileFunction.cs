@@ -13,10 +13,14 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
-    public class GetUserProfileFunction(ISiteService siteService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetUserProfileFunction> logger, IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger, metricsRecorder)
+    public class GetUserProfileFunction(
+        IUserService userService, 
+        IValidator<EmptyRequest> validator, 
+        IUserContextProvider userContextProvider, 
+        ILogger<GetUserProfileFunction> logger, 
+        IMetricsRecorder metricsRecorder
+    ): BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger, metricsRecorder)
     {
-
         [OpenApiOperation(operationId: "GetUserProfile", tags: ["User"], Summary = "Gets information about the signed in user")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(UserProfile), Description = "Information about the signed in user")]
         [Function("GetUserProfileFunction")]
@@ -33,42 +37,15 @@ namespace Nhs.Appointments.Api.Functions
             var user = await userService.GetUserAsync(userEmail);
             if (user is null)
             {
-                return Success(new UserProfile(userEmail, [], null));
+                return Success(new UserProfile(userEmail, null));
             }
 
-            var siteInfoList = new List<UserProfileSite>();
-
-            if (IsAdminUser(user))
-            {
-                var allSites = await siteService.GetAllSites();
-
-                foreach (var site in allSites)
-                {
-                    siteInfoList.Add(new UserProfileSite(site.Id, site.Name, site.Address));
-                }
-            }
-            else
-            {
-                var siteIdsForUser = user.RoleAssignments.Where(ra => ra.Scope.StartsWith("site:")).Select(ra => ra.Scope.Replace("site:", ""));
-
-                foreach (var site in siteIdsForUser.Distinct())
-                {
-                    var siteInfo = await siteService.GetSiteByIdAsync(site);
-                    if(siteInfo != null)
-                        siteInfoList.Add(new UserProfileSite(siteInfo.Id, siteInfo.Name, siteInfo.Address));
-                }
-            }
-
-            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, siteInfoList, user.LatestAcceptedEulaVersion));
+            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, user.LatestAcceptedEulaVersion));
         }
 
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
         {
             return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
-        }
-
-        private bool IsAdminUser(User user) {
-            return user.RoleAssignments.Any(ra => ra.Role == "system:admin-user");
         }
     }
 }

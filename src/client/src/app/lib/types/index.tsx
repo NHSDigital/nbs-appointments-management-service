@@ -136,7 +136,6 @@ type User = {
 
 type UserProfile = {
   emailAddress: string;
-  availableSites: Site[];
   latestAcceptedEulaVersion?: string;
 };
 

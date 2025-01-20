@@ -1,6 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import RootPage from '../root';
+import { stat } from 'fs';
 
 export default class EditManageUserRolesPage extends RootPage {
   readonly title: Locator;
@@ -30,5 +31,17 @@ export default class EditManageUserRolesPage extends RootPage {
 
   async selectStaffRole(roleName: string) {
     await this.page.getByLabel(roleName).check();
+  }
+
+  async verifyUserRedirectedToEditRolePage(
+    roleName: string,
+    status: 'Checked' | 'UnChecked',
+  ) {
+    await expect(this.title).toBeVisible();
+    if (status == 'Checked') {
+      await expect(this.page.getByLabel(roleName)).toBeChecked();
+    } else {
+      await expect(this.page.getByLabel(roleName)).not.toBeChecked();
+    }
   }
 }

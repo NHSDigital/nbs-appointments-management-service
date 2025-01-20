@@ -45,12 +45,7 @@ test.beforeEach(async ({ page }) => {
   await page.waitForURL('**/site/ABC01/users');
 });
 
-// TODO: Maybe something like this to clear up all the users created along the way?
-// test.afterEach(async ({ page }) => {
-//   await cosmosDbSeeder.clearUsers();
-// });
-
-test('Verify user manager able to create new user', async ({ newUserName }) => {
+test('Verify user manager able to edit a user', async ({ newUserName }) => {
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();

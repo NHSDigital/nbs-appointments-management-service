@@ -13,11 +13,14 @@ import {
   handlePositiveBoundedNumberInput,
 } from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
-import CapacityCalculation, {
-  sessionLengthInMinutes,
-} from './capacity-calculation';
+import CapacityCalculation from './capacity-calculation';
 import { formatTimeString } from '@services/timeService';
 import { ChangeEvent } from 'react';
+import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
+
+type TimeAndCapacityStepProps = {
+  goToPreviousStepOverride?: () => void;
+};
 
 const TimeAndCapacityStep = ({
   goToNextStep,
@@ -26,7 +29,8 @@ const TimeAndCapacityStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
   setCurrentStep,
-}: InjectedWizardProps) => {
+  goToPreviousStepOverride,
+}: InjectedWizardProps & TimeAndCapacityStepProps) => {
   const { watch, formState, trigger, control, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;
@@ -64,6 +68,11 @@ const TimeAndCapacityStep = ({
   };
 
   const onBack = async () => {
+    if (goToPreviousStepOverride) {
+      goToPreviousStepOverride();
+      return;
+    }
+
     if (getValues('sessionType') === 'repeating') {
       goToPreviousStep();
     } else {

@@ -66,12 +66,20 @@ type SetAvailabilityRequest = {
   mode: ApplyAvailabilityMode;
 };
 
+type EditSessionRequest = {
+  site: string;
+  date: string;
+  mode: ApplyAvailabilityMode;
+  sessionToEdit: AvailabilitySession;
+  sessions: AvailabilitySession[];
+};
+
 type AvailabilityTemplate = {
   days: DayOfWeek[];
   sessions: AvailabilitySession[];
 };
 
-type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
+type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
   versionDate: string;
@@ -255,6 +263,8 @@ type SessionSummary = {
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
+  capacity: number;
+  slotLength: number;
 };
 
 type DaySummary = {
@@ -275,6 +285,16 @@ type ServiceInformation = {
 type ServiceBookingDetails = {
   service: string;
   booked: number;
+};
+
+type CancelSessionRequest = {
+  site: string;
+  date: string;
+  from: string;
+  until: string;
+  services: string[];
+  slotLength: number;
+  capacity: number;
 };
 
 // TODO: Decide where this info should live and move it there
@@ -298,11 +318,13 @@ export type {
   AvailabilitySlot,
   AvailabilityTemplate,
   Booking,
+  CancelSessionRequest,
   ContactItem,
   DaySummary,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
+  EditSessionRequest,
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,

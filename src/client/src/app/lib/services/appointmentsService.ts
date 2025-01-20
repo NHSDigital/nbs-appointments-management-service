@@ -18,12 +18,16 @@ import {
   DailyAvailability,
   EulaVersion,
   WellKnownOdsEntry,
+  EditSessionRequest,
+  CancelSessionRequest,
+  SessionSummary,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { now } from '@services/timeService';
+import dayjs from 'dayjs';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -326,6 +330,23 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
   revalidateTag(`fetchAvailability`);
 };
 
+export const editSession = async (request: EditSessionRequest) => {
+  const response = await appointmentsApi.post(
+    `availability`,
+    JSON.stringify(request),
+  );
+
+  handleEmptyResponse(response);
+
+  revalidateTag('availability-created');
+
+  const notificationType = 'ams-notification';
+  const notificationMessage = 'You have successfully edited the session.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidateTag(`fetchAvailability`);
+};
+
 export async function fetchInformationForCitizens(site: string, scope: string) {
   const response = await appointmentsApi.get<SiteWithAttributes>(
     `sites/${site}?scope=${scope}`,
@@ -396,6 +417,28 @@ export const fetchBooking = async (reference: string, site: string) => {
 export const cancelAppointment = async (reference: string, site: string) => {
   const response = await appointmentsApi.post(
     `booking/${reference}/cancel?site=${site}`,
+  );
+
+  return handleEmptyResponse(response);
+};
+
+export const cancelSession = async (
+  sessionSummary: SessionSummary,
+  site: string,
+) => {
+  const payload: CancelSessionRequest = {
+    site: site,
+    date: dayjs(sessionSummary.start).format('YYYY-MM-DD'),
+    from: dayjs(sessionSummary.start).format('HH:mm'),
+    until: dayjs(sessionSummary.end).format('HH:mm'),
+    services: Object.keys(sessionSummary.bookings),
+    capacity: sessionSummary.capacity,
+    slotLength: sessionSummary.slotLength,
+  };
+
+  const response = await appointmentsApi.post(
+    'session/cancel',
+    JSON.stringify(payload),
   );
 
   return handleEmptyResponse(response);

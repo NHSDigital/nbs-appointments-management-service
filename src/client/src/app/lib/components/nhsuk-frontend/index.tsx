@@ -18,7 +18,7 @@ import RadioGroup from './radio-group';
 import RightChevron from './icons/right-chevron';
 import Select from './select';
 import SummaryList, { SummaryListItem } from './summary-list';
-import Table from './table';
+import Table, { Cell } from './table';
 import Tabs, { Tab } from './tabs';
 import Tag, { TagColor } from './tag';
 import TextArea from './text-area';
@@ -34,6 +34,7 @@ import Pagination from './pagination';
 
 export type {
   Breadcrumb,
+  Cell,
   SummaryListItem,
   TagColor,
   NavigationLink,

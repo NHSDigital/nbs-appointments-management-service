@@ -78,6 +78,10 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
       : router.push(`/site/${site.id}/create-availability`);
   };
 
+  const returnToWeekView = () => {
+    router.replace(`/site/${site.id}/view-availability/week?date=${date}`);
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(submitForm)}>
@@ -99,7 +103,12 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
             {stepProps => <DaysOfWeekStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <TimeAndCapacityStep {...stepProps} />}
+            {stepProps => (
+              <TimeAndCapacityStep
+                {...stepProps}
+                goToPreviousStepOverride={date ? returnToWeekView : undefined}
+              />
+            )}
           </WizardStep>
           <WizardStep>
             {stepProps => <SelectServicesStep {...stepProps} />}

@@ -1,9 +1,7 @@
-import { Card, Pagination, Table } from '@components/nhsuk-frontend';
+import { Pagination } from '@components/nhsuk-frontend';
 import { DaySummary } from '@types';
 import dayjs from 'dayjs';
-import Link from 'next/link';
-import { isInTheFuture } from '@services/timeService';
-import { SessionSummaryTable } from '@components/session-summary-table';
+import { DaySummaryCard } from './day-summary-card';
 
 type Props = {
   days: DaySummary[];
@@ -56,57 +54,15 @@ export const ViewWeekAvailabilityPage = ({
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {days.map((d, i) => (
-        <Card title={d.date.format('dddd D MMMM')} key={i}>
-          {d.sessions.length > 0 ? (
-            <>
-              <SessionSummaryTable
-                sessionSummaries={d.sessions}
-                showChangeSessionLink={{
-                  siteId: site,
-                  date: d.date,
-                }}
-              />
-              <br />
-              {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
-                <Link
-                  className="nhsuk-link"
-                  href={`/site/${site}/create-availability/wizard?date=${d.date.format('YYYY-MM-DD')}`}
-                >
-                  Add Session
-                </Link>
-              )}
-              <Table
-                headers={[
-                  `Total appointments: ${d.maximumCapacity}`,
-                  `Booked: ${d.bookedAppointments}`,
-                  `Unbooked: ${d.remainingCapacity}`,
-                ]}
-                rows={[]}
-              />
-              <br />
-              <Link
-                className="nhsuk-link"
-                href={`daily-appointments?date=${d.date.format('YYYY-MM-DD')}&page=1`}
-              >
-                View daily appointments
-              </Link>
-            </>
-          ) : (
-            <>
-              <div style={{ marginBottom: '20px' }}>No availability</div>
-              {isInTheFuture(d.date.format('YYYY-MM-DD')) && (
-                <Link
-                  className="nhsuk-link"
-                  href={`/site/${site}/create-availability/wizard?date=${d.date.format('YYYY-MM-DD')}`}
-                >
-                  Add Session
-                </Link>
-              )}
-            </>
-          )}
-        </Card>
-      ))}
+      {days.map((day, dayIndex) => {
+        return (
+          <DaySummaryCard
+            daySummary={day}
+            siteId={site}
+            key={`day-summary-${dayIndex}`}
+          />
+        );
+      })}
     </>
   );
 };

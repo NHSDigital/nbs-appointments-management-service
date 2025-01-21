@@ -37,10 +37,14 @@ namespace Nhs.Appointments.Api.Functions
             var user = await userService.GetUserAsync(userEmail);
             if (user is null)
             {
-                return Success(new UserProfile(userEmail, null));
+                return Success(new UserProfile(userEmail, false, null));
             }
 
-            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, user.LatestAcceptedEulaVersion));
+            var hasSites = user.RoleAssignments
+                .Where(ra => ra.Scope.StartsWith("site:") || ra.Scope.StartsWith("global"))
+                .Count() > 0;
+
+            return ApiResult<UserProfile>.Success(new UserProfile(userEmail, hasSites, user.LatestAcceptedEulaVersion));
         }
 
         protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

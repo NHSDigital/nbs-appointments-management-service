@@ -24,7 +24,7 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<SitePreview>), Description = "Users preview sites")]
     [Function("GetSitesPreviewFunction")]
     public override Task<IActionResult> RunAsync(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/preview")] HttpRequest req)
+      [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites-preview")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
@@ -63,6 +63,11 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
         }
 
         return ApiResult<IEnumerable<SitePreview>>.Success(sitesResult);
+    }
+
+    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
+    {
+        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
     }
 
     private bool IsAdminUser(User user)

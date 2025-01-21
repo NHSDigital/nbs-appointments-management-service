@@ -137,6 +137,7 @@ type User = {
 type UserProfile = {
   emailAddress: string;
   latestAcceptedEulaVersion?: string;
+  hasSites: boolean;
 };
 
 type DateComponents = {

@@ -48,7 +48,7 @@ export const fetchUserProfile = async (
 };
 
 export const fetchSitesPreview = async (): Promise<Site[]> => {
-  const response = await appointmentsApi.get<Site[]>('sites/preview', {
+  const response = await appointmentsApi.get<Site[]>('sites-preview', {
     next: { tags: ['user'] },
   });
 
@@ -59,7 +59,7 @@ export const assertEulaAcceptance = async (
   userProfile: UserProfile,
   eulaRoute = '/eula',
 ) => {
-  if (userProfile.availableSites.length > 0) {
+  if (userProfile.hasSites) {
     const eulaVersion = await fetchEula();
 
     if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {

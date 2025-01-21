@@ -44,7 +44,6 @@ export const mapCoreSiteSummaryData = (site: Site) => {
       title: 'Address',
       value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
     },
-    { title: 'Phone Number', value: site.phoneNumber },
   ];
 
   if (site.location.type === 'Point') {
@@ -57,6 +56,8 @@ export const mapCoreSiteSummaryData = (site: Site) => {
       title: 'Longitude',
       value: `${site.location.coordinates[1]}`,
     });
+
+    items.push({ title: 'Phone Number', value: site.phoneNumber });
   }
 
   return { items, border: false };

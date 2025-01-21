@@ -273,6 +273,8 @@ type DaySummary = {
   sessions: SessionSummary[];
   maximumCapacity: number;
   bookedAppointments: number;
+  cancelledAppointments: number;
+  orphanedAppointments: number;
   remainingCapacity: number;
 };
 

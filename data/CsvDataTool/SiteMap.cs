@@ -1,4 +1,6 @@
+using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -8,9 +10,8 @@ public class SiteMap : ClassMap<SiteDocument>
 {
     public SiteMap()
     {
-        //ignore ID property and generate programatically
-        Map(m => m.Id).Ignore();
-
+        //validate ID provided is a GUID
+        Map(m => m.Id).TypeConverter<GuidStringTypeConverter>();
         Map(m => m.OdsCode).Name("OdsCode");
         Map(m => m.Name).Name("Name");
         Map(m => m.Address).Name("Address");
@@ -54,5 +55,22 @@ public class SiteMap : ClassMap<SiteDocument>
     {
         possibleBool = possibleBool?.ToLower();
         return possibleBool == "true" || possibleBool == "yes";
+    }
+
+    /// <summary>
+    /// Custom TypeConverter to validate a string GUID
+    /// </summary>
+    private class GuidStringTypeConverter : DefaultTypeConverter
+    {
+        public override object ConvertFromString(string guidString, IReaderRow row, MemberMapData memberMapData)
+        {
+            if (Guid.TryParse(guidString, out var guid))
+            {
+                return guid.ToString();
+            }
+
+            throw new TypeConverterException(this, memberMapData, guidString, row.Context,
+                $"Invalid GUID string format: {guidString}");
+        }
     }
 }

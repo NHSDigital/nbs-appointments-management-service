@@ -26,7 +26,7 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/ABC02/details');
+  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
 });
 
 test('Verify information on site page', async () => {

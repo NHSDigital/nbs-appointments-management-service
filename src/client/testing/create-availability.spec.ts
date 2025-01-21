@@ -27,7 +27,9 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.createAvailabilityCard.click();
-  await page.waitForURL('**/site/ABC02/create-availability');
+  await page.waitForURL(
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/create-availability',
+  );
 });
 
 test('A user can navigate to the Create Availability flow from the site page', async () => {

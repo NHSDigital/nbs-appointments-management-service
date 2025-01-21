@@ -1,10 +1,10 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
@@ -29,7 +29,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
                 AdditionalInformation: row.Cells.ElementAt(1).Value);
 
             Response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var (_, actualResponse) = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
+            var (_, actualResponse) =
+                await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(
+                    await Response.Content.ReadAsStreamAsync());
             actualResponse.Should().BeEquivalentTo(expectedSite);
         }
 
@@ -37,7 +39,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
         public async Task AssertEmpty()
         {
             Response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var (_, actualResponse) = await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(await Response.Content.ReadAsStreamAsync());
+            var (_, actualResponse) =
+                await JsonRequestReader.ReadRequestAsync<GetSiteMetaDataResponse>(
+                    await Response.Content.ReadAsStreamAsync());
             actualResponse.AdditionalInformation.Should().BeEmpty();
         }
     }

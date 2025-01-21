@@ -16,7 +16,7 @@ const Page = async ({ params }: PageProps) => {
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}`,
+    href: `/site/${params.site}/details`,
     text: 'Back',
   };
 

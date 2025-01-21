@@ -38,17 +38,12 @@ const EditDetailsForm = ({
       address: siteWithAttributes.address.replace(/, /g, ',\n'),
       //strip out whitespace from phone number so that it can be a 'number' control
       phoneNumber: siteWithAttributes.phoneNumber.replace(/\s/g, ''),
-      //TODO decimal controls?
       latitude: siteWithAttributes.location.coordinates[0].toString(),
       longitude: siteWithAttributes.location.coordinates[1].toString(),
     },
   });
 
   const { replace } = useRouter();
-
-  const cancel = () => {
-    replace(`/site/${siteWithAttributes.id}/details`);
-  };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetSiteDetailsRequest = {
@@ -67,17 +62,17 @@ const EditDetailsForm = ({
   return (
     <form onSubmit={handleSubmit(submitForm)}>
       <h3>Site name</h3>
-      <FormGroup>
+      <FormGroup error={errors.name?.message}>
         <TextInput id="name" {...register('name')}></TextInput>
       </FormGroup>
 
-      <FormGroup>
+      <FormGroup error={errors.address?.message}>
         <h3>Site address</h3>
         <TextArea id="address" label="" {...register('address')}></TextArea>
       </FormGroup>
 
       <h3>Latitude and longitude</h3>
-      <FormGroup>
+      <FormGroup error={errors.latitude?.message || errors.longitude?.message}>
         <TextInput
           id="latitude"
           label="Latitude"
@@ -91,8 +86,12 @@ const EditDetailsForm = ({
       </FormGroup>
 
       <h3>Phone number</h3>
-      <FormGroup>
-        <TextInput id="phoneNumber" {...register('phoneNumber')}></TextInput>
+      <FormGroup error={errors.phoneNumber?.message}>
+        <TextInput
+          id="phoneNumber"
+          type="number"
+          {...register('phoneNumber')}
+        ></TextInput>
       </FormGroup>
 
       {isSubmitting || isSubmitSuccessful ? (

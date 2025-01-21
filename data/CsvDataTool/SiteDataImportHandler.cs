@@ -11,7 +11,7 @@ public class SiteDataImportHandler(IFileOperations fileOperations) : IDataImport
         return processor.ProcessFile(fileReader);
     }
 
-    protected virtual Task WriteSiteDocument(SiteDocument siteDocument, DirectoryInfo outputDirectory)
+    private Task WriteSiteDocument(SiteDocument siteDocument, DirectoryInfo outputDirectory)
     {
         fileOperations.CreateFolder(outputDirectory);
         var filePath = Path.Combine(outputDirectory.FullName, $"site_{siteDocument.Id}.json");

@@ -42,7 +42,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateIsNull()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -55,7 +55,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfFromDateIsAfterUntilDate()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 02);
         var until = new DateOnly(2025, 01, 01);
@@ -81,7 +81,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfNoDaysAreSpecified()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -107,7 +107,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateContainsNoSessions()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -123,7 +123,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_CallsAvailabilityStore_WithDatesForRequestedDays()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -164,7 +164,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_CallsBookingServiceToRecalculateAppointmentStatuses_WithDatesForRequestedDays()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 8);
@@ -200,7 +200,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplySingleDateSessionAsync_CallsAvailabilityCreatedEventStore()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var date = new DateOnly(2024, 10, 10);
 
@@ -226,7 +226,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplySingleDateSessionAsync_CallsBookingServiceToRecalculateAppointmentStatuses()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var date = new DateOnly(2024, 10, 10);
 

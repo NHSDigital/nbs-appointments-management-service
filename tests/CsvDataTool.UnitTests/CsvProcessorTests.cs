@@ -9,7 +9,7 @@ namespace CsvDataTool.UnitTests;
 public class CsvProcessorTests
 {
     private const string SitesHeader =
-        "OdsCode,Name,Address,PhoneNumber,Longitude,Latitude,ICB,Region,Site type,accessible_toilet,braille_translation_service,disabled_car_parking,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
+        "Id,OdsCode,Name,Address,PhoneNumber,Longitude,Latitude,ICB,Region,Site type,accessible_toilet,braille_translation_service,disabled_car_parking,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
 
     private const string UsersHeader = "User,Site";
     private const string ApiUserHeader = "ClientId,ApiSigningKey";
@@ -76,7 +76,7 @@ public class CsvProcessorTests
         actualUserDocuments.Should().BeEquivalentTo(expectedUserDocuments);
 
         report.Count().Should().Be(4);
-        report.Any(r => !r.Success).Should().BeFalse();
+        report.All(r => r.Success).Should().BeTrue();
     }
 
     [Fact]
@@ -127,17 +127,128 @@ public class CsvProcessorTests
         actualUserDocuments.Should().BeEquivalentTo(expectedUserDocuments);
 
         report.Count().Should().Be(2);
-        report.Any(r => !r.Success).Should().BeFalse();
+        report.All(r => r.Success).Should().BeTrue();
     }
 
     [Fact]
     public async Task CanReadSiteData()
     {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+        var id3 = Guid.NewGuid().ToString();
+        
         string[] inputRows =
         [
-            "site1,\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
-            "site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
-            "site3,\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,true,,False,\"oranges\",\"YES\",no,true,true,NO",
+            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id3}\",\"site3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,true,,False,\"oranges\",\"YES\",no,true,true,NO",
+        ];
+
+        var expectedSites = new SiteDocument[]
+        {
+            new()
+            {
+                Id = id1,
+                OdsCode = "site1",
+                Name = "test site 1",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb1",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "True"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            },
+            new()
+            {
+                Id = id2,
+                OdsCode = "site2",
+                Name = "test site 2",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb2",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "True"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            },
+            new()
+            {
+                Id = id3,
+                OdsCode = "site3",
+                Name = "test site 3",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb3",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "False"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            }
+        };
+
+        var input = BuildInputCsv(SitesHeader, inputRows);
+        var actualSiteDocuments = new List<SiteDocument>();
+        var mockFileOperations = new Mock<IFileOperations>();
+        mockFileOperations.Setup(x => x.OpenText(It.IsAny<FileInfo>())).Returns(new StringReader(input));
+        mockFileOperations.Setup(x => x.WriteDocument<SiteDocument>(It.IsAny<SiteDocument>(), It.IsAny<string>()))
+            .Callback<SiteDocument, string>((doc, path) => actualSiteDocuments.Add(doc));
+
+        var sut = new SiteDataImportHandler(mockFileOperations.Object);
+        var report = await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("out"));
+
+        actualSiteDocuments.Should().BeEquivalentTo(expectedSites);
+
+        report.Count().Should().Be(3);
+        report.All(r => r.Success).Should().BeTrue();
+    }
+    
+     [Fact]
+    public async Task InvalidSiteID_DataReportsBadData()
+    {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+        
+        string[] inputRows =
+        [
+            "ferfgsd,site1,\"test site 1\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+            "sadfsdafsdf,site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO"
         ];
 
         var expectedSites = new SiteDocument[]
@@ -226,15 +337,120 @@ public class CsvProcessorTests
         var sut = new SiteDataImportHandler(mockFileOperations.Object);
         var report = await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("out"));
 
-        actualSiteDocuments.Should().BeEquivalentTo(expectedSites, opt => opt.Excluding(x => x.Id));
+        actualSiteDocuments.Should().BeEmpty();
 
-        //assert each site got a new distinct ID of type GUID
-        actualSiteDocuments.Select(x => Guid.Parse(x.Id)).Distinct().Should().HaveCount(3);
-
-        report.Count().Should().Be(3);
-        report.Any(r => !r.Success).Should().BeFalse();
+        report.Count().Should().Be(2);
+        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: ferfgsd");
+        report.Last().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: sadfsdafsdf");
+        report.All(r => r.Success).Should().BeFalse();
     }
 
+     [Fact]
+    public async Task InvalidLongLat_DataReportsBadData()
+    {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+        
+        string[] inputRows =
+        [
+            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO"
+        ];
+
+        var expectedSites = new SiteDocument[]
+        {
+            new()
+            {
+                OdsCode = "site1",
+                Name = "test site 1",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb1",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "True"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            },
+            new()
+            {
+                OdsCode = "site2",
+                Name = "test site 2",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb2",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "True"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            },
+            new()
+            {
+                OdsCode = "site3",
+                Name = "test site 3",
+                Address = "123 test street",
+                PhoneNumber = "01234 567890",
+                Location = new Location("Point", [1.0, 60.0]),
+                DocumentType = "site",
+                ReferenceNumberGroup = 0,
+                IntegratedCareBoard = "test icb3",
+                Region = "Yorkshire",
+                AttributeValues =
+                [
+                    new AttributeValue("accessibility/accessible_toilet", "True"),
+                    new AttributeValue("accessibility/braille_translation_service", "False"),
+                    new AttributeValue("accessibility/disabled_car_parking", "False"),
+                    new AttributeValue("accessibility/car_parking", "False"),
+                    new AttributeValue("accessibility/induction_loop", "True"),
+                    new AttributeValue("accessibility/sign_language_service", "False"),
+                    new AttributeValue("accessibility/step_free_access", "True"),
+                    new AttributeValue("accessibility/text_relay", "True"),
+                    new AttributeValue("accessibility/wheelchair_access", "False")
+                ]
+            }
+        };
+
+        var input = BuildInputCsv(SitesHeader, inputRows);
+        var actualSiteDocuments = new List<SiteDocument>();
+        var mockFileOperations = new Mock<IFileOperations>();
+        mockFileOperations.Setup(x => x.OpenText(It.IsAny<FileInfo>())).Returns(new StringReader(input));
+        mockFileOperations.Setup(x => x.WriteDocument<SiteDocument>(It.IsAny<SiteDocument>(), It.IsAny<string>()))
+            .Callback<SiteDocument, string>((doc, path) => actualSiteDocuments.Add(doc));
+
+        var sut = new SiteDataImportHandler(mockFileOperations.Object);
+        var report = await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("out"));
+
+        actualSiteDocuments.Should().HaveCount(1);
+
+        report.Count().Should().Be(2);
+        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.\n    Text: 'foo'");
+        report.Count(r => r.Success).Should().Be(1);
+        report.Count(r => !r.Success).Should().Be(1);
+    }
+    
     private string BuildInputCsv(string header, IEnumerable<string> dataLines)
     {
         var result = new StringBuilder(header);

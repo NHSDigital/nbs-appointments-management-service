@@ -6,8 +6,7 @@ namespace CsvDataTool;
 
 public class CsvProcessor<TDocument, TMap>(
     Func<TDocument, Task> processRow,
-    Func<TDocument, string> getItemName,
-    Func<TDocument, TDocument> mutateDocument = null)
+    Func<TDocument, string> getItemName)
     where TMap : ClassMap
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
@@ -41,9 +40,7 @@ public class CsvProcessor<TDocument, TMap>(
         {
             csv.Context.RegisterClassMap<TMap>();
 
-            var imported = mutateDocument != null
-                ? csv.GetRecords<TDocument>().Select(mutateDocument)
-                : csv.GetRecords<TDocument>();
+            var imported = csv.GetRecords<TDocument>();
 
             foreach (var item in imported)
             {

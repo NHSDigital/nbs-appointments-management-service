@@ -125,6 +125,7 @@ public class GetSitesPreviewFunctionTests
             Name: "Alpha",
             Address: "somewhere",
             PhoneNumber: "0113 1111111",
+            OdsCode: "odsCode1",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             AttributeValues: new[] { new AttributeValue(Id: "accessibility/attr_1", Value: "true") },

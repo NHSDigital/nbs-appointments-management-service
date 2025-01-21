@@ -5,19 +5,19 @@
   "roleAssignments": [
     {
       "role": "canned:availability-manager",
-      "scope": "site:ABC01"
+      "scope": "site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"
     },
     {
       "role": "canned:appointment-manager",
-      "scope": "site:ABC01"
+      "scope": "site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"
     },
     {
       "role": "canned:site-details-manager",
-      "scope": "site:ABC01"
+      "scope": "site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"
     },
     {
       "role": "canned:user-manager",
-      "scope": "site:ABC01"
+      "scope": "site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"
     }
   ]
 }

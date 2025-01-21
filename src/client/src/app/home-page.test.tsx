@@ -15,13 +15,13 @@ describe('Home Page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Alpha' })).toHaveAttribute(
       'href',
-      `/site/1001`,
+      `/site/34e990af-5dc9-43a6-8895-b9123216d699`,
     );
 
     expect(screen.getByRole('link', { name: 'Site Beta' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Beta' })).toHaveAttribute(
       'href',
-      `/site/1002`,
+      `/site/95e4ca69-da15-45f5-9ec7-6b2ea50f07c8`,
     );
 
     expect(
@@ -29,7 +29,7 @@ describe('Home Page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Site Gamma' })).toHaveAttribute(
       'href',
-      `/site/1003`,
+      `/site/d79bec60-8968-4101-b553-67dec04e1019`,
     );
   });
 });

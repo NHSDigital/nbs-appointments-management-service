@@ -24,7 +24,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     public void Validate_ReturnsValidResult_WhenAllFieldsAreValid()
     {
         var request = new ApplyAvailabilityTemplateRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             From: new DateOnly(2077, 01, 01),
             Until: new DateOnly(2077, 01, 01),
             Template: new Template()
@@ -84,7 +84,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     public void Validate_ReturnsError_WhenFromDateIsTodayOrEarlier()
     {
         var request = new ApplyAvailabilityTemplateRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             From: new DateOnly(2076, 12, 31),
             Until: new DateOnly(2077, 02, 01),
             Template: new Template()
@@ -115,7 +115,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     public void Validate_ReturnsError_WhenUntilDateIsMoreThanOneYearInTheFuture()
     {
         var request = new ApplyAvailabilityTemplateRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             From: new DateOnly(2077, 01, 02),
             Until: new DateOnly(2078, 01, 03),
             Template: new Template()
@@ -146,7 +146,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     public void Validate_ReturnsError_WhenTemplateIsInvalid()
     {
         var request = new ApplyAvailabilityTemplateRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             From: new DateOnly(2077, 01, 01),
             Until: new DateOnly(2077, 01, 01),
             Template: new Template()
@@ -175,7 +175,7 @@ public class ApplyAvailabilityTemplateValidatorTests
     public void Validate_ReturnsError_WhenTemplateIsNull()
     {
         var request = new ApplyAvailabilityTemplateRequest(
-            Site: "ABC01",
+            Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             From: new DateOnly(2077, 01, 01),
             Until: new DateOnly(2077, 01, 01),
             Template: null,

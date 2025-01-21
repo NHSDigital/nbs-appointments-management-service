@@ -1,20 +1,20 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
-using System;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -44,7 +44,9 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference, bookingRequest.contactDetails.Select(x => new Core.ContactItem { Type = x.Type, Value = x.Value }), bookingRequest.bookingToReschedule);
+        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
+            bookingRequest.bookingToReschedule);
 
         switch (result)
         {
@@ -55,7 +57,11 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
             case BookingConfirmationResult.RescheduleNotFound:
                 return Failed(HttpStatusCode.NotFound, "The booking to reschedule was not found");
             case BookingConfirmationResult.RescheduleMismatch:
-                return Failed(HttpStatusCode.PreconditionFailed, "The nhs number for the provisional booking and the booking tobe rescheduled do not match");
+                return Failed(HttpStatusCode.PreconditionFailed,
+                    "The nhs number for the provisional booking and the booking to be rescheduled do not match");
+            case BookingConfirmationResult.StatusMismatch:
+                return Failed(HttpStatusCode.PreconditionFailed,
+                    "The booking cannot be confirmed because it is not provisional");
             case BookingConfirmationResult.Success:
                 return Success();
         }

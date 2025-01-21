@@ -3,11 +3,11 @@ import { UnauthorizedError } from '@types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const notAuthorized = () => {
+const notAuthorized = async () => {
   throw new UnauthorizedError();
 };
 
-const notAuthenticated = () => {
+const notAuthenticated = async () => {
   const lastRequestedPath = headers().get('mya-last-requested-path');
 
   redirect(

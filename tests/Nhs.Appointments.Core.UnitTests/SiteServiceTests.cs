@@ -523,35 +523,71 @@ public class SiteServiceTests
         result.Should().BeNull();
     }
 
-    //[Fact]
-    //public async Task GetAllSites_ReturnsAllSites()
-    //{
-    //    var sites = new List<Site>()
-    //    {
-    //        new Site(
-    //                Id: "ABC01",
-    //                Name: "Site 1",
-    //                Address: "1 Park Row",
-    //                PhoneNumber: "0113 1111111",
-    //                Region: "R1",
-    //                IntegratedCareBoard: "ICB1",
-    //                Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-    //                AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
-    //        new Site(
-    //                Id: "ABC02",
-    //                Name: "Site 2",
-    //                Address: "2 Park Row",
-    //                PhoneNumber: "0113 1111111",
-    //                Region: "R1",
-    //                IntegratedCareBoard: "ICB1",
-    //                Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-    //                AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
-    //    };
+    [Fact]
+    public async Task GetSitesPreview_CachedSitesFound_ReturningCachedSites()
+    {
+        var sites = new List<Site>()
+        {
+            new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+            new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
+        };
+        object? outSites = sites;
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
+        var result = await _sut.GetSitesPreview();
 
-    //    _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+        result.Count().Should().Be(2);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Never);
+    }
 
-    //    var result = await _sut.GetAllSites();
+    [Fact]
+    public async Task GetSitesPreview_CachedSitesNotFound_ReturningAllSitesFromSiteStore()
+    {
+        var sites = new List<Site>()
+        {
+            new Site(
+                    Id: "ABC01",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+            new Site(
+                    Id: "ABC02",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
+        };
+        object? outSites = null;
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-    //    result.Count().Should().Be(2);
-    //}
+        var result = await _sut.GetSitesPreview();
+
+        result.Count().Should().Be(2);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
+    }
 }

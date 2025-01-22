@@ -3,11 +3,11 @@ import EditDetailsForm from './edit-details-form';
 import NhsHeading from '@components/nhs-heading';
 
 type Props = {
-  site: string;
+  siteId: string;
 };
 
-export const EditDetailsPage = async ({ site }: Props) => {
-  const siteDetails = await fetchSite(site);
+export const EditDetailsPage = async ({ siteId }: Props) => {
+  const siteDetails = await fetchSite(siteId);
 
   return (
     <>

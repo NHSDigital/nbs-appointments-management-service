@@ -62,7 +62,7 @@ describe('Nhs Page', () => {
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue({
       emailAddress: 'test@nhs.net',
-      hasSites: true,
+      hasSites: true
     });
     fetchPermissionsMock.mockResolvedValue([
       'availability:query',
@@ -171,6 +171,11 @@ describe('Nhs Page', () => {
         odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
       originPage: '',
@@ -246,6 +251,11 @@ describe('Nhs Page', () => {
         odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
       originPage: '',
@@ -285,6 +295,11 @@ describe('Nhs Page', () => {
         odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        }
       },
       breadcrumbs: [],
       originPage: '',
@@ -323,6 +338,11 @@ describe('Nhs Page', () => {
         odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
       backLink: {

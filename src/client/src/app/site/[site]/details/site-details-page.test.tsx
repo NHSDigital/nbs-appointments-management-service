@@ -20,7 +20,7 @@ const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
 jest.mock('@services/appointmentsService');
 const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
 
-describe('Manage Attributes Page', () => {
+describe('Site Details Page', () => {
   beforeEach(() => {
     fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
     fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
@@ -28,7 +28,7 @@ describe('Manage Attributes Page', () => {
 
   it('renders', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
@@ -37,9 +37,130 @@ describe('Manage Attributes Page', () => {
     expect(screen.getByRole('heading', { name: 'Access needs' })).toBeVisible();
   });
 
+  it('displays the core site details', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Site Details' }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole('definition', { name: mockSite.address }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('definition', {
+        name: mockSite.location.coordinates[0].toString(),
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('definition', {
+        name: mockSite.location.coordinates[1].toString(),
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('definition', { name: mockSite.phoneNumber }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the edit site details hyperlink if the user has permission', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('link', { name: 'Edit site details' }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole('link', { name: 'Edit site details' }),
+    ).toHaveAttribute('href', `/site/${mockSite.id}/details/edit-details`);
+  });
+
+  it('hides the edit site details hyperlink if the user does not have permission', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: [],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit site details' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('displays the admin site details - ODS well known present', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Admin Details' }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole('definition', { name: mockSite.odsCode }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: 'Integrated Care Board One' }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: mockSite.integratedCareBoard }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: 'Region One' }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: mockSite.region }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('displays the admin site details - ODS well known absent', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: [],
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Admin Details' }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole('definition', { name: mockSite.odsCode }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: mockSite.integratedCareBoard }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('definition', { name: mockSite.region }),
+    ).toBeInTheDocument();
+  });
+
   it('displays the status of each accessibility attribute', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
@@ -58,7 +179,7 @@ describe('Manage Attributes Page', () => {
 
   it('shows the edit access needs hyperlink if the user has permission', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
@@ -75,7 +196,7 @@ describe('Manage Attributes Page', () => {
 
   it('hides the edit access needs hyperlink if the user does not have permission', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
@@ -88,7 +209,7 @@ describe('Manage Attributes Page', () => {
 
   it('shows the edit information for citizens hyperlink if the user has permission', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });
@@ -108,7 +229,7 @@ describe('Manage Attributes Page', () => {
 
   it('hides the edit information for citizens hyperlink if the user does not have permission', async () => {
     const jsx = await SiteDetailsPage({
-      site: mockSite,
+      siteId: mockSite.id,
       permissions: ['site:view'],
       wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
     });

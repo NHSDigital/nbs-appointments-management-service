@@ -10,8 +10,6 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  // const sitePermissions = await fetchPermissions(params.site);
-
   await assertPermission(params.site, 'site:manage');
 
   const backLink: NavigationByHrefProps = {
@@ -22,7 +20,7 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsPage backLink={backLink} title="" originPage="edit">
-      <EditDetailsPage site={params.site} />
+      <EditDetailsPage siteId={params.site} />
     </NhsPage>
   );
 };

@@ -89,7 +89,8 @@ const EditDetailsForm = ({
       <FormGroup error={errors.phoneNumber?.message}>
         <TextInput
           id="phoneNumber"
-          type="number"
+          type="tel"
+          pattern="\d*"
           {...register('phoneNumber')}
         ></TextInput>
       </FormGroup>
@@ -98,9 +99,7 @@ const EditDetailsForm = ({
         <SmallSpinnerWithText text="Updating details..." />
       ) : (
         <ButtonGroup>
-          <Button type="submit" style={{ marginTop: '30px' }}>
-            Save and continue
-          </Button>
+          <Button type="submit">Save and continue</Button>
         </ButtonGroup>
       )}
     </form>

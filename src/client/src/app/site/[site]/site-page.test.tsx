@@ -22,7 +22,7 @@ describe('Site Page', () => {
     expect(screen.getByText(mockSite.address)).toBeInTheDocument();
   });
 
-  it('displays full name for region and integrated care board when provided', () => {
+  it('displays full name for region and integrated care board when present in the ODS codes', () => {
     const mockSite = mockSites[0];
 
     render(

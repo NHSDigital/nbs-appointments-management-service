@@ -459,6 +459,8 @@ const mockDaySummaries: DaySummary[] = [
     ],
     maximumCapacity: 123,
     bookedAppointments: 5,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 118,
   },
   {
@@ -478,6 +480,8 @@ const mockDaySummaries: DaySummary[] = [
     ],
     maximumCapacity: 200,
     bookedAppointments: 15,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 185,
   },
   {
@@ -497,6 +501,8 @@ const mockDaySummaries: DaySummary[] = [
     ],
     maximumCapacity: 160,
     bookedAppointments: 20,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 140,
   },
 ];
@@ -507,6 +513,8 @@ const mockEmptyDays: DaySummary[] = [
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 0,
   },
   {
@@ -514,6 +522,8 @@ const mockEmptyDays: DaySummary[] = [
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 0,
   },
   {
@@ -521,6 +531,8 @@ const mockEmptyDays: DaySummary[] = [
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 0,
   },
 ];

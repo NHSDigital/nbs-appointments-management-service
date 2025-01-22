@@ -186,12 +186,48 @@ const mockBooking5: Booking = {
   reminderSet: false,
 };
 
+const mockBooking6: Booking = {
+  reference: 'mock-booking-6',
+  from: '2024-06-11T09:10:00',
+  duration: 10,
+  service: 'RSV:Adult',
+  site: 'TEST01',
+  attendeeDetails: {
+    nhsNumber: '9999999994',
+    firstName: 'Zack',
+    lastName: 'Jeremiah',
+    dateOfBirth: new Date(1973, 2, 3),
+  },
+  created: '2024-08-29T03:21:08.0477062',
+  status: 'Cancelled',
+  reminderSet: false,
+};
+
+const mockBooking7: Booking = {
+  reference: 'mock-booking-7',
+  from: '2024-06-11T09:20:00',
+  duration: 10,
+  service: 'RSV:Adult',
+  site: 'TEST01',
+  attendeeDetails: {
+    nhsNumber: '9999999993',
+    firstName: 'Bertha',
+    lastName: 'Mildrew',
+    dateOfBirth: new Date(1973, 2, 3),
+  },
+  created: '2024-08-29T03:21:08.0477062',
+  status: 'Provisional',
+  reminderSet: false,
+};
+
 const mockBookings: Booking[] = [
   mockBooking1,
   mockBooking2,
   mockBooking3,
   mockBooking4,
   mockBooking5,
+  mockBooking6,
+  mockBooking7,
 ];
 
 /**
@@ -223,6 +259,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ],
     maximumCapacity: 126,
     bookedAppointments: 2,
+    cancelledAppointments: 0,
+    orphanedAppointments: 1,
     remainingCapacity: 124,
   },
   {
@@ -232,8 +270,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         start: dayjs('2024-06-11 09:00:00'),
         end: dayjs('2024-06-11 12:00:00'),
         maximumCapacity: 36,
-        totalBookings: 2,
-        bookings: { 'RSV:Adult': 1, 'FLU 18-64': 1 },
+        totalBookings: 3,
+        bookings: { 'RSV:Adult': 2, 'FLU 18-64': 1 },
         capacity: 2,
         slotLength: 10,
       },
@@ -248,8 +286,10 @@ const mockWeekAvailability__Summary: DaySummary[] = [
       },
     ],
     maximumCapacity: 72,
-    bookedAppointments: 2,
-    remainingCapacity: 70,
+    bookedAppointments: 3,
+    cancelledAppointments: 1,
+    orphanedAppointments: 0,
+    remainingCapacity: 69,
   },
   {
     date: dayjs('2024-06-12 00:00:00'),
@@ -266,6 +306,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ],
     maximumCapacity: 96,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 96,
   },
   {
@@ -292,6 +334,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ],
     maximumCapacity: 114,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 114,
   },
   {
@@ -309,6 +353,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ],
     maximumCapacity: 72,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 72,
   },
   {
@@ -316,6 +362,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 0,
   },
   {
@@ -323,6 +371,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
     remainingCapacity: 0,
   },
 ];

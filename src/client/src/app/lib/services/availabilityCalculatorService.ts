@@ -39,19 +39,9 @@ export const summariseWeek = async (
 
   const daySummaries: DaySummary[] = week.map(day => {
     const availability = dailyAvailability.find(a => dayjs(a.date).isSame(day));
-    if (availability === undefined) {
-      return {
-        date: day,
-        sessions: [],
-        maximumCapacity: 0,
-        bookedAppointments: 0,
-        remainingCapacity: 0,
-      };
-    }
 
-    const bookings = dailyBookings.filter(
-      booking =>
-        dayjs(booking.from).isSame(day, 'date') && booking.status === 'Booked',
+    const bookings = dailyBookings.filter(booking =>
+      dayjs(booking.from).isSame(day, 'date'),
     );
 
     return summariseDay(day, bookings, availability);
@@ -63,15 +53,31 @@ export const summariseWeek = async (
 const summariseDay = (
   date: dayjs.Dayjs,
   bookings: Booking[],
-  availability: DailyAvailability,
+  availability?: DailyAvailability,
 ): DaySummary => {
-  const sessionsAndSlots = mapSessionsAndSlots(date, availability.sessions);
+  const sessionsAndSlots = mapSessionsAndSlots(
+    date,
+    availability?.sessions ?? [],
+  );
 
   const slots = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.slots)
     .flat();
 
+  let cancelledAppointments = 0;
+  let orphanedAppointments = 0;
+
   bookings.forEach(booking => {
+    if (booking.status === 'Cancelled') {
+      cancelledAppointments += 1;
+      return;
+    }
+
+    if (booking.status === 'Orphaned') {
+      orphanedAppointments += 1;
+      return;
+    }
+
     const matchingSlot = slots.find(slot => {
       return (
         slot.capacity > 0 &&
@@ -98,12 +104,19 @@ const summariseDay = (
     }
   });
 
-  return buildDaySummary(date, sessionsAndSlots);
+  return buildDaySummary(
+    date,
+    sessionsAndSlots,
+    cancelledAppointments,
+    orphanedAppointments,
+  );
 };
 
 const buildDaySummary = (
   date: dayjs.Dayjs,
   sessionsAndSlots: SessionAndSlots[],
+  cancelledAppointments: number,
+  orphanedAppointments: number,
 ): DaySummary => {
   const sessionSummaries = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.session)
@@ -139,6 +152,8 @@ const buildDaySummary = (
     maximumCapacity,
     bookedAppointments,
     remainingCapacity,
+    cancelledAppointments,
+    orphanedAppointments,
   };
 };
 

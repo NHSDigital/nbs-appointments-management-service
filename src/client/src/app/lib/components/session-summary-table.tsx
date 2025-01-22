@@ -69,7 +69,7 @@ export const getSessionSummaryRows = (
               Change
             </Link>,
           ]
-        : []),
+        : ['']),
     ];
   });
 

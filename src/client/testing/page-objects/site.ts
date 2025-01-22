@@ -5,6 +5,7 @@ export default class SitePage extends RootPage {
   readonly userManagementCard: Locator;
   readonly siteManagementCard: Locator;
   readonly createAvailabilityCard: Locator;
+  readonly viewAvailabilityAndManageAppointmentsCard: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -18,6 +19,11 @@ export default class SitePage extends RootPage {
       .getByRole('main')
       .getByRole('link', {
         name: 'Create availability',
+      });
+    this.viewAvailabilityAndManageAppointmentsCard = this.page
+      .getByRole('main')
+      .getByRole('link', {
+        name: 'View availability and manage appointments for your site',
       });
   }
 }

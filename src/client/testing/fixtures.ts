@@ -15,3 +15,5 @@ export const test = baseTest.extend<object, { newUserName: string }>({
 });
 
 export const nonNhsEmailId = `int-test-user-${Math.floor(Math.random() * 10000)}@gmail.com`;
+
+export const testuser6_emailId = `zzz_test_user_6@nhs.net`;

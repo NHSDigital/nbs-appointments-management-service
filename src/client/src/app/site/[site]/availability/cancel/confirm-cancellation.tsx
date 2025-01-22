@@ -1,11 +1,11 @@
 'use client';
 import {
   Button,
-  ButtonGroup,
   FormGroup,
   InsetText,
   Radio,
   RadioGroup,
+  SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { cancelSession } from '@services/appointmentsService';
@@ -24,7 +24,11 @@ type CancelSessionDecisionFormData = {
 };
 
 const ConfirmCancellation = ({ date, session, site }: PageProps) => {
-  const methods = useForm<CancelSessionDecisionFormData>({});
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, isSubmitSuccessful, errors },
+  } = useForm<CancelSessionDecisionFormData>({});
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
   const router = useRouter();
   const submitForm: SubmitHandler<CancelSessionDecisionFormData> = async (
@@ -41,7 +45,7 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
   };
 
   return (
-    <form onSubmit={methods.handleSubmit(submitForm)}>
+    <form onSubmit={handleSubmit(submitForm)}>
       <SessionSummaryTable sessionSummaries={[sessionSummary]} />
 
       <InsetText>
@@ -50,14 +54,14 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
 
       <FormGroup
         legend="Would you like to cancel this session?"
-        error={methods.formState.errors.action?.message}
+        error={errors.action?.message}
       >
         <RadioGroup>
           <Radio
             label="Yes, I want to cancel this session"
             id="cancel-session"
             value="cancel-session"
-            {...methods.register('action', {
+            {...register('action', {
               required: { value: true, message: 'Select an option' },
             })}
           />
@@ -65,15 +69,17 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
             label="No, I don't want to cancel this session"
             id="dont-cancel-session"
             value="dont-cancel-session"
-            {...methods.register('action', {
+            {...register('action', {
               required: { value: true, message: 'Select an option' },
             })}
           />
         </RadioGroup>
       </FormGroup>
-      <ButtonGroup>
+      {isSubmitting || isSubmitSuccessful ? (
+        <SmallSpinnerWithText text="Working..." />
+      ) : (
         <Button type="submit">Continue</Button>
-      </ButtonGroup>
+      )}
     </form>
   );
 };

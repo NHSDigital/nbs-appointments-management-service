@@ -64,7 +64,7 @@ public class GetSitesPreviewFunctionTests
     }
 
     [Fact]
-    public async Task RunsAsync_UserNotFound_ReturnsFailedResponse()
+    public async Task RunsAsync_UserNotFound_ReturnsEmptyResponse()
     {
         var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var context = new DefaultHttpContext();
@@ -73,10 +73,10 @@ public class GetSitesPreviewFunctionTests
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(() => null);
 
         var response = await _sut.RunAsync(request) as ContentResult;
-        
+        var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
 
-        response.StatusCode.Should().Be(404);
-        response.Content.Should().Contain("User was not found");
+        response.StatusCode.Should().Be(200);
+        actualResponse.Count().Should().Be(0);
         _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }

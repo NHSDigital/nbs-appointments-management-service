@@ -36,7 +36,7 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
         var user = await userService.GetUserAsync(userEmail);
         if (user is null)
         {
-            return Failed(HttpStatusCode.NotFound, "User was not found");
+            return Success(Enumerable.Empty<SitePreview>());
         }
 
         var sitesResult = new List<SitePreview>();

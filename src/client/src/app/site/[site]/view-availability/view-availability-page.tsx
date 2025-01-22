@@ -2,13 +2,15 @@ import { Card, Pagination, Table } from '@components/nhsuk-frontend';
 import { Week } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { use } from 'react';
 
 type Props = {
-  weeks: Week[];
+  getWeeks: Promise<Week[]>;
   searchMonth: dayjs.Dayjs;
 };
 
-export const ViewAvailabilityPage = ({ weeks, searchMonth }: Props) => {
+export const ViewAvailabilityPage = ({ getWeeks, searchMonth }: Props) => {
+  const weeks = use(getWeeks);
   const nextMonth = searchMonth.startOf('month').add(1, 'month');
   const previousMonth = searchMonth.startOf('month').subtract(1, 'month');
 

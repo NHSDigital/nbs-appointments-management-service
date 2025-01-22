@@ -7,7 +7,7 @@ describe('View Availability Page', () => {
   it('renders', async () => {
     render(
       <ViewAvailabilityPage
-        weeks={mockDetailedWeeks}
+        getWeeks={Promise.resolve(mockDetailedWeeks)}
         searchMonth={dayjs().year(2024).month(11)}
       />,
     );
@@ -21,7 +21,7 @@ describe('View Availability Page', () => {
   it('renders the correct information for a week', () => {
     render(
       <ViewAvailabilityPage
-        weeks={mockDetailedWeeks}
+        getWeeks={Promise.resolve(mockDetailedWeeks)}
         searchMonth={dayjs().year(2024).month(11)}
       />,
     );
@@ -48,7 +48,7 @@ describe('View Availability Page', () => {
   it('renders a link for each week', () => {
     render(
       <ViewAvailabilityPage
-        weeks={mockDetailedWeeks}
+        getWeeks={Promise.resolve(mockDetailedWeeks)}
         searchMonth={dayjs().year(2024).month(11)}
       />,
     );
@@ -59,7 +59,7 @@ describe('View Availability Page', () => {
   it('renders pagination options with the correct values', () => {
     render(
       <ViewAvailabilityPage
-        weeks={mockDetailedWeeks}
+        getWeeks={Promise.resolve(mockDetailedWeeks)}
         searchMonth={dayjs().year(2024).month(11)}
       />,
     );

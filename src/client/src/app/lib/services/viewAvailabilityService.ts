@@ -3,11 +3,13 @@ import {
   AvailabilityResponse,
   Booking,
   clinicalServices,
+  FetchAvailabilityRequest,
   FetchBookingsRequest,
+  Site,
   Week,
 } from '@types';
 import dayjs, { Dayjs } from 'dayjs';
-import { fetchBookings } from './appointmentsService';
+import { fetchAvailability, fetchBookings } from './appointmentsService';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -147,17 +149,33 @@ const getBookingsInWeek = (
 };
 
 export const getDetailedMonthView = async (
-  availability: AvailabilityResponse[],
-  weeks: Week[],
-  siteId: string,
+  site: Site,
+  searchMonth: Dayjs,
 ): Promise<Week[]> => {
+  const weeks: Week[] = getWeeksInMonth(
+    searchMonth.year(),
+    searchMonth.month(),
+  );
+
+  const startDate = weeks[0].startDate.format('YYYY-MM-DD');
+  const endDate = weeks[weeks.length - 1].endDate.format('YYYY-MM-DD');
+
+  const payload: FetchAvailabilityRequest = {
+    sites: [site.id],
+    service: '*',
+    from: startDate,
+    until: endDate,
+    queryType: 'Days',
+  };
+  const availability: AvailabilityResponse[] = await fetchAvailability(payload);
+
   const firstWeek = weeks[0];
   const lastWeek = weeks[weeks.length - 1];
 
   const bookingRequest: FetchBookingsRequest = {
     from: firstWeek.startDate.format('YYYY-MM-DD H:mm'),
     to: lastWeek.endDate.format('YYYY-MM-DD H:mm'),
-    site: siteId,
+    site: site.id,
   };
 
   const bookings = await fetchBookings(bookingRequest);

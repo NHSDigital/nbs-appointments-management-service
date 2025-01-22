@@ -1,5 +1,9 @@
 import NhsPage from '@components/nhs-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchPermissions,
+  fetchSite,
+} from '@services/appointmentsService';
 import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
 import dayjs from 'dayjs';
@@ -45,6 +49,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
     text: 'Back to week view',
   };
 
+  const canCancelBookings = (await fetchPermissions(site.id)).includes(
+    'booking:cancel',
+  );
+
   return (
     <NhsPage
       title={date.format('dddd D MMMM')}
@@ -57,7 +65,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           <DailyAppointmentsPage
             bookings={scheduledBookings}
             site={site.id}
-            displayAction
+            displayAction={canCancelBookings}
           />
         </Tab>
         <Tab title="Cancelled">
@@ -71,7 +79,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           <DailyAppointmentsPage
             bookings={orphanedAppointments}
             site={site.id}
-            displayAction
+            displayAction={canCancelBookings}
             message={orphanedMessage}
           />
         </Tab>

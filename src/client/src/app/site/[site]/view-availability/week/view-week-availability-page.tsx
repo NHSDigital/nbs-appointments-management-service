@@ -2,9 +2,10 @@ import { Pagination } from '@components/nhsuk-frontend';
 import { DaySummary } from '@types';
 import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
+import { use } from 'react';
 
 type Props = {
-  days: DaySummary[];
+  days: Promise<DaySummary[]>;
   weekStart: dayjs.Dayjs;
   weekEnd: dayjs.Dayjs;
   site: string;
@@ -51,10 +52,12 @@ export const ViewWeekAvailabilityPage = ({
     href: `week?date=${previousWeek.format('YYYY-MM-DD')}`,
   };
 
+  const daySummaries = use(days);
+
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {days.map((day, dayIndex) => {
+      {daySummaries.map((day, dayIndex) => {
         return (
           <DaySummaryCard
             daySummary={day}

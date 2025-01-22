@@ -4,6 +4,8 @@ import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { summariseWeek } from '@services/availabilityCalculatorService';
+import { Suspense } from 'react';
+import { Spinner } from '@components/nhsuk-frontend';
 
 type PageProps = {
   searchParams: {
@@ -21,8 +23,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const weekStart = startOfWeek(searchParams.date);
   const weekEnd = endOfWeek(searchParams.date);
 
-  const days = await summariseWeek(weekStart, weekEnd, site.id);
-
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
     href: `/site/${params.site}/view-availability?date=${searchParams.date}`,
@@ -36,12 +36,14 @@ const Page = async ({ searchParams, params }: PageProps) => {
       backLink={backLink}
       originPage="view-availability-week"
     >
-      <ViewWeekAvailabilityPage
-        days={days}
-        weekStart={weekStart}
-        weekEnd={weekEnd}
-        site={params.site}
-      />
+      <Suspense fallback={<Spinner />}>
+        <ViewWeekAvailabilityPage
+          days={summariseWeek(weekStart, weekEnd, site.id)}
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+          site={params.site}
+        />
+      </Suspense>
     </NhsPage>
   );
 };

@@ -35,7 +35,7 @@ describe('View Week Availability Page', () => {
   it('renders', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDaySummaries}
+        days={Promise.resolve(mockDaySummaries)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}
@@ -51,7 +51,7 @@ describe('View Week Availability Page', () => {
   it('renders no availability', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockEmptyDays}
+        days={Promise.resolve(mockEmptyDays)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}
@@ -67,7 +67,7 @@ describe('View Week Availability Page', () => {
   it('renders correct information for a day', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDaySummaries}
+        days={Promise.resolve(mockDaySummaries)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}
@@ -104,7 +104,7 @@ describe('View Week Availability Page', () => {
   it('renders pagination options with the correct values', () => {
     render(
       <ViewWeekAvailabilityPage
-        days={mockDaySummaries}
+        days={Promise.resolve(mockDaySummaries)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}
@@ -130,7 +130,7 @@ describe('View Week Availability Page', () => {
 
     render(
       <ViewWeekAvailabilityPage
-        days={daySummaries}
+        days={Promise.resolve(daySummaries)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}
@@ -151,7 +151,7 @@ describe('View Week Availability Page', () => {
 
     render(
       <ViewWeekAvailabilityPage
-        days={mockDaySummaries}
+        days={Promise.resolve(daySummaries)}
         weekStart={mockWeekAvailabilityStart}
         weekEnd={mockWeekAvailabilityEnd}
         site={'mock-site'}

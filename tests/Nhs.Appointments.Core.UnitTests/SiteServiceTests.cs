@@ -457,7 +457,7 @@ public class SiteServiceTests
                     }),
                 Distance: 3573),
         };
-        object? outSites = sites.Select(s => s.Site);
+        object outSites = sites.Select(s => s.Site);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
@@ -498,7 +498,7 @@ public class SiteServiceTests
                     }),
                 Distance: 3573),
         };
-        object? outSites = sites.Take(1).Select(s => s.Site);
+        object outSites = sites.Take(1).Select(s => s.Site);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
@@ -541,7 +541,7 @@ public class SiteServiceTests
                     }),
                 Distance: 3573),
         };
-        object? outSites = null;
+        object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
@@ -661,7 +661,7 @@ public class SiteServiceTests
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
         };
-        object? outSites = sites;
+        object outSites = sites;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.GetSitesPreview();
 
@@ -696,7 +696,7 @@ public class SiteServiceTests
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
         };
-        object? outSites = null;
+        object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 

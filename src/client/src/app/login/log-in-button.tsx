@@ -14,7 +14,10 @@ const LogInButton = ({
 }: LogInButtonProps) => {
   return (
     <form action={redirectToIdServer.bind(null, redirectUrl, provider)}>
-      <Button aria-label="Sign in to service" type="submit">
+      <Button
+        aria-label={`Sign in to service with ${friendlyName}`}
+        type="submit"
+      >
         Sign in to service with {friendlyName}
       </Button>
     </form>

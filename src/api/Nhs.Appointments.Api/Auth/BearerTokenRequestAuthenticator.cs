@@ -39,13 +39,10 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
                 // resolve keys for a given issuer
                 return issuerKeys.SingleOrDefault(ik => ik.Issuer == securityToken.Issuer).Item2;
             },
-            AudienceValidator = (audiences, token, parameters) =>
-            {
-                return audiences.Any(a => allowedAudiences.Contains(a));
-            },
+            AudienceValidator = (audiences, token, parameters) => allowedAudiences.Exists(audiences.Contains),
             IssuerValidator = (issuer, token, parameters) =>
             {
-                return issuerKeys.Any(ik => ik.Issuer == issuer)
+                return issuerKeys.Exists(ik => ik.Issuer == issuer)
                     ? issuer
                     : throw new AuthenticationException("Invalid Issuer");
             },

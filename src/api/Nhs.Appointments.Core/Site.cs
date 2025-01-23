@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Core;
 
@@ -33,7 +33,18 @@ public record SiteWithDistance(
     [JsonProperty("distance")] int Distance
 );
 
-public record AttributeRequest(
-    [JsonProperty("scope")] string Scope,
-    [JsonProperty("attributeValues")] IEnumerable<AttributeValue> AttributeValues
+public record AttributeRequest
+(
+    [JsonProperty("scope")]
+    string Scope,
+    [JsonProperty("attributeValues")]
+    IEnumerable<AttributeValue> AttributeValues
+);
+
+public record SitePreview
+(
+    [JsonProperty("id")]
+    string Id,
+    [JsonProperty("name")]
+    string Name
 );

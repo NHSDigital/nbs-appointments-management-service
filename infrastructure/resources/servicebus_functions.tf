@@ -66,6 +66,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
     "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
     "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
+    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true

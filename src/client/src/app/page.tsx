@@ -1,4 +1,4 @@
-import { fetchUserProfile } from '@services/appointmentsService';
+import { fetchSitesPreview } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { Metadata } from 'next';
 import { HomePage } from './home-page';
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const userProfile = await fetchUserProfile();
+  const sites = await fetchSitesPreview();
 
   return (
     <NhsPage
@@ -17,7 +17,7 @@ const Page = async () => {
       omitTitleFromBreadcrumbs
       originPage="choose-site"
     >
-      <HomePage sites={userProfile.availableSites} />
+      <HomePage sites={sites} />
     </NhsPage>
   );
 };

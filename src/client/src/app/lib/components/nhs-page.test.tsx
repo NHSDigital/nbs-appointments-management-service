@@ -62,16 +62,7 @@ describe('Nhs Page', () => {
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue({
       emailAddress: 'test@nhs.net',
-      availableSites: [
-        {
-          id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
-          name: 'Test site',
-          address: '',
-          odsCode: 'K12',
-          integratedCareBoard: 'ICB2',
-          region: 'R2',
-        },
-      ],
+      hasSites: true,
     });
     fetchPermissionsMock.mockResolvedValue([
       'availability:query',

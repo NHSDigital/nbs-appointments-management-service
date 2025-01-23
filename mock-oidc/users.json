@@ -99,6 +99,17 @@
     ]
   },
   {
+    "SubjectId": "zzz_test_user_9@nhs.net",
+    "Username": "testuser9",
+    "Password": "t35tP@ssw0rd_9",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_9@nhs.net"
+      }
+    ]
+  },
+  {
     "SubjectId": "admin_test_user@nhs.net",
     "Username": "admintestuser",
     "Password": "t35tP@ssw0rd_admin",

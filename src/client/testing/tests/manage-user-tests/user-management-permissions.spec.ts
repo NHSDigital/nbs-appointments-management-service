@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { testuser6_emailId } from '../../fixtures';
+import { testuser6_emailId, testuser7_emailId, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -10,7 +10,9 @@ import UserManagementPage from '../../page-objects/manage-users/edit-manage-user
 import NotAuthorizedPage from '../../page-objects/unauthorized';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import EulaConsentPage from '../../page-objects/eula-consent';
-import SiteDetailsPage from '../../../src/app/site/[site]/details/site-details-page';
+import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
+import CreateAvailabilityPage from '../../page-objects/create-availability';
+import ViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
 
 const { TEST_USERS } = env;
 
@@ -23,6 +25,9 @@ let userManagementPage: UserManagementPage;
 let notAuthorizedPage: NotAuthorizedPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let eulaConsentPage: EulaConsentPage;
+let siteDetailsPage: SiteDetailsPage;
+let createAvailabilityPage: CreateAvailabilityPage;
+let viewAvailabilityPage: ViewAvailabilityPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -34,6 +39,9 @@ test.beforeEach(async ({ page }) => {
   notAuthorizedPage = new NotAuthorizedPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   eulaConsentPage = new EulaConsentPage(page);
+  siteDetailsPage = new SiteDetailsPage(page);
+  createAvailabilityPage = new CreateAvailabilityPage(page);
+  viewAvailabilityPage = new ViewAvailabilityPage(page);
 });
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async () => {
@@ -125,9 +133,9 @@ test('Verify user manager cannot edit or remove self account', async () => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-  await usersPage.verifyLinkNotVisible(TEST_USERS.testUser1, 'Edit');
+  await usersPage.verifyLinkNotVisible(TEST_USERS.testUser1.username, 'Edit');
   await usersPage.verifyLinkNotVisible(
-    TEST_USERS.testUser1,
+    TEST_USERS.testUser1.username,
     'Remove from this site',
   );
 });
@@ -151,22 +159,62 @@ test('Verify user can only view appointment manager related tiles In app when us
   await usersPage.verifyUserRoles('Appointment manager', testuser6_emailId);
   await rootPage.logOut();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.page
-    .getByLabel('Username')
-    .fill(TEST_USERS.testUser6.username);
-  await oAuthPage.page
-    .getByLabel('Password')
-    .fill(TEST_USERS.testUser6.password);
-  await oAuthPage.page.getByLabel('Password').press('Enter');
+  await oAuthPage.signInWithRequiredUser(
+    TEST_USERS.testUser6.username,
+    TEST_USERS.testUser6.password,
+  );
   await eulaConsentPage.acceptAndContinueButton.click();
   await page.waitForURL('**/');
   await expect(siteSelectionPage.title).toBeVisible();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
-  await expect(
-    sitePage.viewAvailabilityAndManageAppointmentsCard,
-  ).toBeVisible();
-  await expect(sitePage.createAvailabilityCard).not.toBeVisible();
-  await expect(sitePage.userManagementCard).not.toBeVisible();
-  await expect(sitePage.siteManagementCard).toBeVisible();
+  await sitePage.veriyTileVisible('ManageAppointment');
+  await sitePage.veriyTileVisible('SiteManagement');
+  await sitePage.veriyTileNotVisible('UserManagement');
+  await sitePage.veriyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
+  await siteDetailsPage.verifySitepage();
+  await siteDetailsPage.verifyEditButtonNotVisible();
+});
+
+test('Verify user can only view create availbility related tiles In app when user is assigned Availability Manager role.', async ({
+  page,
+}) => {
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser1);
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.userManagementCard.click();
+  await usersPage.assignStaffRolesLink.click();
+  await editManageUserRolesPage.emailInput.fill(testuser7_emailId);
+  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.unselectStaffRole('Appointment manager');
+  await editManageUserRolesPage.selectStaffRole('Availability manager');
+  await editManageUserRolesPage.unselectStaffRole('Site details manager');
+  await editManageUserRolesPage.unselectStaffRole('User manager');
+  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await usersPage.verifyUserRoles('Availability manager', testuser6_emailId);
+  await rootPage.logOut();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signInWithRequiredUser(
+    TEST_USERS.testUser7.username,
+    TEST_USERS.testUser7.password,
+  );
+  await eulaConsentPage.acceptAndContinueButton.click();
+  await page.waitForURL('**/');
+  await expect(siteSelectionPage.title).toBeVisible();
+  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await sitePage.veriyTileVisible('ManageAppointment');
+  await sitePage.veriyTileVisible('SiteManagement');
+  await sitePage.veriyTileNotVisible('UserManagement');
+  await sitePage.veriyTileVisible('CreateAvailability');
+  await sitePage.siteManagementCard.click();
+  await siteDetailsPage.verifySitepage();
+  await siteDetailsPage.verifyEditButtonNotVisible();
+  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await sitePage.createAvailabilityCard.click();
+  await createAvailabilityPage.createAvailabilityButton.click();
+  await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
+  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
+  await viewAvailabilityPage.verifyViewMonthDisplayed();
 });

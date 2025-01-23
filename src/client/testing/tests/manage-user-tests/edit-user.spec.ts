@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
 
-  await page.waitForURL('**/site/ABC01/users');
+  await page.waitForURL(`**/site/${abc01_id}/users`);
 });
 
 test('Verify user manager able to edit user role', async ({ newUserName }) => {
@@ -87,7 +87,7 @@ test('Verify users are redirected to users page upon cancel button clicked on ed
 
 test('Receives 403 error when trying to edit self', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/ABC01/users/manage?user=zzz_test_user_1@nhs.net`,
+    `/manage-your-appointments/site/${abc01_id}/users/manage?user=zzz_test_user_1@nhs.net`,
   );
   await expect(notAuthorizedPage.title).toBeVisible();
 });

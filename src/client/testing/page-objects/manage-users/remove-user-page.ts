@@ -1,5 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
+import { abc01_id } from '../../fixtures';
 
 export default class RemoveUserPage extends RootPage {
   readonly title: Locator;
@@ -20,7 +21,9 @@ export default class RemoveUserPage extends RootPage {
   }
 
   async verifyUserNavigatedToRemovePage(userName: string) {
-    await this.page.waitForURL(`**/site/ABC01/users/remove?user=${userName}`);
+    await this.page.waitForURL(
+      `**/site/${abc01_id}/users/remove?user=${userName}`,
+    );
     await expect(
       this.page.getByText(
         `Are you sure you wish to remove ${userName} from Robin Lane Medical Centre?`,

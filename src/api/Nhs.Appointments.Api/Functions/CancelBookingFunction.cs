@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +14,9 @@ using System;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Audit;
+using Nhs.Appointments.Audit.Functions;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -28,7 +31,8 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Requested site not configured for appointments")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("booking:cancel", typeof(SiteFromPathInspector))]
+    [RequiresPermission("booking:cancel", typeof(SiteFromQueryStringInspector))]
+    [RequiresAudit(typeof(SiteFromQueryStringInspector))]
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/cancel")] HttpRequest req)
@@ -38,7 +42,7 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request, ILogger logger)
     {
-        var result = await bookingService.CancelBooking(request.bookingReference);
+        var result = await bookingService.CancelBooking(request.bookingReference, request.site);
 
         switch(result)
         {
@@ -55,7 +59,8 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, CancelBookingRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
+        var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
 
-        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference)));
+        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site)));
     }
 }

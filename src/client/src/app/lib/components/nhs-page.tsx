@@ -14,6 +14,8 @@ import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
 import { fetchPermissions } from '@services/appointmentsService';
+import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
+import FeedbackBanner from '@components/feedback-banner';
 
 type Props = {
   children: ReactNode;
@@ -21,6 +23,8 @@ type Props = {
   breadcrumbs?: Breadcrumb[];
   omitTitleFromBreadcrumbs?: boolean;
   site?: Site;
+  backLink?: NavigationByHrefProps;
+  originPage: string;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -31,6 +35,8 @@ const NhsPage = async ({
   headerAuthComponent = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
+  backLink,
+  originPage,
 }: Props) => {
   const notification = cookies().get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
@@ -43,13 +49,23 @@ const NhsPage = async ({
       >
         {headerAuthComponent ?? NhsHeaderLogOut()}
       </Header>
+      <FeedbackBanner originPage={originPage} />
       <Breadcrumbs
         trail={[
           ...breadcrumbs,
-          ...(!omitTitleFromBreadcrumbs ? [{ name: title }] : []),
+          ...(breadcrumbs.length > 0 && !omitTitleFromBreadcrumbs
+            ? [{ name: title }]
+            : []),
         ]}
       />
       <NhsMainContainer>
+        {backLink && (
+          <BackLink
+            href={backLink.href}
+            renderingStrategy={backLink.renderingStrategy}
+            text={backLink.text}
+          />
+        )}
         <NhsHeading title={title} caption={caption} />
         <NotificationBanner notification={notification} />
         {children}
@@ -77,7 +93,7 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('availability:set-setup')) {
+  if (permissions.includes('availability:setup')) {
     navigationLinks.push({
       label: 'Create availability',
       href: `/site/${site.id}/create-availability`,

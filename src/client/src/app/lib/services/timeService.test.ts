@@ -1,5 +1,7 @@
 import {
+  formatDateTimeToTime,
   formatTimeString,
+  isInTheFuture,
   isValidDate,
   parseDateComponents,
   toTimeComponents,
@@ -110,6 +112,25 @@ describe('Time Service', () => {
       const result = toTimeComponents(time);
 
       expect(result).toEqual(expectedResult);
+    },
+  );
+
+  it('formats dateTime to time', async () => {
+    const dateTime = '2024-12-12T12:05:00';
+    const result = formatDateTimeToTime(dateTime);
+
+    expect(result).toEqual('12:05');
+  });
+
+  it.each([
+    [dayjs().add(1, 'day').format('YYYY-MM-DD'), true],
+    [dayjs().subtract(1, 'day').format('YYYY-MM-DD'), false],
+  ])(
+    'check if date is in the future',
+    (dateToCheck: string, expectedOutcome: boolean) => {
+      const result = isInTheFuture(dateToCheck);
+
+      expect(result).toBe(expectedOutcome);
     },
   );
 });

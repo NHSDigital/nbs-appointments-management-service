@@ -239,3 +239,5 @@ FakesAssemblies/
 
 # dotnet format report
 dotnet-format-report.json
+data/CosmosDbSeeder/data_import_report.md
+data/CosmosDbSeeder/data_import_summary.md

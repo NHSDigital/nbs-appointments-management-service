@@ -8,6 +8,9 @@ updates:
       all-dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "FluentAssertions"
+
   - package-ecosystem: "npm"
     directory: "/src/client"
     schedule:

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Persistance.Models;
@@ -19,7 +19,7 @@ public class BookingIndexDocument : IndexDataCosmosDocument
     public DateTime From { get; set; }
 
     [JsonProperty("created")]
-    public DateTime Created { get; set; }
+    public DateTimeOffset Created { get; set; }
 
     [JsonProperty("status")]
     public AppointmentStatus Status { get; set; }

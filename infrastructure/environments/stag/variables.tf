@@ -1,3 +1,8 @@
+variable "NHS_HOST_URL" {
+  type      = string
+  sensitive = false
+}
+
 variable "FUNC_APP_BASE_URI" {
   type      = string
   sensitive = false
@@ -46,6 +51,15 @@ variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
 variable "AUTH_PROVIDER_CLIENT_ID" {
   type      = string
   sensitive = false
+}
+
+variable "AUTH_PROVIDER_CLIENT_SECRET" {
+  type      = string
+  sensitive = true
+}
+
+variable "GOV_NOTIFY_BASE_URI" {
+  type = string
 }
 
 variable "GOV_NOTIFY_API_KEY" {

@@ -56,7 +56,7 @@ test('A user with the appropriate permission can view other users at a site and 
       hasNot: userManagementPage.page.getByText(/int-test-user/),
       has: userManagementPage.page.getByRole('link', { name: 'Edit' }),
     }),
-  ).toHaveCount(5);
+  ).toHaveCount(6);
 });
 
 test('Navigating straight to the user management page works as expected', async ({
@@ -66,7 +66,9 @@ test('Navigating straight to the user management page works as expected', async 
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
 
-  await page.goto('/site/ABC01/users');
+  await page.goto(
+    '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
   await expect(usersPage.title).toBeVisible();
 });
 
@@ -77,11 +79,15 @@ test('Navigating straight to the user management page displays an appropriate er
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser3);
 
-  await page.goto('/site/ABC01/users');
+  await page.goto(
+    '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
+  );
   await expect(usersPage.emailColumn).not.toBeVisible();
   await expect(notAuthorizedPage.title).toBeVisible();
 
-  await page.goto('/site/ABC01/users/manage');
+  await page.goto(
+    '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users/manage',
+  );
   await expect(userManagementPage.emailInput).not.toBeVisible();
   await expect(notAuthorizedPage.title).toBeVisible();
 });
@@ -97,7 +103,7 @@ test('permissions are applied per site', async () => {
   await expect(usersPage.manageColumn).toBeVisible();
 
   // Then check it does NOT exist at Robin Lane
-  await rootPage.homeBreadcrumb.click();
+  await rootPage.goto();
 
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
 

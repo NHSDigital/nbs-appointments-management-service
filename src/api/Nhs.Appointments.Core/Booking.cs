@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Core;
 
@@ -33,7 +32,7 @@ public class Booking
     public bool ReminderSent { get; set; }
 
     [JsonProperty("created")]
-    public DateTime Created { get; set; }    
+    public DateTimeOffset Created { get; set; }    
     
     [JsonIgnore]
     public TimePeriod TimePeriod => new TimePeriod(From, TimeSpan.FromMinutes(Duration));
@@ -76,5 +75,6 @@ public enum AppointmentStatus
     Unknown,
     Provisional,
     Booked,
-    Cancelled
+    Cancelled,
+    Orphaned
 }

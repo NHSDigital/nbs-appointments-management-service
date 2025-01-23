@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;
-using System.Net;
-using Nhs.Appointments.Api.Availability;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
+public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
@@ -107,7 +105,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
 
     [When("I apply the following availability template")]
     [And("I apply the following availability template")]
-    public async Task ApplyTemplate(Gherkin.Ast.DataTable dataTable)
+    public async Task ApplyTemplate(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
         var fromDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
@@ -168,9 +166,46 @@ public abstract class BaseCreateAvailabilityFeatureSteps : BaseFeatureSteps
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
         _statusCode = _response.StatusCode;
     }
+
+    [When(@"I edit the following availability")]
+    public async Task EditAvailability(DataTable dataTable)
+    {
+        var cells = dataTable.Rows.ElementAt(1).Cells;
+
+        var relativeDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
+        var payload = new
+        {
+            date = relativeDate,
+            site = GetSiteId(),
+            sessionToEdit =
+                new
+                {
+                    from = cells.ElementAt(1).Value,
+                    until = cells.ElementAt(2).Value,
+                    slotLength = int.Parse(cells.ElementAt(3).Value),
+                    capacity = int.Parse(cells.ElementAt(4).Value),
+                    services = cells.ElementAt(5).Value.Split(',').Select(s => s.Trim()).ToArray()
+                },
+            sessions = new[]
+            {
+                new
+                {
+                    from = cells.ElementAt(6).Value,
+                    until = cells.ElementAt(7).Value,
+                    slotLength = int.Parse(cells.ElementAt(8).Value),
+                    capacity = int.Parse(cells.ElementAt(9).Value),
+                    services = cells.ElementAt(10).Value.Split(',').Select(s => s.Trim()).ToArray()
+                }
+            },
+            mode = cells.ElementAt(11).Value
+        };
+
+        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+        _statusCode = _response.StatusCode;
+    }
     
     [Then("the request is successful and the following daily availability sessions are created")]
-    public async Task AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
+    public async Task AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);
         var site = GetSiteId();

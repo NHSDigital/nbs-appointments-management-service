@@ -25,14 +25,7 @@ const Page = async ({ params }: PageProps) => {
   await assertAnyPermissions(site.id, ['users:view', 'users:view']);
 
   return (
-    <NhsPage
-      title="Manage Staff Roles"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-      site={site}
-    >
+    <NhsPage title="Manage Staff Roles" site={site} originPage="users">
       <UsersPage
         userProfile={userProfile}
         users={users}

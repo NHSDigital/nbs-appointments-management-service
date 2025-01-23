@@ -118,7 +118,7 @@ warning unless you import the certificate from the cosmos container, this can sa
 
 ### Seeding the Cosmos Database
 
-To meaningfully explore the API/frontend you'll need a minimum set of data present in the Cosmos DB. There is a .NET Console App which uploads a set of cosmos-friendly documents in `/src/mock-data/CosmosDbSeeder`.
+To meaningfully explore the API/frontend you'll need a minimum set of data present in the Cosmos DB. There is a .NET Console App which uploads a set of cosmos-friendly documents in `/src/data/CosmosDbSeeder`.
 
 You simply need to run this app to upload the default mock data. If using VS Code you can do this by running the `Seed Cosmos` task. You can also run it manually with the `dotnet run` terminal command in that folder.
 

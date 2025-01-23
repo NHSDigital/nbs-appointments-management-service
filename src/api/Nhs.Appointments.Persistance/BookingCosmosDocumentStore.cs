@@ -1,7 +1,8 @@
-﻿using Microsoft.Azure.Cosmos;
+using System.Collections.Concurrent;
+using System.Net;
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -44,7 +45,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
             var siteId = bookingIndexDocument.Site;
             return await bookingStore.GetDocument<Booking>(bookingReference, siteId);
         }
-        catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return default;
         }
@@ -90,8 +91,9 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
     }
 
     private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)
@@ -120,6 +122,10 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
         if (bookingIndexDocument == null)
             return BookingConfirmationResult.NotFound;
+        if (bookingIndexDocument.Status is not AppointmentStatus.Provisional)
+        {
+            return BookingConfirmationResult.StatusMismatch;
+        }
 
         var (getRescheduleResult, rescheduleDocument) = await GetBookingForReschedule(bookingToReschedule, bookingIndexDocument.NhsNumber);
 

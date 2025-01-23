@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -18,7 +18,8 @@ public class GetSitesByAreaRequestValidatorTests
             0.123,
             50000,
             50,
-            ["access_need_a", "access_need_b"]
+            ["access_need_a", "access_need_b"],
+            false
         );
         
         var result = _sut.Validate(request);
@@ -37,7 +38,8 @@ public class GetSitesByAreaRequestValidatorTests
             latitude,
             50000,
             50,
-            ["access_need_a", "access_need_b"]
+            ["access_need_a", "access_need_b"],
+            false
         );
         
         var result = _sut.Validate(request);
@@ -56,7 +58,8 @@ public class GetSitesByAreaRequestValidatorTests
             0.456,
             searchRadius,
             50,
-            ["access_need_a", "access_need_b"]
+            ["access_need_a", "access_need_b"],
+            false
         );
         
         var result = _sut.Validate(request);
@@ -75,7 +78,8 @@ public class GetSitesByAreaRequestValidatorTests
             0.456,
             50000,
             maxRecords,
-            ["access_need_a", "access_need_b"]
+            ["access_need_a", "access_need_b"],
+            false
         );
         
         var result = _sut.Validate(request);
@@ -94,7 +98,8 @@ public class GetSitesByAreaRequestValidatorTests
             latitude,
             searchRadius,
             maxRecords,
-            ["access_need_a", "access_need_b"]
+            ["access_need_a", "access_need_b"],
+            false
         );
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();

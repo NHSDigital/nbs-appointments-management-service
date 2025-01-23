@@ -10,7 +10,10 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Audit;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,7 +26,8 @@ public class ApplyAvailabilityTemplateFunction(IAvailabilityService availability
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("availability:set-setup", typeof(SiteFromBodyInspector))]
+    [RequiresPermission("availability:setup", typeof(SiteFromBodyInspector))]
+    [RequiresAudit(typeof(SiteFromBodyInspector))]
     [Function("ApplyAvailabilityTemplateFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/apply-template")] HttpRequest req)

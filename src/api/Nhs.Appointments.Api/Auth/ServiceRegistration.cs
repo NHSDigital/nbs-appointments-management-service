@@ -4,25 +4,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Auth;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddRequestInspectors(this IServiceCollection services)
-    {
-        var inspectorTypes = typeof(IRequestInspector).Assembly
-        .GetTypes()
-        .Where(t => typeof(IRequestInspector).IsAssignableFrom(t) && t.IsClass && t.IsAbstract == false);
-
-        foreach (var type in inspectorTypes)
-        {                                
-            services.AddSingleton(type);
-        }
-
-        return services;
-    }
-
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services)
     {
         // Set up configuration
@@ -37,8 +25,7 @@ public static class ServiceRegistration
                 opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
             })
             .AddScoped<IUserContextProvider, UserContextProvider>()
-            .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
-            .AddRequestInspectors()
+            .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()            
             .AddSingleton<SignedRequestAuthenticator>()
             .AddSingleton<BearerTokenRequestAuthenticator>()
             .AddSingleton<IJwksRetriever, JwksRetriever>()

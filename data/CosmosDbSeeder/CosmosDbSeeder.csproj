@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="DotMarkdown" Version="0.3.0" />
       <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.2" />
       <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.OpenApi.Configuration.AppSettings" Version="1.5.1" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
@@ -21,11 +22,5 @@
       <None Update="items\*\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="items\local\index_data\my_user.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+    </ItemGroup>   
 </Project>

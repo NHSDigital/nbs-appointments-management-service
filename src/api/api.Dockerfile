@@ -2,6 +2,7 @@
 
 WORKDIR /src/api
 COPY Nhs.Appointments.Api/ ./Nhs.Appointments.Api/
+COPY Nhs.Appointments.Audit/ ./Nhs.Appointments.Audit/
 COPY Nhs.Appointments.Core/ ./Nhs.Appointments.Core/
 COPY Nhs.Appointments.Persistance/ ./Nhs.Appointments.Persistance/
 

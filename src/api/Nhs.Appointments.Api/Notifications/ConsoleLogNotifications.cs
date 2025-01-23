@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
+public class NullMessageBus : IMessageBus
+{
+
+    public Task Send<T>(params T[] messages) where T : class => Task.CompletedTask;
+
+}
+
 public class ConsoleLogNotifications : IMessageBus
 {
     public Task Send<T>(params T[] messages) where T : class

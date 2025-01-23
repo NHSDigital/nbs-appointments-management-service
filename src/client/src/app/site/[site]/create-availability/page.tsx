@@ -11,17 +11,14 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const site = await fetchSite(params.site);
 
-  await assertPermission(site.id, 'availability:set-setup');
+  await assertPermission(site.id, 'availability:setup');
 
   return (
     <NhsPage
       title="Create availability"
       caption={site.name}
       site={site}
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
+      originPage="create-availability"
     >
       <CreateAvailabilityPage site={site} />
     </NhsPage>

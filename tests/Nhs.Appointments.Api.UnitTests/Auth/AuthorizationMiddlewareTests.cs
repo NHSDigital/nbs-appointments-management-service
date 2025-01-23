@@ -1,10 +1,13 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Moq;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 
@@ -36,7 +39,7 @@ public class AuthorizationMiddlewareTests
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(false);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(false);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeFalse();
@@ -56,7 +59,7 @@ public class AuthorizationMiddlewareTests
         
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "1", "permission1")).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(true);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeTrue();
@@ -71,13 +74,13 @@ public class AuthorizationMiddlewareTests
         var itemsDictionary = new Dictionary<object, object>(); 
         ConfigureMocks(httpRequest);
 
-        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("");
+        _requestInspector.Setup(x => x.GetSiteIds(It.IsAny<HttpRequestData>())).ReturnsAsync(Enumerable.Empty<string>());
         _functionTypeInfoFeature.Setup(x => x.RequiredPermission).Returns("permission1");
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
         _functionContext.Setup(x => x.Items).Returns(itemsDictionary);
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", "", "permission1")).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasPermissionAsync("test@test.com", It.IsAny<IEnumerable<string>>(), "permission1")).ReturnsAsync(true);
         
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
         _sut.IsAuthorized.Should().BeTrue();
@@ -116,7 +119,7 @@ public class AuthorizationMiddlewareTests
         _functionTypeInfoFeature.Setup(x => x.RequiresAuthentication).Returns(true);
         _functionTypeInfoFeature.Setup(x => x.RequestInspector).Returns(typeof(NoSiteRequestInspector));
         _serviceProvider.Setup(x => x.GetService(typeof(NoSiteRequestInspector))).Returns(_requestInspector.Object);
-        _requestInspector.Setup(x => x.GetSiteId(It.IsAny<HttpRequestData>())).ReturnsAsync("1");
+        _requestInspector.Setup(x => x.GetSiteIds(It.IsAny<HttpRequestData>())).ReturnsAsync(["1"]);
 
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
         _functionContext.Setup(x => x.InstanceServices).Returns(_serviceProvider.Object);
@@ -133,26 +136,4 @@ public class AuthorizationMiddlewareTests
 
         public bool IsAuthorized => _isAuthorized;
     }
-
-    private class TestHttpRequestData(FunctionContext functionContext) : HttpRequestData(functionContext)
-    {
-        private readonly HttpHeadersCollection _headers = new();
-
-        public override Stream Body => throw new NotImplementedException();
-
-        public override HttpHeadersCollection Headers => _headers;
-
-        public override IReadOnlyCollection<IHttpCookie> Cookies => throw new NotImplementedException();
-
-        public override Uri Url => throw new NotImplementedException();
-
-        public override IEnumerable<ClaimsIdentity> Identities => throw new NotImplementedException();
-
-        public override string Method => throw new NotImplementedException();
-
-        public override HttpResponseData CreateResponse()
-        {
-            throw new NotImplementedException();
-        }
-    } 
 }

@@ -1,0 +1,52 @@
+{
+  "id": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "docType": "site",
+  "name": "Church Lane Pharmacy",
+  "address": "Pudsey, Leeds, LS28 7LD",
+  "phoneNumber": "0113 2222222",
+  "odsCode": "ABC02",
+  "region": "R2",
+  "integratedCareBoard": "ICB2",
+  "location": {
+    "type": "Point",
+    "coordinates": [-1.66382134, 53.79628754]
+  },
+  "attributeValues": [
+    {
+      "id": "accessibility/accessible_toilet",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/braille_translation_service",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/disabled_car_parking",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/car_parking",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/induction_loop",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/sign_language_service",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/step_free_access",
+      "value": "true"
+    },
+    {
+      "id": "accessibility/text_relay",
+      "value": "false"
+    },
+    {
+      "id": "accessibility/wheelchair_access",
+      "value": "false"
+    }
+  ]
+}

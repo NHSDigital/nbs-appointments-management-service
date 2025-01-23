@@ -4,28 +4,79 @@ import {
   mockAllPermissions,
   mockNonManagerPermissions,
   mockSites,
+  mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 
 describe('Site Page', () => {
   it('displays a summary of the site', () => {
     const mockSite = mockSites[0];
 
-    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
 
     expect(screen.getByText(mockSite.address)).toBeInTheDocument();
+  });
+
+  it('displays full name for region and integrated care board when provided', () => {
+    const mockSite = mockSites[0];
+
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+    expect(
+      screen.getByRole('definition', { name: 'Region One' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(mockSite.region)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('definition', { name: 'Integrated Care Board One' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(mockSite.integratedCareBoard),
+    ).not.toBeInTheDocument();
+  });
+
+  it('displays region and integrated care board ODS codes when a full name is not provided', () => {
+    const mockSite = mockSites[1];
+
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+    expect(screen.getByRole('definition', { name: 'R2' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('definition', { name: 'ICB2' }),
+    ).toBeInTheDocument();
   });
 
   it('shows the user management page if the user may see it', () => {
     const mockSite = mockSites[0];
 
-    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
 
     expect(
       screen.getByRole('link', { name: 'Manage users' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Manage users' })).toHaveAttribute(
       'href',
-      `${mockSite.id}/users`,
+      `/site/${mockSite.id}/users`,
     );
   });
 
@@ -33,7 +84,11 @@ describe('Site Page', () => {
     const mockSite = mockSites[0];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
     expect(
@@ -44,7 +99,13 @@ describe('Site Page', () => {
   it('shows the site management page if the user may see it', () => {
     const mockSite = mockSites[0];
 
-    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
 
     expect(
       screen.getByRole('link', {
@@ -55,14 +116,18 @@ describe('Site Page', () => {
       screen.getByRole('link', {
         name: 'Change site details and accessibility information',
       }),
-    ).toHaveAttribute('href', `${mockSite.id}/details`);
+    ).toHaveAttribute('href', `/site/${mockSite.id}/details`);
   });
 
   it('does not show the site management page if the user may not see it', () => {
     const mockSite = mockSites[0];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
     expect(
@@ -76,21 +141,31 @@ describe('Site Page', () => {
   it('shows the create availability page if the user may see it', () => {
     const mockSite = mockSites[0];
 
-    render(<SitePage site={mockSite} permissions={mockAllPermissions} />);
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
 
     expect(
       screen.getByRole('link', { name: 'Create availability' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Create availability' }),
-    ).toHaveAttribute('href', `${mockSite.id}/create-availability`);
+    ).toHaveAttribute('href', `/site/${mockSite.id}/create-availability`);
   });
 
   it('does not show the create availability page if the user may not see it', () => {
     const mockSite = mockSites[0];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
     expect(
@@ -98,21 +173,49 @@ describe('Site Page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not show any cards when if the user may not see any of them', () => {
+  it('does not show any links when the user may not see any of them', () => {
     const mockSite = mockSites[0];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', {
+        name: 'View availability and manage appointments for your site',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', { name: 'Create Availability' }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', {
+        name: 'Change site details and accessibility information',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('link', {
+        name: 'Manage users',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders single value', () => {
     const mockSite = mockSites[0];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
     const el = screen.getByLabelText('Alpha Street');
@@ -124,7 +227,11 @@ describe('Site Page', () => {
     const mockSite = mockSites[3];
 
     render(
-      <SitePage site={mockSite} permissions={mockNonManagerPermissions} />,
+      <SitePage
+        site={mockSite}
+        permissions={mockNonManagerPermissions}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
     );
 
     const addressEl = screen.getByLabelText(mockSite.address);

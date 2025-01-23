@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,7 +24,7 @@ namespace Nhs.Appointments.Api.Functions;
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-        [RequiresPermission("availability:set-setup", typeof(SiteFromQueryStringInspector))]
+        [RequiresPermission("availability:setup", typeof(SiteFromQueryStringInspector))]
         [Function("GetAvailabilityCreatedEventsFunction")]
         public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "availability-created")] HttpRequest req)
         {

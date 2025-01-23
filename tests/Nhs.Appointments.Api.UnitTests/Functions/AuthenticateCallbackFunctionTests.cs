@@ -42,6 +42,6 @@ public class AuthenticateCallbackFunctionTests
         var sut = new AuthenticateCallbackFunction(options.Object);
         var result = sut.Run(defaultHttpRequest);
         result.Should().BeOfType<RedirectResult>();
-        (result as RedirectResult).Url.Should().Be("http://test.some.com/?code=123");
+        (result as RedirectResult).Url.Should().Be("http://test.some.com:80/?code=123");
     }
 }

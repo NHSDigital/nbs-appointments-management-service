@@ -7,13 +7,14 @@ import {
   AvailabilityTemplate,
   Booking,
   DailyAvailability,
-  DayAvailabilityDetails,
+  DaySummary,
   Role,
   Site,
   SiteWithAttributes,
   User,
   UserProfile,
   Week,
+  WellKnownOdsEntry,
 } from '@types';
 import dayjs from 'dayjs';
 
@@ -36,48 +37,63 @@ const getMockUserAssignments = (site: string): User[] => [
 
 const mockRoles: Role[] = [
   {
-    displayName: 'Role 1',
+    displayName: 'Beta Role',
     id: 'role-1',
-    description: 'This is a short description of role 1.',
+    description: 'This is a short description of beta role.',
   },
   {
-    displayName: 'Role 2',
+    displayName: 'Charlie Role',
     id: 'role-2',
-    description: 'This is a short description of role 2.',
+    description: 'This is a short description of charlie role.',
   },
   {
-    displayName: 'Role 3',
+    displayName: 'Alpha Role',
     id: 'role-3',
-    description: 'This is a short description of role 3.',
+    description: 'This is a short description of alpha role.',
+  },
+];
+
+const mockAssignments = [
+  {
+    role: 'role-1',
+    scope: 'site:TEST',
+  },
+  {
+    role: 'role-3',
+    scope: 'site:TEST',
   },
 ];
 
 const mockSites: Site[] = [
   {
-    id: '1001',
+    id: '34e990af-5dc9-43a6-8895-b9123216d699',
     name: 'Site Alpha',
     address: 'Alpha Street',
+    odsCode: '1001',
     integratedCareBoard: 'ICB1',
     region: 'R1',
   },
   {
-    id: '1002',
+    id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
     name: 'Site Beta',
     address: 'Beta Street',
+    odsCode: '1002',
     integratedCareBoard: 'ICB2',
     region: 'R2',
   },
   {
-    id: '1003',
+    id: 'd79bec60-8968-4101-b553-67dec04e1019',
     name: 'Site Gamma',
     address: 'Gamma Street',
+    odsCode: '1003',
     integratedCareBoard: 'ICB3',
     region: 'R3',
   },
   {
-    id: '1004',
+    id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
     name: 'Site Delta',
     address: 'Delta Street, London',
+    odsCode: '1004',
     integratedCareBoard: 'ICB4',
     region: 'R4',
   },
@@ -85,12 +101,21 @@ const mockSites: Site[] = [
 
 const mockSite = mockSites[0];
 
+const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
+  {
+    odsCode: 'R1',
+    displayName: 'Region One',
+    type: 'region',
+  },
+  {
+    odsCode: 'ICB1',
+    displayName: 'Integrated Care Board One',
+    type: 'icb',
+  },
+];
 const mockAllPermissions = [
-  'site:get-config',
-  'site:set-config',
   'site:get-meta-data',
-  'availability:get-setup',
-  'availability:set-setup',
+  'availability:setup',
   'availability:query',
   'booking:make',
   'booking:query',
@@ -103,9 +128,7 @@ const mockAllPermissions = [
 ];
 
 const mockAuditerPermissions = [
-  'site:get-config',
   'site:get-meta-data',
-  'availability:get-setup',
   'availability:query',
   'booking:query',
   'users:view',
@@ -137,7 +160,7 @@ const mockAttributeValues: AttributeValue[] = [
 
 const mockUserProfile: UserProfile = {
   emailAddress: 'test.one@nhs.net',
-  availableSites: mockSites,
+  hasSites: true,
 };
 
 const mockSession1: AvailabilitySession = {
@@ -225,6 +248,7 @@ const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
   name: mockSites[0].name,
+  odsCode: mockSites[0].odsCode,
   integratedCareBoard: mockSites[0].integratedCareBoard,
   region: mockSites[0].region,
   attributeValues: [
@@ -328,7 +352,7 @@ const mockBookings: Booking[] = [
   },
   {
     reference: '8642',
-    from: '2024-12-02T14:05:00',
+    from: '2024-12-02T10:35:00',
     duration: 5,
     service: 'RSV:Adult',
     site: 'TEST01',
@@ -339,6 +363,22 @@ const mockBookings: Booking[] = [
       dateOfBirth: new Date(1984, 1, 1),
     },
     created: '2024-11-05T10:35:08.0477062',
+    status: 'Booked',
+    reminderSet: false,
+  },
+  {
+    reference: '6823',
+    from: '2024-12-05T09:34:00',
+    duration: 5,
+    service: 'RSV:Adult',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999995',
+      firstName: 'Ian',
+      lastName: 'Goldsmith',
+      dateOfBirth: new Date(1973, 2, 3),
+    },
+    created: '2024-08-29T03:21:08.0477062',
     status: 'Booked',
     reminderSet: false,
   },
@@ -401,89 +441,104 @@ const mockDetailedWeeks: Week[] = [
   },
 ];
 
-const mockDetailedDays: DayAvailabilityDetails[] = [
+const mockDaySummaries: DaySummary[] = [
   {
-    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(2),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'RSV (Adult)',
-            booked: 5,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 123,
-        unbooked: 118,
+        start: dayjs().year(2024).month(11).date(2).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(2).hour(17).minute(0),
+        maximumCapacity: 123,
+        totalBookings: 5,
+        bookings: {
+          'RSV:Adult': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 5,
-    totalAppointments: 123,
-    unbooked: 118,
+    maximumCapacity: 123,
+    bookedAppointments: 5,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 118,
   },
   {
-    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(4),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'COVID 75+',
-            booked: 15,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 200,
-        unbooked: 185,
+        start: dayjs().year(2024).month(11).date(4).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(4).hour(17).minute(0),
+        maximumCapacity: 200,
+        totalBookings: 15,
+        bookings: {
+          'COVID:75+': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 15,
-    totalAppointments: 200,
-    unbooked: 185,
+    maximumCapacity: 200,
+    bookedAppointments: 15,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 185,
   },
   {
-    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(5),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'FLU 18-64',
-            booked: 20,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 160,
-        unbooked: 140,
+        start: dayjs().year(2024).month(11).date(5).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(5).hour(17).minute(0),
+        maximumCapacity: 200,
+        totalBookings: 20,
+        bookings: {
+          'FLU:18_64': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 20,
-    totalAppointments: 160,
-    unbooked: 140,
+    maximumCapacity: 160,
+    bookedAppointments: 20,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 140,
   },
 ];
 
-const mockEmptyDays: DayAvailabilityDetails[] = [
+const mockEmptyDays: DaySummary[] = [
   {
-    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(2),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
   {
-    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(4),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
   {
-    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(5),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
 ];
 
 const mockWeekAvailabilityStart = dayjs('2024-12-02');
-const mockWeekAvailabilityEnd = dayjs('2024-12-08');
+const mockWeekAvailabilityEnd = dayjs('2024-12-08 23:59:59');
 
 const mockWeekAvailability: DailyAvailability[] = [
   {
@@ -491,10 +546,17 @@ const mockWeekAvailability: DailyAvailability[] = [
     sessions: [
       {
         capacity: 2,
-        from: '09:00',
+        from: '10:00',
         until: '16:00',
         slotLength: 5,
-        services: ['RSV (Adult)'],
+        services: ['RSV:Adult'],
+      },
+      {
+        capacity: 1,
+        from: '12:00',
+        until: '16:00',
+        slotLength: 5,
+        services: ['RSV:Adult'],
       },
     ],
   },
@@ -506,7 +568,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '09:00',
         until: '14:00',
         slotLength: 5,
-        services: ['RSV (Adult)'],
+        services: ['RSV:Adult'],
       },
     ],
   },
@@ -516,6 +578,7 @@ export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
   mockRoles,
+  mockAssignments,
   mockSite,
   mockSites,
   mockAllPermissions,
@@ -528,9 +591,10 @@ export {
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
-  mockDetailedDays,
+  mockDaySummaries,
   mockWeekAvailabilityStart,
   mockWeekAvailabilityEnd,
   mockEmptyDays,
   mockWeekAvailability,
+  mockWellKnownOdsCodeEntries,
 };

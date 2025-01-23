@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -39,7 +40,7 @@ public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSite
 
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesByAreaRequest request, ILogger logger)
     {
-        var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maximumRecords, request.accessNeeds);
+        var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius, request.maximumRecords, request.accessNeeds, request.ignoreCache);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
     
@@ -47,6 +48,7 @@ public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSite
     {
         var errors = new List<ErrorMessageResponseItem>();
         var accessNeeds = req.Query.ContainsKey("accessNeeds") ? req.Query["accessNeeds"].ToString().Split(',') : Array.Empty<string>();
+        var ignoreCache = req.Query.ContainsKey("ignoreCache") ? bool.Parse(req.Query["ignoreCache"]) : false;
         if (accessNeeds.Any(string.IsNullOrEmpty))
         {
             errors.Add(new ErrorMessageResponseItem { Property = "accessNeeds", Message = "Access needs cannot be contain empty values" });
@@ -56,6 +58,6 @@ public class GetSitesByAreaFunction(ISiteService siteService, IValidator<GetSite
         var latitude = double.Parse(req.Query["lat"]);
         var searchRadius = int.Parse(req.Query["searchRadius"]);
         var maximumRecords = int.Parse(req.Query["maxRecords"]);
-        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((errors.AsReadOnly(), new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds)));
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((errors.AsReadOnly(), new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache)));
     }
 }

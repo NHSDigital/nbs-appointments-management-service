@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -10,25 +10,30 @@ public interface IBookingsService
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
-    Task<BookingCancellationResult> CancelBooking(string bookingReference);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
-}    
+    Task RecalculateAppointmentStatuses(string site, DateOnly day);
+}
 
 public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
+        IAvailabilityStore availabilityStore,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 { 
-    public Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
-        return bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookings
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
     protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
@@ -55,7 +60,7 @@ public class BookingsService(
 
             if (canBook)
             {
-                booking.Created = time.GetUtcNow().DateTime;
+                booking.Created = time.GetUtcNow();
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await bookingDocumentStore.InsertAsync(booking);
@@ -73,16 +78,17 @@ public class BookingsService(
         }            
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
-        if (booking == null)
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
         {
             return BookingCancellationResult.NotFound;
         }
 
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
         {
@@ -141,5 +147,45 @@ public class BookingsService(
     public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
         return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
+    }
+
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var bookings = (await GetBookings(dayStart, dayEnd, site))
+            .Where(b => b.Status is not AppointmentStatus.Cancelled)
+            .OrderBy(b => b.Created);
+
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, day, day))
+            .ToList();
+
+        var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
+        
+        foreach (var booking in bookings)
+        {            
+            var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
+                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration && sl.Services.Contains(booking.Service));
+
+            if (targetSlot != null)
+            {
+                if (booking.Status != AppointmentStatus.Booked && booking.Status != AppointmentStatus.Provisional)
+                {
+                    await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
+                    booking.Status = AppointmentStatus.Booked;
+                }
+                targetSlot.Capacity--;
+                continue;
+            }
+
+            if (booking.Status is AppointmentStatus.Booked or AppointmentStatus.Provisional)
+            {
+                await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
+            }
+        }
     }
 }

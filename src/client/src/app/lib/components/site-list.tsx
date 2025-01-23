@@ -18,7 +18,7 @@ const SiteList = ({ sites }: Props) => {
             <Link
               aria-label={s.name}
               className="nhsuk-back-link__link"
-              href={`site/${s.id}`}
+              href={`/site/${s.id}`}
             >
               {s.name}
             </Link>

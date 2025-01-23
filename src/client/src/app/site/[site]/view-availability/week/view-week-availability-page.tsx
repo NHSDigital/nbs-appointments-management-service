@@ -1,17 +1,20 @@
-import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { DayAvailabilityDetails } from '@types';
+import { Pagination } from '@components/nhsuk-frontend';
+import { DaySummary } from '@types';
 import dayjs from 'dayjs';
+import { DaySummaryCard } from './day-summary-card';
 
 type Props = {
-  days: DayAvailabilityDetails[];
+  days: DaySummary[];
   weekStart: dayjs.Dayjs;
   weekEnd: dayjs.Dayjs;
+  site: string;
 };
 
 export const ViewWeekAvailabilityPage = ({
   days,
   weekStart,
   weekEnd,
+  site,
 }: Props) => {
   const nextWeek = weekStart.add(1, 'week');
   const previousWeek = weekStart.add(-1, 'week');
@@ -51,58 +54,15 @@ export const ViewWeekAvailabilityPage = ({
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {days.map((d, i) => (
-        <Card title={d.date} key={i}>
-          {d.serviceInformation ? (
-            <>
-              <Table
-                headers={['Time', 'Services', 'Booked', 'Unbooked']}
-                rows={
-                  d.serviceInformation?.map(session => {
-                    return [
-                      `${session.time}`,
-                      session.serviceDetails.map((sd, k) => {
-                        return (
-                          <span key={k}>
-                            {sd.service}
-                            <br />
-                          </span>
-                        );
-                      }),
-                      session.serviceDetails.map((sd, j) => {
-                        return (
-                          <span key={j}>
-                            {sd.booked} booked
-                            <br />
-                          </span>
-                        );
-                      }),
-                      `${session.unbooked ?? 0} unbooked`,
-                    ];
-                  }) ?? []
-                }
-              ></Table>
-              <br />
-              {/* TODO: Add link for add session */}
-              <Table
-                headers={[
-                  `Total appointments: ${d.totalAppointments}`,
-                  `Booked: ${d.booked}`,
-                  `Unbooked: ${d.unbooked}`,
-                ]}
-                rows={[]}
-              ></Table>
-              <br />
-              {/* TODO: Add link to view daily appointments */}
-            </>
-          ) : (
-            <>
-              <span>No availability</span>
-              {/* TODO: Add link to add session */}
-            </>
-          )}
-        </Card>
-      ))}
+      {days.map((day, dayIndex) => {
+        return (
+          <DaySummaryCard
+            daySummary={day}
+            siteId={site}
+            key={`day-summary-${dayIndex}`}
+          />
+        );
+      })}
     </>
   );
 };

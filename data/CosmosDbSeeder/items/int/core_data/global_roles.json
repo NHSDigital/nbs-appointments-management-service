@@ -1,0 +1,102 @@
+{
+  "id": "global_roles",
+  "docType": "system",
+  "roles": [
+    {
+      "id": "canned:availability-manager",
+      "name": "Availability manager",
+      "description": "A user can create, view, and manage site availability.",
+      "permissions": [
+        "availability:setup",
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "canned:appointment-manager",
+      "name": "Appointment manager",
+      "description": "A user can cancel appointments.",
+      "permissions": [
+        "availability:query",
+        "booking:cancel",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "canned:site-details-manager",
+      "name": "Site details manager",
+      "description": "A user can edit site details and accessibility information.",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:manage",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "canned:user-manager",
+      "name": "User manager",
+      "description": "A user can view and manage user role assignments.",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "users:manage",
+        "users:view",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "system:api-user",
+      "name": "Api User",
+      "description": "This is a dedicated NBS role",
+      "permissions": [
+        "availability:query",
+        "booking:make",
+        "booking:cancel",
+        "booking:query",
+        "sites:query",
+        "site:view",
+        "site:get-meta-data"
+      ]
+    },
+    {
+      "id": "system:admin-user",
+      "name": "Admin User",
+      "description": "Admin user can view all areas that exist in MYA.",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:get-meta-data",
+        "users:view"
+      ]
+    },
+    {
+      "id": "system:all-permissions",
+      "name": "All Permissions",
+      "description": "System role used for full api access for development and test purposes (ONLY FOR USE IN TEST ENVIRONMENTS).",
+      "permissions": [
+        "site:get-meta-data",
+        "availability:setup",
+        "availability:query",
+        "booking:make",
+        "booking:query",
+        "booking:cancel",
+        "booking:set-status",
+        "users:manage",
+        "users:view",
+        "sites:query",
+        "site:view",
+        "site:manage",
+        "system:run-reminders",
+        "system:run-provisional-sweep"
+      ]
+    }
+  ]
+}

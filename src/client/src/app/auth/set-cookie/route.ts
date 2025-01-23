@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import {
-  assertEulaAcceptance,
   fetchAccessToken,
   fetchUserProfile,
 } from '@services/appointmentsService';
@@ -29,14 +28,14 @@ export async function GET(request: NextRequest) {
   cookies().set('token', tokenResponse.token);
   revalidateTag('user');
 
-  const userProfile = await fetchUserProfile();
-  await assertEulaAcceptance(userProfile);
+  // Implicitly checks EULA is accepted, handles if not
+  await fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`);
 
   const previousPage = cookies().get('previousPage');
   if (previousPage) {
     cookies().delete('previousPage');
-    redirect(previousPage.value);
+    redirect(`${process.env.CLIENT_BASE_PATH}/${previousPage.value}`);
   }
 
-  redirect('/');
+  redirect(process.env.CLIENT_BASE_PATH ?? '/');
 }

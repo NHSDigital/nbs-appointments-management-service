@@ -1,0 +1,15 @@
+{
+  "id": "5914b64a-66bb-4ee2-ab8a-94958c1fdfcb",
+  "docType": "site",
+  "name": "Robin Lane Medical Centre",
+  "address": "Pudsey, Leeds, LS28 7BR",
+  "phoneNumber": "0113 1111111",
+  "odsCode": "ABC01",
+  "region": "R1",
+  "integratedCareBoard": "ICB1",
+  "location": {
+    "type": "Point",
+    "coordinates": [-1.6610648, 53.795467]
+  },
+  "attributeValues": []
+}

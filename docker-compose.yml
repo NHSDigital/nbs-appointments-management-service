@@ -8,6 +8,7 @@ services:
     environment:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
+      CLIENT_BASE_PATH: /manage-your-appointments
 
     volumes:
       - ./src/client/src:/app/src
@@ -28,6 +29,7 @@ services:
       - AzureWebJobs.NotifyUserRolesChanged.Disabled=true
       - AzureWebJobs.NotifyBookingMade.Disabled=true
       - AzureWebJobs.NotifyBookingRescheduled.Disabled=true
+      - AzureWebJobs.NotifyBookingCancelled.Disabled = true
       - AzureWebJobs.SendBookingReminders.Disabled=true
       - AzureWebJobs.NotifyBookingReminder.Disabled=true
       - AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled=true
@@ -44,7 +46,7 @@ services:
       - Auth__Providers__0__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - Auth__Providers__0__ClientId=nhs-appts-local
       - Auth__Providers__0__ReturnUri=http://localhost:7071/api/auth-return?provider=nhs-mail
-      - Auth__Providers__0__ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie?provider=nhs-mail
+      - Auth__Providers__0__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=nhs-mail
       - Auth__Providers__1__Name=okta
       - Auth__Providers__1__Issuer=https://dev-08802788.okta.com
       - Auth__Providers__1__AuthorizeUri=https://dev-08802788.okta.com/oauth2/v1/authorize
@@ -53,7 +55,7 @@ services:
       - Auth__Providers__1__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - Auth__Providers__1__ClientId=0oamv7oihgsHveIZm5d7
       - Auth__Providers__1__ReturnUri=http://localhost:7071/api/auth-return?provider=okta
-      - Auth__Providers__1__ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie?provider=okta
+      - Auth__Providers__1__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=okta
       - Auth__Providers__1__RequiresStateForAuthorize=true
       - Auth__Providers__1__ClientSecret=J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X
       - Notifications_Provider=local
@@ -62,7 +64,6 @@ services:
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
 
-  
   splunk:
     image: splunk/splunk:latest
     container_name: splunk

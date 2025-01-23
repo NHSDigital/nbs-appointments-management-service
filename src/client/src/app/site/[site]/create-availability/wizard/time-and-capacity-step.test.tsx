@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import TimeAndCapacityStep from './time-and-capacity-step';
@@ -413,5 +413,44 @@ describe('Time and Capacity Step', () => {
       screen.getByText('Session end time must be after the start time'),
     ).toBeInTheDocument();
     expect(screen.queryByText('Appointment length is required')).toBeNull();
+  });
+
+  it('can be supplied with an alternative implementation for going back a step', async () => {
+    const goToPreviousStepOverride = jest.fn();
+
+    const { user } = render(
+      <MockForm<CreateAvailabilityFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          session: {
+            startTime: {
+              hour: 9,
+              minute: 30,
+            },
+            endTime: {
+              hour: 8,
+              minute: 0,
+            },
+          },
+        }}
+      >
+        <TimeAndCapacityStep
+          stepNumber={1}
+          currentStep={1}
+          isActive
+          setCurrentStep={mockSetCurrentStep}
+          goToNextStep={mockGoToNextStep}
+          goToLastStep={mockGoToLastStep}
+          goToPreviousStep={mockGoToPreviousStep}
+          goToPreviousStepOverride={goToPreviousStepOverride}
+        />
+      </MockForm>,
+    );
+
+    await user.click(screen.getByRole('link', { name: 'Go back' }));
+
+    waitFor(() => {
+      expect(goToPreviousStepOverride).toHaveBeenCalled();
+    });
   });
 });

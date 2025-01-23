@@ -24,6 +24,12 @@ type AttributeValue = {
   value: string;
 };
 
+type WellKnownOdsEntry = {
+  odsCode: string;
+  displayName: string;
+  type: string;
+};
+
 type SetAttributesRequest = {
   scope: string;
   attributeValues: AttributeValue[];
@@ -60,12 +66,20 @@ type SetAvailabilityRequest = {
   mode: ApplyAvailabilityMode;
 };
 
+type EditSessionRequest = {
+  site: string;
+  date: string;
+  mode: ApplyAvailabilityMode;
+  sessionToEdit: AvailabilitySession;
+  sessions: AvailabilitySession[];
+};
+
 type AvailabilityTemplate = {
   days: DayOfWeek[];
   sessions: AvailabilitySession[];
 };
 
-type ApplyAvailabilityMode = 'Overwrite' | 'Additive';
+type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
   versionDate: string;
@@ -90,6 +104,14 @@ type AvailabilitySession = {
   capacity: number;
 };
 
+type AvailabilitySlot = {
+  sessionIndex: number;
+  from: dayjs.Dayjs;
+  length: number;
+  services: string[];
+  capacity: number;
+};
+
 type RoleAssignment = {
   scope: string;
   role: string;
@@ -99,6 +121,7 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  odsCode: string;
   integratedCareBoard: string;
   region: string;
 };
@@ -114,8 +137,8 @@ type User = {
 
 type UserProfile = {
   emailAddress: string;
-  availableSites: Site[];
   latestAcceptedEulaVersion?: string;
+  hasSites: boolean;
 };
 
 type DateComponents = {
@@ -191,7 +214,7 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;
@@ -227,11 +250,32 @@ type DailyAvailability = {
 };
 
 type DayAvailabilityDetails = {
+  fullDate: string;
   date: string;
   serviceInformation?: ServiceInformation[];
   totalAppointments?: number;
   booked: number;
   unbooked?: number;
+};
+
+type SessionSummary = {
+  start: dayjs.Dayjs;
+  end: dayjs.Dayjs;
+  maximumCapacity: number;
+  totalBookings: number;
+  bookings: Record<string, number>;
+  capacity: number;
+  slotLength: number;
+};
+
+type DaySummary = {
+  date: dayjs.Dayjs;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  cancelledAppointments: number;
+  orphanedAppointments: number;
+  remainingCapacity: number;
 };
 
 type ServiceInformation = {
@@ -246,6 +290,16 @@ type ServiceBookingDetails = {
   booked: number;
 };
 
+type CancelSessionRequest = {
+  site: string;
+  date: string;
+  from: string;
+  until: string;
+  services: string[];
+  slotLength: number;
+  capacity: number;
+};
+
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [
   { label: 'RSV (Adult)', value: 'RSV:Adult' },
@@ -256,6 +310,7 @@ export type {
   ApiErrorResponse,
   ApiResponse,
   ApiSuccessResponse,
+  AttendeeDetails,
   AttributeDefinition,
   AttributeValue,
   Availability,
@@ -263,11 +318,16 @@ export type {
   AvailabilityResponse,
   AvailabilityCreatedEvent,
   AvailabilitySession,
+  AvailabilitySlot,
   AvailabilityTemplate,
   Booking,
+  CancelSessionRequest,
+  ContactItem,
+  DaySummary,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
+  EditSessionRequest,
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
@@ -277,6 +337,7 @@ export type {
   ServiceInformation,
   ServiceBookingDetails,
   Session,
+  SessionSummary,
   SetAttributesRequest,
   SetAvailabilityRequest,
   Site,
@@ -285,6 +346,7 @@ export type {
   User,
   UserProfile,
   Week,
+  WellKnownOdsEntry,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

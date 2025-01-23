@@ -8,7 +8,7 @@ export default class EulaConsentPage extends RootPage {
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'Agree to the End User Licence Agreement',
+      name: 'Agree to the terms of use',
     });
     this.acceptAndContinueButton = page.getByRole('button', {
       name: 'Accept and continue',

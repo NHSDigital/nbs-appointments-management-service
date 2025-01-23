@@ -95,7 +95,7 @@ export default class UsersPage extends RootPage {
     ).not.toBeVisible();
   }
 
-  async verifyLinkNotVisible(newUserName: any, linkName: string) {
+  async verifyLinkNotVisible(newUserName: string, linkName: string) {
     await expect(
       this.page
         .getByRole('row')

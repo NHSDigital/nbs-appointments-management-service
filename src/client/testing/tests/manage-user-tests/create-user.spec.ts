@@ -1,4 +1,4 @@
-import { test, nonNhsEmailId } from '../../fixtures';
+import { test, nonNhsEmailId, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -35,7 +35,7 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-  await page.waitForURL('**/site/ABC01/users');
+  await page.waitForURL(`**/site/${abc01_id}/users`);
 });
 
 // TODO: Maybe something like this to clear up all the users created along the way?

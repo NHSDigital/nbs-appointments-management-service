@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures';
+import { test, expect, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -35,7 +35,7 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-  await page.waitForURL('**/site/ABC01/users');
+  await page.waitForURL(`**/site/${abc01_id}/users`);
 });
 
 test('Verify user manager is able to remove a user', async ({
@@ -72,7 +72,7 @@ test('Displays a notification banner after removing a user, which disappears whe
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/ABC01/users/remove?user=not-a-user`,
+    `/manage-your-appointments/site/${abc01_id}/users/remove?user=not-a-user`,
   );
   await expect(notFoundPage.title).toBeVisible();
   await expect(notFoundPage.notFoundMessageText).toBeVisible();

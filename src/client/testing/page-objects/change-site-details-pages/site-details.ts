@@ -94,4 +94,9 @@ export default class SiteDetailsPage extends RootPage {
       }),
     ).toBeVisible();
   }
+
+  async verifyEditButtonNotVisible() {
+    await expect(this.editInformationCitizenButton).not.toBeVisible();
+    await expect(this.editSiteAttributesButton).not.toBeVisible();
+  }
 }

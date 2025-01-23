@@ -37,6 +37,14 @@ const testUsers = {
     username: process.env.TEST_USER_8_USERNAME ?? '',
     password: process.env.TEST_USER_8_PASSWORD ?? '',
   },
+  testUser9: {
+    username: process.env.TEST_USER_9_USERNAME ?? '',
+    password: process.env.TEST_USER_9_PASSWORD ?? '',
+  },
+  testUser10: {
+    username: process.env.TEST_USER_10_USERNAME ?? '',
+    password: process.env.TEST_USER_10_PASSWORD ?? '',
+  }
 };
 
 const environment = {

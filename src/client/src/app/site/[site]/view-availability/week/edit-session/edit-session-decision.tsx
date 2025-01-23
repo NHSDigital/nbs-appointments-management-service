@@ -19,7 +19,7 @@ type EditSessionDecisionProps = {
 };
 
 type EditSessionDecisionFormData = {
-  action: 'edit-session' | 'cancel-session';
+  action?: 'edit-session' | 'cancel-session';
 };
 
 export const EditSessionDecision = ({
@@ -56,21 +56,28 @@ export const EditSessionDecision = ({
         </p>
       </InsetText>
       <form onSubmit={methods.handleSubmit(submitForm)}>
-        <FormGroup legend="What do you want to do?">
+        <FormGroup
+          legend="What do you want to do?"
+          error={methods.formState.errors.action?.message}
+        >
           <RadioGroup>
             <Radio
               label="Change the length or capacity of this session"
               hint="Shorten the session length or remove capacity"
               id="edit-session"
               value="edit-session"
-              {...methods.register('action')}
+              {...methods.register('action', {
+                required: { value: true, message: 'Select an option' },
+              })}
             />
             <Radio
               label="Cancel this session"
               hint="Cancel all booked appointments, and remove this session"
               id="cancel-session"
               value="cancel-session"
-              {...methods.register('action')}
+              {...methods.register('action', {
+                required: { value: true, message: 'Select an option' },
+              })}
             />
           </RadioGroup>
         </FormGroup>

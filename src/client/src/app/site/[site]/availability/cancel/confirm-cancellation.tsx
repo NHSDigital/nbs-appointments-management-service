@@ -20,7 +20,7 @@ type PageProps = {
 };
 
 type CancelSessionDecisionFormData = {
-  action: 'cancel-session' | 'dont-cancel-session';
+  action?: 'cancel-session' | 'dont-cancel-session';
 };
 
 const ConfirmCancellation = ({ date, session, site }: PageProps) => {
@@ -48,19 +48,26 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
         <p>You'll need to manually cancel any affected appointments.</p>
       </InsetText>
 
-      <FormGroup legend="Would you like to cancel this session?">
+      <FormGroup
+        legend="Would you like to cancel this session?"
+        error={methods.formState.errors.action?.message}
+      >
         <RadioGroup>
           <Radio
             label="Yes, I want to cancel this session"
             id="cancel-session"
             value="cancel-session"
-            {...methods.register('action')}
+            {...methods.register('action', {
+              required: { value: true, message: 'Select an option' },
+            })}
           />
           <Radio
             label="No, I don't want to cancel this session"
             id="dont-cancel-session"
             value="dont-cancel-session"
-            {...methods.register('action')}
+            {...methods.register('action', {
+              required: { value: true, message: 'Select an option' },
+            })}
           />
         </RadioGroup>
       </FormGroup>

@@ -2,8 +2,6 @@ import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { ViewAvailabilityPage } from './view-availability-page';
-import { Suspense } from 'react';
-import { Spinner } from '@components/nhsuk-frontend';
 
 type PageProps = {
   params: {
@@ -28,9 +26,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       originPage="view-availability"
     >
-      <Suspense fallback={<Spinner />}>
-        <ViewAvailabilityPage site={site} searchMonth={searchMonth} />
-      </Suspense>
+      <ViewAvailabilityPage site={site} searchMonth={searchMonth} />
     </NhsPage>
   );
 };

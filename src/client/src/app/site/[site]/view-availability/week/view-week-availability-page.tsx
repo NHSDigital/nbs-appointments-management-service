@@ -1,18 +1,16 @@
 import { Pagination } from '@components/nhsuk-frontend';
-import { DaySummary } from '@types';
 import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
-import { use } from 'react';
+import { summariseWeek } from '@services/availabilityCalculatorService';
+import { Site } from '@types';
 
 type Props = {
-  days: Promise<DaySummary[]>;
   weekStart: dayjs.Dayjs;
   weekEnd: dayjs.Dayjs;
-  site: string;
+  site: Site;
 };
 
-export const ViewWeekAvailabilityPage = ({
-  days,
+export const ViewWeekAvailabilityPage = async ({
   weekStart,
   weekEnd,
   site,
@@ -52,7 +50,7 @@ export const ViewWeekAvailabilityPage = ({
     href: `week?date=${previousWeek.format('YYYY-MM-DD')}`,
   };
 
-  const daySummaries = use(days);
+  const daySummaries = await summariseWeek(weekStart, weekEnd, site.id);
 
   return (
     <>
@@ -61,7 +59,7 @@ export const ViewWeekAvailabilityPage = ({
         return (
           <DaySummaryCard
             daySummary={day}
-            siteId={site}
+            siteId={site.id}
             key={`day-summary-${dayIndex}`}
           />
         );

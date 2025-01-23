@@ -1,16 +1,16 @@
 import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { Week } from '@types';
+import { getDetailedMonthView } from '@services/viewAvailabilityService';
+import { Site } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import { use } from 'react';
 
 type Props = {
-  getWeeks: Promise<Week[]>;
+  site: Site;
   searchMonth: dayjs.Dayjs;
 };
 
-export const ViewAvailabilityPage = ({ getWeeks, searchMonth }: Props) => {
-  const weeks = use(getWeeks);
+export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
+  const weeks = await getDetailedMonthView(site, searchMonth);
   const nextMonth = searchMonth.startOf('month').add(1, 'month');
   const previousMonth = searchMonth.startOf('month').subtract(1, 'month');
 

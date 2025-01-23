@@ -1,17 +1,17 @@
 import { Table } from '@components/nhsuk-frontend';
 import { parseDateString } from '@services/timeService';
-import { AvailabilityCreatedEvent, clinicalServices, Site } from '@types';
-import { use } from 'react';
+import { AvailabilityCreatedEvent, clinicalServices } from '@types';
+import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
 
 type AvailabilityCreatedEventsTableProps = {
-  site: Site;
-  getAvailabilityCreatedEvents: Promise<AvailabilityCreatedEvent[]>;
+  siteId: string;
 };
 
-export const AvailabilityCreatedEventsTable = ({
-  getAvailabilityCreatedEvents,
+export const AvailabilityCreatedEventsTable = async ({
+  siteId,
 }: AvailabilityCreatedEventsTableProps) => {
-  const availabilityCreatedEvents = use(getAvailabilityCreatedEvents);
+  const availabilityCreatedEvents =
+    await fetchAvailabilityCreatedEvents(siteId);
   if (availabilityCreatedEvents.length === 0) {
     return null;
   }

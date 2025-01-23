@@ -3,7 +3,6 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Suspense } from 'react';
 import { Spinner } from '@components/nhsuk-frontend';
 
@@ -38,10 +37,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
     >
       <Suspense fallback={<Spinner />}>
         <ViewWeekAvailabilityPage
-          days={summariseWeek(weekStart, weekEnd, site.id)}
           weekStart={weekStart}
           weekEnd={weekEnd}
-          site={params.site}
+          site={site}
         />
       </Suspense>
     </NhsPage>

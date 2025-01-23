@@ -1,15 +1,14 @@
 import { Button, Spinner } from '@nhsuk-frontend-components';
 import Link from 'next/link';
-import { Site } from '@types';
 import { Suspense } from 'react';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
-import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
+import { Site } from '@types';
 
 type Props = {
   site: Site;
 };
 
-export const CreateAvailabilityPage = async ({ site }: Props) => {
+export const CreateAvailabilityPage = ({ site }: Props) => {
   return (
     <>
       <p>
@@ -18,10 +17,7 @@ export const CreateAvailabilityPage = async ({ site }: Props) => {
       </p>
       <br />
       <Suspense fallback={<Spinner />}>
-        <AvailabilityCreatedEventsTable
-          site={site}
-          getAvailabilityCreatedEvents={fetchAvailabilityCreatedEvents(site.id)}
-        />
+        <AvailabilityCreatedEventsTable siteId={site.id} />
       </Suspense>
 
       <br />

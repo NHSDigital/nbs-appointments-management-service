@@ -2,7 +2,6 @@ import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { ViewAvailabilityPage } from './view-availability-page';
-import { getDetailedMonthView } from '@services/viewAvailabilityService';
 import { Suspense } from 'react';
 import { Spinner } from '@components/nhsuk-frontend';
 
@@ -30,10 +29,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       originPage="view-availability"
     >
       <Suspense fallback={<Spinner />}>
-        <ViewAvailabilityPage
-          getWeeks={getDetailedMonthView(site, searchMonth)}
-          searchMonth={searchMonth}
-        />
+        <ViewAvailabilityPage site={site} searchMonth={searchMonth} />
       </Suspense>
     </NhsPage>
   );

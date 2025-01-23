@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 
 namespace Nhs.Appointments.Api.Models;
 
-public record UserProfile(string EmailAddress, IEnumerable<UserProfileSite> AvailableSites, DateOnly? LatestAcceptedEulaVersion);
+public record UserProfile(string EmailAddress, bool hasSites, DateOnly? LatestAcceptedEulaVersion);
 
-public record UserProfileSite(string Id, string Name, string Address);

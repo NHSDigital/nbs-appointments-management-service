@@ -21,6 +21,7 @@ import {
   EditSessionRequest,
   CancelSessionRequest,
   SessionSummary,
+  Site,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -46,11 +47,19 @@ export const fetchUserProfile = async (
   return userProfile;
 };
 
+export const fetchSitesPreview = async (): Promise<Site[]> => {
+  const response = await appointmentsApi.get<Site[]>('sites-preview', {
+    next: { tags: ['user'] },
+  });
+
+  return handleBodyResponse(response);
+};
+
 export const assertEulaAcceptance = async (
   userProfile: UserProfile,
   eulaRoute = '/eula',
 ) => {
-  if (userProfile.availableSites.length > 0) {
+  if (userProfile.hasSites) {
     const eulaVersion = await fetchEula();
 
     if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {

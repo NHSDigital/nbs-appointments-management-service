@@ -160,7 +160,7 @@ const mockAttributeValues: AttributeValue[] = [
 
 const mockUserProfile: UserProfile = {
   emailAddress: 'test.one@nhs.net',
-  availableSites: mockSites,
+  hasSites: true,
 };
 
 const mockSession1: AvailabilitySession = {

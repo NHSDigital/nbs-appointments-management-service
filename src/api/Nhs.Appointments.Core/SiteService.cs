@@ -6,20 +6,22 @@ public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
+    Task<IEnumerable<SitePreview>> GetSitesPreview();
     Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
 {
+    private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
     {        
         var attributeIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
-        var sites = memoryCache.Get("sites") as IEnumerable<Site>;
+        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
         {
             sites = await siteStore.GetAllSites();            
-            memoryCache.Set("sites", sites, time.GetUtcNow().AddMinutes(10));
+            memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
         }
 
         var sitesWithDistance = sites
@@ -48,7 +50,19 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         site.AttributeValues = site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
-    }    
+    }
+
+    public async Task<IEnumerable<SitePreview>> GetSitesPreview()
+    {
+        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        if (sites == null)
+        {
+            sites = await siteStore.GetAllSites();
+            memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+        }
+
+        return sites.Select(s => new SitePreview(s.Id, s.Name));
+    }
 
     public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
     {

@@ -137,7 +137,6 @@ stages:
 
       - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"
-        condition: false
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"

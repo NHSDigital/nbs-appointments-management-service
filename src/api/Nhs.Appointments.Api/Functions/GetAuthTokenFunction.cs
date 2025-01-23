@@ -15,10 +15,11 @@ using System.Security.Claims;
 using System.Linq;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions)
+public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions<AuthOptions> authOptions, ILogger<GetAuthTokenFunction> logger)
 {
     private readonly AuthOptions _authOptions = authOptions.Value;
 
@@ -27,21 +28,31 @@ public class GetAuthTokenFunction(IHttpClientFactory httpClientFactory, IOptions
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")] HttpRequest req)
     {
+        // need to resolve the correct auth config here
+        var providerName = req.Query["provider"];
+        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+
         var code = await req.ReadAsStringAsync();
         var formValues = new Dictionary<string, string>()
         {
-            { "client_id", _authOptions.ClientId },
+            { "client_id", authProvider.ClientId },
             { "code", code },
-            { "redirect_uri", _authOptions.ReturnUri },
+            { "redirect_uri", authProvider.ReturnUri },
             { "scope", "openid profile email" },
             { "grant_type", "authorization_code" },
-            { "code_verifier", _authOptions.ChallengePhrase }
+            { "code_verifier", authProvider.ChallengePhrase }
         };
+
+        if (!string.IsNullOrEmpty(authProvider.ClientSecret))
+        {
+            formValues.Add("client_secret", authProvider.ClientSecret);
+        }
 
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
-        var rawResponse = await response.Content.ReadAsStringAsync();
+        var response = await httpClient.PostAsync($"{authProvider.TokenUri}", form);
+        var rawResponse = await response.Content.ReadAsStringAsync();       
+        // Should probably do some exception handling and logging here at some point
         var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(rawResponse);
         return new OkObjectResult(new { token = tokenResponse.IdToken });
     }

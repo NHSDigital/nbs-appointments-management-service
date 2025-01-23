@@ -24,8 +24,11 @@ import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { now } from '@services/timeService';
 
-export const fetchAccessToken = async (code: string) => {
-  const response = await appointmentsApi.post<{ token: string }>('token', code);
+export const fetchAccessToken = async (code: string, provider: string) => {
+  const response = await appointmentsApi.post<{ token: string }>(
+    `token?provider=${provider}`,
+    code,
+  );
   return handleBodyResponse(response);
 };
 

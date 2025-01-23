@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+using Castle.Core.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Auth;
@@ -12,20 +14,28 @@ public class GetAuthTokenFunctionTests
     private readonly GetAuthTokenFunction _sut;
     private readonly Mock<IHttpClientFactory> _httpClientFactory = new();
     private readonly Mock<IOptions<AuthOptions>> _options = new();
+    private readonly Mock<ILogger<GetAuthTokenFunction>> _logger = new();
     public GetAuthTokenFunctionTests()
     {
         _options.Setup(x => x.Value).Returns(new AuthOptions
         {
-            AuthorizeUri = "https://test.oauth.com/auth",
-            ReturnUri = "http://localhost",
-            ClientId = "123",
-            ChallengePhrase = "123",
-            JwksUri = "https://test.oauth.com/jwks",
-            Issuer = "123",
-            TokenUri = "https://test.oauth.com/token"
+            Providers =
+            [
+                new AuthProviderOptions
+                {
+                    Name = "test-auth",
+                    AuthorizeUri = "https://test.oauth.com/auth",
+                    ReturnUri = "http://localhost",
+                    ClientId = "123",
+                    ChallengePhrase = "123",
+                    JwksUri = "https://test.oauth.com/jwks",
+                    Issuer = "123",
+                    TokenUri = "https://test.oauth.com/token"
+                }
+            ]
         });
 
-        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object);
+        _sut = new GetAuthTokenFunction(_httpClientFactory.Object, _options.Object, _logger.Object);
     }
 
     public void Test()

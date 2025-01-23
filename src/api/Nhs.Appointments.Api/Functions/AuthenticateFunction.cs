@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
@@ -6,6 +7,7 @@ using Microsoft.Azure.Functions.Worker;
 using Nhs.Appointments.Api.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -16,22 +18,30 @@ public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")] HttpRequest req)
     {
-        var cc = GenerateCodeChallenge(authOptions.Value.ChallengePhrase);
+        // here we need to resolve the correct auth provider
+        var providerName = req.Query["provider"];
+        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+
+        var cc = AuthUtilities.GenerateCodeChallenge(authProvider.ChallengePhrase);
+
         var queryStringValues = new Dictionary<string, string>
         {
-            { "client_id",  authOptions.Value.ClientId},
-            { "redirect_uri", authOptions.Value.ReturnUri },
+            { "client_id",  authProvider.ClientId},
+            { "redirect_uri", authProvider.ReturnUri },
             { "response_type", "code" },
             { "response_mode", "query" },
             { "code_challenge_method", "S256" },
             { "code_challenge", cc },
             { "scope", "openid profile email" },
             { "prompt", "login" },
-        };        
+        };
 
-        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{authOptions.Value.AuthorizeUri}", queryStringValues);
+        if (authProvider.RequiresStateForAuthorize)
+        {
+            queryStringValues.Add("state", Guid.NewGuid().ToString());
+        }
+
+        var oidcAuthorizeUrl = QueryHelpers.AddQueryString($"{authProvider.AuthorizeUri}", queryStringValues);
         return new RedirectResult(oidcAuthorizeUrl);
     }
-
-    protected virtual string GenerateCodeChallenge(string challengePhrase) => AuthUtilities.GenerateCodeChallenge(authOptions.Value.ChallengePhrase);    
 }

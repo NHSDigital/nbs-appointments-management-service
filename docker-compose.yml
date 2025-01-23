@@ -36,14 +36,26 @@ services:
       - COSMOS_TOKEN=${COSMOS_TOKEN:-C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==}
       - COSMOS_IGNORE_SSL_CERT=true
       - LEASE_MANAGER_CONNECTION=local
-      - AuthProvider_Issuer=http://oidc-server
-      - AuthProvider_AuthorizeUri=http://localhost:8020/connect/authorize
-      - AuthProvider_TokenUri=http://oidc-server/connect/token
-      - AuthProvider_JwksUri=http://oidc-server/.well-known/openid-configuration/jwks
-      - AuthProvider_ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
-      - AuthProvider_ClientId=nhs-appts-local
-      - AuthProvider_ReturnUri=http://localhost:7071/api/auth-return
-      - AuthProvider_ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie
+      - Auth__Providers__0__Name=nhs-mail
+      - Auth__Providers__0__Issuer=http://oidc-server
+      - Auth__Providers__0__AuthorizeUri=http://localhost:8020/connect/authorize
+      - Auth__Providers__0__TokenUri=http://oidc-server/connect/token
+      - Auth__Providers__0__JwksUri=http://oidc-server/.well-known/openid-configuration/jwks
+      - Auth__Providers__0__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
+      - Auth__Providers__0__ClientId=nhs-appts-local
+      - Auth__Providers__0__ReturnUri=http://localhost:7071/api/auth-return?provider=nhs-mail
+      - Auth__Providers__0__ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie?provider=nhs-mail
+      - Auth__Providers__1__Name=okta
+      - Auth__Providers__1__Issuer=https://dev-08802788.okta.com
+      - Auth__Providers__1__AuthorizeUri=https://dev-08802788.okta.com/oauth2/v1/authorize
+      - Auth__Providers__1__TokenUri=https://dev-08802788.okta.com/oauth2/v1/token
+      - Auth__Providers__1__JwksUri=https://dev-08802788.okta.com/oauth2/v1/keys
+      - Auth__Providers__1__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
+      - Auth__Providers__1__ClientId=0oamv7oihgsHveIZm5d7
+      - Auth__Providers__1__ReturnUri=http://localhost:7071/api/auth-return?provider=okta
+      - Auth__Providers__1__ClientCodeExchangeUri=http://localhost:3000/auth/set-cookie?provider=okta
+      - Auth__Providers__1__RequiresStateForAuthorize=true
+      - Auth__Providers__1__ClientSecret=J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *

@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace Nhs.Appointments.Api.Auth;
 
@@ -22,30 +23,27 @@ public static class ServiceRegistration
         return services;
     }
 
-    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services) =>services
-        .Configure<AuthOptions>(opts =>
-        {
-            opts.Issuer = Environment.GetEnvironmentVariable("AuthProvider_Issuer");
-            opts.AuthorizeUri = Environment.GetEnvironmentVariable("AuthProvider_AuthorizeUri");
-            opts.TokenUri = Environment.GetEnvironmentVariable("AuthProvider_TokenUri");
-            opts.JwksUri = Environment.GetEnvironmentVariable("AuthProvider_JwksUri");
-            opts.ChallengePhrase = Environment.GetEnvironmentVariable("AuthProvider_ChallengePhrase");
-            opts.ClientId = Environment.GetEnvironmentVariable("AuthProvider_ClientId");
-            opts.ReturnUri = Environment.GetEnvironmentVariable("AuthProvider_ReturnUri");
-            opts.ClientCodeExchangeUri = Environment.GetEnvironmentVariable("AuthProvider_ClientCodeExchangeUri");
-        })
-        .Configure<SignedRequestAuthenticator.Options>(opts =>
-        {
-            opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
-        })
-        .AddScoped<IUserContextProvider, UserContextProvider>()
-        .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
-        .AddRequestInspectors()
-        .AddSingleton<SignedRequestAuthenticator>()
-        .AddSingleton<BearerTokenRequestAuthenticator>()
-        .AddSingleton<IJwksRetriever, JwksRetriever>()
-        .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
-        .AddTransient<IRequestSigner, RequestSigner>()
-        .AddMemoryCache();
-    
+    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services)
+    {
+        // Set up configuration
+        var builder = new ConfigurationBuilder()
+            .AddEnvironmentVariables();
+        var configuration = builder.Build();
+
+        return services
+            .Configure<AuthOptions>(opts => configuration.GetSection("Auth").Bind(opts))
+            .Configure<SignedRequestAuthenticator.Options>(opts =>
+            {
+                opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
+            })
+            .AddScoped<IUserContextProvider, UserContextProvider>()
+            .AddSingleton<IRequestAuthenticatorFactory, RequestAuthenticatorFactory>()
+            .AddRequestInspectors()
+            .AddSingleton<SignedRequestAuthenticator>()
+            .AddSingleton<BearerTokenRequestAuthenticator>()
+            .AddSingleton<IJwksRetriever, JwksRetriever>()
+            .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
+            .AddTransient<IRequestSigner, RequestSigner>()
+            .AddMemoryCache();
+    }
 }

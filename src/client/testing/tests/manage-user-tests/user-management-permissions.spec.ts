@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { testuser6_emailId, testuser7_emailId, abc01_id } from '../../fixtures';
+import { testuser8_emailId, testuser9_emailId, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -149,19 +149,19 @@ test('Verify user can only view appointment manager related tiles In app when us
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser6_emailId);
+  await editManageUserRolesPage.emailInput.fill(testuser8_emailId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
   await editManageUserRolesPage.unselectStaffRole('Site details manager');
   await editManageUserRolesPage.unselectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('Appointment manager', testuser6_emailId);
+  await usersPage.verifyUserRoles('Appointment manager', testuser8_emailId);
   await rootPage.logOut();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser6.username,
-    TEST_USERS.testUser6.password,
+    TEST_USERS.testUser8.username,
+    TEST_USERS.testUser8.password,
   );
   await eulaConsentPage.acceptAndContinueButton.click();
   await page.waitForURL('**/');
@@ -185,19 +185,19 @@ test('Verify user can only view create availbility related tiles In app when use
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser7_emailId);
+  await editManageUserRolesPage.emailInput.fill(testuser9_emailId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');
   await editManageUserRolesPage.selectStaffRole('Availability manager');
   await editManageUserRolesPage.unselectStaffRole('Site details manager');
   await editManageUserRolesPage.unselectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('Availability manager', testuser6_emailId);
+  await usersPage.verifyUserRoles('Availability manager', testuser9_emailId);
   await rootPage.logOut();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser7.username,
-    TEST_USERS.testUser7.password,
+    TEST_USERS.testUser9.username,
+    TEST_USERS.testUser9.password,
   );
   await eulaConsentPage.acceptAndContinueButton.click();
   await page.waitForURL('**/');

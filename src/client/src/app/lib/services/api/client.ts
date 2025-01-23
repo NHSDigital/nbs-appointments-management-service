@@ -97,8 +97,7 @@ class Client {
       };
     }
 
-    const errorMessage =
-      response.status + ' - ' + response.url + ' - ' + (await response.text());
+    const errorMessage = response.status + ' - ' + response.url;
     throw new Error(errorMessage);
   }
 }

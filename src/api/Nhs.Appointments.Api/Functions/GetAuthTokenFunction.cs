@@ -14,13 +14,7 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
-using Microsoft.AspNetCore.Authorization;
-using Nhs.Appointments.Core;
-using System.Security.Claims;
 using System.Linq;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -29,8 +23,6 @@ public class GetAuthTokenFunction(
     IAuditWriteService auditWriteService,
     IOptions<AuthOptions> authOptions)
 {
-    private readonly AuthOptions _authOptions = authOptions.Value;
-
     [Function("GetAuthTokenFunction")]
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(

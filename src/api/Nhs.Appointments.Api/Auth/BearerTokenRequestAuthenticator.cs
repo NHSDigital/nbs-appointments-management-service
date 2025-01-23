@@ -16,14 +16,12 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
 {
     private readonly ISecurityTokenValidator _validator;
     private readonly IJwksRetriever _jwksRetriever;
-    private readonly ILogger<BearerTokenRequestAuthenticator> _logger;
     private readonly AuthOptions _options;
 
-    public BearerTokenRequestAuthenticator(ISecurityTokenValidator validator, IJwksRetriever jwksRetriever, IOptions<AuthOptions> options, ILogger<BearerTokenRequestAuthenticator> logger)
+    public BearerTokenRequestAuthenticator(ISecurityTokenValidator validator, IJwksRetriever jwksRetriever, IOptions<AuthOptions> options)
     {
         _validator = validator;
         _jwksRetriever = jwksRetriever;
-        _logger = logger;
         _options = options.Value;
     }
 

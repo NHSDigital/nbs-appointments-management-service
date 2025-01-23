@@ -15,7 +15,6 @@ public class BearerTokenRequestAuthenticatorTests
     private readonly Mock<ISecurityTokenValidator> _validator = new();
     private readonly Mock<IJwksRetriever> _jwksRetriever = new();
     private readonly Mock<IOptions<AuthOptions>> _options = new();
-    private readonly Mock<ILogger<BearerTokenRequestAuthenticator>> _logger = new();
     public BearerTokenRequestAuthenticatorTests()
     {
         _options.Setup(x => x.Value).Returns(new AuthOptions
@@ -25,7 +24,7 @@ public class BearerTokenRequestAuthenticatorTests
                 new AuthProviderOptions { JwksUri = "https://test.oauth.com/jwks" }
             ]
         });
-        _sut = new BearerTokenRequestAuthenticator(_validator.Object, _jwksRetriever.Object, _options.Object, _logger.Object);
+        _sut = new BearerTokenRequestAuthenticator(_validator.Object, _jwksRetriever.Object, _options.Object);
     }
 
     [Fact]

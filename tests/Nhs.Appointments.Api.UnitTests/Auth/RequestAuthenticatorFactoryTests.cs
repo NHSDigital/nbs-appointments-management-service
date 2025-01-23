@@ -18,8 +18,7 @@ public class RequestAuthenticatorFactoryTests
         mockAuthOptions.Setup(x => x.Value).Returns(new AuthOptions());
         var mockValidator = new Mock<ISecurityTokenValidator>();
         var mockJwksRetriever = new Mock<IJwksRetriever>();
-        var mockLogger = new Mock<ILogger<BearerTokenRequestAuthenticator>>();
-        _serviceProvider.Setup(x => x.GetService(typeof(BearerTokenRequestAuthenticator))).Returns(new BearerTokenRequestAuthenticator(mockValidator.Object, mockJwksRetriever.Object, mockAuthOptions.Object, mockLogger.Object));
+        _serviceProvider.Setup(x => x.GetService(typeof(BearerTokenRequestAuthenticator))).Returns(new BearerTokenRequestAuthenticator(mockValidator.Object, mockJwksRetriever.Object, mockAuthOptions.Object));
         _sut = new RequestAuthenticatorFactory(_serviceProvider.Object);
     }
 

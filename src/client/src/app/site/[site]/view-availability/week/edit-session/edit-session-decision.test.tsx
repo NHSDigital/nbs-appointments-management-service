@@ -127,7 +127,7 @@ describe('Edit Session Decision Page', () => {
     });
   });
 
-  it('submits the form and cancels the session', async () => {
+  it('submits the form', async () => {
     const session = btoa(
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );

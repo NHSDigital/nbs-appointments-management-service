@@ -100,7 +100,10 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('site:manage')) {
+  if (
+    permissions.includes('site:manage') ||
+    permissions.includes('site:view')
+  ) {
     navigationLinks.push({
       label: 'Change site details',
       href: `/site/${site.id}/details`,

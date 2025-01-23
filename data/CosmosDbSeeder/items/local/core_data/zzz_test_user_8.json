@@ -1,0 +1,15 @@
+{
+  "id": "zzz_test_user_8@nhs.net",
+  "docType": "user",
+  "latestAcceptedEulaVersion": "2000-01-01",
+  "roleAssignments": [
+    {
+      "role": "canned:availability-manager",
+      "scope": "site:ABC01"
+    },
+    {
+      "role": "canned:availability-manager",
+      "scope": "site:ABC02"
+    }
+  ]
+}

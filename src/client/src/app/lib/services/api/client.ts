@@ -97,7 +97,9 @@ class Client {
       };
     }
 
-    throw new Error('An unhandled error occured');
+    const errorMessage =
+      response.status + ' - ' + response.url + ' - ' + (await response.text());
+    throw new Error(errorMessage);
   }
 }
 

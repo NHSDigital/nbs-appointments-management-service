@@ -41,23 +41,26 @@ describe('Edit Site Details Form', () => {
   });
 
   it('prepopulates the site data correctly in the form', () => {
-    const textInputs = screen.getAllByRole('textbox');
+    expect(screen.getByRole('textbox', { name: 'name' })).toHaveValue(
+      mockSiteWithAttributes.name,
+    );
 
-    expect(textInputs).toHaveLength(5);
-    expect(textInputs[0]).toHaveValue(mockSiteWithAttributes.name);
-
-    //formats the address in the textarea with line breaks
-    expect(textInputs[1]).toHaveValue(
+    //TODO textarea label question??
+    expect(screen.getByLabelText('Site address')).toHaveValue(
       'A new house,\non a new road,\nin a new city',
     );
-    expect(textInputs[2]).toHaveValue(
+
+    expect(screen.getByRole('textbox', { name: 'Latitude' })).toHaveValue(
       mockSiteWithAttributes.location.coordinates[0].toString(),
     );
-    expect(textInputs[3]).toHaveValue(
+
+    expect(screen.getByRole('textbox', { name: 'Longitude' })).toHaveValue(
       mockSiteWithAttributes.location.coordinates[1].toString(),
     );
-    //removes whitespace as only allows numbers
-    expect(textInputs[4]).toHaveValue('01189998819991197253');
+
+    expect(screen.getByRole('textbox', { name: 'phoneNumber' })).toHaveValue(
+      '01189998819991197253',
+    );
   });
 
   it('submits and removes the line breaks from the address field', async () => {
@@ -84,8 +87,9 @@ describe('Edit Site Details Form', () => {
 
   it('adding a new line break to the address saves as a comma delimited string', async () => {
     //write text to the address field
-    const allInputs = screen.getAllByRole('textbox');
-    const addressInput = allInputs[1];
+
+    //TODO textarea label question??
+    const addressInput = screen.getByLabelText('Site address');
 
     await user.type(addressInput, ',\nUK');
 

@@ -29,6 +29,6 @@ test.beforeEach(async ({ page }) => {
   await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
 });
 
-test('Verify information on site page', async () => {
-  await siteDetailsPage.verifySitepage();
+test('Verify default information on site page', async () => {
+  await siteDetailsPage.verifyDefaultSitePage();
 });

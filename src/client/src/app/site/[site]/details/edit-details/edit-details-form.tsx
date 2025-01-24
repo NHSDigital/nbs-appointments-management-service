@@ -63,12 +63,19 @@ const EditDetailsForm = ({
     <form onSubmit={handleSubmit(submitForm)}>
       <h3>Site name</h3>
       <FormGroup error={errors.name?.message}>
-        <TextInput id="name" {...register('name')}></TextInput>
+        <TextInput
+          id="name"
+          aria-label="name"
+          {...register('name')}
+        ></TextInput>
       </FormGroup>
 
       <FormGroup error={errors.address?.message}>
-        <h3>Site address</h3>
-        <TextArea id="address" label="" {...register('address')}></TextArea>
+        <TextArea
+          id="address"
+          label="Site address"
+          {...register('address')}
+        ></TextArea>
       </FormGroup>
 
       <h3>Latitude and longitude</h3>
@@ -90,6 +97,7 @@ const EditDetailsForm = ({
         <TextInput
           id="phoneNumber"
           type="tel"
+          aria-label="phoneNumber"
           pattern="\d*"
           {...register('phoneNumber')}
         ></TextInput>

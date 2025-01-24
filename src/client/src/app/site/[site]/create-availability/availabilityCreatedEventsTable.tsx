@@ -25,7 +25,7 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {
       return [
-        `${parseDateString(availability.from).format('D MMM YYYY')} - ${parseDateString(availability.to ?? '').format('D MMM YYYY')}`, //.format('D MMMM YYYY')
+        `${parseDateString(availability.from).format('D MMM YYYY')} - ${parseDateString(availability.to ?? '').format('D MMM YYYY')}`,
         availability.template.days.length === 7
           ? 'All'
           : availability.template.days.map(d => d.substring(0, 3)).join(', '),

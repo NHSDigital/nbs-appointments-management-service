@@ -4,7 +4,7 @@
   "configs": [
     {
       "services": [],
-      "emailTemplate": "742e84b2-5d93-4d03-92f0-27252174c342",
+      "emailTemplate": "cd45a489-0ace-4261-9596-29a2929ac726",
       "smsTemplate": "",
       "eventType": "UserRolesChanged"
     },

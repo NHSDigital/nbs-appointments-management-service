@@ -24,7 +24,7 @@ variables:
   environment: ${{parameters.env}}
   csvFile: ${{parameters.csvFileName}}
   importItemType: ${{parameters.importItemType}}
-  storageAccountName: "nbsmyastrgimportsdevuks"
+  storageAccountName: "nbsmyastrgimportsintuks"
   containerName: "csvdata"
   cosmosCoreDataPath: "data/CosmosDbSeeder/items/$(environment)/core_data"
   cosmosAccountName: "nbs-mya-cdb-$(environment)-uks"

@@ -56,7 +56,10 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.DocumentType == "booking_index" && bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
-        var grouped = bookingIndexDocuments.Where(bi => bi.Status == AppointmentStatus.Booked).GroupBy(bi => bi.Site);
+        var grouped = bookingIndexDocuments
+            .Where(bi => bi.Status is AppointmentStatus.Booked or AppointmentStatus.Orphaned)
+            .GroupBy(bi => bi.Site);
+
         foreach (var siteBookings in grouped)
         {
             if (siteBookings.Count() > PointReadLimit)

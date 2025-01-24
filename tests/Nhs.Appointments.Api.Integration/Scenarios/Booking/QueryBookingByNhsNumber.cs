@@ -4,10 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Xunit.Gherkin.Quick;
 using FluentAssertions;
+using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
@@ -28,7 +29,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         
         // TODO: Need to add this to the base class along with new tests for QueryByReference
         [Then(@"the following bookings are returned")]
-        public void Assert(Gherkin.Ast.DataTable expectedBookingDetailsTable)
+        public void Assert(DataTable expectedBookingDetailsTable)
         {
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select(
                 (row, index) =>
@@ -39,8 +40,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,
                     Site = GetSiteId(),
-                    Created = GetCreationDateTime(BookingType.Confirmed),
-                    Status = AppointmentStatus.Booked,
+                    Created = row.Cells.ElementAtOrDefault(6)?.Value is not null
+                        ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(6)?.Value)
+                        : GetCreationDateTime(BookingType.Confirmed),
+                    Status = Enum.Parse<AppointmentStatus>(row.Cells.ElementAt(5).Value ?? "Booked"),
                     AttendeeDetails = new AttendeeDetails
                     {
                         NhsNumber = NhsNumber,

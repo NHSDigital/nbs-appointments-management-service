@@ -44,7 +44,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Download CSV file"
             inputs:
-              azureSubscription: "nbs-mya-rg-dev"
+              azureSubscription: "nbs-mya-rg-int"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/download_blob.ps1"

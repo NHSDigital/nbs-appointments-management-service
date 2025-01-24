@@ -182,7 +182,7 @@ public class BookingsService(
                 continue;
             }
 
-            if (booking.Status is AppointmentStatus.Booked or AppointmentStatus.Provisional)
+            if (booking.Status is AppointmentStatus.Booked)
             {
                 await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
             }

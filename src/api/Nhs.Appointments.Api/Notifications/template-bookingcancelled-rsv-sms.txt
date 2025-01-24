@@ -1,5 +1,5 @@
-﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
 
 This template is stored at https://www.notifications.service.gov.uk/
 
-Hello ((firstName)), you have cancelled your RSV vaccination appointment - Booking reference ((reference)). ((siteName)), ((date)), ((time)). To rebook your appointment visit https://www.nhs.uk/book-rsv
+National Booking Service: Hello ((firstName)), your vaccination appointment has been cancelled at ((siteName)) on ((date)) at ((time)). To rebook your appointment visit https://nhs.uk/book-rsv

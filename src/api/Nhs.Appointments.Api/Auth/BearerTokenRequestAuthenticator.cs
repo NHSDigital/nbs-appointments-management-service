@@ -52,11 +52,13 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
         
         try
         {
-            return _validator.ValidateToken(encodedToken, tokenValidationParams, out var token);
+            var validUser = _validator.ValidateToken(encodedToken, tokenValidationParams, out var token);
+            return validUser;
         }
         catch (SecurityTokenValidationException)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity());
+            var unauthenticated = new ClaimsPrincipal(new ClaimsIdentity());
+            return unauthenticated;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
@@ -6,7 +7,6 @@ namespace Nhs.Appointments.Api.Validators;
 public class SetSiteDetailsValidator : AbstractValidator<SetSiteDetailsRequest>
 {
     private const string NumbersOnlyRegex = @"^\d+$";
-    private const string DecimalRegex = @"^-?\d+(\.\d+)?$";
 
     public SetSiteDetailsValidator()
     {
@@ -23,11 +23,11 @@ public class SetSiteDetailsValidator : AbstractValidator<SetSiteDetailsRequest>
             .Matches(NumbersOnlyRegex).WithMessage("Phone number must contain numbers only")
             .NotEmpty().WithMessage("Provide a valid phone number");
         RuleFor(x => x.Latitude)
-            .Matches(DecimalRegex).WithMessage("Latitude must be a decimal number")
+            .Must(x => decimal.TryParse(x, out _)).WithMessage("Latitude must be a decimal number")
             .NotEmpty()
             .WithMessage("Provide a valid latitude");
         RuleFor(x => x.Longitude)
-            .Matches(DecimalRegex).WithMessage("Longitude must be a decimal number")
+            .Must(x => decimal.TryParse(x, out _)).WithMessage("Longitude must be a decimal number")
             .NotEmpty()
             .WithMessage("Provide a valid longitude");
     }

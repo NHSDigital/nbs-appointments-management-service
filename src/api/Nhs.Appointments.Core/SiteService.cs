@@ -12,7 +12,7 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
 
     Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
-        string latitude, string longitude);
+        decimal latitude, decimal longitude);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -79,7 +79,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, string latitude, string longitude)
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
     {
         return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, latitude, longitude);
     }

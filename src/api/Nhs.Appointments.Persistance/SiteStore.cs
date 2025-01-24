@@ -50,18 +50,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
     
-    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, string latitude, string longitude)
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
     {
-        //TODO move away parsing?
-        var latitideParseResult = decimal.TryParse(latitude, out var latitudeDecimal);
-        var longitudeParseResult = decimal.TryParse(longitude, out var longitudeDecimal);
-
-        if (!latitideParseResult || !longitudeParseResult)
-        {
-            return new OperationResult(false, "The specified lat/long values are not valid decimals.");
-        }
-        
-        decimal[] coords = [latitudeDecimal, longitudeDecimal];
+        decimal[] coords = [latitude, longitude];
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)

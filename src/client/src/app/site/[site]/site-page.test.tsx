@@ -6,6 +6,7 @@ import {
   mockSites,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
+import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 describe('Site Page', () => {
   it('displays a summary of the site', () => {
@@ -32,13 +33,11 @@ describe('Site Page', () => {
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
-    expect(
-      screen.getByRole('definition', { name: 'Region One' }),
-    ).toBeInTheDocument();
+
+    verifySummaryListItem('Region', 'Region One');
+    verifySummaryListItem('ICB', 'Integrated Care Board One');
+
     expect(screen.queryByText(mockSite.region)).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('definition', { name: 'Integrated Care Board One' }),
-    ).toBeInTheDocument();
     expect(
       screen.queryByText(mockSite.integratedCareBoard),
     ).not.toBeInTheDocument();
@@ -54,10 +53,13 @@ describe('Site Page', () => {
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
-    expect(screen.getByRole('definition', { name: 'R2' })).toBeInTheDocument();
+    verifySummaryListItem('Region', mockSite.region);
+    verifySummaryListItem('ICB', mockSite.integratedCareBoard);
+
+    expect(screen.queryByText('Region One')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('definition', { name: 'ICB2' }),
-    ).toBeInTheDocument();
+      screen.queryByText('Integrated Care Board One'),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the user management page if the user may see it', () => {
@@ -218,9 +220,7 @@ describe('Site Page', () => {
       />,
     );
 
-    const el = screen.getByLabelText('Alpha Street');
-    expect(el).toBeInTheDocument();
-    expect(el).toHaveTextContent('Alpha Street');
+    verifySummaryListItem('Address', 'Alpha Street');
   });
 
   it('renders multiple value', () => {
@@ -234,11 +234,11 @@ describe('Site Page', () => {
       />,
     );
 
-    const addressEl = screen.getByLabelText(mockSite.address);
-
-    expect(addressEl).toBeInTheDocument();
-    expect(addressEl.children.length).toBe(2);
-    expect(addressEl.children[0]).toHaveTextContent('Delta Street,');
-    expect(addressEl.children[1]).toHaveTextContent('London');
+    const termDescription = screen.getByRole('definition', {
+      name: 'Address-description',
+    });
+    expect(termDescription.children.length).toBe(2);
+    expect(termDescription.children[0]).toHaveTextContent('Delta Street,');
+    expect(termDescription.children[1]).toHaveTextContent('London');
   });
 });

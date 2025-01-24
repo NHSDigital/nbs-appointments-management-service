@@ -63,7 +63,7 @@ describe('Start and End Date Step', () => {
       screen.getByRole('heading', {
         name: 'Create weekly session Add start and end dates',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('permits data entry', async () => {
@@ -132,8 +132,9 @@ describe('Start and End Date Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Session end date must be a valid date'))
-      .toBeInTheDocument;
+    expect(
+      screen.getByText('Session end date must be a valid date'),
+    ).toBeInTheDocument();
   });
 
   const startDateInvalidMessage = 'Session start date must be a valid date';
@@ -201,7 +202,7 @@ describe('Start and End Date Step', () => {
 
       await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-      expect(screen.getByText(expectedValidationMessage)).toBeInTheDocument;
+      expect(screen.getByText(expectedValidationMessage)).toBeInTheDocument();
     },
   );
 
@@ -234,8 +235,9 @@ describe('Start and End Date Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Session start date must be within the next year'))
-      .toBeInTheDocument;
+    expect(
+      screen.getByText('Session start date must be within the next year'),
+    ).toBeInTheDocument();
   });
 
   it('does not permit end date to be set more than 1 year in the future', async () => {
@@ -268,8 +270,9 @@ describe('Start and End Date Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Session end date must be within the next year'))
-      .toBeInTheDocument;
+    expect(
+      screen.getByText('Session end date must be within the next year'),
+    ).toBeInTheDocument();
   });
 
   it('displays an href link when there are no previous wizard steps', async () => {

@@ -19,45 +19,54 @@ const mockItems: SummaryListItem[] = [
   },
 ];
 
+export const verifySummaryListItem = (term: string, expectedValue: string) => {
+  const termRole = screen.getByRole('term', {
+    name: `${term}-term`,
+  });
+  expect(termRole).toBeInTheDocument();
+  expect(termRole).toHaveTextContent(term);
+  const description = screen.getByRole('definition', {
+    name: `${term}-description`,
+  });
+  expect(description).toBeInTheDocument();
+  expect(description).toHaveTextContent(expectedValue);
+};
+
 describe('SummaryList', () => {
   it('renders', () => {
     render(<SummaryList items={mockItems} />);
 
-    expect(screen.getByRole('term', { name: 'Name' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('definition', { name: 'John Doe' }),
-    ).toBeInTheDocument();
+    verifySummaryListItem('Name', 'John Doe');
   });
 
   it('renders actions if provided', () => {
-    render(<SummaryList items={mockItems} />);
+    render(<SummaryList items={[mockItems[1]]} />);
 
-    expect(
-      screen.getByRole('definition', { name: 'Change' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Change' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Change' })).toHaveAttribute(
-      'href',
-      'mock-link',
-    );
+    verifySummaryListItem('Address', '123 Fake Street');
+
+    const addressAction = screen.getByRole('definition', {
+      name: 'Address-description-action',
+    });
+    expect(addressAction).toBeInTheDocument();
+    expect(addressAction).toHaveTextContent('Change');
+    expect(addressAction.children[0]).toHaveAttribute('href', 'mock-link');
   });
 
   it('renders multiple addresses if provided', () => {
-    render(<SummaryList items={mockItems} />);
+    render(<SummaryList items={[mockItems[0], mockItems[2]]} />);
 
-    expect(screen.getByRole('term', { name: 'Name' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('definition', { name: 'John Doe' }),
-    ).toBeInTheDocument();
+    verifySummaryListItem('Name', 'John Doe');
+    verifySummaryListItem('Address', '456 Fake Streetsecond address');
 
-    const labelText = Array.isArray(mockItems[2].value)
-      ? mockItems[2].value.join('')
-      : mockItems[2].value;
-    const addressEl = screen.getByLabelText(labelText);
-
-    expect(addressEl).toBeInTheDocument();
-    expect(addressEl.children.length).toBe(2);
-    expect(addressEl.children[0]).toHaveTextContent(mockItems[2].value[0]);
-    expect(addressEl.children[1]).toHaveTextContent(mockItems[2].value[1]);
+    const termDescription = screen.getByRole('definition', {
+      name: 'Address-description',
+    });
+    expect(termDescription.children.length).toBe(2);
+    expect(termDescription.children[0]).toHaveTextContent(
+      mockItems[2].value[0],
+    );
+    expect(termDescription.children[1]).toHaveTextContent(
+      mockItems[2].value[1],
+    );
   });
 });

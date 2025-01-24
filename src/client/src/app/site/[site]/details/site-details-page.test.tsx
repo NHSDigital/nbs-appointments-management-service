@@ -11,6 +11,7 @@ import {
   mockSiteWithAttributes,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
+import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 jest.mock('@services/appointmentsService');
 const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
@@ -49,25 +50,16 @@ describe('Site Details Page', () => {
       screen.getByRole('heading', { level: 2, name: 'Site Details' }),
     ).toBeVisible();
 
-    expect(
-      screen.getByRole('definition', { name: mockSite.address }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('definition', {
-        name: mockSite.location.coordinates[0].toString(),
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('definition', {
-        name: mockSite.location.coordinates[1].toString(),
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('definition', { name: mockSite.phoneNumber }),
-    ).toBeInTheDocument();
+    verifySummaryListItem('Address', mockSite.address);
+    verifySummaryListItem(
+      'Latitude',
+      mockSite.location.coordinates[0].toString(),
+    );
+    verifySummaryListItem(
+      'Longitude',
+      mockSite.location.coordinates[1].toString(),
+    );
+    verifySummaryListItem('Phone Number', mockSite.phoneNumber);
   });
 
   it('shows the edit site details hyperlink if the user has permission', async () => {
@@ -112,25 +104,14 @@ describe('Site Details Page', () => {
       screen.getByRole('heading', { level: 2, name: 'Admin Details' }),
     ).toBeVisible();
 
-    expect(
-      screen.getByRole('definition', { name: mockSite.odsCode }),
-    ).toBeInTheDocument();
+    verifySummaryListItem('ODS code', mockSite.odsCode);
+    verifySummaryListItem('ICB', 'Integrated Care Board One');
+    verifySummaryListItem('Region', 'Region One');
 
     expect(
-      screen.queryByRole('definition', { name: 'Integrated Care Board One' }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('definition', { name: mockSite.integratedCareBoard }),
+      screen.queryByText(mockSite.integratedCareBoard),
     ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('definition', { name: 'Region One' }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('definition', { name: mockSite.region }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(mockSite.region)).not.toBeInTheDocument();
   });
 
   it('displays the admin site details - ODS well known absent', async () => {
@@ -141,21 +122,14 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Admin Details' }),
-    ).toBeVisible();
+    verifySummaryListItem('ODS code', mockSite.odsCode);
+    verifySummaryListItem('ICB', mockSite.integratedCareBoard);
+    verifySummaryListItem('Region', mockSite.region);
 
     expect(
-      screen.getByRole('definition', { name: mockSite.odsCode }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('definition', { name: mockSite.integratedCareBoard }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('definition', { name: mockSite.region }),
-    ).toBeInTheDocument();
+      screen.queryByText('Integrated Care Board One'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Region One')).not.toBeInTheDocument();
   });
 
   it('displays the status of each accessibility attribute', async () => {
@@ -167,14 +141,26 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('term', { name: 'Accessibility attribute 1' }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole('term', { name: 'Accessibility attribute 2' }),
+      screen.getByRole('term', { name: 'Accessibility attribute 1-term' }),
     ).toBeVisible();
 
-    expect(screen.getByRole('definition', { name: 'Yes' })).toBeVisible();
-    expect(screen.getByRole('definition', { name: 'Yes' })).toBeVisible();
+    const attr1desc = screen.getByRole('definition', {
+      name: 'Accessibility attribute 1-description',
+    });
+
+    expect(attr1desc).toBeVisible();
+    expect(attr1desc).toHaveTextContent('Yes');
+
+    expect(
+      screen.getByRole('term', { name: 'Accessibility attribute 2-term' }),
+    ).toBeVisible();
+
+    const attr2desc = screen.getByRole('definition', {
+      name: 'Accessibility attribute 2-description',
+    });
+
+    expect(attr2desc).toBeVisible();
+    expect(attr2desc).toHaveTextContent('No');
   });
 
   it('shows the edit access needs hyperlink if the user has permission', async () => {

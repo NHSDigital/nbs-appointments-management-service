@@ -69,7 +69,7 @@ const SummaryList = ({ items, borders = true }: Props) => {
             {item.action && (
               <dd
                 className="nhsuk-summary-list__actions"
-                aria-label={`${item.title}-description`}
+                aria-label={`${item.title}-description-action`}
               >
                 {item.action.renderingStrategy === 'server' ? (
                   <Link href={item.action.href}>{item.action.text}</Link>

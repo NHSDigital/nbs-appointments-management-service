@@ -1,4 +1,4 @@
-﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
 
 This template is stored at https://www.notifications.service.gov.uk/
 
@@ -10,14 +10,16 @@ Template Body:
 
 Dear ((user))
 
-Your permissions for ((site)) have been updated on the NHS Appointments Service. 
+You now have access to ((site)) and your permissions have been updated 
+on the NHS Manage Your Appointments service.
 
-((rolesAdded))
-((rolesRemoved))
+You have been given the roles of: ((rolesAdded)).
 
-Log into your account now: https://appointment.service.nhs.uk/sign-in
+Log in to your account with your NHS login details: http://www.nhs.uk/manage-your-appointments
+
+For guidance and support, visit: http://digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance
 
 Many thanks,
 
-NHS Appointment Service
+NHS Manage Your Appointments service
 

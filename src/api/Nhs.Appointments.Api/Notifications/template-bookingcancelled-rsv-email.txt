@@ -1,24 +1,24 @@
-﻿FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
+FOR INFO ONLY. THIS FILE IS NOT PART OF ANY BUILD OR DEPLOYMENT PIPELINE.
 
 This template is stored at https://www.notifications.service.gov.uk/
 
 Template name: Booking Cancelled (RSV)
 
-Template Subject: Cancellation - RSV appointment
+Template Subject: Cancellation - vaccination appointment
 
 Template Body:
 
-You've cancelled your RSV (Respiratory syncytial virus) vaccination appointment.
+Hello ((firstName)),
+
+Your vaccination appointment has been cancelled.
 
 # Your cancelled appointment
 
 Booking reference: ((reference))
 ((siteName))
 ((address))
-Date and time: ((date))
-((time))
-
+Date and time: ((date)) at ((time))
 
 # To rebook your appointment:
 
-* visit https://www.nhs.uk/book-rsv
+Visit https://www.nhs.uk/book-rsv

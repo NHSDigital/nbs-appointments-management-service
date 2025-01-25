@@ -61,32 +61,4 @@ export default class EditManageUserRolesPage extends RootPage {
   async selectStaffRole(roleName: string) {
     await this.page.getByLabel(roleName).check();
   }
-
-  async verifyUserRedirectedToEditRolePage(
-    roleName: string,
-    status: 'Checked' | 'UnChecked',
-  ) {
-    await expect(this.title).toBeVisible();
-    if (status == 'Checked') {
-      await expect(this.page.getByLabel(roleName)).toBeChecked();
-    } else {
-      await expect(this.page.getByLabel(roleName)).not.toBeChecked();
-    }
-  }
-
-  async unselectStaffRole(roleName: string) {
-    await this.page.getByLabel(roleName).uncheck();
-  }
-
-  async verifyValidationMsgForNoRoles() {
-    await expect(
-      this.page
-        .getByRole('main')
-        .filter({
-          has: this.page.getByText(
-            `You have not selected any roles for this user`,
-          ),
-        }),
-    ).toBeVisible();
-  }
 }

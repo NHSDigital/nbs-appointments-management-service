@@ -28,8 +28,12 @@ export default class SitePage extends RootPage {
       });
   }
 
-  async veriyTileVisible(
-    tileName: 'ManageAppointment' | 'SiteManagement' | 'CreateAvailability',
+  async verifyTileVisible(
+    tileName:
+      | 'ManageAppointment'
+      | 'SiteManagement'
+      | 'UserManagement'
+      | 'CreateAvailability',
   ) {
     if (tileName == 'ManageAppointment') {
       await expect(
@@ -44,7 +48,9 @@ export default class SitePage extends RootPage {
     }
   }
 
-  async veriyTileNotVisible(tileName: 'UserManagement' | 'CreateAvailability') {
+  async verifyTileNotVisible(
+    tileName: 'UserManagement' | 'CreateAvailability',
+  ) {
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).not.toBeVisible();
     }
@@ -52,13 +58,4 @@ export default class SitePage extends RootPage {
       await expect(this.userManagementCard).not.toBeVisible();
     }
   }
-
-  //   async veriyTileNotViisible(){
-  //     // await expect(
-  //     //    sitePage.viewAvailabilityAndManageAppointmentsCard,
-  //     //  ).toBeVisible();
-  //     //  await expect(sitePage.createAvailabilityCard).not.toBeVisible();
-  //     //  await expect(sitePage.userManagementCard).not.toBeVisible();
-  //     //  await expect(sitePage.siteManagementCard).toBeVisible();
-  //  };
 }

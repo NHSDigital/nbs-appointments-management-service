@@ -18,5 +18,6 @@ export const nonNhsEmailId = `int-test-user-${Math.floor(Math.random() * 10000)}
 
 export const testuser8_emailId = `zzz_test_user_8@nhs.net`;
 export const testuser9_emailId = `zzz_test_user_9@nhs.net`;
-
+export const testuser10_emailId = `zzz_test_user_10@nhs.net`;
+export const testuser11_emailId = `zzz_test_user_11@nhs.net`;
 export const abc01_id = `5914b64a-66bb-4ee2-ab8a-94958c1fdfcb`;

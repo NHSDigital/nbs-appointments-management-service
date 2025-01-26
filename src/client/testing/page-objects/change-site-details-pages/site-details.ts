@@ -99,4 +99,9 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.editInformationCitizenButton).not.toBeVisible();
     await expect(this.editSiteAttributesButton).not.toBeVisible();
   }
+
+  async verifyEditButtonToBeVisible() {
+    await expect(this.editInformationCitizenButton).toBeVisible();
+    await expect(this.editSiteAttributesButton).toBeVisible();
+  }
 }

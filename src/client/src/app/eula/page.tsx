@@ -1,7 +1,7 @@
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
-import { Button } from '@components/nhsuk-frontend';
-import { acceptEula, fetchEula } from '@services/appointmentsService';
+import { fetchEula } from '@services/appointmentsService';
 import Link from 'next/link';
+import { AcceptEulaForm } from './accept-eula-form';
 
 const Page = async () => {
   const latestVersion = await fetchEula();
@@ -29,11 +29,7 @@ const Page = async () => {
         of use for this service.
       </p>
 
-      <form action={acceptEula.bind(null, latestVersion.versionDate)}>
-        <Button aria-label="Accept and continue" type="submit">
-          Accept and continue
-        </Button>
-      </form>
+      <AcceptEulaForm eulaVersion={latestVersion} />
     </NhsAnonymousPage>
   );
 };

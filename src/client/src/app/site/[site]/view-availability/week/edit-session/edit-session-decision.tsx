@@ -6,6 +6,7 @@ import {
   InsetText,
   Radio,
   RadioGroup,
+  SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { SessionSummary, Site } from '@types';
@@ -28,7 +29,11 @@ export const EditSessionDecision = ({
   date,
 }: EditSessionDecisionProps) => {
   const router = useRouter();
-  const methods = useForm<EditSessionDecisionFormData>({});
+  const {
+    handleSubmit,
+    register,
+    formState: { isSubmitting, isSubmitSuccessful, errors },
+  } = useForm<EditSessionDecisionFormData>({});
 
   const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
     form: EditSessionDecisionFormData,
@@ -55,10 +60,10 @@ export const EditSessionDecision = ({
           to increase availability for this day, you must create a new session.
         </p>
       </InsetText>
-      <form onSubmit={methods.handleSubmit(submitForm)}>
+      <form onSubmit={handleSubmit(submitForm)}>
         <FormGroup
           legend="What do you want to do?"
-          error={methods.formState.errors.action?.message}
+          error={errors.action?.message}
         >
           <RadioGroup>
             <Radio
@@ -66,7 +71,7 @@ export const EditSessionDecision = ({
               hint="Shorten the session length or remove capacity"
               id="edit-session"
               value="edit-session"
-              {...methods.register('action', {
+              {...register('action', {
                 required: { value: true, message: 'Select an option' },
               })}
             />
@@ -75,15 +80,19 @@ export const EditSessionDecision = ({
               hint="Cancel all booked appointments, and remove this session"
               id="cancel-session"
               value="cancel-session"
-              {...methods.register('action', {
+              {...register('action', {
                 required: { value: true, message: 'Select an option' },
               })}
             />
           </RadioGroup>
         </FormGroup>
-        <ButtonGroup>
-          <Button type="submit">Continue</Button>
-        </ButtonGroup>
+        {isSubmitting || isSubmitSuccessful ? (
+          <SmallSpinnerWithText text="Working..." />
+        ) : (
+          <ButtonGroup>
+            <Button type="submit">Continue</Button>
+          </ButtonGroup>
+        )}
       </form>
     </>
   );

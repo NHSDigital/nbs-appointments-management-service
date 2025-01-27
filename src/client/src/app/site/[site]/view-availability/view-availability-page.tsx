@@ -1,14 +1,15 @@
-import { Card, Pagination, Table } from '@components/nhsuk-frontend';
-import { Week } from '@types';
+import { Pagination, Spinner } from '@components/nhsuk-frontend';
+import { Site } from '@types';
 import dayjs from 'dayjs';
-import Link from 'next/link';
+import { WeekCardList } from './week-card-list';
+import { Suspense } from 'react';
 
 type Props = {
-  weeks: Week[];
+  site: Site;
   searchMonth: dayjs.Dayjs;
 };
 
-export const ViewAvailabilityPage = ({ weeks, searchMonth }: Props) => {
+export const ViewAvailabilityPage = ({ site, searchMonth }: Props) => {
   const nextMonth = searchMonth.startOf('month').add(1, 'month');
   const previousMonth = searchMonth.startOf('month').subtract(1, 'month');
 
@@ -23,35 +24,13 @@ export const ViewAvailabilityPage = ({ weeks, searchMonth }: Props) => {
 
   return (
     <>
-      <Pagination previous={previous} next={next} />
-      {weeks.map((week, i) => (
-        <Card
-          title={`${week.startDate.format('D MMMM')} to ${week.endDate.format('D MMMM')}`}
-          key={i}
-        >
-          <Table
-            headers={['Services', 'Booked appointments']}
-            rows={week.bookedAppointments.map(appts => {
-              return [appts.service, appts.count];
-            })}
-          ></Table>
-          <Table
-            headers={[
-              `Total appointments: ${week.totalAppointments}`,
-              `Booked: ${week.booked}`,
-              `Unbooked: ${week.unbooked}`,
-            ]}
-            rows={[]}
-          ></Table>
-          <br />
-          <Link
-            className="nhsuk-link"
-            href={`view-availability/week?date=${week.startDate.format('YYYY-MM-DD')}`}
-          >
-            View week
-          </Link>
-        </Card>
-      ))}
+      <Pagination previous={previous} next={next} />{' '}
+      <Suspense
+        key={searchMonth.format('YYYY-MM-DDTHH:mm:ssZZ')}
+        fallback={<Spinner />}
+      >
+        <WeekCardList site={site} searchMonth={searchMonth} />
+      </Suspense>
     </>
   );
 };

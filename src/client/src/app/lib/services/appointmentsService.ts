@@ -162,7 +162,6 @@ export async function acceptEula(versionDate: string) {
 
   handleEmptyResponse(response);
   revalidatePath(`eula`);
-  redirect(`/`);
 }
 
 export async function assertPermission(site: string, permission: string) {

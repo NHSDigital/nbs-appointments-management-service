@@ -16,4 +16,15 @@ export const getDateInFuture = (
     month: futureDate.format('MM'),
     year: futureDate.format('YYYY'),
   };
+
+  // export const geRequiredtDateInFormat=(dayType: 'Tommorow',requiredformat:string){
+  //   const date=new Date();
+  //   var requiredDate;
+  //   if(dayType=='Tommorow'){
+  //     let tomorrowDate = date.setDate(date.getDate()+1);
+  //     requiredDate=dayjs(tomorrowDate).format(requiredformat);
+  //     console.log(requiredDate);
+  //   }
+  //   return requiredDate;
+  // }
 };

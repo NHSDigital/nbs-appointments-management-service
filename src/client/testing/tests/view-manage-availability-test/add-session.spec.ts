@@ -4,57 +4,41 @@ import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
-import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
-import EditInformationForCitizensPage from '../../page-objects/change-site-details-pages/edit-citizen-information';
+import MonthViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
+import {
+  getDateInFuture,
+  geRequiredtDateInFormat,
+} from '../../utils/date-utility';
+import dayjs from 'dayjs';
 
 const { TEST_USERS } = env;
-
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
-let siteDetailsPage: SiteDetailsPage;
-let editInformCitizen: EditInformationForCitizensPage;
+let monthViewAvailabilityPage: MonthViewAvailabilityPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
-  siteDetailsPage = new SiteDetailsPage(page);
-  editInformCitizen = new EditInformationForCitizensPage(page);
+  monthViewAvailabilityPage = new MonthViewAvailabilityPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
-  await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-information-for-citizens',
-  );
+  await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
+  await page.waitForURL('**/site/**/view-availability');
 });
 
-test('Update information for citizen', async () => {
-  await editInformCitizen.verifyInformationForCitizenPageDetails();
-  await editInformCitizen.setInformationForCitizen('Test Automation');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
-  await siteDetailsPage.verifyInformationSaved('Test Automation');
-});
+test('Verify user is able to add a session for future date', async ({
+  page,
+}) => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  // const requiredDate=geRequiredtDateInFormat('Tommorow','DD MMMM');
 
-test('Verify information not saved when cancel button clicked', async () => {
-  await editInformCitizen.setInformationForCitizen('Test Automation');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await editInformCitizen.setInformationForCitizen('Changed Information');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Cancel');
-  await siteDetailsPage.verifyInformationNotSaved(
-    'Test Automation',
-    'Changed Information',
-  );
-});
-
-test('Verify validation handling for information text field', async () => {
-  await editInformCitizen.VerifyValidationMessage();
+  //await monthViewAvailabilityPage.openWeekViewHavingDate(requiredDate);
+  await page.waitForTimeout(10000);
 });

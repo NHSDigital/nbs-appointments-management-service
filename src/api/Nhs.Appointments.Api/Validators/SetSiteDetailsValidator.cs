@@ -6,7 +6,7 @@ namespace Nhs.Appointments.Api.Validators;
 
 public class SetSiteDetailsValidator : AbstractValidator<SetSiteDetailsRequest>
 {
-    private const string NumbersOnlyRegex = @"^\d+$";
+    private const string TelephoneRegex = @"^[+0-9 ]*$";
 
     public SetSiteDetailsValidator()
     {
@@ -20,7 +20,7 @@ public class SetSiteDetailsValidator : AbstractValidator<SetSiteDetailsRequest>
             .NotEmpty()
             .WithMessage("Provide a valid address");
         RuleFor(x => x.PhoneNumber)
-            .Matches(NumbersOnlyRegex).WithMessage("Phone number must contain numbers only")
+            .Matches(TelephoneRegex).WithMessage("Phone number must contain numbers and spaces only")
             .NotEmpty().WithMessage("Provide a valid phone number");
         RuleFor(x => x.Latitude)
             .Must(x => decimal.TryParse(x, out _)).WithMessage("Latitude must be a decimal number")

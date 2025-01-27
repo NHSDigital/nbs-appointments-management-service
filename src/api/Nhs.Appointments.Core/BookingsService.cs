@@ -189,7 +189,7 @@ public class BookingsService(
 
             if (booking.Status is AppointmentStatus.Provisional)
             {
-                await bookingDocumentStore.DeleteProvisionalBooking(booking.Reference, booking.Site);
+                await bookingDocumentStore.DeleteBooking(booking.Reference, booking.Site);
             }
         }
     }

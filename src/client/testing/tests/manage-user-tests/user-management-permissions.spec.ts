@@ -166,11 +166,13 @@ test('Verify user can only view appointment manager related tiles In app when us
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Appointment manager', testuser8_emailId);
   await rootPage.logOut();
+  await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser8.username,
-    TEST_USERS.testUser8.password,
-  );
+  await oAuthPage.signIn(TEST_USERS.testUser8);
+  // await oAuthPage.signInWithRequiredUser(
+  // TEST_USERS.testUser8.username,
+  // TEST_USERS.testUser8.password,
+  // );
   await eulaConsentPage.acceptAndContinueButton.click();
   await page.waitForURL('**/');
   await expect(siteSelectionPage.title).toBeVisible();

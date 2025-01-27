@@ -1,4 +1,4 @@
-import { test, nonNhsEmailId, abc01_id } from '../../fixtures';
+import { test, abc01_id } from '../../fixtures';
 import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
@@ -43,9 +43,7 @@ test.beforeEach(async ({ page }) => {
 //   await cosmosDbSeeder.clearUsers();
 // });
 
-test('Verify user manager able to create new user', async ({
-  newUserName,
-}) => {
+test('Verify user manager able to create new user', async ({ newUserName }) => {
   await usersPage.assignStaffRolesLink.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.searchUserButton.click();
@@ -67,9 +65,11 @@ test('Cannot create a user without any roles', async ({ newUserName }) => {
   await createUserPage.notSelectedAnyRolesErrorMsg();
 });
 
-test('Cannot create a user with non NHS email Id', async () => {
+test('Cannot create a user with non NHS email Id', async ({
+  externalUserName,
+}) => {
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(nonNhsEmailId);
+  await editManageUserRolesPage.emailInput.fill(externalUserName);
   await editManageUserRolesPage.searchUserButton.click();
   await createUserPage.notEnteredValidEmailAddressErrorMsg();
 });

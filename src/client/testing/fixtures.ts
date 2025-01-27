@@ -4,7 +4,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import { test as baseTest } from '@playwright/test';
 
 export * from '@playwright/test';
-export const test = baseTest.extend<object, { newUserName: string }>({
+export const test = baseTest.extend<
+  object,
+  { newUserName: string; externalUserName: string }
+>({
   newUserName: [
     async ({}, use) => {
       const userName = `int-test-user-${test.info().workerIndex}@nhs.net`;
@@ -12,9 +15,14 @@ export const test = baseTest.extend<object, { newUserName: string }>({
     },
     { scope: 'worker' },
   ],
+  externalUserName: [
+    async ({}, use) => {
+      const nonNHSuserName = `external-user-${test.info().workerIndex}@gmail.com`;
+      await use(nonNHSuserName);
+    },
+    { scope: 'worker' },
+  ],
 });
-
-export const nonNhsEmailId = `int-test-user-${Math.floor(Math.random() * 10000)}@gmail.com`;
 
 export const testuser8_emailId = `zzz_test_user_8@nhs.net`;
 export const testuser9_emailId = `zzz_test_user_9@nhs.net`;

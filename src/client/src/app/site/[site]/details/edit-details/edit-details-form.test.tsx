@@ -35,13 +35,11 @@ describe('Edit Site Details Form', () => {
   });
 
   it('renders', async () => {
-    expect(
-      screen.getByRole('heading', { level: 3, name: 'Site name' }),
-    ).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Site name' })).toBeVisible();
   });
 
   it('prepopulates the site data correctly in the form', () => {
-    expect(screen.getByRole('textbox', { name: 'name' })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: 'Site name' })).toHaveValue(
       mockSiteWithAttributes.name,
     );
 
@@ -58,8 +56,8 @@ describe('Edit Site Details Form', () => {
       mockSiteWithAttributes.location.coordinates[1].toString(),
     );
 
-    expect(screen.getByRole('textbox', { name: 'phoneNumber' })).toHaveValue(
-      '01189998819991197253',
+    expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(
+      '0118 999 88199 9119 725 3',
     );
   });
 
@@ -70,11 +68,10 @@ describe('Edit Site Details Form', () => {
     await user.click(saveButton);
 
     //address resaved just as a single comma delimited string
-    //phone number resaved as a numeric string only
     const expectedPayload = {
       name: mockSiteWithAttributes.name,
       address: mockSiteWithAttributes.address,
-      phoneNumber: '01189998819991197253',
+      phoneNumber: '0118 999 88199 9119 725 3',
       latitude: mockSiteWithAttributes.location.coordinates[0].toString(),
       longitude: mockSiteWithAttributes.location.coordinates[1].toString(),
     };
@@ -87,8 +84,6 @@ describe('Edit Site Details Form', () => {
 
   it('adding a new line break to the address saves as a comma delimited string', async () => {
     //write text to the address field
-
-    //TODO textarea label question??
     const addressInput = screen.getByLabelText('Site address');
 
     await user.type(addressInput, ',\nUK');
@@ -103,7 +98,7 @@ describe('Edit Site Details Form', () => {
     const expectedPayload = {
       name: mockSiteWithAttributes.name,
       address: 'A new house, on a new road, in a new city, UK',
-      phoneNumber: '01189998819991197253',
+      phoneNumber: '0118 999 88199 9119 725 3',
       latitude: mockSiteWithAttributes.location.coordinates[0].toString(),
       longitude: mockSiteWithAttributes.location.coordinates[1].toString(),
     };

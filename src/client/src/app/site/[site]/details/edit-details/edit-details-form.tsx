@@ -36,8 +36,7 @@ const EditDetailsForm = ({
       name: siteWithAttributes.name,
       //add in line breaks at each comma
       address: siteWithAttributes.address.replace(/, /g, ',\n'),
-      //strip out whitespace from phone number so that it can be a 'number' control
-      phoneNumber: siteWithAttributes.phoneNumber.replace(/\s/g, ''),
+      phoneNumber: siteWithAttributes.phoneNumber,
       latitude: siteWithAttributes.location.coordinates[0].toString(),
       longitude: siteWithAttributes.location.coordinates[1].toString(),
     },
@@ -61,11 +60,10 @@ const EditDetailsForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <h3>Site name</h3>
       <FormGroup error={errors.name?.message}>
         <TextInput
           id="name"
-          aria-label="name"
+          label="Site name"
           {...register('name')}
         ></TextInput>
       </FormGroup>
@@ -78,7 +76,6 @@ const EditDetailsForm = ({
         ></TextArea>
       </FormGroup>
 
-      <h3>Latitude and longitude</h3>
       <FormGroup error={errors.latitude?.message || errors.longitude?.message}>
         <TextInput
           id="latitude"
@@ -92,13 +89,13 @@ const EditDetailsForm = ({
         ></TextInput>
       </FormGroup>
 
-      <h3>Phone number</h3>
       <FormGroup error={errors.phoneNumber?.message}>
         <TextInput
           id="phoneNumber"
           type="tel"
-          aria-label="phoneNumber"
-          pattern="\d*"
+          label="Phone number"
+          title="Please enter numbers and spaces only."
+          pattern="[0-9 ]*"
           {...register('phoneNumber')}
         ></TextInput>
       </FormGroup>

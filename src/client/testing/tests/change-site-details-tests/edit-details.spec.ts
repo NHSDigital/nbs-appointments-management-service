@@ -40,6 +40,16 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+//expects each test to finish on the edit site details page
+test.afterEach(async () => {
+  await editDetailsPage.addressInput.fill('Pudsey,\nLeeds,\nLS28 7LD');
+  await editDetailsPage.latitudeInput.fill('-1.66382134');
+  await editDetailsPage.longitudeInput.fill('53.79628754');
+  await editDetailsPage.phoneNumberInput.fill('0113 2222222');
+
+  await editDetailsPage.saveAndContinueButton.click();
+});
+
 test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
   await editDetailsPage.latitudeInput.fill('0.32445345');
@@ -64,7 +74,7 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
   expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
   expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('01132222222');
+  expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
 
   await editDetailsPage.page.reload();
   await page.waitForURL(
@@ -75,14 +85,14 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
   expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
   expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('01132222222');
+  expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
 });
 
 test('Update details for a site, and then reset', async ({ page }) => {
   await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
   await editDetailsPage.latitudeInput.fill('0.32445345');
   await editDetailsPage.longitudeInput.fill('53.742');
-  await editDetailsPage.phoneNumberInput.fill('01189998819991197253');
+  await editDetailsPage.phoneNumberInput.fill('0118 999 88199 9119 725 3');
   await editDetailsPage.saveAndContinueButton.click();
 
   //verify the data is present on the new details
@@ -93,7 +103,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
     'One House, One Road, One Town',
     '0.32445345',
     '53.742',
-    '01189998819991197253',
+    '0118 999 88199 9119 725 3',
   );
 
   // Go back into edit UI to assert new input is there
@@ -108,7 +118,9 @@ test('Update details for a site, and then reset', async ({ page }) => {
   );
   expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
   expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('01189998819991197253');
+  expect(editDetailsPage.phoneNumberInput).toHaveValue(
+    '0118 999 88199 9119 725 3',
+  );
 
   await editDetailsPage.page.reload();
   await page.waitForURL(
@@ -121,13 +133,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
   );
   expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
   expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('01189998819991197253');
-
-  //reset data at end of test
-  await editDetailsPage.addressInput.fill('Pudsey,\nLeeds,\nLS28 7LD');
-  await editDetailsPage.latitudeInput.fill('-1.66382134');
-  await editDetailsPage.longitudeInput.fill('53.79628754');
-  await editDetailsPage.phoneNumberInput.fill('01132222222');
-
-  await editDetailsPage.saveAndContinueButton.click();
+  expect(editDetailsPage.phoneNumberInput).toHaveValue(
+    '0118 999 88199 9119 725 3',
+  );
 });

@@ -20,15 +20,13 @@ export default class EditDetailsPage extends RootPage {
     this.saveAndContinueButton = page.getByRole('button', {
       name: 'Save and continue',
     });
-    this.backLink = page
-      .getByRole('link')
-      .filter({ hasText: 'Back to site details' });
+    this.backLink = page.getByRole('link').filter({ hasText: 'Go back' });
     this.closeNotificationBannerButton = page.getByRole('button', {
       name: 'Close',
     });
 
     this.nameInput = page.getByRole('textbox', {
-      name: 'name',
+      name: 'Site name',
     });
 
     this.addressInput = page.getByRole('textbox', {
@@ -44,7 +42,7 @@ export default class EditDetailsPage extends RootPage {
     });
 
     this.phoneNumberInput = page.getByRole('textbox', {
-      name: 'phoneNumber',
+      name: 'Phone Number',
     });
   }
 }

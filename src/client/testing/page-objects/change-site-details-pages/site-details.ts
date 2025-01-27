@@ -9,8 +9,8 @@ export default class SiteDetailsPage extends RootPage {
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
   readonly headerMsg = 'Manage Site';
-  readonly siteDetailsheaderMsg = 'Site Details';
-  readonly adminDetailsheaderMsg = 'Admin Details';
+  readonly siteDetailsheaderMsg = 'Site details';
+  readonly referenceDetailsheaderMsg = 'Site reference details';
   readonly accessNeedsheaderMsg = 'Access needs';
   readonly informationForCitizensheaderMsg = 'Information for citizens';
 
@@ -23,7 +23,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly defaultAddress = 'Pudsey, Leeds, LS28 7LD';
   readonly defaultLatitude = '-1.66382134';
   readonly defaultLongitude = '53.79628754';
-  readonly defaultPhoneNumber = '01132222222';
+  readonly defaultPhoneNumber = '0113 2222222';
 
   readonly odsCodeLabel = 'ODS code';
   readonly icbLabel = 'ICB';
@@ -151,7 +151,9 @@ export default class SiteDetailsPage extends RootPage {
     );
 
     await expect(
-      this.page.getByRole('heading', { name: `${this.adminDetailsheaderMsg}` }),
+      this.page.getByRole('heading', {
+        name: `${this.referenceDetailsheaderMsg}`,
+      }),
     ).toBeVisible();
 
     await this.verifySummaryListItemContentValue(

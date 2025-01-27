@@ -1,4 +1,4 @@
-import { fetchSite } from '@services/appointmentsService';
+import { assertPermission, fetchSite } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import AvailabilityTemplateWizard from './availability-template-wizard';
 
@@ -12,7 +12,10 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const site = await fetchSite(params.site);
+  const [site] = await Promise.all([
+    fetchSite(params.site),
+    assertPermission(params.site, 'availability:setup'),
+  ]);
 
   return (
     <NhsTransactionalPage originPage="create-availability-wizard">

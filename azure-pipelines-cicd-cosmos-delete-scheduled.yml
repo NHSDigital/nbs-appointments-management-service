@@ -1,0 +1,31 @@
+﻿pool:
+  vmImage: "ubuntu-latest"
+
+schedules:
+  - cron: "0 0 * * *"
+    displayName: "Deletion schedule"
+    branches:
+      include:
+        - appt-xxxx/pipeline-to-remove-cicd-cosmos
+    batch: false
+    always: true
+
+variables:
+  serviceConnectionName: "nbs-myacicd-rg-int"
+  resourceGroup: "nbs-myacicd-rg-int-uks"
+  subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
+
+stages:
+  - stage: "DeleteCICDCosmosDbAccounts"
+    displayName: "Delete old cicd cosmosdb accounts"
+    jobs:
+      - job: "DeleteOldCosmosDbAccounts"
+        displayName: "Run script to remove accounts "
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db_scheduled.ps1"
+              arguments: "-resourceGroup $(resourceGroup) -subscriptionId $(subscriptionId)"

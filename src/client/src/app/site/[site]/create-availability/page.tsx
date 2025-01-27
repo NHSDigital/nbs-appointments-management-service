@@ -9,9 +9,10 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-
-  await assertPermission(site.id, 'availability:setup');
+  const [site] = await Promise.all([
+    fetchSite(params.site),
+    assertPermission(params.site, 'availability:setup'),
+  ]);
 
   return (
     <NhsPage

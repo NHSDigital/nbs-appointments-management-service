@@ -13,8 +13,11 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const site = await fetchSite(params.site);
-  await assertPermission(site.id, 'availability:query');
+  const [site] = await Promise.all([
+    fetchSite(params.site),
+    assertPermission(params.site, 'availability:query'),
+  ]);
+
   const searchMonth = searchParams?.date
     ? dayjs(searchParams?.date, 'YYYY-MM-DD')
     : dayjs();

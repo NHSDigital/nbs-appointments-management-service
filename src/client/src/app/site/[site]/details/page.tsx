@@ -14,12 +14,12 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-  const wellKnownOdsCodeEntries = await fetchWellKnownOdsCodeEntries();
-
-  const sitePermissions = await fetchPermissions(params.site);
-
-  await assertAllPermissions(site.id, ['site:view', 'site:get-meta-data']);
+  const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
+    fetchSite(params.site),
+    fetchWellKnownOdsCodeEntries(),
+    fetchPermissions(params.site),
+    assertAllPermissions(params.site, ['site:view', 'site:get-meta-data']),
+  ]);
 
   return (
     <NhsPage

@@ -223,7 +223,7 @@ describe('Site Page', () => {
     verifySummaryListItem('Address', 'Alpha Street');
   });
 
-  it('renders multiple value', () => {
+  it('renders address and phone number', () => {
     const mockSite = mockSites[3];
 
     render(
@@ -233,6 +233,8 @@ describe('Site Page', () => {
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
+
+    verifySummaryListItem('Phone Number', '0118 999 88199 9119 725 3');
 
     const termDescription = screen.getByRole('definition', {
       name: 'Address-description',

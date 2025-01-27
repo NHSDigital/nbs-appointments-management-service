@@ -68,7 +68,7 @@ const mockSites: Site[] = [
   {
     id: '34e990af-5dc9-43a6-8895-b9123216d699',
     name: 'Site Alpha',
-    phoneNumber: '01189998819991197253',
+    phoneNumber: '0118 999 88199 9119 725 3',
     address: 'Alpha Street',
     odsCode: '1001',
     integratedCareBoard: 'ICB1',
@@ -107,7 +107,7 @@ const mockSites: Site[] = [
   {
     id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
     name: 'Site Delta',
-    phoneNumber: '01189998819991197253',
+    phoneNumber: '0118 999 88199 9119 725 3',
     address: 'Delta Street, London',
     odsCode: '1004',
     integratedCareBoard: 'ICB4',

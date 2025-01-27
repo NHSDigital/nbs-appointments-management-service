@@ -9,29 +9,29 @@ export const mapSiteOverviewSummaryData = (
     return undefined;
   }
 
-  const items: SummaryListItem[] = [];
+  const items: SummaryListItem[] = [
+    {
+      title: 'Address',
+      value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
+    },
+    { title: 'Phone Number', value: site.phoneNumber },
+    { title: 'ODS code', value: site.odsCode },
+    {
+      title: 'ICB',
+      value:
+        wellKnownOdsCodeEntries.find(
+          e => e.odsCode === site.integratedCareBoard,
+        )?.displayName ?? site.integratedCareBoard,
+    },
+    {
+      title: 'Region',
+      value:
+        wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
+          ?.displayName ?? site.region,
+    },
+  ];
 
-  items.push({
-    title: 'Address',
-    value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
-  });
-  items.push({ title: 'ODS code', value: site.odsCode });
-  items.push({
-    title: 'ICB',
-    value:
-      wellKnownOdsCodeEntries.find(e => e.odsCode === site.integratedCareBoard)
-        ?.displayName ?? site.integratedCareBoard,
-  });
-  items.push({
-    title: 'Region',
-    value:
-      wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-        ?.displayName ?? site.region,
-  });
-
-  const border = false;
-
-  return { items, border };
+  return { items, border: false };
 };
 
 export const mapCoreSiteSummaryData = (site: Site) => {

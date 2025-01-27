@@ -556,7 +556,7 @@ namespace Nhs.Appointments.Core.UnitTests
             }
 
             [Fact]
-            public async Task RecalculateAppointmentStatuses_DoesNotOrphanProvisionalAppointments()
+            public async Task RecalculateAppointmentStatuses_DeletesProvisionalAppointments()
             {
                 IEnumerable<Booking> bookings = new List<Booking>
                 {
@@ -574,7 +574,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                         Status = AppointmentStatus.Provisional,
-                        Duration = 10
+                        Duration = 10,
+                        Site = "mock-site"
                     }
                 };
 
@@ -604,10 +605,10 @@ namespace Nhs.Appointments.Core.UnitTests
                         It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
                     Times.Once);
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.DeleteProvisionalBooking(
                         It.Is<string>(s => s == "2"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
-                    Times.Never);
+                        It.Is<string>(s => s == "mock-site")),
+                    Times.Once);
             }
 
             [Fact]

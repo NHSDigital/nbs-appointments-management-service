@@ -63,6 +63,7 @@ public class BookingsService(
                 booking.Created = time.GetUtcNow();                
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
                 await bookingDocumentStore.InsertAsync(booking);
 
                 if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
@@ -173,18 +174,20 @@ public class BookingsService(
 
             if (targetSlot != null)
             {
-                if (booking.Status != AppointmentStatus.Booked && booking.Status != AppointmentStatus.Provisional)
+                if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
                 {
-                    await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
-                    booking.Status = AppointmentStatus.Booked;
+                    await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference,
+                        AvailabilityStatus.Supported);
                 }
                 targetSlot.Capacity--;
                 continue;
             }
 
-            if (booking.Status is AppointmentStatus.Booked)
+            // TODO: Delete the provisional rather than just excluding it from this check. This work is another PR in code review.
+            if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                booking.Status is not AppointmentStatus.Provisional)
             {
-                await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
+                await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference, AvailabilityStatus.Orphaned);
             }
 
             if (booking.Status is AppointmentStatus.Provisional)

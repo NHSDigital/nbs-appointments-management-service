@@ -23,5 +23,5 @@
       | Tomorrow | 09:20 | 5        | COVID   | 85032-19283 |
     When I cancel the appointment with reference '68374-29374'
     Then the booking with reference '68374-29374' has been 'Cancelled'
-    Then the booking with reference '85032-19283' has been 'Booked'
+    Then the booking with reference '85032-19283' has status 'Booked'
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'

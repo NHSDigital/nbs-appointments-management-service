@@ -56,7 +56,9 @@
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking with reference '37492-16293' has been 'Booked'
+    And the booking with reference '37492-16293' has availability status 'Supported'
     And the booking with reference '79237-10283' has status 'Provisional'
+    And the booking with reference '79237-10283' has availability status 'Supported'
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit an existing session
@@ -113,7 +115,9 @@
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking with reference '10293-45957' has status 'Cancelled'
+    And the booking with reference '10293-45957' has availability status 'Unknown'
     And the booking with reference '48232-10293' has status 'Provisional'
+    And the booking with reference '48232-10293' has availability status 'Supported'
 
   Scenario: Provisional bookings are still considered live and prevent orphaned appointments taking their place
     Given the following sessions
@@ -132,8 +136,11 @@
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking with reference '56923-19232' has status 'Booked'
+    And the booking with reference '56923-19232' has availability status 'Supported'
     And the booking with reference '19283-30492' has status 'Provisional'
-    And the booking with reference '45721-10293' has status 'Orphaned'
+    And the booking with reference '19283-30492' has availability status 'Supported'
+    And the booking with reference '45721-10293' has status 'Booked'
+    And the booking with reference '45721-10293' has availability status 'Orphaned'
 
   Scenario: Bookings are prioritised by created date
     Given there is no existing availability
@@ -146,5 +153,7 @@
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
-    Then the booking with reference '34482-10293' has status 'Orphaned'
+    Then the booking with reference '34482-10293' has status 'Booked'
+    And the booking with reference '34482-10293' has availability status 'Orphaned'
     And the booking with reference '45853-10293' has status 'Booked'
+    And the booking with reference '45853-10293' has availability status 'Supported'

@@ -88,11 +88,30 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
+    public async Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status)
+    {
+        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument == null)
+        {
+            return false;
+        }
+
+        await UpdateAvailabilityStatus(bookingIndexDocument, status);
+        return true;
+    }
+
     private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
+    }
+
+    private async Task UpdateAvailabilityStatus(BookingIndexDocument booking, AvailabilityStatus status)
+    {
+        var updateStatusPatch = PatchOperation.Replace("/availabilityStatus", status);
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
     }
 

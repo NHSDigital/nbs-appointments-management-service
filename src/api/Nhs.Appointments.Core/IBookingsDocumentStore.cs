@@ -15,6 +15,7 @@ public interface IBookingsDocumentStore
     Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task DeleteBooking(string reference, string site);
+    Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
 }
 
 public interface IRolesStore

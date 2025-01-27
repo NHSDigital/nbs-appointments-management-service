@@ -5,7 +5,7 @@ import {
 } from '@services/appointmentsService';
 import {
   mapCoreSiteSummaryData,
-  mapAdminSiteSummaryData,
+  mapSiteReferenceSummaryData,
 } from '@services/siteService';
 import { WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
@@ -30,12 +30,20 @@ const SiteDetailsPage = async ({
     sa => sa.id === 'site_details/info_for_citizen',
   );
 
+  const siteReferenceSummaryData = mapSiteReferenceSummaryData(
+    site,
+    wellKnownOdsEntries,
+  );
   const siteCoreSummary = mapCoreSiteSummaryData(site);
-  const siteAdminSummary = mapAdminSiteSummaryData(site, wellKnownOdsEntries);
 
   return (
     <>
-      <Card title="Site Details">
+      <Card title="Site reference details">
+        {siteReferenceSummaryData && (
+          <SummaryList {...siteReferenceSummaryData}></SummaryList>
+        )}
+      </Card>
+      <Card title="Site details">
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
         {permissions.includes('site:manage') ? (
           <Link
@@ -45,9 +53,6 @@ const SiteDetailsPage = async ({
             Edit site details
           </Link>
         ) : null}
-      </Card>
-      <Card title="Admin Details">
-        {siteAdminSummary && <SummaryList {...siteAdminSummary}></SummaryList>}
       </Card>
       <Card title="Access needs">
         <SummaryList

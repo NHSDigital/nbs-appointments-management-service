@@ -63,7 +63,7 @@ export const mapCoreSiteSummaryData = (site: Site) => {
   return { items, border: false };
 };
 
-export const mapAdminSiteSummaryData = (
+export const mapSiteReferenceSummaryData = (
   site: Site,
   wellKnownOdsCodeEntries: WellKnownOdsEntry[],
 ) => {

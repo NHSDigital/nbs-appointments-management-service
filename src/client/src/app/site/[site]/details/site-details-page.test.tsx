@@ -35,6 +35,7 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
+    expect(screen.getByRole('heading', { name: 'Site details' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Access needs' })).toBeVisible();
   });
 
@@ -47,7 +48,7 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Site Details' }),
+      screen.getByRole('heading', { level: 2, name: 'Site details' }),
     ).toBeVisible();
 
     verifySummaryListItem('Address', mockSite.address);
@@ -92,7 +93,7 @@ describe('Site Details Page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('displays the admin site details - ODS well known present', async () => {
+  it('displays the site reference details - ODS well known present', async () => {
     const jsx = await SiteDetailsPage({
       siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
@@ -101,7 +102,7 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Admin Details' }),
+      screen.getByRole('heading', { level: 2, name: 'Site reference details' }),
     ).toBeVisible();
 
     verifySummaryListItem('ODS code', mockSite.odsCode);
@@ -114,13 +115,20 @@ describe('Site Details Page', () => {
     expect(screen.queryByText(mockSite.region)).not.toBeInTheDocument();
   });
 
-  it('displays the admin site details - ODS well known absent', async () => {
+  it('displays the site reference details - ODS well known absent', async () => {
     const jsx = await SiteDetailsPage({
       siteId: mockSite.id,
       permissions: ['site:manage', 'site:view'],
       wellKnownOdsEntries: [],
     });
     render(jsx);
+
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Site reference details',
+      }),
+    ).toBeVisible();
 
     verifySummaryListItem('ODS code', mockSite.odsCode);
     verifySummaryListItem('ICB', mockSite.integratedCareBoard);

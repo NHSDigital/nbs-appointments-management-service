@@ -29,7 +29,7 @@ const Page = async ({ params }: PageProps) => {
       originPage="site-details"
     >
       <SiteDetailsPage
-        site={site}
+        siteId={params.site}
         permissions={sitePermissions}
         wellKnownOdsEntries={wellKnownOdsCodeEntries}
       />

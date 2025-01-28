@@ -29,7 +29,7 @@ describe('Single or Repeating Session Step', () => {
       screen.getByRole('heading', {
         name: 'Create availability What type of session do you want to create?',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('toggles between single and repeat', async () => {

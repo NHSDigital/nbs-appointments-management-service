@@ -1,14 +1,9 @@
 ﻿using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
@@ -23,30 +18,5 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         var attributeValues = ParseAttributes(row.Cells.ElementAt(0).Value);
         var payload = new SetSiteAttributesRequest(siteId, "*", attributeValues);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", payload);
-    }
-
-    [Then("the correct information for site '(.+)' is returned")]
-    public async Task Assert(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var siteId = row.Cells.ElementAt(0).Value;
-        var expectedSite = new Site(
-            Id: GetSiteId(siteId),
-            Name: row.Cells.ElementAt(1).Value,
-            Address: row.Cells.ElementAt(2).Value,
-            PhoneNumber: row.Cells.ElementAt(3).Value,
-            OdsCode: row.Cells.ElementAt(4).Value,
-            Region: row.Cells.ElementAt(5).Value,
-            IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(7).Value),
-            Location: new Location(
-                Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])
-        );
-        Response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var actualResult = await Client.GetContainer("appts", "core_data")
-            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site"));
-        actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
 }

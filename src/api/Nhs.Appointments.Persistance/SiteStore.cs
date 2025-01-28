@@ -50,6 +50,28 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
     
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
+    {
+        decimal[] coords = [latitude, longitude];
+        
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return new OperationResult(false, "The specified site was not found.");
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        PatchOperation[] detailsPatchOperations =
+        [
+            PatchOperation.Replace("/name", name),
+            PatchOperation.Replace("/address", address),
+            PatchOperation.Replace("/phoneNumber", phoneNumber),
+            PatchOperation.Replace("/location/coordinates", coords),
+        ];
+
+        await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
+        return new OperationResult(true);
+    }
+    
     private async Task<Site> GetOrDefault(string siteId)
     {
         try

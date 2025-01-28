@@ -21,7 +21,8 @@ import {
   EditSessionRequest,
   CancelSessionRequest,
   SessionSummary,
-  Site,
+  SetSiteDetailsRequest,
+  Site
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -338,23 +339,6 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
   revalidateTag(`fetchAvailability`);
 };
 
-export const editSession = async (request: EditSessionRequest) => {
-  const response = await appointmentsApi.post(
-    `availability`,
-    JSON.stringify(request),
-  );
-
-  handleEmptyResponse(response);
-
-  revalidateTag('availability-created');
-
-  const notificationType = 'ams-notification';
-  const notificationMessage = 'You have successfully edited the session.';
-  raiseNotification(notificationType, notificationMessage);
-
-  revalidateTag(`fetchAvailability`);
-};
-
 export async function fetchInformationForCitizens(site: string, scope: string) {
   const response = await appointmentsApi.get<SiteWithAttributes>(
     `sites/${site}?scope=${scope}`,
@@ -428,6 +412,42 @@ export const cancelAppointment = async (reference: string, site: string) => {
   );
 
   return handleEmptyResponse(response);
+};
+
+export const saveSiteDetails = async (
+  site: string,
+  details: SetSiteDetailsRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/details`,
+    JSON.stringify(details),
+  );
+
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully updated the details for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidateTag(`fetchAvailability`);
+};
+
+export const editSession = async (request: EditSessionRequest) => {
+  const response = await appointmentsApi.post(
+    `availability`,
+    JSON.stringify(request),
+  );
+
+  handleEmptyResponse(response);
+
+  revalidateTag('availability-created');
+
+  const notificationType = 'ams-notification';
+  const notificationMessage = 'You have successfully edited the session.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidateTag(`fetchAvailability`);
 };
 
 export const cancelSession = async (

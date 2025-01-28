@@ -16,6 +16,7 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
+  await assertAnyPermissions(params.site, ['users:view', 'users:view']);
   const [userProfile, users, rolesResponse, site, permissions] =
     await Promise.all([
       fetchUserProfile(),
@@ -23,7 +24,6 @@ const Page = async ({ params }: PageProps) => {
       fetchRoles(),
       fetchSite(params.site),
       fetchPermissions(params.site),
-      assertAnyPermissions(params.site, ['users:view', 'users:view']),
     ]);
 
   return (

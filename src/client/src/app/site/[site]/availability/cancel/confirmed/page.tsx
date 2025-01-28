@@ -16,10 +16,9 @@ type PageProps = {
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const [site] = await Promise.all([
-    fetchSite(params.site),
-    assertPermission(params.site, 'availability:setup'),
-  ]);
+  await assertPermission(params.site, 'availability:setup');
+
+  const site = await fetchSite(params.site);
 
   if (searchParams.session === undefined || searchParams.date === undefined) {
     notFound();

@@ -13,10 +13,10 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
+  await assertPermission(params.site, 'site:manage');
   const [site, sitePermissions] = await Promise.all([
     fetchSite(params.site),
     fetchPermissions(params.site),
-    assertPermission(params.site, 'site:manage'),
   ]);
 
   return (

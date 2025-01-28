@@ -22,11 +22,12 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
+  await assertPermission(params.site, 'site:view');
+
   const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
     fetchSite(params.site),
     fetchWellKnownOdsCodeEntries(),
     fetchPermissions(params.site),
-    assertPermission(params.site, 'site:view'),
   ]);
 
   return (

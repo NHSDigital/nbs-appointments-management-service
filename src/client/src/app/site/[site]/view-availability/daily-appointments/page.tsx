@@ -23,6 +23,8 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
+  await assertPermission(params.site, 'availability:query');
+
   const date = dayjs(searchParams.date);
   const fetchBookingsRequest: FetchBookingsRequest = {
     from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
@@ -33,7 +35,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const [site, bookings] = await Promise.all([
     fetchSite(params.site),
     fetchBookings(fetchBookingsRequest),
-    assertPermission(params.site, 'availability:query'),
   ]);
 
   const scheduledBookings = bookings.filter(b => b.status === 'Booked');

@@ -23,11 +23,12 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
     redirect(`/site/${params.site}/users`);
   }
 
+  await assertPermission(params.site, 'users:manage');
+
   const [site, users, userProfile] = await Promise.all([
     fetchSite(params.site),
     fetchUsers(params.site),
     fetchUserProfile(),
-    assertPermission(params.site, 'users:manage'),
   ]);
 
   if (users === undefined || !users.some(u => u.id === searchParams?.user)) {

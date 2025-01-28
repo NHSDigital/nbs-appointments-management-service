@@ -115,6 +115,7 @@ const mockBooking1: Booking = {
   },
   created: '2024-01-04T10:35:08.0477062',
   status: 'Booked',
+  availabilityStatus: 'Supported',
   reminderSet: false,
 };
 
@@ -132,6 +133,7 @@ const mockBooking2: Booking = {
   },
   created: '2024-01-05T10:35:08.0477062',
   status: 'Booked',
+  availabilityStatus: 'Supported',
   reminderSet: false,
 };
 
@@ -148,7 +150,8 @@ const mockBooking3: Booking = {
     dateOfBirth: new Date(1984, 1, 1),
   },
   created: '2024-01-06T09:23:41.0477062',
-  status: 'Orphaned',
+  status: 'Booked',
+  availabilityStatus: 'Orphaned',
   reminderSet: false,
 };
 
@@ -166,6 +169,7 @@ const mockBooking4: Booking = {
   },
   created: '2024-11-05T10:35:08.0477062',
   status: 'Booked',
+  availabilityStatus: 'Supported',
   reminderSet: false,
 };
 
@@ -183,6 +187,7 @@ const mockBooking5: Booking = {
   },
   created: '2024-08-29T03:21:08.0477062',
   status: 'Booked',
+  availabilityStatus: 'Supported',
   reminderSet: false,
 };
 
@@ -200,6 +205,7 @@ const mockBooking6: Booking = {
   },
   created: '2024-08-29T03:21:08.0477062',
   status: 'Cancelled',
+  availabilityStatus: 'Unknown',
   reminderSet: false,
 };
 
@@ -217,6 +223,7 @@ const mockBooking7: Booking = {
   },
   created: '2024-08-29T03:21:08.0477062',
   status: 'Provisional',
+  availabilityStatus: 'Supported',
   reminderSet: false,
 };
 

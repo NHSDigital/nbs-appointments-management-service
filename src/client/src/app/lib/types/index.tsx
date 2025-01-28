@@ -229,7 +229,8 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled' | 'Orphaned';
+  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;

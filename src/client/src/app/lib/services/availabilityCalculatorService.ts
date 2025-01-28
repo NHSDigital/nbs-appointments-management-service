@@ -74,7 +74,7 @@ const summariseDay = (
       return;
     }
 
-    if (booking.status === 'Orphaned') {
+    if (booking.availabilityStatus === 'Orphaned') {
       orphanedAppointments += 1;
       return;
     }

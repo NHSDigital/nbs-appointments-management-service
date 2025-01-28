@@ -244,5 +244,36 @@ describe('Day Summary Card', () => {
         screen.queryByRole('link', { name: 'View manual cancellations' }),
       ).toBeNull();
     });
+
+    it('does not render manage availability links on a day summary', () => {
+      render(
+        <DaySummaryCard
+          daySummary={mockDaySummaries[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: 'Add Session' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'Change' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render the add availability link on an empty day summary', () => {
+      render(
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: 'Add availability to this day' }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

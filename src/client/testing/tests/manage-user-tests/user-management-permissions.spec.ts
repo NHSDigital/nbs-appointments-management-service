@@ -15,7 +15,6 @@ import UsersPage from '../../page-objects/manage-users/users-page';
 import UserManagementPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import NotAuthorizedPage from '../../page-objects/unauthorized';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
-import EulaConsentPage from '../../page-objects/eula-consent';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import CreateAvailabilityPage from '../../page-objects/create-availability';
 import ViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
@@ -30,7 +29,6 @@ let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
 let notAuthorizedPage: NotAuthorizedPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
-let eulaConsentPage: EulaConsentPage;
 let siteDetailsPage: SiteDetailsPage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let viewAvailabilityPage: ViewAvailabilityPage;
@@ -44,7 +42,6 @@ test.beforeEach(async ({ page }) => {
   userManagementPage = new UserManagementPage(page);
   notAuthorizedPage = new NotAuthorizedPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
-  eulaConsentPage = new EulaConsentPage(page);
   siteDetailsPage = new SiteDetailsPage(page);
   createAvailabilityPage = new CreateAvailabilityPage(page);
   viewAvailabilityPage = new ViewAvailabilityPage(page);
@@ -56,10 +53,8 @@ test('A user with the appropriate permission can view other users at a site but 
   await oAuthPage.signIn(TEST_USERS.testUser2);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-
   await expect(usersPage.title).toBeVisible();
   await expect(usersPage.emailColumn).toBeVisible();
-
   await expect(usersPage.manageColumn).not.toBeVisible();
   await expect(usersPage.assignStaffRolesLink).not.toBeVisible();
 });
@@ -70,9 +65,7 @@ test('A user with the appropriate permission can view other users at a site and 
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-
   await expect(usersPage.manageColumn).toBeVisible();
-
   const userCount = await userManagementPage.page
     .getByRole('row')
     .filter({
@@ -89,7 +82,6 @@ test('Navigating straight to the user management page works as expected', async 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser1);
-
   await page.goto(
     '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
   );
@@ -102,13 +94,11 @@ test('Navigating straight to the user management page displays an appropriate er
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser3);
-
   await page.goto(
     '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
   );
   await expect(usersPage.emailColumn).not.toBeVisible();
   await expect(notAuthorizedPage.title).toBeVisible();
-
   await page.goto(
     '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users/manage',
   );
@@ -166,15 +156,12 @@ test('Verify user can only view appointment manager related tiles In app when us
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Appointment manager', testuser8_emailId);
   await rootPage.logOut();
+  await page.waitForURL(
+    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
+  );
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(TEST_USERS.testUser8);
-  // await oAuthPage.signInWithRequiredUser(
-  // TEST_USERS.testUser8.username,
-  // TEST_USERS.testUser8.password,
-  // );
-  await eulaConsentPage.acceptAndContinueButton.click();
-  await page.waitForURL('**/');
   await expect(siteSelectionPage.title).toBeVisible();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.verifyTileVisible('ManageAppointment');
@@ -204,13 +191,12 @@ test('Verify user can only view availability manager related tiles In app when u
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Availability manager', testuser9_emailId);
   await rootPage.logOut();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser9.username,
-    TEST_USERS.testUser9.password,
+  await page.waitForURL(
+    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
   );
-  await eulaConsentPage.acceptAndContinueButton.click();
-  await page.waitForURL('**/');
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser9);
   await expect(siteSelectionPage.title).toBeVisible();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.verifyTileVisible('ManageAppointment');
@@ -247,13 +233,12 @@ test('Verify user can only view user manager related tiles In app when user is a
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('User manager', testuser10_emailId);
   await rootPage.logOut();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser10.username,
-    TEST_USERS.testUser10.password,
+  await page.waitForURL(
+    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
   );
-  await eulaConsentPage.acceptAndContinueButton.click();
-  await page.waitForURL('**/');
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser10);
   await expect(siteSelectionPage.title).toBeVisible();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.verifyTileVisible('ManageAppointment');
@@ -289,13 +274,12 @@ test('Verify user can only view site details manager related tiles In app when u
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Site details manager', testuser11_emailId);
   await rootPage.logOut();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signInWithRequiredUser(
-    TEST_USERS.testUser11.username,
-    TEST_USERS.testUser11.password,
+  await page.waitForURL(
+    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
   );
-  await eulaConsentPage.acceptAndContinueButton.click();
-  await page.waitForURL('**/');
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn(TEST_USERS.testUser11);
   await expect(siteSelectionPage.title).toBeVisible();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.verifyTileVisible('ManageAppointment');

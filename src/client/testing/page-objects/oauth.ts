@@ -22,10 +22,4 @@ export default class OAuthLoginPage extends RootPage {
 
     await this.page.waitForURL(env.BASE_URL);
   }
-
-  async signInWithRequiredUser(userName: string, password: string) {
-    await this.page.getByLabel('Username').fill(userName);
-    await this.page.getByLabel('Password').fill(password);
-    await this.page.getByLabel('Password').press('Enter');
-  }
 }

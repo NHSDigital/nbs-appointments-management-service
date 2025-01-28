@@ -25,7 +25,10 @@
 stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
-    dependsOn: Build
+    dependsOn:
+      - Build
+      - ${{ if eq(parameters.env, 'prod') }}:
+          - DeployStag
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
@@ -119,7 +122,7 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployHttpFunctionApp
@@ -142,12 +145,12 @@ stages:
               appName: ${{parameters.httpFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -188,7 +191,7 @@ stages:
               appName: ${{parameters.serviceBusFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployTimerFunctionApp
@@ -211,7 +214,7 @@ stages:
               appName: ${{parameters.timerFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: UploadCosmosDocuments
@@ -219,19 +222,10 @@ stages:
         dependsOn:
           - DeployWeb
           - DeployHttpFunctionApp
-          - DeployHighLoadFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-        condition: |
-          and
-          (
-            in(dependencies.DeployWeb.result, 'Succeeded'),
-            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployHighLoadFunctionApp.result, 'Succeeded', 'Skipped'),
-            in(dependencies.DeployServiceBusFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded')
-          )
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -255,7 +249,7 @@ stages:
       - job: WaitForSlotApproval
         dependsOn:
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -267,7 +261,7 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -280,7 +274,7 @@ stages:
       - job: SwapHttpFuncAppSlots
         displayName: "Swap http function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -293,7 +287,7 @@ stages:
       - job: SwapHighLoadFuncAppSlots
         displayName: "Swap high load function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -306,7 +300,7 @@ stages:
       - job: SwapServiceBusFuncAppSlots
         displayName: "Swap servicebus function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -319,7 +313,7 @@ stages:
       - job: SwapTimerFuncAppSlots
         displayName: "Swap timer function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0

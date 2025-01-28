@@ -5,6 +5,7 @@
   "service": "RSV:Adult",
   "created": "2025-03-10T08:45:30.654321+00:00",
   "status": "Booked",
+  "availabilityStatus": "Supported",
   "statusUpdated": "0001-01-01T00:00:00+00:00",
   "attendeeDetails": {
     "nhsNumber": "6202206927",

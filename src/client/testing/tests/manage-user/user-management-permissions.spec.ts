@@ -169,7 +169,7 @@ test('Verify user can only view appointment manager related tiles In app when us
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
   await siteDetailsPage.verifyEditButtonNotVisible();
 });
 
@@ -204,7 +204,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
   await siteDetailsPage.verifyEditButtonNotVisible();
   await page.goto(`/manage-your-appointments/site/${abc01_id}`);
   await sitePage.createAvailabilityCard.click();
@@ -246,7 +246,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await sitePage.verifyTileVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
   await siteDetailsPage.verifyEditButtonNotVisible();
   await page.goto(`/manage-your-appointments/site/${abc01_id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
@@ -287,7 +287,7 @@ test('Verify user can only view site details manager related tiles In app when u
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
   await siteDetailsPage.verifyEditButtonToBeVisible();
   await page.goto(`/manage-your-appointments/site/${abc01_id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();

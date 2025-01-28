@@ -30,5 +30,5 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Verify default information on site page', async () => {
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage('Church Lane Pharmacy');
 });

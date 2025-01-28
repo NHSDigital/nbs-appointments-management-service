@@ -527,6 +527,15 @@ const mockDaySummaries: DaySummary[] = [
     orphanedAppointments: 0,
     remainingCapacity: 140,
   },
+  {
+    date: dayjs().year(2024).month(11).date(6),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
+  },
 ];
 
 const mockEmptyDays: DaySummary[] = [

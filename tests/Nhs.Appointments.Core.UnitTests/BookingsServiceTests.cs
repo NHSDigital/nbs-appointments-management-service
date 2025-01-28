@@ -246,7 +246,9 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
             
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+            _bookingsDocumentStore
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .ReturnsAsync(true).Verifiable();
 
             await _bookingsService.CancelBooking(bookingRef, site);
 
@@ -279,7 +281,9 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+            _bookingsDocumentStore
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .ReturnsAsync(true).Verifiable();
 
             var result = await _bookingsService.CancelBooking(bookingRef, "some-other-site");
 
@@ -439,7 +443,9 @@ namespace Nhs.Appointments.Core.UnitTests
                 var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
                 _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>()),
+                _bookingsDocumentStore.Verify(
+                    x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                        It.IsAny<AvailabilityStatus>()),
                     Times.Never);
             }
 

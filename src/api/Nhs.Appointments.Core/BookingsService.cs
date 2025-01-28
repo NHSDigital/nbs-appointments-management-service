@@ -11,7 +11,8 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
-    Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status);
+    Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
@@ -88,7 +89,8 @@ public class BookingsService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
         await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
@@ -125,10 +127,9 @@ public class BookingsService(
         return result;
     }
 
-    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status)
-    {
-        return bookingDocumentStore.UpdateStatus(bookingReference, status);
-    }
+    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus) =>
+        bookingDocumentStore.UpdateStatus(bookingReference, status, availabilityStatus);
 
     public async Task SendBookingReminders()
     {

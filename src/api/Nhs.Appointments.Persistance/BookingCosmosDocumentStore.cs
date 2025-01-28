@@ -77,14 +77,17 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         }
         return results;
     }
-    public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status)
+
+    public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
         {
             return false;
         }
-        await UpdateStatus(bookingIndexDocument, status);
+
+        await UpdateStatus(bookingIndexDocument, status, availabilityStatus);
         return true;
     }
 
@@ -100,12 +103,17 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
         return true;
     }
 
-    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
+    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+        var updateAvailabilityStatusPatch =
+            PatchOperation.Replace("/availabilityStatus", availabilityStatus);
+
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch,
+            updateAvailabilityStatusPatch);
     }
 
     private async Task UpdateAvailabilityStatus(BookingIndexDocument booking, AvailabilityStatus status)
@@ -162,7 +170,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled);
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown);
         }
         
         return BookingConfirmationResult.Success;

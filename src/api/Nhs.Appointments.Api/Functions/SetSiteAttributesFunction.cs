@@ -27,7 +27,7 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:manage", typeof(SiteFromPathInspector))]
+    [RequiresPermission(Roles.SiteManager, typeof(SiteFromPathInspector))]
     [Function("SetSiteAttributesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/attributes")] HttpRequest req)

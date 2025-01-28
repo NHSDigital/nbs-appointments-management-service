@@ -131,6 +131,16 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.page.getByText(newInformation)).not.toBeVisible();
   }
 
+  async verifyEditButtonNotVisible() {
+    await expect(this.editInformationCitizenButton).not.toBeVisible();
+    await expect(this.editSiteAttributesButton).not.toBeVisible();
+  }
+
+  async verifyEditButtonToBeVisible() {
+    await expect(this.editInformationCitizenButton).toBeVisible();
+    await expect(this.editSiteAttributesButton).toBeVisible();
+  }
+
   async verifyDefaultSitePage() {
     await expect(
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),

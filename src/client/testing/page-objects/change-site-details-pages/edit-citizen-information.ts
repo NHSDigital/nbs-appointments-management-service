@@ -9,6 +9,7 @@ export default class EditInformationForCitizensPage extends RootPage {
   readonly cancelButton: Locator;
   readonly closeNotificationBannerButton: Locator;
   readonly informationTextField: Locator;
+  readonly charactersRemainingField: Locator;
   readonly headerMsg = 'Information for citizens';
   readonly textLimitMsg = 'You have 150 characters remaining';
   readonly testUrl = 'http://localhost:3000/manage-your-appointments/';
@@ -35,6 +36,9 @@ export default class EditInformationForCitizensPage extends RootPage {
     this.informationTextField = page.getByLabel(
       'What information would you like to include?',
     );
+    this.charactersRemainingField = page.getByLabel(
+      'information-characters-remaining',
+    );
   }
 
   async setInformationForCitizen(information: string) {
@@ -57,9 +61,10 @@ export default class EditInformationForCitizensPage extends RootPage {
         exact: true,
       }),
     ).toBeVisible();
-    await expect(
-      this.page.getByRole('main').filter({ hasText: `${this.textLimitMsg}` }),
-    ).toBeVisible();
+    await expect(this.charactersRemainingField).toBeVisible();
+    await expect(this.charactersRemainingField).toHaveText(
+      `${this.textLimitMsg}`,
+    );
   }
 
   async VerifyValidationMessage() {

@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SummaryStep from './summary-step';
+import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -61,7 +62,7 @@ describe('Summary Step', () => {
       screen.getByRole('heading', {
         name: 'Check single date session',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('summarises the single date form data collected by the wizard', async () => {
@@ -82,42 +83,15 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('term', { name: 'Date' })).toBeInTheDocument;
-    expect(screen.getByRole('definition', { name: '28 February 2027' }))
-      .toBeInTheDocument;
-
-    expect(screen.queryByRole('term', { name: 'Days' })).not.toBeInTheDocument;
-
-    expect(screen.getByRole('term', { name: 'Time' })).toBeInTheDocument;
-    expect(screen.getByRole('definition', { name: '09:30 - 17:45' }))
-      .toBeInTheDocument;
-
-    expect(screen.getByRole('term', { name: 'Services available' }))
-      .toBeInTheDocument;
-    expect(
-      screen.getByRole('definition', {
-        name: 'RSV (Adult)',
-      }),
-    ).toBeInTheDocument;
+    verifySummaryListItem('Date', '28 February 2027');
+    verifySummaryListItem('Time', '09:30 - 17:45');
+    verifySummaryListItem('Vaccinators or vaccination spaces available', '2');
+    verifySummaryListItem('Appointment length', '15 minutes');
+    verifySummaryListItem('Services available', 'RSV (Adult)');
 
     expect(
-      screen.getByRole('term', {
-        name: 'Vaccinators or vaccination spaces available',
-      }),
-    ).toBeInTheDocument;
-    expect(
-      screen.getByRole('definition', {
-        name: '2',
-      }),
-    ).toBeInTheDocument;
-
-    expect(screen.getByRole('term', { name: 'Appointment length' }))
-      .toBeInTheDocument;
-    expect(
-      screen.getByRole('definition', {
-        name: '15 minutes',
-      }),
-    ).toBeInTheDocument;
+      screen.queryByRole('term', { name: 'Days' }),
+    ).not.toBeInTheDocument();
   });
 
   it('summarises repeating sessions form data collected by the wizard', async () => {
@@ -142,12 +116,7 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByRole('term', { name: 'Dates' })).toBeInTheDocument;
-    expect(
-      screen.getByRole('definition', {
-        name: '28 February 2027 - 1 March 2028',
-      }),
-    ).toBeInTheDocument;
+    verifySummaryListItem('Dates', '28 February 2027 - 1 March 2028');
   });
 
   it('displays a Save button which submits the form', async () => {

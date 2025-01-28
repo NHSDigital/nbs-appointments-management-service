@@ -32,7 +32,7 @@ describe('Select Services Step', () => {
       screen.getByRole('heading', {
         name: 'Create weekly session Add services to your session',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('permits user input', async () => {

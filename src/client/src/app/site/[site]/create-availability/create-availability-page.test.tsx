@@ -20,7 +20,7 @@ describe('Create Availability Page', () => {
       screen.getByText(
         "You can create availability with multiple days and repeating sessions, to accurately reflect your site's capacity.",
       ),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('renders a button to create more availability periods', () => {

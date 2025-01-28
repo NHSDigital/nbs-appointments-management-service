@@ -35,6 +35,14 @@ type SetAttributesRequest = {
   attributeValues: AttributeValue[];
 };
 
+type SetSiteDetailsRequest = {
+  name: string;
+  address: string;
+  phoneNumber: string;
+  latitude: string;
+  longitude: string;
+};
+
 type Role = {
   displayName: string;
   id: string;
@@ -121,9 +129,16 @@ type Site = {
   id: string;
   name: string;
   address: string;
+  phoneNumber: string;
   odsCode: string;
   integratedCareBoard: string;
   region: string;
+  location: Location;
+};
+
+type Location = {
+  type: string;
+  coordinates: number[];
 };
 
 type SiteWithAttributes = Site & {
@@ -347,6 +362,7 @@ export type {
   UserProfile,
   Week,
   WellKnownOdsEntry,
+  SetSiteDetailsRequest,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

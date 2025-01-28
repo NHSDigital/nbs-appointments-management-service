@@ -6,7 +6,7 @@ schedules:
     displayName: "Deletion schedule"
     branches:
       include:
-        - appt-xxxx/pipeline-to-remove-cicd-cosmos
+        - main
     batch: false
     always: true
 

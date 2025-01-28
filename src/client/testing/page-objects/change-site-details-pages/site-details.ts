@@ -1,6 +1,7 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
+import { Site } from '@types';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
@@ -18,20 +19,38 @@ export default class SiteDetailsPage extends RootPage {
   readonly latitudeLabel = 'Latitude';
   readonly longitudeLabel = 'Longitude';
   readonly phoneNumberLabel = 'Phone Number';
-
-  readonly defaultSiteName = 'Church Lane Pharmacy';
-  readonly defaultAddress = 'Pudsey, Leeds, LS28 7LD';
-  readonly defaultLatitude = '-1.66382134';
-  readonly defaultLongitude = '53.79628754';
-  readonly defaultPhoneNumber = '0113 2222222';
-
   readonly odsCodeLabel = 'ODS code';
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
 
-  readonly defaultODSCode = 'ABC02';
-  readonly defaultICB = '	Integrated Care Board 2';
-  readonly defaultRegion = 'Region 2';
+  readonly sites: Site[] = [
+    {
+      id: 'test-1',
+      address: 'Pudsey, Leeds, LS28 7LD',
+      name: 'Church Lane Pharmacy',
+      location: {
+        coordinates: [-1.66382134, 53.79628754],
+        type: 'point',
+      },
+      phoneNumber: '0113 2222222',
+      odsCode: 'ABC02',
+      integratedCareBoard: 'Integrated Care Board 2',
+      region: 'Region 2',
+    },
+    {
+      id: 'test-2',
+      address: 'Pudsey, Leeds, LS28 7BR',
+      name: 'Robin Lane Medical Centre',
+      location: {
+        coordinates: [-1.6610648, 53.795467],
+        type: 'point',
+      },
+      phoneNumber: '0113 1111111',
+      odsCode: 'ABC01',
+      integratedCareBoard: 'ICB1',
+      region: 'R1',
+    },
+  ];
 
   readonly informationSuccessBanner =
     "You have successfully updated the current site's information.";
@@ -141,12 +160,20 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.editSiteAttributesButton).toBeVisible();
   }
 
-  async verifyDefaultSitePage() {
+  async verifySitePage(
+    siteName: 'Church Lane Pharmacy' | 'Robin Lane Medical Centre',
+  ) {
+    const site = this.sites.find(x => x.name == siteName);
+
+    if (site === undefined) {
+      throw new Error();
+    }
+
     await expect(
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('heading', { name: `${this.defaultSiteName}` }),
+      this.page.getByRole('heading', { name: `${site?.name}` }),
     ).toBeVisible();
 
     await expect(
@@ -154,10 +181,10 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyCoreDetailsContent(
-      this.defaultAddress,
-      this.defaultLatitude,
-      this.defaultLongitude,
-      this.defaultPhoneNumber,
+      site.address,
+      site.location.coordinates[0].toString(),
+      site.location.coordinates[1].toString(),
+      site.phoneNumber,
     );
 
     await expect(
@@ -168,18 +195,15 @@ export default class SiteDetailsPage extends RootPage {
 
     await this.verifySummaryListItemContentValue(
       this.odsCodeLabel,
-      this.defaultODSCode,
+      site.odsCode,
     );
 
     await this.verifySummaryListItemContentValue(
       this.icbLabel,
-      this.defaultICB,
+      site.integratedCareBoard,
     );
 
-    await this.verifySummaryListItemContentValue(
-      this.regionLabel,
-      this.defaultRegion,
-    );
+    await this.verifySummaryListItemContentValue(this.regionLabel, site.region);
 
     await expect(
       this.page.getByRole('heading', { name: `${this.accessNeedsheaderMsg}` }),

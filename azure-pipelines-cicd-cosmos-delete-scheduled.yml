@@ -17,10 +17,10 @@ variables:
 
 stages:
   - stage: "DeleteCICDCosmosDbAccounts"
-    displayName: "Delete old cicd cosmosdb accounts"
+    displayName: "Delete cicd cosmosdb accounts"
     jobs:
-      - job: "DeleteOldCosmosDbAccounts"
-        displayName: "Run script to remove accounts "
+      - job: "DeleteCosmosDbAccounts"
+        displayName: "Run script to remove cosmos accounts"
         steps:
           - task: AzureCLI@2
             inputs:

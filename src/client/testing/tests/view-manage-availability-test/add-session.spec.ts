@@ -5,11 +5,8 @@ import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import MonthViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
-import {
-  getDateInFuture,
-  geRequiredtDateInFormat,
-} from '../../utils/date-utility';
-import dayjs from 'dayjs';
+import { geRequiredtDateInFormat } from '../../utils/date-utility';
+import WeekViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
 
 const { TEST_USERS } = env;
 let rootPage: RootPage;
@@ -17,6 +14,7 @@ let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let monthViewAvailabilityPage: MonthViewAvailabilityPage;
+let weekViewAvailabilityPage: WeekViewAvailabilityPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -24,6 +22,7 @@ test.beforeEach(async ({ page }) => {
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   monthViewAvailabilityPage = new MonthViewAvailabilityPage(page);
+  weekViewAvailabilityPage = new WeekViewAvailabilityPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -39,5 +38,13 @@ test('Verify user is able to add a session for future date', async ({
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
   const requiredDate = geRequiredtDateInFormat('Tommorow', 'DD MMMM');
   await monthViewAvailabilityPage.openWeekViewHavingDate('27 January');
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(
+    'Wednesday 29 January',
+    '9',
+    '12',
+    '50',
+    '5',
+  );
   await page.waitForTimeout(10000);
 });

@@ -37,8 +37,7 @@ test('Verify user is able to add a session for future date', async ({
   page,
 }) => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  // const requiredDate=geRequiredtDateInFormat('Tommorow','DD MMMM');
-
-  //await monthViewAvailabilityPage.openWeekViewHavingDate(requiredDate);
+  const requiredDate = geRequiredtDateInFormat('Tommorow', 'DD MMMM');
+  await monthViewAvailabilityPage.openWeekViewHavingDate('27 January');
   await page.waitForTimeout(10000);
 });

@@ -16,6 +16,9 @@ let sitePage: SitePage;
 let siteDetailsPage: SiteDetailsPage;
 let editInformCitizen: EditInformationForCitizensPage;
 
+// Annotate entire file as serial.
+test.describe.configure({ mode: 'serial' });
+
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
@@ -36,10 +39,23 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test('Update information for citizen', async () => {
+//expects each test to finish on the site details page
+test.afterEach(async ({ page }) => {
+  await siteDetailsPage.editInformationCitizenButton.click();
+  await page.waitForURL(
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-information-for-citizens',
+  );
+  await editInformCitizen.informationTextField.clear();
+  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
+});
+
+test('Update information for citizen', async ({ page }) => {
   await editInformCitizen.verifyInformationForCitizenPageDetails();
   await editInformCitizen.setInformationForCitizen('Test Automation');
   await editInformCitizen.save_Cancel_InformationForCitizen('Save');
+
+  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+
   await siteDetailsPage.verifyInformationSaved('Test Automation');
 });
 

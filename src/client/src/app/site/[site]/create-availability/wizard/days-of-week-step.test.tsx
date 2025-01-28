@@ -32,7 +32,7 @@ describe('Days of Week Step', () => {
       screen.getByRole('heading', {
         name: 'Create weekly session Select days to add to your weekly session',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('permits user input', async () => {

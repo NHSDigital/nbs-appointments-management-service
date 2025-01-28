@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { now } from '@services/timeService';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { DaySummary } from '@types';
+import { fetchPermissions } from '@services/appointmentsService';
 
 jest.mock('@services/timeService', () => ({
   ...jest.requireActual('@services/timeService'),
@@ -20,6 +21,9 @@ jest.mock('@services/timeService', () => ({
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
 }));
+
+jest.mock('@services/appointmentsService');
+const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
 
 const mockNow = now as jest.Mock<dayjs.Dayjs>;
 const mockSummariseWeek = summariseWeek as jest.Mock<Promise<DaySummary[]>>;
@@ -42,6 +46,9 @@ describe('View Week Availability Page', () => {
   });
 
   it('renders', async () => {
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
@@ -56,6 +63,9 @@ describe('View Week Availability Page', () => {
   });
 
   it('renders no availability', async () => {
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     mockSummariseWeek.mockReturnValue(Promise.resolve(mockEmptyDays));
 
     const jsx = await ViewWeekAvailabilityPage({
@@ -72,6 +82,9 @@ describe('View Week Availability Page', () => {
   });
 
   it('renders correct information for a day', async () => {
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
@@ -107,6 +120,9 @@ describe('View Week Availability Page', () => {
   });
 
   it('renders pagination options with the correct values', async () => {
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
@@ -131,6 +147,9 @@ describe('View Week Availability Page', () => {
     daySummaries[1].date = dayjs().add(1, 'day');
     daySummaries[2].date = dayjs().add(2, 'day');
 
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
 
     const jsx = await ViewWeekAvailabilityPage({
@@ -152,6 +171,9 @@ describe('View Week Availability Page', () => {
     daySummaries[1].date = dayjs().add(1, 'day');
     daySummaries[2].date = dayjs().add(2, 'day');
 
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
     mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
 
     const jsx = await ViewWeekAvailabilityPage({
@@ -160,5 +182,60 @@ describe('View Week Availability Page', () => {
       site: mockSite,
     });
     render(jsx);
+  });
+
+  it('Does not render manage availability links without manage availability permission', async () => {
+    const daySummaries = mockDaySummaries;
+    daySummaries[0].date = dayjs();
+    daySummaries[1].date = dayjs().add(1, 'day');
+    daySummaries[2].date = dayjs().add(2, 'day');
+
+    mockFetchPermissions.mockReturnValue(Promise.resolve([]));
+    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
+
+    const jsx = await ViewWeekAvailabilityPage({
+      weekStart: mockWeekAvailabilityStart,
+      weekEnd: mockWeekAvailabilityEnd,
+      site: mockSite,
+    });
+    render(jsx);
+
+    expect(
+      screen.queryByRole('link', { name: 'Add Session' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Change' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Add availability to this day' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('Does render manage availability links with manage availability permission', async () => {
+    const daySummaries = mockDaySummaries;
+    daySummaries[0].date = dayjs();
+    daySummaries[1].date = dayjs().add(1, 'day');
+    daySummaries[2].date = dayjs().add(2, 'day');
+    daySummaries[3].date = dayjs().add(3, 'day');
+
+    mockFetchPermissions.mockReturnValue(
+      Promise.resolve(['availability:setup']),
+    );
+    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
+
+    const jsx = await ViewWeekAvailabilityPage({
+      weekStart: mockWeekAvailabilityStart,
+      weekEnd: mockWeekAvailabilityEnd,
+      site: mockSite,
+    });
+    render(jsx);
+
+    expect(screen.getAllByRole('link', { name: 'Add Session' })).toHaveLength(
+      2,
+    );
+    expect(screen.getAllByRole('link', { name: 'Change' })).toHaveLength(3);
+    expect(
+      screen.getAllByRole('link', { name: 'Add availability to this day' }),
+    ).toHaveLength(1);
   });
 });

@@ -17,6 +17,10 @@ const mockItems: SummaryListItem[] = [
     title: 'Address',
     value: ['456 Fake Street', 'second address'],
   },
+  {
+    title: 'Phone Number',
+    value: undefined,
+  },
 ];
 
 export const verifySummaryListItem = (term: string, expectedValue: string) => {
@@ -62,11 +66,16 @@ describe('SummaryList', () => {
       name: 'Address-description',
     });
     expect(termDescription.children.length).toBe(2);
-    expect(termDescription.children[0]).toHaveTextContent(
-      mockItems[2].value[0],
-    );
-    expect(termDescription.children[1]).toHaveTextContent(
-      mockItems[2].value[1],
-    );
+
+    const addressParts = mockItems[2].value ?? [];
+
+    expect(termDescription.children[0]).toHaveTextContent(addressParts[0]);
+    expect(termDescription.children[1]).toHaveTextContent(addressParts[1]);
+  });
+
+  it('renders undefined value as empty string', () => {
+    render(<SummaryList items={[mockItems[3]]} />);
+
+    verifySummaryListItem('Phone Number', '');
   });
 });

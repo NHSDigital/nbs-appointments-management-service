@@ -14,7 +14,7 @@ type OnClickActionProps = {
 
 export type SummaryListItem = {
   title: string;
-  value: string | string[];
+  value?: string | string[];
   action?: LinkActionProps | OnClickActionProps;
 };
 
@@ -60,7 +60,7 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 className="nhsuk-summary-list__value"
                 aria-label={`${item.title}-description`}
               >
-                {item.value.map((i, valueIndex) => (
+                {item.value?.map((i, valueIndex) => (
                   <div key={valueIndex}>{i}</div>
                 ))}
               </dd>

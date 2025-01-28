@@ -25,7 +25,7 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("users:manage", typeof(SiteFromScopeInspector))]
+    [RequiresPermission(Roles.UserManager, typeof(SiteFromScopeInspector))]
     [Function("SetUserRoles")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/roles")] HttpRequest req)

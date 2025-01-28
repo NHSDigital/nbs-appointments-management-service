@@ -35,7 +35,7 @@ public class SetSiteDetailsFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:manage", typeof(SiteFromPathInspector))]
+    [RequiresPermission(Roles.SiteManager, typeof(SiteFromPathInspector))]
     [Function("SetSiteDetailsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/details")]

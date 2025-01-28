@@ -31,7 +31,7 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Requested site not configured for appointments")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("booking:cancel", typeof(SiteFromQueryStringInspector))]
+    [RequiresPermission(Roles.CancelBooking, typeof(SiteFromQueryStringInspector))]
     [RequiresAudit(typeof(SiteFromQueryStringInspector))]
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(

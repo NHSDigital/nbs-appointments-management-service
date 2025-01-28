@@ -26,7 +26,7 @@ public class ApplyAvailabilityTemplateFunction(IAvailabilityService availability
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("availability:setup", typeof(SiteFromBodyInspector))]
+    [RequiresPermission(Roles.AvailabilitySetup, typeof(SiteFromBodyInspector))]
     [RequiresAudit(typeof(SiteFromBodyInspector))]
     [Function("ApplyAvailabilityTemplateFunction")]
     public override Task<IActionResult> RunAsync(

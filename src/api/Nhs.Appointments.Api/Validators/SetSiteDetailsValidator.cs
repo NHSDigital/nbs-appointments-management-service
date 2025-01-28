@@ -1,5 +1,4 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;

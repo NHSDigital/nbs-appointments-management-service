@@ -186,10 +186,14 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
         foreach (var indexDocument in indexDocuments)
         {
-            await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
-            await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
+            await DeleteBooking(indexDocument.Reference, indexDocument.Site);
         }
 
         return indexDocuments.Select(i => i.Reference).ToList();
     }
+
+    public async Task DeleteBooking(string reference, string site) => await Task.WhenAll(
+        indexStore.DeleteDocument(reference, "booking_index"),
+        bookingStore.DeleteDocument(reference, site)
+    );
 }    

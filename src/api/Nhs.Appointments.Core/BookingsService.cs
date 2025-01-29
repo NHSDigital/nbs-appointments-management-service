@@ -186,6 +186,11 @@ public class BookingsService(
             {
                 await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
             }
+
+            if (booking.Status is AppointmentStatus.Provisional)
+            {
+                await bookingDocumentStore.DeleteBooking(booking.Reference, booking.Site);
+            }
         }
     }
 }

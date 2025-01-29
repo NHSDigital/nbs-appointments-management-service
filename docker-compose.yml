@@ -48,16 +48,16 @@ services:
       - Auth__Providers__0__ReturnUri=http://localhost:7071/api/auth-return?provider=nhs-mail
       - Auth__Providers__0__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=nhs-mail
       - Auth__Providers__1__Name=okta
-      - Auth__Providers__1__Issuer=https://dev-08802788.okta.com
-      - Auth__Providers__1__AuthorizeUri=https://dev-08802788.okta.com/oauth2/v1/authorize
-      - Auth__Providers__1__TokenUri=https://dev-08802788.okta.com/oauth2/v1/token
-      - Auth__Providers__1__JwksUri=https://dev-08802788.okta.com/oauth2/v1/keys
+      - Auth__Providers__1__Issuer=https://nhsi-sandbox.oktapreview.com
+      - Auth__Providers__1__AuthorizeUri=https://nhsi-sandbox.oktapreview.com/oauth2/v1/authorize
+      - Auth__Providers__1__TokenUri=https://nhsi-sandbox.oktapreview.com/oauth2/v1/token
+      - Auth__Providers__1__JwksUri=https://nhsi-sandbox.oktapreview.com/oauth2/v1/keys
       - Auth__Providers__1__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
-      - Auth__Providers__1__ClientId=0oamv7oihgsHveIZm5d7
+      - Auth__Providers__1__ClientId=0oa2bgjyja0Sh1TYt0h8
       - Auth__Providers__1__ReturnUri=http://localhost:7071/api/auth-return?provider=okta
       - Auth__Providers__1__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=okta
       - Auth__Providers__1__RequiresStateForAuthorize=true
-      - Auth__Providers__1__ClientSecret=J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X
+      - Auth__Providers__1__ClientSecret=tqczm2-Ey0h8qb6nC6DEXHlKXt0PqQBzzoLNEm72yUBmPYwpQQgIEoxwY4NsM2G2
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *

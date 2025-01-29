@@ -54,15 +54,19 @@ export const ViewWeekAvailabilityPage = ({
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {days.map((day, dayIndex) => {
-        return (
-          <DaySummaryCard
-            daySummary={day}
-            siteId={site}
-            key={`day-summary-${dayIndex}`}
-          />
-        );
-      })}
+      <ol className="card-list">
+        {days.map((day, dayIndex) => {
+          return (
+            <li key={`day-summary-${dayIndex}`}>
+              <DaySummaryCard
+                daySummary={day}
+                siteId={site}
+                key={`day-summary-${dayIndex}`}
+              />
+            </li>
+          );
+        })}
+      </ol>
     </>
   );
 };

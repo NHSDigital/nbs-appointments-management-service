@@ -24,34 +24,37 @@ export const ViewAvailabilityPage = ({ weeks, searchMonth }: Props) => {
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {weeks.map((week, i) => (
-        <Card
-          title={`${week.startDate.format('D MMMM')} to ${week.endDate.format('D MMMM')}`}
-          key={i}
-        >
-          <Table
-            headers={['Services', 'Booked appointments']}
-            rows={week.bookedAppointments.map(appts => {
-              return [appts.service, appts.count];
-            })}
-          ></Table>
-          <Table
-            headers={[
-              `Total appointments: ${week.totalAppointments}`,
-              `Booked: ${week.booked}`,
-              `Unbooked: ${week.unbooked}`,
-            ]}
-            rows={[]}
-          ></Table>
-          <br />
-          <Link
-            className="nhsuk-link"
-            href={`view-availability/week?date=${week.startDate.format('YYYY-MM-DD')}`}
-          >
-            View week
-          </Link>
-        </Card>
-      ))}
+      <ol className="card-list">
+        {weeks.map((week, weekIndex) => (
+          <li key={`week-summary-${weekIndex}`}>
+            <Card
+              title={`${week.startDate.format('D MMMM')} to ${week.endDate.format('D MMMM')}`}
+            >
+              <Table
+                headers={['Services', 'Booked appointments']}
+                rows={week.bookedAppointments.map(appts => {
+                  return [appts.service, appts.count];
+                })}
+              ></Table>
+              <Table
+                headers={[
+                  `Total appointments: ${week.totalAppointments}`,
+                  `Booked: ${week.booked}`,
+                  `Unbooked: ${week.unbooked}`,
+                ]}
+                rows={[]}
+              ></Table>
+              <br />
+              <Link
+                className="nhsuk-link"
+                href={`view-availability/week?date=${week.startDate.format('YYYY-MM-DD')}`}
+              >
+                View week
+              </Link>
+            </Card>
+          </li>
+        ))}
+      </ol>
     </>
   );
 };

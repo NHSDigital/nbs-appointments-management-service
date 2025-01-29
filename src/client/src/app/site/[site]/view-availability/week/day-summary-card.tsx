@@ -8,6 +8,7 @@ import { ReactNode } from 'react';
 type DaySummaryCardProps = {
   daySummary: DaySummary;
   siteId: string;
+  canManageAvailability: boolean;
 };
 
 export const DaySummaryCard = ({
@@ -21,19 +22,24 @@ export const DaySummaryCard = ({
     remainingCapacity,
   },
   siteId,
+  canManageAvailability,
 }: DaySummaryCardProps) => {
   if (sessions.length > 0) {
     return (
       <Card title={date.format('dddd D MMMM')}>
         <SessionSummaryTable
           sessionSummaries={sessions}
-          showChangeSessionLink={{
-            siteId,
-            date,
-          }}
+          showChangeSessionLink={
+            canManageAvailability
+              ? {
+                  siteId,
+                  date,
+                }
+              : undefined
+          }
         />
         <br />
-        {isInTheFuture(date.format('YYYY-MM-DD')) && (
+        {isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability && (
           <Link
             className="nhsuk-link"
             href={`/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`}
@@ -81,7 +87,7 @@ export const DaySummaryCard = ({
       </Link>,
     );
   }
-  if (isInTheFuture(date.format('YYYY-MM-DD'))) {
+  if (isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability) {
     actionLinks.push(
       <Link
         className="nhsuk-link"

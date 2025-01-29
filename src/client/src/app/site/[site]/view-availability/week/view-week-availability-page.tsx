@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Site } from '@types';
+import { fetchPermissions } from '@services/appointmentsService';
 
 type Props = {
   weekStart: dayjs.Dayjs;
@@ -51,6 +52,9 @@ export const ViewWeekAvailabilityPage = async ({
   };
 
   const daySummaries = await summariseWeek(weekStart, weekEnd, site.id);
+  const canManageAvailability = (await fetchPermissions(site.id))?.includes(
+    'availability:setup',
+  );
 
   return (
     <>
@@ -61,6 +65,7 @@ export const ViewWeekAvailabilityPage = async ({
             daySummary={day}
             siteId={site.id}
             key={`day-summary-${dayIndex}`}
+            canManageAvailability={canManageAvailability}
           />
         );
       })}

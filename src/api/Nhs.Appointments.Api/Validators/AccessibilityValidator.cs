@@ -1,11 +1,11 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class AttributeValueValidator : AbstractValidator<AttributeValue>
+public class AccessibilityValidator : AbstractValidator<Accessibility>
 {
-    public AttributeValueValidator()
+    public AccessibilityValidator()
     {
         RuleFor(x => x.Id)
             .NotEmpty()

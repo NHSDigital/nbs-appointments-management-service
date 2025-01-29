@@ -10,11 +10,12 @@ public record Site(
     [JsonProperty("odsCode")] string OdsCode,
     [JsonProperty("region")] string Region,
     [JsonProperty("integratedCareBoard")] string IntegratedCareBoard,
-    [JsonProperty("attributeValues")] IEnumerable<AttributeValue> AttributeValues,
+    [JsonProperty("informationForCitizens")] string InformationForCitizens,
+    [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
     [JsonProperty("location")] Location Location
 )
 {
-    public IEnumerable<AttributeValue> AttributeValues { get; set; } = AttributeValues;
+    public IEnumerable<Accessibility> AttributeValues { get; set; } = Accessibilities;
 }
 
 public record Location(
@@ -23,7 +24,7 @@ public record Location(
     double[] Coordinates
 );
 
-public record AttributeValue(
+public record Accessibility(
     [property: JsonProperty("id")] string Id,
     [property: JsonProperty("value")] string Value
 );
@@ -37,8 +38,8 @@ public record AttributeRequest
 (
     [JsonProperty("scope")]
     string Scope,
-    [JsonProperty("attributeValues")]
-    IEnumerable<AttributeValue> AttributeValues
+    [JsonProperty("accessibilities")]
+    IEnumerable<Accessibility> Accessibilities
 );
 
 public record SitePreview

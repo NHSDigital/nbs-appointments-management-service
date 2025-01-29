@@ -90,8 +90,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             var siteDetails = new[]
 {
-                new Site("1", "Alpha", "somewhere", "0113 1111111", "odsCode1", "R1", "ICB1",new [] {new AttributeValue(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
-                new Site("2", "Beta", "somewhere else", "0113 222222", "odsCode2", "R2", "ICB2",new [] {new AttributeValue(Id: "Attribute 2", Value: "true")}, new Location("point", new []{0.2, 11}))
+                new Site("1", "Alpha", "somewhere", "0113 1111111", "odsCode1", "R1", "ICB1", string.Empty, new [] {new Accessibility(Id: "Attribute 1", Value: "true")}, new Location("point", new []{0.1, 10})),
+                new Site("2", "Beta", "somewhere else", "0113 222222", "odsCode2", "R2", "ICB2", string.Empty, new [] {new Accessibility(Id: "Attribute 2", Value: "true")}, new Location("point", new []{0.2, 11}))
             };
 
             var result = await _sut.RunAsync(request) as ContentResult;

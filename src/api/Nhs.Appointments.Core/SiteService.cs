@@ -9,8 +9,8 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
-    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
-
+    Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
+    Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
     Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
         decimal latitude, decimal longitude);
 }
@@ -74,9 +74,14 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return sites.Select(s => new SitePreview(s.Id, s.Name));
     }
 
-    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
+    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
-        return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
+        return siteStore.UpdateAccessibilities(siteId, accessibilities);
+    }
+
+    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens) 
+    {
+        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
     }
 
     public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)

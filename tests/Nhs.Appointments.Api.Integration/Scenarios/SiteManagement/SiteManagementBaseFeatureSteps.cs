@@ -44,7 +44,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Region = row.Cells.ElementAt(5).Value,
                 IntegratedCareBoard = row.Cells.ElementAt(6).Value,
                 DocumentType = "site",
-                AttributeValues = ParseAttributes(row.Cells.ElementAt(7).Value),
+                Accessibilities = ParseAccessibilities(row.Cells.ElementAt(7).Value),
                 Location = new Location("Point",
                     new[] { double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value) }),
             });
@@ -95,7 +95,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             Region: row.Cells.ElementAt(5).Value,
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
             InformationForCitizens: string.Empty,
-            Accessibilities: ParseAttributes(row.Cells.ElementAt(7).Value),
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(7).Value),
             Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])
@@ -107,14 +107,14 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
 
-    protected static Accessibility[] ParseAttributes(string attributes)
+    protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {
-        if (attributes == "__empty__")
+        if (accessibilities == "__empty__")
         {
             return Array.Empty<Accessibility>();
         }
 
-        var pairs = attributes.Split(",");
+        var pairs = accessibilities.Split(",");
         return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
     }
 }

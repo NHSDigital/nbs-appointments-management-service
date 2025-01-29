@@ -25,7 +25,7 @@ public class GetDailyAvailabilityFunction(IAvailabilityService availabilityServi
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<DailyAvailability>), Description = "List of daily availability within a date range")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Roles.AvailabilityQuery, typeof(SiteFromQueryStringInspector))]
+    [RequiresPermission(Permissions.QueryAvailability, typeof(SiteFromQueryStringInspector))]
     [Function("GetDailyAvailabilityFunction")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "daily-availability")] HttpRequest req)
     {

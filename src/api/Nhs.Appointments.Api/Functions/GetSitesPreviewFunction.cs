@@ -73,6 +73,6 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
 
     private bool IsAdminUser(User user)
     {
-        return user.RoleAssignments.Any(ra => ra.Role == Roles.SystemAdminUser);
+        return user.RoleAssignments.Any(ra => ra.Role == Permissions.SystemAdmin);
     }
 }

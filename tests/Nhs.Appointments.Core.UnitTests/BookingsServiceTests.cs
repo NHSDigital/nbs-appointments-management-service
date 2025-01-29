@@ -605,7 +605,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
                     Times.Once);
 
-                _bookingsDocumentStore.Verify(x => x.DeleteProvisionalBooking(
+                _bookingsDocumentStore.Verify(x => x.DeleteBooking(
                         It.Is<string>(s => s == "2"),
                         It.Is<string>(s => s == "mock-site")),
                     Times.Once);

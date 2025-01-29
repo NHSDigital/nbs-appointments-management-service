@@ -47,8 +47,8 @@ export default class SiteDetailsPage extends RootPage {
       },
       phoneNumber: '0113 1111111',
       odsCode: 'ABC01',
-      integratedCareBoard: 'ICB1',
-      region: 'R1',
+      integratedCareBoard: 'Integrated Care Board 1',
+      region: 'Region 1',
     },
   ];
 

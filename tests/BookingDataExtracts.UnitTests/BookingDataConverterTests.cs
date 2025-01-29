@@ -72,15 +72,16 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData("FD123", "FD123")]
-    [InlineData("FD123-01", "FD123")]
-    public void ExtractOdsCode_RemovesSuffixes(string siteId, string expectedData)
+    [InlineData("1", "ODS_01")]
+    [InlineData("2", "ODS_02")]
+    public void ExtractOdsCode_ReturnsOdsCodeFromDocument(string siteId, string expectedData)
     {
         var testDocument = new NbsBookingDocument
         {
             Site = siteId
         };
-        var result = BookingDataConverter.ExtractOdsCode(testDocument);
+        var converter = new BookingDataConverter(TestSites);
+        var result = converter.ExtractOdsCode(testDocument);
         result.Should().Be(expectedData);
     }
 
@@ -235,6 +236,7 @@ public class BookingDataConverterTests
         {
             Id = "1",
             Name = "Site One",
+            OdsCode = "ODS_01",
             IntegratedCareBoard = "ICB01",
             Region = "RGN01",
             Location = new Location("Point", new []{1.0, 0.1 })
@@ -243,6 +245,7 @@ public class BookingDataConverterTests
         {
             Id = "2",
             Name = "Site Two",
+            OdsCode = "ODS_02",
             IntegratedCareBoard = "ICB02",
             Region = "RGN02",
             Location = new Location("Point", new []{2.0, 0.2 })

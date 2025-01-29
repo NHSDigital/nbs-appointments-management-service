@@ -16,7 +16,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public double ExtractLatitude(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Location.Coordinates[1];
 
-    public static string ExtractOdsCode(BookingDocument booking) => booking.Site.Split('-')[0];
+    public string ExtractOdsCode(BookingDocument booking) => sites.Single(s => s.Id == booking.Site).OdsCode;
 
     public static string ExtractNhsNumber(BookingDocument booking) => booking.AttendeeDetails.NhsNumber;
 

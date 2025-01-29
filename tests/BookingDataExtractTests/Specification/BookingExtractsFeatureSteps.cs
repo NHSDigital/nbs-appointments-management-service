@@ -53,6 +53,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var site = new SiteDocument
         {
             Id = "BookingExtractDataTests",
+            OdsCode = "DET01",
             Name = "Test Site",
             Region = "North",
             IntegratedCareBoard = "ICB01",

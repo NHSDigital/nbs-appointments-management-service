@@ -24,7 +24,7 @@ public class BookingDataExtract(
 
         var dataFactories = new List<DataFactory>
         {
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.OdsCode, BookingDataConverter.ExtractOdsCode),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.OdsCode, dataConverter.ExtractOdsCode),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.NhsNumber, BookingDataConverter.ExtractNhsNumber),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentDateTime, BookingDataConverter.ExtractAppointmentDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentStatus, BookingDataConverter.ExtractAppointmentStatus),

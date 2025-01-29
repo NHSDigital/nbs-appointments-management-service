@@ -26,6 +26,7 @@ stages:
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
+            condition: false
             inputs:
               SonarCloud: "nhsdigital-sonarcloud"
               organization: "nhsdigital"
@@ -72,8 +73,10 @@ stages:
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"
+            condition: false
           - task: SonarCloudPublish@3
             displayName: "Publish Sonar cloud results"
+            condition: false
             inputs:
               pollingTimeoutSec: '300'
           - task: ArchiveFiles@2

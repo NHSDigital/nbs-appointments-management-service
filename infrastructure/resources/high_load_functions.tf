@@ -42,15 +42,27 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Notifications_Provider                                                 = "none"
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
-    AuthProvider_Issuer                                                    = var.auth_provider_issuer
-    AuthProvider_AuthorizeUri                                              = var.auth_provider_authorize_uri
-    AuthProvider_TokenUri                                                  = var.auth_provider_token_uri
-    AuthProvider_JwksUri                                                   = var.auth_provider_jwks_uri
-    AuthProvider_ChallengePhrase                                           = var.auth_provider_challenge_phrase
-    AuthProvider_ClientId                                                  = var.auth_provider_client_id
-    AuthProvider_ClientSecret                                              = var.auth_provider_client_secret
-    AuthProvider_ClientCodeExchangeUri                                     = local.client_code_exchange_uri
-    AuthProvider_ReturnUri                                                 = local.auth_provider_return_uri
+    Auth__Providers__0__Name                                               = "nhs-mail"
+    Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
+    Auth__Providers__0__AuthorizeUri                                       = var.nhs_mail_authorize_uri
+    Auth__Providers__0__TokenUri                                           = var.nhs_mail_token_uri
+    Auth__Providers__0__JwksUri                                            = var.nhs_mail_jwks_uri
+    Auth__Providers__0__ChallengePhrase                                    = var.auth_provider_challenge_phrase
+    Auth__Providers__0__ClientId                                           = var.nhs_mail_client_id
+    Auth__Providers__0__ClientSecret                                       = var.nhs_mail_client_secret
+    Auth__Providers__0__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=nhs-mail"
+    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=nhs-mail"
+    Auth__Providers__1__Name                                               = "okta"
+    Auth__Providers__1__Issuer                                             = var.okta_issuer
+    Auth__Providers__1__AuthorizeUri                                       = var.okta_authorize_uri
+    Auth__Providers__1__TokenUri                                           = var.okta_token_uri
+    Auth__Providers__1__JwksUri                                            = var.okta_jwks_uri
+    Auth__Providers__1__ChallengePhrase                                    = var.auth_provider_challenge_phrase
+    Auth__Providers__1__ClientId                                           = var.okta_client_id
+    Auth__Providers__1__ClientSecret                                       = var.okta_client_secret
+    Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
+    Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
+    Auth__Providers__1__RequiresStateForAuthorize                          = true    
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -133,15 +145,27 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Notifications_Provider                                                 = "none"
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
-    AuthProvider_Issuer                                                    = var.auth_provider_issuer
-    AuthProvider_AuthorizeUri                                              = var.auth_provider_authorize_uri
-    AuthProvider_TokenUri                                                  = var.auth_provider_token_uri
-    AuthProvider_JwksUri                                                   = var.auth_provider_jwks_uri
-    AuthProvider_ChallengePhrase                                           = var.auth_provider_challenge_phrase
-    AuthProvider_ClientId                                                  = var.auth_provider_client_id
-    AuthProvider_ClientSecret                                              = var.auth_provider_client_secret
-    AuthProvider_ClientCodeExchangeUri                                     = local.client_code_exchange_uri
-    AuthProvider_ReturnUri                                                 = local.auth_provider_return_uri
+    Auth__Providers__0__Name                                               = "nhs-mail"
+    Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
+    Auth__Providers__0__AuthorizeUri                                       = var.nhs_mail_authorize_uri
+    Auth__Providers__0__TokenUri                                           = var.nhs_mail_token_uri
+    Auth__Providers__0__JwksUri                                            = var.nhs_mail_jwks_uri
+    Auth__Providers__0__ChallengePhrase                                    = var.auth_provider_challenge_phrase
+    Auth__Providers__0__ClientId                                           = var.nhs_mail_client_id
+    Auth__Providers__0__ClientSecret                                       = var.nhs_mail_client_secret
+    Auth__Providers__0__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=nhs-mail"
+    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=nhs-mail"
+    Auth__Providers__1__Name                                               = "okta"
+    Auth__Providers__1__Issuer                                             = var.okta_issuer
+    Auth__Providers__1__AuthorizeUri                                       = var.okta_authorize_uri
+    Auth__Providers__1__TokenUri                                           = var.okta_token_uri
+    Auth__Providers__1__JwksUri                                            = var.okta_jwks_uri
+    Auth__Providers__1__ChallengePhrase                                    = var.auth_provider_challenge_phrase
+    Auth__Providers__1__ClientId                                           = var.okta_client_id
+    Auth__Providers__1__ClientSecret                                       = var.okta_client_secret
+    Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
+    Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
+    Auth__Providers__1__RequiresStateForAuthorize                          = true    
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true

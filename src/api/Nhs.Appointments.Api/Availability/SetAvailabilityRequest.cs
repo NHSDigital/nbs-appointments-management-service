@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Nhs.Appointments.Core;
-using System;
 
 namespace Nhs.Appointments.Api.Availability;
 
@@ -12,5 +12,7 @@ public record SetAvailabilityRequest(
     [property:JsonProperty("sessions", Required = Required.Always)]
     Session[] Sessions,
     [property:JsonProperty("mode", Required = Required.Always)]
-    ApplyAvailabilityMode Mode
+    ApplyAvailabilityMode Mode,
+    [property: JsonProperty("sessionToEdit", Required = Required.Default)]
+    Session SessionToEdit = null
 );

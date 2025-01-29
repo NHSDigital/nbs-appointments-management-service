@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -38,7 +38,14 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
             Site = siteId
         };
 
-        _response = await Http.PostAsync($"http://localhost:7071/api/user/remove", new StringContent(JsonResponseWriter.Serialize(requestBody), Encoding.UTF8, "application/json"));
+        _response = await Http.PostAsync(
+            $"http://localhost:7071/api/user/remove", 
+            new StringContent(
+                JsonResponseWriter.Serialize(requestBody), 
+                Encoding.UTF8, 
+                "application/json"
+            )
+        );
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
@@ -49,6 +56,25 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         var document = await GetUserDocument(Client, user);
 
         document.Should().BeNull();
+    }
+
+    [Then(@"user '(.+)' would have the following role assignments")]
+    public async Task AssertRoleAssignments(string user, Gherkin.Ast.DataTable dataTable)
+    {
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var userId = GetUserId(user);
+        var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(row => new RoleAssignment
+        {
+            Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
+            Role = row.Cells.ElementAt(1).Value
+        }).ToList();
+
+        var actualResult = await Client
+            .GetContainer("appts", "core_data")
+            .ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
+
+        actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 
     [Then(@"user '(.+)' would have the following role assignments")]
@@ -66,6 +92,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
+
 
     private async Task<UserDocument> GetUserDocument(CosmosClient cosmosClient, string user)
     {

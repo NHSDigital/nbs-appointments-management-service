@@ -1,26 +1,24 @@
-import { Booking } from '@types';
-import { fetchBookings } from './appointmentsService';
+import { AvailabilityResponse, Booking } from '@types';
+import { fetchBookings, fetchAvailability } from './appointmentsService';
 import {
   getDetailedMonthView,
-  getDetailedWeekView,
   getWeeksInMonth,
 } from './viewAvailabilityService';
-import {
-  mockAvailability,
-  mockBookings,
-  mockWeekAvailability,
-  mockWeekAvailabilityEnd,
-  mockWeekAvailabilityStart,
-} from '@testing/data';
+import { mockAvailability, mockBookings, mockSite } from '@testing/data';
+import dayjs from 'dayjs';
 
 jest.mock('@services/appointmentsService');
 const fetchBookedAppointmentsMock = fetchBookings as jest.Mock<
   Promise<Booking[]>
 >;
+const fetchAvailabilityMock = fetchAvailability as jest.Mock<
+  Promise<AvailabilityResponse[]>
+>;
 
 describe('View Availability Service', () => {
   beforeEach(() => {
     fetchBookedAppointmentsMock.mockResolvedValue(mockBookings);
+    fetchAvailabilityMock.mockResolvedValue(mockAvailability);
   });
 
   it.each([
@@ -48,11 +46,9 @@ describe('View Availability Service', () => {
   );
 
   it('can build a detailed month view for availability', async () => {
-    const weeks = getWeeksInMonth(2024, 10);
     const detailedWeeks = await getDetailedMonthView(
-      mockAvailability,
-      weeks,
-      'TEST01',
+      mockSite,
+      dayjs('2024-11-10T00:00:00'),
     );
 
     expect(detailedWeeks.length).toBe(5);
@@ -66,34 +62,5 @@ describe('View Availability Service', () => {
       b => b.service === 'RSV (Adult)',
     );
     expect(rsvAppt?.count).toBe(1);
-  });
-
-  it('can build a details week for availability', async () => {
-    const detailedWeekView = await getDetailedWeekView(
-      mockWeekAvailabilityStart,
-      mockWeekAvailabilityEnd,
-      'TEST01',
-      mockWeekAvailability,
-    );
-
-    expect(detailedWeekView.length).toBe(7);
-
-    const firstDay = detailedWeekView[0];
-    expect(firstDay.unbooked).toBe(191);
-    expect(firstDay.booked).toBe(1);
-    expect(firstDay.totalAppointments).toBe(192);
-    expect(firstDay.serviceInformation?.length).toBe(2);
-
-    if (firstDay.serviceInformation) {
-      expect(firstDay.serviceInformation[0].serviceDetails[0].booked).toBe(1);
-      expect(firstDay.serviceInformation[1].serviceDetails[0].booked).toBe(0);
-    }
-
-    const mockPayload = {
-      to: '2024-12-08 23:59:59',
-      from: '2024-12-02 00:00:00',
-      site: 'TEST01',
-    };
-    expect(fetchBookedAppointmentsMock).toHaveBeenCalledWith(mockPayload);
   });
 });

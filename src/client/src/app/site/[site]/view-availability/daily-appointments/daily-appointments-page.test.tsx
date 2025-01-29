@@ -28,7 +28,7 @@ describe('View Daily Appointments', () => {
         name: '14:05 John Smith 9999999990 1 February 1979 RSV Cancel',
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole('row').length).toBe(5);
+    expect(screen.getAllByRole('row').length).toBe(6);
   });
 
   it('displays a message above the table if one is supplied', async () => {
@@ -46,5 +46,43 @@ describe('View Daily Appointments', () => {
     );
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
+  });
+
+  it('renders the action column', () => {
+    render(
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={true}
+          message="Test message"
+        />
+      </SearchParamsContext.Provider>,
+    );
+
+    expect(
+      screen.getByRole('columnheader', { name: 'Action' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not render the action column', () => {
+    render(
+      <SearchParamsContext.Provider
+        value={new ReadonlyURLSearchParams('date=2024-12-24&page=1')}
+      >
+        <DailyAppointmentsPage
+          bookings={mockBookings}
+          site="TEST01"
+          displayAction={false}
+          message="Test message"
+        />
+      </SearchParamsContext.Provider>,
+    );
+
+    expect(
+      screen.queryByRole('columnheader', { name: 'Action' }),
+    ).not.toBeInTheDocument();
   });
 });

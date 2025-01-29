@@ -3,7 +3,13 @@
     type: string
   - name: variable_group
     type: string
-  - name: apiServerName
+  - name: httpFunctionAppName
+    type: string
+  - name: highLoadFunctionAppName
+    type: string
+  - name: serviceBusFunctionAppName
+    type: string
+  - name: timerFunctionAppName
     type: string
   - name: webServerName
     type: string
@@ -20,7 +26,7 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn: Build
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))    
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -116,9 +122,9 @@ stages:
               ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-      - job: DeployApi
+      - job: DeployHttpFunctionApp
         dependsOn: ApplyTerraform
-        displayName: "Deploy Api"
+        displayName: "Deploy http function app"
         steps:
           - checkout: none
           - task: DownloadBuildArtifacts@0
@@ -129,12 +135,81 @@ stages:
               artifactName: "drop_api"
               downloadPath: $(Pipeline.Workspace)
           - task: AzureFunctionApp@2
-            displayName: Deploy Api
+            displayName: "Deploy"
             inputs:
               connectedServiceNameARM: ${{parameters.serviceConnectionName}}
               appType: "functionApp"
-              appName: ${{parameters.apiServerName}}
-              package: "$(Pipeline.Workspace)/**/*.zip"
+              appName: ${{parameters.httpFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'stag') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployHighLoadFunctionApp
+        dependsOn: ApplyTerraform
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        displayName: "Deploy high load function app"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Api Artifact"
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop_api"
+              downloadPath: $(Pipeline.Workspace)
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.highLoadFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              deployToSlotOrASE: true
+              slotName: "preview"
+      - job: DeployServiceBusFunctionApp
+        dependsOn: ApplyTerraform
+        displayName: "Deploy service bus function app"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Api Artifact"
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop_api"
+              downloadPath: $(Pipeline.Workspace)
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.serviceBusFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if eq(parameters.env, 'stag') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployTimerFunctionApp
+        dependsOn: ApplyTerraform
+        displayName: "Deploy timer function app"
+        steps:
+          - checkout: none
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Api Artifact"
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop_api"
+              downloadPath: $(Pipeline.Workspace)
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.timerFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
               ${{ if eq(parameters.env, 'stag') }}:
                 deployToSlotOrASE: true
@@ -142,9 +217,21 @@ stages:
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:
-          - ApplyTerraform
           - DeployWeb
-          - DeployApi
+          - DeployHttpFunctionApp
+          - DeployHighLoadFunctionApp
+          - DeployServiceBusFunctionApp
+          - DeployTimerFunctionApp
+        condition: |
+          and
+          (
+            in(dependencies.DeployWeb.result, 'Succeeded'),
+            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployHighLoadFunctionApp.result, 'Succeeded', 'Skipped'),
+            in(dependencies.DeployServiceBusFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
+            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded')
+          )
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -167,8 +254,6 @@ stages:
               COSMOS_TOKEN: $(COSMOS_TOKEN)
       - job: WaitForSlotApproval
         dependsOn:
-          - DeployWeb
-          - DeployApi
           - UploadCosmosDocuments
         condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         displayName: "Wait for approval to swap slots"
@@ -189,11 +274,37 @@ stages:
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
               Action: 'Swap Slots'
-              WebAppName: ${{ parameters.webServerName }}
-              ResourceGroupName: ${{ parameters.resourceGroup }}
+              WebAppName: ${{parameters.webServerName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: 'preview'
-      - job: SwapFuncAppSlots
-        displayName: "Swap func app slots"
+      - job: SwapHttpFuncAppSlots
+        displayName: "Swap http function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.httpFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapHighLoadFuncAppSlots
+        displayName: "Swap high load function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.highLoadFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapServiceBusFuncAppSlots
+        displayName: "Swap servicebus function app slots"
         dependsOn: WaitForSlotApproval
         condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
         steps:
@@ -202,6 +313,19 @@ stages:
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
               Action: 'Swap Slots'
-              WebAppName: ${{ parameters.apiServerName }}
-              ResourceGroupName: ${{ parameters.resourceGroup }}
-              SourceSlot: 'preview'
+              WebAppName: ${{parameters.serviceBusFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapTimerFuncAppSlots
+        displayName: "Swap timer function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.timerFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"

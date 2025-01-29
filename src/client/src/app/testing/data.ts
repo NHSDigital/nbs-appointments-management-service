@@ -7,7 +7,7 @@ import {
   AvailabilityTemplate,
   Booking,
   DailyAvailability,
-  DayAvailabilityDetails,
+  DaySummary,
   Role,
   Site,
   SiteWithAttributes,
@@ -66,32 +66,56 @@ const mockAssignments = [
 
 const mockSites: Site[] = [
   {
-    id: '1001',
+    id: '34e990af-5dc9-43a6-8895-b9123216d699',
     name: 'Site Alpha',
+    phoneNumber: '0118 999 88199 9119 725 3',
     address: 'Alpha Street',
+    odsCode: '1001',
     integratedCareBoard: 'ICB1',
     region: 'R1',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
-    id: '1002',
+    id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
     name: 'Site Beta',
+    phoneNumber: '01189998819991197253',
     address: 'Beta Street',
+    odsCode: '1002',
     integratedCareBoard: 'ICB2',
     region: 'R2',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
-    id: '1003',
+    id: 'd79bec60-8968-4101-b553-67dec04e1019',
     name: 'Site Gamma',
+    phoneNumber: '01189998819991197253',
     address: 'Gamma Street',
+    odsCode: '1003',
     integratedCareBoard: 'ICB3',
     region: 'R3',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
   {
-    id: '1004',
+    id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
     name: 'Site Delta',
+    phoneNumber: '0118 999 88199 9119 725 3',
     address: 'Delta Street, London',
+    odsCode: '1004',
     integratedCareBoard: 'ICB4',
     region: 'R4',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
   },
 ];
 
@@ -156,7 +180,7 @@ const mockAttributeValues: AttributeValue[] = [
 
 const mockUserProfile: UserProfile = {
   emailAddress: 'test.one@nhs.net',
-  availableSites: mockSites,
+  hasSites: true,
 };
 
 const mockSession1: AvailabilitySession = {
@@ -243,9 +267,12 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
 const mockSiteWithAttributes: SiteWithAttributes = {
   id: mockSites[0].id,
   address: mockSites[0].address,
+  phoneNumber: mockSites[0].phoneNumber,
   name: mockSites[0].name,
+  odsCode: mockSites[0].odsCode,
   integratedCareBoard: mockSites[0].integratedCareBoard,
   region: mockSites[0].region,
+  location: mockSites[0].location,
   attributeValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
     { id: 'accessibility/attr_1', value: 'true' },
@@ -361,6 +388,22 @@ const mockBookings: Booking[] = [
     status: 'Booked',
     reminderSet: false,
   },
+  {
+    reference: '6823',
+    from: '2024-12-05T09:34:00',
+    duration: 5,
+    service: 'RSV:Adult',
+    site: 'TEST01',
+    attendeeDetails: {
+      nhsNumber: '9999999995',
+      firstName: 'Ian',
+      lastName: 'Goldsmith',
+      dateOfBirth: new Date(1973, 2, 3),
+    },
+    created: '2024-08-29T03:21:08.0477062',
+    status: 'Booked',
+    reminderSet: false,
+  },
 ];
 
 const mockDetailedWeeks: Week[] = [
@@ -420,90 +463,108 @@ const mockDetailedWeeks: Week[] = [
   },
 ];
 
-const mockDetailedDays: DayAvailabilityDetails[] = [
+const mockDaySummaries: DaySummary[] = [
   {
-    fullDate: dayjs().year(2024).month(11).date(2).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(2),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'RSV (Adult)',
-            booked: 5,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 123,
-        unbooked: 118,
+        start: dayjs().year(2024).month(11).date(2).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(2).hour(17).minute(0),
+        maximumCapacity: 123,
+        totalBookings: 5,
+        bookings: {
+          'RSV:Adult': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 5,
-    totalAppointments: 123,
-    unbooked: 118,
+    maximumCapacity: 123,
+    bookedAppointments: 5,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 118,
   },
   {
-    fullDate: dayjs().year(2024).month(11).date(4).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(4),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'COVID 75+',
-            booked: 15,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 200,
-        unbooked: 185,
+        start: dayjs().year(2024).month(11).date(4).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(4).hour(17).minute(0),
+        maximumCapacity: 200,
+        totalBookings: 15,
+        bookings: {
+          'COVID:75+': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 15,
-    totalAppointments: 200,
-    unbooked: 185,
+    maximumCapacity: 200,
+    bookedAppointments: 15,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 185,
   },
   {
-    fullDate: dayjs().year(2024).month(11).date(5).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
-    serviceInformation: [
+    date: dayjs().year(2024).month(11).date(5),
+    sessions: [
       {
-        serviceDetails: [
-          {
-            service: 'FLU 18-64',
-            booked: 20,
-          },
-        ],
-        time: '09:00 - 17:00',
-        capacity: 160,
-        unbooked: 140,
+        start: dayjs().year(2024).month(11).date(5).hour(9).minute(0),
+        end: dayjs().year(2024).month(11).date(5).hour(17).minute(0),
+        maximumCapacity: 200,
+        totalBookings: 20,
+        bookings: {
+          'FLU:18_64': mockBookings.length,
+        },
+        capacity: 2,
+        slotLength: 5,
       },
     ],
-    booked: 20,
-    totalAppointments: 160,
-    unbooked: 140,
+    maximumCapacity: 160,
+    bookedAppointments: 20,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 140,
+  },
+  {
+    date: dayjs().year(2024).month(11).date(6),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
 ];
 
-const mockEmptyDays: DayAvailabilityDetails[] = [
+const mockEmptyDays: DaySummary[] = [
   {
-    fullDate: dayjs().year(2024).month(11).date(2).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(2).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(2),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
   {
-    fullDate: dayjs().year(2024).month(11).date(4).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(4).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(4),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
   {
-    fullDate: dayjs().year(2024).month(11).date(5).format('YYYY-MM-DD'),
-    date: dayjs().year(2024).month(11).date(5).format('dddd D MMMM'),
-    booked: 0,
-    totalAppointments: 0,
-    unbooked: 0,
+    date: dayjs().year(2024).month(11).date(5),
+    sessions: [],
+    maximumCapacity: 0,
+    bookedAppointments: 0,
+    cancelledAppointments: 0,
+    orphanedAppointments: 0,
+    remainingCapacity: 0,
   },
 ];
 
@@ -561,7 +622,7 @@ export {
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
-  mockDetailedDays,
+  mockDaySummaries,
   mockWeekAvailabilityStart,
   mockWeekAvailabilityEnd,
   mockEmptyDays,

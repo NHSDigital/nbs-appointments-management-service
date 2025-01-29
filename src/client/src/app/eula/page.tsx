@@ -1,48 +1,35 @@
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
-import { Button, InsetText } from '@components/nhsuk-frontend';
-import { acceptEula, fetchEula } from '@services/appointmentsService';
+import { fetchEula } from '@services/appointmentsService';
 import Link from 'next/link';
+import { AcceptEulaForm } from './accept-eula-form';
 
 const Page = async () => {
   const latestVersion = await fetchEula();
 
   return (
-    <NhsAnonymousPage title="Agree to the End User Licence Agreement">
-      <InsetText>
-        You must read the End-User Licence Agreement before using this
-        application.
-      </InsetText>
-
-      {/* // TODO: Add these links back in once we have appropriate content
-      <p>
-        <Link href={'/eula/full-terms'}>
-          Read the full user agreement set out in the end-user licence agreement
-        </Link>
-      </p> */}
+    <NhsAnonymousPage title="Agree to the terms of use" originPage="eula">
+      <p>You must:</p>
+      <ul>
+        <li>
+          only use Manage Your Appointments to set-up and administer vaccination
+          appointments
+        </li>
+        <li>always use your own details to login</li>
+        <li>never allow anyone else to use your login details</li>
+      </ul>
 
       <p>
-        By continuing, you agree to the full{' '}
         <Link
-          href="https://digital.nhs.uk/coronavirus/vaccinations/booking-systems/terms-of-use"
+          href="https://digital.nhs.uk/services/vaccinations-national-booking-service/terms-of-use"
           target="_blank"
         >
-          terms of use
-        </Link>{' '}
-        and{' '}
-        <Link
-          href="https://www.nhs.uk/our-policies/nbs-privacy-policy/"
-          target="_blank"
-        >
-          privacy policy
+          Read the full terms of use for Manage Your Appointments
         </Link>
-        .
+        . If you click accept and continue, you are agreeing to the full terms
+        of use for this service.
       </p>
 
-      <form action={acceptEula.bind(null, latestVersion.versionDate)}>
-        <Button aria-label="Accept and continue" type="submit">
-          Accept and continue
-        </Button>
-      </form>
+      <AcceptEulaForm eulaVersion={latestVersion} />
     </NhsAnonymousPage>
   );
 };

@@ -62,15 +62,7 @@ describe('Nhs Page', () => {
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue({
       emailAddress: 'test@nhs.net',
-      availableSites: [
-        {
-          id: 'TEST',
-          name: 'Test site',
-          address: '',
-          integratedCareBoard: 'ICB2',
-          region: 'R2',
-        },
-      ],
+      hasSites: true,
     });
     fetchPermissionsMock.mockResolvedValue([
       'availability:query',
@@ -89,6 +81,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('heading', { name: /Test title/i })).toBeVisible();
@@ -102,6 +95,7 @@ describe('Nhs Page', () => {
         { name: 'Level One', href: '/' },
         { name: 'Level Two', href: '/' },
       ],
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
@@ -118,6 +112,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
@@ -140,6 +135,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
 
@@ -157,6 +153,7 @@ describe('Nhs Page', () => {
         { name: 'Level Two', href: '/' },
       ],
       omitTitleFromBreadcrumbs: true,
+      originPage: '',
     });
     render(jsx);
 
@@ -168,17 +165,26 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).toHaveBeenCalledWith('TEST');
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(
+      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    );
 
     expect(
       screen.getByRole('navigation', { name: 'Primary navigation' }),
@@ -198,20 +204,26 @@ describe('Nhs Page', () => {
     expect(viewAvailabilityLink).toBeVisible();
     expect(viewAvailabilityLink).toHaveAttribute(
       'href',
-      '/site/TEST/view-availability',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/view-availability',
     );
 
     expect(createAvailabilityLink).toBeVisible();
     expect(createAvailabilityLink).toHaveAttribute(
       'href',
-      '/site/TEST/create-availability',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/create-availability',
     );
 
     expect(manageSiteLink).toBeVisible();
-    expect(manageSiteLink).toHaveAttribute('href', '/site/TEST/details');
+    expect(manageSiteLink).toHaveAttribute(
+      'href',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details',
+    );
 
     expect(viewUsersLink).toBeVisible();
-    expect(viewUsersLink).toHaveAttribute('href', '/site/TEST/users');
+    expect(viewUsersLink).toHaveAttribute(
+      'href',
+      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/users',
+    );
   });
 
   it('Does not request permissions if not site is provided', async () => {
@@ -219,6 +231,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -232,17 +245,26 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).toHaveBeenCalledWith('TEST');
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(
+      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    );
 
     expect(
       screen.queryByRole('navigation', { name: 'Primary navigation' }),
@@ -267,13 +289,20 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -289,6 +318,7 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [],
+      originPage: '',
     });
     render(jsx);
 
@@ -302,11 +332,17 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       site: {
-        id: 'TEST',
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
         name: 'Test site',
         address: '',
+        odsCode: 'K12',
         integratedCareBoard: '',
         region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
       },
       breadcrumbs: [],
       backLink: {
@@ -314,6 +350,7 @@ describe('Nhs Page', () => {
         renderingStrategy: 'server',
         text: 'Test back link',
       },
+      originPage: '',
     });
 
     render(jsx);

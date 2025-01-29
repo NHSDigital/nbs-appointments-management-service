@@ -1,0 +1,27 @@
+{
+  "reference": "seed-booking-reference-14",
+  "from": "2025-08-05T09:00:00",
+  "duration": 10,
+  "service": "RSV:Adult",
+  "created": "2025-08-01T09:54:16.654321+00:00",
+  "status": "Cancelled",
+  "statusUpdated": "0001-01-01T00:00:00+00:00",
+  "attendeeDetails": {
+    "nhsNumber": "5873169458",
+    "firstName": "Elliot",
+    "lastName": "Rodgers",
+    "dateOfBirth": "1982-03-15"
+  },
+  "contactDetails": [],
+  "additionalData": {
+    "isCallCentreBooking": true,
+    "callCentreHandlerEmail": "test@example.com",
+    "isAppBooking": false,
+    "selfReferralOccupation": "test",
+    "decisionReason": "test"
+  },
+  "reminderSent": false,
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "id": "seed-booking-reference-14",
+  "docType": "booking"
+}

@@ -6,6 +6,7 @@ using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
 using System.Globalization;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Auth
 {

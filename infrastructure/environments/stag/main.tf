@@ -20,7 +20,7 @@ provider "azurerm" {
   features {}
 }
 
-module "api" {
+module "mya_application_stag" {
   environment                                    = "stag"
   source                                         = "../../resources"
   auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
@@ -30,6 +30,7 @@ module "api" {
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
   auth_provider_client_secret                    = var.AUTH_PROVIDER_CLIENT_SECRET
+  nhs_host_url                                   = var.NHS_HOST_URL
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
@@ -41,6 +42,8 @@ module "api" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
+  disable_query_availability_function            = true
+  create_high_load_function_app                  = true
   create_app_slot                                = true
   create_autoscale_settings                      = true
   create_frontdoor                               = true
@@ -65,12 +68,15 @@ module "api" {
       zone_redundant    = false
   }]
   cosmos_booking_autoscale_settings = [{
-    max_throughput = 20000
+    max_throughput = 60000
   }]
   cosmos_core_autoscale_settings = [{
-    max_throughput = 20000
+    max_throughput = 25000
   }]
   cosmos_index_autoscale_settings = [{
-    max_throughput = 10000
+    max_throughput = 4000
+  }]
+  cosmos_audit_autoscale_settings = [{
+    max_throughput = 2000
   }]
 }

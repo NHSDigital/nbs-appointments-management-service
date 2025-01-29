@@ -1,0 +1,36 @@
+{
+  "id": "notification_configuration",
+  "docType": "system",
+  "configs": [
+    {
+      "services": [],
+      "emailTemplate": "028cfac7-3eb4-44d2-9e7d-00e06ad61f9d",
+      "smsTemplate": "",
+      "eventType": "UserRolesChanged"
+    },
+    {
+      "services": [ "RSV:Adult" ],
+      "emailTemplate": "3db879be-aba8-49c1-895d-900785724b13",
+      "smsTemplate": "e8efc144-825c-4857-8441-05ab5c70e8a6",
+      "eventType": "BookingMade"
+    },
+    {
+      "services": [ "RSV:Adult" ],
+      "emailTemplate": "69d737f9-3080-4e57-8459-e5cc7208593e",
+      "smsTemplate": "9fbc4334-c3a4-43e2-aa26-bebaccdcfe8f",
+      "eventType": "BookingReminder"
+    },
+    {
+      "services": [ "RSV:Adult" ],
+      "emailTemplate": "f3d2ca6c-4566-4c40-b16b-e18e3bf92b16",
+      "smsTemplate": "7121236d-a5d8-4202-98ae-b27618d59cd0",
+      "eventType": "BookingCancelled"
+    },    
+    {
+      "services": [ "RSV:Adult" ],
+      "emailTemplate": "ffe6fb75-d4ec-481e-9696-34de4e1ce339",
+      "smsTemplate": "98869efe-da43-4546-ba43-db18d7191e34",
+      "eventType": "BookingRescheduled"
+    }
+  ]
+}

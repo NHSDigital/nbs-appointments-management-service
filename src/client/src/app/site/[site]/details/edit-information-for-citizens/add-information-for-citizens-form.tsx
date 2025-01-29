@@ -85,7 +85,7 @@ const AddInformationForCitizensForm = ({
         </div>
         <div
           className="nhsuk-hint nhsuk-character-count__message"
-          id="more-detail-info"
+          aria-label="information-characters-remaining"
         >
           You have {maxLength - infoWatch.length} characters remaining
         </div>

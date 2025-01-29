@@ -1,10 +1,3 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +5,39 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> validator, IUserContextProvider userContextProvider, ILogger logger, IMetricsRecorder metricsRecorder)
+public abstract class BaseApiFunction<TRequest, TResponse>(
+    IValidator<TRequest> validator,
+    IUserContextProvider userContextProvider,
+    ILogger logger,
+    IMetricsRecorder metricsRecorder)
 {
+    protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
+
     public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
         try
         {
-            (IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request) = await ReadRequestAsync(req);
+            var (errors, request) = await ReadRequestAsync(req);
             if (errors.Any())
+            {
                 return ProblemResponse(HttpStatusCode.BadRequest, errors);
+            }
 
             var validationErrors = await ValidateRequest(request);
             if (validationErrors.Any())
+            {
                 return ProblemResponse(HttpStatusCode.BadRequest, validationErrors);
+            }
 
             ApiResult<TResponse> response;
             using (metricsRecorder.BeginScope(GetType().Name))
@@ -43,19 +53,21 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
                 {
                     return new OkResult();
                 }
+
                 return JsonResponseWriter.WriteResult(response.ResponseObject);
             }
-            else
-                return ProblemResponse(response.StatusCode, response.Reason);
+
+            return ProblemResponse(response.StatusCode, response.Reason);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
             return new InternalServerErrorResult();
         }
-    }    
-    
-    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(HttpRequest req) => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
+    }
+
+    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)>
+        ReadRequestAsync(HttpRequest req) => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {
@@ -64,24 +76,20 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
         {
             return
                 validationResult.Errors
-                    .Select(x => new ErrorMessageResponseItem() { Message = x.ErrorMessage, Property = x.PropertyName });                        
+                    .Select(x => new ErrorMessageResponseItem { Message = x.ErrorMessage, Property = x.PropertyName });
         }
 
-        return Enumerable.Empty<ErrorMessageResponseItem>();
+        return [];
     }
 
     private IActionResult ProblemResponse(HttpStatusCode status, object errorDetails)
     {
         return JsonResponseWriter.WriteResult(errorDetails, status);
     }
-
-
+    
     private IActionResult ProblemResponse(HttpStatusCode status, string message)
     {
-        var error = new
-        {
-            message
-        };
+        var error = new { message };
         return ProblemResponse(status, error);
     }
 
@@ -98,11 +106,10 @@ public abstract class BaseApiFunction<TRequest, TResponse>(IValidator<TRequest> 
 
     protected ApiResult<TResponse> Success(TResponse response) => ApiResult<TResponse>.Success(response);
 
-    protected ApiResult<TResponse> Failed(HttpStatusCode status, string message) => ApiResult<TResponse>.Failed(status, message);
-    
+    protected ApiResult<TResponse> Failed(HttpStatusCode status, string message) =>
+        ApiResult<TResponse>.Failed(status, message);
+
     protected ApiResult<EmptyResponse> Success() => ApiResult<EmptyResponse>.Success(new EmptyResponse());
 
     protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger);
-
-    protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
 }

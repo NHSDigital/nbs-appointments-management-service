@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core.Messaging;
 
@@ -17,20 +17,23 @@ public class EventFactory : IBookingEventFactory
 
         var result = new List<T>();
 
-        if (booking.ContactDetails.Any(x => x.Type == ContactItemType.Phone))
+        var emailAddress = booking.ContactDetails.SingleOrDefault(x => x.Type == ContactItemType.Email)?.Value;
+        if (!String.IsNullOrEmpty(emailAddress))
         {
-            result.Add(BuildEvent<T>(booking, NotificationType.Sms));
+            result.Add(BuildEvent<T>(booking, NotificationType.Email, emailAddress));
         }
 
-        if (booking.ContactDetails.Any(x => x.Type == ContactItemType.Email))
+        var mobileNumber = booking.ContactDetails.SingleOrDefault(x => x.Type == ContactItemType.Phone)?.Value;
+
+        if (!String.IsNullOrEmpty(mobileNumber))
         {
-            result.Add(BuildEvent<T>(booking, NotificationType.Email));
+            result.Add(BuildEvent<T>(booking, NotificationType.Sms, mobileNumber));
         }
 
         return result.ToArray();
     }
 
-    private static T BuildEvent<T>(Booking booking, NotificationType notificationType) where T : PatientBookingNotificationEventBase, new()
+    private static T BuildEvent<T>(Booking booking, NotificationType notificationType, string destination) where T : PatientBookingNotificationEventBase, new()
     {
         return new T
         {
@@ -41,7 +44,7 @@ public class EventFactory : IBookingEventFactory
             Reference = booking.Reference,
             Service = booking.Service,
             Site = booking.Site,
-            ContactDetails = booking.ContactDetails.ToArray()
+            Destination = destination
         };
     }
 }

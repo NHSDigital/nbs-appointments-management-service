@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace Nhs.Appointments.Core;
 
@@ -23,8 +23,7 @@ public interface IRolesStore
 
 public interface INotificationConfigurationStore
 {
-    Task<NotificationConfiguration> GetNotificationConfiguration(string eventType);
-    Task<NotificationConfiguration> GetNotificationConfigurationForService(string eventType, string serviceId);
+    Task<IEnumerable<NotificationConfiguration>> GetNotificationConfiguration();    
 }
 
 public interface IDocumentUpdate<TModel>
@@ -40,7 +39,8 @@ public enum BookingConfirmationResult
     Expired,
     NotFound,
     RescheduleNotFound,
-    RescheduleMismatch
+    RescheduleMismatch,
+    StatusMismatch
 }
 
 public enum BookingCancellationResult

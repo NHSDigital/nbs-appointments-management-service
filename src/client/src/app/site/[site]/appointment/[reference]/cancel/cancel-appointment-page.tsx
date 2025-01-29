@@ -4,7 +4,7 @@ import {
   FormGroup,
   Radio,
   RadioGroup,
-  Spinner,
+  SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
@@ -28,7 +28,6 @@ const CancelAppointmentPage = ({
   const { replace } = useRouter();
   const {
     register,
-    reset,
     handleSubmit,
     formState: { isSubmitting, isSubmitSuccessful },
   } = useForm<CancelFormValue>({
@@ -37,8 +36,6 @@ const CancelAppointmentPage = ({
     },
   });
   const summaryItems = mapSummaryData(booking);
-
-  const cancelOperation = { ...register('cancelAppointment') };
 
   const submitForm: SubmitHandler<CancelFormValue> = async (
     form: CancelFormValue,
@@ -57,42 +54,26 @@ const CancelAppointmentPage = ({
   return (
     <>
       {summaryItems && <SummaryList {...summaryItems} />}
-      <form onSubmit={handleSubmit(submitForm)} noValidate={true}>
+      <form onSubmit={handleSubmit(submitForm)}>
         <FormGroup>
           <RadioGroup>
             <Radio
               label="Yes, I want to cancel this appointment"
-              {...{
-                ...cancelOperation,
-                onChange: e => {
-                  reset({
-                    cancelAppointment: 'yes',
-                  });
-                  cancelOperation.onChange(e);
-                },
-              }}
               id="cancelOperation-yes"
               value="yes"
+              {...register('cancelAppointment')}
             />
             <Radio
               label="No, I do not want to cancel this appointment"
-              {...{
-                ...cancelOperation,
-                onChange: e => {
-                  reset({
-                    cancelAppointment: 'no',
-                  });
-                  cancelOperation.onChange(e);
-                },
-              }}
               id="cancelOperation-no"
               value="no"
+              {...register('cancelAppointment')}
             />
           </RadioGroup>
         </FormGroup>
 
         {isSubmitting || isSubmitSuccessful ? (
-          <Spinner />
+          <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit">Continue</Button>
         )}

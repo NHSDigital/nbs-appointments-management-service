@@ -3,14 +3,22 @@ import { EulaVersion } from '@types';
 import render from '@testing/render';
 import EulaPage from './page';
 import { fetchEula, acceptEula } from '@services/appointmentsService';
+import { useRouter } from 'next/navigation';
 
 jest.mock('@services/appointmentsService');
 const fetchEulaMock = fetchEula as jest.Mock<Promise<EulaVersion>>;
 const acceptEulaMock = acceptEula as jest.Mock;
 
+jest.mock('next/navigation');
+const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
+
 describe('EULA page', () => {
   beforeEach(() => {
     fetchEulaMock.mockResolvedValue({ versionDate: '2021-01-01' });
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
   });
 
   it('renders', async () => {
@@ -19,7 +27,7 @@ describe('EULA page', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Agree to the End User Licence Agreement',
+        name: 'Agree to the terms of use',
       }),
     ).toBeInTheDocument();
 
@@ -39,26 +47,18 @@ describe('EULA page', () => {
     });
   });
 
-  it('links to the privacy policy and terms of use ', async () => {
+  it('links to full terms of use for MYA', async () => {
     const jsx = await EulaPage();
     render(jsx);
 
-    const termsOfUseLink = screen.getByRole('link', { name: 'terms of use' });
+    const termsOfUseLink = screen.getByRole('link', {
+      name: 'Read the full terms of use for Manage Your Appointments',
+    });
 
     expect(termsOfUseLink).toHaveAttribute(
       'href',
-      'https://digital.nhs.uk/coronavirus/vaccinations/booking-systems/terms-of-use',
+      'https://digital.nhs.uk/services/vaccinations-national-booking-service/terms-of-use',
     );
     expect(termsOfUseLink).toHaveAttribute('target', '_blank');
-
-    const privacyPolicyLink = screen.getByRole('link', {
-      name: 'privacy policy',
-    });
-
-    expect(privacyPolicyLink).toHaveAttribute(
-      'href',
-      'https://www.nhs.uk/our-policies/nbs-privacy-policy/',
-    );
-    expect(privacyPolicyLink).toHaveAttribute('target', '_blank');
   });
 });

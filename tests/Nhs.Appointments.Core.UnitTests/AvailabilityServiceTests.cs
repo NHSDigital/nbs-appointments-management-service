@@ -42,7 +42,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateIsNull()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -55,7 +55,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfFromDateIsAfterUntilDate()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 02);
         var until = new DateOnly(2025, 01, 01);
@@ -81,7 +81,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfNoDaysAreSpecified()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -107,7 +107,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateContainsNoSessions()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -123,7 +123,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_CallsAvailabilityStore_WithDatesForRequestedDays()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
@@ -164,7 +164,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplyTemplateAsync_CallsBookingServiceToRecalculateAppointmentStatuses_WithDatesForRequestedDays()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 8);
@@ -200,7 +200,7 @@ public class AvailabilityServiceTests
     [Fact]
     public async Task ApplySingleDateSessionAsync_CallsAvailabilityCreatedEventStore()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var date = new DateOnly(2024, 10, 10);
 
@@ -218,14 +218,15 @@ public class AvailabilityServiceTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite, null), Times.Once);
         _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user), Times.Once);
     }
 
     [Fact]
     public async Task ApplySingleDateSessionAsync_CallsBookingServiceToRecalculateAppointmentStatuses()
     {
-        const string site = "ABC01";
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
         const string user = "mock.user@nhs.net";
         var date = new DateOnly(2024, 10, 10);
 
@@ -282,7 +283,68 @@ public class AvailabilityServiceTests
 
         await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite);
 
-        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite), Times.Once);
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite, null), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetAvailability_CanEditSessions()
+    {
+        var sessions = new List<Session>
+        {
+            new()
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
+        }.ToArray();
+
+        var sessionToEdit = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+
+        var date = new DateOnly(2024, 10, 10);
+        var site = "test-site";
+
+        await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Edit, sessionToEdit);
+
+        _availabilityStore.Verify(
+            x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Edit, sessionToEdit),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenModeIsEditButSessionToEditIsNull()
+    {
+        var sessions = new List<Session>
+        {
+            new()
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
+        }.ToArray();
+
+        var date = new DateOnly(2024, 10, 10);
+        var site = "test-site";
+
+        var setAvailability = async () =>
+        {
+            await _sut.SetAvailabilityAsync(date, site, sessions, ApplyAvailabilityMode.Edit);
+        };
+        await setAvailability.Should()
+            .ThrowAsync<ArgumentException>("When editing a session a session to edit must be supplied.");
     }
 
     [Fact]
@@ -425,5 +487,16 @@ public class AvailabilityServiceTests
 
         result.Any().Should().BeTrue();
         result.Count().Should().Be(2);
+    }
+
+    [Fact]
+    public async Task CancelSession_CallsAvailabilityStore()
+    {
+        var site = "TEST01";
+        var date = new DateOnly(2025, 1, 10);
+
+        await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
+
+        _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
     }
 }

@@ -4,7 +4,7 @@ const nextConfig = {
   env: {
     BUILD_NUMBER: process.env.BUILD_BUILDNUMBER ?? '',
   },
-  output: 'standalone',
+  output: 'standalone',  
   basePath: process.env.CLIENT_BASE_PATH,
   redirects: async () => {
     return [

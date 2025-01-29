@@ -4,13 +4,19 @@ import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { removeUserFromSite } from '@services/appointmentsService';
-import { Button, ButtonGroup } from '@nhsuk-frontend-components';
+import {
+  Button,
+  ButtonGroup,
+  SmallSpinnerWithText,
+} from '@nhsuk-frontend-components';
 import { Site } from '@types';
 
 const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
   const { replace } = useRouter();
-  const { handleSubmit } = useForm();
-
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isSubmitSuccessful },
+  } = useForm();
   const cancel = () => {
     replace(`/site/${site.id}/users`);
   };
@@ -34,14 +40,18 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
         <li>This will not remove their access from any other sites</li>
       </ul>
 
-      <ButtonGroup>
-        <Button type="submit" styleType="warning">
-          Remove this account
-        </Button>
-        <Button styleType="secondary" onClick={cancel}>
-          Cancel
-        </Button>
-      </ButtonGroup>
+      {isSubmitting || isSubmitSuccessful ? (
+        <SmallSpinnerWithText text="Working..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit" styleType="warning">
+            Remove this account
+          </Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </form>
   );
 };

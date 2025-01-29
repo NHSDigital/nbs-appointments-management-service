@@ -22,9 +22,14 @@ const Page = async ({ params }: PageProps) => {
   await assertAllPermissions(site.id, ['site:view', 'site:get-meta-data']);
 
   return (
-    <NhsPage title="Manage Site" site={site} caption={site.name}>
+    <NhsPage
+      title="Manage Site"
+      site={site}
+      caption={site.name}
+      originPage="site-details"
+    >
       <SiteDetailsPage
-        site={site}
+        siteId={params.site}
         permissions={sitePermissions}
         wellKnownOdsEntries={wellKnownOdsCodeEntries}
       />

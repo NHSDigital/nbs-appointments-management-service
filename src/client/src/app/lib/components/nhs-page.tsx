@@ -24,6 +24,7 @@ type Props = {
   omitTitleFromBreadcrumbs?: boolean;
   site?: Site;
   backLink?: NavigationByHrefProps;
+  originPage: string;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -35,6 +36,7 @@ const NhsPage = async ({
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
   backLink,
+  originPage,
 }: Props) => {
   const notification = cookies().get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
@@ -47,7 +49,7 @@ const NhsPage = async ({
       >
         {headerAuthComponent ?? NhsHeaderLogOut()}
       </Header>
-      <FeedbackBanner />
+      <FeedbackBanner originPage={originPage} />
       <Breadcrumbs
         trail={[
           ...breadcrumbs,
@@ -98,7 +100,10 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('site:manage')) {
+  if (
+    permissions.includes('site:manage') ||
+    permissions.includes('site:view')
+  ) {
     navigationLinks.push({
       label: 'Change site details',
       href: `/site/${site.id}/details`,

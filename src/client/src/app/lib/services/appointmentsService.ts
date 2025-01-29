@@ -18,12 +18,18 @@ import {
   DailyAvailability,
   EulaVersion,
   WellKnownOdsEntry,
+  EditSessionRequest,
+  CancelSessionRequest,
+  SessionSummary,
+  SetSiteDetailsRequest,
+  Site,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { now } from '@services/timeService';
+import dayjs from 'dayjs';
 
 export const fetchAccessToken = async (code: string) => {
   const response = await appointmentsApi.post<{ token: string }>('token', code);
@@ -42,11 +48,19 @@ export const fetchUserProfile = async (
   return userProfile;
 };
 
+export const fetchSitesPreview = async (): Promise<Site[]> => {
+  const response = await appointmentsApi.get<Site[]>('sites-preview', {
+    next: { tags: ['user'] },
+  });
+
+  return handleBodyResponse(response);
+};
+
 export const assertEulaAcceptance = async (
   userProfile: UserProfile,
   eulaRoute = '/eula',
 ) => {
-  if (userProfile.availableSites.length > 0) {
+  if (userProfile.hasSites) {
     const eulaVersion = await fetchEula();
 
     if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {
@@ -149,7 +163,6 @@ export async function acceptEula(versionDate: string) {
 
   handleEmptyResponse(response);
   revalidatePath(`eula`);
-  redirect(`/`);
 }
 
 export async function assertPermission(site: string, permission: string) {
@@ -396,6 +409,64 @@ export const fetchBooking = async (reference: string, site: string) => {
 export const cancelAppointment = async (reference: string, site: string) => {
   const response = await appointmentsApi.post(
     `booking/${reference}/cancel?site=${site}`,
+  );
+
+  return handleEmptyResponse(response);
+};
+
+export const saveSiteDetails = async (
+  site: string,
+  details: SetSiteDetailsRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/details`,
+    JSON.stringify(details),
+  );
+
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully updated the details for the current site.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidateTag(`fetchAvailability`);
+};
+
+export const editSession = async (request: EditSessionRequest) => {
+  const response = await appointmentsApi.post(
+    `availability`,
+    JSON.stringify(request),
+  );
+
+  handleEmptyResponse(response);
+
+  revalidateTag('availability-created');
+
+  const notificationType = 'ams-notification';
+  const notificationMessage = 'You have successfully edited the session.';
+  raiseNotification(notificationType, notificationMessage);
+
+  revalidateTag(`fetchAvailability`);
+};
+
+export const cancelSession = async (
+  sessionSummary: SessionSummary,
+  site: string,
+) => {
+  const payload: CancelSessionRequest = {
+    site: site,
+    date: dayjs(sessionSummary.start).format('YYYY-MM-DD'),
+    from: dayjs(sessionSummary.start).format('HH:mm'),
+    until: dayjs(sessionSummary.end).format('HH:mm'),
+    services: Object.keys(sessionSummary.bookings),
+    capacity: sessionSummary.capacity,
+    slotLength: sessionSummary.slotLength,
+  };
+
+  const response = await appointmentsApi.post(
+    'session/cancel',
+    JSON.stringify(payload),
   );
 
   return handleEmptyResponse(response);

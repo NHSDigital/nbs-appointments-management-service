@@ -17,11 +17,7 @@ export const metadata: Metadata = {
 const Page = async ({ searchParams }: LoginPageProps) => {
   const redirectUrl = searchParams?.redirectUrl ?? '/';
   return (
-    <NhsAnonymousPage
-      title="Manage your appointments"
-      headerAuthComponent={NhsHeaderLogIn({ redirectUrl })}
-      originPage="login"
-    >
+    <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>
         You are currently not signed in. You must sign in to access this
         service.

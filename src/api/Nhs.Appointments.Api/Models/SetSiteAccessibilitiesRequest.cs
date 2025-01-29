@@ -3,4 +3,4 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Models;
 
-public record SetSiteAttributesRequest(string Site, IEnumerable<Accessibility> Accessibilities);
+public record SetSiteAccessibilitiesRequest(string Site, IEnumerable<Accessibility> Accessibilities);

@@ -17,12 +17,17 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetSiteAttributesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetSiteAttributesFunction> logger, IMetricsRecorder metricsRecorder) 
-    : BaseApiFunction<SetSiteAttributesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+public class SetSiteAccessibilitiesFunction(
+    ISiteService siteService, 
+    IValidator<SetSiteAccessibilitiesRequest> validator, 
+    IUserContextProvider userContextProvider, 
+    ILogger<SetSiteAccessibilitiesFunction> logger, 
+    IMetricsRecorder metricsRecorder) 
+    : BaseApiFunction<SetSiteAccessibilitiesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetSiteAccessibilities", tags: ["Sites"], Summary = "Set accessibilities values for a site")]
-    [OpenApiRequestBody("application/json", typeof(SetSiteAttributesRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site attribute values successfully saved")]
+    [OpenApiRequestBody("application/json", typeof(SetSiteAccessibilitiesRequest), Required = true)]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site accessibility values successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
@@ -35,16 +40,16 @@ public class SetSiteAttributesFunction(ISiteService siteService, IValidator<SetS
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAttributesRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAccessibilitiesRequest request, ILogger logger)
     {
         var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteAttributesRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteAccessibilitiesRequest request)> ReadRequestAsync(HttpRequest req)
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
-        var (errors, attributes) = await JsonRequestReader.ReadRequestAsync<AttributeRequest>(req.Body);
-        return (errors, new SetSiteAttributesRequest(site, attributes?.Accessibilities));
+        var (errors, request) = await JsonRequestReader.ReadRequestAsync<AccessibilityRequest>(req.Body);
+        return (errors, new SetSiteAccessibilitiesRequest(site, request?.Accessibilities));
     }
 }

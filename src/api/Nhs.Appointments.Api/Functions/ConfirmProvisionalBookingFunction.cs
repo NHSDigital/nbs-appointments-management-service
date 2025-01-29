@@ -34,7 +34,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Gone, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because the provisional booking has expired")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because a provisional booking with matching reference could not be found")]
-    [RequiresPermission(Roles.MakeBooking, typeof(SiteFromPathInspector))]
+    [RequiresPermission(Permissions.MakeBooking, typeof(SiteFromPathInspector))]
     [Function("ConfirmProvisionalBookingFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/confirm")] HttpRequest req)

@@ -27,7 +27,7 @@ public class QueryBookingByReferenceFunction(IBookingsService bookingsService, I
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Roles.QueryBooking, typeof(SiteFromQueryStringInspector))]
+    [RequiresPermission(Permissions.QueryBooking, typeof(SiteFromQueryStringInspector))]
     [Function("QueryBookingByBookingReference")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "booking/{bookingReference}")] HttpRequest req)

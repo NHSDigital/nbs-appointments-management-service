@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -284,7 +284,8 @@ public abstract partial class BaseFeatureSteps : Feature
             Status = MapStatus(bookingType),
             Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
                 ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
-                : GetCreationDateTime(bookingType),
+                : GetCreationDateTime(bookingType),                        
+            StatusUpdated = GetCreationDateTime(bookingType),
             AttendeeDetails = new AttendeeDetails
             {
                 NhsNumber = NhsNumber,

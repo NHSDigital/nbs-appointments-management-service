@@ -43,7 +43,7 @@ describe('Time and Capacity Step', () => {
       screen.getByRole('heading', {
         name: 'Create weekly session Set time and capacity for your session',
       }),
-    ).toBeInTheDocument;
+    ).toBeInTheDocument();
   });
 
   it('permits start and end time data entry', async () => {

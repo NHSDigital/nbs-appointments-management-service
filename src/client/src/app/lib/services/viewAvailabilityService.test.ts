@@ -1,19 +1,24 @@
-import { Booking } from '@types';
-import { fetchBookings } from './appointmentsService';
+import { AvailabilityResponse, Booking } from '@types';
+import { fetchBookings, fetchAvailability } from './appointmentsService';
 import {
   getDetailedMonthView,
   getWeeksInMonth,
 } from './viewAvailabilityService';
-import { mockAvailability, mockBookings } from '@testing/data';
+import { mockAvailability, mockBookings, mockSite } from '@testing/data';
+import dayjs from 'dayjs';
 
 jest.mock('@services/appointmentsService');
 const fetchBookedAppointmentsMock = fetchBookings as jest.Mock<
   Promise<Booking[]>
 >;
+const fetchAvailabilityMock = fetchAvailability as jest.Mock<
+  Promise<AvailabilityResponse[]>
+>;
 
 describe('View Availability Service', () => {
   beforeEach(() => {
     fetchBookedAppointmentsMock.mockResolvedValue(mockBookings);
+    fetchAvailabilityMock.mockResolvedValue(mockAvailability);
   });
 
   it.each([
@@ -41,11 +46,9 @@ describe('View Availability Service', () => {
   );
 
   it('can build a detailed month view for availability', async () => {
-    const weeks = getWeeksInMonth(2024, 10);
     const detailedWeeks = await getDetailedMonthView(
-      mockAvailability,
-      weeks,
-      'TEST01',
+      mockSite,
+      dayjs('2024-11-10T00:00:00'),
     );
 
     expect(detailedWeeks.length).toBe(5);

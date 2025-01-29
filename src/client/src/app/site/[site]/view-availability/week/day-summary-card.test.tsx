@@ -23,7 +23,11 @@ describe('Day Summary Card', () => {
 
   it('renders', () => {
     render(
-      <DaySummaryCard daySummary={mockDaySummaries[0]} siteId={'mock-site'} />,
+      <DaySummaryCard
+        daySummary={mockDaySummaries[0]}
+        siteId={'mock-site'}
+        canManageAvailability={true}
+      />,
     );
 
     expect(
@@ -37,6 +41,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -59,6 +64,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -74,6 +80,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -87,6 +94,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -102,6 +110,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -116,7 +125,11 @@ describe('Day Summary Card', () => {
   describe('when there is no availability', () => {
     it('renders no availability message', () => {
       render(
-        <DaySummaryCard daySummary={mockEmptyDays[0]} siteId={'mock-site'} />,
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
       );
 
       expect(screen.getByText('No availability')).toBeInTheDocument();
@@ -130,7 +143,11 @@ describe('Day Summary Card', () => {
 
     it('does not render total appointments table', () => {
       render(
-        <DaySummaryCard daySummary={mockEmptyDays[0]} siteId={'mock-site'} />,
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
       );
 
       expect(
@@ -144,7 +161,11 @@ describe('Day Summary Card', () => {
       mockIsInTheFuture.mockReturnValue(true);
 
       render(
-        <DaySummaryCard daySummary={mockEmptyDays[0]} siteId={'mock-site'} />,
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
       );
 
       expect(
@@ -156,7 +177,11 @@ describe('Day Summary Card', () => {
       mockIsInTheFuture.mockReturnValue(false);
 
       render(
-        <DaySummaryCard daySummary={mockEmptyDays[0]} siteId={'mock-site'} />,
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
       );
 
       expect(
@@ -169,6 +194,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 1 }}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -182,6 +208,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 0 }}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -195,6 +222,7 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 1 }}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
@@ -208,12 +236,44 @@ describe('Day Summary Card', () => {
         <DaySummaryCard
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 0 }}
           siteId={'mock-site'}
+          canManageAvailability={true}
         />,
       );
 
       expect(
         screen.queryByRole('link', { name: 'View manual cancellations' }),
       ).toBeNull();
+    });
+
+    it('does not render manage availability links on a day summary', () => {
+      render(
+        <DaySummaryCard
+          daySummary={mockDaySummaries[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: 'Add Session' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'Change' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not render the add availability link on an empty day summary', () => {
+      render(
+        <DaySummaryCard
+          daySummary={mockEmptyDays[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: 'Add availability to this day' }),
+      ).not.toBeInTheDocument();
     });
   });
 });

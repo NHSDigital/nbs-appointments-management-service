@@ -60,7 +60,7 @@ public class BookingsService(
 
             if (canBook)
             {
-                booking.Created = time.GetUtcNow();
+                booking.Created = time.GetUtcNow();                
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 await bookingDocumentStore.InsertAsync(booking);
@@ -182,7 +182,7 @@ public class BookingsService(
                 continue;
             }
 
-            if (booking.Status is AppointmentStatus.Booked or AppointmentStatus.Provisional)
+            if (booking.Status is AppointmentStatus.Booked)
             {
                 await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
             }

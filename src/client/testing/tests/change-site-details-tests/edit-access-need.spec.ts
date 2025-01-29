@@ -13,7 +13,7 @@ let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
-let editAccessNeedstPage: EditAccessNeedsPage;
+let editAccessNeedsPage: EditAccessNeedsPage;
 let siteDetailsPage: SiteDetailsPage;
 
 test.beforeEach(async ({ page }) => {
@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
-  editAccessNeedstPage = new EditAccessNeedsPage(page);
+  editAccessNeedsPage = new EditAccessNeedsPage(page);
   siteDetailsPage = new SiteDetailsPage(page);
 
   await rootPage.goto();
@@ -39,14 +39,14 @@ test.beforeEach(async ({ page }) => {
 
 test('Update access attributes for a site', async ({ page }) => {
   // Toggle selected attributes
-  await editAccessNeedstPage.selectAttribute('Accessible toilet');
-  await editAccessNeedstPage.selectAttribute('Step free access');
-  await editAccessNeedstPage.confirmSiteDetailsButton.click();
+  await editAccessNeedsPage.selectAttribute('Accessible toilet');
+  await editAccessNeedsPage.selectAttribute('Step free access');
+  await editAccessNeedsPage.confirmSiteDetailsButton.click();
 
   // Check banner function
-  await expect(editAccessNeedstPage.updateNotificationBanner).toBeVisible();
-  await editAccessNeedstPage.closeNotificationBannerButton.click();
-  await expect(editAccessNeedstPage.updateNotificationBanner).not.toBeVisible();
+  await expect(editAccessNeedsPage.updateNotificationBanner).toBeVisible();
+  await editAccessNeedsPage.closeNotificationBannerButton.click();
+  await expect(editAccessNeedsPage.updateNotificationBanner).not.toBeVisible();
 
   // Go back into edit UI to assert on checkbox state:
   await siteDetailsPage.editSiteAttributesButton.click();
@@ -54,22 +54,27 @@ test('Update access attributes for a site', async ({ page }) => {
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
   );
 
-  await editAccessNeedstPage.attributeChecked('Accessible toilet');
-  await editAccessNeedstPage.attributeNotChecked('Step free access');
+  await editAccessNeedsPage.attributeChecked('Accessible toilet');
+  await editAccessNeedsPage.attributeNotChecked('Step free access');
 
   // Reload page
-  await editAccessNeedstPage.page.reload();
+  await editAccessNeedsPage.page.reload();
   await page.waitForURL(
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
   );
 
   // Check selected attributes are still correctly toggled after page reload
-  await editAccessNeedstPage.verifyAccessNeedsCheckedOrUnchecked(
+  await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
     'Accessible toilet',
     'Checked',
   );
-  await editAccessNeedstPage.verifyAccessNeedsCheckedOrUnchecked(
+  await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
     'Step free access',
     'UnChecked',
   );
+
+  //revert to default state
+  await editAccessNeedsPage.selectAttribute('Accessible toilet');
+  await editAccessNeedsPage.selectAttribute('Step free access');
+  await editAccessNeedsPage.confirmSiteDetailsButton.click();
 });

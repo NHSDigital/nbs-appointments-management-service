@@ -3,18 +3,21 @@ import {
   fetchAttributeDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
-import { mapSiteSummaryData } from '@services/siteService';
-import { Site, WellKnownOdsEntry } from '@types';
+import {
+  mapCoreSiteSummaryData,
+  mapSiteReferenceSummaryData,
+} from '@services/siteService';
+import { WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
 
 type Props = {
-  site: Site;
+  siteId: string;
   permissions: string[];
   wellKnownOdsEntries: WellKnownOdsEntry[];
 };
 
 const SiteDetailsPage = async ({
-  site,
+  siteId,
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
@@ -22,18 +25,34 @@ const SiteDetailsPage = async ({
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
   );
-  const siteDetails = await fetchSite(site.id);
-  const informationForCitizenAttribute = siteDetails.attributeValues.find(
+  const site = await fetchSite(siteId);
+  const informationForCitizenAttribute = site.attributeValues.find(
     sa => sa.id === 'site_details/info_for_citizen',
   );
 
-  const siteSummary = mapSiteSummaryData(site, wellKnownOdsEntries);
+  const siteReferenceSummaryData = mapSiteReferenceSummaryData(
+    site,
+    wellKnownOdsEntries,
+  );
+  const siteCoreSummary = mapCoreSiteSummaryData(site);
 
   return (
     <>
-      <Card title="Site Details">
-        {siteSummary && <SummaryList {...siteSummary}></SummaryList>}
-        {/* TODO: Add link to edit site details */}
+      <Card title="Site reference details">
+        {siteReferenceSummaryData && (
+          <SummaryList {...siteReferenceSummaryData}></SummaryList>
+        )}
+      </Card>
+      <Card title="Site details">
+        {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
+        {permissions.includes('site:manage') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-details`}
+            className="nhsuk-link"
+          >
+            Edit site details
+          </Link>
+        ) : null}
       </Card>
       <Card title="Access needs">
         <SummaryList
@@ -42,9 +61,8 @@ const SiteDetailsPage = async ({
             return {
               title: definition.displayName,
               value:
-                siteDetails?.attributeValues.find(
-                  value => value.id === definition.id,
-                )?.value === 'true'
+                site?.attributeValues.find(value => value.id === definition.id)
+                  ?.value === 'true'
                   ? 'Yes'
                   : 'No',
             };

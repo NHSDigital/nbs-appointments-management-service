@@ -15,7 +15,7 @@ public class SetSiteAttributeValuesValidatorTests
     [InlineData("false")]
     public void Validate_ReturnSuccess_WhenRequestIsValid(string value)
     {
-        var testRequest = new SetSiteAttributesRequest(
+        var testRequest = new SetSiteAccessibilitiesRequest(
             Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
             Accessibilities: new[]
             {
@@ -32,7 +32,7 @@ public class SetSiteAttributeValuesValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenSiteIsInvalid(string siteId)
     {
-        var request = new SetSiteAttributesRequest(
+        var request = new SetSiteAccessibilitiesRequest(
             Site: siteId,
             Accessibilities: new[]
             {
@@ -46,26 +46,26 @@ public class SetSiteAttributeValuesValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(SetSiteAttributesRequest.Site));
+        result.Errors.Single().PropertyName.Should().Be(nameof(SetSiteAccessibilitiesRequest.Site));
     }
     
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsNull()
     {
-        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: null);
+        var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: null);
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAttributesRequest.Accessibilities));
+        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAccessibilitiesRequest.Accessibilities));
     }
     
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsEmpty()
     {
-        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: Array.Empty<Accessibility>());
+        var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: Array.Empty<Accessibility>());
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAttributesRequest.Accessibilities));
+        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAccessibilitiesRequest.Accessibilities));
     }
 }

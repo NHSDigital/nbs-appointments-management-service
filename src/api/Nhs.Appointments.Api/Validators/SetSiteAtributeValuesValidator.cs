@@ -3,7 +3,7 @@ using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class SetSiteAttributeValuesValidator : AbstractValidator<SetSiteAttributesRequest>
+public class SetSiteAttributeValuesValidator : AbstractValidator<SetSiteAccessibilitiesRequest>
 {
     public SetSiteAttributeValuesValidator()
     {

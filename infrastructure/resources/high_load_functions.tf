@@ -84,7 +84,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
     "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAttributesFunction.Disabled"                      = true
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
     "AzureWebJobs.SetUserRoles.Disabled"                                   = true
     "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true

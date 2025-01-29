@@ -34,12 +34,16 @@ public record SiteWithDistance(
     [JsonProperty("distance")] int Distance
 );
 
-public record AttributeRequest
+public record AccessibilityRequest
 (
-    [JsonProperty("scope")]
-    string Scope,
     [JsonProperty("accessibilities")]
     IEnumerable<Accessibility> Accessibilities
+);
+
+public record InformationForCitizensRequest
+(
+    [JsonProperty("informationForCitizens")]
+    string InformationForCitizens
 );
 
 public record SitePreview

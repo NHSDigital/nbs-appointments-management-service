@@ -22,7 +22,7 @@ import {
   CancelSessionRequest,
   SessionSummary,
   SetSiteDetailsRequest,
-  Site
+  Site,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';

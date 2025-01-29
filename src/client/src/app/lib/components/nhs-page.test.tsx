@@ -62,7 +62,7 @@ describe('Nhs Page', () => {
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue({
       emailAddress: 'test@nhs.net',
-      hasSites: true
+      hasSites: true,
     });
     fetchPermissionsMock.mockResolvedValue([
       'availability:query',
@@ -299,7 +299,7 @@ describe('Nhs Page', () => {
         location: {
           coordinates: [],
           type: 'point',
-        }
+        },
       },
       breadcrumbs: [],
       originPage: '',

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -32,7 +32,8 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             OdsCode: row.Cells.ElementAt(4).Value,
             Region: row.Cells.ElementAt(5).Value,
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(7).Value),
+            InformationForCitizens: row.Cells.ElementAt(7).Value,
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])

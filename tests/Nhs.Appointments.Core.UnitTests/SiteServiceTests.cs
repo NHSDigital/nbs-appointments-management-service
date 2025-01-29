@@ -29,9 +29,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.507, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 }),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -42,9 +43,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.506, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 }),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -55,9 +57,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.505, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 })
         };
 
@@ -72,9 +75,10 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.505, 65.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
-                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                        new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     }),
                 Distance: 234),
             new SiteWithDistance(new Site(
@@ -86,9 +90,10 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
-                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                        new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     }),
                 Distance: 281),
             new SiteWithDistance(new Site(
@@ -100,9 +105,10 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
-                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                        new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     }),
                 Distance: 328)
         };
@@ -127,9 +133,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.507, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 }),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -140,9 +147,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.506, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 }),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -153,9 +161,10 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.505, 65]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
-                    new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                    new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 })
         };
 
@@ -170,9 +179,10 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.505, 65.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
-                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                        new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     }),
                 Distance: 234),
             new SiteWithDistance(new Site(
@@ -184,9 +194,10 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
-                        new AttributeValue(Id: "accessibility/access_need_1", Value: "true")
+                        new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     }),
                 Distance: 281)
         };
@@ -211,7 +222,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
-                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_1", Value: "true") }),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") }),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                 Name: "Site 2",
@@ -221,7 +233,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
-                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_1", Value: "false") }),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") }),
         };
 
         var expectedSites = new List<SiteWithDistance>
@@ -235,7 +248,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.505, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -262,7 +276,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
                 }),
@@ -275,7 +290,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.05, 50.0]),
-                AttributeValues: new List<AttributeValue>
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
                 }),
@@ -301,7 +317,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -315,7 +332,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
                     }),
@@ -341,7 +359,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
-                AttributeValues: Array.Empty<AttributeValue>()),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>()),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                 Name: "Site 2",
@@ -351,7 +370,8 @@ public class SiteServiceTests
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
-                AttributeValues: new List<AttributeValue> { new(Id: "accessibility/access_need_2", Value: "true") })
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") })
         };
         var expectedSites = new List<SiteWithDistance>
         {
@@ -364,7 +384,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
                     }),
@@ -389,7 +410,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -403,7 +425,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
@@ -437,7 +460,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -451,7 +475,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
@@ -478,7 +503,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -492,7 +518,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
@@ -521,7 +548,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     }),
@@ -535,7 +563,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
@@ -564,7 +593,8 @@ public class SiteServiceTests
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: new List<AttributeValue> { new AttributeValue(Id: "Attribute 1", Value: "true") });
+            InformationForCitizens: "",
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Attribute 1", Value: "true") });
 
         var expectedSite = new Site(
             Id: siteId,
@@ -575,7 +605,8 @@ public class SiteServiceTests
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues: new List<AttributeValue> { new AttributeValue(Id: "Attribute 1", Value: "true") });
+            InformationForCitizens: "",
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Attribute 1", Value: "true") });
         _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
         var result = await _sut.GetSiteByIdAsync(siteId);
@@ -595,11 +626,12 @@ public class SiteServiceTests
             Region: "R1",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues:
+            InformationForCitizens: "",
+            Accessibilities:
             [
-                new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
-                new AttributeValue(Id: "Attribute 2", Value: "true"),
-                new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
+                new Accessibility(Id: "test_scope/Attribute 1", Value: "true"),
+                new Accessibility(Id: "Attribute 2", Value: "true"),
+                new Accessibility(Id: "test_scope/Attribute 3", Value: "true"),
             ]);
 
         var expectedSite = new Site(
@@ -611,10 +643,11 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            AttributeValues:
+            InformationForCitizens: "",
+            Accessibilities:
             [
-                new AttributeValue(Id: "test_scope/Attribute 1", Value: "true"),
-                new AttributeValue(Id: "test_scope/Attribute 3", Value: "true"),
+                new Accessibility(Id: "test_scope/Attribute 1", Value: "true"),
+                new Accessibility(Id: "test_scope/Attribute 3", Value: "true"),
             ]);
         _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
@@ -649,7 +682,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")}),
             new Site(
                     Id: "ABC02",
                     Name: "Site 2",
@@ -659,7 +693,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")})
         };
         object outSites = sites;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
@@ -684,7 +719,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")}),
             new Site(
                     Id: "ABC02",
                     Name: "Site 2",
@@ -694,7 +730,8 @@ public class SiteServiceTests
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
-                    AttributeValues: new List<AttributeValue>() {new (Id: "accessibility/access_need_1", Value: "false")})
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")})
         };
         object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -94,7 +94,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             OdsCode: row.Cells.ElementAt(4).Value,
             Region: row.Cells.ElementAt(5).Value,
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(7).Value),
+            InformationForCitizens: string.Empty,
+            Accessibilities: ParseAttributes(row.Cells.ElementAt(7).Value),
             Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])
@@ -106,14 +107,14 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
 
-    protected static AttributeValue[] ParseAttributes(string attributes)
+    protected static Accessibility[] ParseAttributes(string attributes)
     {
         if (attributes == "__empty__")
         {
-            return Array.Empty<AttributeValue>();
+            return Array.Empty<Accessibility>();
         }
 
         var pairs = attributes.Split(",");
-        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new AttributeValue(kvp[0], kvp[1])).ToArray();
+        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
     }
 }

@@ -18,14 +18,14 @@
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
 	<PackageReference Include="GovukNotify" Version="7.2.0" />
         <PackageReference Include="IdentityModel" Version="7.0.0" />
-        <PackageReference Include="MassTransit" Version="8.3.4" />
-        <PackageReference Include="MassTransit.WebJobs.ServiceBus" Version="8.3.4" />
+        <PackageReference Include="MassTransit" Version="8.3.5" />
+        <PackageReference Include="MassTransit.WebJobs.ServiceBus" Version="8.3.5" />
         <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
 	<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.2" />
 	<PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.11.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.0" />
+	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.1" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
 	<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.16.4" />
 	<PackageReference Include="Microsoft.Extensions.Azure" Version="1.9.0" />

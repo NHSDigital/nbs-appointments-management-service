@@ -168,3 +168,31 @@ export const compareTimes = (
   }
   return 'equal';
 };
+
+export const getWeeksOfTheMonth = (
+  dateInMonth: dayjs.Dayjs,
+): dayjs.Dayjs[][] => {
+  const startOfFirstWeekInMonth = dateInMonth
+    .startOf('month')
+    .startOf('isoWeek');
+  const endOfLastWeekInMonth = dateInMonth.endOf('month').endOf('isoWeek');
+
+  const dates: dayjs.Dayjs[][] = [];
+  let currentWeek: dayjs.Dayjs[] = [];
+  let currentDate = startOfFirstWeekInMonth;
+
+  while (currentDate.isSameOrBefore(endOfLastWeekInMonth)) {
+    currentWeek.push(currentDate);
+    if (currentWeek.length === 7) {
+      dates.push(currentWeek);
+      currentWeek = [];
+    }
+    currentDate = currentDate.add(1, 'day');
+  }
+
+  if (currentWeek.length > 0) {
+    dates.push(currentWeek);
+  }
+
+  return dates;
+};

@@ -294,6 +294,16 @@ type DaySummary = {
   remainingCapacity: number;
 };
 
+type WeekSummary = {
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
+  daySummaries: DaySummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  remainingCapacity: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -362,6 +372,7 @@ export type {
   User,
   UserProfile,
   Week,
+  WeekSummary,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
 };

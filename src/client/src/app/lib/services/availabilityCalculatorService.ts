@@ -16,6 +16,7 @@ import {
   DaySummary,
   SessionSummary,
   TimeComponents,
+  WeekSummary,
 } from '@types';
 
 export const summariseWeek = async (
@@ -49,6 +50,63 @@ export const summariseWeek = async (
   });
 
   return daySummaries;
+};
+
+export const summariseWeekTwo = async (
+  weekStart: dayjs.Dayjs,
+  weekEnd: dayjs.Dayjs,
+  siteId: string,
+): Promise<WeekSummary> => {
+  const dailyAvailability = await fetchDailyAvailability(
+    siteId,
+    weekStart.format('YYYY-MM-DD'),
+    weekEnd.format('YYYY-MM-DD'),
+  );
+
+  const dailyBookings = await fetchBookings({
+    from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
+    to: weekEnd.format('YYYY-MM-DD HH:mm:ss'),
+    site: siteId,
+  });
+
+  const week = getWeek(weekStart);
+
+  const daySummaries: DaySummary[] = week.map(day => {
+    const availability = dailyAvailability.find(a => dayjs(a.date).isSame(day));
+
+    const bookings = dailyBookings.filter(booking =>
+      dayjs(booking.from).isSame(day, 'date'),
+    );
+
+    return summariseDay(day, bookings, availability);
+  });
+
+  const weekSummary = daySummaries.reduce(
+    (accumulator, daySummary) => {
+      return {
+        ...accumulator,
+        maximumCapacity:
+          accumulator.maximumCapacity + daySummary.maximumCapacity,
+        bookedAppointments:
+          accumulator.bookedAppointments + daySummary.bookedAppointments,
+        orphanedAppointments:
+          accumulator.orphanedAppointments + daySummary.orphanedAppointments,
+        remainingCapacity:
+          accumulator.remainingCapacity + daySummary.remainingCapacity,
+      };
+    },
+    {
+      startDate: weekStart,
+      endDate: weekEnd,
+      daySummaries: daySummaries,
+      maximumCapacity: 0,
+      bookedAppointments: 0,
+      orphanedAppointments: 0,
+      remainingCapacity: 0,
+    },
+  );
+
+  return weekSummary;
 };
 
 const summariseDay = (

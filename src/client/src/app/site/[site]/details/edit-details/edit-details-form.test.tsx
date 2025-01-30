@@ -1,6 +1,6 @@
 ﻿import { screen } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { mockSiteWithAttributes } from '@testing/data';
+import { mockSiteWithAccessibilities } from '@testing/data';
 import render from '@testing/render';
 import EditDetailsForm from './edit-details-form';
 import * as appointmentsService from '@services/appointmentsService';
@@ -22,13 +22,13 @@ describe('Edit Site Details Form', () => {
       replace: mockReplace,
     });
 
-    mockSiteWithAttributes.address =
+    mockSiteWithAccessibilities.address =
       'A new house, on a new road, in a new city';
 
-    mockSiteWithAttributes.phoneNumber = '0118 999 88199 9119 725 3';
+    mockSiteWithAccessibilities.phoneNumber = '0118 999 88199 9119 725 3';
 
     const renderResult = render(
-      <EditDetailsForm siteWithAttributes={mockSiteWithAttributes} />,
+      <EditDetailsForm SiteWithAccessibilities={mockSiteWithAccessibilities} />,
     );
 
     user = renderResult.user;
@@ -40,7 +40,7 @@ describe('Edit Site Details Form', () => {
 
   it('prepopulates the site data correctly in the form', () => {
     expect(screen.getByRole('textbox', { name: 'Site name' })).toHaveValue(
-      mockSiteWithAttributes.name,
+      mockSiteWithAccessibilities.name,
     );
 
     //TODO textarea label question??
@@ -49,11 +49,11 @@ describe('Edit Site Details Form', () => {
     );
 
     expect(screen.getByRole('textbox', { name: 'Latitude' })).toHaveValue(
-      mockSiteWithAttributes.location.coordinates[0].toString(),
+      mockSiteWithAccessibilities.location.coordinates[0].toString(),
     );
 
     expect(screen.getByRole('textbox', { name: 'Longitude' })).toHaveValue(
-      mockSiteWithAttributes.location.coordinates[1].toString(),
+      mockSiteWithAccessibilities.location.coordinates[1].toString(),
     );
 
     expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(
@@ -69,15 +69,15 @@ describe('Edit Site Details Form', () => {
 
     //address resaved just as a single comma delimited string
     const expectedPayload = {
-      name: mockSiteWithAttributes.name,
-      address: mockSiteWithAttributes.address,
+      name: mockSiteWithAccessibilities.name,
+      address: mockSiteWithAccessibilities.address,
       phoneNumber: '0118 999 88199 9119 725 3',
-      latitude: mockSiteWithAttributes.location.coordinates[0].toString(),
-      longitude: mockSiteWithAttributes.location.coordinates[1].toString(),
+      latitude: mockSiteWithAccessibilities.location.coordinates[0].toString(),
+      longitude: mockSiteWithAccessibilities.location.coordinates[1].toString(),
     };
 
     expect(mockSaveSiteDetails).toHaveBeenCalledWith(
-      mockSiteWithAttributes.id,
+      mockSiteWithAccessibilities.id,
       expectedPayload,
     );
   });
@@ -96,15 +96,15 @@ describe('Edit Site Details Form', () => {
     //address resaved just as a single comma delimited string
     //phone number resaved as a numeric string only
     const expectedPayload = {
-      name: mockSiteWithAttributes.name,
+      name: mockSiteWithAccessibilities.name,
       address: 'A new house, on a new road, in a new city, UK',
       phoneNumber: '0118 999 88199 9119 725 3',
-      latitude: mockSiteWithAttributes.location.coordinates[0].toString(),
-      longitude: mockSiteWithAttributes.location.coordinates[1].toString(),
+      latitude: mockSiteWithAccessibilities.location.coordinates[0].toString(),
+      longitude: mockSiteWithAccessibilities.location.coordinates[1].toString(),
     };
 
     expect(mockSaveSiteDetails).toHaveBeenCalledWith(
-      mockSiteWithAttributes.id,
+      mockSiteWithAccessibilities.id,
       expectedPayload,
     );
   });

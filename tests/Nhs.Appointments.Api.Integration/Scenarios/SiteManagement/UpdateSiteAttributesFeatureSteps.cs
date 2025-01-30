@@ -17,6 +17,6 @@ public sealed class UpdateSiteAttributesFeatureSteps : SiteManagementBaseFeature
         var row = dataTable.Rows.ElementAt(1);
         var attributeValues = ParseAccessibilities(row.Cells.ElementAt(0).Value);
         var payload = new SetSiteAccessibilitiesRequest(siteId, attributeValues);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/attributes", payload);
+        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/accessibilities", payload);
     }
 }

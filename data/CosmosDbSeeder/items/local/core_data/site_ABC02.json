@@ -9,9 +9,9 @@
   "integratedCareBoard": "ICB2",
   "location": {
     "type": "Point",
-    "coordinates": [-1.66382134, 53.79628754]
+    "coordinates": [ -1.66382134, 53.79628754 ]
   },
-  "attributeValues": [
+  "accessibilities": [
     {
       "id": "accessibility/accessible_toilet",
       "value": "false"
@@ -48,5 +48,6 @@
       "id": "accessibility/wheelchair_access",
       "value": "false"
     }
-  ]
+  ],
+  "informationForCitizens": "info for citizens 2"
 }

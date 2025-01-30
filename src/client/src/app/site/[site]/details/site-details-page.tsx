@@ -1,6 +1,6 @@
 import { Card, SummaryList } from '@components/nhsuk-frontend';
 import {
-  fetchAttributeDefinitions,
+  fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import {
@@ -21,15 +21,9 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const attributeDefinitions = await fetchAttributeDefinitions();
-  const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
-    ad.id.startsWith('accessibility'),
-  );
-  const site = await fetchSite(siteId);
-  const informationForCitizenAttribute = site.attributeValues.find(
-    sa => sa.id === 'site_details/info_for_citizen',
-  );
+  const accessibilityDefinitions = await fetchAccessibilityDefinitions();
 
+  const site = await fetchSite(siteId);
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(
     site,
     wellKnownOdsEntries,
@@ -57,12 +51,13 @@ const SiteDetailsPage = async ({
       <Card title="Access needs">
         <SummaryList
           borders={true}
-          items={accessibilityAttributeDefinitions.map(definition => {
+          items={accessibilityDefinitions.map(definition => {
             return {
               title: definition.displayName,
               value:
-                site?.attributeValues.find(value => value.id === definition.id)
-                  ?.value === 'true'
+                site?.accessibilityValues.find(
+                  value => value.id === definition.id,
+                )?.value === 'true'
                   ? 'Yes'
                   : 'No',
             };
@@ -70,7 +65,7 @@ const SiteDetailsPage = async ({
         />
         {permissions.includes('site:manage') ? (
           <Link
-            href={`/site/${site.id}/details/edit-attributes`}
+            href={`/site/${site.id}/details/edit-accessibilities`}
             className="nhsuk-link"
           >
             Edit access needs
@@ -78,8 +73,8 @@ const SiteDetailsPage = async ({
         ) : null}
       </Card>
       <Card title="Information for citizens">
-        {informationForCitizenAttribute ? (
-          <p>{informationForCitizenAttribute.value}</p>
+        {site.informationForCitizens ? (
+          <p>{site.informationForCitizens}</p>
         ) : (
           <p>Information for people visiting the site</p>
         )}

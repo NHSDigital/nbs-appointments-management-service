@@ -1,6 +1,6 @@
 import {
-  AttributeDefinition,
-  AttributeValue,
+  AccessibilityDefinition,
+  AccessibilityValue,
   AvailabilityCreatedEvent,
   AvailabilityResponse,
   AvailabilitySession,
@@ -8,9 +8,10 @@ import {
   Booking,
   DailyAvailability,
   DaySummary,
+  FullSite,
   Role,
   Site,
-  SiteWithAttributes,
+  SiteWithAccessibilities,
   User,
   UserProfile,
   Week,
@@ -156,7 +157,7 @@ const mockAuditerPermissions = [
 
 const mockNonManagerPermissions = ['booking:query', 'booking:set-status'];
 
-const mockAttributeDefinitions: AttributeDefinition[] = [
+const mockAccessibilityDefinitions: AccessibilityDefinition[] = [
   {
     id: 'accessibility/attr_1',
     displayName: 'Accessibility attribute 1',
@@ -171,7 +172,7 @@ const mockAttributeDefinitions: AttributeDefinition[] = [
   },
 ];
 
-const mockAttributeValues: AttributeValue[] = [
+const mockAccessibilityValues: AccessibilityValue[] = [
   {
     id: 'accessibility/attr_1',
     value: 'true',
@@ -264,7 +265,7 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
   },
 ];
 
-const mockSiteWithAttributes: SiteWithAttributes = {
+const mockSiteWithAccessibilities: SiteWithAccessibilities = {
   id: mockSites[0].id,
   address: mockSites[0].address,
   phoneNumber: mockSites[0].phoneNumber,
@@ -273,10 +274,23 @@ const mockSiteWithAttributes: SiteWithAttributes = {
   integratedCareBoard: mockSites[0].integratedCareBoard,
   region: mockSites[0].region,
   location: mockSites[0].location,
-  attributeValues: [
+  accessibilityValues: [
     { id: 'site_details/info_for_citizen', value: 'Test information' },
     { id: 'accessibility/attr_1', value: 'true' },
   ],
+};
+
+const mockFullSite: FullSite = {
+  id: mockSites[0].id,
+  address: mockSites[0].address,
+  phoneNumber: mockSites[0].phoneNumber,
+  name: mockSites[0].name,
+  odsCode: mockSites[0].odsCode,
+  integratedCareBoard: mockSites[0].integratedCareBoard,
+  region: mockSites[0].region,
+  location: mockSites[0].location,
+  accessibilityValues: [{ id: 'accessibility/attr_1', value: 'true' }],
+  informationForCitizens: 'Test information',
 };
 
 const mockAvailability: AvailabilityResponse[] = [
@@ -615,10 +629,10 @@ export {
   mockAllPermissions,
   mockAuditerPermissions,
   mockNonManagerPermissions,
-  mockAttributeDefinitions,
-  mockAttributeValues,
+  mockAccessibilityDefinitions,
+  mockAccessibilityValues,
   mockUserProfile,
-  mockSiteWithAttributes,
+  mockSiteWithAccessibilities,
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
@@ -628,4 +642,5 @@ export {
   mockEmptyDays,
   mockWeekAvailability,
   mockWellKnownOdsCodeEntries,
+  mockFullSite,
 };

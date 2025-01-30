@@ -4,7 +4,7 @@ import {
   fetchPermissions,
   fetchSite,
 } from '@services/appointmentsService';
-import { EditAttributesPage } from './edit-attributes-page';
+import { EditAccessibilitiesPage } from './edit-accessibilities-page';
 
 export type PageProps = {
   params: {
@@ -25,9 +25,12 @@ const Page = async ({ params }: PageProps) => {
         { name: 'Home', href: '/' },
         { name: site.name, href: `/site/${params.site}` },
       ]}
-      originPage="edit-attributes"
+      originPage="edit-accessibilities"
     >
-      <EditAttributesPage site={params.site} permissions={sitePermissions} />
+      <EditAccessibilitiesPage
+        site={params.site}
+        permissions={sitePermissions}
+      />
     </NhsPage>
   );
 };

@@ -55,7 +55,7 @@ describe('Add Information For Citizen Form', () => {
     await user.click(saveButton);
 
     const expectedPayload = {
-      attributeValues: [
+      accessibilityValues: [
         { id: 'site_details/info_for_citizen', value: 'test user input' },
       ],
       scope: 'site_details',
@@ -120,7 +120,7 @@ describe('Add Information For Citizen Form', () => {
     await user.click(saveButton);
 
     const expectedPayload = {
-      attributeValues: [{ id: 'site_details/info_for_citizen', value: '' }],
+      accessibilityValues: [{ id: 'site_details/info_for_citizen', value: '' }],
       scope: 'site_details',
     };
 

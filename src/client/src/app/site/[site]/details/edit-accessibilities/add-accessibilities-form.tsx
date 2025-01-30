@@ -10,26 +10,26 @@ import {
   SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
 import {
-  AttributeDefinition,
-  AttributeValue,
-  SetAttributesRequest,
+  AccessibilityDefinition,
+  AccessibilityValue,
+  SetAccessibilitiesRequest,
 } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { saveSiteAttributeValues } from '@services/appointmentsService';
+import { saveSiteAccessibilityValues } from '@services/appointmentsService';
 
 type FormFields = {
-  attributeValues: string[];
+  accessibilityValues: string[];
 };
 
-const AddAttributesForm = ({
-  attributeDefinitions,
+const AddAccessibilitiesForm = ({
+  accessibilityDefinitions,
   site,
-  attributeValues,
+  accessibilityValues,
 }: {
-  attributeDefinitions: AttributeDefinition[];
+  accessibilityDefinitions: AccessibilityDefinition[];
   site: string;
-  attributeValues: AttributeValue[];
+  accessibilityValues: AccessibilityValue[];
 }) => {
   const { replace } = useRouter();
   const {
@@ -38,9 +38,9 @@ const AddAttributesForm = ({
     formState: { isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: {
-      attributeValues: attributeValues
-        .filter(av => av.value === 'true')
-        .map(av => av.id),
+      accessibilityValues: accessibilityValues
+        .filter(ac => ac.value === 'true')
+        .map(ac => ac.id),
     },
   });
 
@@ -49,17 +49,17 @@ const AddAttributesForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetAttributesRequest = {
-      scope: 'accessibility',
-      attributeValues: attributeDefinitions.map(ad => ({
+    const payload: SetAccessibilitiesRequest = {
+      accessibilityValues: accessibilityDefinitions.map(ad => ({
         id: ad.id,
         value:
-          form.attributeValues.find((fv: string) => ad.id === fv) !== undefined
+          form.accessibilityValues.find((fv: string) => ad.id === fv) !==
+          undefined
             ? 'true'
             : 'false',
       })),
     };
-    await saveSiteAttributeValues(site, payload);
+    await saveSiteAccessibilityValues(site, payload);
 
     replace(`/site/${site}/details`);
   };
@@ -71,13 +71,13 @@ const AddAttributesForm = ({
           Select all options that the current site offers
         </div>
         <CheckBoxes>
-          {attributeDefinitions.map(ad => (
+          {accessibilityDefinitions.map(ad => (
             <CheckBox
               id={ad.id}
               label={ad.displayName}
               key={`checkbox-key-${ad.id}`}
               value={ad.id}
-              {...register('attributeValues')}
+              {...register('accessibilityValues')}
             />
           ))}
         </CheckBoxes>
@@ -97,4 +97,4 @@ const AddAttributesForm = ({
   );
 };
 
-export default AddAttributesForm;
+export default AddAccessibilitiesForm;

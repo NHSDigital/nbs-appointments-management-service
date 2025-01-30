@@ -14,12 +14,12 @@ interface ApiSuccessResponse<T> {
   data: T | null;
 }
 
-type AttributeDefinition = {
+type AccessibilityDefinition = {
   id: string;
   displayName: string;
 };
 
-type AttributeValue = {
+type AccessibilityValue = {
   id: string;
   value: string;
 };
@@ -30,9 +30,12 @@ type WellKnownOdsEntry = {
   type: string;
 };
 
-type SetAttributesRequest = {
-  scope: string;
-  attributeValues: AttributeValue[];
+type SetAccessibilitiesRequest = {
+  accessibilityValues: AccessibilityValue[];
+};
+
+type SetInformationForCitizensRequest = {
+  informationForCitizens: string;
 };
 
 type SetSiteDetailsRequest = {
@@ -141,8 +144,12 @@ type Location = {
   coordinates: number[];
 };
 
-type SiteWithAttributes = Site & {
-  attributeValues: AttributeValue[];
+type SiteWithAccessibilities = Site & {
+  accessibilityValues: AccessibilityValue[];
+};
+
+type FullSite = SiteWithAccessibilities & {
+  informationForCitizens: string;
 };
 
 type User = {
@@ -326,8 +333,8 @@ export type {
   ApiResponse,
   ApiSuccessResponse,
   AttendeeDetails,
-  AttributeDefinition,
-  AttributeValue,
+  AccessibilityDefinition,
+  AccessibilityValue,
   Availability,
   AvailabilityBlock,
   AvailabilityResponse,
@@ -346,6 +353,7 @@ export type {
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
+  FullSite,
   EulaVersion,
   Role,
   RoleAssignment,
@@ -353,10 +361,11 @@ export type {
   ServiceBookingDetails,
   Session,
   SessionSummary,
-  SetAttributesRequest,
+  SetAccessibilitiesRequest,
   SetAvailabilityRequest,
+  SetInformationForCitizensRequest,
   Site,
-  SiteWithAttributes,
+  SiteWithAccessibilities,
   TimeComponents,
   User,
   UserProfile,

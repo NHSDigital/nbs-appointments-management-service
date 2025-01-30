@@ -35,7 +35,7 @@ public class SetSiteAccessibilitiesFunction(
     [RequiresPermission("site:manage", typeof(SiteFromPathInspector))]
     [Function("SetSiteAccessibilitiesFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/attributes")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/accessibilities")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
@@ -50,6 +50,6 @@ public class SetSiteAccessibilitiesFunction(
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
         var (errors, request) = await JsonRequestReader.ReadRequestAsync<AccessibilityRequest>(req.Body);
-        return (errors, new SetSiteAccessibilitiesRequest(site, request?.Accessibilities));
+        return (errors, new SetSiteAccessibilitiesRequest(site, request?.AccessibilityValues));
     }
 }

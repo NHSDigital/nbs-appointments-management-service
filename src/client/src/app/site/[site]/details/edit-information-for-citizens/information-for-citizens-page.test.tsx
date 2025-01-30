@@ -2,17 +2,17 @@ import {
   fetchInformationForCitizens,
   fetchSite,
 } from '@services/appointmentsService';
-import { AttributeValue, SiteWithAttributes } from '@types';
+import { AccessibilityValue, FullSite } from '@types';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 import { render, screen } from '@testing-library/react';
-import { mockSiteWithAttributes } from '@testing/data';
+import { mockFullSite, mockSiteWithAccessibilities } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
 
 jest.mock('@services/appointmentsService');
 const fetchInformationForCitizensMock =
-  fetchInformationForCitizens as jest.Mock<Promise<AttributeValue[]>>;
+  fetchInformationForCitizens as jest.Mock<Promise<AccessibilityValue[]>>;
 
 jest.mock('./add-information-for-citizens-form', () => {
   const MockForm = ({ information }: { information: string }) => {
@@ -31,9 +31,9 @@ const mockPermissions = ['site:manage', 'site:view'];
 
 describe('Manage Information For Citizen Form', () => {
   beforeEach(() => {
-    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
+    fetchSiteMock.mockResolvedValue(mockFullSite);
     fetchInformationForCitizensMock.mockResolvedValue(
-      mockSiteWithAttributes.attributeValues,
+      mockFullSite.accessibilityValues,
     );
   });
 

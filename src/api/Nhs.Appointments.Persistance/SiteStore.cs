@@ -39,7 +39,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        var originalAttributes = originalDocument.AttributeValues;
+        var originalAttributes = originalDocument.AccessibilityValues;
         var siteDocumentPatch = PatchOperation.Add("/accessibilities", accessibilities.Where(a => !string.IsNullOrEmpty(a.Value)));
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
@@ -52,7 +52,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        var originalAttributes = originalDocument.AttributeValues;
+        var originalAttributes = originalDocument.AccessibilityValues;
         var siteDocumentPatch = PatchOperation.Set("/informationForCitizens", informationForCitizens);
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);

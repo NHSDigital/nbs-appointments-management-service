@@ -57,7 +57,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
@@ -158,7 +158,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"                = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true

@@ -12,6 +12,7 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
+  await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
 
   await assertPermission(site.id, 'availability:setup');

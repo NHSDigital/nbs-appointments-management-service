@@ -31,7 +31,7 @@ public class GetAuthTokenFunction(
     {
         // need to resolve the correct auth config here
         var providerName = req.Query["provider"];
-        var authProvider = string.IsNullOrWhiteSpace(providerName) ? authOptions.Value.Providers[0] : authOptions.Value.Providers.Single(p => p.Name == providerName);
+        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
 
         var code = await req.ReadAsStringAsync();
         var formValues = new Dictionary<string, string>

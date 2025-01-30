@@ -27,3 +27,15 @@ Feature: Cancel a session
     Then the following booking is returned
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 97531-43576 |
+
+  Scenario: Cancelling a session deletes Provisional appointments within it
+    And the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service |
+      | Tomorrow | 09:00 | 5        | COVID   |
+    When I cancel the following session
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    Then the booking should be deleted

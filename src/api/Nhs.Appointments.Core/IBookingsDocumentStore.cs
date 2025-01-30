@@ -14,6 +14,7 @@ public interface IBookingsDocumentStore
     Task SetReminderSent(string bookingReference, string site);
     Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
+    Task DeleteBooking(string reference, string site);
 }
 
 public interface IRolesStore

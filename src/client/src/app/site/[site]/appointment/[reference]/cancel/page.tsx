@@ -7,6 +7,7 @@ import {
 import CancelAppointmentPage from './cancel-appointment-page';
 import { notFound } from 'next/navigation';
 import dayjs from 'dayjs';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
   params: {
@@ -25,20 +26,18 @@ const Page = async ({ params }: PageProps) => {
   }
 
   const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+  const backLink: NavigationByHrefProps = {
+    renderingStrategy: 'server',
+    href: `/site/${params.site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
+    text: 'Go back',
+  };
 
   return (
     <NhsPage
       caption="Cancel appointment"
       title="Are you sure you want to cancel this appointment?"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        {
-          name: 'View daily appointments',
-          href: `/site/${params.site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
-        },
-      ]}
       originPage="appointment-cancel"
+      backLink={backLink}
       site={site}
     >
       <CancelAppointmentPage booking={booking} site={site.id} />

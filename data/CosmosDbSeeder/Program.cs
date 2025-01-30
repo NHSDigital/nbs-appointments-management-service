@@ -41,7 +41,7 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
-            var knownEnvironments = new [] { "local", "dev", "int", "stag", "prod" };
+            var knownEnvironments = new [] { "local", "dev", "exp", "int", "stag", "prod" };
             
             if (string.IsNullOrWhiteSpace(environment))
                 throw new ArgumentException("Environment must be provided");

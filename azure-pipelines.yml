@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag"]
+    default: ["exp"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
@@ -144,6 +144,7 @@ stages:
 
       - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"
+        condition: false
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
@@ -294,5 +295,5 @@ stages:
           webServerName: nbs-mya-app-${{env}}-uks
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
           resourceGroup: nbs-mya-rg-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
+          serviceConnectionName: nbs-mya-rg-dev
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

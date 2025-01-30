@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import LogInButton from './log-in-button';
-import NhsHeaderLogIn from '@components/nhs-header-log-in';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 
 export type LoginPageProps = {

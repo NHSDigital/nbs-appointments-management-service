@@ -23,17 +23,18 @@ export const summariseWeek = async (
   weekEnd: dayjs.Dayjs,
   siteId: string,
 ): Promise<DaySummary[]> => {
-  const dailyAvailability = await fetchDailyAvailability(
-    siteId,
-    weekStart.format('YYYY-MM-DD'),
-    weekEnd.format('YYYY-MM-DD'),
-  );
-
-  const dailyBookings = await fetchBookings({
-    from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
-    to: weekEnd.format('YYYY-MM-DD HH:mm:ss'),
-    site: siteId,
-  });
+  const [dailyAvailability, dailyBookings] = await Promise.all([
+    fetchDailyAvailability(
+      siteId,
+      weekStart.format('YYYY-MM-DD'),
+      weekEnd.format('YYYY-MM-DD'),
+    ),
+    fetchBookings({
+      from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
+      to: weekEnd.format('YYYY-MM-DD HH:mm:ss'),
+      site: siteId,
+    }),
+  ]);
 
   const week = getWeek(weekStart);
 

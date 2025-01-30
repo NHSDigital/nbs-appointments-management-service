@@ -10,11 +10,13 @@ type Props = {
 };
 
 export const EditAttributesPage = async ({ site }: Props) => {
-  const attributeDefinitions = await fetchAttributeDefinitions();
+  const [attributeDefinitions, siteDetails] = await Promise.all([
+    fetchAttributeDefinitions(),
+    fetchSite(site),
+  ]);
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
   );
-  const siteDetails = await fetchSite(site);
 
   return (
     <>

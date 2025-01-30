@@ -21,11 +21,14 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const attributeDefinitions = await fetchAttributeDefinitions();
+  const [attributeDefinitions, site] = await Promise.all([
+    fetchAttributeDefinitions(),
+    fetchSite(siteId),
+  ]);
+
   const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
     ad.id.startsWith('accessibility'),
   );
-  const site = await fetchSite(siteId);
   const informationForCitizenAttribute = site.attributeValues.find(
     sa => sa.id === 'site_details/info_for_citizen',
   );

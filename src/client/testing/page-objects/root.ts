@@ -13,7 +13,7 @@ export default class RootPage {
     this.serviceName = page.getByRole('link', { name: 'NHS Appointment Book' });
     this.headerLogInButton = page.getByRole('button', { name: 'Log In' });
     this.pageContentLogInButton = page.getByRole('button', {
-      name: 'Sign in to service',
+      name: 'Sign in to service with NHS Mail',
     });
     this.logOutButton = page.getByRole('button', { name: 'Log Out' });
     this.homeBreadcrumb = page.getByRole('link', {

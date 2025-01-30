@@ -1,9 +1,11 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using System.Security.Claims;
+using DnsClient.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 
@@ -13,10 +15,15 @@ public class BearerTokenRequestAuthenticatorTests
     private readonly Mock<ISecurityTokenValidator> _validator = new();
     private readonly Mock<IJwksRetriever> _jwksRetriever = new();
     private readonly Mock<IOptions<AuthOptions>> _options = new();
-
     public BearerTokenRequestAuthenticatorTests()
     {
-        _options.Setup(x => x.Value).Returns(new AuthOptions { JwksUri = "https://test.oauth.com/jwks" });
+        _options.Setup(x => x.Value).Returns(new AuthOptions
+        {
+            Providers =
+            [
+                new AuthProviderOptions { JwksUri = "https://test.oauth.com/jwks" }
+            ]
+        });
         _sut = new BearerTokenRequestAuthenticator(_validator.Object, _jwksRetriever.Object, _options.Object);
     }
 

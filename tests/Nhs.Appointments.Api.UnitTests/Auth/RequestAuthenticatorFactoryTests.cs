@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
@@ -16,8 +17,7 @@ public class RequestAuthenticatorFactoryTests
         var mockAuthOptions = new Mock<IOptions<AuthOptions>>();
         mockAuthOptions.Setup(x => x.Value).Returns(new AuthOptions());
         var mockValidator = new Mock<ISecurityTokenValidator>();
-        var mockJwksRetriever = new Mock<IJwksRetriever>(); 
-
+        var mockJwksRetriever = new Mock<IJwksRetriever>();
         _serviceProvider.Setup(x => x.GetService(typeof(BearerTokenRequestAuthenticator))).Returns(new BearerTokenRequestAuthenticator(mockValidator.Object, mockJwksRetriever.Object, mockAuthOptions.Object));
         _sut = new RequestAuthenticatorFactory(_serviceProvider.Object);
     }

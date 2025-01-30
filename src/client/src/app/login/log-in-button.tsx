@@ -3,13 +3,22 @@ import { Button } from '@nhsuk-frontend-components';
 
 type LogInButtonProps = {
   redirectUrl: string;
+  provider: string;
+  friendlyName: string;
 };
 
-const LogInButton = ({ redirectUrl }: LogInButtonProps) => {
+const LogInButton = ({
+  redirectUrl,
+  provider,
+  friendlyName,
+}: LogInButtonProps) => {
   return (
-    <form action={redirectToIdServer.bind(null, redirectUrl)}>
-      <Button aria-label="Sign in to service" type="submit">
-        Sign in to service
+    <form action={redirectToIdServer.bind(null, redirectUrl, provider)}>
+      <Button
+        aria-label={`Sign in to service with ${friendlyName}`}
+        type="submit"
+      >
+        Sign in to service with {friendlyName}
       </Button>
     </form>
   );

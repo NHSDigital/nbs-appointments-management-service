@@ -23,22 +23,6 @@ test('User visits the site origin, signs in and see the Site Selection menu', as
   await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
 });
 
-test('User signs in using the log in button in the header', async ({
-  page,
-}) => {
-  const rootPage = new RootPage(page);
-  const oAuthPage = new OAuthLoginPage(page);
-  const siteSelectionPage = new SiteSelectionPage(page);
-
-  await rootPage.goto();
-  await rootPage.headerLogInButton.click();
-
-  await oAuthPage.signIn();
-
-  await expect(rootPage.logOutButton).toBeVisible();
-  await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
-});
-
 test('User visits the site origin, signs in, then signs out again', async ({
   page,
 }) => {

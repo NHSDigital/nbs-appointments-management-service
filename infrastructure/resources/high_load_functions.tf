@@ -51,7 +51,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Auth__Providers__0__ClientId                                           = var.nhs_mail_client_id
     Auth__Providers__0__ClientSecret                                       = var.nhs_mail_client_secret
     Auth__Providers__0__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=nhs-mail"
-    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=nhs-mail"
+    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}"
     Auth__Providers__1__Name                                               = "okta"
     Auth__Providers__1__Issuer                                             = var.okta_issuer
     Auth__Providers__1__AuthorizeUri                                       = var.okta_authorize_uri
@@ -154,7 +154,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Auth__Providers__0__ClientId                                           = var.nhs_mail_client_id
     Auth__Providers__0__ClientSecret                                       = var.nhs_mail_client_secret
     Auth__Providers__0__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=nhs-mail"
-    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=nhs-mail"
+    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}"
     Auth__Providers__1__Name                                               = "okta"
     Auth__Providers__1__Issuer                                             = var.okta_issuer
     Auth__Providers__1__AuthorizeUri                                       = var.okta_authorize_uri

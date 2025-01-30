@@ -80,18 +80,5 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
     }
-
-    [And("the booking should be deleted")]
-    public async Task AssertBookingDeleted()
-    {
-        var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-
-        var exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId)));
-        exception.Message.Should().Contain("404");
-
-        exception = await Assert.ThrowsAsync<CosmosException>(async () => await Client.GetContainer("appts", "index_data").ReadItemAsync<BookingIndexDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey("booking_index")));
-        exception.Message.Should().Contain("404");
-    }
 }
 

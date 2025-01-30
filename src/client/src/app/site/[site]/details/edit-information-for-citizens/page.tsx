@@ -19,14 +19,7 @@ const Page = async ({ params }: PageProps) => {
   await assertPermission(site.id, 'site:manage');
 
   return (
-    <NhsPage
-      title="Site management"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-      originPage="edit-information-for-citizens"
-    >
+    <NhsPage title="Site management" originPage="edit-information-for-citizens">
       <h3>Manage information for citizens</h3>
       <EditInformationForCitizensPage
         permissions={sitePermissions}

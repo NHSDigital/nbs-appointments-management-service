@@ -22,7 +22,7 @@ public class AuthenticateCallbackFunction(IOptions<AuthOptions> authOptions)
         var code = req.Query["code"];
         var redirectUri = req.Query["state"];
         var providerName = req.Query["provider"];
-        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+        var authProvider = string.IsNullOrWhiteSpace(providerName) ? authOptions.Value.Providers[0] : authOptions.Value.Providers.Single(p => p.Name == providerName);
 
         var redirectUrl = new UriBuilder(authProvider.ClientCodeExchangeUri);
         var query = HttpUtility.ParseQueryString(redirectUrl.Query);

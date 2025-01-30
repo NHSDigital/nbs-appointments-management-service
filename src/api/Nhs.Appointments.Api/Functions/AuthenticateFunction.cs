@@ -21,7 +21,7 @@ public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
     {
         // here we need to resolve the correct auth provider
         var providerName = req.Query["provider"];
-        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+        var authProvider = string.IsNullOrWhiteSpace(providerName) ? authOptions.Value.Providers[0] : authOptions.Value.Providers.Single(p => p.Name == providerName);
 
         var cc = AuthUtilities.GenerateCodeChallenge(authProvider.ChallengePhrase);
 

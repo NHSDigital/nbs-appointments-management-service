@@ -15,8 +15,8 @@ type PageProps = {
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
+  await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
-  await assertPermission(site.id, 'availability:setup');
   const date = dayjs(searchParams.date, 'YYYY-MM-DD');
 
   const updatedSession: AvailabilitySession = JSON.parse(

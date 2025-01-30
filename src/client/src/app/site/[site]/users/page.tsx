@@ -16,13 +16,15 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const userProfile = await fetchUserProfile();
-  const users = await fetchUsers(params.site);
-  const rolesResponse = await fetchRoles();
-  const site = await fetchSite(params.site);
-  const permissions = await fetchPermissions(params.site);
-
-  await assertAnyPermissions(site.id, ['users:view', 'users:view']);
+  await assertAnyPermissions(params.site, ['users:view', 'users:view']);
+  const [userProfile, users, rolesResponse, site, permissions] =
+    await Promise.all([
+      fetchUserProfile(),
+      fetchUsers(params.site),
+      fetchRoles(),
+      fetchSite(params.site),
+      fetchPermissions(params.site),
+    ]);
 
   return (
     <NhsPage title="Manage Staff Roles" site={site} originPage="users">

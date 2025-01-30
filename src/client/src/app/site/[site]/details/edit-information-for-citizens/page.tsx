@@ -13,10 +13,11 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-  const sitePermissions = await fetchPermissions(params.site);
-
-  await assertPermission(site.id, 'site:manage');
+  await assertPermission(params.site, 'site:manage');
+  const [site, sitePermissions] = await Promise.all([
+    fetchSite(params.site),
+    fetchPermissions(params.site),
+  ]);
 
   return (
     <NhsPage title="Site management" originPage="edit-information-for-citizens">

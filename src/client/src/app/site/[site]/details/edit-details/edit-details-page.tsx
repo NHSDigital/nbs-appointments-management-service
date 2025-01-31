@@ -12,7 +12,7 @@ export const EditDetailsPage = async ({ siteId }: Props) => {
   return (
     <>
       <NhsHeading title="Edit site details" caption={siteDetails.name} />
-      <EditDetailsForm siteWithAttributes={siteDetails}></EditDetailsForm>
+      <EditDetailsForm site={siteDetails}></EditDetailsForm>
     </>
   );
 };

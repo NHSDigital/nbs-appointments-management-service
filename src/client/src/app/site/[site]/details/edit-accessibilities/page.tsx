@@ -3,7 +3,7 @@ import {
   assertPermission,
   fetchPermissions,
 } from '@services/appointmentsService';
-import { EditAttributesPage } from './edit-attributes-page';
+import { EditAccessibilitiesPage } from './edit-accessibilities-page';
 
 export type PageProps = {
   params: {
@@ -16,8 +16,11 @@ const Page = async ({ params }: PageProps) => {
   const sitePermissions = await fetchPermissions(params.site);
 
   return (
-    <NhsPage title="Site management" originPage="edit-attributes">
-      <EditAttributesPage site={params.site} permissions={sitePermissions} />
+    <NhsPage title="Site management" originPage="edit-accessibilities">
+      <EditAccessibilitiesPage
+        site={params.site}
+        permissions={sitePermissions}
+      />
     </NhsPage>
   );
 };

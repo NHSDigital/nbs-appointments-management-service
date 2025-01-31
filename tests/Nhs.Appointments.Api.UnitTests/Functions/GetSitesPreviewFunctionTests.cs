@@ -128,7 +128,8 @@ public class GetSitesPreviewFunctionTests
             OdsCode: "odsCode1",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            AttributeValues: new[] { new AttributeValue(Id: "accessibility/attr_1", Value: "true") },
+            InformationForCitizens: "Information For Citizens 123456",
+            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
         );
 

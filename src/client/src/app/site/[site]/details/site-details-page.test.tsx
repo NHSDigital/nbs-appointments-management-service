@@ -1,30 +1,33 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AttributeDefinition, SiteWithAttributes } from '@types';
+import { AccessibilityDefinition, FullSite } from '@types';
 import {
-  fetchAttributeDefinitions,
+  fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import {
-  mockAttributeDefinitions,
+  mockAccessibilityDefinitions,
+  mockFullSite,
   mockSite,
-  mockSiteWithAttributes,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 jest.mock('@services/appointmentsService');
-const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
-  Promise<AttributeDefinition[]>
->;
+const fetchAccessibilityDefinitionsMock =
+  fetchAccessibilityDefinitions as jest.Mock<
+    Promise<AccessibilityDefinition[]>
+  >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
 
 describe('Site Details Page', () => {
   beforeEach(() => {
-    fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
-    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
+    fetchAccessibilityDefinitionsMock.mockResolvedValue(
+      mockAccessibilityDefinitions,
+    );
+    fetchSiteMock.mockResolvedValue(mockFullSite);
   });
 
   it('renders', async () => {
@@ -185,7 +188,10 @@ describe('Site Details Page', () => {
 
     expect(
       screen.getByRole('link', { name: 'Edit access needs' }),
-    ).toHaveAttribute('href', `/site/${mockSite.id}/details/edit-attributes`);
+    ).toHaveAttribute(
+      'href',
+      `/site/${mockSite.id}/details/edit-accessibilities`,
+    );
   });
 
   it('hides the edit access needs hyperlink if the user does not have permission', async () => {

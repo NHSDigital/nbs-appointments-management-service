@@ -2,7 +2,7 @@
 
 namespace Nhs.Appointments.Core;
 
-public record AttributeDefinition(
+public record AccessibilityDefinition(
     [property:JsonProperty("id")]
     string Id,
     [property:JsonProperty("displayName")]

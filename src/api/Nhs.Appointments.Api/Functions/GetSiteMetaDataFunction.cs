@@ -41,8 +41,8 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
         var site = await siteService.GetSiteByIdAsync(request.Site, scope);
         if (site != null)
         {
-            var patientInformation = site.AttributeValues.Any()
-                ? site.AttributeValues?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
+            var patientInformation = site.AccessibilityValues.Any()
+                ? site.AccessibilityValues?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
                 : string.Empty;
             return ApiResult<GetSiteMetaDataResponse>.Success(new GetSiteMetaDataResponse(site.Name, patientInformation));
         }

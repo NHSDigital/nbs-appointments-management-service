@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
@@ -15,12 +15,11 @@ public class SetSiteAttributeValuesValidatorTests
     [InlineData("false")]
     public void Validate_ReturnSuccess_WhenRequestIsValid(string value)
     {
-        var testRequest = new SetSiteAttributesRequest(
+        var testRequest = new SetSiteAccessibilitiesRequest(
             Site: "9a06bacd-e916-4c10-8263-21451ca751b8",
-            Scope: "*",
-            AttributeValues: new[]
+            Accessibilities: new[]
             {
-                new AttributeValue(
+                new Accessibility(
                     Id: "accessibility/attribute_1",
                     Value: value)
             });
@@ -33,39 +32,40 @@ public class SetSiteAttributeValuesValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenSiteIsInvalid(string siteId)
     {
-        var request = new SetSiteAttributesRequest(
+        var request = new SetSiteAccessibilitiesRequest(
             Site: siteId,
-            Scope: "*",
-            AttributeValues: new[]
+            Accessibilities: new[]
             {
-                new AttributeValue(
+                new Accessibility(
                     Id: "accessibility/attribute_1",
-                    Value: "true")
-            });
+                    Value: "true"
+                )
+            }
+        );
         
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(SetSiteAttributesRequest.Site));
+        result.Errors.Single().PropertyName.Should().Be(nameof(SetSiteAccessibilitiesRequest.Site));
     }
     
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsNull()
     {
-        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Scope: "*", AttributeValues: null);
+        var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: null);
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAttributesRequest.AttributeValues));
+        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAccessibilitiesRequest.Accessibilities));
     }
     
     [Fact]
     public void Validate_ReturnsError_WhenAttributeValuesArrayIsEmpty()
     {
-        var request = new SetSiteAttributesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Scope: "*", AttributeValues: Array.Empty<AttributeValue>());
+        var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: Array.Empty<Accessibility>());
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAttributesRequest.AttributeValues));
+        result.Errors.Single().PropertyName.Should().Contain(nameof(SetSiteAccessibilitiesRequest.Accessibilities));
     }
 }

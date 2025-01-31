@@ -4,7 +4,7 @@ import RootPage from '../root';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
-  readonly editSiteAttributesButton: Locator;
+  readonly editSiteAccessibilitiesButton: Locator;
   readonly editSiteDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
@@ -47,7 +47,7 @@ export default class SiteDetailsPage extends RootPage {
     this.editSiteDetailsButton = page.getByRole('link', {
       name: 'Edit site details',
     });
-    this.editSiteAttributesButton = page.getByRole('link', {
+    this.editSiteAccessibilitiesButton = page.getByRole('link', {
       name: 'Edit access needs',
     });
     this.editInformationCitizenButton = page.getByRole('link', {
@@ -59,11 +59,11 @@ export default class SiteDetailsPage extends RootPage {
     });
   }
 
-  async attributeIsTrue(attributeName: string) {
+  async accessibilityIsTrue(accessibilityName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({ has: this.page.getByText(attributeName) })
+        .filter({ has: this.page.getByText(accessibilityName) })
         .getByText('Yes'),
     ).toBeVisible();
   }

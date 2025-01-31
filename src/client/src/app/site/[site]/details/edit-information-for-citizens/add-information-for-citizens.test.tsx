@@ -45,20 +45,18 @@ describe('Add Information For Citizen Form', () => {
     const { user } = render(
       <AddInformationForCitizensForm information="" site="TEST" />,
     );
+    const userInput = 'test user input';
     const textArea = screen.getByRole('textbox', {
       name: /What information would you like to include?/i,
     });
-    await user.type(textArea, 'test user input');
+    await user.type(textArea, userInput);
     const saveButton = screen.getByRole('button', {
       name: 'Confirm site details',
     });
     await user.click(saveButton);
 
     const expectedPayload = {
-      attributeValues: [
-        { id: 'site_details/info_for_citizen', value: 'test user input' },
-      ],
-      scope: 'site_details',
+      informationForCitizens: userInput,
     };
 
     expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith(
@@ -120,8 +118,7 @@ describe('Add Information For Citizen Form', () => {
     await user.click(saveButton);
 
     const expectedPayload = {
-      attributeValues: [{ id: 'site_details/info_for_citizen', value: '' }],
-      scope: 'site_details',
+      informationForCitizens: '',
     };
 
     expect(mockSetSiteInformationForCitizen).toHaveBeenCalledWith(

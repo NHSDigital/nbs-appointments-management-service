@@ -158,17 +158,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -183,17 +183,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -208,17 +208,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "False"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "False"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             }
         };
@@ -264,17 +264,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -288,17 +288,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -312,17 +312,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "False"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "False"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             }
         };
@@ -370,17 +370,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -394,17 +394,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "True"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "True"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             },
             new()
@@ -418,17 +418,17 @@ public class CsvProcessorTests
                 ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
-                AttributeValues =
+                Accessibilities =
                 [
-                    new AttributeValue("accessibility/accessible_toilet", "True"),
-                    new AttributeValue("accessibility/braille_translation_service", "False"),
-                    new AttributeValue("accessibility/disabled_car_parking", "False"),
-                    new AttributeValue("accessibility/car_parking", "False"),
-                    new AttributeValue("accessibility/induction_loop", "True"),
-                    new AttributeValue("accessibility/sign_language_service", "False"),
-                    new AttributeValue("accessibility/step_free_access", "True"),
-                    new AttributeValue("accessibility/text_relay", "True"),
-                    new AttributeValue("accessibility/wheelchair_access", "False")
+                    new Accessibility("accessibility/accessible_toilet", "True"),
+                    new Accessibility("accessibility/braille_translation_service", "False"),
+                    new Accessibility("accessibility/disabled_car_parking", "False"),
+                    new Accessibility("accessibility/car_parking", "False"),
+                    new Accessibility("accessibility/induction_loop", "True"),
+                    new Accessibility("accessibility/sign_language_service", "False"),
+                    new Accessibility("accessibility/step_free_access", "True"),
+                    new Accessibility("accessibility/text_relay", "True"),
+                    new Accessibility("accessibility/wheelchair_access", "False")
                 ]
             }
         };

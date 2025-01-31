@@ -30,17 +30,17 @@ test.beforeEach(async ({ page }) => {
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
   await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
-  await siteDetailsPage.editSiteAttributesButton.click();
+  await siteDetailsPage.editSiteAccessibilitiesButton.click();
 
   await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-accessibilities',
   );
 });
 
-test('Update access attributes for a site', async ({ page }) => {
-  // Toggle selected attributes
-  await editAccessNeedsPage.selectAttribute('Accessible toilet');
-  await editAccessNeedsPage.selectAttribute('Step free access');
+test('Update accessibilities for a site', async ({ page }) => {
+  // Toggle selected accessibilities
+  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
+  await editAccessNeedsPage.selectAccessibility('Step free access');
   await editAccessNeedsPage.confirmSiteDetailsButton.click();
 
   // Check banner function
@@ -49,21 +49,21 @@ test('Update access attributes for a site', async ({ page }) => {
   await expect(editAccessNeedsPage.updateNotificationBanner).not.toBeVisible();
 
   // Go back into edit UI to assert on checkbox state:
-  await siteDetailsPage.editSiteAttributesButton.click();
+  await siteDetailsPage.editSiteAccessibilitiesButton.click();
   await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-accessibilities',
   );
 
-  await editAccessNeedsPage.attributeChecked('Accessible toilet');
-  await editAccessNeedsPage.attributeNotChecked('Step free access');
+  await editAccessNeedsPage.accessibilityChecked('Accessible toilet');
+  await editAccessNeedsPage.accessibilityNotChecked('Step free access');
 
   // Reload page
   await editAccessNeedsPage.page.reload();
   await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-attributes',
+    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-accessibilities',
   );
 
-  // Check selected attributes are still correctly toggled after page reload
+  // Check selected accesibilities are still correctly toggled after page reload
   await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
     'Accessible toilet',
     'Checked',
@@ -74,7 +74,7 @@ test('Update access attributes for a site', async ({ page }) => {
   );
 
   //revert to default state
-  await editAccessNeedsPage.selectAttribute('Accessible toilet');
-  await editAccessNeedsPage.selectAttribute('Step free access');
+  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
+  await editAccessNeedsPage.selectAccessibility('Step free access');
   await editAccessNeedsPage.confirmSiteDetailsButton.click();
 });

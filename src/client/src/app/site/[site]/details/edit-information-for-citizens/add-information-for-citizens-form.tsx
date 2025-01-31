@@ -7,7 +7,7 @@ import {
   TextArea,
 } from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
-import { SetAttributesRequest } from '@types';
+import { SetInformationForCitizensRequest } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
@@ -43,14 +43,8 @@ const AddInformationForCitizensForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetAttributesRequest = {
-      scope: 'site_details',
-      attributeValues: [
-        {
-          id: 'site_details/info_for_citizen',
-          value: form.informationForCitizen,
-        },
-      ],
+    const payload: SetInformationForCitizensRequest = {
+      informationForCitizens: form.informationForCitizen,
     };
 
     await setSiteInformationForCitizen(site, payload);

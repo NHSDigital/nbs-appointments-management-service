@@ -11,5 +11,6 @@
     "type": "Point",
     "coordinates": [-1.6610648, 53.795467]
   },
-  "attributeValues": []
+  "accessibilities": [],
+  "informationForCitizens":  "info for citizens 1"
 }

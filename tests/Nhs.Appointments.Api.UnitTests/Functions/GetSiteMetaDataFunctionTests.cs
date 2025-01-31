@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -53,7 +53,8 @@ public class GetSiteMetaDataFunctionTests
                 OdsCode: "15N",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                AttributeValues: [new(attrId, attrVal)],
+                InformationForCitizens: "InformationForCitizens 123",
+                Accessibilities: [new(attrId, attrVal)],
                 Location: new Location("Test", [123.1, 321.3])
             ));
         var request = CreateRequest();

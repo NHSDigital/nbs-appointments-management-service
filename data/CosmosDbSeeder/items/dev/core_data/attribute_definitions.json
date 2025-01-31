@@ -1,7 +1,7 @@
 {
   "id": "attributes",
   "docType": "system",
-  "attributeDefinitions": [
+  "AccessibilityDefinitions": [
     {
       "id": "accessibility/accessible_toilet",
       "displayName": "Accessible toilet"

@@ -1,46 +1,40 @@
 ﻿import { render, screen } from '@testing-library/react';
-import { EditAttributesPage } from './edit-attributes-page';
+import { EditAccessibilitiesPage } from './edit-accessibilities-page';
+import { AccessibilityDefinition, AccessibilityValue, FullSite } from '@types';
 import {
-  AttributeDefinition,
-  AttributeValue,
-  SiteWithAttributes,
-} from '@types';
-import {
-  fetchAttributeDefinitions,
+  fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
-import {
-  mockAttributeDefinitions,
-  mockSiteWithAttributes,
-} from '@testing/data';
+import { mockAccessibilityDefinitions, mockFullSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
-const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
-  Promise<AttributeDefinition[]>
->;
+const fetchAccessibilityDefinitionsMock =
+  fetchAccessibilityDefinitions as jest.Mock<
+    Promise<AccessibilityDefinition[]>
+  >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
 
-jest.mock('./add-attributes-form', () => {
+jest.mock('./add-accessibilities-form', () => {
   const MockForm = ({
-    attributeDefinitions,
+    accessibilityDefinitions,
     site,
-    attributeValues,
+    accessibilityValues,
   }: {
-    attributeDefinitions: AttributeDefinition[];
+    accessibilityDefinitions: AccessibilityDefinition[];
     site: string;
-    attributeValues: AttributeValue[];
+    accessibilityValues: AccessibilityValue[];
   }) => {
     return (
       <>
-        <div>Add Attribute Form</div>
-        {attributeValues.map(av => (
+        <div>Add Accessibility Form</div>
+        {accessibilityValues.map(av => (
           <div key={av.id}>
             id={av.id} value={av.value}
           </div>
         ))}
-        {attributeDefinitions.map(ad => (
+        {accessibilityDefinitions.map(ad => (
           <div key={ad.id}>
             id={ad.id} displayName={ad.displayName}
           </div>
@@ -54,14 +48,16 @@ jest.mock('./add-attributes-form', () => {
 
 const mockPermissions = ['site:manage', 'site:view'];
 
-describe('Manage Attributes Page', () => {
+describe('Manage Accessibilities Page', () => {
   beforeEach(() => {
-    fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
-    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
+    fetchAccessibilityDefinitionsMock.mockResolvedValue(
+      mockAccessibilityDefinitions,
+    );
+    fetchSiteMock.mockResolvedValue(mockFullSite);
   });
 
   it('renders', async () => {
-    const jsx = await EditAttributesPage({
+    const jsx = await EditAccessibilitiesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });
@@ -71,8 +67,8 @@ describe('Manage Attributes Page', () => {
     ).toBeVisible();
   });
 
-  it('calls fetch attribute values with correct site id', async () => {
-    const jsx = await EditAttributesPage({
+  it('calls fetch accessibility values with correct site id', async () => {
+    const jsx = await EditAccessibilitiesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });
@@ -81,7 +77,7 @@ describe('Manage Attributes Page', () => {
   });
 
   it('passes props to form component', async () => {
-    const jsx = await EditAttributesPage({
+    const jsx = await EditAccessibilitiesPage({
       site: 'TEST',
       permissions: mockPermissions,
     });

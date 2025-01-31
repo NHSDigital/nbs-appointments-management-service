@@ -16,8 +16,8 @@ type PageProps = {
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
+  await assertPermission(params.site, 'availability:query');
   const site = await fetchSite(params.site);
-  await assertPermission(site.id, 'availability:query');
 
   const weekStart = startOfWeek(searchParams.date);
   const weekEnd = endOfWeek(searchParams.date);

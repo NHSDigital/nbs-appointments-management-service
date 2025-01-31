@@ -23,39 +23,69 @@ variable "WEB_APP_SLOT_BASE_URI" {
   sensitive = false
 }
 
-variable "AUTH_PROVIDER_ISSUER" {
+variable "NHS_MAIL_ISSUER" {
   type      = string
   sensitive = false
 }
 
-variable "AUTH_PROVIDER_AUTHORIZE_URI" {
+variable "NHS_MAIL_AUTHORIZE_URI" {
   type      = string
   sensitive = false
 }
 
-variable "AUTH_PROVIDER_TOKEN_URI" {
+variable "NHS_MAIL_TOKEN_URI" {
   type      = string
   sensitive = false
 }
 
-variable "AUTH_PROVIDER_JWKS_URI" {
+variable "NHS_MAIL_JWKS_URI" {
   type      = string
   sensitive = false
+}
+
+variable "NHS_MAIL_CLIENT_ID" {
+  type      = string
+  sensitive = false
+}
+
+variable "NHS_MAIL_CLIENT_SECRET" {
+  type      = string
+  sensitive = true
+}
+
+variable "OKTA_ISSUER" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_AUTHORIZE_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_TOKEN_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_JWKS_URI" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_CLIENT_ID" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_CLIENT_SECRET" {
+  type      = string
+  sensitive = true
 }
 
 variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
   type      = string
   sensitive = false
-}
-
-variable "AUTH_PROVIDER_CLIENT_ID" {
-  type      = string
-  sensitive = false
-}
-
-variable "AUTH_PROVIDER_CLIENT_SECRET" {
-  type      = string
-  sensitive = true
 }
 
 variable "GOV_NOTIFY_BASE_URI" {

@@ -22,11 +22,13 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-  const wellKnownOdsCodeEntries = await fetchWellKnownOdsCodeEntries();
-  const sitePermissions = await fetchPermissions(params.site);
+  await assertPermission(params.site, 'site:view');
 
-  await assertPermission(site.id, 'site:view');
+  const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
+    fetchSite(params.site),
+    fetchWellKnownOdsCodeEntries(),
+    fetchPermissions(params.site),
+  ]);
 
   return (
     <NhsPage title={site.name} site={site} originPage="site">

@@ -21,9 +21,11 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const accessibilityDefinitions = await fetchAccessibilityDefinitions();
+  const [accessibilityDefinitions, site] = await Promise.all([
+    fetchAccessibilityDefinitions(),
+    fetchSite(siteId),
+  ]);
 
-  const site = await fetchSite(siteId);
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(
     site,
     wellKnownOdsEntries,

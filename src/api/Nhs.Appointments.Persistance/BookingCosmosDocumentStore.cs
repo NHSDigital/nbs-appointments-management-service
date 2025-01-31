@@ -136,9 +136,10 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
             return BookingConfirmationResult.Expired;
 
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
         await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
-        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, addContactDetailsPath);
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
 
         if (rescheduleDocument != null)
         {
@@ -158,6 +159,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
     public async Task InsertAsync(Booking booking)
     {
         var bookingDocument = bookingStore.ConvertToDocument(booking);
+        bookingDocument.StatusUpdated = time.GetUtcNow();
         await bookingStore.WriteAsync(bookingDocument);
 
         var bookingIndex = indexStore.ConvertToDocument(booking);
@@ -184,10 +186,14 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
         foreach (var indexDocument in indexDocuments)
         {
-            await indexStore.DeleteDocument(indexDocument.Reference, "booking_index");
-            await bookingStore.DeleteDocument(indexDocument.Reference, indexDocument.Site);
+            await DeleteBooking(indexDocument.Reference, indexDocument.Site);
         }
 
         return indexDocuments.Select(i => i.Reference).ToList();
     }
+
+    public async Task DeleteBooking(string reference, string site) => await Task.WhenAll(
+        indexStore.DeleteDocument(reference, "booking_index"),
+        bookingStore.DeleteDocument(reference, site)
+    );
 }    

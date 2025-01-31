@@ -2,7 +2,6 @@ import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchPermissions,
-  fetchSite,
 } from '@services/appointmentsService';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 
@@ -13,20 +12,11 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
+  await assertPermission(params.site, 'site:manage');
   const sitePermissions = await fetchPermissions(params.site);
 
-  await assertPermission(site.id, 'site:manage');
-
   return (
-    <NhsPage
-      title="Site management"
-      breadcrumbs={[
-        { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-      ]}
-      originPage="edit-information-for-citizens"
-    >
+    <NhsPage title="Site management" originPage="edit-information-for-citizens">
       <h3>Manage information for citizens</h3>
       <EditInformationForCitizensPage
         permissions={sitePermissions}

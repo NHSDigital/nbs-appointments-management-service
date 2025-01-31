@@ -76,5 +76,8 @@
       "stylelint --fix",
       "prettier --write --list-different"
     ]
+  },
+  "overrides": {
+    "glob": "10.4.5"
   }
 }

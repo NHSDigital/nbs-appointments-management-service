@@ -17,14 +17,16 @@ export type UserPageProps = {
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
+  await assertPermission(params.site, 'users:manage');
+
   const userIsSpecified = () =>
     (searchParams && 'user' in searchParams) ?? false;
 
-  const site = await fetchSite(params.site);
+  const [site, userProfile] = await Promise.all([
+    fetchSite(params.site),
+    fetchUserProfile(),
+  ]);
 
-  await assertPermission(site.id, 'users:manage');
-
-  const userProfile = await fetchUserProfile();
   if (userProfile.emailAddress === searchParams?.user) {
     notAuthorized();
   }

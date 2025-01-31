@@ -43,6 +43,12 @@ type SetSiteDetailsRequest = {
   longitude: string;
 };
 
+type SetSiteReferenceDetailsRequest = {
+  odsCode: string;
+  icb: string;
+  region: string;
+};
+
 type Role = {
   displayName: string;
   id: string;
@@ -363,6 +369,7 @@ export type {
   Week,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
+  SetSiteReferenceDetailsRequest,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

@@ -23,6 +23,7 @@ import {
   SessionSummary,
   SetSiteDetailsRequest,
   Site,
+  SetSiteReferenceDetailsRequest,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -432,8 +433,22 @@ export const saveSiteDetails = async (
   const notificationMessage =
     'You have successfully updated the details for the current site.';
   raiseNotification(notificationType, notificationMessage);
+};
 
-  revalidateTag(`fetchAvailability`);
+export const saveSiteReferenceDetails = async (
+  site: string,
+  referenceDetails: SetSiteReferenceDetailsRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/reference-details`,
+    JSON.stringify(referenceDetails),
+  );
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully updated the reference details for the current site.';
+  raiseNotification(notificationType, notificationMessage);
 };
 
 export const editSession = async (request: EditSessionRequest) => {

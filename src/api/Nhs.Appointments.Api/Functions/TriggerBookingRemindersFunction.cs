@@ -22,7 +22,7 @@ public class TriggerBookingRemindersFunction(IBookingsService bookingService, IV
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Reminder notifications manually triggered")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("system:run-reminders", typeof(NoSiteRequestInspector))]
+    [RequiresPermission(Permissions.SystemRunReminders, typeof(NoSiteRequestInspector))]
     [Function("TriggerBookingReminders")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "system/run-reminders")] HttpRequest req)

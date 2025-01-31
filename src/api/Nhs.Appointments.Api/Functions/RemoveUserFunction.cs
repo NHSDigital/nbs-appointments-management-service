@@ -29,7 +29,7 @@ public class RemoveUserFunction(
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "User did not exist to be removed")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("users:manage", typeof(SiteFromBodyInspector))]
+    [RequiresPermission(Permissions.ManageUsers, typeof(SiteFromBodyInspector))]
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/remove")] HttpRequest req)

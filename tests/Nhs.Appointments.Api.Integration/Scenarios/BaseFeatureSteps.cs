@@ -10,6 +10,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
@@ -466,19 +467,20 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "Role for integration test user.",
                     Permissions =
                     [
-                        "site:get-meta-data",
-                        "availability:query",
-                        "booking:make",
-                        "booking:query",
-                        "booking:cancel",
-                        "users:manage",
-                        "users:view",
-                        "sites:query",
-                        "site:view",
-                        "site:manage",
-                        "availability:setup",
-                        "system:run-provisional-sweep",
-                        "system:run-reminders"
+                        Permissions.MakeBooking,
+                        Permissions.QueryBooking,
+                        Permissions.CancelBooking,
+                        Permissions.ManageUsers,
+                        Permissions.ViewUsers,
+                        Permissions.QuerySites,
+                        Permissions.ViewSiteMetadata,
+                        Permissions.ViewSite,
+                        Permissions.ManageSite,
+                        Permissions.QueryAvailability,
+                        Permissions.SetupAvailability,
+                        Permissions.SystemRunProvisionalSweeper,
+                        Permissions.SystemRunReminders,
+                        Permissions.SystemAdmin,
                     ]
                 },
                 new Role
@@ -488,8 +490,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "A user can create, view, and manage site availability.",
                     Permissions =
                     [
-                        "availability:setup", "availability:query", "booking:query", "site:view",
-                        "site:get-meta-data"
+                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata
                     ]
                 },
                 new Role
@@ -498,7 +499,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Appointment manager",
                     Description = "A user can cancel appointments.",
                     Permissions =
-                        ["availability:query", "booking:cancel", "booking:query", "site:view", "site:get-meta-data"]
+                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata]
                 },
                 new Role
                 {
@@ -506,7 +507,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Site details manager",
                     Description = "A user can edit site details and accessibility information.",
                     Permissions =
-                        ["availability:query", "booking:query", "site:view", "site:manage", "site:get-meta-data"]
+                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ManageSite, Permissions.ViewSiteMetadata]
                 },
             ]
         };

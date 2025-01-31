@@ -7,6 +7,9 @@ public interface ISiteStore
 
     Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
         decimal latitude, decimal longitude);
+    
+    Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region);
+    
     Task AssignPrefix(string site, int prefix);
     Task<int> GetReferenceNumberGroup(string site);
     Task<IEnumerable<Site>> GetAllSites();

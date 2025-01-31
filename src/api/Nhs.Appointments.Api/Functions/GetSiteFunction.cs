@@ -24,7 +24,7 @@ public class GetSiteFunction(ISiteService siteService, IValidator<SiteBasedResou
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Site not found")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:view", typeof(SiteFromPathInspector))]
+    [RequiresPermission(Permissions.ViewSite, typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
     {

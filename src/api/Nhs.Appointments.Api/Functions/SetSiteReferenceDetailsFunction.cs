@@ -17,53 +17,51 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetSiteDetailsFunction(
+public class SetSiteReferenceDetailsFunction(
     ISiteService siteService,
-    IValidator<SetSiteDetailsRequest> validator,
+    IValidator<SetSiteReferenceDetailsRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<SetSiteDetailsRequest> logger,
+    ILogger<SetSiteReferenceDetailsRequest> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<SetSiteDetailsRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<SetSiteReferenceDetailsRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "SetSiteDetails", tags: ["Sites"], Summary = "Set details for a site")]
+    [OpenApiOperation(operationId: "SetSiteReferenceDetails", tags: ["Sites"], Summary = "Set reference details for a site")]
     [OpenApiRequestBody("application/json", typeof(SetSiteDetailsRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site details successfully saved")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site reference details successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>),
-        Description = "Site details not found")]
+        Description = "Site reference details not found")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Permissions.ManageSite, typeof(SiteFromPathInspector))]
+    [RequiresPermission(Permissions.SystemAdmin, typeof(SiteFromPathInspector))]
     [RequiresAudit(typeof(SiteFromPathInspector))]
-    [Function("SetSiteDetailsFunction")]
+    [Function("SetSiteReferenceDetailsFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/details")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/reference-details")]
         HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request, ILogger logger)
     {
-        var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address, request.PhoneNumber, request.LatitudeDecimal, request.LongitudeDecimal);
+        var result = await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb, request.Region);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteDetailsRequest request)>
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteReferenceDetailsRequest request)>
         ReadRequestAsync(HttpRequest req)
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
-        var (errors, details) = await JsonRequestReader.ReadRequestAsync<DetailsRequest>(req.Body);
+        var (errors, details) = await JsonRequestReader.ReadRequestAsync<ReferenceDetailsRequest>(req.Body);
         return (errors,
-            new SetSiteDetailsRequest(
+            new SetSiteReferenceDetailsRequest(
                 site,
-                details.Name,
-                details.Address,
-                details.PhoneNumber,
-                details.Latitude,
-                details.Longitude));
+                details.OdsCode,
+                details.Icb,
+                details.Region));
     }
 }

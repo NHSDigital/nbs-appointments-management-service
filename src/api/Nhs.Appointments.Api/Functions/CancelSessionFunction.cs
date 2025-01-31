@@ -24,7 +24,7 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(string), Description = "Could not find session to cancel")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("availability:setup", typeof(SiteFromBodyInspector))]
+    [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]
     [Function("CancelSessionFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/cancel")] HttpRequest req)

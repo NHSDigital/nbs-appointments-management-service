@@ -1,4 +1,6 @@
 # .husky/pre-commit
 
+echo "Running pre-commit hooks..."
+
 cd src/client
 npx lint-staged

@@ -40,17 +40,6 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-//expects each test to finish on the edit site reference details page
-test.afterEach(async () => {
-  await editReferenceDetailsPage.odsCodeInput.fill('ABC02');
-  await editReferenceDetailsPage.icbSelectInput.selectOption(
-    'Integrated Care Board 2',
-  );
-  await editReferenceDetailsPage.regionSelectInput.selectOption('Region 2');
-
-  await editReferenceDetailsPage.saveAndContinueButton.click();
-});
-
 test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await editReferenceDetailsPage.odsCodeInput.fill('ABC000032434543');
   await editReferenceDetailsPage.icbSelectInput.selectOption(
@@ -61,6 +50,7 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
 
   //verify the data is NOT present on the new details
   await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+
   await siteDetailsPage.verifyReferenceDetailsNotificationVisibility(false);
 
   //verify default state
@@ -72,18 +62,18 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-reference-details',
   );
 
-  expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
-  expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
-  expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
+  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
+  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
+  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
 
   await editReferenceDetailsPage.page.reload();
   await page.waitForURL(
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-reference-details',
   );
 
-  expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
-  expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
-  expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
+  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
+  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
+  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
 });
 
 test('Update reference details for a site, and verify present on the details page and in the new inputs', async ({
@@ -98,6 +88,7 @@ test('Update reference details for a site, and verify present on the details pag
 
   //verify the data is present on the new details
   await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+
   await siteDetailsPage.verifyReferenceDetailsNotificationVisibility(true);
 
   await siteDetailsPage.verifyReferenceDetailsContent(
@@ -112,16 +103,20 @@ test('Update reference details for a site, and verify present on the details pag
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-reference-details',
   );
 
-  expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC000032434543');
-  expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
-  expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
+  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue(
+    'ABC000032434543',
+  );
+  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
+  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
 
   await editReferenceDetailsPage.page.reload();
   await page.waitForURL(
     '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-reference-details',
   );
 
-  expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC000032434543');
-  expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
-  expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
+  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue(
+    'ABC000032434543',
+  );
+  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
+  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
 });

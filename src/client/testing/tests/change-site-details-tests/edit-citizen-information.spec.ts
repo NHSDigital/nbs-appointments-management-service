@@ -39,16 +39,6 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-//expects each test to finish on the site details page
-test.afterEach(async ({ page }) => {
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-information-for-citizens',
-  );
-  await editInformCitizen.informationTextField.clear();
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
-});
-
 test('Update information for citizen', async ({ page }) => {
   await editInformCitizen.verifyInformationForCitizenPageDetails();
   await editInformCitizen.setInformationForCitizen('Test Automation');

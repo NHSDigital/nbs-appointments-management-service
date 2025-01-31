@@ -1,5 +1,4 @@
-import { test, abc01_id } from '../../fixtures';
-import env from '../../testEnvironment';
+import { test, abc01_id, UserSeedData } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -9,7 +8,9 @@ import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage
 import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
 import CreateUserPage from '../../page-objects/manage-users/create-user-page';
 
-const { TEST_USERS } = env;
+import testUsersDataRaw from '../../../../../mock-oidc/users.json';
+
+const testUsersData: UserSeedData[] = testUsersDataRaw;
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -30,9 +31,17 @@ test.beforeEach(async ({ page }) => {
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   removeUserPage = new RemoveUserPage(page);
 
+  const integrationTestUser = testUsersData.find(
+    x => x.SubjectId === 'zzz_test_user_1@nhs.net',
+  );
+
+  if (!integrationTestUser) {
+    throw Error('User not found in seed file');
+  }
+
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser1);
+  await oAuthPage.signIn(integrationTestUser);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${abc01_id}/users`);

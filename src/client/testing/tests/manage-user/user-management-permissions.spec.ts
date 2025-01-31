@@ -131,9 +131,9 @@ test('Verify user manager cannot edit or remove self account', async () => {
   await oAuthPage.signIn(TEST_USERS.testUser1);
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-  await usersPage.verifyLinkNotVisible(TEST_USERS.testUser1.username, 'Edit');
+  await usersPage.verifyLinkNotVisible(TEST_USERS.testUser1.Username, 'Edit');
   await usersPage.verifyLinkNotVisible(
-    TEST_USERS.testUser1.username,
+    TEST_USERS.testUser1.Username,
     'Remove from this site',
   );
 });

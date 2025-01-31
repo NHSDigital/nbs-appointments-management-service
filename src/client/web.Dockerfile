@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package.json ./
 COPY package-lock.json ./
+COPY .husky ./.husky
 RUN npm ci;
 
 COPY src ./src

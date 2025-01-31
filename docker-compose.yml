@@ -9,6 +9,7 @@ services:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
       CLIENT_BASE_PATH: /manage-your-appointments
+      CI: true
 
     volumes:
       - ./src/client/src:/app/src

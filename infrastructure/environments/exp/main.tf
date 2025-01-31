@@ -45,7 +45,7 @@ module "mya_application_exp" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   disable_query_availability_function            = true
   create_high_load_function_app                  = true
-  create_app_slot                                = false
+  create_app_slot                                = true
   create_autoscale_settings                      = true
   create_frontdoor                               = true
   web_app_service_sku                            = "P2v3"
@@ -69,15 +69,15 @@ module "mya_application_exp" {
       zone_redundant    = false
     }]
   cosmos_booking_autoscale_settings = [{
-    max_throughput = 60000
+    max_throughput = 1000
   }]
   cosmos_core_autoscale_settings = [{
-    max_throughput = 25000
+    max_throughput = 1000
   }]
   cosmos_index_autoscale_settings = [{
-    max_throughput = 4000
+    max_throughput = 1000
   }]
   cosmos_audit_autoscale_settings = [{
-    max_throughput = 2000
+    max_throughput = 1000
   }]
 }

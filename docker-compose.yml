@@ -58,6 +58,17 @@ services:
       - Auth__Providers__1__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=okta
       - Auth__Providers__1__RequiresStateForAuthorize=true
       - Auth__Providers__1__ClientSecret=tqczm2-Ey0h8qb6nC6DEXHlKXt0PqQBzzoLNEm72yUBmPYwpQQgIEoxwY4NsM2G2
+      - Okta__Domain=nhsi-sandbox.oktapreview.com
+      - Okta__ManagementId=0oa2biwppnx2l0hYo0h8
+      - Okta__PrivateKeyP=DUMMY
+      - Okta__PrivateKeyQ=DUMMY
+      - Okta__PrivateKeyD=DUMMY
+      - Okta__PrivateKeyE=DUMMY
+      - Okta__PrivateKeyKid=DUMMY
+      - Okta__PrivateKeyQi=DUMMY
+      - Okta__PrivateKeyDp=DUMMY
+      - Okta__PrivateKeyDq=DUMMY
+      - Okta__PrivateKeyN=DUMMY
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *

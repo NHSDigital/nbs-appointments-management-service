@@ -23,7 +23,7 @@ using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
-using UserManagement.Okta;
+using Nhs.Appointments.UserManagement.Okta;
 
 namespace Nhs.Appointments.Api;
 

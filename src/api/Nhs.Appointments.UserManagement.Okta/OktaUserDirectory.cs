@@ -1,29 +1,11 @@
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Okta.Sdk.Abstractions.Configuration;
+using Nhs.Appointments.Core;
 using Okta.Sdk.Api;
 using Okta.Sdk.Client;
 using Okta.Sdk.Model;
 
-namespace UserManagement.Okta
+namespace Nhs.Appointments.UserManagement.Okta
 {
-    public static class ServiceProviderExtensions
-    {
-        public static IServiceCollection AddOktaUserDirectory(this IServiceCollection services, IConfigurationRoot configuration)
-        {
-            services.Configure<OktaConfiguration>(opts => configuration.GetSection("Okta").Bind(opts));
-            services.AddSingleton<IUserDirectory, OktaUserDirectory>();
-            return services;
-        }
-    }
-
     public class OktaUserDirectory(IOptions<OktaConfiguration> oktaOptions) : IUserDirectory
     {
         public async Task<UserProvisioningStatus> CreateIfNotExists(string user)
@@ -39,6 +21,7 @@ namespace UserManagement.Okta
                 Qi = oktaOptions.Value.PrivateKeyQi,
                 Dp = oktaOptions.Value.PrivateKeyDp,
                 Dq = oktaOptions.Value.PrivateKeyDq,
+                N = oktaOptions.Value.PrivateKeyN,
             };
 
             var userApi = new UserApi(new Configuration
@@ -48,27 +31,31 @@ namespace UserManagement.Okta
                 ClientId = oktaOptions.Value.ManagementId,
                 Scopes = new HashSet<string> { "okta.users.read", "okta.users.manage" },
                 PrivateKey = privateKey,
-
+                
             });
             var success = false;
             var failureReason = string.Empty;
-
-            var existingUser = await userApi.GetUserAsync(user);
-            if (existingUser != null && existingUser.Status == UserStatus.PROVISIONED && (DateTime.UtcNow - existingUser.Created > TimeSpan.FromDays(1)))
+            var existingUsers = userApi.ListUsers(user);
+            if (await existingUsers.AnyAsync())
             {
-                await userApi.ReactivateUserAsync(user, true);
-                success = true;
+                var existingUser = await existingUsers.FirstAsync();
+                if (existingUser != null && existingUser.Status == UserStatus.PROVISIONED &&
+                    (DateTime.UtcNow - existingUser.Created > TimeSpan.FromDays(1)))
+                {
+                    await userApi.ReactivateUserAsync(user, true);
+                    success = true;
+                }
+                else if (existingUser != null && existingUser.Status == UserStatus.ACTIVE)
+                {
+                    // user exists and is active
+                    success = true;
+                }
             }
-            else if (existingUser != null && existingUser.Status == UserStatus.ACTIVE)
-            {
-                // user exists and is active
-                success = true;
-            }
-            else if (existingUser == null)
+            else
             {
                 var createdUser = await userApi.CreateUserAsync(new CreateUserRequest
                 {
-                    Profile = new UserProfile { Email = user, Login = user, },
+                    Profile = new UserProfile { Email = user, Login = user, FirstName = "Not", LastName = "Applicable" },
                 });
                 if (createdUser != null)
                 {
@@ -78,10 +65,6 @@ namespace UserManagement.Okta
                 {
                     failureReason = "User could not be created";
                 }
-            }
-            else
-            {
-                failureReason = $"User is currently in status - {existingUser.Status.Value}";
             }
             
             return new UserProvisioningStatus

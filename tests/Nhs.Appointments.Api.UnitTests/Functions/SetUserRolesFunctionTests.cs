@@ -1,8 +1,7 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -16,11 +15,12 @@ public class SetUserRolesFunctionTests
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContext = new();
+    private readonly Mock<IUserDirectory> _userDirectory = new();
     private readonly Mock<ILogger<SetUserRolesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     public SetUserRolesFunctionTests()
     {
-        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _userDirectory.Object, _logger.Object, _metricsRecorder.Object);
     }
 
     [Fact]
@@ -75,9 +75,10 @@ public class SetUserRolesFunctionTests
             IUserService userService,
             IValidator<SetUserRolesRequest> validator,
             IUserContextProvider userContextProvider,
+            IUserDirectory userDirectory,
             ILogger<SetUserRolesFunction> logger,
             IMetricsRecorder metricsRecorder)
-            : base(userService, validator, userContextProvider, logger, metricsRecorder)
+            : base(userService, validator, userContextProvider, userDirectory, logger, metricsRecorder)
         {
             _logger = logger;
         }

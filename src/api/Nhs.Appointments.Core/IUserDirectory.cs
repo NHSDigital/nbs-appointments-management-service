@@ -1,4 +1,4 @@
-namespace UserManagement.Okta;
+namespace Nhs.Appointments.Core;
 
 public interface IUserDirectory
 {

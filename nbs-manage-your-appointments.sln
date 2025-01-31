@@ -54,7 +54,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtracts.Integra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtracts.UnitTests", "tests\BookingDataExtracts.UnitTests\BookingDataExtracts.UnitTests.csproj", "{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Okta", "UserManagement.Okta\UserManagement.Okta.csproj", "{94A259EF-0405-4D50-AFA9-2BB060D889DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.UserManagement.Okta", "src\api\Nhs.Appointments.UserManagement.Okta\Nhs.Appointments.UserManagement.Okta.csproj", "{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,10 +134,10 @@ Global
 		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{94A259EF-0405-4D50-AFA9-2BB060D889DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94A259EF-0405-4D50-AFA9-2BB060D889DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94A259EF-0405-4D50-AFA9-2BB060D889DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94A259EF-0405-4D50-AFA9-2BB060D889DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,7 +163,7 @@ Global
 		{E21E9360-94E9-4DBF-8345-3C09D2D459B7} = {0AC295FA-EAA0-473D-8A38-0C5CAB7612E4}
 		{9B6DA00D-547C-48FE-812E-810668E8E2C3} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{DE87F2BA-8739-4C5A-AB0F-518C6A38FBAF} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
-		{94A259EF-0405-4D50-AFA9-2BB060D889DA} = {0AC295FA-EAA0-473D-8A38-0C5CAB7612E4}
+		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7} = {6F9747AA-DE8B-43B4-B77F-4DDD959BB94C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

@@ -13,7 +13,6 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
-using UserManagement.Okta;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -43,12 +42,13 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
 
         if (!request.User.ToLowerInvariant().EndsWith("@nhs.net"))
         {
-            // user is not an nhs mail user, check with external service to determine if user exists and send an invite if they don't
+            // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
             var externalDirectoryResult = await userDirectory.CreateIfNotExists(request.User);
             if (!externalDirectoryResult.Success)
             {
                 return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);
             }
+
         }
 
         var roleAssignments = request

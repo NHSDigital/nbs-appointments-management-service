@@ -4,6 +4,13 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import { test as baseTest } from '@playwright/test';
 
 export * from '@playwright/test';
+
+export interface UserSeedData {
+  Username: string;
+  Password: string;
+  SubjectId: string;
+}
+
 export const test = baseTest.extend<
   object,
   { newUserName: string; externalUserName: string }

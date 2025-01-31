@@ -11,13 +11,8 @@ namespace Nhs.Appointments.Api.Auth;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services)
+    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfigurationRoot configuration)
     {
-        // Set up configuration
-        var builder = new ConfigurationBuilder()
-            .AddEnvironmentVariables();
-        var configuration = builder.Build();
-
         return services
             .Configure<AuthOptions>(opts => configuration.GetSection("Auth").Bind(opts))
             .Configure<SignedRequestAuthenticator.Options>(opts =>

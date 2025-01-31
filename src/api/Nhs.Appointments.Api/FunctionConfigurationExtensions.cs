@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
@@ -22,6 +23,7 @@ using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
+using UserManagement.Okta;
 
 namespace Nhs.Appointments.Api;
 
@@ -29,8 +31,14 @@ public static class FunctionConfigurationExtensions
 {
     public static IFunctionsWorkerApplicationBuilder ConfigureFunctionDependencies(this IFunctionsWorkerApplicationBuilder builder)
     {
+        // Set up configuration
+        var configurationBuilder = new ConfigurationBuilder()
+            .AddEnvironmentVariables();
+        var configuration = configurationBuilder.Build();
+
         builder.Services.AddRequestInspectors();
-        builder.Services.AddCustomAuthentication();
+        builder.Services.AddCustomAuthentication(configuration);
+        builder.Services.AddOktaUserDirectory(configuration);
 
         builder.Services
             .AddSingleton<IOpenApiConfigurationOptions>(_ =>

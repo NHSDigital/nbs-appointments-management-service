@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;

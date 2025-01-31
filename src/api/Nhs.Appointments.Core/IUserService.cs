@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public interface IUserService
 {

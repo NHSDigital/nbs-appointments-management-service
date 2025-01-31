@@ -129,7 +129,8 @@
         "site:view",
         "site:manage",
         "system:run-reminders",
-        "system:run-provisional-sweep"
+        "system:run-provisional-sweep",
+        "system:admin-user"
       ]
     }
   ]

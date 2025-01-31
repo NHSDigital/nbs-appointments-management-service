@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
@@ -36,6 +37,7 @@ public class SetSiteReferenceDetailsFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SystemAdmin, typeof(SiteFromPathInspector))]
+    [RequiresAudit(typeof(SiteFromPathInspector))]
     [Function("SetSiteReferenceDetailsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/reference-details")]

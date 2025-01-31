@@ -7,6 +7,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
   readonly editSiteAttributesButton: Locator;
   readonly editSiteDetailsButton: Locator;
+  readonly editSiteReferenceDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
   readonly headerMsg = 'Manage Site';
@@ -31,6 +32,9 @@ export default class SiteDetailsPage extends RootPage {
   readonly detailsSuccessBanner =
     'You have successfully updated the details for the current site.';
 
+  readonly referenceDetailsSuccessBanner =
+    'You have successfully updated the reference details for the current site.';
+
   constructor(page: Page, siteDetails: SiteWithAttributes) {
     super(page);
 
@@ -38,6 +42,9 @@ export default class SiteDetailsPage extends RootPage {
 
     this.title = page.getByRole('heading', {
       name: 'Site details',
+    });
+    this.editSiteReferenceDetailsButton = page.getByRole('link', {
+      name: 'Edit site reference details',
     });
     this.editSiteDetailsButton = page.getByRole('link', {
       name: 'Edit site details',
@@ -86,6 +93,20 @@ export default class SiteDetailsPage extends RootPage {
     }
   }
 
+  async verifyReferenceDetailsNotificationVisibility(shown: boolean) {
+    if (!shown) {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).not.toBeVisible();
+    } else {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).toBeVisible();
+      await this.closeNotificationBannerButton.click();
+      await expect(this.closeNotificationBannerButton).not.toBeVisible();
+    }
+  }
+
   async verifyCoreDetailsContent(
     address: string,
     lat: string,
@@ -99,6 +120,16 @@ export default class SiteDetailsPage extends RootPage {
       this.phoneNumberLabel,
       phoneNumber,
     );
+  }
+
+  async verifyReferenceDetailsContent(
+    odsCode: string,
+    icb: string,
+    region: string,
+  ) {
+    await this.verifySummaryListItemContentValue(this.odsCodeLabel, odsCode);
+    await this.verifySummaryListItemContentValue(this.icbLabel, icb);
+    await this.verifySummaryListItemContentValue(this.regionLabel, region);
   }
 
   async verifySummaryListItemContentValue(title: string, value: string) {
@@ -134,6 +165,41 @@ export default class SiteDetailsPage extends RootPage {
   async verifyEditButtonToBeVisible() {
     await expect(this.editInformationCitizenButton).toBeVisible();
     await expect(this.editSiteAttributesButton).toBeVisible();
+  }
+
+  async verifyDefaultReferenceDetailsOnPage() {
+    await expect(
+      this.page.getByRole('heading', { name: `${this.headerMsg}` }),
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
+    ).toBeVisible();
+
+    await expect(
+      this.page.getByRole('heading', { name: `${this.siteDetailsheaderMsg}` }),
+    ).toBeVisible();
+
+    await expect(
+      this.page.getByRole('heading', {
+        name: `${this.referenceDetailsheaderMsg}`,
+      }),
+    ).toBeVisible();
+
+    await this.verifyReferenceDetailsContent(
+      this.siteDetails.odsCode,
+      this.siteDetails.integratedCareBoard,
+      this.siteDetails.region,
+    );
+
+    await expect(
+      this.page.getByRole('heading', { name: `${this.accessNeedsheaderMsg}` }),
+    ).toBeVisible();
+
+    await expect(
+      this.page.getByRole('heading', {
+        name: `${this.informationForCitizensheaderMsg}`,
+      }),
+    ).toBeVisible();
   }
 
   async verifySitePage() {

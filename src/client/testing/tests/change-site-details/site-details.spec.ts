@@ -28,5 +28,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
 });
 
 test('Verify default information on site page', async () => {
-  await siteDetailsPage.verifySitePage();
+  await siteDetailsPage.verifyDefaultReferenceDetailsOnPage();
+  await siteDetailsPage.verifyDefaultCoreDetailsOnPage();
 });

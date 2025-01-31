@@ -92,8 +92,8 @@ public class GetSitesPreviewFunctionTests
             new(){ Role = "system:admin-user", Scope = "global" }
         };
         var sitesPreview = new SitePreview[] {
-            new("1", "Site1"),
-            new("2", "Site2")
+            new("1", "Site1", "ODS1"),
+            new("2", "Site2", "ODS2"),
         };
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()

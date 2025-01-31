@@ -56,6 +56,7 @@
       "name": "Admin User",
       "description": "Admin user can view all areas that exist in MYA.",
       "permissions": [
+        "system:admin-user",
         "availability:query",
         "booking:query",
         "site:view",
@@ -107,7 +108,8 @@
         "site:view",
         "site:manage",
         "system:run-reminders",
-        "system:run-provisional-sweep"
+        "system:run-provisional-sweep",
+        "system:admin-user"
       ]
     },
     {

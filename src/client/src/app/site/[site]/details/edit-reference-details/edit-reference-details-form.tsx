@@ -66,7 +66,7 @@ const EditReferenceDetailsForm = ({
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetSiteReferenceDetailsRequest = {
-      odsCode: form.odsCode,
+      odsCode: form.odsCode.trim(),
       icb: form.icb,
       region: form.region,
     };

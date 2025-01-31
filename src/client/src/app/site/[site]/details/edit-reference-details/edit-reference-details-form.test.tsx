@@ -132,6 +132,36 @@ describe('Edit Site Reference Details Form', () => {
     expect(option4.selected).toBe(false);
   });
 
+  it('submitting data trims the site ODS code of any whitespace', async () => {
+    const { user } = render(
+      <EditReferenceDetailsForm
+        siteWithAttributes={mockSiteWithAttributes}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+
+    const odsCodeInput = screen.getByRole('textbox', { name: 'ODS code' });
+
+    await user.clear(odsCodeInput);
+    await user.type(odsCodeInput, '  ODS0123   ');
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Save and continue',
+    });
+    await user.click(saveButton);
+
+    const expectedPayload = {
+      odsCode: 'ODS0123',
+      icb: mockSiteWithAttributes.integratedCareBoard,
+      region: mockSiteWithAttributes.region,
+    };
+
+    expect(mockSaveSiteReferenceDetails).toHaveBeenCalledWith(
+      mockSiteWithAttributes.id,
+      expectedPayload,
+    );
+  });
+
   it('submitting data uses the ODS code in the option value on save payload', async () => {
     const { user } = render(
       <EditReferenceDetailsForm

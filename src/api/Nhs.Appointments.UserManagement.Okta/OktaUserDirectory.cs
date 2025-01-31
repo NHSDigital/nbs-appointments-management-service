@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
 using Okta.Sdk.Api;
@@ -10,18 +11,22 @@ namespace Nhs.Appointments.UserManagement.Okta
     {
         public async Task<UserProvisioningStatus> CreateIfNotExists(string user)
         {
+            var rsa = RSA.Create();
+            rsa.ImportFromPem(oktaOptions.Value.PEM);
+            var keyParams = rsa.ExportParameters(true);
+
             var privateKey = new JsonWebKeyConfiguration
             {
-                P = oktaOptions.Value.PrivateKeyP,
+                P = Convert.ToBase64String(keyParams.P),
                 Kty = "RSA",
-                Q = oktaOptions.Value.PrivateKeyQ,
-                D = oktaOptions.Value.PrivateKeyD,
-                E = oktaOptions.Value.PrivateKeyE,
-                Kid = oktaOptions.Value.PrivateKeyKid,
-                Qi = oktaOptions.Value.PrivateKeyQi,
-                Dp = oktaOptions.Value.PrivateKeyDp,
-                Dq = oktaOptions.Value.PrivateKeyDq,
-                N = oktaOptions.Value.PrivateKeyN,
+                Q = Convert.ToBase64String(keyParams.Q),
+                D = Convert.ToBase64String(keyParams.D),
+                E = Convert.ToBase64String(keyParams.Exponent),
+                Kid =  oktaOptions.Value.PrivateKeyKid,
+                Qi = Convert.ToBase64String(keyParams.InverseQ),
+                Dp = Convert.ToBase64String(keyParams.DP),
+                Dq = Convert.ToBase64String(keyParams.DQ),
+                N = Convert.ToBase64String(keyParams.Modulus),
             };
 
             var userApi = new UserApi(new Configuration

@@ -16,7 +16,7 @@ import NhsLogo from './icons/nhs-logo';
 import Radio from './radio';
 import RadioGroup from './radio-group';
 import RightChevron from './icons/right-chevron';
-import Select from './select';
+import Select, { SelectOption } from './select';
 import SummaryList, { SummaryListItem } from './summary-list';
 import Table, { Cell } from './table';
 import Tabs, { Tab } from './tabs';
@@ -39,6 +39,7 @@ export type {
   TagColor,
   NavigationLink,
   PaginationLink,
+  SelectOption,
 };
 export {
   BackLink,

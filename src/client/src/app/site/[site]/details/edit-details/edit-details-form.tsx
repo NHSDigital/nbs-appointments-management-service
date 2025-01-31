@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SetSiteDetailsRequest, SiteWithAttributes } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
+import { DECIMAL_REGEX, PHONE_NUMBER_REGEX } from '../../../../../constants';
 
 type FormFields = {
   name: string;
@@ -46,12 +47,12 @@ const EditDetailsForm = ({
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetSiteDetailsRequest = {
-      name: form.name,
+      name: form.name.trim(),
       //remove the line breaks and save back
-      address: form.address.replace(/\n/g, ' '),
-      phoneNumber: form.phoneNumber,
-      latitude: form.latitude,
-      longitude: form.longitude,
+      address: form.address.replace(/\n/g, ' ').trim(),
+      phoneNumber: form.phoneNumber.trim(),
+      latitude: form.latitude.trim(),
+      longitude: form.longitude.trim(),
     };
     await saveSiteDetails(siteWithAttributes.id, payload);
 
@@ -60,43 +61,70 @@ const EditDetailsForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup error={errors.name?.message}>
+      <FormGroup
+        error={errors.name ? 'You have not entered a name' : undefined}
+      >
         <TextInput
           id="name"
           label="Site name"
-          {...register('name')}
+          {...register('name', {
+            required: true,
+          })}
         ></TextInput>
       </FormGroup>
 
-      <FormGroup error={errors.address?.message}>
+      <FormGroup
+        error={errors.address ? 'You have not entered an address' : undefined}
+      >
         <TextArea
           id="address"
           label="Site address"
-          {...register('address')}
+          {...register('address', {
+            required: true,
+          })}
         ></TextArea>
       </FormGroup>
 
-      <FormGroup error={errors.latitude?.message || errors.longitude?.message}>
+      <FormGroup
+        error={
+          errors.latitude || errors.longitude
+            ? 'You have not entered valid coordinates'
+            : undefined
+        }
+      >
         <TextInput
           id="latitude"
           label="Latitude"
-          {...register('latitude')}
+          {...register('latitude', {
+            required: true,
+            pattern: DECIMAL_REGEX,
+          })}
         ></TextInput>
         <TextInput
           id="longitude"
           label="Longitude"
-          {...register('longitude')}
+          {...register('longitude', {
+            required: true,
+            pattern: DECIMAL_REGEX,
+          })}
         ></TextInput>
       </FormGroup>
 
-      <FormGroup error={errors.phoneNumber?.message}>
+      <FormGroup
+        error={
+          errors.phoneNumber
+            ? 'You have not entered a valid phone number'
+            : undefined
+        }
+      >
         <TextInput
           id="phoneNumber"
           type="tel"
           label="Phone number"
-          title="Please enter numbers and spaces only."
-          pattern="[0-9 ]*"
-          {...register('phoneNumber')}
+          {...register('phoneNumber', {
+            required: true,
+            pattern: PHONE_NUMBER_REGEX,
+          })}
         ></TextInput>
       </FormGroup>
 

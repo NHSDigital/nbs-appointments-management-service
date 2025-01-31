@@ -20,14 +20,15 @@ export const mapSiteOverviewSummaryData = (
       title: 'ICB',
       value:
         wellKnownOdsCodeEntries.find(
-          e => e.odsCode === site.integratedCareBoard,
+          e => e.type === 'icb' && e.odsCode === site.integratedCareBoard,
         )?.displayName ?? site.integratedCareBoard,
     },
     {
       title: 'Region',
       value:
-        wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-          ?.displayName ?? site.region,
+        wellKnownOdsCodeEntries.find(
+          e => e.type === 'region' && e.odsCode === site.region,
+        )?.displayName ?? site.region,
     },
   ];
 
@@ -77,14 +78,15 @@ export const mapSiteReferenceSummaryData = (
       title: 'ICB',
       value:
         wellKnownOdsCodeEntries.find(
-          e => e.odsCode === site.integratedCareBoard,
+          e => e.type === 'icb' && e.odsCode === site.integratedCareBoard,
         )?.displayName ?? site.integratedCareBoard,
     },
     {
       title: 'Region',
       value:
-        wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-          ?.displayName ?? site.region,
+        wellKnownOdsCodeEntries.find(
+          e => e.type === 'region' && e.odsCode === site.region,
+        )?.displayName ?? site.region,
     },
   ];
 

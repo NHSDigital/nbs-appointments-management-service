@@ -167,7 +167,7 @@ const mockAccessibilityDefinitions: AccessibilityDefinition[] = [
     displayName: 'Accessibility attribute 2',
   },
   {
-    id: 'different_attribute_set/attr_1',
+    id: 'different_accessibility_set/attr_1',
     displayName: 'Different attribute set attribute 1',
   },
 ];

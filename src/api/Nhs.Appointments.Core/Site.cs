@@ -36,7 +36,7 @@ public record SiteWithDistance(
 
 public record AccessibilityRequest
 (
-    [JsonProperty("accessibilityValues")]
+    [JsonProperty("accessibilities")]
     IEnumerable<Accessibility> AccessibilityValues
 );
 

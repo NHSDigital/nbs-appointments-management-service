@@ -79,9 +79,9 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
                 Location: new Location(Type: "Point",
                     Coordinates: new[]
                     {
-                        double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)
+                        double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)
                     })
-            ), Distance: int.Parse(row.Cells.ElementAt(10).Value)
+            ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
 
         _statusCode.Should().Be(HttpStatusCode.OK);

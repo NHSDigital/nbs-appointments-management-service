@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -19,23 +19,23 @@ public sealed class AccessibilityDefinitionsFeatureSteps : BaseFeatureSteps
     private HttpStatusCode _statusCode;
     private IEnumerable<AccessibilityDefinition> _actualResponse;
     
-    [Given("There are existing system attributes")]
+    [Given("There are existing system accessibilities")]
     public async Task SetUpAttributes(Gherkin.Ast.DataTable dataTable)
     {
         var AccessibilityDefinitions = dataTable.Rows.Skip(1).Select(
             row => new AccessibilityDefinition(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(1).Value));
         
-        var attributeDocument = new AccessibilityDefinitionsDocument()
+        var accessibilityDocument = new AccessibilityDefinitionsDocument()
             {
-                Id = "attributes",
+                Id = "accessibilities",
                 DocumentType = "system",
                 AccessibilityDefinitions = AccessibilityDefinitions
             };
         
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(attributeDocument);
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(accessibilityDocument);
     }
     
-    [When(@"I query for all attribute definitions")]
+    [When(@"I query for all accessibility definitions")]
     public async Task QueryForAccessibilityDefinitions()
     {
         _response = await Http.GetAsync("http://localhost:7071/api/AccessibilityDefinitions");
@@ -43,7 +43,7 @@ public sealed class AccessibilityDefinitionsFeatureSteps : BaseFeatureSteps
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<AccessibilityDefinition>>(await _response.Content.ReadAsStreamAsync());
     }
     
-    [Then("the following attribute definitions are returned")] 
+    [Then("the following accessibility definitions are returned")] 
     public void Assert(Gherkin.Ast.DataTable dataTable)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);

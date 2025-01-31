@@ -15,7 +15,7 @@ const mockReplace = jest.fn();
 jest.mock('@services/appointmentsService');
 const mockSaveSiteAccessibilityValues = jest.spyOn(
   appointmentsService,
-  'saveSiteAccessibilitiesValues',
+  'saveSiteAccessibilityValues',
 );
 
 describe('Add Accessibilities Form', () => {
@@ -95,7 +95,6 @@ describe('Add Accessibilities Form', () => {
         { id: 'accessibility/attr_2', value: 'true' },
         { id: 'different_accessibility_set/attr_1', value: 'false' },
       ],
-      scope: 'accessibility',
     };
 
     expect(mockSaveSiteAccessibilityValues).toHaveBeenCalledWith(

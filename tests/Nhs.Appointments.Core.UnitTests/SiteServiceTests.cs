@@ -613,49 +613,6 @@ public class SiteServiceTests
         result.Should().BeEquivalentTo(expectedSite);
     }
 
-    [Fact]
-    public async Task GetSiteByIdAsync_ReturnsRequestedSite_AndFiltersAttributesByScope()
-    {
-        const string siteId = "6877d86e-c2df-4def-8508-e1eccf0ea6ba";
-        var site = new Site(
-            Id: siteId,
-            Name: "Site 1",
-            Address: "1 Park Row",
-            PhoneNumber: "0113 1111111",
-            OdsCode: "ABC01",
-            Region: "R1",
-            IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            InformationForCitizens: "",
-            Accessibilities:
-            [
-                new Accessibility(Id: "test_scope/Attribute 1", Value: "true"),
-                new Accessibility(Id: "Attribute 2", Value: "true"),
-                new Accessibility(Id: "test_scope/Attribute 3", Value: "true"),
-            ]);
-
-        var expectedSite = new Site(
-            Id: siteId,
-            Name: "Site 1",
-            Address: "1 Park Row",
-            PhoneNumber: "0113 1111111",
-            Region: "R1",
-            OdsCode: "ABC01",
-            IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
-            InformationForCitizens: "",
-            Accessibilities:
-            [
-                new Accessibility(Id: "test_scope/Attribute 1", Value: "true"),
-                new Accessibility(Id: "test_scope/Attribute 3", Value: "true"),
-            ]);
-        _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
-
-        var result = await _sut.GetSiteByIdAsync(siteId, "test_scope");
-
-        result.Should().BeEquivalentTo(expectedSite);
-    }
-
     [Theory]
     [InlineData("*")]
     [InlineData("site_details")]

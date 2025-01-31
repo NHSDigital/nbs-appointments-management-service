@@ -28,7 +28,7 @@ describe('Edit Site Details Form', () => {
     mockSiteWithAccessibilities.phoneNumber = '0118 999 88199 9119 725 3';
 
     const renderResult = render(
-      <EditDetailsForm SiteWithAccessibilities={mockSiteWithAccessibilities} />,
+      <EditDetailsForm site={mockSiteWithAccessibilities} />,
     );
 
     user = renderResult.user;

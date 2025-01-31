@@ -23,17 +23,20 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const site = await fetchSite(params.site);
-  await assertPermission(site.id, 'availability:query');
-  const date = dayjs(searchParams.date);
+  await assertPermission(params.site, 'availability:query');
 
+  const date = dayjs(searchParams.date);
   const fetchBookingsRequest: FetchBookingsRequest = {
     from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
     to: date.hour(23).minute(59).second(59).format('YYYY-MM-DDTHH:mm:ssZ'),
-    site: site.id,
+    site: params.site,
   };
 
-  const bookings = await fetchBookings(fetchBookingsRequest);
+  const [site, bookings] = await Promise.all([
+    fetchSite(params.site),
+    fetchBookings(fetchBookingsRequest),
+  ]);
+
   const scheduledBookings = bookings.filter(b => b.status === 'Booked');
   const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
   const orphanedAppointments = bookings.filter(b => b.status === 'Orphaned');

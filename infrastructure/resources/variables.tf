@@ -44,19 +44,19 @@ variable "web_app_slot_base_uri" {
   default = ""
 }
 
-variable "auth_provider_issuer" {
+variable "nhs_mail_issuer" {
   type = string
 }
 
-variable "auth_provider_authorize_uri" {
+variable "nhs_mail_authorize_uri" {
   type = string
 }
 
-variable "auth_provider_token_uri" {
+variable "nhs_mail_token_uri" {
   type = string
 }
 
-variable "auth_provider_jwks_uri" {
+variable "nhs_mail_jwks_uri" {
   type = string
 }
 
@@ -64,11 +64,37 @@ variable "auth_provider_challenge_phrase" {
   type = string
 }
 
-variable "auth_provider_client_id" {
+variable "nhs_mail_client_id" {
   type = string
 }
 
-variable "auth_provider_client_secret" {
+variable "nhs_mail_client_secret" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+
+variable "okta_issuer" {
+  type = string
+}
+
+variable "okta_authorize_uri" {
+  type = string
+}
+
+variable "okta_token_uri" {
+  type = string
+}
+
+variable "okta_jwks_uri" {
+  type = string
+}
+
+variable "okta_client_id" {
+  type = string
+}
+
+variable "okta_client_secret" {
   type      = string
   sensitive = true
   default   = ""

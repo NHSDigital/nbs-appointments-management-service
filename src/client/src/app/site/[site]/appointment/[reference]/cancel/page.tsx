@@ -17,10 +17,13 @@ type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  const site = await fetchSite(params.site);
-  await assertPermission(site.id, 'booking:cancel');
+  await assertPermission(params.site, 'booking:cancel');
 
-  const booking = await fetchBooking(params.reference, site.id);
+  const [site, booking] = await Promise.all([
+    fetchSite(params.site),
+    fetchBooking(params.reference, params.site),
+  ]);
+
   if (!booking || booking.status === 'Cancelled') {
     notFound();
   }

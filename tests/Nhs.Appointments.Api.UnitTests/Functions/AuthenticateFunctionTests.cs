@@ -15,15 +15,22 @@ public class AuthenticateFunctionTests
 
     public AuthenticateFunctionTests()
     {
-        _options.Setup(x => x.Value).Returns(new AuthOptions 
-        { 
-            AuthorizeUri = "https://test.oauth.com/auth",
-            ReturnUri = "http://localhost",
-            ClientId = "123",
-            ChallengePhrase = "123",
-            JwksUri = "https://test.oauth.com/jwks",
-            Issuer = "123",
-            TokenUri = "https://test.oauth.com/token"
+        _options.Setup(x => x.Value).Returns(new AuthOptions
+        {
+            Providers =
+            [
+                new AuthProviderOptions
+                {
+                    Name = "test-auth",
+                    AuthorizeUri = "https://test.oauth.com/auth",
+                    ReturnUri = "http://localhost",
+                    ClientId = "123",
+                    ChallengePhrase = "123",
+                    JwksUri = "https://test.oauth.com/jwks",
+                    Issuer = "123",
+                    TokenUri = "https://test.oauth.com/token"
+                }
+            ],
         });
 
         _sut = new AuthenticateFunction(_options.Object);
@@ -34,7 +41,9 @@ public class AuthenticateFunctionTests
     {            
         var context = new DefaultHttpContext();
         var request = context.Request;
-        
+        request.QueryString = new QueryString($"?provider=test-auth");
+
+
         var result = _sut.Run(request);
         result.Should().BeOfType<RedirectResult>();
         (result as RedirectResult).Url.StartsWith("https://test.oauth.com/auth");

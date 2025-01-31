@@ -46,7 +46,9 @@ public record SitePreview
     [JsonProperty("id")]
     string Id,
     [JsonProperty("name")]
-    string Name
+    string Name,
+    [JsonProperty("odsCode")]
+    string OdsCode
 );
 
 public record DetailsRequest(

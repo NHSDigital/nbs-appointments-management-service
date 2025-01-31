@@ -47,7 +47,7 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
 
             foreach (var site in allSites)
             {
-                sitesResult.Add(new SitePreview(site.Id, site.Name));
+                sitesResult.Add(new SitePreview(site.Id, site.Name, site.OdsCode));
             }
         }
         else
@@ -58,7 +58,7 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
             {
                 var siteInfo = await siteService.GetSiteByIdAsync(site);
                 if (siteInfo != null)
-                    sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name));
+                    sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode));
             }
         }
 

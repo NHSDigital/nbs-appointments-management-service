@@ -27,10 +27,10 @@ test.fixme(
 
     await oAuthPage.page
       .getByLabel('Username')
-      .fill(TEST_USERS.testUser5.username);
+      .fill(TEST_USERS.testUser5.Username);
     await oAuthPage.page
       .getByLabel('Password')
-      .fill(TEST_USERS.testUser5.password);
+      .fill(TEST_USERS.testUser5.Password);
     await oAuthPage.page.getByLabel('Password').press('Enter');
 
     await page.waitForURL('**/eula');
@@ -53,10 +53,10 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
 
   await oAuthPage.page
     .getByLabel('Username')
-    .fill(TEST_USERS.testUser5.username);
+    .fill(TEST_USERS.testUser5.Username);
   await oAuthPage.page
     .getByLabel('Password')
-    .fill(TEST_USERS.testUser5.password);
+    .fill(TEST_USERS.testUser5.Password);
   await oAuthPage.page.getByLabel('Password').press('Enter');
 
   await page.waitForURL('**/eula');
@@ -71,10 +71,10 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.page
     .getByLabel('Username')
-    .fill(TEST_USERS.testUser5.username);
+    .fill(TEST_USERS.testUser5.Username);
   await oAuthPage.page
     .getByLabel('Password')
-    .fill(TEST_USERS.testUser5.password);
+    .fill(TEST_USERS.testUser5.Password);
   await oAuthPage.page.getByLabel('Password').press('Enter');
 
   // do not expect to see the EULA consent page again

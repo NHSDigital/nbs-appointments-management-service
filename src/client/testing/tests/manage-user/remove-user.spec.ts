@@ -1,5 +1,4 @@
 import { test, expect, abc01_id } from '../../fixtures';
-import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -8,8 +7,6 @@ import UsersPage from '../../page-objects/manage-users/users-page';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
 import NotFoundPage from '../../page-objects/not-found';
-
-const { TEST_USERS } = env;
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -20,7 +17,7 @@ let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
 let notFoundPage: NotFoundPage;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestUser }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -32,7 +29,7 @@ test.beforeEach(async ({ page }) => {
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser1);
+  await oAuthPage.signIn(getTestUser());
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${abc01_id}/users`);

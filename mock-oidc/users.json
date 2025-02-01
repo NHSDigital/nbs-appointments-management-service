@@ -88,6 +88,17 @@
     ]
   },
   {
+    "SubjectId": "zzz_test_user_7@nhs.net",
+    "Username": "testuser7",
+    "Password": "t35tP@ssw0rd_7",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_7@nhs.net"
+      }
+    ]
+  },
+  {
     "SubjectId": "zzz_test_user_8@nhs.net",
     "Username": "testuser8",
     "Password": "t35tP@ssw0rd_8",
@@ -128,17 +139,6 @@
       {
         "Type": "email",
         "Value": "zzz_test_user_11@nhs.net"
-      }
-    ]
-  },
-  {
-    "SubjectId": "admin_test_user@nhs.net",
-    "Username": "admintestuser",
-    "Password": "t35tP@ssw0rd_admin",
-    "Claims": [
-      {
-        "Type": "email",
-        "Value": "admin_test_user@nhs.net"
       }
     ]
   }

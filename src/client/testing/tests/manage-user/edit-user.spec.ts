@@ -15,7 +15,7 @@ let usersPage: UsersPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let notAuthorizedPage: NotAuthorizedPage;
 
-test.beforeEach(async ({ page, getTestUser }) => {
+test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -26,7 +26,7 @@ test.beforeEach(async ({ page, getTestUser }) => {
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
 

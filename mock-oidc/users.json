@@ -88,13 +88,57 @@
     ]
   },
   {
-    "SubjectId": "admin_test_user@nhs.net",
-    "Username": "admintestuser",
-    "Password": "t35tP@ssw0rd_admin",
+    "SubjectId": "zzz_test_user_7@nhs.net",
+    "Username": "testuser7",
+    "Password": "t35tP@ssw0rd_7",
     "Claims": [
       {
         "Type": "email",
-        "Value": "admin_test_user@nhs.net"
+        "Value": "zzz_test_user_7@nhs.net"
+      }
+    ]
+  },
+  {
+    "SubjectId": "zzz_test_user_8@nhs.net",
+    "Username": "testuser8",
+    "Password": "t35tP@ssw0rd_8",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_8@nhs.net"
+      }
+    ]
+  },
+  {
+    "SubjectId": "zzz_test_user_9@nhs.net",
+    "Username": "testuser9",
+    "Password": "t35tP@ssw0rd_9",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_9@nhs.net"
+      }
+    ]
+  },
+  {
+    "SubjectId": "zzz_test_user_10@nhs.net",
+    "Username": "testuser10",
+    "Password": "t35tP@ssw0rd_10",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_10@nhs.net"
+      }
+    ]
+  },
+  {
+    "SubjectId": "zzz_test_user_11@nhs.net",
+    "Username": "testuser11",
+    "Password": "t35tP@ssw0rd_11",
+    "Claims": [
+      {
+        "Type": "email",
+        "Value": "zzz_test_user_11@nhs.net"
       }
     ]
   }

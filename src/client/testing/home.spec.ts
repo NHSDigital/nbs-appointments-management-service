@@ -1,7 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import RootPage from './page-objects/root';
 import OAuthLoginPage from './page-objects/oauth';
-import env from './testEnvironment';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -16,8 +15,10 @@ test.beforeEach(async ({ page }) => {
 
 test('A user loads home page, only sites with same scope are loaded', async ({
   page,
+  getTestUser,
 }) => {
-  await oAuthPage.signIn(env.TEST_USERS.testUser6);
+  const user6 = getTestUser(6);
+  await oAuthPage.signIn(user6);
   await expect(
     page.getByRole('link', { name: 'Church Lane Pharmacy' }),
   ).not.toBeVisible();
@@ -28,8 +29,9 @@ test('A user loads home page, only sites with same scope are loaded', async ({
 
 test('An admin user loads home page, all sites are loaded', async ({
   page,
+  getTestUser,
 }) => {
-  await oAuthPage.signIn(env.TEST_USERS.adminTestUser);
+  await oAuthPage.signIn(getTestUser(7));
   await expect(
     page.getByRole('link', { name: 'Church Lane Pharmacy' }),
   ).toBeVisible();

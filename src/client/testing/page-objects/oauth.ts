@@ -1,5 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
 import env from '../testEnvironment';
+import { userBySubjectId } from '../fixtures';
 import RootPage from './root';
 
 export default class OAuthLoginPage extends RootPage {
@@ -13,7 +14,7 @@ export default class OAuthLoginPage extends RootPage {
   }
 
   async signIn(
-    user: { Username: string; Password: string } = env.TEST_USERS.testUser1,
+    user: { Username: string; Password: string } = userBySubjectId(),
   ) {
     await this.page.getByLabel('Username').fill(user.Username);
     await this.page.getByLabel('Password').fill(user.Password);

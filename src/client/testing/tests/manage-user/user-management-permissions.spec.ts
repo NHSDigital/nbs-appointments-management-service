@@ -1,13 +1,7 @@
 import { test } from '../../fixtures';
 import { expect } from '@playwright/test';
 
-import {
-  testuser8_emailId,
-  testuser9_emailId,
-  testuser10_emailId,
-  testuser11_emailId,
-  abc01_id,
-} from '../../fixtures';
+import { abc01_id } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -60,12 +54,10 @@ test('A user with the appropriate permission can view other users at a site but 
   await expect(usersPage.assignStaffRolesLink).not.toBeVisible();
 });
 
-test('A user with the appropriate permission can view other users at a site and also edit them', async ({
-  getTestUser,
-}) => {
+test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).toBeVisible();
@@ -81,11 +73,10 @@ test('A user with the appropriate permission can view other users at a site and 
 
 test('Navigating straight to the user management page works as expected', async ({
   page,
-  getTestUser,
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await page.goto(
     '/manage-your-appointments/site/5914b64a-66bb-4ee2-ab8a-94958c1fdfcb/users',
   );
@@ -133,7 +124,7 @@ test('permissions are applied per site', async ({ getTestUser }) => {
 test('Verify user manager cannot edit or remove self account', async ({
   getTestUser,
 }) => {
-  const user1 = getTestUser();
+  const user1 = getTestUser(1);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(user1);
@@ -149,18 +140,20 @@ test('Verify user can only view appointment manager related tiles In app when us
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser8_emailId);
+
+  const user8 = getTestUser(8);
+  await editManageUserRolesPage.emailInput.fill(user8.SubjectId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
   await editManageUserRolesPage.unselectStaffRole('Site details manager');
   await editManageUserRolesPage.unselectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('Appointment manager', testuser8_emailId);
+  await usersPage.verifyUserRoles('Appointment manager', user8.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
     `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
@@ -185,18 +178,20 @@ test('Verify user can only view availability manager related tiles In app when u
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser9_emailId);
+
+  const user9 = getTestUser(9);
+  await editManageUserRolesPage.emailInput.fill(user9.SubjectId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');
   await editManageUserRolesPage.selectStaffRole('Availability manager');
   await editManageUserRolesPage.unselectStaffRole('Site details manager');
   await editManageUserRolesPage.unselectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('Availability manager', testuser9_emailId);
+  await usersPage.verifyUserRoles('Availability manager', user9.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
     `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
@@ -228,18 +223,20 @@ test('Verify user can only view user manager related tiles In app when user is a
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser10_emailId);
+
+  const user10 = getTestUser(10);
+  await editManageUserRolesPage.emailInput.fill(user10.SubjectId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
   await editManageUserRolesPage.unselectStaffRole('Site details manager');
   await editManageUserRolesPage.selectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('User manager', testuser10_emailId);
+  await usersPage.verifyUserRoles('User manager', user10.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
     `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
@@ -270,18 +267,20 @@ test('Verify user can only view site details manager related tiles In app when u
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(testuser11_emailId);
+
+  const user11 = getTestUser(11);
+  await editManageUserRolesPage.emailInput.fill(user11.SubjectId);
   await editManageUserRolesPage.searchUserButton.click();
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
   await editManageUserRolesPage.selectStaffRole('Site details manager');
   await editManageUserRolesPage.unselectStaffRole('User manager');
   await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.verifyUserRoles('Site details manager', testuser11_emailId);
+  await usersPage.verifyUserRoles('Site details manager', user11.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
     `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,

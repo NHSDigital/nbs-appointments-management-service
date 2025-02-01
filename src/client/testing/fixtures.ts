@@ -15,6 +15,18 @@ export interface UserSeedData {
   SubjectId: string;
 }
 
+export const userBySubjectId = (testUserId = 1) => {
+  const zzzTestUser = testUsersData.find(
+    x => x.SubjectId === `zzz_test_user_${testUserId}@nhs.net`,
+  );
+
+  if (!zzzTestUser) {
+    throw Error('Integration test user not found in users seed file');
+  }
+
+  return zzzTestUser;
+};
+
 export const test = baseTest.extend<
   object,
   {
@@ -25,17 +37,6 @@ export const test = baseTest.extend<
 >({
   getTestUser: [
     ({}, use) => {
-      const userBySubjectId = (testUserId = 1) => {
-        const zzzTestUser = testUsersData.find(
-          x => x.SubjectId === `zzz_test_user_${testUserId}@nhs.net`,
-        );
-
-        if (!zzzTestUser) {
-          throw Error('Integration test user not found in users seed file');
-        }
-
-        return zzzTestUser;
-      };
       use(userBySubjectId);
     },
     { scope: 'worker' },
@@ -56,8 +57,5 @@ export const test = baseTest.extend<
   ],
 });
 
-export const testuser8_emailId = `zzz_test_user_8@nhs.net`;
-export const testuser9_emailId = `zzz_test_user_9@nhs.net`;
-export const testuser10_emailId = `zzz_test_user_10@nhs.net`;
-export const testuser11_emailId = `zzz_test_user_11@nhs.net`;
+//TODO refactor sites
 export const abc01_id = `5914b64a-66bb-4ee2-ab8a-94958c1fdfcb`;

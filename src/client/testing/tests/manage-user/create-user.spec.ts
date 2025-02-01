@@ -17,7 +17,7 @@ let createUserPage: CreateUserPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
 
-test.beforeEach(async ({ page, getTestUser }) => {
+test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -29,7 +29,7 @@ test.beforeEach(async ({ page, getTestUser }) => {
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser());
+  await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${abc01_id}/users`);

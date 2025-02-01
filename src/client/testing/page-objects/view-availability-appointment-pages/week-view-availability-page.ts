@@ -5,7 +5,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
   readonly previousButton: Locator;
   readonly backToMonthButton: Locator;
-  readonly addAvailabilityButton: Locator;
+  readonly sessionSuccessMsg: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -18,29 +18,33 @@ export default class WeekViewAvailabilityPage extends RootPage {
     this.backToMonthButton = page.getByRole('link', {
       name: 'Back to month view',
     });
-    this.addAvailabilityButton = page.getByRole('link', {
-      name: 'Add availability to this day',
-    });
+    this.sessionSuccessMsg = page.getByText(
+      'You have successfully created availability for the current site.',
+    );
   }
 
   async verifyWeekViewDisplayed() {
     await expect(this.backToMonthButton).toBeVisible();
   }
 
-  async addAvailability(
-    requiredDate: string,
-    startTime: string,
-    endTime: string,
-    capacity: string,
-    duration: string,
-  ) {
-    // await this.page
-    //   .getByRole('main')
-    //   .filter({ has: this.page.getByText(requiredDate) })
-    //   .getByRole('link', { name: 'Add availability to this day' }).click();
-    await this.page
-      .getByRole('link', { name: 'Add availability to this day' })
-      .filter({ has: this.page.getByText(requiredDate) })
-      .click();
+  async addAvailability(requiredDate: string) {
+    const addAvailabilityButton = await this.page
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .getByRole('link', { name: 'Add availability to this day' });
+    const totalCount: number = addAvailabilityButton.count();
+    if (totalCount == 1) {
+      await addAvailabilityButton.click();
+    } else {
+      await this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .getByRole('link', { name: 'Add Session' })
+        .click();
+    }
+  }
+
+  async verifySessionAdded() {
+    await expect(this.sessionSuccessMsg).toBeVisible();
   }
 }

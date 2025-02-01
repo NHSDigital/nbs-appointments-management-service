@@ -17,10 +17,9 @@ export default class MonthViewAvailabilityPage extends RootPage {
 
   async openWeekViewHavingDate(requiredDate: string) {
     await this.page
-      .getByRole('main')
-      .filter({ has: this.page.getByText(requiredDate) })
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(`${requiredDate}`) })
       .getByRole('link', { name: 'View week' })
-      .last()
       .click();
   }
 }

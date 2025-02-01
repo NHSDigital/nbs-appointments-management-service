@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+dayjs.extend(isoWeek);
 
 interface DateComponents {
   day: string;
@@ -30,12 +32,13 @@ export const geRequiredtDateInFormat = (
   }
   return requiredDate;
 };
-//   const date=new Date();
-//   var requiredDate;
-//   if(dayType=='Tommorow'){
-//     let tomorrowDate = date.setDate(date.getDate()+1);
-//     requiredDate=dayjs(tomorrowDate).format(requiredformat);
-//     console.log(requiredDate);
-//   }
-//   return requiredDate;
-// };
+
+export const getWeekRange = () => {
+  const date = dayjs().add(1, 'day').format('YYYY-MM-DD');
+
+  const startOfWeek = dayjs(date).startOf('isoWeek');
+  const endOfWeek = dayjs(date).endOf('isoWeek');
+  const formattedStartOfWeek = startOfWeek.format('D MMMM');
+  const formattedendOfWeek = endOfWeek.format('D MMMM');
+  return `${formattedStartOfWeek} to ${formattedendOfWeek}`;
+};

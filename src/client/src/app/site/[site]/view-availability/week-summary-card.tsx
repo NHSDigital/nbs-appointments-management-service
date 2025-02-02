@@ -1,5 +1,5 @@
 import { Card, Table } from '@components/nhsuk-frontend';
-import { WeekSummary } from '@types';
+import { clinicalServices, WeekSummary } from '@types';
 import Link from 'next/link';
 
 type WeekSummaryCardProps = {
@@ -40,7 +40,7 @@ export const WeekSummaryCard = ({
         <Table
           headers={['Services', 'Booked appointments']}
           rows={Object.entries(allBookingsInWeek).map(([service, count]) => [
-            service,
+            clinicalServices.find(cs => cs.value === service)?.label,
             count,
           ])}
         />
@@ -48,14 +48,13 @@ export const WeekSummaryCard = ({
         <div>No availability</div>
       )}
 
-      <Table
-        headers={[
-          `Total appointments: ${maximumCapacity}`,
-          `Booked: ${bookedAppointments + orphanedAppointments}`,
-          `Unbooked: ${remainingCapacity}`,
-        ]}
-        rows={[]}
-      ></Table>
+      <div className="appointments-summary">
+        <span>
+          <strong>Total appointments: {maximumCapacity}</strong>
+        </span>
+        <span>Booked: {bookedAppointments + orphanedAppointments}</span>
+        <span>Unbooked: {remainingCapacity}</span>
+      </div>
       <br />
       <Link
         className="nhsuk-link"

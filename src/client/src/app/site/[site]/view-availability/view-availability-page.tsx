@@ -3,8 +3,7 @@ import { Site } from '@types';
 import dayjs from 'dayjs';
 import { Suspense } from 'react';
 import { getWeeksOfTheMonth } from '@services/timeService';
-import { summariseWeekTwo } from '@services/availabilityCalculatorService';
-import { WeekSummaryCard } from './week-summary-card';
+import { WeekCardList } from './week-card-list';
 
 type Props = {
   site: Site;
@@ -26,12 +25,6 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
 
   const weeks = getWeeksOfTheMonth(searchMonth);
 
-  const weekSummaries = await Promise.all(
-    weeks.map(async week => {
-      return summariseWeekTwo(week[0], week[6], site.id);
-    }),
-  );
-
   return (
     <>
       <Pagination previous={previous} next={next} />{' '}
@@ -39,14 +32,7 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
         key={searchMonth.format('YYYY-MM-DDTHH:mm:ssZZ')}
         fallback={<Spinner />}
       >
-        {weekSummaries.map((week, weekIndex) => {
-          return (
-            <WeekSummaryCard
-              weekSummary={week}
-              key={`week-summary-${weekIndex}`}
-            />
-          );
-        })}
+        <WeekCardList site={site} weeks={weeks} />
       </Suspense>
     </>
   );

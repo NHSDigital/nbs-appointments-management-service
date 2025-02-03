@@ -4,18 +4,11 @@ import { Site } from '@types';
 import { Card, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
+import { debounce } from '../utils/debounce';
 
 type Props = {
   sites: Site[];
 };
-
-function debounce<A extends unknown[]>(fn: (...a: A) => void, time: number) {
-  let timer: ReturnType<typeof setTimeout>;
-  return function (...args: A) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), time);
-  };
-}
 
 const SiteList = ({ sites }: Props) => {
   const sortedSites = sites.toSorted(sortSitesByName);

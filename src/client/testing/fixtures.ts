@@ -2,12 +2,17 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { test as baseTest } from '@playwright/test';
+import { SiteWithAttributes } from '@types';
 
 export * from '@playwright/test';
 
 import testUsersDataRaw from '../../../mock-oidc/users.json';
+import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC01.json';
+import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
 
 const testUsersData: UserSeedData[] = testUsersDataRaw;
+const testSite1Data: SiteWithAttributes = testSite1DataRaw;
+const testSite2Data: SiteWithAttributes = testSite2DataRaw;
 
 export interface UserSeedData {
   Username: string;
@@ -21,16 +26,28 @@ export const userBySubjectId = (testUserId = 1) => {
   );
 
   if (!zzzTestUser) {
-    throw Error('Integration test user not found in users seed file');
+    throw Error('Test user not found in users seed file');
   }
 
   return zzzTestUser;
+};
+
+const siteById = (testSiteId = 1) => {
+  switch (testSiteId) {
+    case 1:
+      return testSite1Data;
+    case 2:
+      return testSite2Data;
+    default:
+      throw Error('Test site not found in local sites seed files');
+  }
 };
 
 export const test = baseTest.extend<
   object,
   {
     getTestUser: (testUserId?: number) => UserSeedData;
+    getTestSite: (testSiteId?: number) => SiteWithAttributes;
     newUserName: string;
     externalUserName: string;
   }
@@ -38,6 +55,12 @@ export const test = baseTest.extend<
   getTestUser: [
     ({}, use) => {
       use(userBySubjectId);
+    },
+    { scope: 'worker' },
+  ],
+  getTestSite: [
+    ({}, use) => {
+      use(siteById);
     },
     { scope: 'worker' },
   ],
@@ -56,6 +79,3 @@ export const test = baseTest.extend<
     { scope: 'worker' },
   ],
 });
-
-//TODO refactor sites
-export const abc01_id = `5914b64a-66bb-4ee2-ab8a-94958c1fdfcb`;

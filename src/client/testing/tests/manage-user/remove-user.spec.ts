@@ -1,4 +1,4 @@
-import { test, expect, abc01_id } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -7,6 +7,7 @@ import UsersPage from '../../page-objects/manage-users/users-page';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
 import NotFoundPage from '../../page-objects/not-found';
+import { SiteWithAttributes } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -17,14 +18,17 @@ let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
 let notFoundPage: NotFoundPage;
 
-test.beforeEach(async ({ page }) => {
+let site: SiteWithAttributes;
+
+test.beforeEach(async ({ page, getTestSite }) => {
+  site = getTestSite();
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   usersPage = new UsersPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
-  removeUserPage = new RemoveUserPage(page);
+  removeUserPage = new RemoveUserPage(page, site);
   notFoundPage = new NotFoundPage(page);
 
   await rootPage.goto();
@@ -32,7 +36,7 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
   await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${abc01_id}/users`);
+  await page.waitForURL(`**/site/${site.id}/users`);
 });
 
 test('Verify user manager is able to remove a user', async ({
@@ -69,7 +73,7 @@ test('Displays a notification banner after removing a user, which disappears whe
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {
   await page.goto(
-    `/manage-your-appointments/site/${abc01_id}/users/remove?user=not-a-user`,
+    `/manage-your-appointments/site/${site.id}/users/remove?user=not-a-user`,
   );
   await expect(notFoundPage.title).toBeVisible();
   await expect(notFoundPage.notFoundMessageText).toBeVisible();

@@ -1,4 +1,4 @@
-import { test, abc01_id } from '../../fixtures';
+import { test } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -17,7 +17,8 @@ let createUserPage: CreateUserPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestSite }) => {
+  const site = getTestSite();
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -25,14 +26,14 @@ test.beforeEach(async ({ page }) => {
   usersPage = new UsersPage(page);
   createUserPage = new CreateUserPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
-  removeUserPage = new RemoveUserPage(page);
+  removeUserPage = new RemoveUserPage(page, site);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site.name);
   await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${abc01_id}/users`);
+  await page.waitForURL(`**/site/${site.id}/users`);
 });
 
 // TODO: Maybe something like this to clear up all the users created along the way?

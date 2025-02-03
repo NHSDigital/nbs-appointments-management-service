@@ -11,21 +11,22 @@ let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let siteDetailsPage: SiteDetailsPage;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestSite }) => {
+  const defaultSite = getTestSite();
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
-  siteDetailsPage = new SiteDetailsPage(page);
+  siteDetailsPage = new SiteDetailsPage(page, defaultSite);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
+  await siteSelectionPage.selectSite(defaultSite.name);
   await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${defaultSite.id}/details`);
 });
 
 test('Verify default information on site page', async () => {
-  await siteDetailsPage.verifySitePage('Church Lane Pharmacy');
+  await siteDetailsPage.verifySitePage();
 });

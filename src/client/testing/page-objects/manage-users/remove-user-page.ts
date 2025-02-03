@@ -1,14 +1,17 @@
-import { type Locator, type Page, expect } from '@playwright/test';
+import { expect } from '../../fixtures';
+import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
-import { abc01_id } from '../../fixtures';
+import { SiteWithAttributes } from '@types';
 
 export default class RemoveUserPage extends RootPage {
   readonly title: Locator;
   readonly confirmRemoveButton: Locator;
   readonly cancelButton: Locator;
+  readonly siteDetails: SiteWithAttributes;
 
-  constructor(page: Page) {
+  constructor(page: Page, siteDetails: SiteWithAttributes) {
     super(page);
+    this.siteDetails = siteDetails;
     this.title = page.getByRole('heading', {
       name: 'Remove User',
     });
@@ -22,11 +25,11 @@ export default class RemoveUserPage extends RootPage {
 
   async verifyUserNavigatedToRemovePage(userName: string) {
     await this.page.waitForURL(
-      `**/site/${abc01_id}/users/remove?user=${userName}`,
+      `**/site/${this.siteDetails.id}/users/remove?user=${userName}`,
     );
     await expect(
       this.page.getByText(
-        `Are you sure you wish to remove ${userName} from Robin Lane Medical Centre?`,
+        `Are you sure you wish to remove ${userName} from ${this.siteDetails.name}?`,
       ),
     ).toBeVisible();
   }

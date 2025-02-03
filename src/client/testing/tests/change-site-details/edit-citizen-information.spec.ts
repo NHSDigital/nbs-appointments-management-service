@@ -5,6 +5,7 @@ import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import EditInformationForCitizensPage from '../../page-objects/change-site-details-pages/edit-citizen-information';
+import { SiteWithAttributes } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -13,15 +14,18 @@ let sitePage: SitePage;
 let siteDetailsPage: SiteDetailsPage;
 let editInformCitizen: EditInformationForCitizensPage;
 
+let site: SiteWithAttributes;
+
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestSite }) => {
+  site = getTestSite(2);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
-  siteDetailsPage = new SiteDetailsPage(page);
+  siteDetailsPage = new SiteDetailsPage(page, site);
   editInformCitizen = new EditInformationForCitizensPage(page);
 
   await rootPage.goto();
@@ -29,10 +33,10 @@ test.beforeEach(async ({ page }) => {
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${site.id}/details`);
   await siteDetailsPage.editInformationCitizenButton.click();
   await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-information-for-citizens',
+    `**/site/${site.id}/details/edit-information-for-citizens`,
   );
 });
 
@@ -40,7 +44,7 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }) => {
   await siteDetailsPage.editInformationCitizenButton.click();
   await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-information-for-citizens',
+    `**/site/${site.id}/details/edit-information-for-citizens`,
   );
   await editInformCitizen.informationTextField.clear();
   await editInformCitizen.save_Cancel_InformationForCitizen('Save');
@@ -51,7 +55,7 @@ test('Update information for citizen', async ({ page }) => {
   await editInformCitizen.setInformationForCitizen('Test Automation');
   await editInformCitizen.save_Cancel_InformationForCitizen('Save');
 
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${site.id}/details`);
 
   await siteDetailsPage.verifyInformationSaved('Test Automation');
 });

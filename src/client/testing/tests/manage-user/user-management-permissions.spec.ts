@@ -1,7 +1,4 @@
-import { test } from '../../fixtures';
-import { expect } from '@playwright/test';
-
-import { abc01_id } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -13,6 +10,7 @@ import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import CreateAvailabilityPage from '../../page-objects/create-availability';
 import ViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
+import { SiteWithAttributes } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -22,11 +20,16 @@ let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
 let notAuthorizedPage: NotAuthorizedPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
-let siteDetailsPage: SiteDetailsPage;
+let siteDetailsPage1: SiteDetailsPage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let viewAvailabilityPage: ViewAvailabilityPage;
 
-test.beforeEach(async ({ page }) => {
+let site1: SiteWithAttributes;
+let site2: SiteWithAttributes;
+
+test.beforeEach(async ({ page, getTestSite }) => {
+  site1 = getTestSite(1);
+  site2 = getTestSite(2);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -35,7 +38,7 @@ test.beforeEach(async ({ page }) => {
   userManagementPage = new UserManagementPage(page);
   notAuthorizedPage = new NotAuthorizedPage(page);
   editManageUserRolesPage = new EditManageUserRolesPage(page);
-  siteDetailsPage = new SiteDetailsPage(page);
+  siteDetailsPage1 = new SiteDetailsPage(page, site1);
   createAvailabilityPage = new CreateAvailabilityPage(page);
   viewAvailabilityPage = new ViewAvailabilityPage(page);
 });
@@ -108,14 +111,14 @@ test('permissions are applied per site', async ({ getTestUser }) => {
   await oAuthPage.signIn(getTestUser(2));
 
   // First check Edit column exists at Church Lane
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
+  await siteSelectionPage.selectSite(site2.name);
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).toBeVisible();
 
   // Then check it does NOT exist at Robin Lane
   await rootPage.goto();
 
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
 
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).not.toBeVisible();
@@ -156,20 +159,20 @@ test('Verify user can only view appointment manager related tiles In app when us
   await usersPage.verifyUserRoles('Appointment manager', user8.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
+    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
   );
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(8));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
-  await siteDetailsPage.verifyEditButtonNotVisible();
+  await siteDetailsPage1.verifySitePage();
+  await siteDetailsPage1.verifyEditButtonNotVisible();
 });
 
 test('Verify user can only view availability manager related tiles In app when user is assigned Availability Manager role.', async ({
@@ -194,25 +197,25 @@ test('Verify user can only view availability manager related tiles In app when u
   await usersPage.verifyUserRoles('Availability manager', user9.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
+    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
   );
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(9));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
-  await siteDetailsPage.verifyEditButtonNotVisible();
-  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await siteDetailsPage1.verifySitePage();
+  await siteDetailsPage1.verifyEditButtonNotVisible();
+  await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.createAvailabilityCard.click();
   await createAvailabilityPage.createAvailabilityButton.click();
   await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
-  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
   await viewAvailabilityPage.verifyViewMonthDisplayed();
 });
@@ -239,24 +242,24 @@ test('Verify user can only view user manager related tiles In app when user is a
   await usersPage.verifyUserRoles('User manager', user10.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
+    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
   );
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(10));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
-  await siteDetailsPage.verifyEditButtonNotVisible();
-  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await siteDetailsPage1.verifySitePage();
+  await siteDetailsPage1.verifyEditButtonNotVisible();
+  await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
   await viewAvailabilityPage.verifyViewMonthDisplayed();
-  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.userManagementCard.click();
   await expect(usersPage.title).toBeVisible();
 });
@@ -268,7 +271,7 @@ test('Verify user can only view site details manager related tiles In app when u
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
   await sitePage.userManagementCard.click();
   await usersPage.assignStaffRolesLink.click();
 
@@ -283,21 +286,21 @@ test('Verify user can only view site details manager related tiles In app when u
   await usersPage.verifyUserRoles('Site details manager', user11.SubjectId);
   await rootPage.logOut();
   await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${abc01_id}/users`,
+    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
   );
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(11));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(site1.name);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
-  await siteDetailsPage.verifySitePage('Robin Lane Medical Centre');
-  await siteDetailsPage.verifyEditButtonToBeVisible();
-  await page.goto(`/manage-your-appointments/site/${abc01_id}`);
+  await siteDetailsPage1.verifySitePage();
+  await siteDetailsPage1.verifyEditButtonToBeVisible();
+  await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
   await viewAvailabilityPage.verifyViewMonthDisplayed();
 });

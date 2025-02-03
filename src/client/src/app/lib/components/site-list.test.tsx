@@ -190,6 +190,7 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, 'Beta');
 
+    await new Promise(r => setTimeout(r, 400));
     const filteredSites = within(screen.getByRole('list')).getAllByRole(
       'listitem',
     );
@@ -262,6 +263,7 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, 'Be');
 
+    await new Promise(r => setTimeout(r, 400));
     const filteredSites = within(screen.getByRole('list')).getAllByRole(
       'listitem',
     );
@@ -333,6 +335,7 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, '1004');
 
+    await new Promise(r => setTimeout(r, 400));
     const filteredSites = within(screen.getByRole('list')).getAllByRole(
       'listitem',
     );
@@ -405,6 +408,7 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, '1005');
 
+    await new Promise(r => setTimeout(r, 400));
     const filteredSites = within(screen.getByRole('list')).queryAllByRole(
       'listitem',
     );

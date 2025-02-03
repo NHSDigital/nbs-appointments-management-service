@@ -74,8 +74,10 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
 
   sticky_settings {
     app_setting_names = [
-      "AuthProvider_ClientCodeExchangeUri",
-      "AuthProvider_ReturnUri",
+      "Auth__Providers__1__ClientCodeExchangeUri",
+      "Auth__Providers__1__ReturnUri",
+      "Auth__Providers__0__ClientCodeExchangeUri",
+      "Auth__Providers__0__ReturnUri",
       "Notifications_Provider",
       "ServiceBusConnectionString"
     ]

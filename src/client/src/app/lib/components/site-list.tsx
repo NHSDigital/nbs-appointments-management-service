@@ -4,6 +4,7 @@ import { Site } from '@types';
 import { Card, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
+import _debounce from 'lodash.debounce';
 
 type Props = {
   sites: Site[];
@@ -28,13 +29,15 @@ const SiteList = ({ sites }: Props) => {
     }
   };
 
+  const debounceSearchHandler = _debounce(handleInputChange, 300);
+
   return (
     <Card title="Choose a site">
       <TextInput
         id="site-search"
         aria-label="site-search"
         placeholder="Search"
-        onChange={handleInputChange}
+        onChange={debounceSearchHandler}
       ></TextInput>
       <ul className="nhsuk-list nhsuk-list--border">
         {filteredSites.map(s => (

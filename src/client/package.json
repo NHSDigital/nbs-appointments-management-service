@@ -25,6 +25,7 @@
   "dependencies": {
     "@next/env": "^14.2.23",
     "dayjs": "^1.11.13",
+    "lodash.debounce": "^4.0.8",
     "manage-your-appointments": "file:",
     "next": "^14.2.23",
     "nhsuk-frontend": "^8.3.0",
@@ -40,6 +41,7 @@
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.14",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

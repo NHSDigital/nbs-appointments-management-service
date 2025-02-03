@@ -1,4 +1,5 @@
-import { Card, Table } from '@components/nhsuk-frontend';
+import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
+import { Card } from '@components/nhsuk-frontend';
 import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
@@ -14,18 +15,13 @@ type DaySummaryCardProps = {
 };
 
 export const DaySummaryCard = ({
-  daySummary: {
-    date,
-    sessions,
-    maximumCapacity,
-    bookedAppointments,
-    cancelledAppointments,
-    orphanedAppointments,
-    remainingCapacity,
-  },
+  daySummary,
   siteId,
   canManageAvailability,
 }: DaySummaryCardProps) => {
+  const { date, sessions, cancelledAppointments, orphanedAppointments } =
+    daySummary;
+
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
       isInTheFuture(date.format('YYYY-MM-DD')) &&
@@ -89,20 +85,15 @@ export const DaySummaryCard = ({
           Add Session
         </Link>
       )}
-      <br />
-      <OrphanedAppointmentsMessage
-        orphanedAppointments={orphanedAppointments}
-      />
-      <CancelledAppointmentsMessage
-        cancelledAppointments={cancelledAppointments}
-      />
-      <div className="appointments-summary">
-        <span>
-          <strong>Total appointments: {maximumCapacity}</strong>
-        </span>
-        <span>Booked: {bookedAppointments + orphanedAppointments}</span>
-        <span>Unbooked: {remainingCapacity}</span>
+      <div style={{ marginTop: 10, marginBottom: 10 }}>
+        <OrphanedAppointmentsMessage
+          orphanedAppointments={orphanedAppointments}
+        />
+        <CancelledAppointmentsMessage
+          cancelledAppointments={cancelledAppointments}
+        />
       </div>
+      <AppointmentCountsSummary period={daySummary} />
       <PipeDelimitedLinks actionLinks={actionLinks} />
     </Card>
   );
@@ -123,7 +114,7 @@ const OrphanedAppointmentsMessage = ({
     </div>
   ) : (
     <div>
-      There are <strong>{orphanedAppointments}</strong> orphaned appointments on
+      There are <strong>{orphanedAppointments}</strong> manual cancellations on
       this day.
     </div>
   );

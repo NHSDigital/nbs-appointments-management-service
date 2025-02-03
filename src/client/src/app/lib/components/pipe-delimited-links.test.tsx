@@ -43,9 +43,7 @@ describe('Pipe Delimited Links', () => {
       '/link3',
     );
 
-    expect(screen.getByText(/Link 1 \| Link 2 \| Link 3/)).toBeInTheDocument();
-    const pipeDelimiters = screen.getAllByText('\|');
-    expect(pipeDelimiters).toHaveLength(2);
+    expect(screen.getByText(/\|/).textContent).toBe('Link 1 | Link 2 | Link 3');
   });
 
   it('does not render pipe delimiters for a single link', () => {

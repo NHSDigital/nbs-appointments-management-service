@@ -1,8 +1,8 @@
-import { Booking, DailyAvailability, DaySummary } from '@types';
+import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
 import dayjs from 'dayjs';
 
-const mondayThe10thOfJune2024 = dayjs('2024-06-10T00:00:00');
-const sundayThe16thOfJune2024 = dayjs('2024-06-10T23:59:59');
+const mondayThe10thOfJune2024 = dayjs('2024-06-10T00:00:00Z');
+const sundayThe16thOfJune2024 = dayjs('2024-06-16T00:00:00Z');
 
 /**
  * A mock week of availability as we'd expect it to be returned from the API.
@@ -37,7 +37,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '09:00',
         until: '12:00',
         slotLength: 10,
-        services: ['RSV:Adult', 'FLU 18-64'],
+        services: ['RSV:Adult', 'FLU:18_64'],
       },
       {
         capacity: 2,
@@ -56,7 +56,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '08:00',
         until: '12:00',
         slotLength: 10,
-        services: ['RSV:Adult', 'FLU 18-64'],
+        services: ['RSV:Adult', 'FLU:18_64'],
       },
     ],
   },
@@ -75,7 +75,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '15:00',
         until: '18:00',
         slotLength: 10,
-        services: ['FLU 18-64'],
+        services: ['FLU:18_64'],
       },
     ],
   },
@@ -87,7 +87,7 @@ const mockWeekAvailability: DailyAvailability[] = [
         from: '09:00',
         until: '13:00',
         slotLength: 10,
-        services: ['RSV:Adult', 'FLU 18-64'],
+        services: ['RSV:Adult', 'FLU:18_64'],
       },
     ],
   },
@@ -159,7 +159,7 @@ const mockBooking4: Booking = {
   reference: 'mock-booking-4',
   from: '2024-06-11T09:10:00',
   duration: 10,
-  service: 'FLU 18-64',
+  service: 'FLU:18_64',
   site: 'TEST01',
   attendeeDetails: {
     nhsNumber: '9999999995',
@@ -278,7 +278,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         end: dayjs('2024-06-11 12:00:00'),
         maximumCapacity: 36,
         totalBookings: 3,
-        bookings: { 'RSV:Adult': 2, 'FLU 18-64': 1 },
+        bookings: { 'RSV:Adult': 2, 'FLU:18_64': 1 },
         capacity: 2,
         slotLength: 10,
       },
@@ -306,7 +306,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         end: dayjs('2024-06-12 12:00:00'),
         maximumCapacity: 96,
         totalBookings: 0,
-        bookings: { 'RSV:Adult': 0, 'FLU 18-64': 0 },
+        bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
         capacity: 4,
         slotLength: 10,
       },
@@ -334,7 +334,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         end: dayjs('2024-06-13 18:00:00'),
         maximumCapacity: 18,
         totalBookings: 0,
-        bookings: { 'FLU 18-64': 0 },
+        bookings: { 'FLU:18_64': 0 },
         capacity: 1,
         slotLength: 10,
       },
@@ -353,7 +353,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         end: dayjs('2024-06-14 13:00:00'),
         maximumCapacity: 72,
         totalBookings: 0,
-        bookings: { 'RSV:Adult': 0, 'FLU 18-64': 0 },
+        bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
         capacity: 3,
         slotLength: 10,
       },
@@ -384,10 +384,21 @@ const mockWeekAvailability__Summary: DaySummary[] = [
   },
 ];
 
+const mockWeekSummary: WeekSummary = {
+  startDate: mondayThe10thOfJune2024,
+  endDate: sundayThe16thOfJune2024,
+  daySummaries: mockWeekAvailability__Summary,
+  maximumCapacity: 480,
+  bookedAppointments: 5,
+  orphanedAppointments: 1,
+  remainingCapacity: 475,
+};
+
 export {
   mockBookings,
   mockWeekAvailability,
   mockWeekAvailability__Summary,
   mondayThe10thOfJune2024,
   sundayThe16thOfJune2024,
+  mockWeekSummary,
 };

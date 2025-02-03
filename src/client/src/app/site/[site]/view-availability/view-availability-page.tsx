@@ -27,7 +27,7 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
 
   return (
     <>
-      <Pagination previous={previous} next={next} />{' '}
+      <Pagination previous={previous} next={next} />
       <Suspense
         key={searchMonth.format('YYYY-MM-DDTHH:mm:ssZZ')}
         fallback={<Spinner />}

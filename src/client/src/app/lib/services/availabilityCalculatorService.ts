@@ -23,39 +23,6 @@ export const summariseWeek = async (
   weekStart: dayjs.Dayjs,
   weekEnd: dayjs.Dayjs,
   siteId: string,
-): Promise<DaySummary[]> => {
-  const [dailyAvailability, dailyBookings] = await Promise.all([
-    fetchDailyAvailability(
-      siteId,
-      weekStart.format('YYYY-MM-DD'),
-      weekEnd.format('YYYY-MM-DD'),
-    ),
-    fetchBookings({
-      from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
-      to: weekEnd.format('YYYY-MM-DD HH:mm:ss'),
-      site: siteId,
-    }),
-  ]);
-
-  const week = getWeek(weekStart);
-
-  const daySummaries: DaySummary[] = week.map(day => {
-    const availability = dailyAvailability.find(a => dayjs(a.date).isSame(day));
-
-    const bookings = dailyBookings.filter(booking =>
-      dayjs(booking.from).isSame(day, 'date'),
-    );
-
-    return summariseDay(day, bookings, availability);
-  });
-
-  return daySummaries;
-};
-
-export const summariseWeekTwo = async (
-  weekStart: dayjs.Dayjs,
-  weekEnd: dayjs.Dayjs,
-  siteId: string,
 ): Promise<WeekSummary> => {
   const dailyAvailability = await fetchDailyAvailability(
     siteId,

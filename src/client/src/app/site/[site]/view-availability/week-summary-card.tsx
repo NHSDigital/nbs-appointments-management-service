@@ -1,3 +1,4 @@
+import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
 import { Card, Table } from '@components/nhsuk-frontend';
 import { clinicalServices, WeekSummary } from '@types';
 import Link from 'next/link';
@@ -6,17 +7,9 @@ type WeekSummaryCardProps = {
   weekSummary: WeekSummary;
 };
 
-export const WeekSummaryCard = ({
-  weekSummary: {
-    startDate,
-    endDate,
-    daySummaries,
-    bookedAppointments,
-    maximumCapacity,
-    orphanedAppointments,
-    remainingCapacity,
-  },
-}: WeekSummaryCardProps) => {
+export const WeekSummaryCard = ({ weekSummary }: WeekSummaryCardProps) => {
+  const { startDate, endDate, daySummaries } = weekSummary;
+
   const allBookingsInWeek = daySummaries.reduce(
     (acc, daySummary) => {
       daySummary.sessions.forEach(session => {
@@ -48,13 +41,7 @@ export const WeekSummaryCard = ({
         <div>No availability</div>
       )}
 
-      <div className="appointments-summary">
-        <span>
-          <strong>Total appointments: {maximumCapacity}</strong>
-        </span>
-        <span>Booked: {bookedAppointments + orphanedAppointments}</span>
-        <span>Unbooked: {remainingCapacity}</span>
-      </div>
+      <AppointmentCountsSummary period={weekSummary} />
       <br />
       <Link
         className="nhsuk-link"

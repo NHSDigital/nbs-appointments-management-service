@@ -34,6 +34,8 @@
     "Auth__Providers__1__ReturnUri": "http://localhost:7071/api/auth-return?provider=okta-test",
     "Auth__Providers__1__RequiresStateForAuthorize": true,
     "Auth__Providers__1__ClientSecret":"J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X",
+    "Auth__LocalTokenMode": false,
+    "Auth__LocalTokenKey": "",
     "Notifications_Provider": "local",
     "GovNotifyApiKey": "test",
     "BookingRemindersCronSchedule": "0 0 8 * * *",

@@ -18,12 +18,6 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
     }
 
-    public async Task<int> GetReferenceNumberGroup(string site)
-    {
-        var siteDocument = await cosmosStore.GetDocument<SiteDocument>(site);
-        return siteDocument.ReferenceNumberGroup;
-    }
-
     public Task AssignPrefix(string site, int prefix)
     {
         var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);

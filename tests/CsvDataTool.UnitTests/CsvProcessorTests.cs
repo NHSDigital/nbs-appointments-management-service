@@ -155,7 +155,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -179,8 +178,7 @@ public class CsvProcessorTests
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
+                DocumentType = "site",                
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -204,8 +202,7 @@ public class CsvProcessorTests
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
+                DocumentType = "site",                
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -260,8 +257,7 @@ public class CsvProcessorTests
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
+                DocumentType = "site",                
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -285,7 +281,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -309,7 +304,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -367,7 +361,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -391,7 +384,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
                 AttributeValues =
@@ -415,7 +407,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
                 AttributeValues =

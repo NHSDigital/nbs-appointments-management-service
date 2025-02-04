@@ -5,7 +5,7 @@
     "AllowedGrantTypes": ["authorization_code"],
     "AllowAccessTokensViaBrowser": true,
     "RedirectUris": [      
-	  "http://localhost:7071/api/auth-return"
+	  "http://localhost:7071/api/auth-return?provider=nhs-mail"
     ],
     "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,

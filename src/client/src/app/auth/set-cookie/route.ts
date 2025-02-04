@@ -10,12 +10,17 @@ import { revalidateTag } from 'next/cache';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
+  const provider = request.nextUrl.searchParams.get('provider');
 
   if (code === null) {
     throw Error('No code found in request');
   }
 
-  const tokenResponse = await fetchAccessToken(code);
+  if (provider === null) {
+    throw Error('No provider found in request');
+  }
+
+  const tokenResponse = await fetchAccessToken(code, provider);
   if (tokenResponse === undefined) {
     throw Error('No token found in response');
   }

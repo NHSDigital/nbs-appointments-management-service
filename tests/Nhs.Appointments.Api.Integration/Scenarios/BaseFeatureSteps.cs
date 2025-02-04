@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,6 +15,7 @@ using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
 using Location = Nhs.Appointments.Core.Location;
@@ -284,7 +285,8 @@ public abstract partial class BaseFeatureSteps : Feature
             Status = MapStatus(bookingType),
             Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
                 ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
-                : GetCreationDateTime(bookingType),
+                : GetCreationDateTime(bookingType),                        
+            StatusUpdated = GetCreationDateTime(bookingType),
             AttendeeDetails = new AttendeeDetails
             {
                 NhsNumber = NhsNumber,
@@ -359,6 +361,24 @@ public abstract partial class BaseFeatureSteps : Feature
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
 
         await AssertBookingStatusByReference(bookingReference, expectedStatus, false);
+    }
+
+    [And("the booking should be deleted")]
+    [Then("the booking should be deleted")]
+    public async Task AssertBookingDeleted()
+    {
+        var siteId = GetSiteId();
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
+
+        var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
+            await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId)));
+        exception.Message.Should().Contain("404");
+
+        exception = await Assert.ThrowsAsync<CosmosException>(async () =>
+            await Client.GetContainer("appts", "index_data")
+                .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
+        exception.Message.Should().Contain("404");
     }
 
     private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,

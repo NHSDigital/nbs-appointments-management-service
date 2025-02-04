@@ -23,6 +23,7 @@ stages:
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
           csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
+          bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -69,6 +70,12 @@ stages:
             inputs:
               command: "test"
               projects: $(csvDataToolTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Booking Extracts unit tests"
+            inputs:
+              command: "test"
+              projects: $(bookingExtractsTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"
@@ -140,6 +147,7 @@ stages:
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+          bookingDataExtractTestProjectPath: "tests/BookingDataExtractTests/BookingDataExtracts.Integration.csproj"
           cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
           prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
           subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
@@ -170,8 +178,38 @@ stages:
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
+                cd data/BookingsDataExtracts && docker compose up --build --detach
+            displayName: "Start MESH docker container"
+          - script: |
               docker compose up --build --detach
-            displayName: "Start docker containers"
+            displayName: "Start application docker containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: DotNetCoreCLI@2
+            displayName: "Run Booking Data Extract Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(bookingDataExtractTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=myaDataExtractTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishTestResults@2
+            displayName: "Publish data extract integration test results"
+            inputs:
+              searchFolder: $(Agent.TempDirectory)
+              testResultsFormat: "VSTest"
+              testResultsFiles: "myaDataExtractTests.trx"
+              testRunTitle: "MYA Data Extract Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
+          - task: DotNetCoreCLI@2
+            displayName: "Reset and seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

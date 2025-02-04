@@ -14,6 +14,7 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -22,33 +23,36 @@ public class GetAuthTokenFunction(
     IAuditWriteService auditWriteService,
     IOptions<AuthOptions> authOptions)
 {
-    private readonly AuthOptions _authOptions = authOptions.Value;
-
     [Function("GetAuthTokenFunction")]
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")]
         HttpRequest req)
     {
+        // need to resolve the correct auth config here
+        var providerName = req.Query["provider"];
+        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+
         var code = await req.ReadAsStringAsync();
         var formValues = new Dictionary<string, string>
         {
-            { "client_id", _authOptions.ClientId },
+            { "client_id", authProvider.ClientId },
             { "code", code },
-            { "redirect_uri", _authOptions.ReturnUri },
+            { "redirect_uri", authProvider.ReturnUri },
             { "scope", "openid profile email" },
             { "grant_type", "authorization_code" },
-            { "code_verifier", _authOptions.ChallengePhrase }
+            { "code_verifier", authProvider.ChallengePhrase }
         };
 
-        if (string.IsNullOrEmpty(_authOptions.ClientSecret) == false)
+        if (!string.IsNullOrEmpty(authProvider.ClientSecret))
         {
-            formValues.Add("client_secret", _authOptions.ClientSecret);
+            formValues.Add("client_secret", authProvider.ClientSecret);
         }
-
+        
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.PostAsync($"{_authOptions.TokenUri}", form);
+
+        var response = await httpClient.PostAsync($"{authProvider.TokenUri}", form);
         var rawResponse = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {

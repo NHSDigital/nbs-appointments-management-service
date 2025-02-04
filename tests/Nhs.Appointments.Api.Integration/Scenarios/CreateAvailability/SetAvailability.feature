@@ -55,7 +55,7 @@
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
-    Then the booking with reference '37492-16293' has been 'Booked'
+    Then the booking with reference '37492-16293' has status 'Booked'
     And the booking with reference '37492-16293' has availability status 'Supported'
     And the booking with reference '79237-10283' has status 'Provisional'
     And the booking with reference '79237-10283' has availability status 'Supported'

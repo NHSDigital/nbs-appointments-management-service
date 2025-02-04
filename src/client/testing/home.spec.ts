@@ -37,3 +37,23 @@ test('An admin user loads home page, all sites are loaded', async ({
     page.getByRole('link', { name: 'Robin Lane Medical Centre' }),
   ).toBeVisible();
 });
+
+test('A user loads home page and searches for a site, site list is filtered', async ({
+  page,
+}) => {
+  await oAuthPage.signIn(env.TEST_USERS.testUser6);
+  await expect(
+    page.getByRole('link', { name: 'Church Lane Pharmacy' }),
+  ).not.toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Robin Lane Medical Centre' }),
+  ).toBeVisible();
+
+  const searchInput = page.getByRole('textbox', {
+    name: 'site-search',
+  });
+  await searchInput.fill('Church');
+  await expect(
+    page.getByRole('link', { name: 'Robin Lane Medical Centre' }),
+  ).not.toBeVisible();
+});

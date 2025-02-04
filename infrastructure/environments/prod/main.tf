@@ -23,13 +23,19 @@ provider "azurerm" {
 module "mya_application_prod" {
   environment                                    = "prod"
   source                                         = "../../resources"
-  auth_provider_issuer                           = var.AUTH_PROVIDER_ISSUER
-  auth_provider_authorize_uri                    = var.AUTH_PROVIDER_AUTHORIZE_URI
-  auth_provider_token_uri                        = var.AUTH_PROVIDER_TOKEN_URI
-  auth_provider_jwks_uri                         = var.AUTH_PROVIDER_JWKS_URI
+  nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
+  nhs_mail_authorize_uri                         = var.NHS_MAIL_AUTHORIZE_URI
+  nhs_mail_token_uri                             = var.NHS_MAIL_TOKEN_URI
+  nhs_mail_jwks_uri                              = var.NHS_MAIL_JWKS_URI
+  nhs_mail_client_id                             = var.NHS_MAIL_CLIENT_ID
+  nhs_mail_client_secret                         = var.NHS_MAIL_CLIENT_SECRET
+  okta_issuer                                    = var.OKTA_ISSUER
+  okta_authorize_uri                             = var.OKTA_AUTHORIZE_URI
+  okta_token_uri                                 = var.OKTA_TOKEN_URI
+  okta_jwks_uri                                  = var.OKTA_JWKS_URI
+  okta_client_id                                 = var.OKTA_CLIENT_ID
+  okta_client_secret                             = var.OKTA_CLIENT_SECRET
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
-  auth_provider_client_id                        = var.AUTH_PROVIDER_CLIENT_ID
-  auth_provider_client_secret                    = var.AUTH_PROVIDER_CLIENT_SECRET
   nhs_host_url                                   = var.NHS_HOST_URL
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   func_app_slot_base_uri                         = var.FUNC_APP_SLOT_BASE_URI

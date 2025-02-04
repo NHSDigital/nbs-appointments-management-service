@@ -51,7 +51,7 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await siteDetailsPage.verifyDetailsNotificationVisibility(false);
 
   //verify default state
-  await siteDetailsPage.verifyDefaultCoreDetailsOnPage();
+  await siteDetailsPage.verifySitePage();
 
   // Go back into edit UI to assert input is same as before
   await siteDetailsPage.editSiteDetailsButton.click();

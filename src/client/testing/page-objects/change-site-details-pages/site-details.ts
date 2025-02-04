@@ -203,41 +203,6 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.editSiteAttributesButton).toBeVisible();
   }
 
-  async verifyDefaultReferenceDetailsOnPage() {
-    await expect(
-      this.page.getByRole('heading', { name: `${this.headerMsg}` }),
-    ).toBeVisible();
-    await expect(
-      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
-    ).toBeVisible();
-
-    await expect(
-      this.page.getByRole('heading', { name: `${this.siteDetailsheaderMsg}` }),
-    ).toBeVisible();
-
-    await expect(
-      this.page.getByRole('heading', {
-        name: `${this.referenceDetailsheaderMsg}`,
-      }),
-    ).toBeVisible();
-
-    await this.verifyReferenceDetailsContent(
-      this.siteDetails.odsCode,
-      this.siteDetails.integratedCareBoard,
-      this.siteDetails.region,
-    );
-
-    await expect(
-      this.page.getByRole('heading', { name: `${this.accessNeedsheaderMsg}` }),
-    ).toBeVisible();
-
-    await expect(
-      this.page.getByRole('heading', {
-        name: `${this.informationForCitizensheaderMsg}`,
-      }),
-    ).toBeVisible();
-  }
-
   async verifySitePage() {
     await expect(
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),

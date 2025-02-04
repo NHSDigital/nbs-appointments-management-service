@@ -477,5 +477,37 @@ describe('Day Summary Card', () => {
         'daily-appointments?date=2024-12-02&page=1&tab=2',
       );
     });
+
+    it('renders a warning if there are orphaned appointments', () => {
+      render(
+        <DaySummaryCard
+          daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
+      );
+
+      expect(screen.getByText(/There are/)).toBeInTheDocument();
+      expect(screen.getByText('20')).toBeInTheDocument();
+      expect(
+        screen.getByText(/manual cancellations on this day./),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a warning if there are cancelled appointments', () => {
+      render(
+        <DaySummaryCard
+          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+        />,
+      );
+
+      expect(screen.getByText(/There are/)).toBeInTheDocument();
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(
+        screen.getByText(/cancelled appointments on this day./),
+      ).toBeInTheDocument();
+    });
   });
 });

@@ -59,6 +59,8 @@ export const summariseWeek = async (
           accumulator.bookedAppointments + daySummary.bookedAppointments,
         orphanedAppointments:
           accumulator.orphanedAppointments + daySummary.orphanedAppointments,
+        cancelledAppointments:
+          accumulator.cancelledAppointments + daySummary.cancelledAppointments,
         remainingCapacity:
           accumulator.remainingCapacity + daySummary.remainingCapacity,
       };
@@ -70,6 +72,7 @@ export const summariseWeek = async (
       maximumCapacity: 0,
       bookedAppointments: 0,
       orphanedAppointments: 0,
+      cancelledAppointments: 0,
       remainingCapacity: 0,
     },
   );

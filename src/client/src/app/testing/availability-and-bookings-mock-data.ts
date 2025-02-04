@@ -390,6 +390,7 @@ const mockWeekSummary: WeekSummary = {
   daySummaries: mockWeekAvailability__Summary,
   maximumCapacity: 480,
   bookedAppointments: 5,
+  cancelledAppointments: 1,
   orphanedAppointments: 1,
   remainingCapacity: 475,
 };

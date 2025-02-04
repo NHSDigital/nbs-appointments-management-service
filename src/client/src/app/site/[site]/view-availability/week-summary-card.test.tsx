@@ -49,6 +49,34 @@ describe('Week Summary Card', () => {
     expect(screen.getByText('Unbooked: 475')).toBeInTheDocument();
   });
 
+  it('renders a warning if there are cancelled appointments', () => {
+    render(
+      <WeekSummaryCard
+        weekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
+      />,
+    );
+
+    expect(screen.getByText(/There are/)).toBeInTheDocument();
+    expect(screen.getByText('20')).toBeInTheDocument();
+    expect(
+      screen.getByText(/cancelled appointments in this week./),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a warning if there are orphaned appointments', () => {
+    render(
+      <WeekSummaryCard
+        weekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
+      />,
+    );
+
+    expect(screen.getByText(/There are/)).toBeInTheDocument();
+    expect(screen.getByText('31')).toBeInTheDocument();
+    expect(
+      screen.getByText(/manual cancellations in this week./),
+    ).toBeInTheDocument();
+  });
+
   it('renders a link to week view', async () => {
     render(<WeekSummaryCard weekSummary={mockWeekSummary} />);
 

@@ -301,6 +301,7 @@ type WeekSummary = {
   maximumCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
+  cancelledAppointments: number;
   remainingCapacity: number;
 };
 

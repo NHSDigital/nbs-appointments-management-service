@@ -42,7 +42,7 @@ export const DaySummaryCard = ({
     return (
       <Card title={date.format('dddd D MMMM')}>
         <div>No availability</div>
-        <br />
+        <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
       </Card>
     );
@@ -85,59 +85,8 @@ export const DaySummaryCard = ({
           Add Session
         </Link>
       )}
-      <div style={{ marginTop: 10, marginBottom: 10 }}>
-        <OrphanedAppointmentsMessage
-          orphanedAppointments={orphanedAppointments}
-        />
-        <CancelledAppointmentsMessage
-          cancelledAppointments={cancelledAppointments}
-        />
-      </div>
       <AppointmentCountsSummary period={daySummary} />
       <PipeDelimitedLinks actionLinks={actionLinks} />
     </Card>
-  );
-};
-
-const OrphanedAppointmentsMessage = ({
-  orphanedAppointments,
-}: {
-  orphanedAppointments: number;
-}) => {
-  if (orphanedAppointments === 0) {
-    return null;
-  }
-
-  return orphanedAppointments === 1 ? (
-    <div>
-      There is <strong>1</strong> manual cancellation on this day.
-    </div>
-  ) : (
-    <div>
-      There are <strong>{orphanedAppointments}</strong> manual cancellations on
-      this day.
-    </div>
-  );
-};
-
-const CancelledAppointmentsMessage = ({
-  cancelledAppointments,
-}: {
-  cancelledAppointments: number;
-}) => {
-  if (cancelledAppointments === 0) {
-    return null;
-  }
-
-  return cancelledAppointments === 1 ? (
-    <div>
-      There is <strong>{cancelledAppointments}</strong> cancelled appointment on
-      this day.
-    </div>
-  ) : (
-    <div>
-      There are <strong>{cancelledAppointments}</strong> cancelled appointments
-      on this day.
-    </div>
   );
 };

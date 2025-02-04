@@ -141,7 +141,7 @@ export default class SiteDetailsPage extends RootPage {
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('heading', { name: `${this.siteDetails?.name}` }),
+      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
     ).toBeVisible();
 
     await expect(

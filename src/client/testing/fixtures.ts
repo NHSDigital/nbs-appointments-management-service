@@ -10,17 +10,23 @@ import testUsersDataRaw from '../../../mock-oidc/users.json';
 import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC01.json';
 import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
 
-const testUsersData: UserSeedData[] = testUsersDataRaw;
+const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
 const testSite1Data: SiteWithAttributes = testSite1DataRaw;
 const testSite2Data: SiteWithAttributes = testSite2DataRaw;
 
-export interface UserSeedData {
+interface UserSeedDataRaw {
   Username: string;
   Password: string;
   SubjectId: string;
 }
 
-export const userBySubjectId = (testUserId = 1) => {
+export interface UserSeedData {
+  username: string;
+  password: string;
+  subjectId: string;
+}
+
+export const userBySubjectId = (testUserId = 1): UserSeedData => {
   const zzzTestUser = testUsersData.find(
     x => x.SubjectId === `zzz_test_user_${testUserId}@nhs.net`,
   );
@@ -29,7 +35,11 @@ export const userBySubjectId = (testUserId = 1) => {
     throw Error('Test user not found in users seed file');
   }
 
-  return zzzTestUser;
+  return {
+    subjectId: zzzTestUser.SubjectId,
+    username: zzzTestUser.Username,
+    password: zzzTestUser.Password,
+  };
 };
 
 const siteById = (testSiteId = 1) => {
@@ -73,8 +83,8 @@ export const test = baseTest.extend<
   ],
   externalUserName: [
     async ({}, use) => {
-      const nonNHSuserName = `external-user-${test.info().workerIndex}@gmail.com`;
-      await use(nonNHSuserName);
+      const nonNhsUserName = `external-user-${test.info().workerIndex}@gmail.com`;
+      await use(nonNhsUserName);
     },
     { scope: 'worker' },
   ],

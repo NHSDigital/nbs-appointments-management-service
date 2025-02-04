@@ -40,8 +40,9 @@ test('An admin user loads home page, all sites are loaded', async ({
 
 test('A user loads home page and searches for a site, site list is filtered', async ({
   page,
+  getTestUser,
 }) => {
-  await oAuthPage.signIn(env.TEST_USERS.testUser6);
+  await oAuthPage.signIn(getTestUser(6));
   await expect(
     page.getByRole('link', { name: 'Church Lane Pharmacy' }),
   ).not.toBeVisible();

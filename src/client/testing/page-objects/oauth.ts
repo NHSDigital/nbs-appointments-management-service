@@ -14,10 +14,10 @@ export default class OAuthLoginPage extends RootPage {
   }
 
   async signIn(
-    user: { Username: string; Password: string } = userBySubjectId(),
+    user: { username: string; password: string } = userBySubjectId(),
   ) {
-    await this.page.getByLabel('Username').fill(user.Username);
-    await this.page.getByLabel('Password').fill(user.Password);
+    await this.page.getByLabel('Username').fill(user.username);
+    await this.page.getByLabel('Password').fill(user.password);
 
     await this.page.getByLabel('Password').press('Enter');
 

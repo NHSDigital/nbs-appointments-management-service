@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Persistance.Models;
@@ -21,6 +21,4 @@ public class SiteDocument : CoreDataCosmosDocument
     [JsonProperty("location")] public Location Location { get; set; }
 
     [JsonProperty("attributeValues")] public AttributeValue[] AttributeValues { get; set; }
-
-    [JsonProperty("referenceNumberGroup")] public int ReferenceNumberGroup { get; set; }
 }

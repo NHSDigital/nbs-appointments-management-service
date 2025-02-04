@@ -22,5 +22,11 @@
       <None Update="items\*\**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="items\local\core_data\referernce_number.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>   
 </Project>

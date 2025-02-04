@@ -128,8 +128,44 @@ export default class SiteDetailsPage extends RootPage {
     region: string,
   ) {
     await this.verifySummaryListItemContentValue(this.odsCodeLabel, odsCode);
-    await this.verifySummaryListItemContentValue(this.icbLabel, icb);
-    await this.verifySummaryListItemContentValue(this.regionLabel, region);
+
+    //TODO refactor using seeder well-known codes
+    let expectedICBDisplayValue = '';
+    switch (icb) {
+      case 'ICB1':
+        expectedICBDisplayValue = 'Integrated Care Board 1';
+        break;
+      case 'ICB2':
+        expectedICBDisplayValue = 'Integrated Care Board 2';
+        break;
+      default:
+        expectedICBDisplayValue = icb;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.icbLabel,
+      expectedICBDisplayValue,
+    );
+
+    //TODO refactor using seeder well-known codes
+    let expectedRegionDisplayValue = '';
+    switch (region) {
+      case 'R1':
+        expectedRegionDisplayValue = 'Region 1';
+        break;
+      case 'R2':
+        expectedRegionDisplayValue = 'Region 2';
+        break;
+      default:
+        expectedRegionDisplayValue = region;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.regionLabel,
+      expectedRegionDisplayValue,
+    );
   }
 
   async verifySummaryListItemContentValue(title: string, value: string) {
@@ -227,47 +263,10 @@ export default class SiteDetailsPage extends RootPage {
       }),
     ).toBeVisible();
 
-    await this.verifySummaryListItemContentValue(
-      this.odsCodeLabel,
+    await this.verifyReferenceDetailsContent(
       this.siteDetails.odsCode,
-    );
-
-    //TODO refactor using seeder well-known codes
-    let expectedICBDisplayValue = '';
-    switch (this.siteDetails.integratedCareBoard) {
-      case 'ICB1':
-        expectedICBDisplayValue = 'Integrated Care Board 1';
-        break;
-      case 'ICB2':
-        expectedICBDisplayValue = 'Integrated Care Board 2';
-        break;
-      default:
-        expectedICBDisplayValue = this.siteDetails.integratedCareBoard;
-        break;
-    }
-
-    await this.verifySummaryListItemContentValue(
-      this.icbLabel,
-      expectedICBDisplayValue,
-    );
-
-    //TODO refactor using seeder well-known codes
-    let expectedRegionDisplayValue = '';
-    switch (this.siteDetails.region) {
-      case 'R1':
-        expectedRegionDisplayValue = 'Region 1';
-        break;
-      case 'R2':
-        expectedRegionDisplayValue = 'Region 2';
-        break;
-      default:
-        expectedRegionDisplayValue = this.siteDetails.region;
-        break;
-    }
-
-    await this.verifySummaryListItemContentValue(
-      this.regionLabel,
-      expectedRegionDisplayValue,
+      this.siteDetails.integratedCareBoard,
+      this.siteDetails.region,
     );
 
     await expect(

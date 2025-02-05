@@ -5,6 +5,7 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
   offer_type                 = "Standard"
   kind                       = "GlobalDocumentDB"
   automatic_failover_enabled = var.cosmos_automatic_failover_enabled
+  analytical_storage_enabled = var.cosmos_synapse_enabled
   dynamic "geo_location" {
     for_each = var.cosmos_geo_locations
     content {
@@ -36,6 +37,8 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
   partition_key_paths = ["/site"]
+  analytical_storage_ttl = -1
+
   dynamic "autoscale_settings" {
     for_each = var.cosmos_booking_autoscale_settings
     content {
@@ -98,6 +101,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
   partition_key_paths = ["/docType"]
+  analytical_storage_ttl = cosmos_synapse_enabled ? -1 : 0
 
   dynamic "autoscale_settings" {
     for_each = var.cosmos_core_autoscale_settings
@@ -113,6 +117,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
   partition_key_paths = ["/docType"]
+  analytical_storage_ttl = -1
 
   dynamic "autoscale_settings" {
     for_each = var.cosmos_index_autoscale_settings
@@ -128,6 +133,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_container" {
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
   database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
   partition_key_paths = ["/user"]
+  analytical_storage_ttl = -1
 
   dynamic "autoscale_settings" {
     for_each = var.cosmos_audit_autoscale_settings

@@ -16,6 +16,17 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   identity {
     type = "SystemAssigned"
   }
+
+  tags = {
+    cost_code       = "PO724/34"
+    created_by      = "Infrastructure Pipeline"
+    created_date    = formatdate("DD/MM/YYYY", timestamp())
+    environment     = var.environment
+    product_owner   = "Gemma Buchanan"
+    requested_by    = "Paul Tallet"
+    service_product = "National Booking Service"
+    team            = "NBS"
+  }
 }
 
 resource "azurerm_synapse_firewall_rule" "nbs_mya_synapse_firewall" {

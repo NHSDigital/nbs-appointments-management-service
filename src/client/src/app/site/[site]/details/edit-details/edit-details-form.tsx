@@ -13,7 +13,8 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SetSiteDetailsRequest, SiteWithAttributes } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
-import { DECIMAL_REGEX, PHONE_NUMBER_REGEX } from '../../../../../constants';
+import DecimalFormControl from '@components/form-controls/decimal';
+import PhoneNumberFormControl from '@components/form-controls/phoneNumber';
 
 type FormFields = {
   name: string;
@@ -30,6 +31,7 @@ const EditDetailsForm = ({
 }) => {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
@@ -61,72 +63,52 @@ const EditDetailsForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup
-        error={errors.name ? 'You have not entered a name' : undefined}
-      >
+      <FormGroup error={errors.name?.message}>
         <TextInput
           id="name"
           label="Site name"
           {...register('name', {
-            required: true,
+            required: {
+              value: true,
+              message: 'Enter a name',
+            },
           })}
         ></TextInput>
       </FormGroup>
 
-      <FormGroup
-        error={errors.address ? 'You have not entered an address' : undefined}
-      >
+      <FormGroup error={errors.address?.message}>
         <TextArea
           id="address"
           label="Site address"
           {...register('address', {
-            required: true,
+            required: {
+              value: true,
+              message: 'Enter an address',
+            },
           })}
         ></TextArea>
       </FormGroup>
 
-      <FormGroup
-        error={
-          errors.latitude || errors.longitude
-            ? 'You have not entered valid coordinates'
-            : undefined
-        }
-      >
-        <TextInput
-          id="latitude"
-          label="Latitude"
-          {...register('latitude', {
-            required: true,
-            pattern: DECIMAL_REGEX,
-          })}
-        ></TextInput>
-        <TextInput
-          id="longitude"
-          label="Longitude"
-          {...register('longitude', {
-            required: true,
-            pattern: DECIMAL_REGEX,
-          })}
-        ></TextInput>
-      </FormGroup>
+      <DecimalFormControl
+        formField="latitude"
+        label="Latitude"
+        control={control}
+        errors={errors}
+      />
 
-      <FormGroup
-        error={
-          errors.phoneNumber
-            ? 'You have not entered a valid phone number'
-            : undefined
-        }
-      >
-        <TextInput
-          id="phoneNumber"
-          type="tel"
-          label="Phone number"
-          {...register('phoneNumber', {
-            required: true,
-            pattern: PHONE_NUMBER_REGEX,
-          })}
-        ></TextInput>
-      </FormGroup>
+      <DecimalFormControl
+        formField="longitude"
+        label="Longitude"
+        control={control}
+        errors={errors}
+      />
+
+      <PhoneNumberFormControl
+        formField="phoneNumber"
+        label="Phone number"
+        control={control}
+        errors={errors}
+      />
 
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Updating details..." />

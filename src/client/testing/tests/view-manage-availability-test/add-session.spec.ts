@@ -13,6 +13,7 @@ import WeekViewAvailabilityPage from '../../page-objects/view-availability-appoi
 import AddSessionPage from '../../page-objects/view-availability-appointment-pages/add-session-page';
 import AddServicesPage from '../../page-objects/view-availability-appointment-pages/add-services-page';
 import CheckSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/check-session-details-page';
+import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
 
 const { TEST_USERS } = env;
 let rootPage: RootPage;
@@ -24,6 +25,7 @@ let weekViewAvailabilityPage: WeekViewAvailabilityPage;
 let addSessionPage: AddSessionPage;
 let addServicesPage: AddServicesPage;
 let checkSessionDetailsPage: CheckSessionDetailsPage;
+let changeAvailabilityPage: ChangeAvailabilityPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -35,6 +37,7 @@ test.beforeEach(async ({ page }) => {
   addSessionPage = new AddSessionPage(page);
   addServicesPage = new AddServicesPage(page);
   checkSessionDetailsPage = new CheckSessionDetailsPage(page);
+  changeAvailabilityPage = new ChangeAvailabilityPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -44,20 +47,47 @@ test.beforeEach(async ({ page }) => {
   await page.waitForURL('**/site/**/view-availability');
 });
 
-test('Verify user is able to add a session for future date', async ({
-  page,
-}) => {
+test('Verify user is able to add a session for future date', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat('Tommorow', 'DD MMMM');
-  const requiredWeekRange = getWeekRange();
+  const requiredDate = geRequiredtDateInFormat(1, 'D MMMM');
+  const requiredWeekRange = getWeekRange(1);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);
   await addSessionPage.verifyAddSessionPageDisplayed();
-  await addSessionPage.addSession('9', '10', '1', '5');
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.verifyAddServicesPageDisplayed();
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.verifyCheckSessionDetailsPageDisplayed();
   await checkSessionDetailsPage.saveSession();
   await weekViewAvailabilityPage.verifySessionAdded();
+});
+
+test('Verify add availability option displayed for future date', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
+  const requiredWeekRange = getWeekRange(10);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.verifyAddAvailabilityButtonDisplayed(
+    requiredDate,
+  );
+});
+
+test('Verify user is able to change availability', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(1, 'D MMMM');
+  const requiredWeekRange = getWeekRange(1);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await addServicesPage.addService('RSV (Adult)');
+  await checkSessionDetailsPage.saveSession();
+  await weekViewAvailabilityPage.verifySessionAdded();
+  await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
+  await changeAvailabilityPage.selectChangeType('ShortenLenght');
+  await changeAvailabilityPage.saveChanges();
+  await addSessionPage.updateSessionEndTime('9', '30');
+  await changeAvailabilityPage.verifySessionUpdated();
 });

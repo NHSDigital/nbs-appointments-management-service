@@ -35,16 +35,24 @@ export default class AddSessionPage extends RootPage {
 
   async addSession(
     startTimeHour: string,
+    startTimeMinute: string,
     endTimeHour: string,
+    endTimeMinute: string,
     capacity: string,
     duration: string,
   ) {
     await this.startTimeHour.fill(startTimeHour);
-    await this.startTimeMinute.fill('00');
+    await this.startTimeMinute.fill(startTimeMinute);
     await this.endTimeHour.fill(endTimeHour);
-    await this.endTimeMinute.fill('00');
+    await this.endTimeMinute.fill(endTimeMinute);
     await this.capacity.fill(capacity);
     await this.duration.fill(duration);
+    await this.continueButton.click();
+  }
+
+  async updateSessionEndTime(endTimeHour: string, endTimeMinute: string) {
+    await this.endTimeHour.fill(endTimeHour);
+    await this.endTimeMinute.fill(endTimeMinute);
     await this.continueButton.click();
   }
 }

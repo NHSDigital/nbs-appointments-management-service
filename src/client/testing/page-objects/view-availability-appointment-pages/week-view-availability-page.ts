@@ -32,8 +32,8 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .getByRole('listitem')
       .filter({ has: this.page.getByText(`${requiredDate}`) })
       .getByRole('link', { name: 'Add availability to this day' });
-    const totalCount: number = addAvailabilityButton.count();
-    if (totalCount == 1) {
+    const count: number = await addAvailabilityButton.count();
+    if (count == 1) {
       await addAvailabilityButton.click();
     } else {
       await this.page
@@ -46,5 +46,23 @@ export default class WeekViewAvailabilityPage extends RootPage {
 
   async verifySessionAdded() {
     await expect(this.sessionSuccessMsg).toBeVisible();
+  }
+
+  async verifyAddAvailabilityButtonDisplayed(requiredDate: string) {
+    await expect(
+      this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .getByRole('link', { name: 'Add availability to this day' }),
+    ).toBeVisible();
+  }
+
+  async openChangeAvailabilityPage(requiredDate: string) {
+    await this.page
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .getByRole('link', { name: 'Change' })
+      .first()
+      .click();
   }
 }

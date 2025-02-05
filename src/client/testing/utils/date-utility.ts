@@ -21,21 +21,18 @@ export const getDateInFuture = (
 };
 
 export const geRequiredtDateInFormat = (
-  dayType: 'Tommorow',
+  numberOfDaysFromToday: number,
   requiredformat: string,
 ) => {
   const date = new Date();
   let requiredDate = '';
-  if (dayType == 'Tommorow') {
-    const tomorrowDate = date.setDate(date.getDate() + 1);
-    requiredDate = dayjs(tomorrowDate).format(requiredformat);
-  }
+  const futureDate = date.setDate(date.getDate() + numberOfDaysFromToday);
+  requiredDate = dayjs(futureDate).format(requiredformat);
   return requiredDate;
 };
 
-export const getWeekRange = () => {
-  const date = dayjs().add(1, 'day').format('YYYY-MM-DD');
-
+export const getWeekRange = (numberOfDaysFromToday: number) => {
+  const date = dayjs().add(numberOfDaysFromToday, 'day').format('YYYY-MM-DD');
   const startOfWeek = dayjs(date).startOf('isoWeek');
   const endOfWeek = dayjs(date).endOf('isoWeek');
   const formattedStartOfWeek = startOfWeek.format('D MMMM');

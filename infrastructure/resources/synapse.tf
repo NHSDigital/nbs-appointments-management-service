@@ -1,7 +1,7 @@
 resource "azurerm_storage_data_lake_gen2_filesystem" "nbs_mya_synapse_workspace_gen2_filesystem" {
   count              = var.cosmos_synapse_enabled ? 1 : 0
   name               = "${var.application}-genfs-${var.environment}-${var.loc}"
-  storage_account_id = azurerm_storage_account.nbs_mya_synapse_workspace_storage_account.id
+  storage_account_id = azurerm_storage_account.nbs_mya_synapse_workspace_storage_account[0].id
 }
 
 resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
@@ -9,7 +9,7 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   name                                 = "${var.application_short}synw${var.environment}${var.loc}"
   resource_group_name                  = data.azurerm_resource_group.nbs_mya_resource_group.name
   location                             = data.azurerm_resource_group.nbs_mya_resource_group.location
-  storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.nbs_mya_synapse_workspace_gen2_filesystem.id
+  storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.nbs_mya_synapse_workspace_gen2_filesystem[0].id
   sql_administrator_login              = "sqladminuser"
   sql_administrator_login_password     = "secure_this_post_poc"
 
@@ -32,7 +32,7 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
 resource "azurerm_synapse_firewall_rule" "nbs_mya_synapse_firewall" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
   name                 = "allowAll"
-  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace.id
+  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
   start_ip_address     = "0.0.0.0"
   end_ip_address       = "255.255.255.255"
 }
@@ -40,22 +40,22 @@ resource "azurerm_synapse_firewall_rule" "nbs_mya_synapse_firewall" {
 resource "azurerm_synapse_integration_runtime_azure" "nbs_mya_synapse_runtime" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
   name                 = "${var.application_short}synrun${var.environment}${var.loc}"
-  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace.id
+  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
   location             = data.azurerm_resource_group.nbs_mya_resource_group.location
 }
 
-resource "azurerm_synapse_linked_service" "example" {
+resource "azurerm_synapse_linked_service" "nbs_mya_synapse_linked_service" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
   name                 = "${var.application_short}synls${var.environment}${var.loc}"
-  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace.id
+  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
   type                 = "CosmosDb"
   type_properties_json = <<JSON
 {
-  "connectionString": "${azurerm_cosmosdb_account.nbs_mya_cosmos_db.connection_strings[0]}Database=${azurerm_cosmosdb_sql_database.nbs_appts_database.name}"
+  "connectionString": "AccountEndpoint=${azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint};AccountKey=${azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key};"
 }
 JSON
   integration_runtime {
-    name = azurerm_synapse_integration_runtime_azure.example.name
+    name = azurerm_synapse_integration_runtime_azure.nbs_mya_synapse_runtime[0].name
   }
 
   depends_on = [
@@ -65,8 +65,8 @@ JSON
 
 resource "azurerm_synapse_spark_pool" "nbs_mya_synapse_spark_pool" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
-  name                 = "${var.application_short}syns${var.environment}${var.loc}"
-  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace.id
+  name                 = "myasyns${var.environment}"
+  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
   node_size_family     = "MemoryOptimized"
   node_size            = "Small"
   cache_size           = 100

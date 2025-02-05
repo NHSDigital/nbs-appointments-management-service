@@ -17,7 +17,7 @@ parameters:
     displayName: "Environment to import data into"
     type: string
     default: "int"
-    values: ["int", "stag"]
+    values: ["int", "stag", "prod"]
     
 variables:
   - group: covid19bookingkv${{parameters.env}}uks

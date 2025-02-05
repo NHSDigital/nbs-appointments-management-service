@@ -3,15 +3,24 @@ import { Footer } from '@nhsuk-frontend-components';
 const NhsFooter = () => {
   return (
     <Footer
-      supportLinks={
-        [
-          // { text: 'Accessibility statement', href: '/accessibility-statement' },
-          // { text: 'Contact us', href: '/contact-us' },
-          // { text: 'Cookies', href: '/cookies' },
-          // { text: 'Privacy policy', href: '/privacy-policy' },
-          // { text: 'Terms and conditions', href: '/terms-and-conditions' },
-        ]
-      }
+      supportLinks={[
+        {
+          text: 'User guidance',
+          href: 'http://www.digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance',
+        },
+        {
+          text: 'Terms of Use',
+          href: 'https://digital.nhs.uk/services/vaccinations-national-booking-service/terms-of-use',
+        },
+        {
+          text: 'Privacy Policy',
+          href: 'https://www.nhs.uk/our-policies/manage-your-appointments-privacy-policy/',
+        },
+        {
+          text: 'Cookies Policy',
+          href: 'https://www.nhs.uk/our-policies/cookies-policy/',
+        },
+      ]}
     />
   );
 };

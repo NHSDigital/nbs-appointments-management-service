@@ -77,39 +77,42 @@ const EditReferenceDetailsForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup
-        error={errors.odsCode ? 'You have not entered an ODS code' : undefined}
-      >
+      <FormGroup error={errors.odsCode?.message}>
         <TextInput
           id="odsCode"
           label="ODS code"
           {...register('odsCode', {
-            required: true,
+            required: {
+              value: true,
+              message: 'Enter an ODS code',
+            },
           })}
         ></TextInput>
       </FormGroup>
-      <FormGroup
-        error={errors.icb ? 'You have not selected an ICB' : undefined}
-      >
+      <FormGroup error={errors.icb?.message}>
         <Select
           id="icb"
           label="ICB"
           options={mapWellKnownCodes('icb')}
           {...register('icb', {
-            required: true,
+            required: {
+              value: true,
+              message: 'Select an ICB',
+            },
             validate: e => validateWellKnownCode(e, 'icb'),
           })}
         ></Select>
       </FormGroup>
-      <FormGroup
-        error={errors.region ? 'You have not selected a Region' : undefined}
-      >
+      <FormGroup error={errors.region?.message}>
         <Select
           id="region"
           label="Region"
           options={mapWellKnownCodes('region')}
           {...register('region', {
-            required: true,
+            required: {
+              value: true,
+              message: 'Select a region',
+            },
             validate: e => validateWellKnownCode(e, 'region'),
           })}
         ></Select>

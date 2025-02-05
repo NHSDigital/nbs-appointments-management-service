@@ -54,27 +54,37 @@ describe('Edit Site Reference Details Form', () => {
       mockSiteWithAttributes.integratedCareBoard,
     );
 
+    expect(screen.getByRole('combobox', { name: 'ICB' })).toHaveDisplayValue(
+      'Integrated Care Board One',
+    );
+
+    const icbOption1 = screen.getByRole('option', {
+      name: 'Integrated Care Board One',
+    }) as HTMLOptionElement;
+    const icbOption2 = screen.getByRole('option', {
+      name: 'Integrated Care Board Three',
+    }) as HTMLOptionElement;
+
+    expect(icbOption1.selected).toBe(true);
+    expect(icbOption2.selected).toBe(false);
+
     expect(screen.getByRole('combobox', { name: 'Region' })).toHaveValue(
       mockSiteWithAttributes.region,
     );
 
-    const option1 = screen.getByRole('option', {
-      name: 'Integrated Care Board One',
-    }) as HTMLOptionElement;
-    const option2 = screen.getByRole('option', {
-      name: 'Integrated Care Board Three',
-    }) as HTMLOptionElement;
-    const option3 = screen.getByRole('option', {
+    expect(screen.getByRole('combobox', { name: 'Region' })).toHaveDisplayValue(
+      'Region One',
+    );
+
+    const regionOption1 = screen.getByRole('option', {
       name: 'Region One',
     }) as HTMLOptionElement;
-    const option4 = screen.getByRole('option', {
+    const regionOption2 = screen.getByRole('option', {
       name: 'Region Three',
     }) as HTMLOptionElement;
 
-    expect(option1.selected).toBe(true);
-    expect(option2.selected).toBe(false);
-    expect(option3.selected).toBe(true);
-    expect(option4.selected).toBe(false);
+    expect(regionOption1.selected).toBe(true);
+    expect(regionOption2.selected).toBe(false);
   });
 
   it('prepopulates the site reference data correctly in the form - not well defined', () => {

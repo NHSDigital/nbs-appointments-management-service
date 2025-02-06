@@ -1,14 +1,14 @@
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -34,9 +34,16 @@ public class SetBookingStatusFunction(IBookingsService bookingService, IValidato
 
     protected override async Task<ApiResult<SetBookingStatusResponse>> HandleRequest(SetBookingStatusRequest request, ILogger logger)
     {
-        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status);
-        return result ?
-            Success(new SetBookingStatusResponse(request.bookingReference, request.status)):
-            Failed(System.Net.HttpStatusCode.NotFound, $"Booking {request.bookingReference} not found");
+        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status,
+            DeriveAvailabilityStatusFromAppointmentStatus(request.status));
+        return result ? Success(new SetBookingStatusResponse(request.bookingReference, request.status))
+            : Failed(
+                HttpStatusCode.NotFound, $"Booking {request.bookingReference} not found");
     }
+
+    private static AvailabilityStatus
+        DeriveAvailabilityStatusFromAppointmentStatus(AppointmentStatus appointmentStatus) =>
+        appointmentStatus is AppointmentStatus.Cancelled or AppointmentStatus.Unknown
+            ? AvailabilityStatus.Unknown
+            : AvailabilityStatus.Supported;
 }

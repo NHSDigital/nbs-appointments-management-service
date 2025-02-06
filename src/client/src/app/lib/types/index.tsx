@@ -229,7 +229,8 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled' | 'Orphaned';
+  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;
@@ -290,6 +291,17 @@ type DaySummary = {
   bookedAppointments: number;
   cancelledAppointments: number;
   orphanedAppointments: number;
+  remainingCapacity: number;
+};
+
+type WeekSummary = {
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
+  daySummaries: DaySummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
   remainingCapacity: number;
 };
 
@@ -361,6 +373,7 @@ export type {
   User,
   UserProfile,
   Week,
+  WeekSummary,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
 };

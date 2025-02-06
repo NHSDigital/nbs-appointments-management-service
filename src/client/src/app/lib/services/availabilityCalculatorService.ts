@@ -16,13 +16,14 @@ import {
   DaySummary,
   SessionSummary,
   TimeComponents,
+  WeekSummary,
 } from '@types';
 
 export const summariseWeek = async (
   weekStart: dayjs.Dayjs,
   weekEnd: dayjs.Dayjs,
   siteId: string,
-): Promise<DaySummary[]> => {
+): Promise<WeekSummary> => {
   const [dailyAvailability, dailyBookings] = await Promise.all([
     fetchDailyAvailability(
       siteId,
@@ -48,7 +49,35 @@ export const summariseWeek = async (
     return summariseDay(day, bookings, availability);
   });
 
-  return daySummaries;
+  const weekSummary = daySummaries.reduce(
+    (accumulator, daySummary) => {
+      return {
+        ...accumulator,
+        maximumCapacity:
+          accumulator.maximumCapacity + daySummary.maximumCapacity,
+        bookedAppointments:
+          accumulator.bookedAppointments + daySummary.bookedAppointments,
+        orphanedAppointments:
+          accumulator.orphanedAppointments + daySummary.orphanedAppointments,
+        cancelledAppointments:
+          accumulator.cancelledAppointments + daySummary.cancelledAppointments,
+        remainingCapacity:
+          accumulator.remainingCapacity + daySummary.remainingCapacity,
+      };
+    },
+    {
+      startDate: weekStart,
+      endDate: weekEnd,
+      daySummaries: daySummaries,
+      maximumCapacity: 0,
+      bookedAppointments: 0,
+      orphanedAppointments: 0,
+      cancelledAppointments: 0,
+      remainingCapacity: 0,
+    },
+  );
+
+  return weekSummary;
 };
 
 const summariseDay = (
@@ -74,7 +103,7 @@ const summariseDay = (
       return;
     }
 
-    if (booking.status === 'Orphaned') {
+    if (booking.availabilityStatus === 'Orphaned') {
       orphanedAppointments += 1;
       return;
     }

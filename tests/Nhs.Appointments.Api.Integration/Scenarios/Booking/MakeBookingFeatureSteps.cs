@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Xunit.Gherkin.Quick;
 using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using Xunit.Gherkin.Quick;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
-using Nhs.Appointments.Core.Messaging.Events;
-using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
@@ -18,7 +20,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     public sealed class MakeBookingFeatureSteps : BookingBaseFeatureSteps
     {
         [When("I make the appointment with the following details")]
-        public async Task MakeBooking(Gherkin.Ast.DataTable dataTable)
+        public async Task MakeBooking(DataTable dataTable)
         {
             var cells = dataTable.Rows.ElementAt(1).Cells;
 
@@ -54,9 +56,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
         
         [Then(@"a reference number is returned and the following booking is created")]
-        public async Task Assert(Gherkin.Ast.DataTable dataTable)
+        public async Task Assert(DataTable dataTable)
         {
-            Response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            Response.StatusCode.Should().Be(HttpStatusCode.OK);
             var cells = dataTable.Rows.ElementAt(1).Cells;
             var siteId = GetSiteId();
             var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
@@ -69,7 +71,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 From = DateTime.ParseExact($"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}", "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(cells.ElementAt(2).Value),
                 Service = cells.ElementAt(3).Value,
-                Status = isProvisional ? Core.AppointmentStatus.Provisional : Core.AppointmentStatus.Booked,
+                Status = isProvisional ? AppointmentStatus.Provisional : AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
                 Created = DateTime.UtcNow,
                 AttendeeDetails = new AttendeeDetails()
                 {
@@ -93,14 +96,14 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             };
             
             result.BookingReference.Should().MatchRegex($"([0-9]){{2}}-([0-9]{{2}})-([0-9]{{6}})");
-            var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new Microsoft.Azure.Cosmos.PartitionKey(siteId));
+            var actualBooking = await Client.GetContainer("appts", "booking_data").ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
             BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
         }
         
         [Then(@"I receive a message informing me that the appointment is no longer available")]
         public async Task AssertBookingAppointmentGone()
         {
-            Response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+            Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await Response.Content.ReadAsStringAsync());
             result.message.Should().Be("The time slot for this booking is not available");
         }

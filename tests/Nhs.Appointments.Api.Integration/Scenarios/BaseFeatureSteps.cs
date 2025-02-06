@@ -283,6 +283,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
+            AvailabilityStatus = MapAvailabilityStatus(bookingType),
             Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
                 ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
                 : GetCreationDateTime(bookingType),                        
@@ -380,6 +381,28 @@ public abstract partial class BaseFeatureSteps : Feature
                 .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
         exception.Message.Should().Contain("404");
     }
+    
+    [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
+    [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
+    public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
+
+        await AssertAvailabilityStatusByReference(bookingReference, expectedStatus, false);
+    }
+
+    private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
+        bool expectStatusToHaveChanged = true)
+    {
+        var siteId = GetSiteId();
+        var bookingDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        bookingDocument.Resource.AvailabilityStatus.Should().Be(status);
+        if (expectStatusToHaveChanged)
+        {
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        }
+    }
 
     private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,
         bool expectStatusToHaveChanged = true)
@@ -441,9 +464,20 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Confirmed => AppointmentStatus.Booked,
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
-        BookingType.Orphaned => AppointmentStatus.Orphaned,
+        BookingType.Orphaned => AppointmentStatus.Booked,
         BookingType.Cancelled => AppointmentStatus.Cancelled,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
+    };
+
+    protected AvailabilityStatus MapAvailabilityStatus(BookingType bookingType) => bookingType switch
+    {
+        BookingType.Recent => AvailabilityStatus.Supported,
+        BookingType.Confirmed => AvailabilityStatus.Supported,
+        BookingType.Provisional => AvailabilityStatus.Supported,
+        BookingType.ExpiredProvisional => AvailabilityStatus.Supported,
+        BookingType.Orphaned => AvailabilityStatus.Orphaned,
+        BookingType.Cancelled => AvailabilityStatus.Unknown,
+        _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
 
     protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>

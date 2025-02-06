@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using Nhs.Appointments.Core;
-using System.Text.Json;
 
 namespace Nhs.Appointments.Persistance.Models;
 
@@ -24,6 +23,8 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("status")]
     public AppointmentStatus Status { get; set; }
+
+    [JsonProperty("availabilityStatus")] public AvailabilityStatus AvailabilityStatus { get; set; }
 
     [JsonProperty("statusUpdated")]
     public DateTimeOffset StatusUpdated { get; set; }

@@ -78,7 +78,8 @@
     When I apply the following availability template
       | From     | Until             | Days     | TimeFrom | TimeUntil | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 2 days from today | Relative | 09:00    | 10:00     | 5          | 3        | COVID    | Overwrite |
-    Then the booking with reference '57492-10293' has been 'Booked'
+    Then the booking with reference '57492-10293' has status 'Booked'
+    And the booking with reference '57492-10293' has availability status 'Supported'
     And the booking with reference '19283-50682' has status 'Provisional'
+    And the booking with reference '19283-50682' has availability status 'Supported'
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
-    

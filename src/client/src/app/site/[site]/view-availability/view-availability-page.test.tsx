@@ -14,27 +14,37 @@ jest.mock('./week-card-list', () => {
 
 describe('View Availability Page', () => {
   it('renders', async () => {
-    render(
-      <ViewAvailabilityPage
-        site={mockSite}
-        searchMonth={dayjs().year(2024).month(11)}
-      />,
-    );
+    const jsx = await ViewAvailabilityPage({
+      site: mockSite,
+      searchMonth: dayjs().year(2024).month(11),
+    });
+    render(jsx);
   });
 
   it('renders pagination options with the correct values', async () => {
-    render(
-      <ViewAvailabilityPage
-        site={mockSite}
-        searchMonth={dayjs().year(2024).month(11)}
-      />,
-    );
+    const jsx = await ViewAvailabilityPage({
+      site: mockSite,
+      searchMonth: dayjs().year(2024).month(11),
+    });
+    render(jsx);
 
     expect(
       screen.getByRole('link', { name: 'Previous : November 2024' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Next : January 2025' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a list of week cards', async () => {
+    const jsx = await ViewAvailabilityPage({
+      site: mockSite,
+      searchMonth: dayjs().year(2024).month(11),
+    });
+    render(jsx);
+
+    expect(
+      screen.getByText('This is a list of week cards'),
     ).toBeInTheDocument();
   });
 });

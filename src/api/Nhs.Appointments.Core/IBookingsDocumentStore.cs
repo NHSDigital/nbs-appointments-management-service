@@ -9,12 +9,13 @@ public interface IBookingsDocumentStore
     Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses);
     Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference);
     Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber);
-    Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status);
+    Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status, AvailabilityStatus availabilityStatus);
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);
     Task SetReminderSent(string bookingReference, string site);
     Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task DeleteBooking(string reference, string site);
+    Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
 }
 
 public interface IRolesStore

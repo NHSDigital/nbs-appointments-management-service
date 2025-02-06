@@ -1,128 +1,31 @@
 import { render, screen } from '@testing-library/react';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import {
-  mockDaySummaries,
-  mockEmptyDays,
   mockSite,
   mockWeekAvailabilityEnd,
   mockWeekAvailabilityStart,
 } from '@testing/data';
-import dayjs from 'dayjs';
-import { now } from '@services/timeService';
-import { summariseWeek } from '@services/availabilityCalculatorService';
-import { DaySummary } from '@types';
-import { fetchPermissions } from '@services/appointmentsService';
 
-jest.mock('@services/timeService', () => ({
-  ...jest.requireActual('@services/timeService'),
-  now: jest.fn(),
-}));
-
-jest.mock('@services/availabilityCalculatorService', () => ({
-  summariseWeek: jest.fn(),
-}));
-
-jest.mock('@services/appointmentsService');
-const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
-
-const mockNow = now as jest.Mock<dayjs.Dayjs>;
-const mockSummariseWeek = summariseWeek as jest.Mock<Promise<DaySummary[]>>;
-
-jest.mock('@types', () => ({
-  ...jest.requireActual('@types'),
-  clinicalServices: [
-    { label: 'RSV (Adult)', value: 'RSV:Adult' },
-    { label: 'FLU 18-64', value: 'FLU:18_64' },
-    { label: 'COVID 75+', value: 'COVID:75+' },
-  ],
-}));
+jest.mock('./day-card-list', () => {
+  const MockDayCardList = () => {
+    return <div>This is a list of day cards</div>;
+  };
+  return {
+    DayCardList: MockDayCardList,
+  };
+});
 
 describe('View Week Availability Page', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-
-    mockNow.mockReturnValue(dayjs('2023-06-10 08:34:00'));
-    mockSummariseWeek.mockReturnValue(Promise.resolve(mockDaySummaries));
-  });
-
   it('renders', async () => {
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
       site: mockSite,
     });
     render(jsx);
-
-    expect(
-      screen.getByRole('heading', { name: 'Monday 2 December' }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('table')).toHaveLength(6);
-  });
-
-  it('renders no availability', async () => {
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
-    mockSummariseWeek.mockReturnValue(Promise.resolve(mockEmptyDays));
-
-    const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
-      site: mockSite,
-    });
-    render(jsx);
-
-    expect(
-      screen.getByRole('heading', { name: 'Monday 2 December' }),
-    ).toBeInTheDocument();
-    expect(screen.queryAllByRole('table')).toHaveLength(0);
-  });
-
-  it('renders correct information for a day', async () => {
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
-    const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
-      site: mockSite,
-    });
-    render(jsx);
-
-    expect(
-      screen.getByRole('row', {
-        name: '09:00 - 17:00 RSV (Adult) 5 booked 118 unbooked Change',
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('row', {
-        name: 'Total appointments: 123 Booked: 5 Unbooked: 118',
-      }),
-    ).toBeInTheDocument();
-
-    const links = screen.getAllByRole('link', {
-      name: /View daily appointments/i,
-    });
-    expect(links.length).toBe(3);
-    expect(links[0].getAttribute('href')).toBe(
-      'daily-appointments?date=2024-12-02&page=1',
-    );
-    expect(links[1].getAttribute('href')).toBe(
-      'daily-appointments?date=2024-12-04&page=1',
-    );
-    expect(links[2].getAttribute('href')).toBe(
-      'daily-appointments?date=2024-12-05&page=1',
-    );
   });
 
   it('renders pagination options with the correct values', async () => {
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
@@ -141,17 +44,7 @@ describe('View Week Availability Page', () => {
     ).toBeInTheDocument();
   });
 
-  it('Add Session only available for future date', async () => {
-    const daySummaries = mockDaySummaries;
-    daySummaries[0].date = dayjs();
-    daySummaries[1].date = dayjs().add(1, 'day');
-    daySummaries[2].date = dayjs().add(2, 'day');
-
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
-    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
-
+  it('renders a list of day cards', async () => {
     const jsx = await ViewWeekAvailabilityPage({
       weekStart: mockWeekAvailabilityStart,
       weekEnd: mockWeekAvailabilityEnd,
@@ -159,83 +52,6 @@ describe('View Week Availability Page', () => {
     });
     render(jsx);
 
-    const links = screen.getAllByRole('link', {
-      name: /Add Session/i,
-    });
-    expect(links.length).toBe(2);
-  });
-
-  it('Allows future sessions to be changed', async () => {
-    const daySummaries = mockDaySummaries;
-    daySummaries[0].date = dayjs();
-    daySummaries[1].date = dayjs().add(1, 'day');
-    daySummaries[2].date = dayjs().add(2, 'day');
-
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
-    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
-
-    const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
-      site: mockSite,
-    });
-    render(jsx);
-  });
-
-  it('Does not render manage availability links without manage availability permission', async () => {
-    const daySummaries = mockDaySummaries;
-    daySummaries[0].date = dayjs();
-    daySummaries[1].date = dayjs().add(1, 'day');
-    daySummaries[2].date = dayjs().add(2, 'day');
-
-    mockFetchPermissions.mockReturnValue(Promise.resolve([]));
-    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
-
-    const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
-      site: mockSite,
-    });
-    render(jsx);
-
-    expect(
-      screen.queryByRole('link', { name: 'Add Session' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Change' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Add availability to this day' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('Does render manage availability links with manage availability permission', async () => {
-    const daySummaries = mockDaySummaries;
-    daySummaries[0].date = dayjs();
-    daySummaries[1].date = dayjs().add(1, 'day');
-    daySummaries[2].date = dayjs().add(2, 'day');
-    daySummaries[3].date = dayjs().add(3, 'day');
-
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
-    );
-    mockSummariseWeek.mockReturnValue(Promise.resolve(daySummaries));
-
-    const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
-      site: mockSite,
-    });
-    render(jsx);
-
-    expect(screen.getAllByRole('link', { name: 'Add Session' })).toHaveLength(
-      2,
-    );
-    expect(screen.getAllByRole('link', { name: 'Change' })).toHaveLength(3);
-    expect(
-      screen.getAllByRole('link', { name: 'Add availability to this day' }),
-    ).toHaveLength(1);
+    expect(screen.getByText('This is a list of day cards')).toBeInTheDocument();
   });
 });

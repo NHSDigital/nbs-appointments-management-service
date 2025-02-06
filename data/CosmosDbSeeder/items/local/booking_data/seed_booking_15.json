@@ -4,7 +4,8 @@
   "duration": 10,
   "service": "RSV:Adult",
   "created": "2025-08-01T06:23:46.654321+00:00",
-  "status": "Orphaned",
+  "status": "Booked",
+  "availabilityStatus": "Orphaned",
   "statusUpdated": "0001-01-01T00:00:00+00:00",
   "attendeeDetails": {
     "nhsNumber": "1975486535",

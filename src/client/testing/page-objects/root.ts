@@ -7,6 +7,7 @@ export default class RootPage {
   readonly logOutButton: Locator;
   readonly serviceName: Locator;
   readonly homeBreadcrumb: Locator;
+  readonly acceptButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,9 +20,14 @@ export default class RootPage {
     this.homeBreadcrumb = page.getByRole('link', {
       name: 'Home',
     });
+    this.acceptButton = page.getByLabel('Accept and continue');
   }
 
   async goto() {
     await this.page.goto('/manage-your-appointments/');
+  }
+
+  async logOut() {
+    await this.logOutButton.click();
   }
 }

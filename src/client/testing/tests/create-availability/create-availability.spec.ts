@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
-import SiteSelectionPage from './page-objects/site-selection';
-import SitePage from './page-objects/site';
-import CreateAvailabilityPage from './page-objects/create-availability';
-import SummaryPage from './page-objects/create-availability/summary-page';
-import { getDateInFuture } from './utils/date-utility';
+import { test, expect } from '../../fixtures';
+import RootPage from '../../page-objects/root';
+import OAuthLoginPage from '../../page-objects/oauth';
+import SiteSelectionPage from '../../page-objects/site-selection';
+import SitePage from '../../page-objects/site';
+import CreateAvailabilityPage from '../../page-objects/create-availability';
+import SummaryPage from '../../page-objects/create-availability/summary-page';
+import { getDateInFuture } from '../../utils/date-utility';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -14,7 +14,8 @@ let sitePage: SitePage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let summarypage: SummaryPage;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestSite }) => {
+  const site = getTestSite();
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -25,11 +26,9 @@ test.beforeEach(async ({ page }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
+  await siteSelectionPage.selectSite(site.name);
   await sitePage.createAvailabilityCard.click();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/create-availability',
-  );
+  await page.waitForURL(`**/site/${site.id}/create-availability`);
 });
 
 test('A user can navigate to the Create Availability flow from the site page', async () => {

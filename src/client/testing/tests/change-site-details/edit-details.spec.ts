@@ -1,13 +1,11 @@
 import { test, expect } from '../../fixtures';
-import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import EditDetailsPage from '../../page-objects/change-site-details-pages/edit-details';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
-
-const { TEST_USERS } = env;
+import { SiteWithAttributes } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -16,28 +14,29 @@ let sitePage: SitePage;
 let editDetailsPage: EditDetailsPage;
 let siteDetailsPage: SiteDetailsPage;
 
+let site: SiteWithAttributes;
+
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestSite }) => {
+  site = getTestSite(2);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   editDetailsPage = new EditDetailsPage(page);
-  siteDetailsPage = new SiteDetailsPage(page);
+  siteDetailsPage = new SiteDetailsPage(page, site);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser1);
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
+  await oAuthPage.signIn();
+  await siteSelectionPage.selectSite(site.name);
   await sitePage.siteManagementCard.click();
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${site.id}/details`);
   await siteDetailsPage.editSiteDetailsButton.click();
 
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-details',
-  );
+  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 });
 
 //expects each test to finish on the edit site details page
@@ -58,17 +57,15 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await editDetailsPage.backLink.click();
 
   //verify the data is NOT present on the new details
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${site.id}/details`);
   await siteDetailsPage.verifyDetailsNotificationVisibility(false);
 
   //verify default state
-  await siteDetailsPage.verifyDefaultSitePage();
+  await siteDetailsPage.verifySitePage();
 
   // Go back into edit UI to assert input is same as before
   await siteDetailsPage.editSiteDetailsButton.click();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-details',
-  );
+  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines
   expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
@@ -77,9 +74,7 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
 
   await editDetailsPage.page.reload();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-details',
-  );
+  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines after page reload
   expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
@@ -96,7 +91,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
   await editDetailsPage.saveAndContinueButton.click();
 
   //verify the data is present on the new details
-  await page.waitForURL('**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details');
+  await page.waitForURL(`**/site/${site.id}/details`);
   await siteDetailsPage.verifyDetailsNotificationVisibility(true);
 
   await siteDetailsPage.verifyCoreDetailsContent(
@@ -108,9 +103,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
 
   // Go back into edit UI to assert new input is there
   await siteDetailsPage.editSiteDetailsButton.click();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-details',
-  );
+  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines
   expect(editDetailsPage.addressInput).toHaveValue(
@@ -123,9 +116,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
   );
 
   await editDetailsPage.page.reload();
-  await page.waitForURL(
-    '**/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details/edit-details',
-  );
+  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines after page reload
   expect(editDetailsPage.addressInput).toHaveValue(

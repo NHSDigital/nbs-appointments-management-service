@@ -1,6 +1,6 @@
 import {
   AccessibilityDefinition,
-  AccessibilityValue,
+  Accessibility,
   AvailabilityCreatedEvent,
   AvailabilityResponse,
   AvailabilitySession,
@@ -76,7 +76,7 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
-    accessibilityValues: [
+    accessibilities: [
       { id: 'site_details/info_for_citizen', value: 'Test information' },
       { id: 'accessibility/attr_1', value: 'true' },
     ],
@@ -94,7 +94,7 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
-    accessibilityValues: [
+    accessibilities: [
       { id: 'site_details/info_for_citizen', value: 'Test information' },
       { id: 'accessibility/attr_2', value: 'true' },
     ],
@@ -112,7 +112,7 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
-    accessibilityValues: [
+    accessibilities: [
       { id: 'site_details/info_for_citizen', value: 'Test information' },
       { id: 'accessibility/attr_3', value: 'true' },
     ],
@@ -130,7 +130,7 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
-    accessibilityValues: [
+    accessibilities: [
       { id: 'site_details/info_for_citizen', value: 'Test information' },
       { id: 'accessibility/attr_4', value: 'true' },
     ],
@@ -190,7 +190,7 @@ const mockAccessibilityDefinitions: AccessibilityDefinition[] = [
   },
 ];
 
-const mockAccessibilityValues: AccessibilityValue[] = [
+const mockAccessibilities: Accessibility[] = [
   {
     id: 'accessibility/attr_1',
     value: 'true',
@@ -620,7 +620,7 @@ export {
   mockAuditerPermissions,
   mockNonManagerPermissions,
   mockAccessibilityDefinitions,
-  mockAccessibilityValues,
+  mockAccessibilities,
   mockUserProfile,
   mockAvailability,
   mockBookings,

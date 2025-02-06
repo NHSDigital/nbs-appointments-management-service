@@ -480,7 +480,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"scope\": \"*\",\r\n    \"accessibilityValues\": [\r\n        {\r\n            \"id\": \"accessibility/accessible_toilet\",\r\n            \"value\": \"false\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/braille_translation_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/disabled_car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/induction_loop\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/sign_language_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/step_free_access\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/text_relay\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/wheelchair_access\",\r\n            \"value\": \"false\"\r\n        }\r\n    ]\r\n}",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"scope\": \"*\",\r\n    \"accessibilities\": [\r\n        {\r\n            \"id\": \"accessibility/accessible_toilet\",\r\n            \"value\": \"false\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/braille_translation_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/disabled_car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/induction_loop\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/sign_language_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/step_free_access\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/text_relay\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/wheelchair_access\",\r\n            \"value\": \"false\"\r\n        }\r\n    ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -490,7 +490,7 @@
         "url": {
           "raw": "{{baseUrl}}/api/sites/{{site}}/accessibilities",
           "host": ["{{baseUrl}}"],
-          "path": [ "api", "sites", "{{site}}", "accessibilities" ]
+          "path": ["api", "sites", "{{site}}", "accessibilities"]
         }
       },
       "response": []

@@ -1,1 +1,14 @@
-[{"name":"Example site","address":"123 Test Street","phoneNumber":"01234 567890","region":"Yorkshire","integratedCareBoard":"Test ICB","location":{"type":"Point","coordinates":[1.0,60.1]},"accessibilityValues":null,"referenceNumberGroup":0,"id":"1","docType":"site"}]
+[
+  {
+    "name": "Example site",
+    "address": "123 Test Street",
+    "phoneNumber": "01234 567890",
+    "region": "Yorkshire",
+    "integratedCareBoard": "Test ICB",
+    "location": { "type": "Point", "coordinates": [1.0, 60.1] },
+    "accessibilities": null,
+    "referenceNumberGroup": 0,
+    "id": "1",
+    "docType": "site"
+  }
+]

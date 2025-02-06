@@ -50,6 +50,6 @@ public class SetSiteAccessibilitiesFunction(
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();
         var (errors, request) = await JsonRequestReader.ReadRequestAsync<AccessibilityRequest>(req.Body);
-        return (errors, new SetSiteAccessibilitiesRequest(site, request?.AccessibilityValues));
+        return (errors, new SetSiteAccessibilitiesRequest(site, request?.Accessibilities));
     }
 }

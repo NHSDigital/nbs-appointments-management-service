@@ -20,16 +20,16 @@ jest.mock('./add-accessibilities-form', () => {
   const MockForm = ({
     accessibilityDefinitions,
     site,
-    accessibilityValues,
+    accessibilities,
   }: {
     accessibilityDefinitions: AccessibilityDefinition[];
     site: string;
-    accessibilityValues: AccessibilityValue[];
+    accessibilities: AccessibilityValue[];
   }) => {
     return (
       <>
         <div>Add Accessibility Form</div>
-        {accessibilityValues.map(av => (
+        {accessibilities.map(av => (
           <div key={av.id}>
             id={av.id} value={av.value}
           </div>

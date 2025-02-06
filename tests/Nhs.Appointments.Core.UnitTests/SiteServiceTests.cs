@@ -346,7 +346,7 @@ public class SiteServiceTests
     }
 
     [Fact]
-    public async Task FindSitesByArea_DoesNotReturnSitesWithNoAccessibilityValues_IfAccessNeedsAreRequested()
+    public async Task FindSitesByArea_DoesNotReturnSitesWithNoAccessibilities_IfAccessNeedsAreRequested()
     {
         var sites = new List<Site>
         {

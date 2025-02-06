@@ -15,7 +15,7 @@ public record Site(
     [JsonProperty("location")] Location Location
 )
 {
-    public IEnumerable<Accessibility> AccessibilityValues { get; set; } = Accessibilities;
+    public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;
 }
 
 public record Location(
@@ -37,7 +37,7 @@ public record SiteWithDistance(
 public record AccessibilityRequest
 (
     [JsonProperty("accessibilities")]
-    IEnumerable<Accessibility> AccessibilityValues
+    IEnumerable<Accessibility> Accessibilities
 );
 
 public record InformationForCitizensRequest

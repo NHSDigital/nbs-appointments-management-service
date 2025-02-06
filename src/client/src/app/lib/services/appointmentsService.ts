@@ -89,10 +89,10 @@ export const fetchSite = async (siteId: string) => {
   return handleBodyResponse(response);
 };
 
-export const fetchSiteAccessibilityValues = async (siteId: string) => {
+export const fetchSiteAccessibilities = async (siteId: string) => {
   const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
 
-  return handleBodyResponse(response)?.accessibilityValues ?? [];
+  return handleBodyResponse(response)?.accessibilities ?? [];
 };
 
 export async function fetchAccessibilityDefinitions() {
@@ -261,13 +261,13 @@ export const saveUserRoleAssignments = async (
   redirect(`/site/${site}/users`);
 };
 
-export const saveSiteAccessibilityValues = async (
+export const saveSiteAccessibilities = async (
   site: string,
-  accessibilityValues: SetAccessibilitiesRequest,
+  accessibilities: SetAccessibilitiesRequest,
 ) => {
   const response = await appointmentsApi.post(
     `sites/${site}/accessibilities`,
-    JSON.stringify(accessibilityValues),
+    JSON.stringify(accessibilities),
   );
 
   handleEmptyResponse(response);

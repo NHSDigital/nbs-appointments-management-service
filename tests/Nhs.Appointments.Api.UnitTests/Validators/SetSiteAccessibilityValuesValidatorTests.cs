@@ -6,9 +6,9 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
-public class SetSiteAccessibilityValuesValidatorTests
+public class SetSiteAccessibilitiesValidatorTests
 {
-    private readonly SetSiteAccessibilityValuesValidator _sut = new();
+    private readonly SetSiteAccessibilitiesValidator _sut = new();
     
     [Theory]
     [InlineData("true")]
@@ -50,7 +50,7 @@ public class SetSiteAccessibilityValuesValidatorTests
     }
     
     [Fact]
-    public void Validate_ReturnsError_WhenAccessibilityValuesArrayIsNull()
+    public void Validate_ReturnsError_WhenAccessibilitiesArrayIsNull()
     {
         var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: null);
         var result = _sut.TestValidate(request);
@@ -60,7 +60,7 @@ public class SetSiteAccessibilityValuesValidatorTests
     }
     
     [Fact]
-    public void Validate_ReturnsError_WhenAccessibilityValuesArrayIsEmpty()
+    public void Validate_ReturnsError_WhenAccessibilitiesArrayIsEmpty()
     {
         var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: Array.Empty<Accessibility>());
         var result = _sut.TestValidate(request);

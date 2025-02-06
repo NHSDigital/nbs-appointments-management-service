@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import {
   mockAccessibilityDefinitions,
-  mockAccessibilityValues,
+  mockAccessibilities,
 } from '@testing/data';
 import AddAccessibilitiesForm from './add-accessibilities-form';
 import { useRouter } from 'next/navigation';
@@ -13,9 +13,9 @@ const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
 
 jest.mock('@services/appointmentsService');
-const mockSaveSiteAccessibilityValues = jest.spyOn(
+const mockSaveSiteAccessibilities = jest.spyOn(
   appointmentsService,
-  'saveSiteAccessibilityValues',
+  'saveSiteAccessibilities',
 );
 
 describe('Add Accessibilities Form', () => {
@@ -29,7 +29,7 @@ describe('Add Accessibilities Form', () => {
       <AddAccessibilitiesForm
         accessibilityDefinitions={mockAccessibilityDefinitions}
         site="TEST"
-        accessibilityValues={mockAccessibilityValues}
+        accessibilities={mockAccessibilities}
       />,
     );
 
@@ -46,7 +46,7 @@ describe('Add Accessibilities Form', () => {
       <AddAccessibilitiesForm
         accessibilityDefinitions={mockAccessibilityDefinitions}
         site="TEST"
-        accessibilityValues={mockAccessibilityValues}
+        accessibilities={mockAccessibilities}
       />,
     );
 
@@ -63,7 +63,7 @@ describe('Add Accessibilities Form', () => {
       <AddAccessibilitiesForm
         accessibilityDefinitions={mockAccessibilityDefinitions}
         site="TEST"
-        accessibilityValues={mockAccessibilityValues}
+        accessibilities={mockAccessibilities}
       />,
     );
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
@@ -77,7 +77,7 @@ describe('Add Accessibilities Form', () => {
       <AddAccessibilitiesForm
         accessibilityDefinitions={mockAccessibilityDefinitions}
         site="TEST"
-        accessibilityValues={mockAccessibilityValues}
+        accessibilities={mockAccessibilities}
       />,
     );
     const checkBox = screen.getByRole('checkbox', {
@@ -90,14 +90,14 @@ describe('Add Accessibilities Form', () => {
     await user.click(saveButton);
 
     const expectedPayload = {
-      accessibilityValues: [
+      accessibilities: [
         { id: 'accessibility/attr_1', value: 'true' },
         { id: 'accessibility/attr_2', value: 'true' },
         { id: 'different_accessibility_set/attr_1', value: 'false' },
       ],
     };
 
-    expect(mockSaveSiteAccessibilityValues).toHaveBeenCalledWith(
+    expect(mockSaveSiteAccessibilities).toHaveBeenCalledWith(
       'TEST',
       expectedPayload,
     );

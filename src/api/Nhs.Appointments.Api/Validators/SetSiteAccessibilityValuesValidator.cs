@@ -3,9 +3,9 @@ using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class SetSiteAccessibilityValuesValidator : AbstractValidator<SetSiteAccessibilitiesRequest>
+public class SetSiteAccessibilitiesValidator : AbstractValidator<SetSiteAccessibilitiesRequest>
 {
-    public SetSiteAccessibilityValuesValidator()
+    public SetSiteAccessibilitiesValidator()
     {
         RuleFor(x => x.Site)
             .NotEmpty()

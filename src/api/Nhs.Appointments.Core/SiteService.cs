@@ -33,7 +33,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
                 .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
-            s => accessibilityIds.All(acc => s.Site.AccessibilityValues.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
+            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
         
         return sitesWithDistance
@@ -56,8 +56,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             return site;
         }
 
-        site.AccessibilityValues =
-            site.AccessibilityValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
+        site.Accessibilities =
+            site.Accessibilities.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
     }

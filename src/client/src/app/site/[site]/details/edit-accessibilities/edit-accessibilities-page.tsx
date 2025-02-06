@@ -24,7 +24,7 @@ export const EditAccessibilitiesPage = async ({ site }: Props) => {
       <AddAccessibilitiesForm
         accessibilityDefinitions={accessibilityAccessibilityDefinitions}
         site={site}
-        accessibilityValues={siteDetails?.accessibilityValues ?? []}
+        accessibilities={siteDetails?.accessibilities ?? []}
       />
     </>
   );

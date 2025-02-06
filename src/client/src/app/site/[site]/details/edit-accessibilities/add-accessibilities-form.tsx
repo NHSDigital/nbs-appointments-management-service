@@ -11,25 +11,25 @@ import {
 } from '@nhsuk-frontend-components';
 import {
   AccessibilityDefinition,
-  AccessibilityValue,
+  Accessibility,
   SetAccessibilitiesRequest,
 } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { saveSiteAccessibilityValues } from '@services/appointmentsService';
+import { saveSiteAccessibilities } from '@services/appointmentsService';
 
 type FormFields = {
-  accessibilityValues: string[];
+  accessibilities: string[];
 };
 
 const AddAccessibilitiesForm = ({
   accessibilityDefinitions,
   site,
-  accessibilityValues,
+  accessibilities,
 }: {
   accessibilityDefinitions: AccessibilityDefinition[];
   site: string;
-  accessibilityValues: AccessibilityValue[];
+  accessibilities: Accessibility[];
 }) => {
   const { replace } = useRouter();
   const {
@@ -38,7 +38,7 @@ const AddAccessibilitiesForm = ({
     formState: { isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: {
-      accessibilityValues: accessibilityValues
+      accessibilities: accessibilities
         .filter(ac => ac.value === 'true')
         .map(ac => ac.id),
     },
@@ -50,16 +50,15 @@ const AddAccessibilitiesForm = ({
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetAccessibilitiesRequest = {
-      accessibilityValues: accessibilityDefinitions.map(ad => ({
+      accessibilities: accessibilityDefinitions.map(ad => ({
         id: ad.id,
         value:
-          form.accessibilityValues.find((fv: string) => ad.id === fv) !==
-          undefined
+          form.accessibilities.find((fv: string) => ad.id === fv) !== undefined
             ? 'true'
             : 'false',
       })),
     };
-    await saveSiteAccessibilityValues(site, payload);
+    await saveSiteAccessibilities(site, payload);
 
     replace(`/site/${site}/details`);
   };
@@ -77,7 +76,7 @@ const AddAccessibilitiesForm = ({
               label={ad.displayName}
               key={`checkbox-key-${ad.id}`}
               value={ad.id}
-              {...register('accessibilityValues')}
+              {...register('accessibilities')}
             />
           ))}
         </CheckBoxes>

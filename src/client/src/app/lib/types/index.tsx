@@ -19,7 +19,7 @@ type AccessibilityDefinition = {
   displayName: string;
 };
 
-type AccessibilityValue = {
+type Accessibility = {
   id: string;
   value: string;
 };
@@ -31,7 +31,7 @@ type WellKnownOdsEntry = {
 };
 
 type SetAccessibilitiesRequest = {
-  accessibilityValues: AccessibilityValue[];
+  accessibilities: Accessibility[];
 };
 
 type SetInformationForCitizensRequest = {
@@ -137,7 +137,7 @@ type Site = {
   integratedCareBoard: string;
   region: string;
   location: Location;
-  accessibilityValues: AccessibilityValue[];
+  accessibilities: Accessibility[];
   informationForCitizens: string;
 };
 
@@ -328,7 +328,7 @@ export type {
   ApiSuccessResponse,
   AttendeeDetails,
   AccessibilityDefinition,
-  AccessibilityValue,
+  Accessibility,
   Availability,
   AvailabilityBlock,
   AvailabilityResponse,

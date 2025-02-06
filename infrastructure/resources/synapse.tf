@@ -18,13 +18,13 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   }
 
   tags = {
-    cost_code       = "PO724/34"
-    created_by      = "Infrastructure Pipeline"
-    created_date    = formatdate("DD/MM/YYYY", timestamp())
+    "cost code"     = "PO724/34"
+    "created by"    = "Infrastructure Pipeline"
+    "created date"  = formatdate("DD/MM/YYYY", timestamp())
     environment     = var.environment
-    product_owner   = "Gemma Buchanan"
-    requested_by    = "Paul Tallet"
-    service_product = "National Booking Service"
+    "product owner" = "Gemma Buchanan"
+    "requested by"  = "Paul Tallet"
+    service-product = "National Booking Service"
     team            = "NBS"
   }
 }

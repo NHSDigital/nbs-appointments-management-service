@@ -18,7 +18,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = "07748954-52d6-46ce-95e6-2701bfc715b4"
 }
 
 module "mya_application_exp" {
@@ -64,6 +63,7 @@ module "mya_application_exp" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
+  cosmos_synapse_enabled                         = false
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

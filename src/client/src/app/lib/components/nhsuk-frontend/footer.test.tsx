@@ -10,12 +10,10 @@ describe('Footer', () => {
 
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
 
-    expect(
-      screen.getByRole('link', { name: 'Contact us' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Contact us' })).toHaveAttribute(
-      'href',
-      '/contact-us',
-    );
+    const linkElement = screen.getByRole('link', { name: 'Contact us' });
+
+    expect(linkElement).toBeInTheDocument();
+    expect(linkElement).toHaveAttribute('href', '/contact-us');
+    expect(linkElement).toHaveAttribute('rel', 'noopener noreferrer');
   });
 });

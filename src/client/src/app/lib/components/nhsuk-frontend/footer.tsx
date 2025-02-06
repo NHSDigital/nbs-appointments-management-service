@@ -25,7 +25,12 @@ const Footer = ({ supportLinks = [] }: FooterProps) => {
                   key={`support-link-${index}`}
                   className="nhsuk-footer__list-item nhsuk-footer-default__list-item"
                 >
-                  <a className="nhsuk-footer__list-item-link" href={link.href}>
+                  <a
+                    className="nhsuk-footer__list-item-link"
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {link.text}
                   </a>
                 </li>

@@ -1,29 +1,28 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetAccessibilityDifinitionsFunction(
+public class GetAccessibilityDefinitionsFunction(
     IAccessibilityDefinitionsService AccessibilityDefinitionsService, 
     IValidator<EmptyRequest> validator, 
     IUserContextProvider userContextProvider, 
-    ILogger<GetAccessibilityDifinitionsFunction> logger, 
+    ILogger<GetAccessibilityDefinitionsFunction> logger, 
     IMetricsRecorder metricsRecorder) 
 : BaseApiFunction<EmptyRequest, IEnumerable<AccessibilityDefinition>>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "GetAccessibilityDefinitions", tags: ["AccessibilityDefinitions"], Summary = "Get system attribute definitions")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<AccessibilityDefinition>), Description = "List of attribute definitions used by the system")]
+    [OpenApiOperation(operationId: "GetAccessibilityDefinitions", tags: ["AccessibilityDefinitions"], Summary = "Get system accessibility definitions")]
+    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(IEnumerable<AccessibilityDefinition>), Description = "List of accessibility definitions used by the system")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetAccessibilityDefinitionsFunction")]
     public override Task<IActionResult> RunAsync(

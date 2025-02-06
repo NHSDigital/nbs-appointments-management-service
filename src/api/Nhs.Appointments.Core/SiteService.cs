@@ -20,7 +20,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
     {        
-        var attributeIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
+        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
@@ -32,8 +32,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var sitesWithDistance = sites
                 .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
-        Func<SiteWithDistance, bool> filterPredicate = attributeIds.Any() ?
-            s => attributeIds.All(attr => s.Site.AccessibilityValues.SingleOrDefault(a => a.Id == attr)?.Value == "true") :
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
+            s => accessibilityIds.All(acc => s.Site.AccessibilityValues.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
         
         return sitesWithDistance

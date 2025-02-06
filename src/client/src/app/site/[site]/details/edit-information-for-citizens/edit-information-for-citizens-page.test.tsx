@@ -2,13 +2,13 @@ import {
   fetchInformationForCitizens,
   fetchSite,
 } from '@services/appointmentsService';
-import { FullSite } from '@types';
+import { Site } from '@types';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 import { render, screen } from '@testing-library/react';
-import { mockFullSite } from '@testing/data';
+import { mockSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
 jest.mock('@services/appointmentsService');
 const fetchInformationForCitizensMock =
@@ -31,9 +31,9 @@ const mockPermissions = ['site:manage', 'site:view'];
 
 describe('Manage Information For Citizen Form', () => {
   beforeEach(() => {
-    fetchSiteMock.mockResolvedValue(mockFullSite);
+    fetchSiteMock.mockResolvedValue(mockSite);
     fetchInformationForCitizensMock.mockResolvedValue(
-      mockFullSite.informationForCitizens,
+      mockSite.informationForCitizens,
     );
   });
 
@@ -66,6 +66,6 @@ describe('Manage Information For Citizen Form', () => {
     });
     render(jsx);
 
-    expect(screen.getByText('Test information')).toBeVisible();
+    expect(screen.getByText('Test information 1')).toBeVisible();
   });
 });

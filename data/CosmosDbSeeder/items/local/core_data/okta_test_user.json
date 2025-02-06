@@ -12,7 +12,7 @@
       "scope": "site:ABC01"
     },
     {
-      "role": "canned:site-attributes-editor",
+      "role": "canned:site-accessibilities-editor",
       "scope": "site:ABC01"
     },
     {
@@ -20,7 +20,7 @@
       "scope": "site:ABC02"
     },
     {
-      "role": "canned:site-attributes-editor",
+      "role": "canned:site-accessibilities-editor",
       "scope": "site:ABC02"
     },
     {

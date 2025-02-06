@@ -6,7 +6,6 @@ import {
   Role,
   SetAccessibilitiesRequest,
   ApplyAvailabilityTemplateRequest,
-  SiteWithAccessibilities,
   User,
   UserProfile,
   SetAvailabilityRequest,
@@ -24,7 +23,6 @@ import {
   SetSiteDetailsRequest,
   SetInformationForCitizensRequest,
   Site,
-  FullSite,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -85,19 +83,14 @@ export async function fetchUsers(site: string) {
 }
 
 export const fetchSite = async (siteId: string) => {
-  const response = await appointmentsApi.get<FullSite>(
-    `sites/${siteId}?scope=*`,
-    {
-      next: { tags: ['site'] },
-    },
-  );
+  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`, {
+    next: { tags: ['site'] },
+  });
   return handleBodyResponse(response);
 };
 
 export const fetchSiteAccessibilityValues = async (siteId: string) => {
-  const response = await appointmentsApi.get<SiteWithAccessibilities>(
-    `sites/${siteId}?scope=*`,
-  );
+  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
 
   return handleBodyResponse(response)?.accessibilityValues ?? [];
 };
@@ -345,7 +338,7 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
 };
 
 export async function fetchInformationForCitizens(site: string) {
-  const response = await appointmentsApi.get<FullSite>(`sites/${site}`);
+  const response = await appointmentsApi.get<Site>(`sites/${site}`);
 
   return handleBodyResponse(response)?.informationForCitizens ?? '';
 }

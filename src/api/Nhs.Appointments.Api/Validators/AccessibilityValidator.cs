@@ -9,6 +9,6 @@ public class AccessibilityValidator : AbstractValidator<Accessibility>
     {
         RuleFor(x => x.Id)
             .NotEmpty()
-            .WithMessage("Provide a valid attribute id");
+            .WithMessage("Provide a valid accessibility id");
     }
 }

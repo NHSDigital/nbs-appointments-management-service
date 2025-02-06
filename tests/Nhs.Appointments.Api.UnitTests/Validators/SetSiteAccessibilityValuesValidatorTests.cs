@@ -6,9 +6,9 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
-public class SetSiteAttributeValuesValidatorTests
+public class SetSiteAccessibilityValuesValidatorTests
 {
-    private readonly SetSiteAttributeValuesValidator _sut = new();
+    private readonly SetSiteAccessibilityValuesValidator _sut = new();
     
     [Theory]
     [InlineData("true")]
@@ -20,7 +20,7 @@ public class SetSiteAttributeValuesValidatorTests
             Accessibilities: new[]
             {
                 new Accessibility(
-                    Id: "accessibility/attribute_1",
+                    Id: "accessibility/accessibility_1",
                     Value: value)
             });
         var result = _sut.Validate(testRequest);
@@ -37,7 +37,7 @@ public class SetSiteAttributeValuesValidatorTests
             Accessibilities: new[]
             {
                 new Accessibility(
-                    Id: "accessibility/attribute_1",
+                    Id: "accessibility/accessibility_1",
                     Value: "true"
                 )
             }
@@ -50,7 +50,7 @@ public class SetSiteAttributeValuesValidatorTests
     }
     
     [Fact]
-    public void Validate_ReturnsError_WhenAttributeValuesArrayIsNull()
+    public void Validate_ReturnsError_WhenAccessibilityValuesArrayIsNull()
     {
         var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: null);
         var result = _sut.TestValidate(request);
@@ -60,7 +60,7 @@ public class SetSiteAttributeValuesValidatorTests
     }
     
     [Fact]
-    public void Validate_ReturnsError_WhenAttributeValuesArrayIsEmpty()
+    public void Validate_ReturnsError_WhenAccessibilityValuesArrayIsEmpty()
     {
         var request = new SetSiteAccessibilitiesRequest(Site: "9a06bacd-e916-4c10-8263-21451ca751b8", Accessibilities: Array.Empty<Accessibility>());
         var result = _sut.TestValidate(request);

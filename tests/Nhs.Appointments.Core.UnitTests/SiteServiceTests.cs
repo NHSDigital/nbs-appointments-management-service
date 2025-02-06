@@ -346,7 +346,7 @@ public class SiteServiceTests
     }
 
     [Fact]
-    public async Task FindSitesByArea_DoesNotReturnSitesWithNoAttributeValues_IfAccessNeedsAreRequested()
+    public async Task FindSitesByArea_DoesNotReturnSitesWithNoAccessibilityValues_IfAccessNeedsAreRequested()
     {
         var sites = new List<Site>
         {
@@ -594,7 +594,7 @@ public class SiteServiceTests
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
             InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Attribute 1", Value: "true") });
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") });
 
         var expectedSite = new Site(
             Id: siteId,
@@ -606,7 +606,7 @@ public class SiteServiceTests
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
             InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Attribute 1", Value: "true") });
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") });
         _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
         var result = await _sut.GetSiteByIdAsync(siteId);

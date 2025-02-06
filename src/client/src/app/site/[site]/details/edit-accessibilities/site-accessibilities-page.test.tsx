@@ -1,11 +1,11 @@
 ﻿import { render, screen } from '@testing-library/react';
 import { EditAccessibilitiesPage } from './edit-accessibilities-page';
-import { AccessibilityDefinition, AccessibilityValue, FullSite } from '@types';
+import { AccessibilityDefinition, AccessibilityValue, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
-import { mockAccessibilityDefinitions, mockFullSite } from '@testing/data';
+import { mockAccessibilityDefinitions, mockSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
 const fetchAccessibilityDefinitionsMock =
@@ -14,7 +14,7 @@ const fetchAccessibilityDefinitionsMock =
   >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
 jest.mock('./add-accessibilities-form', () => {
   const MockForm = ({
@@ -53,7 +53,7 @@ describe('Manage Accessibilities Page', () => {
     fetchAccessibilityDefinitionsMock.mockResolvedValue(
       mockAccessibilityDefinitions,
     );
-    fetchSiteMock.mockResolvedValue(mockFullSite);
+    fetchSiteMock.mockResolvedValue(mockSite);
   });
 
   it('renders', async () => {

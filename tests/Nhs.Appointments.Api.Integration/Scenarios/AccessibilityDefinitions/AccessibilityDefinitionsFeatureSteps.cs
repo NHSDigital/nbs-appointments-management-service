@@ -20,7 +20,7 @@ public sealed class AccessibilityDefinitionsFeatureSteps : BaseFeatureSteps
     private IEnumerable<AccessibilityDefinition> _actualResponse;
     
     [Given("There are existing system accessibilities")]
-    public async Task SetUpAttributes(Gherkin.Ast.DataTable dataTable)
+    public async Task SetUpAccessibilities(Gherkin.Ast.DataTable dataTable)
     {
         var AccessibilityDefinitions = dataTable.Rows.Skip(1).Select(
             row => new AccessibilityDefinition(row.Cells.ElementAt(0).Value, row.Cells.ElementAt(1).Value));

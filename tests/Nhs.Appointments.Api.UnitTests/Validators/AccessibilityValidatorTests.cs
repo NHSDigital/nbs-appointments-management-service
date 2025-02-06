@@ -14,10 +14,10 @@ public class AccessibilityValidatorTests
     [InlineData(null)]
     public void Validate_ReturnsError_WhenIdIsInvalid(string id)
     {
-        var attributeValue = new Accessibility(
+        var accessibility = new Accessibility(
             Id: id,
             Value: "true");
-        var result = _sut.TestValidate(attributeValue);
+        var result = _sut.TestValidate(accessibility);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().PropertyName.Should().Contain(nameof(Accessibility.Id));

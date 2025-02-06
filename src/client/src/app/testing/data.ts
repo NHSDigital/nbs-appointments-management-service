@@ -8,10 +8,8 @@ import {
   Booking,
   DailyAvailability,
   DaySummary,
-  FullSite,
   Role,
   Site,
-  SiteWithAccessibilities,
   User,
   UserProfile,
   Week,
@@ -78,6 +76,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilityValues: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_1', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 1',
   },
   {
     id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
@@ -91,6 +94,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilityValues: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_2', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 2',
   },
   {
     id: 'd79bec60-8968-4101-b553-67dec04e1019',
@@ -104,6 +112,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilityValues: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_3', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 3',
   },
   {
     id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
@@ -117,6 +130,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilityValues: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_4', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 4',
   },
 ];
 
@@ -264,34 +282,6 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
     sessions: [mockSession3],
   },
 ];
-
-const mockSiteWithAccessibilities: SiteWithAccessibilities = {
-  id: mockSites[0].id,
-  address: mockSites[0].address,
-  phoneNumber: mockSites[0].phoneNumber,
-  name: mockSites[0].name,
-  odsCode: mockSites[0].odsCode,
-  integratedCareBoard: mockSites[0].integratedCareBoard,
-  region: mockSites[0].region,
-  location: mockSites[0].location,
-  accessibilityValues: [
-    { id: 'site_details/info_for_citizen', value: 'Test information' },
-    { id: 'accessibility/attr_1', value: 'true' },
-  ],
-};
-
-const mockFullSite: FullSite = {
-  id: mockSites[0].id,
-  address: mockSites[0].address,
-  phoneNumber: mockSites[0].phoneNumber,
-  name: mockSites[0].name,
-  odsCode: mockSites[0].odsCode,
-  integratedCareBoard: mockSites[0].integratedCareBoard,
-  region: mockSites[0].region,
-  location: mockSites[0].location,
-  accessibilityValues: [{ id: 'accessibility/attr_1', value: 'true' }],
-  informationForCitizens: 'Test information',
-};
 
 const mockAvailability: AvailabilityResponse[] = [
   {
@@ -632,7 +622,6 @@ export {
   mockAccessibilityDefinitions,
   mockAccessibilityValues,
   mockUserProfile,
-  mockSiteWithAccessibilities,
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,
@@ -642,5 +631,4 @@ export {
   mockEmptyDays,
   mockWeekAvailability,
   mockWellKnownOdsCodeEntries,
-  mockFullSite,
 };

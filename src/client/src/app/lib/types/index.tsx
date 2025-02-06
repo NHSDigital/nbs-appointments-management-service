@@ -137,19 +137,13 @@ type Site = {
   integratedCareBoard: string;
   region: string;
   location: Location;
+  accessibilityValues: AccessibilityValue[];
+  informationForCitizens: string;
 };
 
 type Location = {
   type: string;
   coordinates: number[];
-};
-
-type SiteWithAccessibilities = Site & {
-  accessibilityValues: AccessibilityValue[];
-};
-
-type FullSite = SiteWithAccessibilities & {
-  informationForCitizens: string;
 };
 
 type User = {
@@ -353,7 +347,6 @@ export type {
   ErrorType,
   FetchAvailabilityRequest,
   FetchBookingsRequest,
-  FullSite,
   EulaVersion,
   Role,
   RoleAssignment,
@@ -365,7 +358,6 @@ export type {
   SetAvailabilityRequest,
   SetInformationForCitizensRequest,
   Site,
-  SiteWithAccessibilities,
   TimeComponents,
   User,
   UserProfile,

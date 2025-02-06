@@ -1,13 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AccessibilityDefinition, FullSite } from '@types';
+import { AccessibilityDefinition, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import {
   mockAccessibilityDefinitions,
-  mockFullSite,
   mockSite,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
@@ -20,14 +19,14 @@ const fetchAccessibilityDefinitionsMock =
   >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<FullSite>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
 describe('Site Details Page', () => {
   beforeEach(() => {
     fetchAccessibilityDefinitionsMock.mockResolvedValue(
       mockAccessibilityDefinitions,
     );
-    fetchSiteMock.mockResolvedValue(mockFullSite);
+    fetchSiteMock.mockResolvedValue(mockSite);
   });
 
   it('renders', async () => {

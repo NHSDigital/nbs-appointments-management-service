@@ -11,20 +11,20 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   location                             = data.azurerm_resource_group.nbs_mya_resource_group.location
   storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.nbs_mya_synapse_workspace_gen2_filesystem[0].id
   sql_administrator_login              = "sqladminuser"
-  sql_administrator_login_password     = "secure_this_post_poc"
+  sql_administrator_login_password     = "S3cur3_this_p0st_p0c!"
 
   identity {
     type = "SystemAssigned"
   }
 
   tags = {
-    cost_code       = "PO724/34"
-    created_by      = "Infrastructure Pipeline"
-    created_date    = formatdate("DD/MM/YYYY", timestamp())
+    "cost code"     = "PO724/34"
+    "created by"    = "Infrastructure Pipeline"
+    "created date"  = formatdate("DD/MM/YYYY", timestamp())
     environment     = var.environment
-    product_owner   = "Gemma Buchanan"
-    requested_by    = "Paul Tallet"
-    service_product = "National Booking Service"
+    "product owner" = "Gemma Buchanan"
+    "requested by"  = "Paul Tallet"
+    service-product = "National Booking Service"
     team            = "NBS"
   }
 }

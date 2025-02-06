@@ -11,7 +11,8 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
-    Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status);
+    Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus);
     Task SendBookingReminders();
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
@@ -63,6 +64,7 @@ public class BookingsService(
                 booking.Created = time.GetUtcNow();                
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
                 await bookingDocumentStore.InsertAsync(booking);
 
                 if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
@@ -87,7 +89,8 @@ public class BookingsService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled);
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
         await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
@@ -124,10 +127,9 @@ public class BookingsService(
         return result;
     }
 
-    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status)
-    {
-        return bookingDocumentStore.UpdateStatus(bookingReference, status);
-    }
+    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus) =>
+        bookingDocumentStore.UpdateStatus(bookingReference, status, availabilityStatus);
 
     public async Task SendBookingReminders()
     {
@@ -173,18 +175,20 @@ public class BookingsService(
 
             if (targetSlot != null)
             {
-                if (booking.Status != AppointmentStatus.Booked && booking.Status != AppointmentStatus.Provisional)
+                if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
                 {
-                    await SetBookingStatus(booking.Reference, AppointmentStatus.Booked);
-                    booking.Status = AppointmentStatus.Booked;
+                    await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference,
+                        AvailabilityStatus.Supported);
                 }
                 targetSlot.Capacity--;
                 continue;
             }
 
-            if (booking.Status is AppointmentStatus.Booked)
+            // TODO: Delete the provisional rather than just excluding it from this check. This work is another PR in code review.
+            if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                booking.Status is not AppointmentStatus.Provisional)
             {
-                await SetBookingStatus(booking.Reference, AppointmentStatus.Orphaned);
+                await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference, AvailabilityStatus.Orphaned);
             }
 
             if (booking.Status is AppointmentStatus.Provisional)

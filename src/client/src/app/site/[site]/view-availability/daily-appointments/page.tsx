@@ -37,9 +37,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
     fetchBookings(fetchBookingsRequest),
   ]);
 
-  const scheduledBookings = bookings.filter(b => b.status === 'Booked');
+  const scheduledBookings = bookings.filter(
+    b => b.status === 'Booked' && b.availabilityStatus !== 'Orphaned',
+  );
   const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
-  const orphanedAppointments = bookings.filter(b => b.status === 'Orphaned');
+  const orphanedAppointments = bookings.filter(
+    b => b.availabilityStatus === 'Orphaned',
+  );
 
   const orphanedMessage =
     orphanedAppointments.length > 0

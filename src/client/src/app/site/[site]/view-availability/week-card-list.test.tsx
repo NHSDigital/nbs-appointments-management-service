@@ -1,71 +1,82 @@
-import { render, screen } from '@testing-library/react';
-import { mockDetailedWeeks, mockSite } from '@testing/data';
+import { render } from '@testing-library/react';
+import { mockSite } from '@testing/data';
 import dayjs from 'dayjs';
-import { getDetailedMonthView } from '@services/viewAvailabilityService';
-import { Week } from '@types';
+import { WeekSummary } from '@types';
 import { WeekCardList } from './week-card-list';
+import { summariseWeek } from '@services/availabilityCalculatorService';
+import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 
-jest.mock('@services/viewAvailabilityService', () => ({
-  getDetailedMonthView: jest.fn(),
+jest.mock('@services/availabilityCalculatorService', () => ({
+  summariseWeek: jest.fn(),
 }));
 
-const mockGetDetailedMonthView = getDetailedMonthView as jest.Mock<
-  Promise<Week[]>
->;
+const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
+
+const mockWeeks: dayjs.Dayjs[][] = [
+  [
+    dayjs('2024-06-10T00:00:00.000Z'),
+    dayjs('2024-06-11T00:00:00.000Z'),
+    dayjs('2024-06-12T00:00:00.000Z'),
+    dayjs('2024-06-13T00:00:00.000Z'),
+    dayjs('2024-06-14T00:00:00.000Z'),
+    dayjs('2024-06-15T00:00:00.000Z'),
+    dayjs('2024-06-16T00:00:00.000Z'),
+  ],
+  [
+    dayjs('2024-06-17T00:00:00.000Z'),
+    dayjs('2024-06-18T00:00:00.000Z'),
+    dayjs('2024-06-19T00:00:00.000Z'),
+    dayjs('2024-06-20T00:00:00.000Z'),
+    dayjs('2024-06-21T00:00:00.000Z'),
+    dayjs('2024-06-22T00:00:00.000Z'),
+    dayjs('2024-06-23T00:00:00.000Z'),
+  ],
+  [
+    dayjs('2024-06-24T00:00:00.000Z'),
+    dayjs('2024-06-25T00:00:00.000Z'),
+    dayjs('2024-06-26T00:00:00.000Z'),
+    dayjs('2024-06-27T00:00:00.000Z'),
+    dayjs('2024-06-28T00:00:00.000Z'),
+    dayjs('2024-06-29T00:00:00.000Z'),
+    dayjs('2024-06-30T00:00:00.000Z'),
+  ],
+];
 
 describe('Week Card List', () => {
   beforeEach(() => {
-    mockGetDetailedMonthView.mockReturnValue(
-      Promise.resolve(mockDetailedWeeks),
-    );
+    mockSummariseWeek.mockReturnValue(Promise.resolve(mockWeekSummary));
   });
 
   it('renders', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
+      weeks: mockWeeks,
     });
     render(jsx);
-
-    expect(
-      screen.getByRole('heading', { name: '1 December to 7 December' }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('table')).toHaveLength(6);
   });
 
-  it('renders the correct information for a week', async () => {
+  it('requests a summary for each week', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
+      weeks: mockWeeks,
     });
     render(jsx);
 
-    expect(
-      screen.getByRole('row', {
-        name: 'Total appointments: 30 Booked: 17 Unbooked: 13',
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('row', { name: 'FLU 18-64 5' }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('row', { name: 'COVID 75+ 10' }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('row', { name: 'RSV (Adult) 2' }),
-    ).toBeInTheDocument();
-  });
-
-  it('renders a link for each week', async () => {
-    const jsx = await WeekCardList({
-      site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
-    });
-    render(jsx);
-
-    expect(screen.getAllByText('View week')).toHaveLength(3);
+    expect(mockSummariseWeek).toHaveBeenCalledTimes(3);
+    expect(mockSummariseWeek).toHaveBeenCalledWith(
+      dayjs('2024-06-10T00:00:00.000Z'),
+      dayjs('2024-06-16T00:00:00.000Z'),
+      '34e990af-5dc9-43a6-8895-b9123216d699',
+    );
+    expect(mockSummariseWeek).toHaveBeenCalledWith(
+      dayjs('2024-06-17T00:00:00.000Z'),
+      dayjs('2024-06-23T00:00:00.000Z'),
+      '34e990af-5dc9-43a6-8895-b9123216d699',
+    );
+    expect(mockSummariseWeek).toHaveBeenCalledWith(
+      dayjs('2024-06-24T00:00:00.000Z'),
+      dayjs('2024-06-30T00:00:00.000Z'),
+      '34e990af-5dc9-43a6-8895-b9123216d699',
+    );
   });
 });

@@ -3,8 +3,6 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { Suspense } from 'react';
-import { Spinner } from '@components/nhsuk-frontend';
 
 type PageProps = {
   searchParams: {
@@ -35,13 +33,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
       backLink={backLink}
       originPage="view-availability-week"
     >
-      <Suspense fallback={<Spinner />}>
-        <ViewWeekAvailabilityPage
-          weekStart={weekStart}
-          weekEnd={weekEnd}
-          site={site}
-        />
-      </Suspense>
+      <ViewWeekAvailabilityPage
+        weekStart={weekStart}
+        weekEnd={weekEnd}
+        site={site}
+      />
     </NhsPage>
   );
 };

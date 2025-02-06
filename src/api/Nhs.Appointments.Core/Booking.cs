@@ -21,6 +21,8 @@ public class Booking
     
     [JsonProperty("status")]
     public AppointmentStatus Status{ get; set; }
+
+    [JsonProperty("availabilityStatus")] public AvailabilityStatus? AvailabilityStatus { get; set; }
     
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }
@@ -75,6 +77,12 @@ public enum AppointmentStatus
     Unknown,
     Provisional,
     Booked,
-    Cancelled,
+    Cancelled
+}
+
+public enum AvailabilityStatus
+{
+    Unknown,
+    Supported,
     Orphaned
 }

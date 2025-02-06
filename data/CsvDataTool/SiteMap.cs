@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using System.Text.RegularExpressions;
 
 namespace CsvDataTool;
 
@@ -11,25 +12,38 @@ public class SiteMap : ClassMap<SiteDocument>
     public SiteMap()
     {
         //validate ID provided is a GUID
-        Map(m => m.Id).TypeConverter<GuidStringTypeConverter>();
-        Map(m => m.OdsCode).Name("OdsCode");
-        Map(m => m.Name).Name("Name");
-        Map(m => m.Address).Name("Address");
-        Map(m => m.PhoneNumber).Name("PhoneNumber");
+        Map(m => m.Id)
+            .TypeConverter<GuidStringTypeConverter>();
+        Map(m => m.OdsCode)
+            .Name("OdsCode")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Name)
+            .Name("Name")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Address)
+            .Name("Address")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.PhoneNumber)
+            .Name("PhoneNumber")
+            .Validate(f => IsValidPhoneNumber(f.Field));
         Map(m => m.Location).Convert(x =>
             new Location(
                 "Point",
                 [x.Row.GetField<double>("Longitude"), x.Row.GetField<double>("Latitude")]
             ));
-        Map(m => m.IntegratedCareBoard).Name("ICB");
-        Map(m => m.Region).Name("Region");
+        Map(m => m.IntegratedCareBoard)
+            .Name("ICB")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Region)
+            .Name("Region")
+            .Validate(f => StringHasValue(f.Field));
         Map(m => m.DocumentType).Constant("site");
         Map(m => m.AttributeValues).Convert(x =>
         {
             AttributeValue[] result =
             [
                 new AttributeValue("accessibility/accessible_toilet",
-                    ParseUserEnteredBoolean(x.Row["accessible_toilet"]).ToString()),
+                    ParseUserEnteredBoolean(x.Row["accessible_toilet"] ).ToString()),
                 new AttributeValue("accessibility/braille_translation_service",
                     ParseUserEnteredBoolean(x.Row["braille_translation_service"]).ToString()),
                 new AttributeValue("accessibility/disabled_car_parking",
@@ -53,8 +67,19 @@ public class SiteMap : ClassMap<SiteDocument>
 
     private static bool ParseUserEnteredBoolean(string possibleBool)
     {
-        possibleBool = possibleBool?.ToLower();
-        return possibleBool == "true" || possibleBool == "yes";
+        return !bool.TryParse(possibleBool, out var result)
+            ? throw new Exception($"Invalid bool string format: {possibleBool}") // TODO: Throw a more accurate exception
+            : result;
+    }
+
+    private static bool StringHasValue(string value)
+    {
+        return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool IsValidPhoneNumber(string phoneNumber)
+    {
+        return !string.IsNullOrWhiteSpace(phoneNumber) && RegularExpressionConstants.LandlineNumberRegex().IsMatch(phoneNumber);
     }
 
     /// <summary>
@@ -73,4 +98,14 @@ public class SiteMap : ClassMap<SiteDocument>
                 $"Invalid GUID string format: {guidString}");
         }
     }
+}
+
+public partial class RegularExpressionConstants
+{
+    // TODO: Will sites always have a landline number or could they use a mobile number?
+    private const string LandlineNumber =
+         @"^(?:(?:\(?(?:0(?:0|11)\)?[\s-]?\(?|\+)44\)?[\s-]?(?:\(?0\)?[\s-]?)?)|(?:\(?0))(?:(?:\d{5}\)?[\s-]?\d{4,5})|(?:\d{4}\)?[\s-]?(?:\d{5}|\d{3}[\s-]?\d{3}))|(?:\d{3}\)?[\s-]?\d{3}[\s-]?\d{3,4})|(?:\d{2}\)?[\s-]?\d{4}[\s-]?\d{4}))(?:[\s-]?(?:x|ext\.?|\#)\d{3,4})?$";
+
+    [GeneratedRegex(LandlineNumber, RegexOptions.IgnoreCase, "en-GB")]
+    public static partial Regex LandlineNumberRegex();
 }

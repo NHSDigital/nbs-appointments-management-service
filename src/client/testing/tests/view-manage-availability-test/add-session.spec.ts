@@ -14,6 +14,7 @@ import AddSessionPage from '../../page-objects/view-availability-appointment-pag
 import AddServicesPage from '../../page-objects/view-availability-appointment-pages/add-services-page';
 import CheckSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/check-session-details-page';
 import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
+import CancelSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/cancel-session-details-page';
 
 const { TEST_USERS } = env;
 let rootPage: RootPage;
@@ -26,6 +27,7 @@ let addSessionPage: AddSessionPage;
 let addServicesPage: AddServicesPage;
 let checkSessionDetailsPage: CheckSessionDetailsPage;
 let changeAvailabilityPage: ChangeAvailabilityPage;
+let cancelSessionDetailsPage: CancelSessionDetailsPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -38,6 +40,7 @@ test.beforeEach(async ({ page }) => {
   addServicesPage = new AddServicesPage(page);
   checkSessionDetailsPage = new CheckSessionDetailsPage(page);
   changeAvailabilityPage = new ChangeAvailabilityPage(page);
+  cancelSessionDetailsPage = new CancelSessionDetailsPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -90,4 +93,22 @@ test('Verify user is able to change availability', async () => {
   await changeAvailabilityPage.saveChanges();
   await addSessionPage.updateSessionEndTime('9', '30');
   await changeAvailabilityPage.verifySessionUpdated();
+});
+
+test('Verify user is able to cancel session', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
+  const requiredWeekRange = getWeekRange(10);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await addServicesPage.addService('RSV (Adult)');
+  await checkSessionDetailsPage.saveSession();
+  await weekViewAvailabilityPage.verifySessionAdded();
+  await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
+  await changeAvailabilityPage.selectChangeType('CancelSession');
+  await changeAvailabilityPage.saveChanges();
+  await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+  await cancelSessionDetailsPage.verifySessionCancelled(requiredDate);
 });

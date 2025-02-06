@@ -1,6 +1,7 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
+import { SiteWithAttributes } from '@types';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
@@ -18,20 +19,11 @@ export default class SiteDetailsPage extends RootPage {
   readonly latitudeLabel = 'Latitude';
   readonly longitudeLabel = 'Longitude';
   readonly phoneNumberLabel = 'Phone Number';
-
-  readonly defaultSiteName = 'Church Lane Pharmacy';
-  readonly defaultAddress = 'Pudsey, Leeds, LS28 7LD';
-  readonly defaultLatitude = '-1.66382134';
-  readonly defaultLongitude = '53.79628754';
-  readonly defaultPhoneNumber = '0113 2222222';
-
   readonly odsCodeLabel = 'ODS code';
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
 
-  readonly defaultODSCode = 'ABC02';
-  readonly defaultICB = '	Integrated Care Board 2';
-  readonly defaultRegion = 'Region 2';
+  readonly siteDetails: SiteWithAttributes;
 
   readonly informationSuccessBanner =
     "You have successfully updated the current site's information.";
@@ -39,8 +31,11 @@ export default class SiteDetailsPage extends RootPage {
   readonly detailsSuccessBanner =
     'You have successfully updated the details for the current site.';
 
-  constructor(page: Page) {
+  constructor(page: Page, siteDetails: SiteWithAttributes) {
     super(page);
+
+    this.siteDetails = siteDetails;
+
     this.title = page.getByRole('heading', {
       name: 'Site details',
     });
@@ -131,12 +126,22 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.page.getByText(newInformation)).not.toBeVisible();
   }
 
-  async verifyDefaultSitePage() {
+  async verifyEditButtonNotVisible() {
+    await expect(this.editInformationCitizenButton).not.toBeVisible();
+    await expect(this.editSiteAttributesButton).not.toBeVisible();
+  }
+
+  async verifyEditButtonToBeVisible() {
+    await expect(this.editInformationCitizenButton).toBeVisible();
+    await expect(this.editSiteAttributesButton).toBeVisible();
+  }
+
+  async verifySitePage() {
     await expect(
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('heading', { name: `${this.defaultSiteName}` }),
+      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
     ).toBeVisible();
 
     await expect(
@@ -144,10 +149,10 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyCoreDetailsContent(
-      this.defaultAddress,
-      this.defaultLatitude,
-      this.defaultLongitude,
-      this.defaultPhoneNumber,
+      this.siteDetails.address,
+      this.siteDetails.location.coordinates[0].toString(),
+      this.siteDetails.location.coordinates[1].toString(),
+      this.siteDetails.phoneNumber,
     );
 
     await expect(
@@ -158,17 +163,45 @@ export default class SiteDetailsPage extends RootPage {
 
     await this.verifySummaryListItemContentValue(
       this.odsCodeLabel,
-      this.defaultODSCode,
+      this.siteDetails.odsCode,
     );
+
+    //TODO refactor using seeder well-known codes
+    let expectedICBDisplayValue = '';
+    switch (this.siteDetails.integratedCareBoard) {
+      case 'ICB1':
+        expectedICBDisplayValue = 'Integrated Care Board 1';
+        break;
+      case 'ICB2':
+        expectedICBDisplayValue = 'Integrated Care Board 2';
+        break;
+      default:
+        expectedICBDisplayValue = this.siteDetails.integratedCareBoard;
+        break;
+    }
 
     await this.verifySummaryListItemContentValue(
       this.icbLabel,
-      this.defaultICB,
+      expectedICBDisplayValue,
     );
+
+    //TODO refactor using seeder well-known codes
+    let expectedRegionDisplayValue = '';
+    switch (this.siteDetails.region) {
+      case 'R1':
+        expectedRegionDisplayValue = 'Region 1';
+        break;
+      case 'R2':
+        expectedRegionDisplayValue = 'Region 2';
+        break;
+      default:
+        expectedRegionDisplayValue = this.siteDetails.region;
+        break;
+    }
 
     await this.verifySummaryListItemContentValue(
       this.regionLabel,
-      this.defaultRegion,
+      expectedRegionDisplayValue,
     );
 
     await expect(

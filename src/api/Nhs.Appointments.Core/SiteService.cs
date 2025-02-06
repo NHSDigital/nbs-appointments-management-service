@@ -71,7 +71,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
         }
 
-        return sites.Select(s => new SitePreview(s.Id, s.Name));
+        return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
     }
 
     public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 

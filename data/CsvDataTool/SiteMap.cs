@@ -10,6 +10,19 @@ public class SiteMap : ClassMap<SiteDocument>
 {
     public SiteMap()
     {
+        var accessibilityKeys = new[]
+        {
+            "accessible_toilet",
+            "braille_translation_service",
+            "disabled_car_parking",
+            "car_parking",
+            "induction_loop",
+            "sign_language_service",
+            "step_free_access",
+            "text_relay",
+            "wheelchair_access"
+        };
+
         //validate ID provided is a GUID
         Map(m => m.Id).TypeConverter<GuidStringTypeConverter>();
         Map(m => m.OdsCode).Name("OdsCode");
@@ -26,28 +39,10 @@ public class SiteMap : ClassMap<SiteDocument>
         Map(m => m.DocumentType).Constant("site");
         Map(m => m.Accessibilities).Convert(x =>
         {
-            Accessibility[] result =
-            [
-                new Accessibility("accessibility/accessible_toilet",
-                    ParseUserEnteredBoolean(x.Row["accessible_toilet"]).ToString()),
-                new Accessibility("accessibility/braille_translation_service",
-                    ParseUserEnteredBoolean(x.Row["braille_translation_service"]).ToString()),
-                new Accessibility("accessibility/disabled_car_parking",
-                    ParseUserEnteredBoolean(x.Row["disabled_car_parking"]).ToString()),
-                new Accessibility("accessibility/car_parking",
-                    ParseUserEnteredBoolean(x.Row["car_parking"]).ToString()),
-                new Accessibility("accessibility/induction_loop",
-                    ParseUserEnteredBoolean(x.Row["induction_loop"]).ToString()),
-                new Accessibility("accessibility/sign_language_service",
-                    ParseUserEnteredBoolean(x.Row["sign_language_service"]).ToString()),
-                new Accessibility("accessibility/step_free_access",
-                    ParseUserEnteredBoolean(x.Row["step_free_access"]).ToString()),
-                new Accessibility("accessibility/text_relay", ParseUserEnteredBoolean(x.Row["text_relay"]).ToString()),
-                new Accessibility("accessibility/wheelchair_access",
-                    ParseUserEnteredBoolean(x.Row["wheelchair_access"]).ToString()),
-            ];
-
-            return result;
+            return accessibilityKeys
+                .Select(key => new Accessibility($"accessibility/{key}",
+                    ParseUserEnteredBoolean(x.Row[key]).ToString()))
+                .ToArray();
         });
     }
 

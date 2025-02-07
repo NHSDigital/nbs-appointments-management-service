@@ -1,19 +1,18 @@
-﻿import { UserPageProps } from './page';
-import { RoleAssignment } from '@types';
+﻿import { RoleAssignment } from '@types';
 import AssignRolesForm from './assign-roles-form';
 import React from 'react';
 import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
-const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
-  const user = searchParams?.user;
+type AssignRolesProps = {
+  site: string;
+  user?: string;
+};
 
+const AssignRoles = async ({ site, user }: AssignRolesProps) => {
   if (user === undefined || !user.endsWith('@nhs.net'))
     throw Error('You must specify a valid NHS email address');
 
-  const [roles, users] = await Promise.all([
-    fetchRoles(),
-    fetchUsers(params.site),
-  ]);
+  const [roles, users] = await Promise.all([fetchRoles(), fetchUsers(site)]);
 
   const currentUserAssignments =
     users.find(usr => usr.id === user)?.roleAssignments ??
@@ -30,7 +29,7 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
         user={user}
         roles={roles}
         assignments={currentUserAssignments}
-        site={params.site}
+        site={site}
       />
     </>
   );

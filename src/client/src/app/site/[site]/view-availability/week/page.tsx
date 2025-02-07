@@ -3,26 +3,34 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfWeek, startOfWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams: {
+  searchParams?: Promise<{
     date: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:query');
-  const site = await fetchSite(params.site);
+  const { site: siteFromPath } = { ...(await params) };
 
-  const weekStart = startOfWeek(searchParams.date);
-  const weekEnd = endOfWeek(searchParams.date);
+  await assertPermission(siteFromPath, 'availability:query');
+  const site = await fetchSite(siteFromPath);
+
+  const { date } = { ...(await searchParams) };
+  if (date === undefined) {
+    notFound();
+  }
+
+  const weekStart = startOfWeek(date);
+  const weekEnd = endOfWeek(date);
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}/view-availability?date=${searchParams.date}`,
+    href: `/site/${site.id}/view-availability?date=${date}`,
     text: 'Back to month view',
   };
 

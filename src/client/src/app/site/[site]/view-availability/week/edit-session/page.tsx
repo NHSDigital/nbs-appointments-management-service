@@ -5,41 +5,42 @@ import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
 
 type PageProps = {
-  searchParams: {
+  searchParams?: Promise<{
     date: string;
     session: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
-  const site = await fetchSite(params.site);
-
-  const date = dayjs(searchParams.date, 'YYYY-MM-DD');
-
-  if (searchParams.session === undefined || searchParams.date === undefined) {
+  const { site: siteFromPath } = { ...(await params) };
+  const { session, date } = { ...(await searchParams) };
+  if (session === undefined || date === undefined) {
     notFound();
   }
 
+  await assertPermission(siteFromPath, 'availability:setup');
+
+  const site = await fetchSite(siteFromPath);
+
   return (
     <NhsPage
-      title={`Change availability for ${date.format('DD MMMM YYYY')}`}
+      title={`Change availability for ${dayjs(date, 'YYYY-MM-DD').format('DD MMMM YYYY')}`}
       caption={site.name}
       site={site}
       backLink={{
         renderingStrategy: 'server',
-        href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${date}`,
         text: 'Go back',
       }}
       originPage="edit-session"
     >
       <EditSessionDecision
         site={site}
-        sessionSummary={searchParams.session}
-        date={searchParams.date}
+        sessionSummary={session}
+        date={date}
       ></EditSessionDecision>
     </NhsPage>
   );

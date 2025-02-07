@@ -1,5 +1,5 @@
 ﻿import { render, screen } from '@testing-library/react';
-import { EditAccessibilitiesPage } from './edit-accessibilities-page';
+import EditAccessibilitiesPage from './edit-accessibilities-page';
 import { AccessibilityDefinition, AccessibilityValue, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,

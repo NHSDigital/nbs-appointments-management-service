@@ -9,7 +9,7 @@ type Props = {
   permissions: string[];
 };
 
-export const EditAccessibilitiesPage = async ({ site }: Props) => {
+const EditAccessibilitiesPage = async ({ site }: Props) => {
   const AccessibilityDefinitions = await fetchAccessibilityDefinitions();
   const accessibilityAccessibilityDefinitions = AccessibilityDefinitions.filter(
     ad => ad.id.startsWith('accessibility'),
@@ -29,3 +29,5 @@ export const EditAccessibilitiesPage = async ({ site }: Props) => {
     </>
   );
 };
+
+export default EditAccessibilitiesPage;

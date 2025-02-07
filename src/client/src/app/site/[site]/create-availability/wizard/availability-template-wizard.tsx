@@ -24,7 +24,7 @@ export type CreateAvailabilityFormValues = {
 
 type Props = {
   site: Site;
-  date: string | null;
+  date?: string;
 };
 
 export const handlePositiveBoundedNumberInput = (

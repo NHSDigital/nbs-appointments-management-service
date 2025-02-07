@@ -1,13 +1,14 @@
 import AssignRoles from './assign-roles';
 import FindUserForm from './find-user-form';
 import { When } from '@components/when';
-import { UserPageProps } from './page';
+import { Site } from '@types';
 
-export const ManageUsersPage = ({
-  params,
-  searchParams,
-  userIsSpecified,
-}: UserPageProps & { userIsSpecified: boolean }) => {
+type ManageUsersPageProps = {
+  site: Site;
+  user?: string;
+};
+
+export const ManageUsersPage = ({ site, user }: ManageUsersPageProps) => {
   return (
     <div className="nhsuk-grid-row">
       <div className="nhsuk-grid-column-one-half">
@@ -17,11 +18,11 @@ export const ManageUsersPage = ({
           </div>
         </div>
 
-        <When condition={userIsSpecified}>
-          <AssignRoles params={params} searchParams={searchParams} />
+        <When condition={user !== undefined}>
+          <AssignRoles site={site.id} user={user} />
         </When>
-        <When condition={!userIsSpecified}>
-          <FindUserForm site={params.site} />
+        <When condition={user === undefined}>
+          <FindUserForm site={site.id} />
         </When>
       </div>
     </div>

@@ -4,21 +4,22 @@ import dayjs from 'dayjs';
 import { ViewAvailabilityPage } from './view-availability-page';
 
 type PageProps = {
-  params: {
-    site: string;
-  };
-  searchParams?: {
+  searchParams?: Promise<{
     date?: string;
-  };
+  }>;
+  params: Promise<{
+    site: string;
+  }>;
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  await assertPermission(params.site, 'availability:query');
-  const site = await fetchSite(params.site);
+  const { date } = { ...(await searchParams) };
+  const { site: siteFromPath } = { ...(await params) };
 
-  const searchMonth = searchParams?.date
-    ? dayjs(searchParams?.date, 'YYYY-MM-DD')
-    : dayjs();
+  await assertPermission(siteFromPath, 'availability:query');
+  const site = await fetchSite(siteFromPath);
+
+  const searchMonth = date ? dayjs(date, 'YYYY-MM-DD') : dayjs();
 
   return (
     <NhsPage

@@ -1,11 +1,11 @@
 ﻿import { render, screen } from '@testing-library/react';
+import EditAccessibilitiesPage from './edit-accessibilities-page';
+import { AccessibilityDefinition, Accessibility, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import { mockAccessibilityDefinitions, mockSite } from '@testing/data';
-import { Accessibility, AccessibilityDefinition, Site } from '@types';
-import EditAccessibilitiesPage from './edit-accessibilities-page';
 
 jest.mock('@services/appointmentsService');
 const fetchAccessibilityDefinitionsMock =

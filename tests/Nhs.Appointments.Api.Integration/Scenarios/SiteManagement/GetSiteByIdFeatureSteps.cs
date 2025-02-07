@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -13,11 +13,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 [FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
 public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
 {
-    [When("I request site details for site '(.+)' with the scope '(.+)'")]
-    public async Task RequestSites(string siteDesignation, string scope)
+    [When("I request site details for site '(.+)'")]
+    public async Task RequestSites(string siteDesignation)
     {
         var siteId = GetSiteId(siteDesignation);
-        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}?scope={scope}");
+        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
     }
 
     [Then("the correct site is returned")]
@@ -32,10 +32,11 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             OdsCode: row.Cells.ElementAt(4).Value,
             Region: row.Cells.ElementAt(5).Value,
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(7).Value),
+            InformationForCitizens: row.Cells.ElementAt(7).Value,
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =

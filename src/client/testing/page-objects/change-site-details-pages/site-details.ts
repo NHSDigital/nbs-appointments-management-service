@@ -1,11 +1,11 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
-  readonly editSiteAttributesButton: Locator;
+  readonly editSiteAccessibilitiesButton: Locator;
   readonly editSiteDetailsButton: Locator;
   readonly editSiteReferenceDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
@@ -24,7 +24,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
 
-  readonly siteDetails: SiteWithAttributes;
+  readonly siteDetails: Site;
 
   readonly informationSuccessBanner =
     "You have successfully updated the current site's information.";
@@ -35,7 +35,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly referenceDetailsSuccessBanner =
     'You have successfully updated the reference details for the current site.';
 
-  constructor(page: Page, siteDetails: SiteWithAttributes) {
+  constructor(page: Page, siteDetails: Site) {
     super(page);
 
     this.siteDetails = siteDetails;
@@ -49,7 +49,7 @@ export default class SiteDetailsPage extends RootPage {
     this.editSiteDetailsButton = page.getByRole('link', {
       name: 'Edit site details',
     });
-    this.editSiteAttributesButton = page.getByRole('link', {
+    this.editSiteAccessibilitiesButton = page.getByRole('link', {
       name: 'Edit access needs',
     });
     this.editInformationCitizenButton = page.getByRole('link', {
@@ -61,11 +61,11 @@ export default class SiteDetailsPage extends RootPage {
     });
   }
 
-  async attributeIsTrue(attributeName: string) {
+  async accessibilityIsTrue(accessibilityName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({ has: this.page.getByText(attributeName) })
+        .filter({ has: this.page.getByText(accessibilityName) })
         .getByText('Yes'),
     ).toBeVisible();
   }
@@ -195,12 +195,12 @@ export default class SiteDetailsPage extends RootPage {
 
   async verifyEditButtonNotVisible() {
     await expect(this.editInformationCitizenButton).not.toBeVisible();
-    await expect(this.editSiteAttributesButton).not.toBeVisible();
+    await expect(this.editSiteAccessibilitiesButton).not.toBeVisible();
   }
 
   async verifyEditButtonToBeVisible() {
     await expect(this.editInformationCitizenButton).toBeVisible();
-    await expect(this.editSiteAttributesButton).toBeVisible();
+    await expect(this.editSiteAccessibilitiesButton).toBeVisible();
   }
 
   async verifySitePage() {

@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import {
   SetSiteReferenceDetailsRequest,
-  SiteWithAttributes,
+  Site,
   WellKnownOdsEntry,
 } from '@types';
 import { saveSiteReferenceDetails } from '@services/appointmentsService';
@@ -26,10 +26,10 @@ type FormFields = {
 };
 
 const EditReferenceDetailsForm = ({
-  siteWithAttributes,
+  site,
   wellKnownOdsCodeEntries,
 }: {
-  siteWithAttributes: SiteWithAttributes;
+  site: Site;
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
 }) => {
   const {
@@ -38,9 +38,9 @@ const EditReferenceDetailsForm = ({
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: {
-      odsCode: siteWithAttributes.odsCode,
-      icb: siteWithAttributes.integratedCareBoard,
-      region: siteWithAttributes.region,
+      odsCode: site.odsCode,
+      icb: site.integratedCareBoard,
+      region: site.region,
     },
   });
 
@@ -70,9 +70,9 @@ const EditReferenceDetailsForm = ({
       icb: form.icb,
       region: form.region,
     };
-    await saveSiteReferenceDetails(siteWithAttributes.id, payload);
+    await saveSiteReferenceDetails(site.id, payload);
 
-    replace(`/site/${siteWithAttributes.id}/details`);
+    replace(`/site/${site.id}/details`);
   };
 
   return (

@@ -5,7 +5,7 @@ import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import EditInformationForCitizensPage from '../../page-objects/change-site-details-pages/edit-citizen-information';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -14,7 +14,7 @@ let sitePage: SitePage;
 let siteDetailsPage: SiteDetailsPage;
 let editInformCitizen: EditInformationForCitizensPage;
 
-let site: SiteWithAttributes;
+let site: Site;
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });

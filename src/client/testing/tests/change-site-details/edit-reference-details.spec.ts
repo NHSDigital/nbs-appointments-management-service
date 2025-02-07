@@ -5,7 +5,7 @@ import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import EditReferenceDetailsPage from '../../page-objects/change-site-details-pages/edit-reference-details';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -14,7 +14,7 @@ let sitePage: SitePage;
 let editReferenceDetailsPage: EditReferenceDetailsPage;
 let siteDetailsPage: SiteDetailsPage;
 
-let site: SiteWithAttributes;
+let site: Site;
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });

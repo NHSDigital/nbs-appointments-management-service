@@ -24,19 +24,19 @@ export default class EditAccessNeedsPage extends RootPage {
     });
   }
 
-  async selectAttribute(attribute: string) {
-    await this.page.getByRole('checkbox', { name: attribute }).click();
+  async selectAccessibility(accessibility: string) {
+    await this.page.getByRole('checkbox', { name: accessibility }).click();
   }
 
-  async attributeChecked(attribute: string) {
+  async accessibilityChecked(accessibility: string) {
     await expect(
-      this.page.getByRole('checkbox', { name: attribute, exact: true }),
+      this.page.getByRole('checkbox', { name: accessibility, exact: true }),
     ).toBeChecked();
   }
 
-  async attributeNotChecked(attribute: string) {
+  async accessibilityNotChecked(accessibility: string) {
     await expect(
-      this.page.getByRole('checkbox', { name: attribute, exact: true }),
+      this.page.getByRole('checkbox', { name: accessibility, exact: true }),
     ).not.toBeChecked();
   }
 

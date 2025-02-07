@@ -75,7 +75,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
@@ -96,7 +96,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
     "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAttributesFunction.Disabled"                      = true
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
     "AzureWebJobs.SetUserRoles.Disabled"                                   = true
     "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
@@ -180,7 +181,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"                = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true

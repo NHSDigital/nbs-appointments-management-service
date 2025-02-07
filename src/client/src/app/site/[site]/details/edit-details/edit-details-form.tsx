@@ -11,7 +11,7 @@ import {
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { SetSiteDetailsRequest, SiteWithAttributes } from '@types';
+import { SetSiteDetailsRequest, Site } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
 import DecimalFormControl from '@components/form-controls/decimal';
 import PhoneNumberFormControl from '@components/form-controls/phoneNumber';
@@ -24,11 +24,7 @@ type FormFields = {
   longitude: string;
 };
 
-const EditDetailsForm = ({
-  siteWithAttributes,
-}: {
-  siteWithAttributes: SiteWithAttributes;
-}) => {
+const EditDetailsForm = ({ site }: { site: Site }) => {
   const {
     register,
     control,
@@ -36,12 +32,12 @@ const EditDetailsForm = ({
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: {
-      name: siteWithAttributes.name,
+      name: site.name,
       //add in line breaks at each comma
-      address: siteWithAttributes.address.replace(/, /g, ',\n'),
-      phoneNumber: siteWithAttributes.phoneNumber,
-      latitude: siteWithAttributes.location.coordinates[0].toString(),
-      longitude: siteWithAttributes.location.coordinates[1].toString(),
+      address: site.address.replace(/, /g, ',\n'),
+      phoneNumber: site.phoneNumber,
+      latitude: site.location.coordinates[0].toString(),
+      longitude: site.location.coordinates[1].toString(),
     },
   });
 
@@ -56,9 +52,9 @@ const EditDetailsForm = ({
       latitude: form.latitude.trim(),
       longitude: form.longitude.trim(),
     };
-    await saveSiteDetails(siteWithAttributes.id, payload);
+    await saveSiteDetails(site.id, payload);
 
-    replace(`/site/${siteWithAttributes.id}/details`);
+    replace(`/site/${site.id}/details`);
   };
 
   return (

@@ -10,7 +10,7 @@ import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import CreateAvailabilityPage from '../../page-objects/create-availability';
 import ViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -24,8 +24,8 @@ let siteDetailsPage1: SiteDetailsPage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let viewAvailabilityPage: ViewAvailabilityPage;
 
-let site1: SiteWithAttributes;
-let site2: SiteWithAttributes;
+let site1: Site;
+let site2: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
   site1 = getTestSite(1);

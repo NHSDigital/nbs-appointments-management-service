@@ -7,7 +7,7 @@ import UsersPage from '../../page-objects/manage-users/users-page';
 import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
 import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
 import NotFoundPage from '../../page-objects/not-found';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -18,7 +18,7 @@ let editManageUserRolesPage: EditManageUserRolesPage;
 let removeUserPage: RemoveUserPage;
 let notFoundPage: NotFoundPage;
 
-let site: SiteWithAttributes;
+let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
   site = getTestSite();

@@ -1,13 +1,13 @@
 import { test, expect } from './fixtures';
 import RootPage from './page-objects/root';
 import OAuthLoginPage from './page-objects/oauth';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 
-let site1: SiteWithAttributes;
-let site2: SiteWithAttributes;
+let site1: Site;
+let site2: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
   site1 = getTestSite(1);

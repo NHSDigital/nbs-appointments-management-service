@@ -1,15 +1,15 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 export default class RemoveUserPage extends RootPage {
   readonly title: Locator;
   readonly confirmRemoveButton: Locator;
   readonly cancelButton: Locator;
-  readonly siteDetails: SiteWithAttributes;
+  readonly siteDetails: Site;
 
-  constructor(page: Page, siteDetails: SiteWithAttributes) {
+  constructor(page: Page, siteDetails: Site) {
     super(page);
     this.siteDetails = siteDetails;
     this.title = page.getByRole('heading', {

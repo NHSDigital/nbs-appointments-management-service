@@ -22,7 +22,7 @@ export const EditReferenceDetailsPage = async ({ siteId }: Props) => {
         caption={siteDetails.name}
       />
       <EditReferenceDetailsForm
-        siteWithAttributes={siteDetails}
+        site={siteDetails}
         wellKnownOdsCodeEntries={wellKnownOdsCodeEntries}
       ></EditReferenceDetailsForm>
     </>

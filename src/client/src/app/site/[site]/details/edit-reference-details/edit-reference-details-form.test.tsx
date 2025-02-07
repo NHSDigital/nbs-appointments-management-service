@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import {
   mockSites,
-  mockSiteWithAttributes,
+  mockSite,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import render from '@testing/render';
@@ -30,7 +30,7 @@ describe('Edit Site Reference Details Form', () => {
   it('renders', async () => {
     render(
       <EditReferenceDetailsForm
-        siteWithAttributes={mockSiteWithAttributes}
+        site={mockSite}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
@@ -41,17 +41,17 @@ describe('Edit Site Reference Details Form', () => {
   it('prepopulates the site reference data correctly in the form - well defined', () => {
     render(
       <EditReferenceDetailsForm
-        siteWithAttributes={mockSiteWithAttributes}
+        site={mockSite}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
 
     expect(screen.getByRole('textbox', { name: 'ODS code' })).toHaveValue(
-      mockSiteWithAttributes.odsCode,
+      mockSite.odsCode,
     );
 
     expect(screen.getByRole('combobox', { name: 'ICB' })).toHaveValue(
-      mockSiteWithAttributes.integratedCareBoard,
+      mockSite.integratedCareBoard,
     );
 
     expect(screen.getByRole('combobox', { name: 'ICB' })).toHaveDisplayValue(
@@ -69,7 +69,7 @@ describe('Edit Site Reference Details Form', () => {
     expect(icbOption2.selected).toBe(false);
 
     expect(screen.getByRole('combobox', { name: 'Region' })).toHaveValue(
-      mockSiteWithAttributes.region,
+      mockSite.region,
     );
 
     expect(screen.getByRole('combobox', { name: 'Region' })).toHaveDisplayValue(
@@ -102,7 +102,7 @@ describe('Edit Site Reference Details Form', () => {
 
     render(
       <EditReferenceDetailsForm
-        siteWithAttributes={site}
+        site={site}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
@@ -145,7 +145,7 @@ describe('Edit Site Reference Details Form', () => {
   it('submitting data trims the site ODS code of any whitespace', async () => {
     const { user } = render(
       <EditReferenceDetailsForm
-        siteWithAttributes={mockSiteWithAttributes}
+        site={mockSite}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
@@ -162,12 +162,12 @@ describe('Edit Site Reference Details Form', () => {
 
     const expectedPayload = {
       odsCode: 'ODS0123',
-      icb: mockSiteWithAttributes.integratedCareBoard,
-      region: mockSiteWithAttributes.region,
+      icb: mockSite.integratedCareBoard,
+      region: mockSite.region,
     };
 
     expect(mockSaveSiteReferenceDetails).toHaveBeenCalledWith(
-      mockSiteWithAttributes.id,
+      mockSite.id,
       expectedPayload,
     );
   });
@@ -175,7 +175,7 @@ describe('Edit Site Reference Details Form', () => {
   it('submitting data uses the ODS code in the option value on save payload', async () => {
     const { user } = render(
       <EditReferenceDetailsForm
-        siteWithAttributes={mockSiteWithAttributes}
+        site={mockSite}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
       />,
     );
@@ -196,13 +196,13 @@ describe('Edit Site Reference Details Form', () => {
     await user.click(saveButton);
 
     const expectedPayload = {
-      odsCode: mockSiteWithAttributes.odsCode,
+      odsCode: mockSite.odsCode,
       icb: 'ICB3',
       region: 'R3',
     };
 
     expect(mockSaveSiteReferenceDetails).toHaveBeenCalledWith(
-      mockSiteWithAttributes.id,
+      mockSite.id,
       expectedPayload,
     );
   });

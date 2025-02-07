@@ -12,7 +12,7 @@ const config = {
     '<rootDir>/src/**/*.(spec|test).{js,jsx,ts,tsx}',
     '<rootDir>/test/**/*.(spec|test).{js,jsx,ts,tsx}',
   ],
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-fixed-jsdom',
   testEnvironmentOptions: {
     url: 'http://localhost/',
   },

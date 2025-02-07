@@ -8,26 +8,26 @@ import {
 import { notAuthorized } from '@services/authService';
 
 export type UserPageProps = {
-  params: {
-    site: string;
-  };
-  searchParams?: {
+  searchParams?: Promise<{
     user?: string;
-  };
+  }>;
+  params: Promise<{
+    site: string;
+  }>;
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
-  await assertPermission(params.site, 'users:manage');
+  const { site: siteFromPath } = { ...(await params) };
+  const { user: userFromParams } = { ...(await searchParams) };
 
-  const userIsSpecified = () =>
-    (searchParams && 'user' in searchParams) ?? false;
+  await assertPermission(siteFromPath, 'users:manage');
 
   const [site, userProfile] = await Promise.all([
-    fetchSite(params.site),
+    fetchSite(siteFromPath),
     fetchUserProfile(),
   ]);
 
-  if (userProfile.emailAddress === searchParams?.user) {
+  if (userProfile.emailAddress === userFromParams) {
     notAuthorized();
   }
 
@@ -36,16 +36,12 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
       title="Staff Role Management"
       breadcrumbs={[
         { name: 'Home', href: '/' },
-        { name: site.name, href: `/site/${params.site}` },
-        { name: 'Users', href: `/site/${params.site}/users` },
+        { name: site.name, href: `/site/${siteFromPath}` },
+        { name: 'Users', href: `/site/${siteFromPath}/users` },
       ]}
       originPage="users-manage"
     >
-      <ManageUsersPage
-        userIsSpecified={userIsSpecified()}
-        params={params}
-        searchParams={searchParams}
-      />
+      <ManageUsersPage user={userFromParams} site={site} />
     </NhsPage>
   );
 };

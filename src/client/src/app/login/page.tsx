@@ -3,9 +3,9 @@ import LogInButton from './log-in-button';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 
 export type LoginPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     redirectUrl?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const redirectUrl = searchParams?.redirectUrl ?? '/';
+  const { redirectUrl } = { redirectUrl: '/', ...(await searchParams) };
+
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>

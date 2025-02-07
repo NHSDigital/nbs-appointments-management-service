@@ -10,30 +10,41 @@ import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams: {
+  searchParams?: Promise<{
     date: string;
     page: number;
     tab?: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  await assertPermission(params.site, 'availability:query');
+  const { site: siteFromPath } = { ...(await params) };
+  const { date, page } = { ...(await searchParams) };
+  if (date === undefined || page === undefined) {
+    notFound();
+  }
 
-  const date = dayjs(searchParams.date);
+  await assertPermission(siteFromPath, 'availability:query');
+
+  const parsedDate = dayjs(date);
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
-    to: date.hour(23).minute(59).second(59).format('YYYY-MM-DDTHH:mm:ssZ'),
-    site: params.site,
+    from: parsedDate.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
+    to: parsedDate
+      .hour(23)
+      .minute(59)
+      .second(59)
+      .format('YYYY-MM-DDTHH:mm:ssZ'),
+    site: siteFromPath,
   };
 
   const [site, bookings] = await Promise.all([
-    fetchSite(params.site),
+    fetchSite(siteFromPath),
     fetchBookings(fetchBookingsRequest),
   ]);
 
@@ -52,7 +63,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}/view-availability/week?date=${searchParams.date}`,
+    href: `/site/${site.id}/view-availability/week?date=${date}`,
     text: 'Back to week view',
   };
 
@@ -62,7 +73,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={date.format('dddd D MMMM')}
+      title={parsedDate.format('dddd D MMMM')}
       caption={site.name}
       backLink={backLink}
       originPage="view-availability-daily-appointments"

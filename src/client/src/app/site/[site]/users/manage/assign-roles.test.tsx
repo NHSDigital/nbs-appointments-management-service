@@ -47,8 +47,7 @@ describe('AssignRoles', () => {
   it('throws error when rendered without user', async () => {
     await expect(
       AssignRoles({
-        params: { site: 'TEST' },
-        searchParams: {},
+        site: 'TEST',
       }),
     ).rejects.toThrow('You must specify a valid NHS email address');
   });
@@ -56,16 +55,16 @@ describe('AssignRoles', () => {
   it('throws error when rendered with non NHS email', async () => {
     await expect(
       AssignRoles({
-        params: { site: 'TEST' },
-        searchParams: { user: 'test@test.com' },
+        site: 'TEST',
+        user: 'test@test.com',
       }),
     ).rejects.toThrow('You must specify a valid NHS email address');
   });
 
   it('displays the email address of the user', async () => {
     const jsx = await AssignRoles({
-      params: { site: 'TEST' },
-      searchParams: { user: 'test@nhs.net' },
+      site: 'TEST',
+      user: 'test@nhs.net',
     });
     render(jsx);
     expect(screen.getByText('Email')).toBeVisible();
@@ -73,16 +72,16 @@ describe('AssignRoles', () => {
   });
   it('calls fetch users with the correct site id', async () => {
     const jsx = await AssignRoles({
-      params: { site: 'TEST' },
-      searchParams: { user: 'test@nhs.net' },
+      site: 'TEST',
+      user: 'test@nhs.net',
     });
     render(jsx);
     expect(fetchUsersMock).toHaveBeenCalledWith('TEST');
   });
   it('passes the correct props', async () => {
     const jsx = await AssignRoles({
-      params: { site: 'TEST' },
-      searchParams: { user: 'test.one@nhs.net' },
+      site: 'TEST',
+      user: 'test.one@nhs.net',
     });
     render(jsx);
     expect(screen.getByText('assignment=role-1')).toBeVisible();

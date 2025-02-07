@@ -6,42 +6,40 @@ import CancellationConfirmed from './cancellation-confirmed';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
-  searchParams: {
+  searchParams?: Promise<{
     date: string;
     session: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
-
-  const site = await fetchSite(params.site);
-
-  if (searchParams.session === undefined || searchParams.date === undefined) {
+  const { site: siteFromPath } = { ...(await params) };
+  const { session, date } = { ...(await searchParams) };
+  if (session === undefined || date === undefined) {
     notFound();
   }
 
+  await assertPermission(siteFromPath, 'availability:setup');
+
+  const site = await fetchSite(siteFromPath);
+
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
+    href: `/site/${site.id}/view-availability/week/?date=${date}`,
     text: 'Back to week view',
   };
 
   return (
     <NhsPage
-      title={`Cancelled session for ${dayjs(searchParams.date).format('DD MMMM YYYY')}`}
+      title={`Cancelled session for ${dayjs(date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"
       backLink={backLink}
     >
-      <CancellationConfirmed
-        session={searchParams.session}
-        date={searchParams.date}
-        site={params.site}
-      />
+      <CancellationConfirmed session={session} date={date} site={site.id} />
     </NhsPage>
   );
 };

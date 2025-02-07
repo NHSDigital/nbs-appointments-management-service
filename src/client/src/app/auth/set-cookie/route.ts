@@ -11,6 +11,7 @@ import { revalidateTag } from 'next/cache';
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const provider = request.nextUrl.searchParams.get('provider');
+  const cookieStore = await cookies();
 
   if (code === null) {
     throw Error('No code found in request');
@@ -25,15 +26,15 @@ export async function GET(request: NextRequest) {
     throw Error('No token found in response');
   }
 
-  cookies().set('token', tokenResponse.token);
+  cookieStore.set('token', tokenResponse.token);
   revalidateTag('user');
 
   // Implicitly checks EULA is accepted, handles if not
   await fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`);
 
-  const previousPage = cookies().get('previousPage');
+  const previousPage = cookieStore.get('previousPage');
   if (previousPage) {
-    cookies().delete('previousPage');
+    cookieStore.delete('previousPage');
     redirect(`${process.env.CLIENT_BASE_PATH}/${previousPage.value}`);
   }
 

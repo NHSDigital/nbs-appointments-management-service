@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { ManageUsersPage } from './manage-users-page';
+import { mockSite } from '@testing/data';
 
 jest.mock('./find-user-form', () => {
   const MockFindUserForm = () => {
@@ -17,37 +18,22 @@ jest.mock('./assign-roles', () => {
 
 describe('User Management Page', () => {
   it('renders subtitle correctly', () => {
-    render(
-      <ManageUsersPage
-        params={{ site: 'TEST' }}
-        searchParams={{}}
-        userIsSpecified={false}
-      />,
-    );
+    render(<ManageUsersPage site={mockSite} />);
+
     expect(
       screen.getByText('Set the details and roles of a new user'),
     ).toBeVisible();
   });
 
   it('renders search form when no user in search params', () => {
-    render(
-      <ManageUsersPage
-        params={{ site: 'TEST' }}
-        searchParams={{}}
-        userIsSpecified={false}
-      />,
-    );
+    render(<ManageUsersPage site={mockSite} />);
+
     expect(screen.getByText('Find User Form')).toBeVisible();
   });
 
   it('renders assign roles form when user in search params', () => {
-    render(
-      <ManageUsersPage
-        params={{ site: 'TEST' }}
-        searchParams={{ user: 'test@nhs.net' }}
-        userIsSpecified
-      />,
-    );
+    render(<ManageUsersPage site={mockSite} user="test@nhs.net" />);
+
     expect(screen.getByText('Assign Roles Form')).toBeVisible();
   });
 });

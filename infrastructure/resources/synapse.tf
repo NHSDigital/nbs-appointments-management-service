@@ -29,14 +29,6 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   }
 }
 
-resource "azurerm_synapse_firewall_rule" "nbs_mya_synapse_firewall" {
-  count                = var.cosmos_synapse_enabled ? 1 : 0
-  name                 = "allowAll"
-  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
-  start_ip_address     = "0.0.0.0"
-  end_ip_address       = "255.255.255.255"
-}
-
 resource "azurerm_synapse_integration_runtime_azure" "nbs_mya_synapse_runtime" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
   name                 = "${var.application_short}synrun${var.environment}${var.loc}"
@@ -57,10 +49,6 @@ JSON
   integration_runtime {
     name = azurerm_synapse_integration_runtime_azure.nbs_mya_synapse_runtime[0].name
   }
-
-  depends_on = [
-    azurerm_synapse_firewall_rule.nbs_mya_synapse_firewall,
-  ]
 }
 
 resource "azurerm_synapse_spark_pool" "nbs_mya_synapse_spark_pool" {
@@ -96,4 +84,10 @@ EOF
   }
 
   spark_version = 3.4
+}
+
+resource "azurerm_synapse_role_assignment" "nbs_mya_synapse_role_assignment" {
+  synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace.id
+  role_name            = "Synapse Administrator"
+  principal_id         = "06394083-2cba-4f66-b56d-7de6e0f5db30"
 }

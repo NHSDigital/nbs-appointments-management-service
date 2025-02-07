@@ -45,6 +45,14 @@ const SiteDetailsPage = async ({
         {siteReferenceSummaryData && (
           <SummaryList {...siteReferenceSummaryData}></SummaryList>
         )}
+        {permissions.includes('system:admin-user') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-reference-details`}
+            className="nhsuk-link"
+          >
+            Edit site reference details
+          </Link>
+        ) : null}
       </Card>
       <Card title="Site details">
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}

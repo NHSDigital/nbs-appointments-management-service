@@ -39,16 +39,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 });
 
-//expects each test to finish on the edit site details page
-test.afterEach(async () => {
-  await editDetailsPage.addressInput.fill('Pudsey,\nLeeds,\nLS28 7LD');
-  await editDetailsPage.latitudeInput.fill('-1.66382134');
-  await editDetailsPage.longitudeInput.fill('53.79628754');
-  await editDetailsPage.phoneNumberInput.fill('0113 2222222');
-
-  await editDetailsPage.saveAndContinueButton.click();
-});
-
 test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
   await editDetailsPage.latitudeInput.fill('0.32445345');
@@ -67,20 +57,24 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await siteDetailsPage.editSiteDetailsButton.click();
   await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
-  //assert address is formed over multiple lines
-  expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
-  expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
-  expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
+  //assert address is formed over multiple lines after page reload
+  await expect(editDetailsPage.addressInput).toHaveValue(
+    'Pudsey,\nLeeds,\nLS28 7LD',
+  );
+  await expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
+  await expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
+  await expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
 
   await editDetailsPage.page.reload();
   await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines after page reload
-  expect(editDetailsPage.addressInput).toHaveValue('Pudsey,\nLeeds,\nLS28 7LD');
-  expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
-  expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
+  await expect(editDetailsPage.addressInput).toHaveValue(
+    'Pudsey,\nLeeds,\nLS28 7LD',
+  );
+  await expect(editDetailsPage.latitudeInput).toHaveValue('-1.66382134');
+  await expect(editDetailsPage.longitudeInput).toHaveValue('53.79628754');
+  await expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
 });
 
 test('Update details for a site, and then reset', async ({ page }) => {
@@ -105,13 +99,13 @@ test('Update details for a site, and then reset', async ({ page }) => {
   await siteDetailsPage.editSiteDetailsButton.click();
   await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
-  //assert address is formed over multiple lines
-  expect(editDetailsPage.addressInput).toHaveValue(
+  //assert address is formed over multiple lines after page reload
+  await expect(editDetailsPage.addressInput).toHaveValue(
     'One House,\nOne Road,\nOne Town',
   );
-  expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
-  expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue(
+  await expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
+  await expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
+  await expect(editDetailsPage.phoneNumberInput).toHaveValue(
     '0118 999 88199 9119 725 3',
   );
 
@@ -119,12 +113,12 @@ test('Update details for a site, and then reset', async ({ page }) => {
   await page.waitForURL(`**/site/${site.id}/details/edit-details`);
 
   //assert address is formed over multiple lines after page reload
-  expect(editDetailsPage.addressInput).toHaveValue(
+  await expect(editDetailsPage.addressInput).toHaveValue(
     'One House,\nOne Road,\nOne Town',
   );
-  expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
-  expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
-  expect(editDetailsPage.phoneNumberInput).toHaveValue(
+  await expect(editDetailsPage.latitudeInput).toHaveValue('0.32445345');
+  await expect(editDetailsPage.longitudeInput).toHaveValue('53.742');
+  await expect(editDetailsPage.phoneNumberInput).toHaveValue(
     '0118 999 88199 9119 725 3',
   );
 });

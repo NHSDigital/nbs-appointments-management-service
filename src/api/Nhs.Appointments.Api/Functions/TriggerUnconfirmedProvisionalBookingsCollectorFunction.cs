@@ -21,7 +21,7 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(IBookingsSer
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Expired provisional bookings removed")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("system:run-provisional-sweep", typeof(NoSiteRequestInspector))]
+    [RequiresPermission(Permissions.SystemRunProvisionalSweeper, typeof(NoSiteRequestInspector))]
     [Function("TriggerUnconfirmedProvisionalBookingsCollector")]
     public override Task<IActionResult> RunAsync(
    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "system/run-provisional-sweep")] HttpRequest req)

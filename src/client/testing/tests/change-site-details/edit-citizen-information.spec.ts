@@ -40,16 +40,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
   );
 });
 
-//expects each test to finish on the site details page
-test.afterEach(async ({ page }) => {
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await page.waitForURL(
-    `**/site/${site.id}/details/edit-information-for-citizens`,
-  );
-  await editInformCitizen.informationTextField.clear();
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
-});
-
 test('Update information for citizen', async ({ page }) => {
   await editInformCitizen.verifyInformationForCitizenPageDetails();
   await editInformCitizen.setInformationForCitizen('Test Automation');

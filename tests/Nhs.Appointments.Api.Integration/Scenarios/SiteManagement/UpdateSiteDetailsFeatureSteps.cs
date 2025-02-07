@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 public sealed class UpdateSiteDetailsFeatureSteps : SiteManagementBaseFeatureSteps
 {
     [When("I update the details for site '(.+)'")]
-    public async Task UpdateSiteAccessibilities(string siteDesignation, DataTable dataTable)
+    public async Task UpdateSiteDetails(string siteDesignation, DataTable dataTable)
     {
         var siteId = GetSiteId(siteDesignation);
         var row = dataTable.Rows.ElementAt(1);

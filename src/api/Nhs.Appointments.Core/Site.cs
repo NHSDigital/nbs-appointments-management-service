@@ -63,3 +63,9 @@ public record DetailsRequest(
     [JsonProperty("latitude")] string Latitude,
     [JsonProperty("longitude")] string Longitude
 );
+
+public record ReferenceDetailsRequest(
+    [JsonProperty("odsCode")] string OdsCode,
+    [JsonProperty("icb")] string Icb,
+    [JsonProperty("region")] string Region
+);

@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SetSiteDetailsRequest, Site } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
+import DecimalFormControl from '@components/form-controls/decimal';
+import PhoneNumberFormControl from '@components/form-controls/phoneNumber';
 
 type FormFields = {
   name: string;
@@ -25,6 +27,7 @@ type FormFields = {
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
@@ -42,12 +45,12 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     const payload: SetSiteDetailsRequest = {
-      name: form.name,
+      name: form.name.trim(),
       //remove the line breaks and save back
-      address: form.address.replace(/\n/g, ' '),
-      phoneNumber: form.phoneNumber,
-      latitude: form.latitude,
-      longitude: form.longitude,
+      address: form.address.replace(/\n/g, ' ').trim(),
+      phoneNumber: form.phoneNumber.trim(),
+      latitude: form.latitude.trim(),
+      longitude: form.longitude.trim(),
     };
     await saveSiteDetails(site.id, payload);
 
@@ -60,7 +63,12 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         <TextInput
           id="name"
           label="Site name"
-          {...register('name')}
+          {...register('name', {
+            required: {
+              value: true,
+              message: 'Enter a name',
+            },
+          })}
         ></TextInput>
       </FormGroup>
 
@@ -68,33 +76,35 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         <TextArea
           id="address"
           label="Site address"
-          {...register('address')}
+          {...register('address', {
+            required: {
+              value: true,
+              message: 'Enter an address',
+            },
+          })}
         ></TextArea>
       </FormGroup>
 
-      <FormGroup error={errors.latitude?.message || errors.longitude?.message}>
-        <TextInput
-          id="latitude"
-          label="Latitude"
-          {...register('latitude')}
-        ></TextInput>
-        <TextInput
-          id="longitude"
-          label="Longitude"
-          {...register('longitude')}
-        ></TextInput>
-      </FormGroup>
+      <DecimalFormControl
+        formField="latitude"
+        label="Latitude"
+        control={control}
+        errors={errors}
+      />
 
-      <FormGroup error={errors.phoneNumber?.message}>
-        <TextInput
-          id="phoneNumber"
-          type="tel"
-          label="Phone number"
-          title="Please enter numbers and spaces only."
-          pattern="[0-9 ]*"
-          {...register('phoneNumber')}
-        ></TextInput>
-      </FormGroup>
+      <DecimalFormControl
+        formField="longitude"
+        label="Longitude"
+        control={control}
+        errors={errors}
+      />
+
+      <PhoneNumberFormControl
+        formField="phoneNumber"
+        label="Phone number"
+        control={control}
+        errors={errors}
+      />
 
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Updating details..." />

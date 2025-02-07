@@ -13,6 +13,8 @@ public interface ISiteService
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
     Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
         decimal latitude, decimal longitude);
+
+    Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -25,12 +27,13 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
         {
-            sites = await siteStore.GetAllSites();            
+            sites = await siteStore.GetAllSites();
             memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
         }
 
         var sitesWithDistance = sites
-                .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
+            .Select(s => new SiteWithDistance(s,
+                CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
@@ -84,9 +87,16 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
+        decimal latitude, decimal longitude)
     {
         return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, latitude, longitude);
+    }
+
+    public Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
+        string region)
+    {
+        return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
@@ -95,16 +105,20 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var deltaLatitude = lat1 - lat2;
         var deltaLongitude = lon1 - lon2;
 
-        if( Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon )
+        if (Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon)
+        {
             return 0;
+        }
 
-        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) + Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) * Math.Cos(DegreesToRadians(deltaLongitude));
+        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) +
+                   Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
+                   Math.Cos(DegreesToRadians(deltaLongitude));
         dist = Math.Acos(dist);
         dist = RadiansToDegrees(dist);
-        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);        
+        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
     }
 
-    private double DegreesToRadians(double deg) => (deg * Math.PI / 180.0);
+    private double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
 
-    private double RadiansToDegrees(double rad) => (rad / Math.PI * 180.0);    
+    private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 }

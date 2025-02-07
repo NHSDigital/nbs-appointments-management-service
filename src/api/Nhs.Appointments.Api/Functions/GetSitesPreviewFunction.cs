@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Functions;
 public class GetSitesPreviewFunction(ISiteService siteService, IUserService userService, IValidator<EmptyRequest> validator, IUserContextProvider userContextProvider, ILogger<GetSitesPreviewFunction> logger, IMetricsRecorder metricsRecorder)
@@ -72,6 +73,6 @@ public class GetSitesPreviewFunction(ISiteService siteService, IUserService user
 
     private bool IsAdminUser(User user)
     {
-        return user.RoleAssignments.Any(ra => ra.Role == "system:admin-user");
+        return user.RoleAssignments.Any(ra => ra.Role == Permissions.SystemAdmin);
     }
 }

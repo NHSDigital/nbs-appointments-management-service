@@ -24,6 +24,25 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return siteDocument.ReferenceNumberGroup;
     }
 
+    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return new OperationResult(false, "The specified site was not found.");
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        PatchOperation[] detailsPatchOperations =
+        [
+            PatchOperation.Replace("/odsCode", odsCode),
+            PatchOperation.Replace("/integratedCareBoard", icb),
+            PatchOperation.Replace("/region", region)
+        ];
+
+        await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
+        return new OperationResult(true);
+    }
+
     public Task AssignPrefix(string site, int prefix)
     {
         var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);

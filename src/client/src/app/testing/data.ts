@@ -147,8 +147,18 @@ const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
     type: 'region',
   },
   {
+    odsCode: 'R3',
+    displayName: 'Region Three',
+    type: 'region',
+  },
+  {
     odsCode: 'ICB1',
     displayName: 'Integrated Care Board One',
+    type: 'icb',
+  },
+  {
+    odsCode: 'ICB3',
+    displayName: 'Integrated Care Board Three',
     type: 'icb',
   },
 ];

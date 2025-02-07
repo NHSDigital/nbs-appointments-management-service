@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
@@ -32,8 +33,9 @@ public class SetSiteAccessibilitiesFunction(
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:manage", typeof(SiteFromPathInspector))]
-    [Function("SetSiteAccessibilitiesFunction")]
+    [RequiresPermission(Permissions.ManageSite, typeof(SiteFromPathInspector))]
+    [RequiresAudit(typeof(SiteFromPathInspector))]
+    [Function("SetSiteAttributesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/accessibilities")] HttpRequest req)
     {

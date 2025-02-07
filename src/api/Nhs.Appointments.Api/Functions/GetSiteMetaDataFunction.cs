@@ -27,7 +27,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
+    [RequiresPermission(Permissions.ViewSiteMetadata, typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/meta")] HttpRequest req)

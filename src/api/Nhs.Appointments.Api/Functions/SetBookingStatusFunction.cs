@@ -24,7 +24,7 @@ public class SetBookingStatusFunction(IBookingsService bookingService, IValidato
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("booking:set-status", typeof(SiteFromBodyInspector))]
+    [RequiresPermission(Permissions.SetBookingStatus, typeof(SiteFromBodyInspector))]
     [Function("SetBookingStatusFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/set-status")] HttpRequest req)

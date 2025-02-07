@@ -7,6 +7,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
   readonly editSiteAccessibilitiesButton: Locator;
   readonly editSiteDetailsButton: Locator;
+  readonly editSiteReferenceDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
   readonly headerMsg = 'Manage Site';
@@ -31,6 +32,9 @@ export default class SiteDetailsPage extends RootPage {
   readonly detailsSuccessBanner =
     'You have successfully updated the details for the current site.';
 
+  readonly referenceDetailsSuccessBanner =
+    'You have successfully updated the reference details for the current site.';
+
   constructor(page: Page, siteDetails: Site) {
     super(page);
 
@@ -38,6 +42,9 @@ export default class SiteDetailsPage extends RootPage {
 
     this.title = page.getByRole('heading', {
       name: 'Site details',
+    });
+    this.editSiteReferenceDetailsButton = page.getByRole('link', {
+      name: 'Edit site reference details',
     });
     this.editSiteDetailsButton = page.getByRole('link', {
       name: 'Edit site details',
@@ -86,6 +93,20 @@ export default class SiteDetailsPage extends RootPage {
     }
   }
 
+  async verifyReferenceDetailsNotificationVisibility(shown: boolean) {
+    if (!shown) {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).not.toBeVisible();
+    } else {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).toBeVisible();
+      await this.closeNotificationBannerButton.click();
+      await expect(this.closeNotificationBannerButton).not.toBeVisible();
+    }
+  }
+
   async verifyCoreDetailsContent(
     address: string,
     lat: string,
@@ -98,6 +119,52 @@ export default class SiteDetailsPage extends RootPage {
     await this.verifySummaryListItemContentValue(
       this.phoneNumberLabel,
       phoneNumber,
+    );
+  }
+
+  async verifyReferenceDetailsContent(
+    odsCode: string,
+    icb: string,
+    region: string,
+  ) {
+    await this.verifySummaryListItemContentValue(this.odsCodeLabel, odsCode);
+
+    //TODO refactor using seeder well-known codes
+    let expectedICBDisplayValue = '';
+    switch (icb) {
+      case 'ICB1':
+        expectedICBDisplayValue = 'Integrated Care Board 1';
+        break;
+      case 'ICB2':
+        expectedICBDisplayValue = 'Integrated Care Board 2';
+        break;
+      default:
+        expectedICBDisplayValue = icb;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.icbLabel,
+      expectedICBDisplayValue,
+    );
+
+    //TODO refactor using seeder well-known codes
+    let expectedRegionDisplayValue = '';
+    switch (region) {
+      case 'R1':
+        expectedRegionDisplayValue = 'Region 1';
+        break;
+      case 'R2':
+        expectedRegionDisplayValue = 'Region 2';
+        break;
+      default:
+        expectedRegionDisplayValue = region;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.regionLabel,
+      expectedRegionDisplayValue,
     );
   }
 
@@ -161,47 +228,10 @@ export default class SiteDetailsPage extends RootPage {
       }),
     ).toBeVisible();
 
-    await this.verifySummaryListItemContentValue(
-      this.odsCodeLabel,
+    await this.verifyReferenceDetailsContent(
       this.siteDetails.odsCode,
-    );
-
-    //TODO refactor using seeder well-known codes
-    let expectedICBDisplayValue = '';
-    switch (this.siteDetails.integratedCareBoard) {
-      case 'ICB1':
-        expectedICBDisplayValue = 'Integrated Care Board 1';
-        break;
-      case 'ICB2':
-        expectedICBDisplayValue = 'Integrated Care Board 2';
-        break;
-      default:
-        expectedICBDisplayValue = this.siteDetails.integratedCareBoard;
-        break;
-    }
-
-    await this.verifySummaryListItemContentValue(
-      this.icbLabel,
-      expectedICBDisplayValue,
-    );
-
-    //TODO refactor using seeder well-known codes
-    let expectedRegionDisplayValue = '';
-    switch (this.siteDetails.region) {
-      case 'R1':
-        expectedRegionDisplayValue = 'Region 1';
-        break;
-      case 'R2':
-        expectedRegionDisplayValue = 'Region 2';
-        break;
-      default:
-        expectedRegionDisplayValue = this.siteDetails.region;
-        break;
-    }
-
-    await this.verifySummaryListItemContentValue(
-      this.regionLabel,
-      expectedRegionDisplayValue,
+      this.siteDetails.integratedCareBoard,
+      this.siteDetails.region,
     );
 
     await expect(

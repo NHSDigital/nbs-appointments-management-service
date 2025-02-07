@@ -342,6 +342,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -358,6 +359,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-15T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -374,6 +376,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -390,6 +393,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -406,6 +410,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-08-29T03:21:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
 ];

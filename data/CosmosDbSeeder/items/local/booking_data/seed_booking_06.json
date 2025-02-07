@@ -5,6 +5,7 @@
   "service": "RSV:Adult",
   "created": "2025-06-25T09:30:45.987654+00:00",
   "status": "Cancelled",
+  "availabilityStatus": "Unknown",
   "statusUpdated": "2025-06-28T12:03:34.00+00:00",
   "attendeeDetails": {
     "nhsNumber": "1678344364",

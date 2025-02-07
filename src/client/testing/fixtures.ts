@@ -2,7 +2,7 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { test as baseTest } from '@playwright/test';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 export * from '@playwright/test';
 
@@ -11,8 +11,8 @@ import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data
 import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
 
 const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
-const testSite1Data: SiteWithAttributes = testSite1DataRaw;
-const testSite2Data: SiteWithAttributes = testSite2DataRaw;
+const testSite1Data: Site = testSite1DataRaw;
+const testSite2Data: Site = testSite2DataRaw;
 
 interface UserSeedDataRaw {
   Username: string;
@@ -57,7 +57,7 @@ export const test = baseTest.extend<
   object,
   {
     getTestUser: (testUserId?: number) => UserSeedData;
-    getTestSite: (testSiteId?: number) => SiteWithAttributes;
+    getTestSite: (testSiteId?: number) => Site;
     newUserName: string;
     externalUserName: string;
   }

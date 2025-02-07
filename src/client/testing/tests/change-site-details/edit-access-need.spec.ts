@@ -5,7 +5,7 @@ import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import EditAccessNeedsPage from '../../page-objects/change-site-details-pages/edit-access-need';
 import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
-import { SiteWithAttributes } from '@types';
+import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -14,7 +14,7 @@ let sitePage: SitePage;
 let editAccessNeedsPage: EditAccessNeedsPage;
 let siteDetailsPage: SiteDetailsPage;
 
-let site: SiteWithAttributes;
+let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
   site = getTestSite(2);
@@ -31,14 +31,14 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.siteManagementCard.click();
   await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.editSiteAttributesButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-attributes`);
+  await siteDetailsPage.editSiteAccessibilitiesButton.click();
+  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
 });
 
-test('Update access attributes for a site', async ({ page }) => {
-  // Toggle selected attributes
-  await editAccessNeedsPage.selectAttribute('Accessible toilet');
-  await editAccessNeedsPage.selectAttribute('Step free access');
+test('Update accessibilities for a site', async ({ page }) => {
+  // Toggle selected accessibilities
+  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
+  await editAccessNeedsPage.selectAccessibility('Step free access');
   await editAccessNeedsPage.confirmSiteDetailsButton.click();
 
   // Check banner function
@@ -47,17 +47,17 @@ test('Update access attributes for a site', async ({ page }) => {
   await expect(editAccessNeedsPage.updateNotificationBanner).not.toBeVisible();
 
   // Go back into edit UI to assert on checkbox state:
-  await siteDetailsPage.editSiteAttributesButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-attributes`);
+  await siteDetailsPage.editSiteAccessibilitiesButton.click();
+  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
 
-  await editAccessNeedsPage.attributeChecked('Accessible toilet');
-  await editAccessNeedsPage.attributeNotChecked('Step free access');
+  await editAccessNeedsPage.accessibilityChecked('Accessible toilet');
+  await editAccessNeedsPage.accessibilityNotChecked('Step free access');
 
   // Reload page
   await editAccessNeedsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-attributes`);
+  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
 
-  // Check selected attributes are still correctly toggled after page reload
+  // Check selected accesibilities are still correctly toggled after page reload
   await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
     'Accessible toilet',
     'Checked',
@@ -68,7 +68,7 @@ test('Update access attributes for a site', async ({ page }) => {
   );
 
   //revert to default state
-  await editAccessNeedsPage.selectAttribute('Accessible toilet');
-  await editAccessNeedsPage.selectAttribute('Step free access');
+  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
+  await editAccessNeedsPage.selectAccessibility('Step free access');
   await editAccessNeedsPage.confirmSiteDetailsButton.click();
 });

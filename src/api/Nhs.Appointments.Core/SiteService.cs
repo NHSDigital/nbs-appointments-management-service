@@ -9,8 +9,8 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
-    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
-
+    Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
+    Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
     Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
         decimal latitude, decimal longitude);
 }
@@ -20,7 +20,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
     {        
-        var attributeIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
+        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
@@ -32,8 +32,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var sitesWithDistance = sites
                 .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
-        Func<SiteWithDistance, bool> filterPredicate = attributeIds.Any() ?
-            s => attributeIds.All(attr => s.Site.AttributeValues.SingleOrDefault(a => a.Id == attr)?.Value == "true") :
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
+            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
         
         return sitesWithDistance
@@ -56,8 +56,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             return site;
         }
 
-        site.AttributeValues =
-            site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
+        site.Accessibilities =
+            site.Accessibilities.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
     }
@@ -74,9 +74,14 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
     }
 
-    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
+    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
-        return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
+        return siteStore.UpdateAccessibilities(siteId, accessibilities);
+    }
+
+    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens) 
+    {
+        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
     }
 
     public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)

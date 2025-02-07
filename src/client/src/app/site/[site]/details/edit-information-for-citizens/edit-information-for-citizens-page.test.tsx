@@ -2,17 +2,17 @@ import {
   fetchInformationForCitizens,
   fetchSite,
 } from '@services/appointmentsService';
-import { AttributeValue, SiteWithAttributes } from '@types';
+import { Site } from '@types';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 import { render, screen } from '@testing-library/react';
-import { mockSiteWithAttributes } from '@testing/data';
+import { mockSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
 jest.mock('@services/appointmentsService');
 const fetchInformationForCitizensMock =
-  fetchInformationForCitizens as jest.Mock<Promise<AttributeValue[]>>;
+  fetchInformationForCitizens as jest.Mock<Promise<string>>;
 
 jest.mock('./add-information-for-citizens-form', () => {
   const MockForm = ({ information }: { information: string }) => {
@@ -31,9 +31,9 @@ const mockPermissions = ['site:manage', 'site:view'];
 
 describe('Manage Information For Citizen Form', () => {
   beforeEach(() => {
-    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
+    fetchSiteMock.mockResolvedValue(mockSite);
     fetchInformationForCitizensMock.mockResolvedValue(
-      mockSiteWithAttributes.attributeValues,
+      mockSite.informationForCitizens,
     );
   });
 
@@ -56,10 +56,7 @@ describe('Manage Information For Citizen Form', () => {
       permissions: mockPermissions,
     });
     render(jsx);
-    expect(fetchInformationForCitizens).toHaveBeenCalledWith(
-      'TEST',
-      'site_details',
-    );
+    expect(fetchInformationForCitizens).toHaveBeenCalledWith('TEST');
   });
 
   it('passes props to form component', async () => {
@@ -69,6 +66,6 @@ describe('Manage Information For Citizen Form', () => {
     });
     render(jsx);
 
-    expect(screen.getByText('Test information')).toBeVisible();
+    expect(screen.getByText('Test information 1')).toBeVisible();
   });
 });

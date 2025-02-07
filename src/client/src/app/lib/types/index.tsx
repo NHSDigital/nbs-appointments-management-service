@@ -14,12 +14,12 @@ interface ApiSuccessResponse<T> {
   data: T | null;
 }
 
-type AttributeDefinition = {
+type AccessibilityDefinition = {
   id: string;
   displayName: string;
 };
 
-type AttributeValue = {
+type Accessibility = {
   id: string;
   value: string;
 };
@@ -30,9 +30,12 @@ type WellKnownOdsEntry = {
   type: string;
 };
 
-type SetAttributesRequest = {
-  scope: string;
-  attributeValues: AttributeValue[];
+type SetAccessibilitiesRequest = {
+  accessibilities: Accessibility[];
+};
+
+type SetInformationForCitizensRequest = {
+  informationForCitizens: string;
 };
 
 type SetSiteDetailsRequest = {
@@ -134,15 +137,13 @@ type Site = {
   integratedCareBoard: string;
   region: string;
   location: Location;
+  accessibilities: Accessibility[];
+  informationForCitizens: string;
 };
 
 type Location = {
   type: string;
   coordinates: number[];
-};
-
-type SiteWithAttributes = Site & {
-  attributeValues: AttributeValue[];
 };
 
 type User = {
@@ -338,8 +339,8 @@ export type {
   ApiResponse,
   ApiSuccessResponse,
   AttendeeDetails,
-  AttributeDefinition,
-  AttributeValue,
+  AccessibilityDefinition,
+  Accessibility,
   Availability,
   AvailabilityBlock,
   AvailabilityResponse,
@@ -365,10 +366,10 @@ export type {
   ServiceBookingDetails,
   Session,
   SessionSummary,
-  SetAttributesRequest,
+  SetAccessibilitiesRequest,
   SetAvailabilityRequest,
+  SetInformationForCitizensRequest,
   Site,
-  SiteWithAttributes,
   TimeComponents,
   User,
   UserProfile,

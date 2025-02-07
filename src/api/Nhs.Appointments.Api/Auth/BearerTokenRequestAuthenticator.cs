@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DnsClient.Internal;
 using MassTransit.Serialization;
@@ -32,6 +34,14 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
 
         var allowedAudiences = _options.Providers.Select(authOptions => authOptions.ClientId).ToList();
 
+        if (_options.LocalTokenMode)
+        {
+            var rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(Convert.FromBase64String(_options.LocalTokenKey), out var _);
+            issuerKeys.Add(("local", new List<SecurityKey>{new RsaSecurityKey(rsa)}));
+            allowedAudiences.Add("local");
+        }
+
         var tokenValidationParams = new TokenValidationParameters
         {
             IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
@@ -47,7 +57,7 @@ public class BearerTokenRequestAuthenticator : IRequestAuthenticator
                     : throw new AuthenticationException("Invalid Issuer");
             },
             ValidateIssuerSigningKey = true,
-            ValidateLifetime = true
+            ValidateLifetime = true,
         };
         
         try

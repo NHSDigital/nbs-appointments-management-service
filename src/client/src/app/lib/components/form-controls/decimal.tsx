@@ -17,17 +17,14 @@ const VALID_DECIMAL_REGEX = new RegExp(/^(-?\d+(\.\d+)?)$/);
 //the string only contains: numbers, '-', '.'; or is empty
 const INPUT_DECIMAL_REGEX = new RegExp(/^[-\d.]*$/);
 
-interface DecimalFormControlProps<
-  TFieldValues extends FieldValues,
-  TContext = any,
-> {
+interface DecimalFormControlProps<TFieldValues extends FieldValues, TContext> {
   formField: FieldPath<TFieldValues>;
   label: string;
   control: Control<TFieldValues, TContext>;
   errors: FieldErrors<TFieldValues>;
 }
 
-const DecimalFormControl = <TFieldValues extends FieldValues, TContext = any>({
+const DecimalFormControl = <TFieldValues extends FieldValues, TContext>({
   formField,
   label,
   control,

@@ -4,23 +4,24 @@ import { EditReferenceDetailsPage } from './edit-reference-details-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 export type PageProps = {
-  params: {
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ params }: PageProps) => {
-  await assertPermission(params.site, 'system:admin-user');
+  const { site: siteFromPath } = { ...(await params) };
+  await assertPermission(siteFromPath, 'system:admin-user');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}/details`,
+    href: `/site/${siteFromPath}/details`,
     text: 'Go back',
   };
 
   return (
     <NhsPage backLink={backLink} title="" originPage="edit">
-      <EditReferenceDetailsPage siteId={params.site} />
+      <EditReferenceDetailsPage siteId={siteFromPath} />
     </NhsPage>
   );
 };

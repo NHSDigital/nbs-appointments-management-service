@@ -6,6 +6,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
   readonly previousButton: Locator;
   readonly backToMonthButton: Locator;
   readonly sessionSuccessMsg: Locator;
+  readonly viewDailyAppointmentButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -21,6 +22,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
     this.sessionSuccessMsg = page.getByText(
       'You have successfully created availability for the current site.',
     );
+    this.viewDailyAppointmentButton = page.getByRole('link', {
+      name: 'View daily appointments',
+    });
   }
 
   async verifyWeekViewDisplayed() {
@@ -63,6 +67,35 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .filter({ has: this.page.getByText(`${requiredDate}`) })
       .getByRole('link', { name: 'Change' })
       .first()
+      .click();
+  }
+
+  async verifySessionRecordDetail(
+    requiredDate: string,
+    time: string,
+    service: string,
+  ) {
+    await expect(
+      this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .getByText(`${time}`)
+        .first(),
+    ).toBeVisible();
+    await expect(
+      this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .getByText(`${service}`)
+        .first(),
+    ).toBeVisible();
+  }
+
+  async openDailyAppoitmentPage(appoitmentDate: string) {
+    await this.page
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(`${appoitmentDate}`) })
+      .getByRole('link', { name: 'View daily appointments' })
       .click();
   }
 }

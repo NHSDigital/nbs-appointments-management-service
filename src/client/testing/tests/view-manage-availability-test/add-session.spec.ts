@@ -15,6 +15,7 @@ import AddServicesPage from '../../page-objects/view-availability-appointment-pa
 import CheckSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/check-session-details-page';
 import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
 import CancelSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/cancel-session-details-page';
+import DailyAppointmentDetailsPage from '../../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
 
 const { TEST_USERS } = env;
 let rootPage: RootPage;
@@ -28,6 +29,7 @@ let addServicesPage: AddServicesPage;
 let checkSessionDetailsPage: CheckSessionDetailsPage;
 let changeAvailabilityPage: ChangeAvailabilityPage;
 let cancelSessionDetailsPage: CancelSessionDetailsPage;
+let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
@@ -41,6 +43,7 @@ test.beforeEach(async ({ page }) => {
   checkSessionDetailsPage = new CheckSessionDetailsPage(page);
   changeAvailabilityPage = new ChangeAvailabilityPage(page);
   cancelSessionDetailsPage = new CancelSessionDetailsPage(page);
+  dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -111,4 +114,60 @@ test('Verify user is able to cancel session', async () => {
   await changeAvailabilityPage.saveChanges();
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
   await cancelSessionDetailsPage.verifySessionCancelled(requiredDate);
+});
+
+test('Verify session not canceled if not confirmed', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
+  const requiredWeekRange = getWeekRange(10);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await addServicesPage.addService('RSV (Adult)');
+  await checkSessionDetailsPage.saveSession();
+  await weekViewAvailabilityPage.verifySessionAdded();
+  await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
+  await changeAvailabilityPage.selectChangeType('CancelSession');
+  await changeAvailabilityPage.saveChanges();
+  await cancelSessionDetailsPage.confirmSessionCancelation('No');
+  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
+  await dailyAppointmentDetailsPage.navigateToWeekView();
+  await weekViewAvailabilityPage.verifySessionRecordDetail(
+    requiredDate,
+    '09:00 - 10:00',
+    'RSV (Adult)',
+  );
+});
+
+test('Verify view daily appointment link displayed', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
+  const requiredWeekRange = getWeekRange(10);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await addServicesPage.addService('RSV (Adult)');
+  await checkSessionDetailsPage.saveSession();
+  await weekViewAvailabilityPage.verifySessionAdded();
+  await weekViewAvailabilityPage.openDailyAppoitmentPage(requiredDate);
+  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
+});
+
+test('Verify user is able to cancel an appoitment', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(1, 'D MMMM');
+  const requiredWeekRange = getWeekRange(1);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await addServicesPage.addService('RSV (Adult)');
+  await checkSessionDetailsPage.saveSession();
+  await weekViewAvailabilityPage.verifySessionAdded();
+  await weekViewAvailabilityPage.openDailyAppoitmentPage(requiredDate);
+  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
+  await dailyAppointmentDetailsPage.cancelAppointment('9:00');
+  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
 });

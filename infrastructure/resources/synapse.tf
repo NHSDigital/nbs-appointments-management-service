@@ -91,4 +91,5 @@ resource "azurerm_synapse_role_assignment" "nbs_mya_synapse_role_assignment" {
   synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
   role_name            = "Synapse Administrator"
   principal_id         = "06394083-2cba-4f66-b56d-7de6e0f5db30"
+  principal_type       = "User"
 }

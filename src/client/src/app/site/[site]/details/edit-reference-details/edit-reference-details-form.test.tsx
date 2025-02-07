@@ -8,6 +8,7 @@ import {
 import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
 import EditReferenceDetailsForm from './edit-reference-details-form';
+import { Site } from '@types';
 
 jest.mock('@services/appointmentsService');
 
@@ -88,7 +89,7 @@ describe('Edit Site Reference Details Form', () => {
   });
 
   it('prepopulates the site reference data correctly in the form - not well defined', () => {
-    const site = {
+    const site: Site = {
       id: mockSites[3].id,
       address: mockSites[3].address,
       phoneNumber: mockSites[3].phoneNumber,
@@ -97,7 +98,8 @@ describe('Edit Site Reference Details Form', () => {
       integratedCareBoard: mockSites[3].integratedCareBoard,
       region: mockSites[3].region,
       location: mockSites[3].location,
-      attributeValues: [],
+      accessibilities: [],
+      informationForCitizens: '',
     };
 
     render(

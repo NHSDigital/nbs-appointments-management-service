@@ -4,7 +4,9 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export const signOut = async () => {
-  cookies().delete('token');
+  const cookieStore = await cookies();
+
+  cookieStore.delete('token');
   revalidatePath('/login');
   redirect('/login');
 };

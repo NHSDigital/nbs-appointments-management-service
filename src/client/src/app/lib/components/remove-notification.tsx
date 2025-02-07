@@ -2,5 +2,7 @@
 import { cookies } from 'next/headers';
 
 export const removeNotification = async () => {
-  cookies().delete('ams-notification');
+  const cookieStore = await cookies();
+
+  cookieStore.delete('ams-notification');
 };

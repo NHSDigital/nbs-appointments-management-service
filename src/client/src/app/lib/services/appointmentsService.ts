@@ -54,7 +54,7 @@ export const fetchUserProfile = async (
     next: { tags: ['user'] },
   });
 
-  const userProfile = handleBodyResponse(response);
+  const userProfile = await handleBodyResponse(response);
   await assertEulaAcceptance(userProfile, eulaRoute);
   return userProfile;
 };
@@ -138,7 +138,7 @@ export const fetchClinicalServices = async () => {
 export const fetchSiteAccessibilities = async (siteId: string) => {
   const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
 
-  return handleBodyResponse(response)?.accessibilities ?? [];
+  return (await handleBodyResponse(response))?.accessibilities ?? [];
 };
 
 export async function fetchAccessibilityDefinitions() {
@@ -166,7 +166,7 @@ export async function fetchRoles() {
     'roles?tag=canned',
   );
 
-  return handleBodyResponse(response).roles;
+  return (await handleBodyResponse(response)).roles;
 }
 
 export async function fetchPermissions(site: string) {
@@ -174,7 +174,7 @@ export async function fetchPermissions(site: string) {
     `user/permissions?site=${site}`,
   );
 
-  return handleBodyResponse(response).permissions;
+  return (await handleBodyResponse(response)).permissions;
 }
 
 export async function fetchAvailabilityCreatedEvents(site: string) {
@@ -239,17 +239,17 @@ export async function assertAllPermissions(
   }
 }
 
-function handleBodyResponse<T>(
+async function handleBodyResponse<T>(
   response: ApiResponse<T>,
   transformData = (data: T) => data,
-): T {
+): Promise<T> {
   if (!response.success) {
     if (response.httpStatusCode === 404) {
       notFound();
     }
 
     if (response.httpStatusCode === 401) {
-      notAuthenticated();
+      await notAuthenticated();
     }
 
     if (response.httpStatusCode === 403) {
@@ -266,7 +266,9 @@ function handleBodyResponse<T>(
   return transformData(response.data);
 }
 
-function handleEmptyResponse(response: ApiResponse<unknown>): void {
+async function handleEmptyResponse(
+  response: ApiResponse<unknown>,
+): Promise<void> {
   if (response.success) {
     return;
   }
@@ -276,7 +278,7 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
   }
 
   if (response.httpStatusCode === 401) {
-    notAuthenticated();
+    await notAuthenticated();
   }
 
   if (response.httpStatusCode === 403) {
@@ -333,7 +335,7 @@ export const saveSiteAccessibilities = async (
   const notificationType = 'ams-notification';
   const notificationMessage =
     'You have successfully updated the access needs for the current site.';
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   revalidatePath(`/site/${site}/accessibilities`);
 };
@@ -351,7 +353,7 @@ export const removeUserFromSite = async (site: string, user: string) => {
 
   const notificationType = 'ams-notification';
   const notificationMessage = `You have successfully removed ${user} from the current site.`;
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
@@ -372,7 +374,7 @@ export const applyAvailabilityTemplate = async (
   const notificationType = 'ams-notification';
   const notificationMessage =
     'You have successfully created availability for the current site.';
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   revalidateTag(`fetchAvailability`);
 };
@@ -390,7 +392,7 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
   const notificationType = 'ams-notification';
   const notificationMessage =
     'You have successfully created availability for the current site.';
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   revalidateTag(`fetchAvailability`);
 };
@@ -398,7 +400,7 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
 export async function fetchInformationForCitizens(site: string) {
   const response = await appointmentsApi.get<Site>(`sites/${site}`);
 
-  return handleBodyResponse(response)?.informationForCitizens ?? '';
+  return (await handleBodyResponse(response))?.informationForCitizens ?? '';
 }
 
 export const setSiteInformationForCitizen = async (
@@ -413,7 +415,7 @@ export const setSiteInformationForCitizen = async (
   const notificationType = 'ams-notification';
   const notificationMessage =
     "You have successfully updated the current site's information.";
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
@@ -483,7 +485,7 @@ export const saveSiteDetails = async (
   const notificationType = 'ams-notification';
   const notificationMessage =
     'You have successfully updated the details for the current site.';
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 };
 
 export const saveSiteReferenceDetails = async (
@@ -514,7 +516,7 @@ export const editSession = async (request: EditSessionRequest) => {
 
   const notificationType = 'ams-notification';
   const notificationMessage = 'You have successfully edited the session.';
-  raiseNotification(notificationType, notificationMessage);
+  await raiseNotification(notificationType, notificationMessage);
 
   revalidateTag(`fetchAvailability`);
 };

@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from './root';
 
 export default class CreateAvailabilityPage extends RootPage {
@@ -120,5 +120,10 @@ export default class CreateAvailabilityPage extends RootPage {
 
   async unSelectDay(day: string) {
     await this.page.getByRole('checkbox', { name: day }).click();
+  }
+
+  async verifyCreateAvailabilitySessionPageDisplayed() {
+    await expect(this.sessionTitle).toBeVisible();
+    await expect(this.continueButton).toBeVisible();
   }
 }

@@ -16,17 +16,18 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   await assertAllPermissions(params.site, ['site:view', 'site:get-meta-data']);
 
-  const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
-    fetchSite(params.site),
-    fetchWellKnownOdsCodeEntries(),
-    fetchPermissions(params.site),
-  ]);
+  const [siteDetails, wellKnownOdsCodeEntries, sitePermissions] =
+    await Promise.all([
+      fetchSite(params.site),
+      fetchWellKnownOdsCodeEntries(),
+      fetchPermissions(params.site),
+    ]);
 
   return (
     <NhsPage
       title="Manage Site"
-      site={site}
-      caption={site.name}
+      site={siteDetails}
+      caption={siteDetails.name}
       originPage="site-details"
     >
       <SiteDetailsPage

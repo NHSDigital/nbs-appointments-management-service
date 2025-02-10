@@ -10,7 +10,8 @@ Feature: Cancel a session
     When I cancel the following session
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    Then the booking with reference '68537-44913' has been 'Orphaned'
+    Then the booking with reference '68537-44913' has status 'Booked'
+    Then the booking with reference '68537-44913' has availability status 'Orphaned'
 
   Scenario: Cancel one of two identical sessions
     Given the following sessions

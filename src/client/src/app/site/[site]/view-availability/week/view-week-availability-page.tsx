@@ -1,9 +1,8 @@
-import { Pagination } from '@components/nhsuk-frontend';
+import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import dayjs from 'dayjs';
-import { DaySummaryCard } from './day-summary-card';
-import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Site } from '@types';
-import { fetchPermissions } from '@services/appointmentsService';
+import { Suspense } from 'react';
+import { DayCardList } from './day-card-list';
 
 type Props = {
   weekStart: dayjs.Dayjs;
@@ -51,24 +50,15 @@ export const ViewWeekAvailabilityPage = async ({
     href: `week?date=${previousWeek.format('YYYY-MM-DD')}`,
   };
 
-  const daySummaries = await summariseWeek(weekStart, weekEnd, site.id);
-  const canManageAvailability = (await fetchPermissions(site.id))?.includes(
-    'availability:setup',
-  );
-
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {daySummaries.map((day, dayIndex) => {
-        return (
-          <DaySummaryCard
-            daySummary={day}
-            siteId={site.id}
-            key={`day-summary-${dayIndex}`}
-            canManageAvailability={canManageAvailability}
-          />
-        );
-      })}
+      <Suspense
+        key={weekStart.format('YYYY-MM-DDTHH:mm:ssZZ')}
+        fallback={<Spinner />}
+      >
+        <DayCardList site={site} weekStart={weekStart} weekEnd={weekEnd} />
+      </Suspense>
     </>
   );
 };

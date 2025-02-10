@@ -1,14 +1,9 @@
-﻿using System.Linq;
-using System.Net;
+using Gherkin.Ast;
+using Nhs.Appointments.Api.Models;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
@@ -16,7 +11,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 public sealed class UpdateSiteDetailsFeatureSteps : SiteManagementBaseFeatureSteps
 {
     [When("I update the details for site '(.+)'")]
-    public async Task UpdateSiteAttributes(string siteDesignation, DataTable dataTable)
+    public async Task UpdateSiteDetails(string siteDesignation, DataTable dataTable)
     {
         var siteId = GetSiteId(siteDesignation);
         var row = dataTable.Rows.ElementAt(1);

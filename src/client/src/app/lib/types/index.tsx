@@ -14,12 +14,12 @@ interface ApiSuccessResponse<T> {
   data: T | null;
 }
 
-type AttributeDefinition = {
+type AccessibilityDefinition = {
   id: string;
   displayName: string;
 };
 
-type AttributeValue = {
+type Accessibility = {
   id: string;
   value: string;
 };
@@ -30,9 +30,12 @@ type WellKnownOdsEntry = {
   type: string;
 };
 
-type SetAttributesRequest = {
-  scope: string;
-  attributeValues: AttributeValue[];
+type SetAccessibilitiesRequest = {
+  accessibilities: Accessibility[];
+};
+
+type SetInformationForCitizensRequest = {
+  informationForCitizens: string;
 };
 
 type SetSiteDetailsRequest = {
@@ -41,6 +44,12 @@ type SetSiteDetailsRequest = {
   phoneNumber: string;
   latitude: string;
   longitude: string;
+};
+
+type SetSiteReferenceDetailsRequest = {
+  odsCode: string;
+  icb: string;
+  region: string;
 };
 
 type Role = {
@@ -134,15 +143,13 @@ type Site = {
   integratedCareBoard: string;
   region: string;
   location: Location;
+  accessibilities: Accessibility[];
+  informationForCitizens: string;
 };
 
 type Location = {
   type: string;
   coordinates: number[];
-};
-
-type SiteWithAttributes = Site & {
-  attributeValues: AttributeValue[];
 };
 
 type User = {
@@ -229,7 +236,8 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled' | 'Orphaned';
+  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;
@@ -293,6 +301,17 @@ type DaySummary = {
   remainingCapacity: number;
 };
 
+type WeekSummary = {
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
+  daySummaries: DaySummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
+  remainingCapacity: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -326,8 +345,8 @@ export type {
   ApiResponse,
   ApiSuccessResponse,
   AttendeeDetails,
-  AttributeDefinition,
-  AttributeValue,
+  AccessibilityDefinition,
+  Accessibility,
   Availability,
   AvailabilityBlock,
   AvailabilityResponse,
@@ -353,16 +372,18 @@ export type {
   ServiceBookingDetails,
   Session,
   SessionSummary,
-  SetAttributesRequest,
+  SetAccessibilitiesRequest,
   SetAvailabilityRequest,
+  SetInformationForCitizensRequest,
   Site,
-  SiteWithAttributes,
   TimeComponents,
   User,
   UserProfile,
   Week,
+  WeekSummary,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
+  SetSiteReferenceDetailsRequest,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

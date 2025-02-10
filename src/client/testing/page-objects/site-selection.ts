@@ -21,5 +21,6 @@ export default class SiteSelectionPage extends RootPage {
 
   async selectSite(siteName: string) {
     await this.page.getByRole('link', { name: siteName }).click();
+    await this.page.waitForURL('**/site/**');
   }
 }

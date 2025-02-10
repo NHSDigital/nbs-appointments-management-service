@@ -1,11 +1,13 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
+import { Site } from '@types';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
-  readonly editSiteAttributesButton: Locator;
+  readonly editSiteAccessibilitiesButton: Locator;
   readonly editSiteDetailsButton: Locator;
+  readonly editSiteReferenceDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
   readonly headerMsg = 'Manage Site';
@@ -18,20 +20,11 @@ export default class SiteDetailsPage extends RootPage {
   readonly latitudeLabel = 'Latitude';
   readonly longitudeLabel = 'Longitude';
   readonly phoneNumberLabel = 'Phone Number';
-
-  readonly defaultSiteName = 'Church Lane Pharmacy';
-  readonly defaultAddress = 'Pudsey, Leeds, LS28 7LD';
-  readonly defaultLatitude = '-1.66382134';
-  readonly defaultLongitude = '53.79628754';
-  readonly defaultPhoneNumber = '0113 2222222';
-
   readonly odsCodeLabel = 'ODS code';
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
 
-  readonly defaultODSCode = 'ABC02';
-  readonly defaultICB = '	Integrated Care Board 2';
-  readonly defaultRegion = 'Region 2';
+  readonly siteDetails: Site;
 
   readonly informationSuccessBanner =
     "You have successfully updated the current site's information.";
@@ -39,15 +32,24 @@ export default class SiteDetailsPage extends RootPage {
   readonly detailsSuccessBanner =
     'You have successfully updated the details for the current site.';
 
-  constructor(page: Page) {
+  readonly referenceDetailsSuccessBanner =
+    'You have successfully updated the reference details for the current site.';
+
+  constructor(page: Page, siteDetails: Site) {
     super(page);
+
+    this.siteDetails = siteDetails;
+
     this.title = page.getByRole('heading', {
       name: 'Site details',
+    });
+    this.editSiteReferenceDetailsButton = page.getByRole('link', {
+      name: 'Edit site reference details',
     });
     this.editSiteDetailsButton = page.getByRole('link', {
       name: 'Edit site details',
     });
-    this.editSiteAttributesButton = page.getByRole('link', {
+    this.editSiteAccessibilitiesButton = page.getByRole('link', {
       name: 'Edit access needs',
     });
     this.editInformationCitizenButton = page.getByRole('link', {
@@ -59,11 +61,11 @@ export default class SiteDetailsPage extends RootPage {
     });
   }
 
-  async attributeIsTrue(attributeName: string) {
+  async accessibilityIsTrue(accessibilityName: string) {
     await expect(
       this.page
         .getByRole('row')
-        .filter({ has: this.page.getByText(attributeName) })
+        .filter({ has: this.page.getByText(accessibilityName) })
         .getByText('Yes'),
     ).toBeVisible();
   }
@@ -91,6 +93,20 @@ export default class SiteDetailsPage extends RootPage {
     }
   }
 
+  async verifyReferenceDetailsNotificationVisibility(shown: boolean) {
+    if (!shown) {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).not.toBeVisible();
+    } else {
+      await expect(
+        this.page.getByText(`${this.referenceDetailsSuccessBanner}`),
+      ).toBeVisible();
+      await this.closeNotificationBannerButton.click();
+      await expect(this.closeNotificationBannerButton).not.toBeVisible();
+    }
+  }
+
   async verifyCoreDetailsContent(
     address: string,
     lat: string,
@@ -103,6 +119,52 @@ export default class SiteDetailsPage extends RootPage {
     await this.verifySummaryListItemContentValue(
       this.phoneNumberLabel,
       phoneNumber,
+    );
+  }
+
+  async verifyReferenceDetailsContent(
+    odsCode: string,
+    icb: string,
+    region: string,
+  ) {
+    await this.verifySummaryListItemContentValue(this.odsCodeLabel, odsCode);
+
+    //TODO refactor using seeder well-known codes
+    let expectedICBDisplayValue = '';
+    switch (icb) {
+      case 'ICB1':
+        expectedICBDisplayValue = 'Integrated Care Board 1';
+        break;
+      case 'ICB2':
+        expectedICBDisplayValue = 'Integrated Care Board 2';
+        break;
+      default:
+        expectedICBDisplayValue = icb;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.icbLabel,
+      expectedICBDisplayValue,
+    );
+
+    //TODO refactor using seeder well-known codes
+    let expectedRegionDisplayValue = '';
+    switch (region) {
+      case 'R1':
+        expectedRegionDisplayValue = 'Region 1';
+        break;
+      case 'R2':
+        expectedRegionDisplayValue = 'Region 2';
+        break;
+      default:
+        expectedRegionDisplayValue = region;
+        break;
+    }
+
+    await this.verifySummaryListItemContentValue(
+      this.regionLabel,
+      expectedRegionDisplayValue,
     );
   }
 
@@ -131,12 +193,22 @@ export default class SiteDetailsPage extends RootPage {
     await expect(this.page.getByText(newInformation)).not.toBeVisible();
   }
 
-  async verifyDefaultSitePage() {
+  async verifyEditButtonNotVisible() {
+    await expect(this.editInformationCitizenButton).not.toBeVisible();
+    await expect(this.editSiteAccessibilitiesButton).not.toBeVisible();
+  }
+
+  async verifyEditButtonToBeVisible() {
+    await expect(this.editInformationCitizenButton).toBeVisible();
+    await expect(this.editSiteAccessibilitiesButton).toBeVisible();
+  }
+
+  async verifySitePage() {
     await expect(
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('heading', { name: `${this.defaultSiteName}` }),
+      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
     ).toBeVisible();
 
     await expect(
@@ -144,10 +216,10 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyCoreDetailsContent(
-      this.defaultAddress,
-      this.defaultLatitude,
-      this.defaultLongitude,
-      this.defaultPhoneNumber,
+      this.siteDetails.address,
+      this.siteDetails.location.coordinates[0].toString(),
+      this.siteDetails.location.coordinates[1].toString(),
+      this.siteDetails.phoneNumber,
     );
 
     await expect(
@@ -156,19 +228,10 @@ export default class SiteDetailsPage extends RootPage {
       }),
     ).toBeVisible();
 
-    await this.verifySummaryListItemContentValue(
-      this.odsCodeLabel,
-      this.defaultODSCode,
-    );
-
-    await this.verifySummaryListItemContentValue(
-      this.icbLabel,
-      this.defaultICB,
-    );
-
-    await this.verifySummaryListItemContentValue(
-      this.regionLabel,
-      this.defaultRegion,
+    await this.verifyReferenceDetailsContent(
+      this.siteDetails.odsCode,
+      this.siteDetails.integratedCareBoard,
+      this.siteDetails.region,
     );
 
     await expect(

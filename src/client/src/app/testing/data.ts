@@ -1,6 +1,6 @@
 import {
-  AttributeDefinition,
-  AttributeValue,
+  AccessibilityDefinition,
+  Accessibility,
   AvailabilityCreatedEvent,
   AvailabilityResponse,
   AvailabilitySession,
@@ -10,7 +10,6 @@ import {
   DaySummary,
   Role,
   Site,
-  SiteWithAttributes,
   User,
   UserProfile,
   Week,
@@ -77,6 +76,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_1', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 1',
   },
   {
     id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
@@ -90,6 +94,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_2', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 2',
   },
   {
     id: 'd79bec60-8968-4101-b553-67dec04e1019',
@@ -103,6 +112,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_3', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 3',
   },
   {
     id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
@@ -116,6 +130,11 @@ const mockSites: Site[] = [
       type: 'Point',
       coordinates: [0.5646, 56.76457],
     },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_4', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 4',
   },
 ];
 
@@ -128,8 +147,18 @@ const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
     type: 'region',
   },
   {
+    odsCode: 'R3',
+    displayName: 'Region Three',
+    type: 'region',
+  },
+  {
     odsCode: 'ICB1',
     displayName: 'Integrated Care Board One',
+    type: 'icb',
+  },
+  {
+    odsCode: 'ICB3',
+    displayName: 'Integrated Care Board Three',
     type: 'icb',
   },
 ];
@@ -156,7 +185,7 @@ const mockAuditerPermissions = [
 
 const mockNonManagerPermissions = ['booking:query', 'booking:set-status'];
 
-const mockAttributeDefinitions: AttributeDefinition[] = [
+const mockAccessibilityDefinitions: AccessibilityDefinition[] = [
   {
     id: 'accessibility/attr_1',
     displayName: 'Accessibility attribute 1',
@@ -166,12 +195,12 @@ const mockAttributeDefinitions: AttributeDefinition[] = [
     displayName: 'Accessibility attribute 2',
   },
   {
-    id: 'different_attribute_set/attr_1',
+    id: 'different_accessibility_set/attr_1',
     displayName: 'Different attribute set attribute 1',
   },
 ];
 
-const mockAttributeValues: AttributeValue[] = [
+const mockAccessibilities: Accessibility[] = [
   {
     id: 'accessibility/attr_1',
     value: 'true',
@@ -264,21 +293,6 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
   },
 ];
 
-const mockSiteWithAttributes: SiteWithAttributes = {
-  id: mockSites[0].id,
-  address: mockSites[0].address,
-  phoneNumber: mockSites[0].phoneNumber,
-  name: mockSites[0].name,
-  odsCode: mockSites[0].odsCode,
-  integratedCareBoard: mockSites[0].integratedCareBoard,
-  region: mockSites[0].region,
-  location: mockSites[0].location,
-  attributeValues: [
-    { id: 'site_details/info_for_citizen', value: 'Test information' },
-    { id: 'accessibility/attr_1', value: 'true' },
-  ],
-};
-
 const mockAvailability: AvailabilityResponse[] = [
   {
     site: 'TEST01',
@@ -338,6 +352,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -354,6 +369,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-15T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -370,6 +386,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -386,6 +403,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-11-05T10:35:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
   {
@@ -402,6 +420,7 @@ const mockBookings: Booking[] = [
     },
     created: '2024-08-29T03:21:08.0477062',
     status: 'Booked',
+    availabilityStatus: 'Supported',
     reminderSet: false,
   },
 ];
@@ -615,10 +634,9 @@ export {
   mockAllPermissions,
   mockAuditerPermissions,
   mockNonManagerPermissions,
-  mockAttributeDefinitions,
-  mockAttributeValues,
+  mockAccessibilityDefinitions,
+  mockAccessibilities,
   mockUserProfile,
-  mockSiteWithAttributes,
   mockAvailability,
   mockBookings,
   mockDetailedWeeks,

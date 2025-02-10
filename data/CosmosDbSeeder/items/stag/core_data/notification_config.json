@@ -4,7 +4,7 @@
   "configs": [
     {
       "services": [],
-      "emailTemplate": "61a79522-1b9d-4bbf-823a-6dbe43068927",
+      "emailTemplate": "b489452a-53a3-4f6d-9bd9-913ad50d7ec2",
       "smsTemplate": "",
       "eventType": "UserRolesChanged"
     },
@@ -76,8 +76,8 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "794163e2-36b5-4391-bf22-b48e07a91c39",
-      "smsTemplate": "3e448d77-fbb7-49a1-8e04-41554cc0753b",
+      "emailTemplate": "c2176f0f-21f9-4094-86d6-c592fb685015",
+      "smsTemplate": "5cddbebe-0905-41ab-acc6-1c8011e496c7",
       "eventType": "BookingCancelled"
     },
     {

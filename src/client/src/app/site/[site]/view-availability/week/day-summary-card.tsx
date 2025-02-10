@@ -1,9 +1,12 @@
-import { Card, Table } from '@components/nhsuk-frontend';
+import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
+import { Card } from '@components/nhsuk-frontend';
+import PipeDelimitedLinks, {
+  ActionLink,
+} from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { isInTheFuture } from '@services/timeService';
 import { DaySummary } from '@types';
 import Link from 'next/link';
-import { ReactNode } from 'react';
 
 type DaySummaryCardProps = {
   daySummary: DaySummary;
@@ -12,106 +15,78 @@ type DaySummaryCardProps = {
 };
 
 export const DaySummaryCard = ({
-  daySummary: {
-    date,
-    sessions,
-    maximumCapacity,
-    bookedAppointments,
-    cancelledAppointments,
-    orphanedAppointments,
-    remainingCapacity,
-  },
+  daySummary,
   siteId,
   canManageAvailability,
 }: DaySummaryCardProps) => {
-  if (sessions.length > 0) {
+  const { date, sessions, cancelledAppointments, orphanedAppointments } =
+    daySummary;
+
+  if (sessions.length === 0) {
+    const actionLinks: ActionLink[] = [
+      isInTheFuture(date.format('YYYY-MM-DD')) &&
+        canManageAvailability && {
+          text: 'Add availability to this day',
+          href: `/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`,
+        },
+      cancelledAppointments > 0 && {
+        text: 'View cancelled appointments',
+        href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=1`,
+      },
+      orphanedAppointments > 0 && {
+        text: 'View manual cancellations',
+        href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=2`,
+      },
+    ].filter(p => p !== false);
+
     return (
       <Card title={date.format('dddd D MMMM')}>
-        <SessionSummaryTable
-          sessionSummaries={sessions}
-          showChangeSessionLink={
-            canManageAvailability
-              ? {
-                  siteId,
-                  date,
-                }
-              : undefined
-          }
-        />
-        <br />
-        {isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability && (
-          <Link
-            className="nhsuk-link"
-            href={`/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`}
-          >
-            Add Session
-          </Link>
-        )}
-        <Table
-          headers={[
-            `Total appointments: ${maximumCapacity}`,
-            `Booked: ${bookedAppointments}`,
-            `Unbooked: ${remainingCapacity}`,
-          ]}
-          rows={[]}
-        />
-        <br />
-        <Link
-          className="nhsuk-link"
-          href={`daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1`}
-        >
-          View daily appointments
-        </Link>
+        <div>No availability</div>
+        <AppointmentCountsSummary period={daySummary} />
+        <PipeDelimitedLinks actionLinks={actionLinks} />
       </Card>
     );
   }
 
-  const actionLinks: ReactNode[] = [];
-  if (cancelledAppointments > 0) {
-    actionLinks.push(
-      <Link
-        className="nhsuk-link"
-        href={`daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=1`}
-      >
-        View cancelled appointments
-      </Link>,
-    );
-  }
-  if (orphanedAppointments > 0) {
-    actionLinks.push(
-      <Link
-        className="nhsuk-link"
-        href={`daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=2`}
-      >
-        View manual cancellations
-      </Link>,
-    );
-  }
-  if (isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability) {
-    actionLinks.push(
-      <Link
-        className="nhsuk-link"
-        href={`/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`}
-      >
-        Add availability to this day
-      </Link>,
-    );
-  }
+  const actionLinks: ActionLink[] = [
+    {
+      text: 'View daily appointments',
+      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1`,
+    },
+    cancelledAppointments > 0 && {
+      text: 'View cancelled appointments',
+      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=1`,
+    },
+    orphanedAppointments > 0 && {
+      text: 'View manual cancellations',
+      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=2`,
+    },
+  ].filter(p => p !== false);
 
   return (
     <Card title={date.format('dddd D MMMM')}>
-      <div>No availability</div>
+      <SessionSummaryTable
+        sessionSummaries={sessions}
+        showChangeSessionLink={
+          canManageAvailability
+            ? {
+                siteId,
+                date,
+              }
+            : undefined
+        }
+      />
       <br />
-      {actionLinks.reduce(
-        (prev, curr, index) => (
-          <>
-            {prev}
-            {index > 0 && ' | '}
-            {curr}
-          </>
-        ),
-        null,
+      {isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability && (
+        <Link
+          className="nhsuk-link"
+          href={`/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`}
+        >
+          Add Session
+        </Link>
       )}
+      <AppointmentCountsSummary period={daySummary} />
+      <PipeDelimitedLinks actionLinks={actionLinks} />
     </Card>
   );
 };

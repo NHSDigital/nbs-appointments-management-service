@@ -27,7 +27,7 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "No meta data was found for the specified site")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:get-meta-data", typeof(SiteFromQueryStringInspector))]
+    [RequiresPermission(Permissions.ViewSiteMetadata, typeof(SiteFromQueryStringInspector))]
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/meta")] HttpRequest req)
@@ -41,8 +41,8 @@ public class GetSiteMetaDataFunction(ISiteService siteService, IValidator<SiteBa
         var site = await siteService.GetSiteByIdAsync(request.Site, scope);
         if (site != null)
         {
-            var patientInformation = site.AttributeValues.Any()
-                ? site.AttributeValues?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
+            var patientInformation = site.Accessibilities.Any()
+                ? site.Accessibilities?.FirstOrDefault(a => a.Id == $"{scope}/info_for_citizen")?.Value ?? string.Empty
                 : string.Empty;
             return ApiResult<GetSiteMetaDataResponse>.Success(new GetSiteMetaDataResponse(site.Name, patientInformation));
         }

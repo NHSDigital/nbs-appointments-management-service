@@ -16,7 +16,7 @@ public class BookingDataConverterTests
             From = new DateTime(2025, 01, 02, 15, 23, 00)
         };
         var result = BookingDataConverter.ExtractAppointmentDateTime(testDocument);
-        result.Should().Be("2025-01-02 15:23:00");
+        result.Should().Be("2025-01-02T15:23:00+00:00");
     }
 
     [Theory]
@@ -34,7 +34,7 @@ public class BookingDataConverterTests
 
     [Theory]
     [InlineData(AppointmentStatus.Booked, "2025-01-01 14:44", "")]
-    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "2025-01-01 14:44:00")]
+    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "01012025:144400")]
     public void ExtractCancelledDateTime_GetDateTime_OnlyWhenCancelled(AppointmentStatus status, string statusDateTime, string expectedData)
     {
         var testDocument = new NbsBookingDocument
@@ -54,7 +54,7 @@ public class BookingDataConverterTests
             Created = new DateTime(2025, 01, 02, 13, 14, 15)
         };
         var result = BookingDataConverter.ExtractCreatedDateTime(testDocument);
-        result.Should().Be("2025-01-02 13:14:15");
+        result.Should().Be("2025-01-02T13:14:15+00:00");
     }
 
     [Fact]

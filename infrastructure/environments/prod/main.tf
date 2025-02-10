@@ -7,8 +7,8 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-prod-uks"
-    storage_account_name = "myatfproduks"
+    resource_group_name  = "nbs-mya-rg-stag-uks"
+    storage_account_name = "myatfstaguks"
     container_name       = "tfstate"
     key                  = "stag.tfstate"
   }
@@ -21,7 +21,7 @@ provider "azurerm" {
 }
 
 module "mya_application_stag" {
-  environment                                    = "prod"
+  environment                                    = "stag"
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
   nhs_mail_authorize_uri                         = var.NHS_MAIL_AUTHORIZE_URI

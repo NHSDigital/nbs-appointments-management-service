@@ -35,7 +35,7 @@ module "mya_application_int" {
   okta_jwks_uri                                  = var.OKTA_JWKS_URI
   okta_client_id                                 = var.OKTA_CLIENT_ID
   okta_client_secret                             = var.OKTA_CLIENT_SECRET
-  auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE  
+  auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI
   gov_notify_base_uri                            = var.GOV_NOTIFY_BASE_URI

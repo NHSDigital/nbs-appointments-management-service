@@ -15,7 +15,7 @@ const PHONE_NUMBER_REGEX = new RegExp(/^[0-9 ]*$/);
 
 interface PhoneNumberFormControlProps<
   TFieldValues extends FieldValues,
-  TContext = any,
+  TContext,
 > {
   formField: FieldPath<TFieldValues>;
   label: string;
@@ -23,10 +23,7 @@ interface PhoneNumberFormControlProps<
   errors: FieldErrors<TFieldValues>;
 }
 
-const PhoneNumberFormControl = <
-  TFieldValues extends FieldValues,
-  TContext = any,
->({
+const PhoneNumberFormControl = <TFieldValues extends FieldValues, TContext>({
   formField,
   label,
   control,

@@ -1,6 +1,7 @@
 import { LATEST_CONSENT_COOKIE_VERSION } from '@constants';
-import { getCookieConsent } from '@services/cookiesService';
+import { getCookieConsent, setCookieConsent } from '@services/cookiesService';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 
 const CookieBanner = async () => {
   const consentCookie = await getCookieConsent();
@@ -15,7 +16,7 @@ const CookieBanner = async () => {
   ) {
     return (
       <div>
-        <div id="nhsuk-cookie-banner">
+        <div className="nhsuk-cookie-banner">
           <div className="nhsuk-cookie-banner" id="cookiebanner">
             <div className="nhsuk-width-container">
               <h2>Cookies on the NHS website</h2>
@@ -32,30 +33,34 @@ const CookieBanner = async () => {
               <p>
                 Let us know if this is OK. We'll use a cookie to save your
                 choice. You can{' '}
-                <a
-                  id="nhsuk-cookie-banner__link"
-                  href="/our-policies/cookies-policy/"
+                <Link
+                  className="nhsuk-cookie-banner__link"
+                  href="/cookies-policy"
                 >
                   read more about our cookies
-                </a>{' '}
+                </Link>{' '}
                 before you choose.
               </p>
               <ul>
                 <li>
-                  <button
-                    className="nhsuk-button"
-                    id="nhsuk-cookie-banner__link_accept_analytics"
-                  >
-                    I'm OK with analytics cookies
-                  </button>
+                  <form action={setCookieConsent.bind(null, true)}>
+                    <button
+                      className="nhsuk-button"
+                      id="nhsuk-cookie-banner__link_accept_analytics"
+                    >
+                      I'm OK with analytics cookies
+                    </button>
+                  </form>
                 </li>
                 <li>
-                  <button
-                    className="nhsuk-button"
-                    id="nhsuk-cookie-banner__link_accept"
-                  >
-                    Do not use analytics cookies
-                  </button>
+                  <form action={setCookieConsent.bind(null, false)}>
+                    <button
+                      className="nhsuk-button"
+                      id="nhsuk-cookie-banner__link_accept"
+                    >
+                      Do not use analytics cookies
+                    </button>
+                  </form>
                 </li>
               </ul>
             </div>
@@ -67,15 +72,17 @@ const CookieBanner = async () => {
 
   if (recentlyUpdatedConsent) {
     return (
-      <div
-        className="nhsuk-success-banner"
-        id="nhsuk-cookie-confirmation-banner"
-      >
-        <div className="nhsuk-width-container">
-          <p id="nhsuk-success-banner__message">
-            You can change your cookie settings at any time using our{' '}
-            <a href="/our-policies/cookies-policy/">cookies page</a>.
-          </p>
+      <div className="nhsuk-cookie-banner">
+        <div
+          className="nhsuk-success-banner"
+          id="nhsuk-cookie-confirmation-banner"
+        >
+          <div className="nhsuk-width-container">
+            <p id="nhsuk-success-banner__message">
+              You can change your cookie settings at any time using our{' '}
+              <Link href="/cookies-policy">cookies page</Link>.
+            </p>
+          </div>
         </div>
       </div>
     );

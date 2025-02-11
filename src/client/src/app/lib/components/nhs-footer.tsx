@@ -18,7 +18,7 @@ const NhsFooter = () => {
         },
         {
           text: 'Cookies Policy',
-          href: 'https://www.nhs.uk/our-policies/cookies-policy/',
+          href: 'cookies-policy',
         },
       ]}
     />

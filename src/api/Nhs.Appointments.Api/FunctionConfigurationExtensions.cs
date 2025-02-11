@@ -80,6 +80,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<IBookingEventFactory, EventFactory>()
+            .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
+            .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

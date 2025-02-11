@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -29,7 +29,8 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<UserDocument, User>()
             .ForMember(x => x.LatestAcceptedEulaVersion, opt => opt.AllowNull())
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
-        CreateMap<SiteDocument, Site>();
+        CreateMap<SiteDocument, Site>()
+            .ReverseMap();
 
         CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
 

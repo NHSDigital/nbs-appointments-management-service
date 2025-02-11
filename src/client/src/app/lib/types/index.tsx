@@ -134,6 +134,11 @@ type RoleAssignment = {
   role: string;
 };
 
+type NhsMyaCookieConsent = {
+  consented: boolean;
+  version: number;
+};
+
 type Site = {
   id: string;
   name: string;
@@ -366,6 +371,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   EulaVersion,
+  NhsMyaCookieConsent,
   Role,
   RoleAssignment,
   ServiceInformation,

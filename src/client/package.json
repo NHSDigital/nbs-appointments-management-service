@@ -17,6 +17,7 @@
     "lint": "eslint **/*.{ts,tsx}",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
+    "stylelint": "stylelint --fix",
     "test": "jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",

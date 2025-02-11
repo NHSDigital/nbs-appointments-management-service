@@ -23,7 +23,7 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
   consistency_policy {
     consistency_level = "Session"
   }
-  dynamic "backup" {
+  backup {
     type = "Continuous"
     tier = "Continuous7Days"
   }

@@ -1,0 +1,65 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using System.Net;
+using System.Threading.Tasks;
+using Nhs.Appointments.Core.Inspectors;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Routing;
+using System;
+
+namespace Nhs.Appointments.Api.Functions;
+
+public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+    : BaseApiFunction<BulkImportRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+{
+    [OpenApiOperation(operationId: "Bulk User Import", tags: ["User"], Summary = "Bulk import users")]
+    [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Users successfully imported")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    // TODO: New permission - data importer?
+    //[RequiresPermission(Permissions.SetupAvailability, typeof(NoSiteRequestInspector))]
+    [Function("BulkUserImportFunction")]
+    public override Task<IActionResult> RunAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")] HttpRequest req)
+    {
+        return base.RunAsync(req);
+    }
+
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var csvFile = req.Form.Files[0];
+        var errors = new List<ErrorMessageResponseItem>();
+
+        if (csvFile is null)
+        {
+            errors.Add(new ErrorMessageResponseItem { Message = "No file uploaded in the request form.", Property = nameof(BulkImportRequest.File) });
+        }
+
+        var type = req.HttpContext.GetRouteValue("type")?.ToString();
+        var parsedRequest = new BulkImportRequest(csvFile, type);
+
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((errors, parsedRequest));
+    }
+
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(BulkImportRequest request, ILogger logger)
+    {
+        var result = request.Type switch
+        {
+            "user" => await userDataImportHandler.ProcessFile(request.File),
+            "site" => await siteDataImportHandler.ProcessFile(request.File),
+            _ => throw new NotSupportedException($"Type: {request.Type} not supported."),
+        };
+        return Success(new EmptyResponse());
+    }
+}
+

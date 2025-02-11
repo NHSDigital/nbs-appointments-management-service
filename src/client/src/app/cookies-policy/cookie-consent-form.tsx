@@ -17,7 +17,7 @@ type CookieConsentFormProps = {
 };
 
 type CookieConsentFormData = {
-  consented: boolean;
+  consented: 'yes' | 'no';
 };
 
 const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
@@ -26,14 +26,14 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
     handleSubmit,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CookieConsentFormData>({
-    defaultValues: { consented: consentCookie?.consented },
+    defaultValues: { consented: consentCookie?.consented ? 'yes' : 'no' },
   });
 
   const router = useRouter();
   const submitForm: SubmitHandler<CookieConsentFormData> = async (
     form: CookieConsentFormData,
   ) => {
-    await setCookieConsent(form.consented);
+    await setCookieConsent(form.consented === 'yes');
     router.push(`/`);
   };
 
@@ -51,14 +51,14 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
         <RadioGroup>
           <Radio
             label="Use cookies to measure my website use"
-            value="true"
+            value="yes"
             {...register('consented', {
               required: { value: true, message: 'Select an option' },
             })}
           />
           <Radio
             label="Do not use cookies to measure my website use"
-            value="false"
+            value="no"
             {...register('consented', {
               required: { value: true, message: 'Select an option' },
             })}

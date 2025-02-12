@@ -136,7 +136,12 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
         else
         {
-            return new OperationResult(false, "The site already exists.");
+            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
+            var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
+
+            await Task.WhenAll(updateSite, updateAccessiblities);
+
+            return new OperationResult(true);
         }
     }
 }

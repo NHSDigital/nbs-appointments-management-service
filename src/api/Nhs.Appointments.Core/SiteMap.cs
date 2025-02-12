@@ -23,18 +23,30 @@ public class SiteMap : ClassMap<SiteImportRow>
         };
 
         //validate ID provided is a GUID
-        Map(m => m.Id).TypeConverter<GuidStringTypeConverter>();
-        Map(m => m.OdsCode).Name("OdsCode");
-        Map(m => m.Name).Name("Name");
-        Map(m => m.Address).Name("Address");
-        Map(m => m.PhoneNumber).Name("PhoneNumber");
+        Map(m => m.Id)
+            .TypeConverter<GuidStringTypeConverter>();
+        Map(m => m.OdsCode)
+            .Name("OdsCode")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Name)
+            .Name("Name")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Address)
+            .Name("Address")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.PhoneNumber)
+            .Name("PhoneNumber")
+            .Validate(f => StringHasValue(f.Field));
         Map(m => m.Location).Convert(x =>
             new Location(
                 "Point",
                 [x.Row.GetField<double>("Longitude"), x.Row.GetField<double>("Latitude")]
             ));
-        Map(m => m.ICB).Name("ICB");
-        Map(m => m.Region).Name("Region");
+        Map(m => m.ICB)
+            .Name("ICB")
+            .Validate(f => StringHasValue(f.Field));
+        Map(m => m.Region).Name("Region")
+            .Validate(f => StringHasValue(f.Field));
         Map(m => m.Accessibilities).Convert(x =>
         {
             return accessibilityKeys
@@ -43,6 +55,8 @@ public class SiteMap : ClassMap<SiteImportRow>
                 .ToArray();
         });
     }
+
+    private static bool StringHasValue(string value) => !string.IsNullOrWhiteSpace(value);
 
     private static bool ParseUserEnteredBoolean(string possibleBool)
     {

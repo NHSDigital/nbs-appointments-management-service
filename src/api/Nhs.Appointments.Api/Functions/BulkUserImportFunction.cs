@@ -17,7 +17,8 @@ using System;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IApiUserDataImportHandler apiUserDataImportHandler,
+    IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "Bulk User Import", tags: ["User"], Summary = "Bulk import users")]
@@ -37,16 +38,21 @@ public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        var csvFile = req.Form.Files[0];
+        var files = req.Form.Files;
         var errors = new List<ErrorMessageResponseItem>();
 
-        if (csvFile is null)
+        if (files.Count is 0)
         {
-            errors.Add(new ErrorMessageResponseItem { Message = "No file uploaded in the request form.", Property = nameof(BulkImportRequest.File) });
+            errors.Add(new ErrorMessageResponseItem { Message = "No file uploaded in the request form." });
+        }
+
+        if (files.Count > 1)
+        {
+            errors.Add(new ErrorMessageResponseItem { Message = "Too many files uploaded. Only upload one file at a time." });
         }
 
         var type = req.HttpContext.GetRouteValue("type")?.ToString();
-        var parsedRequest = new BulkImportRequest(csvFile, type);
+        var parsedRequest = new BulkImportRequest(files[0], type);
 
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((errors, parsedRequest));
     }
@@ -57,6 +63,7 @@ public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler
         {
             "user" => await userDataImportHandler.ProcessFile(request.File),
             "site" => await siteDataImportHandler.ProcessFile(request.File),
+            "apiUser" => await apiUserDataImportHandler.ProcessFile(request.File),
             _ => throw new NotSupportedException($"Type: {request.Type} not supported."),
         };
         return Success(new EmptyResponse());

@@ -25,6 +25,7 @@ public class UserDataImportHandler(IUserService userService) : IUserDataImportHa
         {
             try
             {
+                // TODO: Should we check the site actually exists?
                 var roleAssignments = userAssignmentGroup
                     .SelectMany(ua => rolesToAssign
                     .Select(r => new RoleAssignment { Role = r, Scope = $"site:{ua.SiteId}" }));
@@ -49,8 +50,12 @@ public class UserDataImportHandler(IUserService userService) : IUserDataImportHa
     {
         public UserImportRowMap()
         {
-            Map(m => m.UserId).Name("User");
-            Map(m => m.SiteId).Name("Site");
+            Map(m => m.UserId)
+                .Name("User")
+                .Validate(f => !string.IsNullOrWhiteSpace(f.Field));
+            Map(m => m.SiteId)
+                .Name("Site")
+                .Validate(f => !string.IsNullOrWhiteSpace(f.Field));
         }
     }
 }

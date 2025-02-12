@@ -25,20 +25,6 @@ stages:
           csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
         steps:
-          - checkout: self
-            persistCredentials: true # Ensures authentication for Git push
-          - script: |
-              TAG_NAME="build-$(Build.BuildId)"
-              COMMIT_SHA=$(Build.SourceVersion)
-
-              echo "Creating tag: $TAG_NAME for commit: $COMMIT_SHA"
-
-              git config --global user.name "MYA Azure DevOps Pipeline"
-              git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
-
-              git tag -a $TAG_NAME -m "Tagging commit $COMMIT_SHA with $TAG_NAME"
-              git push origin $TAG_NAME
-            displayName: "Create and push Git tag"
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
             inputs:

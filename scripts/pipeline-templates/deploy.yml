@@ -30,7 +30,8 @@ stages:
       - Build
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    # TODO revert check, just for testing before merged
+    condition: succeeded()
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -268,10 +269,10 @@ stages:
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: 'Swap Slots'
+              Action: "Swap Slots"
               WebAppName: ${{parameters.webServerName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
-              SourceSlot: 'preview'
+              SourceSlot: "preview"
       - job: SwapHttpFuncAppSlots
         displayName: "Swap http function app slots"
         dependsOn: WaitForSlotApproval
@@ -307,7 +308,7 @@ stages:
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: 'Swap Slots'
+              Action: "Swap Slots"
               WebAppName: ${{parameters.serviceBusFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
@@ -324,3 +325,19 @@ stages:
               WebAppName: ${{parameters.timerFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
+      - job: SetEnvironmentTag
+        condition: succeeded()
+        steps:
+          - checkout: self
+            persistCredentials: true # Ensures authentication for Git push
+          - script: |
+              COMMIT_SHA=$(Build.SourceVersion)
+
+              echo "Moving tag: ${{parameters.env}} to commit: $COMMIT_SHA"
+
+              git config --global user.name "MYA Azure DevOps Pipeline"
+              git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
+
+              git tag -a -f ${{parameters.env}} $COMMIT_SHA
+              git push origin ${{parameters.env}} --force
+            displayName: "Move environment tag to this commit on deployment success"

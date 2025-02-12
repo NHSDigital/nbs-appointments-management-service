@@ -61,7 +61,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     Auth__Providers__1__ClientSecret                             = var.okta_client_secret
     Auth__Providers__1__ClientCodeExchangeUri                    = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                = "${local.auth_provider_return_uri}?provider=okta"
-    Auth__Providers__1__RequiresStateForAuthorize                = true    
+    Auth__Providers__1__RequiresStateForAuthorize                = true
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"            = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"               = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                    = true

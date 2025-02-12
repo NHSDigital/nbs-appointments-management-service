@@ -1,6 +1,6 @@
 ﻿import { render, screen } from '@testing-library/react';
 import { EditAccessibilitiesPage } from './edit-accessibilities-page';
-import { AccessibilityDefinition, AccessibilityValue, Site } from '@types';
+import { AccessibilityDefinition, Accessibility, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchSite,
@@ -24,7 +24,7 @@ jest.mock('./add-accessibilities-form', () => {
   }: {
     accessibilityDefinitions: AccessibilityDefinition[];
     site: string;
-    accessibilities: AccessibilityValue[];
+    accessibilities: Accessibility[];
   }) => {
     return (
       <>

@@ -82,6 +82,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
+            .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

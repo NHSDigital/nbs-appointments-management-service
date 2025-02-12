@@ -20,9 +20,9 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractNhsNumber(BookingDocument booking) => booking.AttendeeDetails.NhsNumber;
 
-    public static string ExtractAppointmentDateTime(BookingDocument booking) => booking.From.ToString("yyyy-MM-dd HH:mm:ss");
+    public static string ExtractAppointmentDateTime(BookingDocument booking) => booking.From.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
-    public static string ExtractCreatedDateTime(BookingDocument booking) => booking.Created.ToString("yyyy-MM-dd HH:mm:ss");
+    public static string ExtractCreatedDateTime(BookingDocument booking) => booking.Created.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
     public static string ExtractAppointmentStatus(BookingDocument booking) => booking.Status switch
     {
@@ -41,5 +41,5 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractService(BookingDocument booking) => booking.Service;
 
-    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty;
+    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("ddMMyyyy:HHmmss") : string.Empty;
 }

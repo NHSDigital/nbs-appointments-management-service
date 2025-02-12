@@ -62,7 +62,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Auth__Providers__1__ClientSecret                                       = var.okta_client_secret
     Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
-    Auth__Providers__1__RequiresStateForAuthorize                          = true    
+    Auth__Providers__1__RequiresStateForAuthorize                          = true
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -168,7 +168,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Auth__Providers__1__ClientSecret                                       = var.okta_client_secret
     Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
-    Auth__Providers__1__RequiresStateForAuthorize                          = true    
+    Auth__Providers__1__RequiresStateForAuthorize                          = true
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -181,7 +181,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true

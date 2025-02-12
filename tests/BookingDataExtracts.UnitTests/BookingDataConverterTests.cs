@@ -34,7 +34,7 @@ public class BookingDataConverterTests
 
     [Theory]
     [InlineData(AppointmentStatus.Booked, "2025-01-01 14:44", "")]
-    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "01012025:144400")]
+    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "01012025:14:44:00")]
     public void ExtractCancelledDateTime_GetDateTime_OnlyWhenCancelled(AppointmentStatus status, string statusDateTime, string expectedData)
     {
         var testDocument = new NbsBookingDocument

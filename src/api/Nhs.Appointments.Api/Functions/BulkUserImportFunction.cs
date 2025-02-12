@@ -14,12 +14,13 @@ using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using System;
+using Nhs.Appointments.Api.Constants;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IApiUserDataImportHandler apiUserDataImportHandler,
     IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<BulkImportRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "Bulk User Import", tags: ["User"], Summary = "Bulk import users")]
     [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
@@ -27,7 +28,7 @@ public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    // TODO: New permission - data importer?
+    // TODO: Add new permission - data importer?
     //[RequiresPermission(Permissions.SetupAvailability, typeof(NoSiteRequestInspector))]
     [Function("BulkUserImportFunction")]
     public override Task<IActionResult> RunAsync(
@@ -57,16 +58,18 @@ public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((errors, parsedRequest));
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(BulkImportRequest request, ILogger logger)
+    protected override async Task<ApiResult<IEnumerable<ReportItem>>> HandleRequest(BulkImportRequest request, ILogger logger)
     {
         var result = request.Type switch
         {
-            "user" => await userDataImportHandler.ProcessFile(request.File),
-            "site" => await siteDataImportHandler.ProcessFile(request.File),
-            "apiUser" => await apiUserDataImportHandler.ProcessFile(request.File),
+            BulkImportType.User => await userDataImportHandler.ProcessFile(request.File),
+            BulkImportType.Site => await siteDataImportHandler.ProcessFile(request.File),
+            BulkImportType.ApiUser => await apiUserDataImportHandler.ProcessFile(request.File),
             _ => throw new NotSupportedException($"Type: {request.Type} not supported."),
         };
-        return Success(new EmptyResponse());
+
+        // TODO: Conversations around return object to determine what exactly we return here
+        return ApiResult<IEnumerable<ReportItem>>.Success(result);
     }
 }
 

@@ -29,6 +29,7 @@ public class UserDataImportHandler(IUserService userService) : IUserDataImportHa
                 var roleAssignments = userAssignmentGroup
                     .SelectMany(ua => rolesToAssign
                     .Select(r => new RoleAssignment { Role = r, Scope = $"site:{ua.SiteId}" }));
+                // TODO: We can use the UpdateUserRoleAssignmentsAsync method, but this sends out notifications - do we want this initially?
                 await userService.SaveUserAsync(userAssignmentGroup.Key, "site", roleAssignments);
             }
             catch (Exception ex)

@@ -1,0 +1,104 @@
+using Microsoft.AspNetCore.Http.Internal;
+using System.Text;
+
+namespace Nhs.Appointments.Core.UnitTests;
+public class SiteDataImporterHandlerTests
+{
+    private readonly Mock<ISiteService> _siteServiceMock = new();
+    private readonly Mock<IWellKnowOdsCodesService> _wellKnownOdsCodesServiceMock = new();
+
+    private readonly SiteDataImporterHandler _sut;
+
+    private const string SitesHeader =
+        "Id,OdsCode,Name,Address,PhoneNumber,Longitude,Latitude,ICB,Region,Site type,accessible_toilet,braille_translation_service,disabled_car_parking,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
+
+    public SiteDataImporterHandlerTests()
+    {
+        _sut = new SiteDataImporterHandler(_siteServiceMock.Object, _wellKnownOdsCodesServiceMock.Object);
+    }
+
+    [Fact]
+    public async Task CanReadSiteData()
+    {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+        var id3 = Guid.NewGuid().ToString();
+
+        string[] inputRows =
+        [
+            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id3}\",\"site3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,true,true,False,\"false\",\"true\",false,true,true,false",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+                new("site3", "Site 3", "Test3")
+            });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(3);
+        report.All(r => r.Success).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvalidSiteID_DataReportsBadData()
+    {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+
+        string[] inputRows =
+        [
+            "ferfgsd,site1,\"test site 1\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            "sadfsdafsdf,site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false"
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: ferfgsd");
+        report.Last().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: sadfsdafsdf");
+        report.All(r => r.Success).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InvalidLongLat_DataReportsBadData()
+    {
+        var id1 = Guid.NewGuid().ToString();
+        var id2 = Guid.NewGuid().ToString();
+
+        string[] inputRows =
+        [
+            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"True\",false,true,true,false"
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(3);
+        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.\r\n    Text: 'foo'");
+        report.Count(r => r.Success).Should().Be(1);
+        report.Count(r => !r.Success).Should().Be(2);
+    }
+
+    // TODO: Add tests around non-distinct siteIds & ods code not in well known ods codes
+}

@@ -1,12 +1,19 @@
 using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time) : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(
+    ITypedDocumentCosmosStore<BookingDocument> bookingStore, 
+    ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, 
+    IMetricsRecorder metricsRecorder, 
+    TimeProvider time,
+    ILogger<BookingCosmosDocumentStore> logger
+) : IBookingsDocumentStore
 {
     private const int PointReadLimit = 3;    
            
@@ -70,8 +77,18 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
                 {
                     var siteId = document.Site;
                     var bookingReference = document.Reference;
-                    var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId); 
-                    results.Add(result);
+
+                    try
+                    {
+                        var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId);
+                        if (result != null)
+                        {
+                            results.Add(result);
+                        }
+                    }
+                    catch (Exception ex) {
+                        logger.LogError(ex, "Did not find booking: {BookingReference} in booking container", bookingReference);
+                    }
                 }
             }
         }

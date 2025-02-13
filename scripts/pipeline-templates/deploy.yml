@@ -325,7 +325,7 @@ stages:
               WebAppName: ${{parameters.timerFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-      - job: Set Environment Tag
+      - job: SetEnvironmentTag
         displayName: "Move Environment Deployment Tag"
         condition: succeeded()
         dependsOn:

@@ -7,8 +7,9 @@ public static class Permissions
 {
     public const string SystemRunReminders = "system:run-reminders";
     public const string SystemRunProvisionalSweeper = "system:run-provisional-sweep";
-    
+    public const string SystemDataImporter = "system:data-importer";
     public const string ManageSiteAdmin = "site:manage:admin";
+
     public const string ManageSite = "site:manage";
     public const string ViewSite = "site:view";
     public const string ViewSitePreview = "site:view:preview";

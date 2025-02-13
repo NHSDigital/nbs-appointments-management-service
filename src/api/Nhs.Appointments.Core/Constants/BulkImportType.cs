@@ -1,5 +1,5 @@
-namespace Nhs.Appointments.Api.Constants;
-internal static class BulkImportType
+namespace Nhs.Appointments.Core.Constants;
+public static class BulkImportType
 {
     public const string ApiUser = "apiUser";
     public const string Site = "site";

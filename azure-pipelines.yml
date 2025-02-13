@@ -25,6 +25,20 @@ stages:
           csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
         steps:
+          - checkout: self
+            persistCredentials: true # Ensures authentication for Git push
+          - script: |
+              COMMIT_SHA=$(Build.SourceVersion)
+
+              echo "Moving tag: ${{parameters.env}} to commit: $COMMIT_SHA"
+
+              git config --global user.name "MYA Azure DevOps Pipeline"
+              git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
+
+              git fetch --tags
+              git tag -a -m "Moved the '${{parameters.env}}' tag to this commit on successful deployment of build '$(Build.BuildId)'" ${{parameters.env}} $COMMIT_SHA -f
+              git push origin ${{parameters.env}} --force
+            displayName: "Move the environment tag to this commit on deployment success"
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
             inputs:

@@ -13,6 +13,13 @@ public class SiteDataImporterHandler(ISiteService siteService) : ISiteDataImport
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
+        var distinctIds = siteRows.GroupBy(s => s.Id).Count();
+        if (siteRows.Count != distinctIds)
+        {
+            report.Add(new ReportItem(-1, "Duplicate side IDs", false, "Document contains duplicated siteIds. These IDs must be unique."));
+            return report;
+        }
+
         foreach (var site in siteRows)
         {
             try

@@ -61,7 +61,8 @@
         "booking:query",
         "site:view",
         "site:get-meta-data",
-        "users:view"
+        "users:view",
+        "system:data-importer"
       ]
     },
     {
@@ -109,7 +110,8 @@
         "site:manage",
         "system:run-reminders",
         "system:run-provisional-sweep",
-        "system:admin-user"
+        "system:admin-user",
+        "system:data-importer"
       ]
     },
     {

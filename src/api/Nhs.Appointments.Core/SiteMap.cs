@@ -1,6 +1,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
+using Nhs.Appointments.Core.Constants;
 using static Nhs.Appointments.Core.SiteDataImporterHandler;
 
 namespace Nhs.Appointments.Core;
@@ -36,7 +37,7 @@ public class SiteMap : ClassMap<SiteImportRow>
             .Validate(f => StringHasValue(f.Field));
         Map(m => m.PhoneNumber)
             .Name("PhoneNumber")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => StringHasValue(f.Field) && IsValidPhoneNumber(f.Field));
         Map(m => m.Location).Convert(x =>
             new Location(
                 "Point",
@@ -60,8 +61,16 @@ public class SiteMap : ClassMap<SiteImportRow>
 
     private static bool ParseUserEnteredBoolean(string possibleBool)
     {
-        possibleBool = possibleBool?.ToLower();
-        return possibleBool == "true" || possibleBool == "yes";
+        return !bool.TryParse(possibleBool, out var result)
+            ? throw new FormatException($"Invalid bool string format: {possibleBool}")
+            : result;
+    }
+
+    private static bool IsValidPhoneNumber(string phoneNumber)
+    {
+        return !string.IsNullOrWhiteSpace(phoneNumber)
+            && (RegularExpressionConstants.LandlineNumberRegex().IsMatch(phoneNumber)
+            || RegularExpressionConstants.MobileNumberRegex().IsMatch(phoneNumber));
     }
 
     /// <summary>

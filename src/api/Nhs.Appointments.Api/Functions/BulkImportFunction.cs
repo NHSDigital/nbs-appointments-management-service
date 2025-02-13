@@ -14,11 +14,11 @@ using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using System;
-using Nhs.Appointments.Api.Constants;
+using Nhs.Appointments.Core.Constants;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IApiUserDataImportHandler apiUserDataImportHandler,
+public class BulkImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IApiUserDataImportHandler apiUserDataImportHandler,
     IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger, metricsRecorder)
 {
@@ -28,9 +28,8 @@ public class BulkSiteImportFunction(IUserDataImportHandler userDataImportHandler
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    // TODO: Add new permission - data importer?
-    //[RequiresPermission(Permissions.SetupAvailability, typeof(NoSiteRequestInspector))]
-    [Function("BulkUserImportFunction")]
+    [RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
+    [Function("BulkImportFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")] HttpRequest req)
     {

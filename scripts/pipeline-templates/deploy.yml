@@ -327,6 +327,14 @@ stages:
               SourceSlot: "preview"
       - job: SetEnvironmentTag
         condition: succeeded()
+        dependsOn:
+          - UploadCosmosDocuments
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - SwapWebAppSlots,
+              - SwapHttpFuncAppSlots,
+              - SwapHighLoadFuncAppSlots,
+              - SwapServiceBusFuncAppSlots,
+              - SwapTimerFuncAppSlots,
         steps:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push
@@ -343,6 +351,7 @@ stages:
             displayName: "Move the environment tag to this commit on deployment success"
       - job: CreateReleaseTag
         condition: and(succeeded(), ${{ eq(parameters.env, 'prod') }})
+        dependsOn: SetEnvironmentTag
         steps:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push

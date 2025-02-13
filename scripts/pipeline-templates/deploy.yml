@@ -347,9 +347,10 @@ stages:
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
+              git tag -d ${{parameters.env}}
               git push origin :refs/tags/${{parameters.env}}
 
-              git tag -a ${{parameters.env}} -m "Moved the '${{parameters.env}}' tag to this commit on successful deployment of environment '${{parameters.env}}' from build '$(Build.BuildId)'"
+              git tag -a ${{parameters.env}} -m "The latest successful deployment to this environment" $COMMIT_SHA
               git push origin ${{parameters.env}}
             displayName: "Move the environment tag to this commit on deployment success"
       - job: CreateReleaseTag
@@ -368,6 +369,6 @@ stages:
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
-              git tag -a $TAG_NAME -m "Tagging commit $COMMIT_SHA with $TAG_NAME"
+              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildId)" $COMMIT_SHA
               git push origin $TAG_NAME
             displayName: "Create a release tag to this commit on deployment to production"

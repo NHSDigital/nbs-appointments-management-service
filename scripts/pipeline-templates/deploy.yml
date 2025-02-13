@@ -352,7 +352,7 @@ stages:
               git push origin ${{parameters.env}} --force
             displayName: "Move the environment tag to this commit on deployment success"
       - job: CreateReleaseTag
-        displayName: "Create Release Tag"
+        displayName: "Create A Release Tag"
         condition: and(succeeded(), ${{ eq(parameters.env, 'prod') }})
         dependsOn: SetEnvironmentTag
         steps:

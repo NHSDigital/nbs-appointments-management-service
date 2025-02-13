@@ -30,14 +30,14 @@ stages:
           - script: |
               COMMIT_SHA=$(Build.SourceVersion)
 
-              echo "Moving tag: ${{parameters.env}} to commit: $COMMIT_SHA"
+              echo "Moving tag: env to commit: $COMMIT_SHA"
 
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
               git fetch --tags
-              git tag -a -m "Moved the '${{parameters.env}}' tag to this commit on successful deployment of build '$(Build.BuildId)'" ${{parameters.env}} $COMMIT_SHA -f
-              git push origin ${{parameters.env}} --force
+              git tag -a -m "Moved the 'env' tag to this commit on successful deployment of build '$(Build.BuildId)'" env $COMMIT_SHA -f
+              git push origin env --force
             displayName: "Move the environment tag to this commit on deployment success"
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"

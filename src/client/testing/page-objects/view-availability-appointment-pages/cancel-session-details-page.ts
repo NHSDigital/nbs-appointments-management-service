@@ -40,4 +40,13 @@ export default class CancelSessionDetailsPage extends RootPage {
       `Cancelled session for ${requiredDate}`,
     );
   }
+
+  async clickCancelAppointment() {
+    await expect(
+      this.page
+        .getByRole('main')
+        .getByText(`You'll need to manually cancel any affected appointments.`),
+    ).toBeVisible();
+    await this.page.getByRole('link', { name: 'Cancel appointments' }).click();
+  }
 }

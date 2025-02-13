@@ -3,11 +3,15 @@ import RootPage from '../root';
 
 export default class DailyAppointmentDetailsPage extends RootPage {
   readonly backToWeekViewButton: Locator;
+  readonly continueButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.backToWeekViewButton = page.getByRole('link', {
       name: 'Back to week view',
+    });
+    this.continueButton = page.getByRole('button', {
+      name: 'Continue',
     });
   }
 
@@ -19,10 +23,10 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     await this.backToWeekViewButton.click();
   }
 
-  async cancelAppointment(appointmentTime: string) {
+  async cancelAppointment(appointmentDetail: string) {
     await this.page
       .getByRole('row')
-      .filter({ hasText: `${appointmentTime}` })
+      .filter({ hasText: `${appointmentDetail}` })
       .getByRole('link', { name: 'Cancel' })
       .click();
   }
@@ -35,8 +39,31 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     }
     if (option == 'No') {
       await this.page
-        .getByLabel(`No, I don't want to cancel this session`)
+        .getByLabel(`No, I do not want to cancel this appointment`)
         .click();
     }
+    await this.continueButton.click();
+  }
+
+  async verifyAppointmentNotCancelled(appointmentDetail: string) {
+    await expect(
+      this.page.getByRole('row').filter({ hasText: `${appointmentDetail}` }),
+    ).not.toBeVisible();
+  }
+
+  async verifyAppointmentCancelled(appointmentDetail: string) {
+    await expect(
+      this.page.getByRole('row').filter({ hasText: `${appointmentDetail}` }),
+    ).toBeVisible();
+  }
+
+  async verifyManualAppointment() {
+    await expect(
+      this.page
+        .getByRole('main')
+        .getByText(
+          `There are no booked appointments affected by availability changes.`,
+        ),
+    ).toBeVisible();
   }
 }

@@ -8,6 +8,7 @@ import MonthViewAvailabilityPage from '../../page-objects/view-availability-appo
 import {
   geRequiredtDateInFormat,
   getWeekRange,
+  getWeekRangeForRequiredDate,
 } from '../../utils/date-utility';
 import WeekViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
 import AddSessionPage from '../../page-objects/view-availability-appointment-pages/add-session-page';
@@ -16,6 +17,7 @@ import CheckSessionDetailsPage from '../../page-objects/view-availability-appoin
 import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
 import CancelSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/cancel-session-details-page';
 import DailyAppointmentDetailsPage from '../../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
+import dayjs from 'dayjs';
 
 const { TEST_USERS } = env;
 let rootPage: RootPage;
@@ -155,10 +157,26 @@ test('Verify view daily appointment link displayed', async () => {
   await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
 });
 
-test('Verify user is able to cancel an appoitment', async () => {
+test('Verify appointment not cancelled when not confirmed', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(1, 'D MMMM');
-  const requiredWeekRange = getWeekRange(1);
+  const requiredDate = '2025-08-05';
+  await monthViewAvailabilityPage.navigateToRequiredMonth(requiredDate);
+  const requiredWeekRange = getWeekRangeForRequiredDate(requiredDate);
+  await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed();
+  await weekViewAvailabilityPage.openDailyAppoitmentPage(
+    dayjs(requiredDate).format('D MMMM'),
+  );
+  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
+  await dailyAppointmentDetailsPage.cancelAppointment('5932817282');
+  await dailyAppointmentDetailsPage.confirmAppointmentCancelation('No');
+  await dailyAppointmentDetailsPage.verifyAppointmentNotCancelled('5932817282');
+});
+
+test('Verify no manual appointment when session without booking is canceled', async () => {
+  await monthViewAvailabilityPage.verifyViewMonthDisplayed();
+  const requiredDate = geRequiredtDateInFormat(12, 'D MMMM');
+  const requiredWeekRange = getWeekRange(12);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);
@@ -166,8 +184,11 @@ test('Verify user is able to cancel an appoitment', async () => {
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();
   await weekViewAvailabilityPage.verifySessionAdded();
-  await weekViewAvailabilityPage.openDailyAppoitmentPage(requiredDate);
-  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
-  await dailyAppointmentDetailsPage.cancelAppointment('9:00');
-  await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
+  await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
+  await changeAvailabilityPage.selectChangeType('CancelSession');
+  await changeAvailabilityPage.saveChanges();
+  await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+  await cancelSessionDetailsPage.verifySessionCancelled(requiredDate);
+  await cancelSessionDetailsPage.clickCancelAppointment();
+  await dailyAppointmentDetailsPage.verifyManualAppointment();
 });

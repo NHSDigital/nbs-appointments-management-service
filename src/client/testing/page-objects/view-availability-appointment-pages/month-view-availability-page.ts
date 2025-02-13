@@ -22,4 +22,10 @@ export default class MonthViewAvailabilityPage extends RootPage {
       .getByRole('link', { name: 'View week' })
       .click();
   }
+
+  async navigateToRequiredMonth(month: string) {
+    await this.page.goto(
+      `/manage-your-appointments/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/view-availability?date=${month}`,
+    );
+  }
 }

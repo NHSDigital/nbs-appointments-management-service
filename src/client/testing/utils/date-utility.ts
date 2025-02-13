@@ -39,3 +39,12 @@ export const getWeekRange = (numberOfDaysFromToday: number) => {
   const formattedendOfWeek = endOfWeek.format('D MMMM');
   return `${formattedStartOfWeek} to ${formattedendOfWeek}`;
 };
+
+export const getWeekRangeForRequiredDate = (requiredDate: string) => {
+  const date = dayjs(requiredDate).format('YYYY-MM-DD');
+  const startOfWeek = dayjs(date).startOf('isoWeek');
+  const endOfWeek = dayjs(date).endOf('isoWeek');
+  const formattedStartOfWeek = startOfWeek.format('D MMMM');
+  const formattedendOfWeek = endOfWeek.format('D MMMM');
+  return `${formattedStartOfWeek} to ${formattedendOfWeek}`;
+};

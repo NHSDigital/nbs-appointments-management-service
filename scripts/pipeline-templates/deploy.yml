@@ -330,11 +330,11 @@ stages:
         dependsOn:
           - UploadCosmosDocuments
           - ${{ if in(parameters.env, 'stag', 'prod') }}:
-              - SwapWebAppSlots,
-              - SwapHttpFuncAppSlots,
-              - SwapHighLoadFuncAppSlots,
-              - SwapServiceBusFuncAppSlots,
-              - SwapTimerFuncAppSlots,
+              - SwapWebAppSlots
+              - SwapHttpFuncAppSlots
+              - SwapHighLoadFuncAppSlots
+              - SwapServiceBusFuncAppSlots
+              - SwapTimerFuncAppSlots
         steps:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push

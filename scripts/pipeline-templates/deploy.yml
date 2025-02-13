@@ -30,8 +30,7 @@ stages:
       - Build
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag
-    # TODO revert check, just for testing before merged
-    condition: succeeded()
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
@@ -352,7 +351,6 @@ stages:
 
               git tag -a ${{parameters.env}} -m "The latest successful deployment to this environment" $COMMIT_SHA
               git push origin ${{parameters.env}}
-            displayName: "Move the environment tag to this commit on deployment success"
       - job: CreateReleaseTag
         displayName: "Create The Release Tag"
         condition: and(succeeded(), ${{ eq(parameters.env, 'prod') }})
@@ -371,4 +369,3 @@ stages:
 
               git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildId)" $COMMIT_SHA
               git push origin $TAG_NAME
-            displayName: "Create a release tag to this commit on deployment to production"

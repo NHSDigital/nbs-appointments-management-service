@@ -4,7 +4,7 @@ namespace Nhs.Appointments.Core;
 
 public interface ISiteDataImportHandler : IDataImportHandler { }
 
-public class SiteDataImporterHandler(ISiteService siteService) : ISiteDataImportHandler
+public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodesService wellKnowOdsCodesService) : ISiteDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
@@ -16,15 +16,25 @@ public class SiteDataImporterHandler(ISiteService siteService) : ISiteDataImport
         var distinctIds = siteRows.GroupBy(s => s.Id).Count();
         if (siteRows.Count != distinctIds)
         {
-            report.Add(new ReportItem(-1, "Duplicate side IDs", false, "Document contains duplicated siteIds. These IDs must be unique."));
+            report.Add(new ReportItem(-1, "Duplicate site IDs", false, "Document contains duplicated siteIds. These IDs must be unique."));
             return report;
         }
+
+        var wellKnownOdsCodes = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries())
+            .Select(ods => ods.OdsCode)
+            .ToList();
 
         foreach (var site in siteRows)
         {
             try
             {
-                // TODO: Check the OdsCodes exists in the well known ODS codes list before adding?
+                // TODO: Should be break in this case? Or skip over this site and carry on with the rest?
+                if (!wellKnownOdsCodes.Contains(site.OdsCode))
+                {
+                    report.Add(new ReportItem(-1, site.OdsCode, false, "Provided site ODS not found in the well known ODS code list."));
+                    break;
+                }
+
                 await siteService.SaveSiteAsync(
                     site.Id,
                     site.OdsCode,

@@ -41,5 +41,5 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractService(BookingDocument booking) => booking.Service;
 
-    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("ddMMyyyy:HHmmss") : string.Empty;
+    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("ddMMyyyy:HH:mm:ss") : string.Empty;
 }

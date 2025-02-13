@@ -35,9 +35,10 @@ stages:
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
+              git tag -d env
               git push origin :refs/tags/env
 
-              git tag -a env -m "Moved the 'env' tag to this commit on successful deployment of environment 'env' from build '$(Build.BuildId)'"
+              git tag -a env -m "Moved the 'env' tag to commit '$COMMIT_SHA' on successful deployment of environment 'env' from build '$(Build.BuildId)'" $COMMIT_SHA
               git push origin env
             displayName: "Move the environment tag to this commit on deployment success"
           - task: SonarCloudPrepare@3

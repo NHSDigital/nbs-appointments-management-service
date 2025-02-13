@@ -15,11 +15,11 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using System;
 using Nhs.Appointments.Core.Constants;
+using Nhs.Appointments.Api.Factories;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class BulkImportFunction(IUserDataImportHandler userDataImportHandler, ISiteDataImportHandler siteDataImportHandler, IApiUserDataImportHandler apiUserDataImportHandler,
-    IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFactory, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "Bulk User Import", tags: ["User"], Summary = "Bulk import users")]
@@ -59,13 +59,8 @@ public class BulkImportFunction(IUserDataImportHandler userDataImportHandler, IS
 
     protected override async Task<ApiResult<IEnumerable<ReportItem>>> HandleRequest(BulkImportRequest request, ILogger logger)
     {
-        var result = request.Type switch
-        {
-            BulkImportType.User => await userDataImportHandler.ProcessFile(request.File),
-            BulkImportType.Site => await siteDataImportHandler.ProcessFile(request.File),
-            BulkImportType.ApiUser => await apiUserDataImportHandler.ProcessFile(request.File),
-            _ => throw new NotSupportedException($"Type: {request.Type} not supported."),
-        };
+        var handler = dataImportHandlerFactory.CreateDataImportHandler(request.Type);
+        var result = await handler.ProcessFile(request.File);
 
         // TODO: Conversations around return object to determine what exactly we return here
         return ApiResult<IEnumerable<ReportItem>>.Success(result);

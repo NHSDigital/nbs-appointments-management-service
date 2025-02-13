@@ -2,7 +2,7 @@ using Parquet.Data;
 using Parquet.Schema;
 using System.Collections;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public abstract class DataFactory
 {

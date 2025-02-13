@@ -1,4 +1,3 @@
-using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Nhs.Appointments.Api.Json;
@@ -6,8 +5,12 @@ using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 using Nhs.Appointments.Persistance.Models;
 using Azure.Identity;
+using DataExtract.Documents;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using BookingsDataExtracts;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public static class ServiceRegistration
 {
@@ -42,11 +45,10 @@ public static class ServiceRegistration
                 opts.DestinationMailboxId = destinationMailbox;
                 opts.WorkflowId = meshWorkflow;
             })
-            .AddSingleton<TimeProvider>(TimeProvider.System)
+            .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
             .AddSingleton<CosmosStore<NbsBookingDocument>>()
             .AddSingleton<CosmosStore<SiteDocument>>()
-            .AddSingleton<BookingDataExtract>()
         .AddMesh(configuration);
 
         var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
@@ -76,7 +78,7 @@ public static class ServiceRegistration
         if (config is null || string.IsNullOrEmpty(config?.KeyVaultName))
         {
             Console.WriteLine("Failed to add key vault config");
-            return builder;            
+            return builder;
         }
 
         Console.WriteLine("Added key vault config");
@@ -89,5 +91,12 @@ public static class ServiceRegistration
     public static AzureKeyVaultConfiguration? GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
     {
         return configuration.GetSection(configSectionName)?.Get<AzureKeyVaultConfiguration>();
+    }
+
+    public static IServiceCollection AddExtractWorker<TExtractor>(this IServiceCollection services) where TExtractor : class, IExtractor 
+    {
+        services.AddHostedService<DataExtractWorker<TExtractor>>();
+
+        return services;
     }
 }

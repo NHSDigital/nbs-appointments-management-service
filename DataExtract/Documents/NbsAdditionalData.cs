@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Nhs.Appointments.Persistance.Models;
 
-namespace BookingsDataExtracts.Documents;
+namespace DataExtract.Documents;
 
 public class NbsBookingDocument : BookingDocument
 {

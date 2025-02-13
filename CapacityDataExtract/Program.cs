@@ -1,5 +1,6 @@
-using BookingsDataExtracts;
 using DataExtract;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -11,9 +12,7 @@ builder.Configuration
             .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddSingleton<BookingDataExtract>()
-    .AddDataExtractServices(builder.Configuration)
-    .AddExtractWorker<BookingDataExtract>();
+    .AddDataExtractServices(builder.Configuration);
 
 var host = builder.Build();
 host.Run();

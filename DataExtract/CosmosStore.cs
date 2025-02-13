@@ -1,11 +1,11 @@
 using System.Linq.Expressions;
-using BookingsDataExtracts.Documents;
+using DataExtract.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Persistance.Models;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public class CosmosStore<TDocument>(CosmosClient cosmosClient, IOptions<CosmosStoreOptions> options)
 {

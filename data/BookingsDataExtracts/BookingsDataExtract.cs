@@ -1,4 +1,5 @@
-using BookingsDataExtracts.Documents;
+using DataExtract;
+using DataExtract.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Parquet;
@@ -9,7 +10,7 @@ namespace BookingsDataExtracts;
 public class BookingDataExtract(
     CosmosStore<NbsBookingDocument> bookingsStore,
     CosmosStore<SiteDocument> sitesStore,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider) : IExtractor
 {
     public async Task RunAsync(FileInfo outputFile)
     {

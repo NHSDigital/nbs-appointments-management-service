@@ -1,23 +1,25 @@
 using Nbs.MeshClient;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient.Auth;
+using Microsoft.Extensions.Hosting;
+using DataExtract;
 
 namespace BookingsDataExtracts;
-public class DataExtractWorker(
+public class DataExtractWorker<TExtractor>(
     IHostApplicationLifetime hostApplicationLifetime,
     IOptions<MeshSendOptions> meshSendOptions,
     IOptions<MeshAuthorizationOptions> meshAuthOptions,
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
-    BookingDataExtract bookingDataExtract
-    ) : BackgroundService
+    TExtractor dataExtract
+    ) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
             var outputFile = new FileInfo(GenerateFileName());
-            await bookingDataExtract.RunAsync(outputFile);
+            await dataExtract.RunAsync(outputFile);
 
             await SendViaMesh(outputFile);
         }

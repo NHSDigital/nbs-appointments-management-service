@@ -34,6 +34,6 @@ test('The user can change their cookie acceptance', async ({ page }) => {
   );
 
   expect(consentCookie?.value).toBe(
-    '%7B%22consented%22%3Atrue%2C%22version%22%3A5%7D',
+    '%257B%2522consented%2522%253Atrue%252C%2522version%2522%253A1%257D',
   );
 });

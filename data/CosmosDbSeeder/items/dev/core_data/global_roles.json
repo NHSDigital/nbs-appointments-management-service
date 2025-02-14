@@ -11,6 +11,7 @@
         "availability:query",
         "booking:query",
         "site:view",
+        "site:view:preview",
         "site:get-meta-data"
       ]
     },
@@ -23,6 +24,7 @@
         "booking:cancel",
         "booking:query",
         "site:view",
+        "site:view:preview",
         "site:get-meta-data"
       ]
     },
@@ -34,6 +36,7 @@
         "availability:query",
         "booking:query",
         "site:view",
+        "site:view:preview",
         "site:manage",
         "site:get-meta-data"
       ]
@@ -46,6 +49,7 @@
         "availability:query",
         "booking:query",
         "site:view",
+        "site:view:preview",
         "users:manage",
         "users:view",
         "site:get-meta-data"
@@ -62,6 +66,7 @@
         "booking:query",
         "sites:query",
         "site:view",
+        "site:view:preview",
         "site:get-meta-data"
       ]
     },
@@ -74,7 +79,8 @@
         "availability:query",
         "booking:query",
         "users:view",
-        "site:view"
+        "site:view",
+        "site:view:preview"
       ]
     },
     {
@@ -85,7 +91,10 @@
         "availability:query",
         "booking:query",
         "site:view",
+        "site:view:preview",
         "site:get-meta-data",
+        "site:manage",
+        "site:manage:admin",
         "users:view"
       ]
     },
@@ -105,7 +114,9 @@
         "users:view",
         "sites:query",
         "site:view",
+        "site:view:preview",
         "site:manage",
+        "site:manage:admin",
         "system:run-reminders",
         "system:run-provisional-sweep"
       ]

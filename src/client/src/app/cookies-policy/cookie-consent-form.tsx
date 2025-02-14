@@ -51,6 +51,7 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
         <RadioGroup>
           <Radio
             label="Use cookies to measure my website use"
+            id="consented-yes"
             value="yes"
             {...register('consented', {
               required: { value: true, message: 'Select an option' },
@@ -58,6 +59,7 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
           />
           <Radio
             label="Do not use cookies to measure my website use"
+            id="consented-no"
             value="no"
             {...register('consented', {
               required: { value: true, message: 'Select an option' },

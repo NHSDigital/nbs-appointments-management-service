@@ -359,7 +359,7 @@ stages:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push
           - script: |
-              TAG_NAME="release-$(Build.BuildId)"
+              TAG_NAME="release-$(Build.BuildNumber)"
               COMMIT_SHA=$(Build.SourceVersion)
 
               echo "Creating tag: $TAG_NAME for commit: $COMMIT_SHA"
@@ -367,5 +367,5 @@ stages:
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
-              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildId)" $COMMIT_SHA
+              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildNumber)" $COMMIT_SHA
               git push origin $TAG_NAME

@@ -531,7 +531,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 {
                     Id = "canned:appointment-manager",
                     Name = "Appointment manager",
-                    Description = "A user can cancel appointments.",
+                    Description = "A user can view and cancel appointments.",
                     Permissions =
                         [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata]
                 },

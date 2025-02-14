@@ -17,7 +17,7 @@
     {
       "id": "canned:appointment-manager",
       "name": "Appointment manager",
-      "description": "A user can cancel appointments.",
+      "description": "A user can view and cancel appointments.",
       "permissions": [
         "availability:query",
         "booking:cancel",

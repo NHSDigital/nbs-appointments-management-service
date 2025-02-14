@@ -1,6 +1,10 @@
+import Link from 'next/link';
+import { HTMLAttributeAnchorTarget } from 'react';
+
 type supportLink = {
   text: string;
   href: string;
+  target?: HTMLAttributeAnchorTarget;
 };
 
 type FooterProps = {
@@ -25,14 +29,14 @@ const Footer = ({ supportLinks = [] }: FooterProps) => {
                   key={`support-link-${index}`}
                   className="nhsuk-footer__list-item nhsuk-footer-default__list-item"
                 >
-                  <a
+                  <Link
                     className="nhsuk-footer__list-item-link"
                     href={link.href}
-                    target="_blank"
+                    target={link.target ?? '_self'}
                     rel="noopener noreferrer"
                   >
                     {link.text}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

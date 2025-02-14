@@ -511,6 +511,7 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.ViewSite,
                         Permissions.ViewSitePreview,
                         Permissions.ManageSite,
+                        Permissions.ManageSiteAdmin,
                         Permissions.QueryAvailability,
                         Permissions.SetupAvailability,
                         Permissions.SystemRunProvisionalSweeper,

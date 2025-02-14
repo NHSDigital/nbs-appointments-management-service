@@ -3,8 +3,9 @@ import { cookies } from 'next/headers';
 export const raiseNotification = (
   notificationType: string,
   notificationMessage: string,
+  expiryTimeInSeconds?: number,
 ) => {
   cookies().set(notificationType, notificationMessage, {
-    maxAge: 15, // 15 seconds
+    maxAge: expiryTimeInSeconds ?? 15,
   });
 };

@@ -1,7 +1,7 @@
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { getCookieConsent } from '@services/cookiesService';
 import CookieConsentForm from './cookie-consent-form';
-import { Table } from '@components/nhsuk-frontend';
+import { BackLink, Table } from '@components/nhsuk-frontend';
 import Details from '@components/nhsuk-frontend/details';
 
 const Page = async () => {
@@ -9,6 +9,7 @@ const Page = async () => {
 
   return (
     <NhsAnonymousPage title="Cookie policy" originPage="cookie-policy">
+      <BackLink renderingStrategy="server" text="Go back" href={'/'} />
       <section>
         <h3>What are cookies?</h3>
         <p>

@@ -509,12 +509,12 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.QuerySites,
                         Permissions.ViewSiteMetadata,
                         Permissions.ViewSite,
+                        Permissions.ViewSitePreview,
                         Permissions.ManageSite,
                         Permissions.QueryAvailability,
                         Permissions.SetupAvailability,
                         Permissions.SystemRunProvisionalSweeper,
-                        Permissions.SystemRunReminders,
-                        Permissions.SystemAdmin,
+                        Permissions.SystemRunReminders
                     ]
                 },
                 new Role
@@ -524,7 +524,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "A user can create, view, and manage site availability.",
                     Permissions =
                     [
-                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata
+                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
                     ]
                 },
                 new Role
@@ -533,7 +533,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Appointment manager",
                     Description = "A user can view and cancel appointments.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata]
+                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata]
                 },
                 new Role
                 {
@@ -541,7 +541,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Site details manager",
                     Description = "A user can edit site details and accessibility information.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ManageSite, Permissions.ViewSiteMetadata]
+                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata]
                 },
             ]
         };

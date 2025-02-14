@@ -24,9 +24,11 @@ export default class CookiesPolicyPage extends RootPage {
       }),
       consentedRadio: page.getByRole('radio', {
         name: 'Use cookies to measure my website use',
+        exact: true,
       }),
       rejectedRadio: page.getByRole('radio', {
         name: 'Do not use cookies to measure my website use',
+        exact: true,
       }),
       submitButton: page.getByRole('button', {
         name: 'Save my cookie settings',

@@ -41,10 +41,11 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
         var response = new QueryAvailabilityResponse();
         var requestFrom = request.From;
         var requestUntil = request.Until;
+        var requestConsecutive = request.Consecutive;
 
         await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
         {
-            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil);
+            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive);
             concurrentResults.Add(siteAvailability);
         });
 
@@ -52,9 +53,9 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
         return Success(response);
     }
 
-    private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
+    private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until, int consecutive)
     {
-        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
+        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).GroupByConsecutive(consecutive).ToList();        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;

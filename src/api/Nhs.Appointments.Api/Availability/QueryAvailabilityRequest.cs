@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Api.Availability;
@@ -13,5 +13,7 @@ public record QueryAvailabilityRequest(
     [JsonProperty("until")]
     DateOnly Until,
     [JsonProperty("queryType")]
-    QueryType QueryType
+    QueryType QueryType,
+    [JsonProperty("consecutive")]
+    int Consecutive
 );

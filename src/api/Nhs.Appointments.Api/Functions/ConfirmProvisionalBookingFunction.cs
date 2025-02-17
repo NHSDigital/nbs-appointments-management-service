@@ -34,7 +34,6 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Gone, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because the provisional booking has expired")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because a provisional booking with matching reference could not be found")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Processing, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed because a child booking failed but the lead booking was confirmed")]
     [RequiresPermission(Permissions.MakeBooking, typeof(SiteFromPathInspector))]
     [Function("ConfirmProvisionalBookingFunction")]
     public override Task<IActionResult> RunAsync(
@@ -45,23 +44,19 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
-            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
-            leadBooker: bookingRequest.childBookings.Length > 0 ? bookingRequest.bookingReference : null, 
-            bookingToReschedule: bookingRequest.bookingToReschedule);
+        var result = BookingConfirmationResult.NotFound;
 
-        var childResults = new List<BookingConfirmationResult>();
-
-        if (bookingRequest.childBookings.Length > 0 && result == BookingConfirmationResult.Success) 
+        if (bookingRequest.childBookings.Any()) 
         {
-            foreach (var reference in bookingRequest.childBookings) 
-            {
-                var childResult = await bookingService.ConfirmProvisionalBooking(reference,
-                    bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
-                    leadBooker: bookingRequest.bookingReference, null);
-
-                childResults.Add(childResult);
-            }
+            result = await bookingService.ConfirmProvisionalBookingWithChildren(bookingRequest.bookingReference,
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
+            bookingRequest.childBookings);
+        } 
+        else
+        {
+            result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
+            bookingRequest.bookingToReschedule);
         }
 
         switch (result)
@@ -78,12 +73,10 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
             case BookingConfirmationResult.StatusMismatch:
                 return Failed(HttpStatusCode.PreconditionFailed,
                     "The booking cannot be confirmed because it is not provisional");
+            case BookingConfirmationResult.ChildBookingInvalid:
+                return Failed(HttpStatusCode.PreconditionFailed,
+                    "The booking cannot be confirmed because child references are not valid");
             case BookingConfirmationResult.Success:
-                if (childResults.Any(cr => cr != BookingConfirmationResult.Success)) 
-                {
-                    return Failed(HttpStatusCode.Processing, "Lead booking has persisted but one or more child bookings failed");
-                }
-
                 return Success();
         }
 

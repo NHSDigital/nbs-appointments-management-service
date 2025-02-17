@@ -14,7 +14,8 @@ public interface IBookingsService
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string? leadBooker, string? bookingToReschedule);
+    Task<BookingConfirmationResult> ConfirmProvisionalBookingWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings);
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
 }
@@ -101,14 +102,34 @@ public class BookingsService(
 
         return BookingCancellationResult.Success;
     }
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBookingWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings) 
+    {
 
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string? leadBooker, string? bookingToReschedule)
+        var result = await bookingDocumentStore.ConfirmProvisionalWithChildren(bookingReference, contactDetails, childBookings);
+
+        await SendConfirmNotification(bookingReference, result, false);
+
+        foreach (var child in childBookings) 
+        {
+            await SendConfirmNotification(child, result, false);
+        }
+
+        return result;
+    }
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, leadBooker, bookingToReschedule);
+        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
-        if(result == BookingConfirmationResult.Success)
+        await SendConfirmNotification(bookingReference, result, isRescheduleOperation);
+
+        return result;
+    }
+
+    private async Task SendConfirmNotification(string bookingReference, BookingConfirmationResult result, bool isRescheduleOperation) 
+    {
+        if (result == BookingConfirmationResult.Success)
         {
             var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -123,8 +144,6 @@ public class BookingsService(
                 await bus.Send(bookingMadeEvents);
             }
         }
-
-        return result;
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,

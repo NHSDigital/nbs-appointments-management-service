@@ -188,7 +188,7 @@ public class BookingCosmosDocumentStore(
 
         foreach (var document in bookingDocuments) 
         {
-            await PatchProvisionalToConfirmed(bookingIndexDocument, contactDetails);
+            await PatchProvisionalToConfirmed(document, contactDetails, bookingReference);
         }
 
         return BookingConfirmationResult.Success;

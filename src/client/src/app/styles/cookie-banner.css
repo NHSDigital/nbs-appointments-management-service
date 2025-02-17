@@ -424,7 +424,7 @@
 }
 @media (min-width: 48.0625em) {
   .nhsuk-cookie-banner li {
-    display: inline;
+    display: inline-block;
     margin-right: 20px;
   }
 }

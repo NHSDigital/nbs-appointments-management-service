@@ -23,4 +23,7 @@ public class BookingIndexDocument : IndexDataCosmosDocument
 
     [JsonProperty("status")]
     public AppointmentStatus Status { get; set; }
+
+    [JsonProperty("leadBooker")]
+    public string? LeadBooker { get; set; }
 }

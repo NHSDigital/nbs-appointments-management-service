@@ -160,7 +160,7 @@ public class BookingCosmosDocumentStore(
         return (BookingConfirmationResult.Unknown, null);
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string? leadBooker, string? bookingToReschedule)
     {
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
         if (bookingIndexDocument == null)
@@ -181,6 +181,7 @@ public class BookingCosmosDocumentStore(
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        var addLeadBookingPath = PatchOperation.Add("/leadBooker", contactDetails);
         await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
         await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
 

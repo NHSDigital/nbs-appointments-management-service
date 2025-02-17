@@ -14,7 +14,7 @@ public interface IBookingsService
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string? leadBooker, string? bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
 }
@@ -102,11 +102,11 @@ public class BookingsService(
         return BookingCancellationResult.Success;
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string? leadBooker, string? bookingToReschedule)
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, leadBooker, bookingToReschedule);
 
         if(result == BookingConfirmationResult.Success)
         {

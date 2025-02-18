@@ -25,6 +25,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // All routes except /login, /api, /_next, and /favicon.ico
-    '/manage-your-appointments/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!manage-your-appointments/api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

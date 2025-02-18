@@ -10,6 +10,8 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
+  const { site: siteFromPath } = { ...(await params) };
+
   await assertPermission(siteFromPath, 'site:manage:admin');
 
   const backLink: NavigationByHrefProps = {

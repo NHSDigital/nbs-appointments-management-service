@@ -216,7 +216,7 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        var expiryDateTime = time.GetUtcNow().AddMinutes(-15);        
+        var expiryDateTime = time.GetUtcNow().AddDays(-1);        
 
         var query = new QueryDefinition(
                 query: "SELECT * " +

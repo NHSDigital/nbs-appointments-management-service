@@ -38,7 +38,7 @@ const SiteDetailsPage = async ({
         {siteReferenceSummaryData && (
           <SummaryList {...siteReferenceSummaryData}></SummaryList>
         )}
-        {permissions.includes('system:admin-user') ? (
+        {permissions.includes('site:manage:admin') ? (
           <Link
             href={`/site/${site.id}/details/edit-reference-details`}
             className="nhsuk-link"

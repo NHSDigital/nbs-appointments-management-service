@@ -427,7 +427,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),
         BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
-        BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
+        BookingType.ExpiredProvisional => DateTime.UtcNow.AddHours(-25),
         BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
         BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
@@ -509,12 +509,13 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.QuerySites,
                         Permissions.ViewSiteMetadata,
                         Permissions.ViewSite,
+                        Permissions.ViewSitePreview,
                         Permissions.ManageSite,
+                        Permissions.ManageSiteAdmin,
                         Permissions.QueryAvailability,
                         Permissions.SetupAvailability,
                         Permissions.SystemRunProvisionalSweeper,
-                        Permissions.SystemRunReminders,
-                        Permissions.SystemAdmin,
+                        Permissions.SystemRunReminders
                     ]
                 },
                 new Role
@@ -524,16 +525,16 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "A user can create, view, and manage site availability.",
                     Permissions =
                     [
-                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata
+                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
                     ]
                 },
                 new Role
                 {
                     Id = "canned:appointment-manager",
                     Name = "Appointment manager",
-                    Description = "A user can cancel appointments.",
+                    Description = "A user can view and cancel appointments.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSiteMetadata]
+                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata]
                 },
                 new Role
                 {
@@ -541,7 +542,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Site details manager",
                     Description = "A user can edit site details and accessibility information.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ManageSite, Permissions.ViewSiteMetadata]
+                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata]
                 },
             ]
         };

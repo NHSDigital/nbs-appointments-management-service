@@ -10,7 +10,7 @@ export type PageProps = {
 };
 
 const Page = async ({ params }: PageProps) => {
-  await assertPermission(params.site, 'system:admin-user');
+  await assertPermission(params.site, 'site:manage:admin');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

@@ -23,6 +23,10 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
   consistency_policy {
     consistency_level = "Session"
   }
+  backup {
+    type = "Continuous"
+    tier = "Continuous7Days"
+  }
 }
 
 resource "azurerm_cosmosdb_sql_database" "nbs_appts_database" {
@@ -32,11 +36,11 @@ resource "azurerm_cosmosdb_sql_database" "nbs_appts_database" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
-  name                = "booking_data"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_paths = ["/site"]
+  name                   = "booking_data"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  partition_key_paths    = ["/site"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
   dynamic "autoscale_settings" {
@@ -96,11 +100,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
-  name                = "core_data"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_paths = ["/docType"]
+  name                   = "core_data"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  partition_key_paths    = ["/docType"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
   dynamic "autoscale_settings" {
@@ -112,11 +116,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
-  name                = "index_data"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_paths = ["/docType"]
+  name                   = "index_data"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  partition_key_paths    = ["/docType"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
   dynamic "autoscale_settings" {
@@ -128,11 +132,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_container" {
-  name                = "audit_data"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name       = azurerm_cosmosdb_sql_database.nbs_appts_database.name
-  partition_key_paths = ["/user"]
+  name                   = "audit_data"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  partition_key_paths    = ["/user"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
   dynamic "autoscale_settings" {

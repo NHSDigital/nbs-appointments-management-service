@@ -14,6 +14,11 @@ const nextConfig = {
         destination: process.env.CLIENT_BASE_PATH,
         permanent: true,
       },
+      {
+        source: "/manage-your-appointments/api/:path*",
+        destination: `${process.env.AUTH_HOST}/api/:path*`, // Ensure API calls go to backend
+        permanent: true,
+      }
     ];
   },
 };

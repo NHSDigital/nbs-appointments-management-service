@@ -14,4 +14,7 @@ public interface ISiteStore
     Task AssignPrefix(string site, int prefix);
     Task<int> GetReferenceNumberGroup(string site);
     Task<IEnumerable<Site>> GetAllSites();
+
+    Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities);
 }

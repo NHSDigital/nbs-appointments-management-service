@@ -1,7 +1,7 @@
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests;
-internal static class CsvFileBuilder
+public static class CsvFileBuilder
 {
     public static string BuildInputCsv(string header, IEnumerable<string> dataLines)
     {

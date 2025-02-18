@@ -20,9 +20,9 @@ namespace Nhs.Appointments.Api.Functions;
 public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFactory, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "Bulk User Import", tags: ["User"], Summary = "Bulk import users")]
+    [OpenApiOperation(operationId: "Bulk Import", tags: ["BulkImport"], Summary = "Bulk import of users and sites")]
     [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Users successfully imported")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Data successfully imported")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]

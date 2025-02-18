@@ -14,6 +14,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         var distinctIds = siteRows.GroupBy(s => s.Id).Count();
         if (siteRows.Count != distinctIds)
         {
+            report.Clear();
             report.Add(new ReportItem(-1, "Duplicate site IDs", false, "Document contains duplicated siteIds. These IDs must be unique."));
             return report;
         }
@@ -26,10 +27,10 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         {
             try
             {
-                // TODO: Should be break in this case? Or skip over this site and carry on with the rest?
+                // TODO: Should we break in this case? Or skip over this site and carry on with the rest?
                 if (!wellKnownOdsCodes.Contains(site.OdsCode))
                 {
-                    report.Add(new ReportItem(-1, site.OdsCode, false, "Provided site ODS not found in the well known ODS code list."));
+                    report.Add(new ReportItem(-1, site.OdsCode, false, $"Provided site ODS code: {site.OdsCode} not found in the well known ODS code list."));
                     break;
                 }
 

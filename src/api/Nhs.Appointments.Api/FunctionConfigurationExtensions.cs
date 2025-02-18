@@ -84,7 +84,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
-            .AddSingleton<IDataImportHandlerFactory, DataImportHandlerFactory>()
+            .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

@@ -5,7 +5,7 @@
     "AllowedGrantTypes": ["authorization_code"],
     "AllowAccessTokensViaBrowser": true,
     "RedirectUris": [      
-	  "http://localhost:7071/api/auth-return?provider=nhs-mail"
+	  "http://mya.local/manage-your-appointments/api/auth-return?provider=nhs-mail"
     ],
     "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,

@@ -1,32 +1,26 @@
-'use client';
+import redirectToIdServer from '../auth/redirectToIdServer';
 import { Button } from '@nhsuk-frontend-components';
-import { useRouter } from 'next/navigation';
 
 type LogInButtonProps = {
-  authHost: string;
+  redirectUrl: string;
   provider: string;
   friendlyName: string;
 };
 
 const LogInButton = ({
-  authHost,
+  redirectUrl,
   provider,
   friendlyName,
 }: LogInButtonProps) => {
-  const router = useRouter();
-
-  const idServerEndpoint = `${authHost}/api/authenticate?provider=${provider}`;
-
   return (
-    <Button
-      aria-label={`Sign in to service with ${friendlyName}`}
-      type="submit"
-      onClick={() => {
-        router.push(idServerEndpoint);
-      }}
-    >
-      Sign in to service with {friendlyName}
-    </Button>
+    <form action={redirectToIdServer.bind(null, redirectUrl, provider)}>
+      <Button
+        aria-label={`Sign in to service with ${friendlyName}`}
+        type="submit"
+      >
+        Sign in to service with {friendlyName}
+      </Button>
+    </form>
   );
 };
 

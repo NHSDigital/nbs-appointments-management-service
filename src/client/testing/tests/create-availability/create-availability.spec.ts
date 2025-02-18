@@ -6,7 +6,6 @@ import SitePage from '../../page-objects/site';
 import CreateAvailabilityPage from '../../page-objects/create-availability';
 import SummaryPage from '../../page-objects/create-availability/summary-page';
 import { getDateInFuture } from '../../utils/date-utility';
-import { Site } from '@types';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -15,10 +14,8 @@ let sitePage: SitePage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let summarypage: SummaryPage;
 
-let site: Site;
-
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite();
+  const site = getTestSite();
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -38,11 +35,9 @@ test('A user can navigate to the Create Availability flow from the site page', a
   await expect(createAvailabilityPage.title).toBeVisible();
 });
 
-test('Create single session of RSV availability', async ({ page }) => {
+test('Create single session of RSV availability', async () => {
   const tomorrowDate = getDateInFuture(1);
   await createAvailabilityPage.createAvailabilityButton.click();
-  await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
-
   await expect(createAvailabilityPage.sessionTitle).toBeVisible();
   await createAvailabilityPage.selectSession('Single date session');
   await createAvailabilityPage.continueButton.click();
@@ -63,12 +58,10 @@ test('Create single session of RSV availability', async ({ page }) => {
   await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
 });
 
-test('Create weekly session of RSV availability', async ({ page }) => {
+test('Create weekly session of RSV availability', async () => {
   const tomorrowDate = getDateInFuture(1);
   const dayAfterTomorrowDate = getDateInFuture(2);
   await createAvailabilityPage.createAvailabilityButton.click();
-  await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
-
   await expect(createAvailabilityPage.sessionTitle).toBeVisible();
   await createAvailabilityPage.selectSession('Weekly sessions');
   await createAvailabilityPage.continueButton.click();

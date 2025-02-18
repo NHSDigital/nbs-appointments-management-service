@@ -26,7 +26,7 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
 
         if (incorrectSiteIds.Count > 0)
         {
-            report.Add(new ReportItem(-1, "Incorrect Site IDs", false, $"The sites with these IDs don't currently exist in the system. {String.Join(',', incorrectSiteIds)}"));
+            report.Add(new ReportItem(-1, "Incorrect Site IDs", false, $"The sites with these IDs don't currently exist in the system. {string.Join(',', incorrectSiteIds)}"));
             return report;
         }
 

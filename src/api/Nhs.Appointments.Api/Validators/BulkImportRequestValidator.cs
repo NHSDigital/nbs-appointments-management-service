@@ -9,5 +9,9 @@ public class BulkImportRequestValidator : AbstractValidator<BulkImportRequest>
         RuleFor(x => x.File)
             .NotEmpty()
             .WithMessage("Provide a csv file.");
+
+        RuleFor(x => x.Type)
+            .NotEmpty()
+            .WithMessage("Provide an import type");
     }
 }

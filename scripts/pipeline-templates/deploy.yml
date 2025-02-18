@@ -32,7 +32,7 @@ stages:
       - Build
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag
-    condition: and(succeeded(), or(eq(${{parameters.isMain}}, true), and(eq(${{parameters.isHotfix}}, true), ${{ in(parameters.env, 'stag', 'prod') }})))
+    condition: and(succeeded(), or(eq(${{parameters.isMain}}, true), and(eq(${{parameters.isHotfix}}, true), ${{ in(parameters.env, 'int', 'stag', 'prod') }})))
     variables:
       - group: ${{parameters.variable_group}}
     jobs:

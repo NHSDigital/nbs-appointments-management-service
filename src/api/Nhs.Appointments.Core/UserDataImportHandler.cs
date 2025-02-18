@@ -3,13 +3,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Nhs.Appointments.Core;
 
-public interface IDataImportHandler
-{
-    Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile);
-}
-
-public interface IUserDataImportHandler : IDataImportHandler { }
-
 public class UserDataImportHandler(IUserService userService, ISiteService siteService) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)

@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
-using System;
-using Nhs.Appointments.Core.Constants;
 using Nhs.Appointments.Api.Factories;
 
 namespace Nhs.Appointments.Api.Functions;

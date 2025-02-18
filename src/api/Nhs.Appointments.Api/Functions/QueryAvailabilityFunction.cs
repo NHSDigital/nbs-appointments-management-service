@@ -15,6 +15,8 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core.Inspectors;
+using Microsoft.AspNetCore.Routing;
+using Nhs.Appointments.Api.Json;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -69,5 +71,22 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
         }
 
         return new QueryAvailabilityResponseItem(site, service, availability);
+    }
+
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryAvailabilityRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var request = default(QueryAvailabilityRequest);
+        var service = string.Empty;
+        if (req.Body != null && req.Body.Length > 0)
+        {
+            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityRequest>(req.Body, true);
+            if (errors.Any())
+                return (errors, null);
+
+            request = payload;
+        }
+        var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
+
+        return (ErrorMessageResponseItem.None, new QueryAvailabilityRequest(request.Sites, request.Service, request.From, request.Until, request.QueryType, request.Consecutive <= 0 ? 1 : request.Consecutive));
     }
 }

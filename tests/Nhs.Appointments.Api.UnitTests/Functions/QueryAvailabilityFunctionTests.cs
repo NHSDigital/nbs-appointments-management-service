@@ -61,8 +61,7 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            QueryType.Days,
-            1);
+            QueryType.Days);
 
         var httpRequest = CreateRequest(request);
 
@@ -124,8 +123,7 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
-            QueryType.Days,
-            1);
+            QueryType.Days);
 
         var httpRequest = CreateRequest(request);
 
@@ -161,8 +159,7 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
-            QueryType.Days,
-            1);
+            QueryType.Days);
 
         var httpRequest = CreateRequest(request);
 
@@ -174,11 +171,11 @@ public class QueryAvailabilityFunctionTests
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
     {
-        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType, 1);
+        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType, request.Consecutive);
     }
 
     private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service,
-        QueryType queryType, int consecutive)
+        QueryType queryType, int? consecutive = null)
     {
         var sitesArray = string.Join(",", sites.Select(x => $"\"{x}\""));
 

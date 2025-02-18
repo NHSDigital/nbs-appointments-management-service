@@ -17,7 +17,7 @@ public static class SessionInstanceExtensions
         foreach (var slot in slots)
         {
             var timePeriod = new TimePeriod(slot.From, slot.Duration * consecutive);
-            var relatedCapacity = slots.Where(rs => rs.From >= timePeriod.From && rs.Until <= timePeriod.Until && slot.Services.Equals(rs.Services));
+            var relatedCapacity = slots.Where(rs => rs.From >= timePeriod.From && rs.Until <= timePeriod.Until && slot.Duration.Equals(rs.Duration));
 
             if (relatedCapacity.Count() <= 1) 
             {

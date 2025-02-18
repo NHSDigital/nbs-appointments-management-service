@@ -5,6 +5,7 @@ let rootPage: RootPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
+  await page.context().clearCookies();
 });
 
 test('The user accepts analytics cookies', async ({ page }) => {

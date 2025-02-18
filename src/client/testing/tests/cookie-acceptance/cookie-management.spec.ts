@@ -8,6 +8,7 @@ let cookiesPolicyPage: CookiesPolicyPage;
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   cookiesPolicyPage = new CookiesPolicyPage(page);
+  await page.context().clearCookies();
 });
 
 test('The user can change their cookie acceptance', async ({ page }) => {

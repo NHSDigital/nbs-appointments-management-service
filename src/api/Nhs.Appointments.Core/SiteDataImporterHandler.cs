@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Nhs.Appointments.Core;
 
-public interface ISiteDataImportHandler : IDataImportHandler { }
-
 public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodesService wellKnowOdsCodesService) : ISiteDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)

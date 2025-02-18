@@ -1,21 +1,45 @@
 services:
+  traefik:
+    container_name: traefik
+    image: "traefik:v3.3"
+    command:
+      - "--log.level=TRACE"
+      - "--accesslog=true"
+      - "--accesslog.filePath=/logs/access.log"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - frontend
+
   next-app:
     container_name: next-app
     build:
       context: src/client/
-      dockerfile: web.Dockerfile
-
+      dockerfile: web.Dockerfile    
     environment:
       NBS_API_BASE_URL: http://api:80
-      AUTH_HOST: http://localhost:7071
+      AUTH_HOST: http://mya.local/manage-your-appointments
       CLIENT_BASE_PATH: /manage-your-appointments
-
     volumes:
       - ./src/client/src:/app/src
       - ./src/client/public:/app/public
     restart: always
     ports:
       - 3000:3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webclient.rule=Host(`mya.local`) && PathPrefix(`/manage-your-appointments`) "
+      - "traefik.http.routers.webclient.entrypoints=web"      
+      - "traefik.http.services.webclient.loadbalancer.server.port=3000"
+    networks:
+      - frontend
 
   api:
     container_name: api
@@ -39,14 +63,14 @@ services:
       - COSMOS_IGNORE_SSL_CERT=true
       - LEASE_MANAGER_CONNECTION=local
       - Auth__Providers__0__Name=nhs-mail
-      - Auth__Providers__0__Issuer=http://oidc-server
-      - Auth__Providers__0__AuthorizeUri=http://localhost:8020/connect/authorize
-      - Auth__Providers__0__TokenUri=http://oidc-server/connect/token
-      - Auth__Providers__0__JwksUri=http://oidc-server/.well-known/openid-configuration/jwks
+      - Auth__Providers__0__Issuer=http://auth.local
+      - Auth__Providers__0__AuthorizeUri=http://auth.local/connect/authorize
+      - Auth__Providers__0__TokenUri=http://auth.local/connect/token
+      - Auth__Providers__0__JwksUri=http://auth.local/.well-known/openid-configuration/jwks
       - Auth__Providers__0__ChallengePhrase=ThisIsntRandomButItNeedsToBe43CharactersLong
       - Auth__Providers__0__ClientId=nhs-appts-local
-      - Auth__Providers__0__ReturnUri=http://localhost:7071/api/auth-return?provider=nhs-mail
-      - Auth__Providers__0__ClientCodeExchangeUri=http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=nhs-mail
+      - Auth__Providers__0__ReturnUri=http://mya.local/manage-your-appointments/api/auth-return?provider=nhs-mail
+      - Auth__Providers__0__ClientCodeExchangeUri=http://mya.local/manage-your-appointments/auth/set-cookie?provider=nhs-mail
       - Auth__Providers__1__Name=okta
       - Auth__Providers__1__Issuer=https://nhsi-sandbox.oktapreview.com
       - Auth__Providers__1__AuthorizeUri=https://nhsi-sandbox.oktapreview.com/oauth2/v1/authorize
@@ -63,6 +87,15 @@ services:
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webapi.rule=Host(`mya.local`) && PathPrefix(`/manage-your-appointments/api`)"
+      - "traefik.http.middlewares.stripprefix.stripprefix.prefixes=/manage-your-appointments" 
+      - "traefik.http.routers.webapi.entrypoints=web"
+      - "traefik.http.routers.webapi.middlewares=stripprefix@docker"
+      - "traefik.http.services.webapi.loadbalancer.server.port=80"      
+    networks:
+      - frontend
 
   splunk:
     image: splunk/splunk:latest
@@ -84,11 +117,11 @@ services:
       - "8020:80"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: https://+:443;http://+80
+      ASPNETCORE_URLS: http://+80
       ASPNETCORE_HTTPS_PORT: 8010
       ASPNETCORE_Kestrel__Certificates__Default__Password: password
       ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
-      AUTHENTICATION:ISSUER: https://localhost:8010
+      AUTHENTICATION:ISSUER: http://auth.local
       SERVER_OPTIONS_INLINE: |
         {
           "Authentication": {
@@ -98,10 +131,20 @@ services:
         }
       USERS_CONFIGURATION_PATH: /tmp/config/users.json
       CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json
-
     volumes:
       - ./mock-oidc:/tmp/config:ro
       - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oidcserver.rule=Host(`auth.local`)"
+      - "traefik.http.routers.oidcserver.entrypoints=web"
+      - "traefik.http.services.oidcserver.loadbalancer.server.port=80"
+    networks:
+      - frontend
 
 volumes:
   splunk-data:
+
+networks:
+  frontend:
+

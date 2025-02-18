@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+using System;
+using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Logger;

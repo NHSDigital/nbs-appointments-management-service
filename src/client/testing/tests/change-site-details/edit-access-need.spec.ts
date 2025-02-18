@@ -40,6 +40,7 @@ test('Update accessibilities for a site', async ({ page }) => {
   await editAccessNeedsPage.selectAccessibility('Accessible toilet');
   await editAccessNeedsPage.selectAccessibility('Step free access');
   await editAccessNeedsPage.confirmSiteDetailsButton.click();
+  await page.waitForURL(`**/site/${site.id}/details`);
 
   // Check banner function
   await expect(editAccessNeedsPage.updateNotificationBanner).toBeVisible();

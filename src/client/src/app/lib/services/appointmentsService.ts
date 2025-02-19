@@ -244,11 +244,15 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
 export const saveUserRoleAssignments = async (
   site: string,
   user: string,
+  firstName: string,
+  lastName: string,
   roles: string[],
 ) => {
   const payload = {
     scope: `site:${site}`,
     user: user,
+    firstName,
+    lastName,
     roles: roles,
   };
 

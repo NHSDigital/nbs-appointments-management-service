@@ -14,7 +14,7 @@ public static class SessionInstanceExtensions
 
         // Create consecutive time periods
         Func<SessionInstance, int, TimePeriod[]> generateConsecutivePeriods = (instance, concecutive) =>
-                    Enumerable.Range(1, concecutive).Select(x => new TimePeriod(instance.From.Add(instance.Duration * x), instance.Duration * x)).ToArray();
+                    Enumerable.Range(1, concecutive).Select(x => new TimePeriod(instance.From.Add(instance.Duration * x), instance.Duration)).ToArray();
 
         var consecutiveSlots = new List<SessionInstance>();
 

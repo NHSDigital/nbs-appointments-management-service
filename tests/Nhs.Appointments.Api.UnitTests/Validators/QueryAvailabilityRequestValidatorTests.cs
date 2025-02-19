@@ -23,7 +23,8 @@ public class QueryAvailabilityRequestValidatorTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            QueryType.Days
+            QueryType.Days,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeTrue();
@@ -43,7 +44,8 @@ public class QueryAvailabilityRequestValidatorTests
             "SERVICE",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            QueryType.Days
+            QueryType.Days,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -62,7 +64,8 @@ public class QueryAvailabilityRequestValidatorTests
             service,
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            QueryType.Days
+            QueryType.Days,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -79,7 +82,8 @@ public class QueryAvailabilityRequestValidatorTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2076, 01, 01),
-            QueryType.Days
+            QueryType.Days,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();
@@ -99,7 +103,8 @@ public class QueryAvailabilityRequestValidatorTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            queryType
+            queryType,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeTrue();
@@ -115,7 +120,8 @@ public class QueryAvailabilityRequestValidatorTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            queryType
+            queryType,
+            1
         );
         var result = _sut.TestValidate(request);
         result.IsValid.Should().BeFalse();

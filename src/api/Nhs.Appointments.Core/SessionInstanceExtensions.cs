@@ -16,7 +16,6 @@ public static class SessionInstanceExtensions
 
         foreach (var slot in slots)
         {
-            var timePeriod = new TimePeriod(slot.From, slot.Duration * consecutive);
             var consecutivePeriods = GenerateConsecutivePeriods(slot, consecutive);
             var consecutiveCapacity = slots.Where(rs => consecutivePeriods.Any(cp => cp.From == rs.From && cp.Until == rs.Until));
 
@@ -25,7 +24,7 @@ public static class SessionInstanceExtensions
                 continue;
             }
 
-            consecutiveSlots.Add(new SessionInstance(timePeriod)
+            consecutiveSlots.Add(new SessionInstance(new TimePeriod(slot.From, slot.Duration * consecutive))
             {
                 Capacity = consecutiveCapacity.Min(x => x.Capacity),
                 Services = consecutiveCapacity.SelectMany(x => x.Services).Distinct().ToArray()

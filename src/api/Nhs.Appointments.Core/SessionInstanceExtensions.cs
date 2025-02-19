@@ -12,9 +12,6 @@ public static class SessionInstanceExtensions
             return slots;
         }
 
-        // Create consecutive time periods
-
-
         var consecutiveSlots = new List<SessionInstance>();
 
         foreach (var slot in slots)

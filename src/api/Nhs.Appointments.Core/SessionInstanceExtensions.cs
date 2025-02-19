@@ -24,7 +24,7 @@ public static class SessionInstanceExtensions
             var consecutivePeriods = generateConsecutivePeriods(slot, consecutive);
             var consecutiveCapacity = slots.Where(rs => consecutivePeriods.Any(cp => cp.From == rs.From && cp.Until == rs.Until));
 
-            if (consecutiveCapacity.Count() <= 1)
+            if (!FoundExpectedConsecutiveSlots(consecutiveCapacity, consecutivePeriods))
             {
                 continue;
             }
@@ -38,4 +38,7 @@ public static class SessionInstanceExtensions
 
         return consecutiveSlots;
     }
+
+    private static bool FoundExpectedConsecutiveSlots(IEnumerable<SessionInstance> slots, TimePeriod[] periods) =>
+        slots.Count() >= periods.Count();
 }

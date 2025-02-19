@@ -30,11 +30,9 @@ test('The user can change their cookie acceptance', async ({ page }) => {
   await cookiesPolicyPage.manageCookieAcceptanceForm.rejectedRadio.click();
   await cookiesPolicyPage.manageCookieAcceptanceForm.submitButton.click();
 
-  const consentCookie = (await page.context().cookies()).find(
-    cookie => cookie.name === 'nhsuk-mya-cookie-consent',
-  );
-
-  expect(consentCookie?.value).toBe(
-    '%257B%2522consented%2522%253Atrue%252C%2522version%2522%253A1%257D',
-  );
+  await expect(
+    (await page.context().cookies()).find(
+      cookie => cookie.name === 'nhsuk-mya-cookie-consent',
+    )?.value,
+  ).toBe('%257B%2522consented%2522%253Atrue%252C%2522version%2522%253A1%257D');
 });

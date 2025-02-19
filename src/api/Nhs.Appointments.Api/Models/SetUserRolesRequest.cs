@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Api.Models;
 
@@ -12,4 +12,10 @@ public record SetUserRolesRequest
 
     [JsonProperty("roles")]
     public string[] Roles { get; set; }
+
+    [JsonProperty("firstName")]
+    public string FirstName { get; set; }
+
+    [JsonProperty("lastName")]
+    public string LastName { get; set; }
 }

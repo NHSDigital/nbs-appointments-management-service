@@ -155,6 +155,8 @@ type Location = {
 type User = {
   id: string;
   roleAssignments: RoleAssignment[];
+  firstName: string;
+  lastName: string;
 };
 
 type UserProfile = {

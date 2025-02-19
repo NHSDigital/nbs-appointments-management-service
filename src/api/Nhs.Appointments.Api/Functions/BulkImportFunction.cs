@@ -26,7 +26,7 @@ public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFacto
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    //[RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
+    [RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
     [Function("BulkImportFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")] HttpRequest req)

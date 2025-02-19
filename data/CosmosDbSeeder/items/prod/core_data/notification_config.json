@@ -22,8 +22,8 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "f3d2ca6c-4566-4c40-b16b-e18e3bf92b16",
-      "smsTemplate": "7121236d-a5d8-4202-98ae-b27618d59cd0",
+      "emailTemplate": "5384bd93-38e3-4813-b395-3d8337c72cfa",
+      "smsTemplate": "af4a5929-a67e-449a-b504-4e67c9112acf",
       "eventType": "BookingCancelled"
     },    
     {

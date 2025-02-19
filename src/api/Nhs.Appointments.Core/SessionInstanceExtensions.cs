@@ -38,5 +38,5 @@ public static class SessionInstanceExtensions
         slots.Count() >= periods.Count();
 
     private static TimePeriod[] GenerateConsecutivePeriods(SessionInstance instance, int concecutive) =>
-        Enumerable.Range(1, concecutive).Select(x => new TimePeriod(instance.From.Add(instance.Duration * x), instance.Duration)).ToArray();
+        Enumerable.Range(1, concecutive).Select(x => new TimePeriod(instance.From.Add(instance.Duration * (x - 1)), instance.Duration)).ToArray();
 }

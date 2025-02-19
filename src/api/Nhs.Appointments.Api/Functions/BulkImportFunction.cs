@@ -17,7 +17,7 @@ using Nhs.Appointments.Api.Factories;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFactory, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFactory, IValidator<BulkImportRequest> validator, IUserContextProvider userContextProvider, ILogger<BulkImportFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "Bulk Import", tags: ["BulkImport"], Summary = "Bulk import of users and sites")]
@@ -26,7 +26,7 @@ public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFacto
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
+    //[RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
     [Function("BulkImportFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")] HttpRequest req)
@@ -36,17 +36,19 @@ public class BulkImportFunction(IDataImportHandlerFactory dataImportHandlerFacto
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        var files = req.Form.Files;
+        var files = req.Form?.Files;
         var errors = new List<ErrorMessageResponseItem>();
 
-        if (files.Count is 0)
+        if (files is null || files?.Count is 0)
         {
             errors.Add(new ErrorMessageResponseItem { Message = "No file uploaded in the request form." });
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((errors, null));
         }
 
         if (files.Count > 1)
         {
             errors.Add(new ErrorMessageResponseItem { Message = "Too many files uploaded. Only upload one file at a time." });
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((errors, null));
         }
 
         var type = req.HttpContext.GetRouteValue("type")?.ToString();

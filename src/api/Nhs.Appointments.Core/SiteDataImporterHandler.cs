@@ -31,7 +31,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                 if (!wellKnownOdsCodes.Contains(site.OdsCode))
                 {
                     report.Add(new ReportItem(-1, site.OdsCode, false, $"Provided site ODS code: {site.OdsCode} not found in the well known ODS code list."));
-                    break;
+                    continue;
                 }
 
                 await siteService.SaveSiteAsync(

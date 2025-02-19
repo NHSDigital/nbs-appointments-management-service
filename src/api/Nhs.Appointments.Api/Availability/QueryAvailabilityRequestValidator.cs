@@ -23,7 +23,7 @@ public class QueryAvailabilityRequestValidator : AbstractValidator<QueryAvailabi
             .Must(queryType => validQueryTypeValues.Contains(queryType)).WithMessage($"Value must be one of: {String.Join(", ", validQueryTypeValues)}");
         RuleFor(x => x.Consecutive)
             .InclusiveBetween(1, 5)
-            .WithMessage("Consecutive must between 1 and 5");
+            .WithMessage("Consecutive must be between 1 and 5 inclusive");
     }
     
     protected override bool PreValidate(ValidationContext<QueryAvailabilityRequest> requestBody, ValidationResult result) 

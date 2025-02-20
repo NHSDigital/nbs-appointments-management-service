@@ -16,6 +16,8 @@ test.beforeEach(async ({ page }) => {
   eulaConsentPage = new EulaConsentPage(page);
 });
 
+test.describe.configure({ mode: 'serial' });
+
 test('A user with an out of date EULA consent version is prompted with the EULA consent page', async ({
   page,
   getTestUser,

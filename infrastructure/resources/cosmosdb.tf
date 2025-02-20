@@ -23,6 +23,10 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
   consistency_policy {
     consistency_level = "Session"
   }
+  backup {
+    type = "Continuous"
+    tier = "Continuous7Days"
+  }
 }
 
 resource "azurerm_cosmosdb_sql_database" "nbs_appts_database" {

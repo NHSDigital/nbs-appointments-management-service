@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -9,13 +10,18 @@ public class BookingCosmosDocumentStoreTests
     private readonly Mock<ITypedDocumentCosmosStore<BookingDocument>> _bookingStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<BookingIndexDocument>> _indexStore = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<ILogger<BookingCosmosDocumentStore>> _logger = new();
     private readonly BookingCosmosDocumentStore _sut;
     private readonly Mock<TimeProvider> _timeProvider = new();
 
     public BookingCosmosDocumentStoreTests()
     {
-        _sut = new BookingCosmosDocumentStore(_bookingStore.Object, _indexStore.Object, _metricsRecorder.Object,
-            _timeProvider.Object);
+        _sut = new BookingCosmosDocumentStore(
+            _bookingStore.Object, 
+            _indexStore.Object, 
+            _metricsRecorder.Object,
+            _timeProvider.Object, 
+            _logger.Object);
     }
 
     [Fact]
@@ -173,4 +179,40 @@ public class BookingCosmosDocumentStoreTests
             Times.Once);
         _bookingStore.Verify(x => x.GetDocument<Booking>(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
+
+
+    [Fact]
+    public async Task GetByNhsNumberAsync_LogsError_WhenBookingNotFoundInBookingContainer()
+    {
+        var bookingIndexDocuments = new List<BookingIndexDocument>
+        {
+            new BookingIndexDocument
+            {
+                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                DocumentType = "booking_index",
+                Id = "01-76-000001",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000001",
+                Status = AppointmentStatus.Booked
+            }
+        };
+
+        _indexStore.Setup(x =>
+                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+            .ReturnsAsync(bookingIndexDocuments);
+        _bookingStore.Setup(x => x.GetDocument<Booking>(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
+        var bookingReference = bookingIndexDocuments[0].Reference;
+
+        await _sut.GetByNhsNumberAsync("9999999999");
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains($"Did not find booking: {bookingReference} in booking container")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once);
+        }
 }

@@ -82,7 +82,7 @@ stages:
           - task: SonarCloudPublish@3
             displayName: "Publish Sonar cloud results"
             inputs:
-              pollingTimeoutSec: '300'
+              pollingTimeoutSec: "300"
           - task: ArchiveFiles@2
             displayName: Zip Api
             inputs:
@@ -178,7 +178,7 @@ stages:
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
-                cd data/BookingsDataExtracts && docker compose up --build --detach
+              cd data/BookingsDataExtracts && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
               docker compose up --build --detach

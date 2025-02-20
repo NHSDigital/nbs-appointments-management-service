@@ -93,7 +93,9 @@ public class SiteDataImporterHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success ).Should().BeFalse();
-        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.\r\n    Text: 'foo'");
+        report.First().Message
+            .Should().Contain($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.")
+            .And.Contain("Text: 'foo'");
     }
 
     [Fact]

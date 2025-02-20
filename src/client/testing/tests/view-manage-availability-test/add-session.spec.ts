@@ -1,5 +1,4 @@
 import { test } from '../../fixtures';
-import env from '../../testEnvironment';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
@@ -32,7 +31,7 @@ let changeAvailabilityPage: ChangeAvailabilityPage;
 let cancelSessionDetailsPage: CancelSessionDetailsPage;
 let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
-test.beforeEach(async ({ page, getTestUser }) => {
+test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -47,8 +46,8 @@ test.beforeEach(async ({ page, getTestUser }) => {
   dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
 
   await rootPage.goto();
+  await rootPage.cookieBanner.acceptCookiesButton.click();
   await rootPage.pageContentLogInButton.click();
-  const TEST_USER = getTestUser(1);
   await oAuthPage.signIn();
 
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
@@ -103,8 +102,8 @@ test('Verify user is able to change availability', async () => {
 
 test('Verify user is able to cancel session', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
-  const requiredWeekRange = getWeekRange(10);
+  const requiredDate = geRequiredtDateInFormat(5, 'D MMMM');
+  const requiredWeekRange = getWeekRange(5);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);
@@ -116,14 +115,14 @@ test('Verify user is able to cancel session', async () => {
   await changeAvailabilityPage.selectChangeType('CancelSession');
   await changeAvailabilityPage.saveChanges();
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
-  const cancelDate = geRequiredtDateInFormat(10, 'DD MMMM');
+  const cancelDate = geRequiredtDateInFormat(5, 'DD MMMM');
   await cancelSessionDetailsPage.verifySessionCancelled(cancelDate);
 });
 
 test('Verify session not canceled if not confirmed', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
-  const requiredWeekRange = getWeekRange(10);
+  const requiredDate = geRequiredtDateInFormat(3, 'D MMMM');
+  const requiredWeekRange = getWeekRange(3);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);
@@ -146,8 +145,8 @@ test('Verify session not canceled if not confirmed', async () => {
 
 test('Verify view daily appointment link displayed', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
-  const requiredWeekRange = getWeekRange(10);
+  const requiredDate = geRequiredtDateInFormat(3, 'D MMMM');
+  const requiredWeekRange = getWeekRange(3);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);
@@ -194,3 +193,4 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
   await cancelSessionDetailsPage.clickCancelAppointment();
   await dailyAppointmentDetailsPage.verifyManualAppointment();
 });
+

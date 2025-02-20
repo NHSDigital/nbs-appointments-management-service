@@ -14,7 +14,6 @@ let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let summarypage: SummaryPage;
-
 let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {

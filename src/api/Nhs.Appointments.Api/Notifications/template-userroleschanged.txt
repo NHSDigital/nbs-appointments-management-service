@@ -10,12 +10,13 @@ Template Body:
 
 Dear ((user))
 
-You now have access to ((site)) and your permissions have been updated 
+You have been given access to ((site)) and your permissions have been updated 
 on the NHS Manage Your Appointments service.
 
-You have been given the roles of: ((rolesAdded)).
+((rolesAdded))
+((rolesRemoved))
 
-Log in to your account with your NHS login details: http://www.nhs.uk/manage-your-appointments
+Log in to your account with your NHS login details: https://appointment.service.nhs.uk/sign-in
 
 For guidance and support, visit http://digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance
 

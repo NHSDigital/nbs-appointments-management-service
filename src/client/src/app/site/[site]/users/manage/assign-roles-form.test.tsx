@@ -30,6 +30,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
 
@@ -47,6 +49,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
     const checkboxes = screen.getAllByRole('checkbox');
@@ -63,6 +67,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={mockAssignments}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
 
@@ -79,6 +85,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
     const submitButton = screen.getByRole('button', {
@@ -98,6 +106,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
@@ -113,6 +123,8 @@ describe('Assign Roles Form', () => {
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
       />,
     );
     const checkBox = screen.getByRole('checkbox', { name: 'Beta Role' });
@@ -123,6 +135,8 @@ describe('Assign Roles Form', () => {
     expect(mockSaveUserRoleAssignments).toHaveBeenCalledWith(
       'TEST',
       'test@nhs.net',
+      'firstName',
+      'lastName',
       ['role-1'],
     );
   });

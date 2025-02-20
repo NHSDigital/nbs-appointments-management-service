@@ -4,7 +4,7 @@ const nextConfig = {
   env: {
     BUILD_NUMBER: process.env.BUILD_BUILDNUMBER ?? '',
   },
-  output: 'standalone',  
+  output: 'standalone',
   basePath: process.env.CLIENT_BASE_PATH,
   redirects: async () => {
     return [
@@ -12,6 +12,11 @@ const nextConfig = {
         source: '/',
         basePath: false,
         destination: process.env.CLIENT_BASE_PATH,
+        permanent: true,
+      },
+      {
+        source: '/manage-your-appointments/api/:path*',
+        destination: `${process.env.AUTH_HOST}/api/:path*`, // Ensure API calls go to backend
         permanent: true,
       },
     ];

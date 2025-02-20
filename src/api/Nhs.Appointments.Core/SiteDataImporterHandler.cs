@@ -11,29 +11,29 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        var distinctIds = siteRows.GroupBy(s => s.Id).Count();
-        if (siteRows.Count != distinctIds)
+        var duplicateIds = siteRows.GroupBy(s => s.Id)
+            .Where(s => s.Count() > 1)
+            .Select(s => s.Key).ToList();
+
+        if (duplicateIds.Count > 0)
         {
             report.Clear();
-            report.Add(new ReportItem(-1, "Duplicate site IDs", false, "Document contains duplicated siteIds. These IDs must be unique."));
+            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
             return report;
         }
 
-        var wellKnownOdsCodes = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries())
-            .Select(ods => ods.OdsCode)
-            .ToList();
+        var invalidOdsCodes = await GetSitesWithInvalidOdsCodes(siteRows);
+        if (invalidOdsCodes.Count > 0)
+        {
+            report.Clear();
+            report.AddRange(invalidOdsCodes.Select(ods => new ReportItem(-1, ods, false, $"Provided site ODS code: {ods} not found in the well known ODS code list.")));
+            return report;
+        }
 
         foreach (var site in siteRows)
         {
             try
             {
-                // TODO: Should we break in this case? Or skip over this site and carry on with the rest?
-                if (!wellKnownOdsCodes.Contains(site.OdsCode))
-                {
-                    report.Add(new ReportItem(-1, site.OdsCode, false, $"Provided site ODS code: {site.OdsCode} not found in the well known ODS code list."));
-                    continue;
-                }
-
                 await siteService.SaveSiteAsync(
                     site.Id,
                     site.OdsCode,
@@ -52,6 +52,17 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         }
 
         return report;
+    }
+
+    private async Task<List<string>> GetSitesWithInvalidOdsCodes(List<SiteImportRow> siteRows)
+    {
+        var wellKnownOdsCodes = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries())
+            .Select(ods => ods.OdsCode.ToLower())
+            .ToList();
+
+        return siteRows.Where(s => !wellKnownOdsCodes.Contains(s.OdsCode.ToLower()))
+            .Select(s => s.OdsCode)
+            .ToList();
     }
 
     public class SiteImportRow

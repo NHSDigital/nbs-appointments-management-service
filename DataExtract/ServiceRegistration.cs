@@ -47,9 +47,7 @@ public static class ServiceRegistration
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
-            .AddSingleton<CosmosStore<NbsBookingDocument>>()
-            .AddSingleton<CosmosStore<SiteDocument>>()
-        .AddMesh(configuration);
+            .AddMesh(configuration);
 
         var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
         if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
@@ -66,6 +64,13 @@ public static class ServiceRegistration
         }
         else
             Console.WriteLine("Key vault configuration not set up");
+
+        return services;
+    }
+
+    public static IServiceCollection AddCosmosStore<TDocument>(this IServiceCollection services) where TDocument : class
+    { 
+        services.AddSingleton<CosmosStore<TDocument>>();
 
         return services;
     }

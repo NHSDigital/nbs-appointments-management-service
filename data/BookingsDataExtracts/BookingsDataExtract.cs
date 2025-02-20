@@ -1,5 +1,5 @@
+using BookingsDataExtracts.Documents;
 using DataExtract;
-using DataExtract.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Parquet;

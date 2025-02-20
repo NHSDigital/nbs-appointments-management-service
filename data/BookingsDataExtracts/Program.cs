@@ -1,5 +1,7 @@
 using BookingsDataExtracts;
+using BookingsDataExtracts.Documents;
 using DataExtract;
+using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -13,6 +15,8 @@ builder.Configuration
 builder.Services
     .AddSingleton<BookingDataExtract>()
     .AddDataExtractServices(builder.Configuration)
+    .AddCosmosStore<NbsBookingDocument>()
+    .AddCosmosStore<SiteDocument>()
     .AddExtractWorker<BookingDataExtract>();
 
 var host = builder.Build();

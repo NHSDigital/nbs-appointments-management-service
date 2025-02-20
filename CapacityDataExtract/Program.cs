@@ -1,6 +1,7 @@
 using DataExtract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -12,7 +13,9 @@ builder.Configuration
             .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddDataExtractServices(builder.Configuration);
+    .AddDataExtractServices(builder.Configuration)
+    .AddCosmosStore<DailyAvailabilityDocument>()
+    .AddCosmosStore<SiteDocument>();
 
 var host = builder.Build();
 host.Run();

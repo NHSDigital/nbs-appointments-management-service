@@ -1,4 +1,4 @@
-using DataExtract.Documents;
+using BookingsDataExtracts.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 

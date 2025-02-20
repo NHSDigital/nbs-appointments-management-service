@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.Internal;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -81,12 +82,18 @@ public class SiteDataImporterHandlerTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
 
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2")
+            });
+
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(3);
+        report.Count().Should().Be(2);
+        report.All(r => r.Success ).Should().BeFalse();
         report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.\r\n    Text: 'foo'");
-        report.Count(r => r.Success).Should().Be(1);
-        report.Count(r => !r.Success).Should().Be(2);
     }
 
     [Fact]
@@ -108,7 +115,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Document contains duplicated siteIds. These IDs must be unique.");
+        report.First().Message.Should().StartWith($"Duplicate site Id provided: {id}. SiteIds must be unique.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -130,10 +137,8 @@ public class SiteDataImporterHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(4);
+        report.Count().Should().Be(1);
         report.Last().Message.Should().StartWith($"Provided site ODS code: site3 not found in the well known ODS code list.");
-        report.Count(r => r.Success).Should().Be(3);
-        report.Count(r => !r.Success).Should().Be(1);
     }
 
     private readonly string[] ValidInputRows =

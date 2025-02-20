@@ -73,8 +73,8 @@ test('Verify user is able to add a session for future date', async () => {
 
 test('Verify add availability option displayed for future date', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(10, 'D MMMM');
-  const requiredWeekRange = getWeekRange(10);
+  const requiredDate = geRequiredtDateInFormat(2, 'D MMMM');
+  const requiredWeekRange = getWeekRange(2);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.verifyAddAvailabilityButtonDisplayed(
@@ -115,7 +115,8 @@ test('Verify user is able to cancel session', async () => {
   await changeAvailabilityPage.selectChangeType('CancelSession');
   await changeAvailabilityPage.saveChanges();
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
-  await cancelSessionDetailsPage.verifySessionCancelled(requiredDate);
+  const cancelDate = geRequiredtDateInFormat(10, 'DD MMMM');
+  await cancelSessionDetailsPage.verifySessionCancelled(cancelDate);
 });
 
 test('Verify session not canceled if not confirmed', async () => {
@@ -173,10 +174,10 @@ test('Verify appointment not cancelled when not confirmed', async () => {
   await dailyAppointmentDetailsPage.verifyAppointmentNotCancelled('5932817282');
 });
 
-test('Verify no manual appointment when session without booking is canceled', async () => {
+test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed();
-  const requiredDate = geRequiredtDateInFormat(12, 'D MMMM');
-  const requiredWeekRange = getWeekRange(12);
+  const requiredDate = geRequiredtDateInFormat(1, 'D MMMM');
+  const requiredWeekRange = getWeekRange(1);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed();
   await weekViewAvailabilityPage.addAvailability(requiredDate);

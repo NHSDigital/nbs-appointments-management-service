@@ -24,6 +24,8 @@ const getMockUserAssignments = (site: string): User[] => [
       { role: 'role-1', scope: `site:${site}` },
       { role: 'role-2', scope: `site:${site}` },
     ],
+    firstName: 'first1',
+    lastName: 'last1',
   },
   {
     id: 'test.two@nhs.net',
@@ -31,6 +33,8 @@ const getMockUserAssignments = (site: string): User[] => [
       { role: 'role-3', scope: `site:${site}` },
       { role: 'role-4', scope: `site:${site}` },
     ],
+    firstName: 'first2',
+    lastName: 'last2',
   },
 ];
 

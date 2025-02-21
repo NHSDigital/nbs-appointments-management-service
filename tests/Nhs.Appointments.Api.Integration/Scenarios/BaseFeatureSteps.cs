@@ -441,7 +441,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),
         BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
-        BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
+        BookingType.ExpiredProvisional => DateTime.UtcNow.AddHours(-25),
         BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
         BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))

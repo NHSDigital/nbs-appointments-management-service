@@ -24,11 +24,15 @@ const AssignRolesForm = ({
   user,
   roles,
   assignments,
+  firstName,
+  lastName,
 }: {
   site: string;
   user: string;
   roles: Role[];
   assignments: RoleAssignment[];
+  firstName: string;
+  lastName: string;
 }) => {
   const { replace } = useRouter();
   const sortedRoles = roles.toSorted(sortRolesByName);
@@ -45,7 +49,7 @@ const AssignRolesForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async form => {
-    await saveUserRoleAssignments(site, user, form.roles);
+    await saveUserRoleAssignments(site, user, firstName, lastName, form.roles);
   };
 
   return (

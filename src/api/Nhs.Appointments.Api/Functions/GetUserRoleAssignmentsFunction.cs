@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -40,6 +40,8 @@ namespace Nhs.Appointments.Api.Functions
             var redactedUsers = users.Select(usr => new User
             {
                 Id = usr.Id,
+                FirstName = usr.FirstName,
+                LastName = usr.LastName,
                 RoleAssignments = usr.RoleAssignments.Where(roleAssignmentFilter).ToArray()
             });
             return ApiResult<IEnumerable<User>>.Success(redactedUsers);

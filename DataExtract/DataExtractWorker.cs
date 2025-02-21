@@ -11,7 +11,8 @@ public class DataExtractWorker<TExtractor>(
     IOptions<MeshAuthorizationOptions> meshAuthOptions,
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
-    TExtractor dataExtract
+    TExtractor dataExtract,
+    IOptions<FileNameOptions> fileOptions
     ) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,5 +47,5 @@ public class DataExtractWorker<TExtractor>(
             throw new InvalidOperationException("Destination mailbox was not configured");
     }
 
-    private string GenerateFileName() => $"MYA_booking_{timeProvider.GetUtcNow():yyyy-MM-ddTHHmm}.parquet";
+    private string GenerateFileName() => $"MYA_{fileOptions.Value.FileName}_{timeProvider.GetUtcNow():yyyy-MM-ddTHHmm}.parquet";
 }

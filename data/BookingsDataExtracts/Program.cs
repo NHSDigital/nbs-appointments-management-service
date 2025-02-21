@@ -9,11 +9,11 @@ builder.Configuration.Sources.Clear();
 builder.Configuration
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables();
-            //.AddNbsAzureKeyVault();
+            .AddEnvironmentVariables()
+            .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddDataExtractServices(builder.Configuration)
+    .AddDataExtractServices("booking", builder.Configuration)
     .AddCosmosStore<NbsBookingDocument>()
     .AddCosmosStore<SiteDocument>()
     .AddExtractWorker<BookingDataExtract>();

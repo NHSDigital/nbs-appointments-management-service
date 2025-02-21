@@ -11,7 +11,7 @@ namespace DataExtract;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, IConfigurationBuilder configurationBuilder)
+    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, string fileName, IConfigurationBuilder configurationBuilder)
     {
         var configuration = configurationBuilder.Build();
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
@@ -41,6 +41,10 @@ public static class ServiceRegistration
             {
                 opts.DestinationMailboxId = destinationMailbox;
                 opts.WorkflowId = meshWorkflow;
+            })
+            .Configure<FileNameOptions>(opts => 
+            { 
+                opts.FileName = fileName; 
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)

@@ -108,4 +108,40 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return default;
         }
     }
+
+    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument is null)
+        {
+            var site = new SiteDocument
+            {
+                Id = siteId,
+                OdsCode = odsCode,
+                Name = name,
+                Address = address,
+                PhoneNumber = phoneNumber,
+                DocumentType = "site",
+                Accessibilities = accessibilities.ToArray(),
+                InformationForCitizens = string.Empty,
+                IntegratedCareBoard = icb,
+                Location = location,
+                Region = region,
+            };
+            var document = cosmosStore.ConvertToDocument(site);
+            await cosmosStore.WriteAsync(document);
+
+            return new OperationResult(true);
+        }
+        else
+        {
+            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
+            var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
+
+            await Task.WhenAll(updateSite, updateAccessiblities);
+
+            return new OperationResult(true);
+        }
+    }
 }

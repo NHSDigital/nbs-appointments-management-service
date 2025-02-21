@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataExtract\DataExtract.csproj" />
-    <ProjectReference Include="..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
+    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -56,9 +56,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingDataExtracts.UnitTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeshUtil", "data\MeshUtil\MeshUtil.csproj", "{0B507BA3-7D65-4252-9DB4-D097F231B8BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapacityDataExtracts", "CapacityDataExtract\CapacityDataExtracts.csproj", "{5796C514-9137-4BBE-A5A2-837E4BD34243}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapacityDataExtracts", "data\CapacityDataExtract\CapacityDataExtracts.csproj", "{5796C514-9137-4BBE-A5A2-837E4BD34243}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataExtract", "DataExtract\DataExtract.csproj", "{483DC06D-40C7-4588-A70E-25A7FBF2CC91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataExtract", "data\DataExtract\DataExtract.csproj", "{483DC06D-40C7-4588-A70E-25A7FBF2CC91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

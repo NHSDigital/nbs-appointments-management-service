@@ -24,7 +24,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\DataExtract\DataExtract.csproj" />
+    <ProjectReference Include="..\DataExtract\DataExtract.csproj" />
   </ItemGroup>
 
 </Project>

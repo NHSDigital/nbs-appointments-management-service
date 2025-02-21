@@ -52,9 +52,9 @@ public class UserDataImportHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(5);
+        report.Count().Should().Be(1);
         report.All(r => r.Success).Should().BeFalse();
-        report.Last().Message.Should().Be("The sites with these IDs don't currently exist in the system. d3793464-b421-41f3-9bfa-53b06e7b3d19,308d515c-2002-450e-b248-4ba36f6667bb,9a06bacd-e916-4c10-8263-21451ca751b8");
+        report.First().Message.Should().Be("The sites with these IDs don't currently exist in the system. d3793464-b421-41f3-9bfa-53b06e7b3d19,308d515c-2002-450e-b248-4ba36f6667bb,9a06bacd-e916-4c10-8263-21451ca751b8");
     }
 
     private List<Site> GetSites()

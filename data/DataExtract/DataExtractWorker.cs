@@ -2,9 +2,8 @@ using Nbs.MeshClient;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient.Auth;
 using Microsoft.Extensions.Hosting;
-using DataExtract;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 public class DataExtractWorker<TExtractor>(
     IHostApplicationLifetime hostApplicationLifetime,
     IOptions<MeshSendOptions> meshSendOptions,
@@ -25,7 +24,7 @@ public class DataExtractWorker<TExtractor>(
             await SendViaMesh(outputFile);
         }
         catch (Exception ex)
-        {            
+        {
             Console.WriteLine(ex.ToString());
             Environment.ExitCode = -1;
         }

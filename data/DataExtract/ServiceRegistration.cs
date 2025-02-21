@@ -5,7 +5,6 @@ using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using BookingsDataExtracts;
 
 namespace DataExtract;
 

@@ -1,7 +1,7 @@
 import { fetchSitesPreview } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { Metadata } from 'next';
-import { HomePage } from './home-page';
+import { SitesPage } from './sites-page';
 
 export const metadata: Metadata = {
   title: 'Manage your appointments',
@@ -17,7 +17,7 @@ const Page = async () => {
       omitTitleFromBreadcrumbs
       originPage="choose-site"
     >
-      <HomePage sites={sites} />
+      <SitesPage sites={sites} />
     </NhsPage>
   );
 };

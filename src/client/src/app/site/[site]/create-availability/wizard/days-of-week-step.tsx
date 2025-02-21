@@ -46,7 +46,7 @@ const DaysOfWeekStep = ({
     <>
       {stepNumber === 1 ? (
         <BackLink
-          href={returnRouteUponCancellation ?? '/'}
+          href={returnRouteUponCancellation ?? '/sites'}
           renderingStrategy="server"
           text="Go back"
         />

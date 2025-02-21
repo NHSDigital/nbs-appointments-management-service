@@ -11,7 +11,13 @@ const nextConfig = {
       {
         source: '/',
         basePath: false,
-        destination: process.env.CLIENT_BASE_PATH,
+        destination: `${process.env.CLIENT_BASE_PATH}/sites`,
+        permanent: true,
+      },
+      {
+        source: '/',
+        basePath: true,
+        destination: `${process.env.CLIENT_BASE_PATH}/sites`,
         permanent: true,
       },
       {

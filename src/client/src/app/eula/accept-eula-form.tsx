@@ -19,7 +19,7 @@ export const AcceptEulaForm = ({ eulaVersion }: AcceptEulaFormProps) => {
 
   const submitForm: SubmitHandler<Record<string, undefined>> = async () => {
     await acceptEula(eulaVersion.versionDate);
-    push('/');
+    push('/sites');
   };
 
   return (

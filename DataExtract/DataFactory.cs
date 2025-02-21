@@ -41,8 +41,6 @@ public class ArrayDataFactory<TDocument, TData>(string fieldName, Func<TDocument
         if (data is IEnumerable<TDocument> typedData)
         {
             var arrays = typedData.Select(dataGenerator).ToArray();
-            var raw = arrays.SelectMany(x => x).ToArray();
-            var row = arrays.Select((x, i) => x.Select(row => i)).SelectMany(x => x).ToArray();
             return new DataColumn(_field.Value, arrays.SelectMany(x => x).ToArray(), arrays.Select((x, i) => x.Select(row => i)).SelectMany(x => x).ToArray());
         }
 

@@ -1,8 +1,8 @@
-using CapacityDataExtract.Documents;
+using CapacityDataExtracts.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
-namespace CapacityDataExtract;
+namespace CapacityDataExtracts;
 
 public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
 {

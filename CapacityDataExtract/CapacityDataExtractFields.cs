@@ -1,4 +1,4 @@
-namespace CapacityDataExtract;
+namespace CapacityDataExtracts;
 
 public static class CapacityDataExtractFields
 {

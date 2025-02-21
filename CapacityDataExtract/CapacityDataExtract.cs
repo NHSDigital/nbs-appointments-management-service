@@ -1,11 +1,10 @@
-using CapacityDataExtract.Documents;
+using CapacityDataExtracts.Documents;
 using DataExtract;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Parquet;
 using Parquet.Schema;
 
-namespace CapacityDataExtract;
+namespace CapacityDataExtracts;
 
 public class CapacityDataExtract(
     CosmosStore<DailyAvailabilityDocument> availabilityStore,
@@ -32,7 +31,7 @@ public class CapacityDataExtract(
                     Services = s.Services,
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
-                })).SelectMany(slot => slot.ToSiteSlots());
+                })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
         var dataConverter = new CapacityDataConverter(siteTask.Result);
 
@@ -48,7 +47,7 @@ public class CapacityDataExtract(
             new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.SiteName, dataConverter.ExtractSiteName),
             new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Region, dataConverter.ExtractRegion),
             new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
-            new DataFactory<SiteSessionInstance, string[]>(CapacityDataExtractFields.Service, CapacityDataConverter.ExtractService),
+            new ArrayDataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Service, CapacityDataConverter.ExtractService),
         };
 
         Console.WriteLine("Preparing to write");

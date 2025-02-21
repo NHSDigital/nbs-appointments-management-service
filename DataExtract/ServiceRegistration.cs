@@ -3,11 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Nhs.Appointments.Api.Json;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Nhs.Appointments.Persistance.Models;
 using Azure.Identity;
-using DataExtract.Documents;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using BookingsDataExtracts;
 
 namespace DataExtract;
@@ -100,6 +97,7 @@ public static class ServiceRegistration
 
     public static IServiceCollection AddExtractWorker<TExtractor>(this IServiceCollection services) where TExtractor : class, IExtractor 
     {
+        services.AddSingleton<TExtractor>();
         services.AddHostedService<DataExtractWorker<TExtractor>>();
 
         return services;

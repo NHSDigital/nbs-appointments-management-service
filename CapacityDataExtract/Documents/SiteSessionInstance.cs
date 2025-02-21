@@ -1,6 +1,6 @@
 using Nhs.Appointments.Core;
 
-namespace CapacityDataExtract.Documents;
+namespace CapacityDataExtracts.Documents;
 public class SiteSessionInstance : SessionInstance
 {
     public SiteSessionInstance(string site, TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) 

@@ -1,25 +1,8 @@
-import { fetchSitesPreview } from '@services/appointmentsService';
-import NhsPage from '@components/nhs-page';
-import { Metadata } from 'next';
-import { HomePage } from './home-page';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Manage your appointments',
-  description: 'A National Booking Service site for managing NHS appointments',
-};
-
+// TODO: Remove this page. The redirects configured in config don't seem to redirect away from source: "/" unless there is a page there to redirect from.
 const Page = async () => {
-  const sites = await fetchSitesPreview();
-
-  return (
-    <NhsPage
-      title="Manage your appointments"
-      omitTitleFromBreadcrumbs
-      originPage="choose-site"
-    >
-      <HomePage sites={sites} />
-    </NhsPage>
-  );
+  redirect('/sites');
 };
 
 export default Page;

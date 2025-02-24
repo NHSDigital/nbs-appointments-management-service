@@ -5,6 +5,6 @@ import { redirect } from 'next/navigation';
 
 export const signOut = async () => {
   cookies().delete('token');
-  revalidatePath('/');
-  redirect('/');
+  revalidatePath('/login');
+  redirect('/login');
 };

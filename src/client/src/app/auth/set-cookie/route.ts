@@ -37,5 +37,5 @@ export async function GET(request: NextRequest) {
     redirect(`${process.env.CLIENT_BASE_PATH}/${previousPage.value}`);
   }
 
-  redirect(process.env.CLIENT_BASE_PATH ?? '/');
+  redirect('/sites');
 }

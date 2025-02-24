@@ -30,7 +30,7 @@ const Header = ({
         <div className="nhsuk-header__logo">
           <Link
             className="nhsuk-header__link nhsuk-header__link--service"
-            href="/"
+            href="/sites"
             aria-label="Manage Your Appointments"
           >
             <NhsLogo />
@@ -51,7 +51,7 @@ const Header = ({
               {showChangeSiteButton && (
                 <span className="nhsuk-header-custom__user-control">
                   <Link
-                    href="/"
+                    href="/sites"
                     className="nhsuk-header-custom__user-control-link"
                   >
                     Change site

@@ -53,8 +53,7 @@ public static class FunctionConfigurationExtensions
             });
 
         builder.Services
-            .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
-            .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
+            .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")            
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()

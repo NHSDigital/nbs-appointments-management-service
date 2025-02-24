@@ -1,46 +1,33 @@
-﻿using System.Reflection.Metadata;
-
 namespace Nhs.Appointments.Core;
 
 public interface IReferenceNumberProvider
 {
-    Task<string> GetReferenceNumber(string siteId);
+    Task<string> GetReferenceNumber();
 }
 
-public class ReferenceNumberProvider : IReferenceNumberProvider
+public class ReferenceNumberProvider(
+    IReferenceNumberDocumentStore referenceNumberDocumentStore,
+    TimeProvider timeProvider)
+    : IReferenceNumberProvider
 {
-    private readonly ISiteStore _siteStore;
-    private readonly IReferenceNumberDocumentStore _referenceNumberDocumentStore;
-    private readonly TimeProvider _timeProvider;
-    public ReferenceNumberProvider(
-        ISiteStore siteStore,
-        IReferenceNumberDocumentStore referenceNumberDocumentStore,
-        TimeProvider timeProvider)
+    public async Task<string> GetReferenceNumber()
     {
-        _siteStore = siteStore;
-        _referenceNumberDocumentStore = referenceNumberDocumentStore;
-        _timeProvider = timeProvider;
-    }
-    public async Task<string> GetReferenceNumber(string siteId)
-    {        
-        var referenceGroup = await _siteStore.GetReferenceNumberGroup(siteId);
-        if (referenceGroup == 0)
+        var sequenceNumber = await referenceNumberDocumentStore.GetNextSequenceNumber();
+
+        if (sequenceNumber is < 1000000 or > 999999999)
         {
-            referenceGroup = await _referenceNumberDocumentStore.AssignReferenceGroup();
-            await _siteStore.AssignPrefix(siteId, referenceGroup);
+            throw new NotSupportedException($"Booking reference generation is not supported for the provided sequence number: {sequenceNumber}");
         }
-
-        var sequence = await _referenceNumberDocumentStore.GetNextSequenceNumber(referenceGroup);
-        var now = _timeProvider.GetUtcNow();
+        
+        var now = timeProvider.GetUtcNow();
         var rng = now.Day + now.Second;
+        var sequenceAsString = $"{sequenceNumber:000000000}";
 
-        return $"{referenceGroup:00}-{rng:00}-{sequence:000000}";
+        return $"{sequenceAsString[..3]}-{rng:00}-{sequenceAsString[^6..]}";
     }
 }
 
 public interface IReferenceNumberDocumentStore
 {
-    Task<int> AssignReferenceGroup();
-    Task<int> GetNextSequenceNumber(int prefix);
+    Task<int> GetNextSequenceNumber();
 }
-    

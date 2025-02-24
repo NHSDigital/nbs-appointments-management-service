@@ -15,19 +15,21 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
             .Where(s => s.Count() > 1)
             .Select(s => s.Key).ToList();
 
+        List<ReportItem> invalidRowReport = [];
         if (duplicateIds.Count > 0)
         {
-            report.Clear();
-            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
-            return report;
+            invalidRowReport.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
         }
 
         var invalidOdsCodes = await GetSitesWithInvalidOdsCodes(siteRows);
         if (invalidOdsCodes.Count > 0)
         {
-            report.Clear();
-            report.AddRange(invalidOdsCodes.Select(ods => new ReportItem(-1, ods, false, $"Provided site ODS code: {ods} not found in the well known ODS code list.")));
-            return report;
+            invalidRowReport.AddRange(invalidOdsCodes.Select(ods => new ReportItem(-1, ods, false, $"Provided site ODS code: {ods} not found in the well known ODS code list.")));
+        }
+
+        if (invalidRowReport.Count > 0)
+        {
+            return invalidRowReport;
         }
 
         foreach (var site in siteRows)

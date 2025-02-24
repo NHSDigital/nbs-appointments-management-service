@@ -114,6 +114,13 @@ public class SiteDataImporterHandlerTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
 
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+            });
+
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);

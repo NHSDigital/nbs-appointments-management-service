@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -95,7 +95,8 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            queryType);
+            queryType,
+            1);
 
         var httpRequest = CreateRequest(request);
 
@@ -170,18 +171,18 @@ public class QueryAvailabilityFunctionTests
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
     {
-        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType);
+        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType, request.Consecutive);
     }
 
     private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service,
-        QueryType queryType)
+        QueryType queryType, int? consecutive = null)
     {
         var sitesArray = string.Join(",", sites.Select(x => $"\"{x}\""));
 
         var context = new DefaultHttpContext();
         var request = context.Request;
         var body =
-            $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
+            $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": \"{consecutive}\" }} ";
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;

@@ -62,7 +62,7 @@ public class BookingsService(
             if (canBook)
             {
                 booking.Created = time.GetUtcNow();                
-                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber();
                 booking.ReminderSent = false;
                 booking.AvailabilityStatus = AvailabilityStatus.Supported;
                 await bookingDocumentStore.InsertAsync(booking);

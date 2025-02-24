@@ -1,35 +1,33 @@
-using System.Reflection.Metadata;
-
 namespace Nhs.Appointments.Core;
 
 public interface IReferenceNumberProvider
 {
-    Task<string> GetReferenceNumber(string siteId);
+    Task<string> GetReferenceNumber();
 }
 
-public class ReferenceNumberProvider : IReferenceNumberProvider
+public class ReferenceNumberProvider(
+    IReferenceNumberDocumentStore referenceNumberDocumentStore,
+    TimeProvider timeProvider)
+    : IReferenceNumberProvider
 {
-    private readonly IReferenceNumberDocumentStore _referenceNumberDocumentStore;
-    private readonly TimeProvider _timeProvider;
-    public ReferenceNumberProvider(
-        IReferenceNumberDocumentStore referenceNumberDocumentStore,
-        TimeProvider timeProvider)
-    { 
-        _referenceNumberDocumentStore = referenceNumberDocumentStore;
-        _timeProvider = timeProvider;
-    }
-    public async Task<string> GetReferenceNumber(string siteId)
-    {        
-        var sequence = await _referenceNumberDocumentStore.GetNextSequenceNumber();
-        var now = _timeProvider.GetUtcNow();
-        var rng = now.Day + now.Second;
-        var sequenceAsString = $"{sequence:000000000}";
+    public async Task<string> GetReferenceNumber()
+    {
+        var sequenceNumber = await referenceNumberDocumentStore.GetNextSequenceNumber();
 
-        return $"{sequenceAsString[0..3]}-{rng:00}-{sequenceAsString[^6..^0]}";
+        if (sequenceNumber is < 1000000 or > 999999999)
+        {
+            throw new NotSupportedException($"Booking reference generation is not supported for the provided sequence number: {sequenceNumber}");
+        }
+        
+        var now = timeProvider.GetUtcNow();
+        var rng = now.Day + now.Second;
+        var sequenceAsString = $"{sequenceNumber:000000000}";
+
+        return $"{sequenceAsString[..3]}-{rng:00}-{sequenceAsString[^6..]}";
     }
 }
 
 public interface IReferenceNumberDocumentStore
-{    
+{
     Task<int> GetNextSequenceNumber();
 }

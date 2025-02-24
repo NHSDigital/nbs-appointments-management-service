@@ -7,11 +7,12 @@ namespace Nhs.Appointments.Persistance
     public class ReferenceGroupCosmosDocumentStore : IReferenceNumberDocumentStore
     {
         private const string DocumentId = "reference_number";
-        private readonly ITypedDocumentCosmosStore<ReferenceGroupDocument> _cosmosStore;     
+        private readonly ITypedDocumentCosmosStore<ReferenceGroupDocument> _cosmosStore;
+
         public ReferenceGroupCosmosDocumentStore(ITypedDocumentCosmosStore<ReferenceGroupDocument> cosmosStore)
         {
             _cosmosStore = cosmosStore;
-        }        
+        }
 
         public async Task<int> GetNextSequenceNumber()
         {
@@ -20,5 +21,5 @@ namespace Nhs.Appointments.Persistance
             var referenceGroupDocument = await _cosmosStore.PatchDocument(docType, DocumentId, incrementSequencePatch);
             return referenceGroupDocument.Sequence;
         }
-    }    
+    }
 }

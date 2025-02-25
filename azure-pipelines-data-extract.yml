@@ -38,7 +38,7 @@ variables:
 stages:
   - stage: "CreateCapacityDailyExtract"
     displayName: "Create Capacity data extract"
-    condition: eq(parameters.runCapacity, true)
+    condition: eq('${{ parameters.runCapacity }}', 'true')
     jobs:
       - job: "GenerateCapacityDailyExtract"
         displayName: "Generate and send capacity extract"
@@ -70,7 +70,7 @@ stages:
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
   - stage: "CreateBookingDailyExtract"
     displayName: "Create booking data extract"
-    condition: eq(parameters.runBooking, true)
+    condition: eq('${{ parameters.runBooking }}', 'true')
     jobs:
       - job: "GenerateBookingDailyExtract"
         displayName: "Generate and send booking extract"

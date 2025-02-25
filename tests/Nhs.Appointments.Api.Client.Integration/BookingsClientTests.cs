@@ -55,7 +55,6 @@ namespace Nhs.Appointments.Api.Client.Integration
             await ApiClient.Sites.SetSiteConfiguration(new Appointments.ApiClient.Models.SiteConfiguration
             {
                 InformationForCitizen = "Some information",
-                ReferenceNumberGroup = 14,
                 Site = KnownSiteId,
                 ServiceConfiguration = [new ServiceConfiguration("COVID:12_15", "Covid Vaccination", 10, true)]
             });

@@ -11,7 +11,6 @@ public interface ISiteStore
     
     Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region);
     
-    Task AssignPrefix(string site, int prefix);
     Task<IEnumerable<Site>> GetAllSites();
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,

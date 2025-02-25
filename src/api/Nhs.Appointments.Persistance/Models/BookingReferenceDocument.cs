@@ -1,7 +1,7 @@
 namespace Nhs.Appointments.Persistance.Models;
 
 [CosmosDocumentType("system")]
-public class ReferenceGroupDocument : CoreDataCosmosDocument
+public class BookingReferenceDocument : CoreDataCosmosDocument
 {
     public int Sequence { get; set; }
 }

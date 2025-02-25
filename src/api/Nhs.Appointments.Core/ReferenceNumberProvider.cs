@@ -6,13 +6,13 @@ public interface IReferenceNumberProvider
 }
 
 public class ReferenceNumberProvider(
-    IReferenceNumberDocumentStore referenceNumberDocumentStore,
+    IBookingReferenceDocumentStore bookingReferenceDocumentStore,
     TimeProvider timeProvider)
     : IReferenceNumberProvider
 {
     public async Task<string> GetReferenceNumber()
     {
-        var sequenceNumber = await referenceNumberDocumentStore.GetNextSequenceNumber();
+        var sequenceNumber = await bookingReferenceDocumentStore.GetNextSequenceNumber();
 
         if (sequenceNumber is < 1000000 or > 999999999)
         {
@@ -27,7 +27,7 @@ public class ReferenceNumberProvider(
     }
 }
 
-public interface IReferenceNumberDocumentStore
+public interface IBookingReferenceDocumentStore
 {
     Task<int> GetNextSequenceNumber();
 }

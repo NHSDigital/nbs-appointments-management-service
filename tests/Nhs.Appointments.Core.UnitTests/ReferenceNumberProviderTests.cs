@@ -2,7 +2,7 @@ namespace Nhs.Appointments.Core.UnitTests;
 
 public class ReferenceNumberProviderTests
 {
-    private readonly Mock<IReferenceNumberDocumentStore> _referenceNumberDocumentStore = new();
+    private readonly Mock<IBookingReferenceDocumentStore> _referenceNumberDocumentStore = new();
     private readonly ReferenceNumberProvider _sut;
     private readonly Mock<TimeProvider> _timeProvider = new();
 

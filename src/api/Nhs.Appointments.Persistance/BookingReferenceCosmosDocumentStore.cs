@@ -7,7 +7,7 @@ namespace Nhs.Appointments.Persistance
     public class BookingReferenceCosmosDocumentStore(ITypedDocumentCosmosStore<BookingReferenceDocument> cosmosStore)
         : IBookingReferenceDocumentStore
     {
-        private const string DocumentId = "reference_number";
+        private const string DocumentId = "booking_reference";
 
         public async Task<int> GetNextSequenceNumber()
         {

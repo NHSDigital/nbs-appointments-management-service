@@ -10,20 +10,28 @@ public class ReferenceNumberProvider(
     TimeProvider timeProvider)
     : IReferenceNumberProvider
 {
+    /// <summary>
+    /// Generate the booking reference number in a way that is future-proof, for the very long term (100 years)
+    /// </summary>
+    /// <returns></returns>
     public async Task<string> GetReferenceNumber()
     {
         var sequenceNumber = await bookingReferenceDocumentStore.GetNextSequenceNumber();
 
-        if (sequenceNumber is < 1000000 or > 999999999)
-        {
-            throw new NotSupportedException($"Booking reference generation is not supported for the provided sequence number: {sequenceNumber}");
-        }
+        //the max sequence number part we are going to use is 100 million, so reset to 0 after
+        var overflowedSequence = sequenceNumber % 100000000;
+        var overflowedSequenceAsString = $"{overflowedSequence:00000000}";
         
         var now = timeProvider.GetUtcNow();
-        var rng = now.Day + now.Second;
-        var sequenceAsString = $"{sequenceNumber:000000000}";
+        
+        var yearAsString = $"{now.Year:0000}";
+        
+        //divide total days into 4, result is always < 100, so can use 2 digits
+        //also makes it look more random than using just the week day
+        var dayPartition = (now.DayOfYear / 4) + 1;
+        var dayPartitionAsString = $"{dayPartition:00}";
 
-        return $"{sequenceAsString[..3]}-{rng:00}-{sequenceAsString[^6..]}";
+        return $"{dayPartitionAsString}{yearAsString[^2..]}-{overflowedSequenceAsString[..4]}-{overflowedSequenceAsString[^4..]}";
     }
 }
 

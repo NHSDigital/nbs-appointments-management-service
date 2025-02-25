@@ -1,5 +1,4 @@
 using CapacityDataExtracts.Documents;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
 namespace CapacityDataExtracts;

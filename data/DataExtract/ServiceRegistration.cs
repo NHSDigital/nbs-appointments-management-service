@@ -43,7 +43,7 @@ public static class ServiceRegistration
             })
             .Configure<FileNameOptions>(opts => 
             { 
-                opts.FileName = fileName; 
+                opts.FileName = fileName;
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)

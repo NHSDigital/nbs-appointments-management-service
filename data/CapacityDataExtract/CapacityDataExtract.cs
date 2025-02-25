@@ -1,8 +1,7 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
 using Nhs.Appointments.Persistance.Models;
-using Parquet;
-using Parquet.Schema;
+using Parquet.Serialization;
 
 namespace CapacityDataExtracts;
 
@@ -35,34 +34,25 @@ public class CapacityDataExtract(
 
         var dataConverter = new CapacityDataConverter(siteTask.Result);
 
-        var dataFactories = new List<DataFactory>
-        {
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Date, CapacityDataConverter.ExtractDate),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Time, CapacityDataConverter.ExtractTime),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.SlotLength, CapacityDataConverter.ExtractSlotLength),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.OdsCode, dataConverter.ExtractOdsCode),
-            new DataFactory<SiteSessionInstance, double>(CapacityDataExtractFields.Latitude, dataConverter.ExtractLatitude),
-            new DataFactory<SiteSessionInstance, double>(CapacityDataExtractFields.Longitude, dataConverter.ExtractLongitude),
-            new DataFactory<SiteSessionInstance, int>(CapacityDataExtractFields.Capacity, CapacityDataConverter.ExtractCapacity),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.SiteName, dataConverter.ExtractSiteName),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Region, dataConverter.ExtractRegion),
-            new DataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
-            new ArrayDataFactory<SiteSessionInstance, string>(CapacityDataExtractFields.Service, CapacityDataConverter.ExtractService),
-        };
-
         Console.WriteLine("Preparing to write");
 
-        var schema = new ParquetSchema(dataFactories.Select(df => df.Field).ToArray());
         using (Stream fs = outputFile.OpenWrite())
         {
-            using (var writer = await ParquetWriter.CreateAsync(schema, fs))
-            {
-                using (var groupWriter = writer.CreateRowGroup())
+            await ParquetSerializer.SerializeAsync(capacity.Select(
+                x => new SiteSessionParquet()
                 {
-                    foreach (var dataFactory in dataFactories)
-                        await groupWriter.WriteColumnAsync(dataFactory.CreateColumn(capacity));
-                }
-            }
+                    Date = CapacityDataConverter.ExtractDate(x),
+                    Time = CapacityDataConverter.ExtractTime(x),
+                    SlotLength = CapacityDataConverter.ExtractSlotLength(x),
+                    OdsCode = dataConverter.ExtractOdsCode(x),
+                    Latitude = dataConverter.ExtractLatitude(x),
+                    Longitude = dataConverter.ExtractLongitude(x),
+                    Capacity = CapacityDataConverter.ExtractCapacity(x),
+                    SiteName = dataConverter.ExtractSiteName(x),
+                    Region = dataConverter.ExtractRegion(x),
+                    IntegratedCareBoard = dataConverter.ExtractICB(x),
+                    Service = CapacityDataConverter.ExtractService(x),
+                }), fs);
         }
 
         Console.WriteLine("done");

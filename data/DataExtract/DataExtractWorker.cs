@@ -20,7 +20,6 @@ public class DataExtractWorker<TExtractor>(
         {
             var outputFile = new FileInfo(GenerateFileName());
             await dataExtract.RunAsync(outputFile);
-
             await SendViaMesh(outputFile);
         }
         catch (Exception ex)

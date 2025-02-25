@@ -60,7 +60,7 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
-              MESH_WORKFLOW: $(capacityWorkflowId)
+              MESH_WORKFLOW: MYA_INBOUND_NATIONAL_BOOKINGS_CAPACITY_1
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
               KeyVault__TenantId: $(tenantId)
               KeyVault__ClientId: $(ClientId)
@@ -92,7 +92,7 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
-              MESH_WORKFLOW: $(bookingWorkflowId)
+              MESH_WORKFLOW: MYA_INBOUND_NATIONAL_BOOKINGS_1
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
               KeyVault__TenantId: $(tenantId)
               KeyVault__ClientId: $(ClientId)

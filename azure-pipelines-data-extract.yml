@@ -55,7 +55,7 @@ stages:
             displayName: "Run tool to create capacity data extract"
             inputs:
               command: "run"
-              projects: "data/CapacityDataExtracts/CapacityDataExtracts.csproj"
+              projects: "data/CapacityDataExtract/CapacityDataExtracts.csproj"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

@@ -31,11 +31,11 @@ const NhsAnonymousPage = ({
       <Header showChangeSiteButton={false}>{headerAuthComponent}</Header>
       <FeedbackBanner originPage={originPage} />
       {showHomeBreadcrumb && (
-        <Breadcrumbs trail={[{ name: 'Home', href: '/' }]} />
+        <Breadcrumbs trail={[{ name: 'Home', href: '/sites' }]} />
       )}
       <NhsMainContainer>
         {showGoBack && (
-          <BackLink renderingStrategy="server" text="Go back" href={'/'} />
+          <BackLink renderingStrategy="server" text="Go back" href={'/sites'} />
         )}
         <NhsHeading title={title} caption={caption} />
         {children}

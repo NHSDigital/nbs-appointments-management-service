@@ -12,7 +12,7 @@ export default function NotFound() {
     >
       <p>
         You may have typed or pasted the web address incorrectly.{' '}
-        <Link href="/">Go to the start page.</Link>
+        <Link href="/sites">Go to the start page.</Link>
       </p>
 
       <ContactUs />

@@ -35,7 +35,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
     <NhsPage
       title="Staff Role Management"
       breadcrumbs={[
-        { name: 'Home', href: '/' },
+        { name: 'Home', href: '/sites' },
         { name: site.name, href: `/site/${params.site}` },
         { name: 'Users', href: `/site/${params.site}/users` },
       ]}

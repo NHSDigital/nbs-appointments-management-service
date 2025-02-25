@@ -30,7 +30,7 @@ test('The user can change their cookie acceptance', async ({ page }) => {
   await cookiesPolicyPage.manageCookieAcceptanceForm.rejectedRadio.click();
   await cookiesPolicyPage.manageCookieAcceptanceForm.submitButton.click();
 
-  await page.waitForURL('**/login');
+  await page.waitForURL('**/login?redirectUrl=/sites');
   await expect(rootPage.cookieBanner.postAcceptanceMessage).toBeVisible();
 
   await expect(

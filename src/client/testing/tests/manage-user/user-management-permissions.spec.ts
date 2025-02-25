@@ -158,9 +158,7 @@ test('Verify user can only view appointment manager related tiles In app when us
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Appointment manager', user8.subjectId);
   await rootPage.logOut();
-  await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
-  );
+  await page.waitForURL(`**/manage-your-appointments/login`);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(8));
@@ -196,9 +194,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Availability manager', user9.subjectId);
   await rootPage.logOut();
-  await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
-  );
+  await page.waitForURL(`**/manage-your-appointments/login`);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(9));
@@ -241,9 +237,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('User manager', user10.subjectId);
   await rootPage.logOut();
-  await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
-  );
+  await page.waitForURL(`**/manage-your-appointments/login`);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(10));
@@ -285,9 +279,7 @@ test('Verify user can only view site details manager related tiles In app when u
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Site details manager', user11.subjectId);
   await rootPage.logOut();
-  await page.waitForURL(
-    `**/manage-your-appointments/login?redirectUrl=/site/${site1.id}/users`,
-  );
+  await page.waitForURL(`**/manage-your-appointments/login`);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(11));

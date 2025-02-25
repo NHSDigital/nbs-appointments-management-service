@@ -34,7 +34,7 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
     form: CookieConsentFormData,
   ) => {
     await setCookieConsent(form.consented === 'yes');
-    router.push(`/`);
+    router.push(`/sites`);
   };
 
   return (

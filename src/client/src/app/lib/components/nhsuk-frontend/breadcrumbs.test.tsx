@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { Breadcrumb, Breadcrumbs } from '@nhsuk-frontend-components';
 
 const breadcrumbTrail: Breadcrumb[] = [
-  { name: 'Home', href: '/' },
+  { name: 'Home', href: '/sites' },
   { name: 'Page 1', href: '/page1' },
   { name: 'Page 2', href: '/page1/page2' },
   { name: 'Page 3' },
@@ -22,7 +22,7 @@ describe('NHSBreadcrumbs', () => {
 
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
       'href',
-      '/',
+      '/sites',
     );
 
     expect(screen.getByRole('link', { name: 'Page 1' })).toHaveAttribute(
@@ -52,11 +52,13 @@ describe('NHSBreadcrumbs', () => {
 
   it('renders an invisible back to home button if only one page away from home', () => {
     render(
-      <Breadcrumbs trail={[{ name: 'Home', href: '/' }, { name: 'Page 1' }]} />,
+      <Breadcrumbs
+        trail={[{ name: 'Home', href: '/sites' }, { name: 'Page 1' }]}
+      />,
     );
     expect(screen.getByRole('link', { name: /Back to Home/ })).toHaveAttribute(
       'href',
-      '/',
+      '/sites',
     );
   });
 

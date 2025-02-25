@@ -19,17 +19,18 @@ export const DayCardList = async ({ site, weekStart, weekEnd }: Props) => {
   const canManageAvailability = permissions.includes('availability:setup');
 
   return (
-    <>
+    <ol className="card-list">
       {weekSummary.daySummaries.map((day, dayIndex) => {
         return (
-          <DaySummaryCard
-            daySummary={day}
-            siteId={site.id}
-            key={`day-summary-${dayIndex}`}
-            canManageAvailability={canManageAvailability}
-          />
+          <li key={`day-summary-${dayIndex}`}>
+            <DaySummaryCard
+              daySummary={day}
+              siteId={site.id}
+              canManageAvailability={canManageAvailability}
+            />
+          </li>
         );
       })}
-    </>
+    </ol>
   );
 };

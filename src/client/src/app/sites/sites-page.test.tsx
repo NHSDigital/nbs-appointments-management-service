@@ -1,10 +1,10 @@
-import { HomePage } from './home-page';
+import { SitesPage } from './sites-page';
 import { render, screen } from '@testing-library/react';
 import { mockSites } from '@testing/data';
 
-describe('Home Page', () => {
+describe('Sites Page', () => {
   it('should render the home page', () => {
-    render(<HomePage sites={mockSites} />);
+    render(<SitesPage sites={mockSites} />);
 
     expect(
       screen.getByRole('heading', { name: 'Choose a site' }),

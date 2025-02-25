@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const redirectUrl = searchParams?.redirectUrl ?? '/';
+  const redirectUrl = searchParams?.redirectUrl ?? '/sites';
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>

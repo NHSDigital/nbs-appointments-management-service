@@ -19,7 +19,6 @@ import CancelSessionDetailsPage from '../../page-objects/view-availability-appoi
 import DailyAppointmentDetailsPage from '../../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
 import dayjs from 'dayjs';
 
-const { TEST_USERS } = env;
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
@@ -33,7 +32,7 @@ let changeAvailabilityPage: ChangeAvailabilityPage;
 let cancelSessionDetailsPage: CancelSessionDetailsPage;
 let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, getTestUser }) => {
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
@@ -49,7 +48,9 @@ test.beforeEach(async ({ page }) => {
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser1);
+  const TEST_USER = getTestUser(1);
+  await oAuthPage.signIn();
+
   await siteSelectionPage.selectSite('Church Lane Pharmacy');
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
   await page.waitForURL('**/site/**/view-availability');

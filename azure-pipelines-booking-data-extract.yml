@@ -16,7 +16,7 @@ parameters:
   - name: env
     displayName: "Environment to import data into"
     type: string
-    default: "int"
+    default: "prod"
     values: ["int", "stag", "prod"]
     
 variables:

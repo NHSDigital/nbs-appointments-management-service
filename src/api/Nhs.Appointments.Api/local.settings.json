@@ -40,5 +40,8 @@
     "BookingRemindersCronSchedule": "0 0 8 * * *",
     "UnconfirmedProvisionalBookingsCronSchedule": "0 */5 * * * *"
   },
-  "Host": { "CORS": "*" }
+  "Host": { "CORS": "*" },
+  "FeatureManagement": {
+    "TestFeatureEnabled": "true"
+  }
 }

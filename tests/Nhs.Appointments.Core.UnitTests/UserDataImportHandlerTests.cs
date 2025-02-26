@@ -8,7 +8,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<ISiteService> _siteServiceMock = new();
 
     private readonly UserDataImportHandler _sut;
-    private const string UsersHeader = "User,Site,appointments-manager,availability-manager,site-details-manager,user-manager";
+    private const string UsersHeader = "User,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
 
     public UserDataImportHandlerTests()
     {

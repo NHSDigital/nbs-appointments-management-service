@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    BUILD_NUMBER: process.env.BUILD_BUILDNUMBER ?? '',
+    BUILD_NUMBER: process.env.BUILD_NUMBER ?? '',
   },
   output: 'standalone',
   basePath: process.env.CLIENT_BASE_PATH,

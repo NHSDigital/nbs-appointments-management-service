@@ -36,8 +36,7 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
                 var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, "site", userAssignmentGroup.RoleAssignments);
                 if (!result.Success)
                 {
-                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"The following roles are not valid: {string.Join('|', result.errorRoles)}"));
-                    continue;
+                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
                 }
             }
             catch (Exception ex)

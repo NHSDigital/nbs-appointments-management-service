@@ -8,7 +8,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<ISiteService> _siteServiceMock = new();
 
     private readonly UserDataImportHandler _sut;
-    private const string UsersHeader = "User,Site";
+    private const string UsersHeader = "User,Site,appointments-manager,availability-manager,site-details-manager,user-manager";
 
     public UserDataImportHandlerTests()
     {
@@ -30,14 +30,16 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[1])
             .ReturnsAsync(sites[2])
             .ReturnsAsync(sites[3]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), "site", It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
 
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(4);
         report.All(r => r.Success).Should().BeTrue();
 
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(2));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -60,6 +62,35 @@ public class UserDataImportHandlerTests
         report.First().Message.Should().Be("The following site ID doesn't currently exist in the system: d3793464-b421-41f3-9bfa-53b06e7b3d19.");
     }
 
+    [Fact]
+    public async Task ReportsInvalidUserRoles()
+    {
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, InputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1])
+            .ReturnsAsync(sites[2])
+            .ReturnsAsync(sites[3]);
+        _userServiceMock.SetupSequence(u => u.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), "site", It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(false, string.Empty, ["test-role:one", "test-role:two"]));
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(5);
+        report.All(r => r.Success).Should().BeFalse();
+        report.Last().Success.Should().BeFalse();
+        report.Last().Message.Should().Be("Failed to update user roles. The following roles are not valid: test-role:one|test-role:two");
+    }
+
     private List<Site> GetSites()
     {
         var sites = new List<Site>();
@@ -74,9 +105,9 @@ public class UserDataImportHandlerTests
 
     private readonly string[] InputRows =
         [
-            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19",
-            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb",
-            "test2@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19",
-            "test2@nhs.net,9a06bacd-e916-4c10-8263-21451ca751b8",
+            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
+            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true",
+            "test2@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
+            "test2@nhs.net,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true",
         ];
 }

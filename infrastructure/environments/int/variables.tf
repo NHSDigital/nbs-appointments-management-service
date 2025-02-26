@@ -101,3 +101,7 @@ variable "SPLUNK_HEC_TOKEN" {
   type      = string
   sensitive = true
 }
+
+variable "BUILD_NUMBER" {
+  type = string
+}

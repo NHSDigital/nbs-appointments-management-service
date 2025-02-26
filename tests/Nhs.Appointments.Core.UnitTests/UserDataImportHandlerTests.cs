@@ -91,6 +91,27 @@ public class UserDataImportHandlerTests
         report.Last().Message.Should().Be("Failed to update user roles. The following roles are not valid: test-role:one|test-role:two");
     }
 
+    [Fact]
+    public async Task ReportsInvalidCsvFile()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true",
+            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var sites = GetSites(); var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First().Message.Should().Contain("CsvHelper.ReaderException: An unexpected error occurred.").And.Contain("Invalid bool string format:  test");
+    }
+
     private List<Site> GetSites()
     {
         var sites = new List<Site>();

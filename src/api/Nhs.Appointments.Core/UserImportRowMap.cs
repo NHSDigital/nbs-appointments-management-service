@@ -9,7 +9,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
     {
         var userRoleKeys = new[]
         {
-            "appointments-manager",
+            "appointment-manager",
             "availability-manager",
             "site-details-manager",
             "user-manager"
@@ -28,7 +28,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             {
                 if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
                 {
-                    roleAssignemnts.Add(new RoleAssignment { Role = $"cannjed:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
+                    roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
                 }
             }
 

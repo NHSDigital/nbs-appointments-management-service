@@ -1,6 +1,4 @@
-﻿using Microsoft.FeatureManagement;
-
-namespace Nhs.Appointments.Core;
+﻿namespace Nhs.Appointments.Core;
 
 public interface IEulaService
 {
@@ -8,18 +6,10 @@ public interface IEulaService
     Task ConsentToEula(string userId);
 }
 
-public class EulaService(IEulaStore eulaStore, IUserStore userStore, IFeatureManager featureManager) : IEulaService
+public class EulaService(IEulaStore eulaStore, IUserStore userStore) : IEulaService
 {
     public async Task<EulaVersion> GetEulaVersionAsync()
     {
-        if (await featureManager.IsEnabledAsync(FeatureFlags.TestFeatureEnabled))
-        {
-            return new EulaVersion
-            {
-                VersionDate = DateOnly.Parse("2025-02-26"),
-            };
-        }
-        
         return await eulaStore.GetLatestVersion();
     }
 

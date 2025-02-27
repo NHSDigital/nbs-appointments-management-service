@@ -1,34 +1,34 @@
+using CapacityDataExtracts.Documents;
+using DataExtract;
+using DataExtract.Documents;
+using FluentAssertions;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Nbs.MeshClient.Auth;
-using Nbs.MeshClient;
-using Nhs.Appointments.Api.Json;
-using Refit;
-using Xunit.Gherkin.Quick;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Parquet.Serialization;
-using FluentAssertions;
-using Nhs.Appointments.Persistance.Models;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Nbs.MeshClient;
+using Nbs.MeshClient.Auth;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
-using Microsoft.Azure.Cosmos.Linq;
-using DataExtract.Documents;
-using BookingsDataExtracts;
-using DataExtract;
+using Nhs.Appointments.Persistance.Models;
+using Parquet.Serialization;
+using Refit;
+using Xunit.Gherkin.Quick;
 
-namespace BookingDataExtracts.Integration.Specification;
+namespace CapacityDataExtracts.Integration.Specification;
 
 [FeatureFile("./Specification/BookingExtracts.feature")]
-public sealed class BookingExtractsFeatureSteps : Feature
+public sealed class CapacityExtractsFeatureSteps
 {
     private readonly CosmosClient _cosmosClient;
     private readonly ConfigurationBuilder _configurationBuilder = new();
-    private readonly List<BookingDocument> _testAppointments = new();
+    private readonly List<DailyAvailabilityDocument> _testCapacity = new();
     private MeshMailbox _targetMailbox;
 
-    public BookingExtractsFeatureSteps()
+    public CapacityExtractsFeatureSteps()
     {
         CosmosClientOptions options = new()
         {
@@ -54,7 +54,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
     {
         var site = new SiteDocument
         {
-            Id = "BookingExtractDataTests",
+            Id = $"CapacityExtractDataTests",
             OdsCode = "DET01",
             Name = "Test Site",
             Region = "North",
@@ -66,47 +66,32 @@ public sealed class BookingExtractsFeatureSteps : Feature
         return site;
     }
 
-    [Given("I have some bookings")]
-    public async Task SetupBookings(Gherkin.Ast.DataTable bookingData)
+    [Given("I have some capacity")]
+    public async Task SetupCapacity(Gherkin.Ast.DataTable capacityData) 
     {
         var site = await SetupSite();
+        await DeleteCapacityFromPreviousTests();
 
-        await DeleteBookingFromPreviousTests();
-
-        var bookings = bookingData.Rows.Skip(1).Select(row =>
-            new BookingDocument
+        var capacitys = capacityData.Rows.Skip(1).Select(row =>
+            new DailyAvailabilityDocument
             {
-                Id = row.Cells.ElementAt(1).Value,
-                Reference = row.Cells.ElementAt(1).Value,
-                Created = DateTimeOffset.Now,
-                From = DateTime.Today.AddDays(5).AddHours(9),
-                Duration = 5,
-                Service = "COVID:18_74",
-                ReminderSent = true,
-                Site = site.Id,
-                DocumentType = "booking",
-                Status = Enum.Parse<AppointmentStatus>(row.Cells.ElementAt(2).Value),
-                StatusUpdated = DateTimeOffset.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd HH:mm", null),
-                ContactDetails = [],
-                AttendeeDetails = new AttendeeDetails
-                {
-                    FirstName = "Test",
-                    LastName = "User",
-                    NhsNumber = "1234567890",
-                    DateOfBirth = new DateOnly(1977, 01, 24)
-                },
-                AdditionalData = new NbsAdditionalData
-                {
-                    IsAppBooking = true,
-                    ReferralType = "",
-                    IsCallCentreBooking = false
-                }
+                Date = DateOnly.ParseExact(row.Cells.ElementAt(0).Value, "yyyy-MM-dd", null),
+                Sessions = [ 
+                    new Session 
+                    {
+                        From = TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "hh:mm:ss", null),
+                        Until = TimeOnly.ParseExact(row.Cells.ElementAt(1).Value, "hh:mm:ss", null),
+                        Services = ["service1", "service2"],
+                        SlotLength = (TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "hh:mm:ss", null) - TimeOnly.ParseExact(row.Cells.ElementAt(1).Value, "hh:mm:ss", null)).Minutes,
+                        Capacity = 5
+                    }
+                ]
             });
 
-        foreach (var booking in bookings)
+        foreach (var capacity in capacitys)
         {
-            await _cosmosClient.GetContainer("appts", "booking_data").CreateItemAsync(booking);
-            _testAppointments.Add(booking);
+            await _cosmosClient.GetContainer("appts", "booking_data").CreateItemAsync(capacity);
+            _testCapacity.Add(capacity);
         }
     }
 
@@ -136,14 +121,14 @@ public sealed class BookingExtractsFeatureSteps : Feature
         await _targetMailbox.ClearMessages();
     }
 
-    [When(@"the booking data extract runs on '(\d{4}-\d{2}-\d{2} \d{2}:\d{2})'")]
+    [When(@"the capacity data extract runs on '(\d{4}-\d{2}-\d{2} \d{2}:\d{2})'")]
     public async Task RunDataExtract(string dateTime)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddDataExtractServices("booking", _configurationBuilder)
-            .AddCosmosStore<NbsBookingDocument>()
+        serviceCollection.AddDataExtractServices("BookingCapacity", _configurationBuilder)
+            .AddCosmosStore<DailyAvailabilityDocument>()
             .AddCosmosStore<SiteDocument>()
-            .AddExtractWorker<BookingDataExtract>();
+            .AddExtractWorker<CapacityDataExtract>();
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);
@@ -161,7 +146,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         await sut.Test();
     }
 
-    [Then("booking data is available in the target mailbox")]
+    [Then("capacity data is available in the target mailbox")]
     public async Task AssertData(Gherkin.Ast.DataTable expectedAppointments)
     {
         var response = await _targetMailbox.CheckInboxAsync();
@@ -170,7 +155,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var results = await ReadFromResultsFile(response.Messages.First());
         results.Count.Should().Be(expectedAppointments.Rows.Count() - 1);
 
-        results.Select(r => r.BOOKING_REFERENCE_NUMBER).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));
+        results.Select(r => r.Date).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));
+        results.Select(r => r.Time).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(1).Value));
+        results.Select(r => r.SlotLength).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(2).Value));
     }
 
     [Then("an empty file is recieved")]
@@ -195,36 +182,34 @@ public sealed class BookingExtractsFeatureSteps : Feature
         actualFileName.Should().Be(expectedFileName);
     }
 
-    private async Task DeleteBookingFromPreviousTests()
+    private async Task DeleteCapacityFromPreviousTests()
     {
-        // This feature does not work, it does not delete data or throw an error
-        //await _cosmosClient.GetContainer("appts", "booking_data").DeleteAllItemsByPartitionKeyStreamAsync(new PartitionKey(site.Id));
-        var container = _cosmosClient.GetContainer("appts", "booking_data");
-        var iterator = container.GetItemLinqQueryable<BookingDocument>().Where(bd => bd.DocumentType == "booking").ToFeedIterator();
+        var container = _cosmosClient.GetContainer("appts", "booking");
+        var iterator = container.GetItemLinqQueryable<DailyAvailabilityDocument>().Where(bd => bd.DocumentType == "daily_availability").ToFeedIterator();
 
-        var bookingsToDelete = new List<string>();
+        var capacityToDelete = new List<string>();
         using (iterator)
         {
             while (iterator.HasMoreResults)
             {
                 var resultSet = await iterator.ReadNextAsync();
-                bookingsToDelete.AddRange(resultSet.Select(bd => bd.Reference));
+                capacityToDelete.AddRange(resultSet.Select(bd => bd.Id));
             }
         }
 
-        var partitionKey = new PartitionKey("BookingExtractDataTests");
-        foreach (var bookingRef in bookingsToDelete)
-            await container.DeleteItemAsync<BookingDocument>(bookingRef, partitionKey);
+        var partitionKey = new PartitionKey("CapacityExtractDataTests");
+        foreach (var id in capacityToDelete)
+            await container.DeleteItemAsync<DailyAvailabilityDocument>(id, partitionKey);
     }
 
-    private async Task<List<BookingExtactDataRow>> ReadFromResultsFile(string messageId)
+    private async Task<List<SiteSessionParquet>> ReadFromResultsFile(string messageId)
     {
         var outputFolder = new DirectoryInfo("./recieved");
         outputFolder.Create();
         var file = await _targetMailbox.GetMessageAsFileAsync(messageId, outputFolder);
 
         var pfile = new FileInfo(Path.Combine(outputFolder.FullName, file));
-        return (await ParquetSerializer.DeserializeAsync<BookingExtactDataRow>(pfile.FullName)).ToList();
+        return (await ParquetSerializer.DeserializeAsync<SiteSessionParquet>(pfile.FullName)).ToList();
     }
 
     private MeshMailbox SetupMailboxClient(string mailboxId)

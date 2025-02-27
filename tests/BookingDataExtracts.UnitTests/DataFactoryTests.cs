@@ -1,4 +1,4 @@
-using BookingsDataExtracts;
+using DataExtract;
 using FluentAssertions;
 using Parquet.Schema;
 

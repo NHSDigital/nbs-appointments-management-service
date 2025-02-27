@@ -1,5 +1,5 @@
 using BookingsDataExtracts;
-using BookingsDataExtracts.Documents;
+using DataExtract.Documents;
 using FluentAssertions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;

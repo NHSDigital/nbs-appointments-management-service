@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 
 namespace CapacityDataExtracts.Documents;
-internal class SiteSessionParquet
+public class SiteSessionParquet
 {
     [JsonProperty("DATE")]
     public string Date { get; set; }

@@ -296,4 +296,3 @@ stages:
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
-          isHotfix: ${{startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')}}

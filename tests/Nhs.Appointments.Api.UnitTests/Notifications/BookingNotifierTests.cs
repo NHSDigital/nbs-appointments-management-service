@@ -48,7 +48,8 @@ public class BookingNotifierTests
                 dic.ContainsKey("date") &&
                 dic.ContainsKey("time") &&
                 dic.ContainsKey("address") &&
-                dic.ContainsKey("reference")
+                dic.ContainsKey("reference") &&
+                dic.ContainsKey("siteLocation") 
         ))).Verifiable();
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email,

@@ -7,23 +7,28 @@ receivers:
         endpoint: "0.0.0.0:4318"
 
 exporters:
-  splunk_hec/traces:
-    # Splunk HTTP Event Collector token.
+  splunk_hec/logs:
     token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
-    # URL to a Splunk instance to send data to.
     endpoint: "http://splunk:8088/services/collector"
-    # Optional Splunk source: https://docs.splunk.com/Splexicon:Source
-    source: "app"
-    # Optional Splunk source type: https://docs.splunk.com/Splexicon:Sourcetype
-    sourcetype: "_json"
-    # Splunk index, optional name of the Splunk index targeted.
-    index: "test"
-    # Whether to disable gzip compression over HTTP. Defaults to false.
+    index: "mya-logs"
     disable_compression: false
-    # HTTP timeout when sending data. Defaults to 10s.
     timeout: 10s
-    # Whether to skip checking the certificate of the HEC endpoint when sending data over HTTPS. Defaults to false.
-    # For this demo, we use a self-signed certificate on the Splunk docker instance, so this flag is set to true.
+    tls:
+      insecure_skip_verify: true
+  splunk_hec/traces:
+    token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
+    endpoint: "http://splunk:8088/services/collector"
+    index: "mya-traces"
+    disable_compression: false
+    timeout: 10s
+    tls:
+      insecure_skip_verify: true
+  splunk_hec/metrics:
+    token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
+    endpoint: "http://splunk:8088/services/collector"
+    index: "mya-metrics"
+    disable_compression: false
+    timeout: 10s
     tls:
       insecure_skip_verify: true
   debug:
@@ -48,4 +53,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [splunk_hec/traces, debug]
+      exporters: [splunk_hec/logs, splunk_hec/traces, splunk_hec/metrics, debug]

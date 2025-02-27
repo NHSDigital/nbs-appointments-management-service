@@ -50,7 +50,15 @@ extensions:
 service:
   extensions: [pprof, zpages, health_check]
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec/logs, debug]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [splunk_hec/logs, splunk_hec/traces, splunk_hec/metrics, debug]
+      exporters: [splunk_hec/traces, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec/metrics, debug]

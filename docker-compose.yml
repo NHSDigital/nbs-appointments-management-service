@@ -10,6 +10,9 @@ services:
       AUTH_HOST: http://localhost:7071
       CLIENT_BASE_PATH: /manage-your-appointments
       BUILD_NUMBER: ${BUILD_NUMBER:-local}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://localhost:4317/v1/traces
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://localhost:4317/v1/metrics
 
     volumes:
       - ./src/client/src:/app/src
@@ -88,6 +91,23 @@ services:
       - "8088:8088" # Splunk HEC
     volumes:
       - splunk-data:/opt/splunk/var
+
+  otel-collector:
+    container_name: "open-telemetry-collector"
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888" # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - splunk
+
   oidc-server:
     image: soluto/oidc-server-mock:latest
     ports:

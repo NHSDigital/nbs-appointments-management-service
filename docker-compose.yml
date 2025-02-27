@@ -10,9 +10,9 @@ services:
       AUTH_HOST: http://localhost:7071
       CLIENT_BASE_PATH: /manage-your-appointments
       BUILD_NUMBER: ${BUILD_NUMBER:-local}
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://open-telemetry-collector:4318
-      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://open-telemetry-collector:4318/v1/traces
-      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://open-telemetry-collector:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://splunk-otel-collector:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://splunk-otel-collector:4318/v1/traces
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://splunk-otel-collector:4318/v1/metrics
 
     volumes:
       - ./src/client/src:/app/src
@@ -86,27 +86,22 @@ services:
       - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_HEC_SSL=false
+      - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
     ports:
       - "8000:8000" # Splunk Web UI
       - "8088:8088" # Splunk HEC
     volumes:
       - splunk-data:/opt/splunk/var
 
-  # splunk-otel-collector:
-  #   container_name: "open-telemetry-collector-for-splunk"
-  #   image: quay.io/signalfx/splunk-otel-collector:latest
-  #   restart: always
-  #   command: ["--config=/etc/splunk-otel-collector-config.yaml"]
-  #   volumes:
-  #     - ./splunk-otel-collector-config.yaml:/etc/splunk-otel-collector-config.yaml
-  #   ports:
-  #     - "1888:1888" # pprof extension
-  #     - "13133:13133" # health_check extension
-  #     - "4317:4317" # OTLP gRPC receiver
-  #     - "4318:4318" # OTLP HTTP receiver
-  #     - "55679:55679" # zpages extension
-  #   depends_on:
-  #     - splunk
+  splunk-otel-collector:
+    container_name: "open-telemetry-collector-for-splunk"
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    command: ["--config=/etc/splunk-otel-collector-config.yaml"]
+    volumes:
+      - ./splunk-otel-collector-config.yaml:/etc/splunk-otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
 
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:latest
@@ -123,24 +118,24 @@ services:
     ports:
       - "9411:9411"
 
-  otel-collector:
-    container_name: "open-telemetry-collector"
-    image: otel/opentelemetry-collector:0.67.0
-    restart: always
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "1888:1888" # pprof extension
-      - "8888:8888" # Prometheus metrics exposed by the collector
-      - "8889:8889" # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
-      - "55679:55679" # zpages extension
-    depends_on:
-      - jaeger-all-in-one
-      - zipkin-all-in-one
+  # otel-collector:
+  #   container_name: "open-telemetry-collector"
+  #   image: otel/opentelemetry-collector:0.67.0
+  #   restart: always
+  #   command: ["--config=/etc/otel-collector-config.yaml"]
+  #   volumes:
+  #     - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+  #   ports:
+  #     - "1888:1888" # pprof extension
+  #     - "8888:8888" # Prometheus metrics exposed by the collector
+  #     - "8889:8889" # Prometheus exporter metrics
+  #     - "13133:13133" # health_check extension
+  #     - "4317:4317" # OTLP gRPC receiver
+  #     - "4318:4318" # OTLP HTTP receiver
+  #     - "55679:55679" # zpages extension
+  #   depends_on:
+  #     - jaeger-all-in-one
+  #     - zipkin-all-in-one
 
   prometheus:
     container_name: prometheus

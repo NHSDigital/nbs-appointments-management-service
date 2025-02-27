@@ -1,0 +1,40 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  splunk_hec:
+    token: e2c421cf-9228-4ab2-a6e8-877741df569a
+    endpoint: http://splunk:8088/services/collector
+    source: otel
+    sourcetype: otel
+    index: mya-web-app
+
+processors:
+  batch:
+
+extensions:
+  health_check:
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors:
+        - batch
+      exporters: [splunk_hec]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec]

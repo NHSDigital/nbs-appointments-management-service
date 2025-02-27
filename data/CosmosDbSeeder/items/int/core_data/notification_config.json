@@ -28,7 +28,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "f8ea99be-a78d-42a6-bf81-a6233a7987cf",
+      "emailTemplate": "c096719c-5aef-4803-9a05-099c136e1c73",
       "smsTemplate": "474af7ec-bf1c-4c6b-9dec-a20955c58a33",
       "eventType": "BookingMade"
     },
@@ -52,7 +52,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "92f0ae99-03bb-41b9-9ed9-f68d0ae4b9c0",
+      "emailTemplate": "b560d593-34d8-4641-8517-ec563e8122ad",
       "smsTemplate": "b21afedd-e6a2-417e-a146-6f1b7ae2865c",
       "eventType": "BookingReminder"
     },

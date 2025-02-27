@@ -1,5 +1,6 @@
 import { registerOTel } from '@vercel/otel';
 
 export function register() {
-  registerOTel({ serviceName: 'mya-nextjs-app' });
+  console.log('Registering OpenTelemetry instrumentation...');
+  registerOTel({ serviceName: 'mya-web-app' });
 }

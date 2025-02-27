@@ -5,21 +5,12 @@ receivers:
       http:
 
 exporters:
-  prometheus:
-    endpoint: "0.0.0.0:8889"
-    const_labels:
-      label1: value1
-
-  logging:
-
-  zipkin:
-    endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
-    format: proto
-
-  jaeger:
-    endpoint: jaeger-all-in-one:14250
-    tls:
-      insecure: true
+  splunk_hec:
+    token: e2c421cf-9228-4ab2-a6e8-877741df569a
+    endpoint: http://splunk:8088/services/collector
+    source: otel
+    sourcetype: otel
+    index: mya-web-app
 
 processors:
   batch:
@@ -34,11 +25,16 @@ extensions:
 service:
   extensions: [pprof, zpages, health_check]
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors:
+        - batch
+      exporters: [splunk_hec]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, zipkin, jaeger]
+      exporters: [splunk_hec]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, prometheus]
+      exporters: [splunk_hec]

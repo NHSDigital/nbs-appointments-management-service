@@ -33,7 +33,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData?.ReferralType == "SelfReferred";
 
-    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData != null ? booking.AdditionalData.Source : "Unknown";
+    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData != null ? booking.AdditionalData.Source.Replace(" ", "_") : "Unknown";
 
     public static string ExtractDateOfBirth(BookingDocument booking) => booking.AttendeeDetails.DateOfBirth.ToString("yyyy-MM-dd");
 

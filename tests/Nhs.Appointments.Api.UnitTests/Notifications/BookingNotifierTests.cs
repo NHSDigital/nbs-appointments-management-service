@@ -57,6 +57,43 @@ public class BookingNotifierTests
         _notificationClient.Verify();
     }
 
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("Information For Citizens 123", true)]
+    [InlineData(null, false)]
+    public async Task SiteLocationIsRenderedCorrectly(string informationForCitizens, bool hasPrefixText)
+    {
+        var prefixText = "Additional site information:";
+        _notificationConfigurationService
+            .Setup(x => x.GetNotificationConfigurationsAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+                new NotificationConfiguration { EmailTemplateId = EmailTemplateId, SmsTemplateId = SmsTemplateId });
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site), It.IsAny<string>()))
+            .Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", "15N",
+                "R1", "ICB1", informationForCitizens, null, null)));
+
+        _notificationClient.Setup(x => x.SendEmailAsync(Email, EmailTemplateId, It.Is<Dictionary<string, dynamic>>(
+            dic =>
+                dic.ContainsKey("firstName") &&
+                dic.ContainsKey("siteName") &&
+                dic.ContainsKey("date") &&
+                dic.ContainsKey("time") &&
+                dic.ContainsKey("address") &&
+                dic.ContainsKey("reference") &&
+                dic.ContainsKey("siteLocation")
+        )));
+
+        await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email, Email);
+
+        _notificationClient.Verify(x => x.SendEmailAsync(
+            It.IsAny<string>(), 
+            It.IsAny<string>(), 
+            It.Is<Dictionary<string, dynamic>>(dic =>
+                dic.ContainsKey("siteLocation") &&                     
+                (dic.GetValueOrDefault("siteLocation") as string).Contains(hasPrefixText ? prefixText : "")
+            )
+        ), Times.Once); 
+    }
+
 
     [Fact]
     public async Task GetsNameOfSite()

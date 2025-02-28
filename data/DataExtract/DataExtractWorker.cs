@@ -45,5 +45,6 @@ public class DataExtractWorker<TExtractor>(
             throw new InvalidOperationException("Destination mailbox was not configured");
     }
 
-    private string GenerateFileName() => $"MYA_{fileOptions.Value.FileName}_{timeProvider.GetUtcNow():yyyy-MM-ddTHHmm}.parquet";
+    // Adding 00 as a replacement for time zone as the reporting consumers can't consume +/-
+    private string GenerateFileName() => $"MYA_{fileOptions.Value.FileName}_{timeProvider.GetUtcNow():yyyyMMddTHHmmss}00.parquet";
 }

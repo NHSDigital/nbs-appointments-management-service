@@ -155,9 +155,8 @@ public sealed class CapacityExtractsFeatureSteps
         var results = await ReadFromResultsFile(response.Messages.First());
         results.Count.Should().Be(expectedAppointments.Rows.Count() - 1);
 
-        results.Select(r => r.Date).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));
-        results.Select(r => r.Time).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(1).Value));
-        results.Select(r => r.SlotLength).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(2).Value));
+        results.Select(r => r.DATE).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(0).Value));
+        results.Select(r => r.TIME).Should().BeEquivalentTo(expectedAppointments.Rows.Skip(1).Select(r => r.Cells.ElementAt(1).Value));
     }
 
     [Then("an empty file is recieved")]

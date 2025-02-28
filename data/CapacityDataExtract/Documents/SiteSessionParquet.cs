@@ -1,38 +1,14 @@
-using Newtonsoft.Json;
-
 namespace CapacityDataExtracts.Documents;
 public class SiteSessionParquet
 {
-    [JsonProperty("DATE")]
-    public string Date { get; set; }
-
-    [JsonProperty("TIME")]
-    public string Time { get; set; }
-
-    [JsonProperty("SLOT_LENGTH")]
-    public string SlotLength { get; set; }
-
-    [JsonProperty("CAPACITY")]
-    public int Capacity { get; set; }
-
-    [JsonProperty("ODS_CODE")]
-    public string OdsCode { get; set; }
-
-    [JsonProperty("SITE_NAME")]
-    public string SiteName { get; set; }
-
-    [JsonProperty("REGION")]
-    public string Region { get; set; }
-
-    [JsonProperty("LATITUDE")]
-    public double Latitude { get; set; }
-
-    [JsonProperty("LONGITUDE")]
-    public double Longitude { get; set; }
-
-    [JsonProperty("ICB")]
-    public string IntegratedCareBoard { get; set; }
-
-    [JsonProperty("SERVICE")]
-    public string[] Service { get; set; }
+    public string DATE { get; set; }
+    public string TIME { get; set; }
+    public int CAPACITY { get; set; }
+    public string ODS_CODE { get; set; }
+    public string SITE_NAME { get; set; }
+    public string REGION { get; set; }
+    public double LATITUDE { get; set; }
+    public double LONGITUDE { get; set; }
+    public string ICB { get; set; }
+    public string[] SERVICE { get; set; }
 }

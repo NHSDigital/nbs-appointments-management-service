@@ -41,17 +41,16 @@ public class CapacityDataExtract(
             await ParquetSerializer.SerializeAsync(capacity.Select(
                 x => new SiteSessionParquet()
                 {
-                    Date = CapacityDataConverter.ExtractDate(x),
-                    Time = CapacityDataConverter.ExtractTime(x),
-                    SlotLength = CapacityDataConverter.ExtractSlotLength(x),
-                    OdsCode = dataConverter.ExtractOdsCode(x),
-                    Latitude = dataConverter.ExtractLatitude(x),
-                    Longitude = dataConverter.ExtractLongitude(x),
-                    Capacity = CapacityDataConverter.ExtractCapacity(x),
-                    SiteName = dataConverter.ExtractSiteName(x),
-                    Region = dataConverter.ExtractRegion(x),
-                    IntegratedCareBoard = dataConverter.ExtractICB(x),
-                    Service = CapacityDataConverter.ExtractService(x),
+                    DATE = CapacityDataConverter.ExtractDate(x),
+                    TIME = CapacityDataConverter.ExtractTime(x),
+                    ODS_CODE = dataConverter.ExtractOdsCode(x),
+                    LATITUDE = dataConverter.ExtractLatitude(x),
+                    LONGITUDE = dataConverter.ExtractLongitude(x),
+                    CAPACITY = CapacityDataConverter.ExtractCapacity(x),
+                    SITE_NAME = dataConverter.ExtractSiteName(x),
+                    REGION = dataConverter.ExtractRegion(x),
+                    ICB = dataConverter.ExtractICB(x),
+                    SERVICE = CapacityDataConverter.ExtractService(x),
                 }), fs);
         }
 

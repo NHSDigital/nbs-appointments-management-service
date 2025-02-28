@@ -17,7 +17,7 @@ public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
 
     public string ExtractOdsCode(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).OdsCode;
 
-    public static string ExtractDate(SiteSessionInstance document) => document.From.ToString("dd/MM/yyyy");
+    public static string ExtractDate(SiteSessionInstance document) => document.From.ToString("yyyy-MM-dd");
 
     public static string ExtractTime(SiteSessionInstance document) => document.From.ToString("hh:mm");
 

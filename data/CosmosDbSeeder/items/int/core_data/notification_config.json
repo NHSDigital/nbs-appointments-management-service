@@ -82,7 +82,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "ae42294c-ef05-4026-a01a-3020f581f377",
+      "emailTemplate": "2bdba7e7-901e-46a7-b763-1b301cebf060",
       "smsTemplate": "24e7e620-8e03-4b6c-abe9-79a911b874b3",
       "eventType": "BookingRescheduled"
     }

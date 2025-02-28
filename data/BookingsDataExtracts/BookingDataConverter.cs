@@ -10,7 +10,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public string ExtractRegion(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Region;
 
-    public string ExtractSiteName(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Name + "TEST";
+    public string ExtractSiteName(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Name;
 
     public double ExtractLongitude(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Location.Coordinates[0];
 

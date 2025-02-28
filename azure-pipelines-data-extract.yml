@@ -29,7 +29,7 @@ parameters:
     
 variables:
   - group: covid19bookingkv${{parameters.env}}uks
-  - group: mya-booking-extract-${{parameters.env}}
+  - group: mya-extract-${{parameters.env}}
   - name: cosmosAccountName 
     value: nbs-mya-cdb-${{parameters.env}}-uks
   - name: resourceGroupName
@@ -60,7 +60,7 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
-              MESH_WORKFLOW: MYA_INBOUND_NATIONAL_BOOKINGS_CAPACITY_1
+              MESH_WORKFLOW: $(meshCapacityWorkflowId)
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
               KeyVault__TenantId: $(tenantId)
               KeyVault__ClientId: $(ClientId)
@@ -92,7 +92,7 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
-              MESH_WORKFLOW: MYA_INBOUND_NATIONAL_BOOKINGS_1
+              MESH_WORKFLOW: $(meshBookingWorkflowId)
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
               KeyVault__TenantId: $(tenantId)
               KeyVault__ClientId: $(ClientId)

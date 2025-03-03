@@ -33,14 +33,14 @@
     "Auth__Providers__1__ClientCodeExchangeUri": "http://localhost:3000/manage-your-appointments/auth/set-cookie?provider=okta-test",
     "Auth__Providers__1__ReturnUri": "http://localhost:7071/api/auth-return?provider=okta-test",
     "Auth__Providers__1__RequiresStateForAuthorize": true,
-    "Auth__Providers__1__ClientSecret":"J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X",
+    "Auth__Providers__1__ClientSecret": "J1CU4uhngKVkj9yCVXHbou9RQupiu7y4BiRvwB67wkiQj5uQaKgKQc_cRJwibm8X",
     "Notifications_Provider": "local",
     "GovNotifyApiKey": "test",
     "BookingRemindersCronSchedule": "0 0 8 * * *",
-    "UnconfirmedProvisionalBookingsCronSchedule": "0 */5 * * * *"
+    "UnconfirmedProvisionalBookingsCronSchedule": "0 */5 * * * *",
+    "FeatureManagement__TestFeatureOneEnabled": "true",
+    "FeatureManagement__TestFeatureThreeEnabled": "false",
+    "FeatureManagement__TestFeatureFourEnabled": "true"
   },
-  "Host": { "CORS": "*" },
-  "FeatureManagement": {
-    "TestFeatureEnabled": "true"
-  }
+  "Host": { "CORS": "*" }
 }

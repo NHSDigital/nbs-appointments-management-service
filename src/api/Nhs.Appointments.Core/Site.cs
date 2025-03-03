@@ -60,8 +60,8 @@ public record DetailsRequest(
     [JsonProperty("name")] string Name,
     [JsonProperty("phoneNumber")] string PhoneNumber,
     [JsonProperty("address")] string Address,
-    [JsonProperty("longitude")] string Longitude,
-    [JsonProperty("latitude")] string Latitude
+    [JsonProperty("latitude")] string Latitude,
+    [JsonProperty("longitude")] string Longitude
 );
 
 public record ReferenceDetailsRequest(

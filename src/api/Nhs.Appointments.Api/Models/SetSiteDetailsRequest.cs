@@ -9,20 +9,20 @@ public sealed class SetSiteDetailsRequest
         string name,
         string address,
         string phoneNumber,
-        string longitude,
-        string latitude)
+        string latitude,
+        string longitude)
     {
         Site = site;
         Name = name;
         Address = address;
         PhoneNumber = phoneNumber;
-        Longitude = longitude;
         Latitude = latitude;
-        
-        TryParse(Longitude, out var longDecimal);
-        LongitudeDecimal = longDecimal;
+        Longitude = longitude;
+
         TryParse(Latitude, out var latDecimal);
         LatitudeDecimal = latDecimal;
+        TryParse(Longitude, out var longDecimal);
+        LongitudeDecimal = longDecimal;
     }
 
     public string Site { get; }

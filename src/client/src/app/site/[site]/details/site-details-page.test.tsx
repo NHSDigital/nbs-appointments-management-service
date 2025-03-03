@@ -56,11 +56,11 @@ describe('Site Details Page', () => {
     verifySummaryListItem('Address', mockSite.address);
     verifySummaryListItem(
       'Latitude',
-      mockSite.location.coordinates[1].toString(),
+      mockSite.location.coordinates[0].toString(),
     );
     verifySummaryListItem(
       'Longitude',
-      mockSite.location.coordinates[0].toString(),
+      mockSite.location.coordinates[1].toString(),
     );
     verifySummaryListItem('Phone Number', mockSite.phoneNumber);
   });

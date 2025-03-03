@@ -50,12 +50,12 @@ export const mapCoreSiteSummaryData = (site: Site) => {
   if (site.location.type === 'Point') {
     items.push({
       title: 'Latitude',
-      value: `${site.location.coordinates[1]}`,
+      value: `${site.location.coordinates[0]}`,
     });
 
     items.push({
       title: 'Longitude',
-      value: `${site.location.coordinates[0]}`,
+      value: `${site.location.coordinates[1]}`,
     });
 
     items.push({ title: 'Phone Number', value: site.phoneNumber });

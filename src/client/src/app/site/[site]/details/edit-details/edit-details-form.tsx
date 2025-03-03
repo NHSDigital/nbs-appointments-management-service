@@ -36,8 +36,8 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
       //add in line breaks at each comma
       address: site.address.replace(/, /g, ',\n'),
       phoneNumber: site.phoneNumber,
-      latitude: site.location.coordinates[1].toString(),
-      longitude: site.location.coordinates[0].toString(),
+      latitude: site.location.coordinates[0].toString(),
+      longitude: site.location.coordinates[1].toString(),
     },
   });
 

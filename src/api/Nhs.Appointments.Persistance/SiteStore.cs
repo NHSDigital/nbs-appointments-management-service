@@ -75,9 +75,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
     
-    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal longitude, decimal latitude)
     {
-        decimal[] coords = [latitude, longitude];
+        decimal[] coords = [longitude, latitude];
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)

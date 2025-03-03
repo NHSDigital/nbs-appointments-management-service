@@ -27,7 +27,7 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
         if (incorrectSiteIds.Count > 0)
         {
             report.Clear();
-            report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
+            report.Add(new ReportItem(-1, "Incorrect Site IDs", false, $"The sites with these IDs don't currently exist in the system. {string.Join(',', incorrectSiteIds)}"));
             return report;
         }
 
@@ -38,7 +38,8 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
                 var roleAssignments = userAssignmentGroup
                     .SelectMany(ua => rolesToAssign
                     .Select(r => new RoleAssignment { Role = r, Scope = $"site:{ua.SiteId}" }));
-                await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.Key, "site", roleAssignments);
+                // TODO: We can use the UpdateUserRoleAssignmentsAsync method, but this sends out notifications - do we want this initially?
+                await userService.SaveUserAsync(userAssignmentGroup.Key, "site", roleAssignments);
             }
             catch (Exception ex)
             {

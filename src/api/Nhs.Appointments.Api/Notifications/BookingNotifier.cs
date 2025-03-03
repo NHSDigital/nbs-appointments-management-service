@@ -50,7 +50,8 @@ public class BookingNotifier(
             {"date", date.ToLongDateString() },
             {"time", time.ToString("HH:mm") },
             {"reference", bookingRef},
-            {"address", site.Address }
+            {"address", site.Address },
+            {"siteLocation", site.InformationForCitizens }
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);

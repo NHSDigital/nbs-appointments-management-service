@@ -15,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Factories;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -81,10 +80,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<IBookingEventFactory, EventFactory>()
-            .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
-            .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
-            .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
-            .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

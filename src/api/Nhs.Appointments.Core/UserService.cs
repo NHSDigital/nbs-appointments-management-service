@@ -1,4 +1,4 @@
-using Nhs.Appointments.Core.Messaging;
+﻿using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
@@ -48,9 +48,6 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
     {
         return userStore.RemoveUserAsync(userId, site);
     }
-
-    public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-        => userStore.SaveUserAsync(userId, scope, roleAssignments);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

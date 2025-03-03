@@ -69,8 +69,8 @@ describe('Edit Site Details Form', () => {
       name: mockSite.name,
       address: mockSite.address,
       phoneNumber: '0118 999 88199 9119 725 3',
-      latitude: mockSite.location.coordinates[0].toString(),
-      longitude: mockSite.location.coordinates[1].toString(),
+      latitude: mockSite.location.coordinates[1].toString(),
+      longitude: mockSite.location.coordinates[0].toString(),
     };
 
     expect(mockSaveSiteDetails).toHaveBeenCalledWith(

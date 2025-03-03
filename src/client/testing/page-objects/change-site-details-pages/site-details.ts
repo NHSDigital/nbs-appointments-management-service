@@ -109,8 +109,8 @@ export default class SiteDetailsPage extends RootPage {
 
   async verifyCoreDetailsContent(
     address: string,
-    lat: string,
     long: string,
+    lat: string,
     phoneNumber: string,
   ) {
     await this.verifySummaryListItemContentValue(this.addressLabel, address);

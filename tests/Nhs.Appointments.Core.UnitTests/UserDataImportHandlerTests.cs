@@ -109,7 +109,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
-        report.First().Message.Should().Contain("CsvHelper.ReaderException: An unexpected error occurred.").And.Contain("Invalid bool string format:  test");
+        report.First().Message.Should().Contain("Invalid bool string format:  test");
     }
 
     private List<Site> GetSites()

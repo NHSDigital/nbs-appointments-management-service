@@ -1,4 +1,3 @@
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging.Events;
@@ -51,8 +50,7 @@ public class BookingNotifier(
             {"date", date.ToLongDateString() },
             {"time", time.ToString("HH:mm") },
             {"reference", bookingRef},
-            {"address", site.Address },
-            {"siteLocation", GetSiteLocation(site.InformationForCitizens) }
+            {"address", site.Address }
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);
@@ -94,12 +92,5 @@ public class BookingNotifier(
         NotificationType.Email => privacy.ObfuscateEmail(destination),
         NotificationType.Sms => privacy.ObfuscatePhoneNumber(destination),
         _ => throw new NotSupportedException("Unknown notification type")
-    }; 
-    
-    private string GetSiteLocation(string informationForCitizens)
-    {
-        if (informationForCitizens.IsNullOrWhiteSpace()) return "";
-
-        return $"Additional site information: {informationForCitizens}";
-    }
+    };    
 }

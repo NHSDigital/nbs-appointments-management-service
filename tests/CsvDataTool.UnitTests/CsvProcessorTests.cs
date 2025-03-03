@@ -446,9 +446,7 @@ public class CsvProcessorTests
         actualSiteDocuments.Should().HaveCount(1);
 
         report.Count().Should().Be(2);
-        report.First().Message
-            .Should().Contain($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.")
-            .And.Contain("Text: 'foo'");
+        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.\n    Text: 'foo'");
         report.Count(r => r.Success).Should().Be(1);
         report.Count(r => !r.Success).Should().Be(1);
     }

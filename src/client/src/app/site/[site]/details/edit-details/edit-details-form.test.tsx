@@ -46,11 +46,11 @@ describe('Edit Site Details Form', () => {
     );
 
     expect(screen.getByRole('textbox', { name: 'Latitude' })).toHaveValue(
-      mockSite.location.coordinates[0].toString(),
+      mockSite.location.coordinates[1].toString(),
     );
 
     expect(screen.getByRole('textbox', { name: 'Longitude' })).toHaveValue(
-      mockSite.location.coordinates[1].toString(),
+      mockSite.location.coordinates[0].toString(),
     );
 
     expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(
@@ -69,8 +69,8 @@ describe('Edit Site Details Form', () => {
       name: mockSite.name,
       address: mockSite.address,
       phoneNumber: '0118 999 88199 9119 725 3',
-      latitude: mockSite.location.coordinates[0].toString(),
-      longitude: mockSite.location.coordinates[1].toString(),
+      latitude: mockSite.location.coordinates[1].toString(),
+      longitude: mockSite.location.coordinates[0].toString(),
     };
 
     expect(mockSaveSiteDetails).toHaveBeenCalledWith(
@@ -96,8 +96,8 @@ describe('Edit Site Details Form', () => {
       name: mockSite.name,
       address: 'A new house, on a new road, in a new city, UK',
       phoneNumber: '0118 999 88199 9119 725 3',
-      latitude: mockSite.location.coordinates[0].toString(),
-      longitude: mockSite.location.coordinates[1].toString(),
+      latitude: mockSite.location.coordinates[1].toString(),
+      longitude: mockSite.location.coordinates[0].toString(),
     };
 
     expect(mockSaveSiteDetails).toHaveBeenCalledWith(

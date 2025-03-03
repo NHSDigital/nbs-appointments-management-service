@@ -5,6 +5,12 @@ namespace Nhs.Appointments.Core;
 
 public class SiteMap : ClassMap<SiteImportRow>
 {
+    // Upper and lower boundaries for longitude & latitudes for the UK
+    private const double MaxLatitude = 60.9;
+    private const double MinLatitude = 49.8;
+    private const double MaxLongitude = 1.8;
+    private const double MinLongitude = -8.1;
+
     public SiteMap()
     {
         var accessibilityKeys = new[]
@@ -36,10 +42,18 @@ public class SiteMap : ClassMap<SiteImportRow>
             .Name("PhoneNumber")
             .Validate(f => CsvFieldValidator.StringHasValue(f.Field) && CsvFieldValidator.IsValidPhoneNumber(f.Field));
         Map(m => m.Location).Convert(x =>
-            new Location(
-                "Point",
-                [x.Row.GetField<double>("Longitude"), x.Row.GetField<double>("Latitude")]
-            ));
+        {
+            var longitude = x.Row.GetField<double>("Longitude");
+            var latitude = x.Row.GetField<double>("Latitude");
+
+            if (longitude is > MaxLongitude or < MinLongitude)
+                throw new ArgumentOutOfRangeException($"Longitude: {longitude} is not a valid UK longitude.");
+
+            if (latitude is > MaxLatitude or < MinLatitude)
+                throw new ArgumentOutOfRangeException($"Latitude: {latitude} is not a valid UK latitude.");
+
+            return new Location("Point", [longitude, latitude]);
+        });
         Map(m => m.ICB)
             .Name("ICB")
             .Validate(f => CsvFieldValidator.StringHasValue(f.Field));

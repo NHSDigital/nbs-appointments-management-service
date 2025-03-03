@@ -24,7 +24,11 @@ public class CsvProcessor<TDocument, TMap>(
             },
             ReadingExceptionOccurred = args =>
             {
-                report.Add(new ReportItem(index, "", false, args.Exception.ToString()));
+                var exMsg = args.Exception.InnerException is null
+                    ? args.Exception.ToString()
+                    : args.Exception.InnerException.Message.ToString();
+
+                report.Add(new ReportItem(index, "", false, exMsg));
 
                 return false;
             },

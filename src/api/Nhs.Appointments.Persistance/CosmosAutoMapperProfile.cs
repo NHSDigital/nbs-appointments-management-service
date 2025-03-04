@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 

@@ -21,7 +21,7 @@ public sealed class UpdateSiteDetailsFeatureSteps : SiteManagementBaseFeatureSte
         var phoneNumber = row.Cells.ElementAt(2).Value;
         var longitude = row.Cells.ElementAt(3).Value;
         var latitude = row.Cells.ElementAt(4).Value;
-        
+
         var payload = new SetSiteDetailsRequest(siteId, name, address, phoneNumber, longitude, latitude);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
     }

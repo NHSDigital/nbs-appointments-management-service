@@ -1,4 +1,4 @@
-﻿using static System.Decimal;
+using static System.Decimal;
 
 namespace Nhs.Appointments.Api.Models;
 
@@ -17,11 +17,11 @@ public sealed class SetSiteDetailsRequest
         Address = address;
         PhoneNumber = phoneNumber;
 
-        TryParse(Longitude, out var longDecimal);
+        TryParse(longitude, out var longDecimal);
         LongitudeDecimal = longDecimal;
         Longitude = longitude;
 
-        TryParse(Latitude, out var latDecimal);
+        TryParse(latitude, out var latDecimal);
         LatitudeDecimal = latDecimal;
         Latitude = latitude;
     }

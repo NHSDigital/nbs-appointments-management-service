@@ -120,6 +120,14 @@
         "system:run-reminders",
         "system:run-provisional-sweep"
       ]
-    }
+    },
+    {
+      "id": "system:data-importer",
+      "name": "Data Importer",
+      "description": "System role used for the bulk importing of users and sites",
+      "permissions": [
+        "system:data-importer"
+      ]
+    },
   ]
 }

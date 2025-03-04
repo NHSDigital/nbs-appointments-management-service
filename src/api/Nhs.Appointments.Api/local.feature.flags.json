@@ -1,0 +1,51 @@
+{
+  "FeatureManagement": {
+    "TestFeaturePercentageEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.Percentage",
+          "Parameters": {
+            "Value": 50
+          }
+        }
+      ]
+    },
+    "TestFeatureTimeWindowEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.TimeWindow",
+          "Parameters": {
+            "Start": "2024-03-01T00:00:00Z",
+            "End": "2024-03-10T23:59:59Z"
+          }
+        }
+      ]
+    },
+    "TestFeatureUsersEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.Targeting",
+          "Parameters": {
+            "Audience": {
+              "Users": ["user1@example.com", "user2@example.com"]
+            }
+          }
+        }
+      ]
+    },
+    "TestFeatureSitesEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.Targeting",
+          "Parameters": {
+            "Audience": {
+              "Groups": [
+                { "Name": "Site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb", "RolloutPercentage": 100 }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

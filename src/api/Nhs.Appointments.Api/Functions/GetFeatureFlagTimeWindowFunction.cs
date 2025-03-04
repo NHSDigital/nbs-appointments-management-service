@@ -15,18 +15,17 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetFeatureFlagsFunction(
+public class GetFeatureFlagTimeWindowFunction(
     IFeatureManager featureManager,
-    IVariantFeatureManager variantFeatureManager,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<GetFeatureFlagsFunction> logger,
+    ILogger<GetFeatureFlagTimeWindowFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<EmptyRequest, GetFeatureFlagsResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<EmptyRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "GetFeatureFlags", tags: ["FeatureFlag"],
-        Summary = "Get the enabled state for all the defined feature flags")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetFeatureFlagsResponse),
+    [OpenApiOperation(operationId: "GetFeatureFlagTimeWindow", tags: ["FeatureFlag"],
+        Summary = "Get the enabled state for the requested flag, using the time window filter")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(bool),
         Description = "Information for a single site")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
@@ -34,30 +33,17 @@ public class GetFeatureFlagsFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [Function("GetFeatureFlagsFunction")]
+    [Function("GetFeatureFlagTimeWindowFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/time-window")] HttpRequest req)
     {
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<GetFeatureFlagsResponse>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        var response = new GetFeatureFlagsResponse([]);
-        
-        var flags = typeof(FeatureFlags)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(string))
-            .Select(f => f.GetValue(null)?.ToString())
-            .ToList();
-
-        foreach (var flag in flags)
-        {
-            var enabled = await featureManager.IsEnabledAsync(flag);
-            response.FeatureFlags.Add(new KeyValuePair<string, bool>(flag, enabled));
-        }
-        
-        return ApiResult<GetFeatureFlagsResponse>.Success(response);
+        var isFeatureEnabled = await featureManager.IsEnabledAsync(FeatureFlags.TestFeatureTimeWindowEnabled);
+        return ApiResult<bool>.Success(isFeatureEnabled);
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

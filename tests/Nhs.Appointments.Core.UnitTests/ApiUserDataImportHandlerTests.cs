@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests;

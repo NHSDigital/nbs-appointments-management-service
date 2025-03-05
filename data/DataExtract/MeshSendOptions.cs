@@ -1,4 +1,4 @@
-﻿namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public class MeshSendOptions
 {

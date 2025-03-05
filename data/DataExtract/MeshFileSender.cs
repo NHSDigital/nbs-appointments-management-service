@@ -1,6 +1,6 @@
 using Nbs.MeshClient;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 public class MeshFileSender(IMeshMailbox meshMailbox)
 {
     private const int chunkSizeBytes = 100_000_000;

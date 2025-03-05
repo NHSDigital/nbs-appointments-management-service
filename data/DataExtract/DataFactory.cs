@@ -2,7 +2,7 @@ using Parquet.Data;
 using Parquet.Schema;
 using System.Collections;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public abstract class DataFactory
 {
@@ -21,6 +21,7 @@ public class DataFactory<TDocument, TData>(string fieldName, Func<TDocument, TDa
     {
         if (data is IEnumerable<TDocument> typedData)
         {
+
             return new DataColumn(_field.Value, typedData.Select(dataGenerator).ToArray());
         }
 

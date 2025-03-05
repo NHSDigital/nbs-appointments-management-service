@@ -141,6 +141,7 @@ public class UserDataImportHandlerTests
         report.All(r => r.Success).Should().BeTrue();
 
         _userServiceMock.Verify(x => x.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        _userServiceMock.Verify(x => x.UpdateUserRoleAssignmentsAsync("test3@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
     }
 
     private List<Site> GetSites()

@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Logger;
+using Nhs.Appointments.Api.Middleware;
 using Nhs.Appointments.Audit;
 
 var host = new HostBuilder()
@@ -11,6 +12,7 @@ var host = new HostBuilder()
             .UseMiddleware<TypeDecoratorMiddleware>()
             .UseMiddleware<AuthenticationMiddleware>()
             .UseMiddleware<AuthorizationMiddleware>()
+            .UseMiddleware<NoCacheMiddleware>()
             .AddAudit()
             .ConfigureFunctionDependencies();
     })

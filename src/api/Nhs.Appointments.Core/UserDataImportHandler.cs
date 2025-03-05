@@ -12,8 +12,6 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        string[] rolesToAssign = ["canned:site-details-manager", "canned:user-manager", "canned:availability-manager", "canned:appointment-manager"];
-
         var incorrectSiteIds = new List<string>();
         var sites = userImportRows.Select(usr => usr.SiteId).Distinct().ToList();
         foreach (var site in sites)
@@ -27,45 +25,33 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
         if (incorrectSiteIds.Count > 0)
         {
             report.Clear();
-            report.Add(new ReportItem(-1, "Incorrect Site IDs", false, $"The sites with these IDs don't currently exist in the system. {string.Join(',', incorrectSiteIds)}"));
+            report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
             return report;
         }
 
-        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId))
+        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId).SelectMany(usr => usr))
         {
             try
             {
-                var roleAssignments = userAssignmentGroup
-                    .SelectMany(ua => rolesToAssign
-                    .Select(r => new RoleAssignment { Role = r, Scope = $"site:{ua.SiteId}" }));
-                // TODO: We can use the UpdateUserRoleAssignmentsAsync method, but this sends out notifications - do we want this initially?
-                await userService.SaveUserAsync(userAssignmentGroup.Key, "site", roleAssignments);
+                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, "site", userAssignmentGroup.RoleAssignments);
+                if (!result.Success)
+                {
+                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
+                }
             }
             catch (Exception ex)
             {
-                report.Add(new ReportItem(-1, userAssignmentGroup.Key, false, ex.Message));
+                report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, ex.Message));
             }
         }
 
         return report;
     }
 
-    private class UserImportRow
+    public class UserImportRow
     {
         public string UserId { get; set; }
         public string SiteId { get; set; }
-    }
-
-    private class UserImportRowMap : ClassMap<UserImportRow>
-    {
-        public UserImportRowMap()
-        {
-            Map(m => m.UserId)
-                .Name("User")
-                .Validate(f => !string.IsNullOrWhiteSpace(f.Field));
-            Map(m => m.SiteId)
-                .Name("Site")
-                .Validate(f => !string.IsNullOrWhiteSpace(f.Field));
-        }
+        public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
     }
 }

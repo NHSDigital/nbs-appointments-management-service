@@ -1,14 +1,14 @@
-using System.Collections.Immutable;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Moq;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.UnitTests;
+using System.Collections.Immutable;
+using FunctionMiddleware = Nhs.Appointments.Audit.Functions.Middleware;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
 
@@ -19,7 +19,7 @@ public class FunctionMiddlewareTests
     private readonly Mock<FunctionExecutionDelegate> _functionExecutionDelegate = new();
     private readonly Mock<IServiceProvider> _serviceProvider = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private Middleware _sut;
+    private FunctionMiddleware _sut;
 
     [Fact]
     public async Task Invoke_RecordFunctionThrows_MiddlewareNotStopped()
@@ -162,7 +162,7 @@ public class FunctionMiddlewareTests
         _serviceProvider.Setup(x => x.GetService(typeof(IUserContextProvider))).Returns(_userContextProvider.Object);
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(userPrincipal);
 
-        _sut = new Middleware(_auditWriteService.Object);
+        _sut = new FunctionMiddleware(_auditWriteService.Object);
     }
 
     private class MockFunctionDefinition(string name, string entrypoint, string pathToAssembly) : FunctionDefinition

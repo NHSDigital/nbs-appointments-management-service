@@ -1,7 +1,4 @@
-using CsvHelper;
 using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
-using Nhs.Appointments.Core.Constants;
 using static Nhs.Appointments.Core.SiteDataImporterHandler;
 
 namespace Nhs.Appointments.Core;
@@ -28,16 +25,16 @@ public class SiteMap : ClassMap<SiteImportRow>
             .TypeConverter<GuidStringTypeConverter>();
         Map(m => m.OdsCode)
             .Name("OdsCode")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field));
         Map(m => m.Name)
             .Name("Name")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field));
         Map(m => m.Address)
             .Name("Address")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field));
         Map(m => m.PhoneNumber)
             .Name("PhoneNumber")
-            .Validate(f => StringHasValue(f.Field) && IsValidPhoneNumber(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field) && CsvFieldValidator.IsValidPhoneNumber(f.Field));
         Map(m => m.Location).Convert(x =>
             new Location(
                 "Point",
@@ -45,48 +42,15 @@ public class SiteMap : ClassMap<SiteImportRow>
             ));
         Map(m => m.ICB)
             .Name("ICB")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field));
         Map(m => m.Region).Name("Region")
-            .Validate(f => StringHasValue(f.Field));
+            .Validate(f => CsvFieldValidator.StringHasValue(f.Field));
         Map(m => m.Accessibilities).Convert(x =>
         {
             return accessibilityKeys
                 .Select(key => new Accessibility($"accessibility/{key}",
-                    ParseUserEnteredBoolean(x.Row[key]).ToString()))
+                    CsvFieldValidator.ParseUserEnteredBoolean(x.Row[key]).ToString()))
                 .ToArray();
         });
-    }
-
-    private static bool StringHasValue(string value) => !string.IsNullOrWhiteSpace(value);
-
-    private static bool ParseUserEnteredBoolean(string possibleBool)
-    {
-        return !bool.TryParse(possibleBool, out var result)
-            ? throw new FormatException($"Invalid bool string format: {possibleBool}")
-            : result;
-    }
-
-    private static bool IsValidPhoneNumber(string phoneNumber)
-    {
-        return !string.IsNullOrWhiteSpace(phoneNumber)
-            && (RegularExpressionConstants.LandlineNumberRegex().IsMatch(phoneNumber)
-            || RegularExpressionConstants.MobileNumberRegex().IsMatch(phoneNumber));
-    }
-
-    /// <summary>
-    /// Custom TypeConverter to validate a string GUID
-    /// </summary>
-    private class GuidStringTypeConverter : DefaultTypeConverter
-    {
-        public override object ConvertFromString(string guidString, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (Guid.TryParse(guidString, out var guid))
-            {
-                return guid.ToString();
-            }
-
-            throw new TypeConverterException(this, memberMapData, guidString, row.Context,
-                $"Invalid GUID string format: {guidString}");
-        }
     }
 }

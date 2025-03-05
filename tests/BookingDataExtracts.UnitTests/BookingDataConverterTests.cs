@@ -115,10 +115,10 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData(false, false, "NBS")]
-    [InlineData(true, false, "NHS App")]
-    [InlineData(true, true, "NHS App")]
-    [InlineData(false, true, "NHS Call Centre")]
+    [InlineData(false, false, "NBS_Website")]
+    [InlineData(true, false, "NHS_App")]
+    [InlineData(true, true, "NHS_App")]
+    [InlineData(false, true, "NHS_Call_Centre")]
     public void ExtractSource_GetsCorrectData(bool isNhsApp, bool isCallCentre, string expectedData)
     {
         var testDocument = new NbsBookingDocument

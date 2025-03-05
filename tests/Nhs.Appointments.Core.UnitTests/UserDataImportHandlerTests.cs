@@ -114,6 +114,35 @@ public class UserDataImportHandlerTests
         report.First().Message.Should().Contain("Invalid bool string format:  test");
     }
 
+    [Fact]
+    public async Task ConvertsUserIdToLowerCase_BeforeUpdating()
+    {
+        string[] inputRows =
+        [
+            "TEST1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
+            "TeSt3@NHS.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, true, true",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var sites = GetSites();
+
+        _siteServiceMock.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(sites[0]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, "", []));
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _userServiceMock.Verify(x => x.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "site", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+    }
+
     private List<Site> GetSites()
     {
         var sites = new List<Site>();

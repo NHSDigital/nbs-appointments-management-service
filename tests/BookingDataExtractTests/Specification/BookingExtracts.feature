@@ -94,4 +94,4 @@ Feature: BookingExtracts
       | X26ABC2        | MYA_INBOUND_NATIONAL_BOOKINGS_1 |
     And the target mailbox is empty
     When the booking data extract runs on '2026-01-07 15:45'
-    Then a file is recieved with the name 'MYA_booking_2026-01-07T1545.parquet'
+    Then a file is recieved with the name 'MYA_booking_20260107T154500.parquet'

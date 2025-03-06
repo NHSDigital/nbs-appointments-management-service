@@ -7,14 +7,15 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
+
 public class SetSiteInformationForCitizensFunctionTests
 {
-    private readonly SetSiteInformationForCitizensFunctionTestProxi _sut;
-    private readonly Mock<ISiteService> _siteService = new();
-    private readonly Mock<IValidator<SetSiteInformationForCitizensRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<ILogger<SetSiteInformationForCitizensFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<ISiteService> _siteService = new();
+    private readonly SetSiteInformationForCitizensFunctionTestProxi _sut;
+    private readonly Mock<IUserContextProvider> _userContext = new();
+    private readonly Mock<IValidator<SetSiteInformationForCitizensRequest>> _validator = new();
 
     public SetSiteInformationForCitizensFunctionTests()
     {
@@ -39,7 +40,8 @@ public class SetSiteInformationForCitizensFunctionTests
         var operationalResult = new OperationResult(operationSuccess);
 
         _userContext.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _siteService.Setup(x => x.UpdateInformationForCitizens(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(operationalResult);
+        _siteService.Setup(x => x.UpdateInformationForCitizens(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(operationalResult);
 
         var result = await _sut.Invoke(request);
 
@@ -51,24 +53,16 @@ public class SetSiteInformationForCitizensFunctionTests
 
 
     private class SetSiteInformationForCitizensFunctionTestProxi(
-        ISiteService siteService, 
-        IValidator<SetSiteInformationForCitizensRequest> validator, 
-        IUserContextProvider userContextProvider, 
-        ILogger<SetSiteInformationForCitizensFunction> logger, 
+        ISiteService siteService,
+        IValidator<SetSiteInformationForCitizensRequest> validator,
+        IUserContextProvider userContextProvider,
+        ILogger<SetSiteInformationForCitizensFunction> logger,
         IMetricsRecorder metricsRecorder)
-    : SetSiteInformationForCitizensFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
+        : SetSiteInformationForCitizensFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
     {
         private readonly ILogger<SetSiteInformationForCitizensFunction> _logger = logger;
 
-        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteInformationForCitizensRequest request) => await HandleRequest(request, _logger);
+        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteInformationForCitizensRequest request) =>
+            await HandleRequest(request, _logger, null);
     }
-
 }
-
-
-
-
-
-
-
-

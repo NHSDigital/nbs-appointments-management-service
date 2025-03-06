@@ -1,7 +1,8 @@
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Api.Features;
 
-public static class FeatureFlags
+public static class Flags
 {
+    public const string TestFeatureEnabled = "TestFeatureEnabled";
     public const string TestFeatureTimeWindowEnabled = "TestFeatureTimeWindowEnabled";
     public const string TestFeaturePercentageEnabled = "TestFeaturePercentageEnabled";
     public const string TestFeatureUsersEnabled = "TestFeatureUsersEnabled";

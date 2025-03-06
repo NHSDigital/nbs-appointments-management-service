@@ -16,18 +16,18 @@ namespace Nhs.Appointments.Api.Tests.Functions
     {
         private readonly Mock<ILogger<GetUserProfileFunction>> _logger = new();
         private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+        private readonly GetUserProfileFunction _sut;
         private readonly Mock<IUserContextProvider> _userContextProvider = new();
         private readonly Mock<IUserService> _userSiteAssignmentService = new();
         private readonly Mock<IValidator<EmptyRequest>> _validator = new();
-        private readonly GetUserProfileFunction _sut;
 
         public GetUserProfileFunctionTests()
         {
             _sut = new GetUserProfileFunction(
                 _userSiteAssignmentService.Object,
-                _validator.Object, 
-                _userContextProvider.Object, 
-                _logger.Object, 
+                _validator.Object,
+                _userContextProvider.Object,
+                _logger.Object,
                 _metricsRecorder.Object
             );
         }
@@ -40,7 +40,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var context = new DefaultHttpContext();
             var request = context.Request;
 
-            await _sut.RunAsync(request);
+            await _sut.RunAsync(request, functionContext: null);
 
             _userSiteAssignmentService.Verify(x => x.GetUserAsync("test@test.com"), Times.Once());
         }
@@ -58,7 +58,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 Id = "test@test.com", RoleAssignments = [],
             });
 
-            var response = await _sut.RunAsync(request) as ContentResult;
+            var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
             var actualResponse = await ReadResponseAsync<UserProfile>(response.Content);
             actualResponse.EmailAddress.Should().Be("test@test.com");
         }
@@ -77,24 +77,29 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             if (hasSites)
             {
-                roleAssignments = [
+                roleAssignments =
+                [
                     new() { Role = "Role1", Scope = "site:1" },
                     new() { Role = "system:admin-user", Scope = "global" }
                 ];
-            } 
+            }
 
-            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+            _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
             {
                 Id = "test@test.com", RoleAssignments = roleAssignments,
             });
 
             var siteDetails = new[]
-{
-                new Site("1", "Alpha", "somewhere", "0113 1111111", "odsCode1", "R1", "ICB1", string.Empty, new [] {new Accessibility(Id: "Accessibility 1", Value: "true")}, new Location("point", new []{0.1, 10})),
-                new Site("2", "Beta", "somewhere else", "0113 222222", "odsCode2", "R2", "ICB2", string.Empty, new [] {new Accessibility(Id: "Accessibility 2", Value: "true")}, new Location("point", new []{0.2, 11}))
+            {
+                new Site("1", "Alpha", "somewhere", "0113 1111111", "odsCode1", "R1", "ICB1", string.Empty,
+                    new[] { new Accessibility(Id: "Accessibility 1", Value: "true") },
+                    new Location("point", new[] { 0.1, 10 })),
+                new Site("2", "Beta", "somewhere else", "0113 222222", "odsCode2", "R2", "ICB2", string.Empty,
+                    new[] { new Accessibility(Id: "Accessibility 2", Value: "true") },
+                    new Location("point", new[] { 0.2, 11 }))
             };
 
-            var result = await _sut.RunAsync(request) as ContentResult;
+            var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
 
             var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
             actualResponse.hasSites.Should().Be(hasSites);

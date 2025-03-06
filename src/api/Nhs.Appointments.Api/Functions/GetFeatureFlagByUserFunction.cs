@@ -8,19 +8,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.FeatureFilters;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetFeatureFlagByUserFunction(
-    IFeatureManager featureManager,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagByUserFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFunctionFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlagByUser", tags: ["FeatureFlag"],
@@ -35,15 +35,17 @@ public class GetFeatureFlagByUserFunction(
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagByUserFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/user")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/user")]
+        HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger,
+        FunctionContext functionContext)
     {
-        var context = new TargetingContext { UserId = "user1@example123.com" };
-        var isFeatureEnabled = await featureManager.IsEnabledAsync(FeatureFlags.TestFeatureUsersEnabled, context);
+        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
+            Flags.TestFeatureUsersEnabled, functionContext, Principal, new NoSiteRequestInspector());
         return ApiResult<bool>.Success(isFeatureEnabled);
     }
 

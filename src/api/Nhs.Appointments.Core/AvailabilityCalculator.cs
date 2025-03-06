@@ -6,11 +6,11 @@ public interface IAvailabilityCalculator
         CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
 }
 
+// TODO: Remove this service. Subsume its methods into AvailabilityService
 public class AvailabilityCalculator(
     IAvailabilityStore availabilityStore,
     IBookingsDocumentStore bookingDocumentStore,
-    TimeProvider time,
-    IAvailabilityService availabilityService) : IAvailabilityCalculator
+    TimeProvider time) : IAvailabilityCalculator
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -47,7 +47,7 @@ public class AvailabilityCalculator(
         foreach (var booking in liveBookings)
         {
             var slot = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
-                ? availabilityService.ChooseHighestPrioritySlot(slots, booking)
+                ? ChooseHighestPrioritySlot(slots, booking)
                 : slots.FirstOrDefault(s =>
                     s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
                     s.Services.Contains(booking.Service));
@@ -60,4 +60,14 @@ public class AvailabilityCalculator(
 
         return slots.Where(s => s.Capacity > 0);
     }
+
+    private SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
+        slots.Where(
+                sl => sl.Capacity > 0
+                      && sl.From == booking.From
+                      && (int)sl.Duration.TotalMinutes == booking.Duration
+                      && sl.Services.Contains(booking.Service))
+            .OrderBy(slot => slot.Services.Length)
+            .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
+            .FirstOrDefault();
 }

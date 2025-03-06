@@ -28,7 +28,6 @@ public class BookingsService(
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
         IAvailabilityStore availabilityStore,
-        IAvailabilityService availabilityService,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
@@ -65,11 +64,8 @@ public class BookingsService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            var slots = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
-                ? (await availabilityService.GetAvailabilityState(booking.Site,
-                    DateOnly.FromDateTime(booking.From.Date))).AvailableSlots
-                : await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
-                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+                DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
@@ -106,14 +102,7 @@ public class BookingsService(
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
             AvailabilityStatus.Unknown);
 
-        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
-        {
-            await availabilityService.RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
-        }
-        else
-        {
-            await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
-        }
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
         {

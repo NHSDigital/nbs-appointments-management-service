@@ -19,6 +19,7 @@ namespace Nhs.Appointments.Api.Functions;
 public class MakeBookingFunction(
     IBookingsService bookingService,
     ISiteService siteService,
+    IAvailabilityService availabilityService,
     IValidator<MakeBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<MakeBookingFunction> logger,
@@ -67,7 +68,10 @@ public class MakeBookingFunction(
             return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
         }
 
-        var bookingResult = await bookingService.MakeBooking(requestedBooking);
+        var bookingResult = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+            ? await availabilityService.MakeBooking(requestedBooking)
+            : await bookingService.MakeBooking(requestedBooking);
+
         if (bookingResult.Success == false)
         {
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");

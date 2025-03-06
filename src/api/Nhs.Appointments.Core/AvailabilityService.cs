@@ -1,4 +1,6 @@
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
@@ -6,7 +8,12 @@ public class AvailabilityService(
     IAvailabilityStore availabilityStore,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
     IBookingsService bookingsService,
-    ISiteLeaseManager siteLeaseManager) : IAvailabilityService
+    ISiteLeaseManager siteLeaseManager,
+    IBookingsDocumentStore bookingDocumentStore,
+    IReferenceNumberProvider referenceNumberProvider,
+    IBookingEventFactory eventFactory,
+    IMessageBus bus,
+    TimeProvider time) : IAvailabilityService
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -234,5 +241,58 @@ public class AvailabilityService(
         {
             AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
         };
+    }
+
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
+    {
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
+        {
+            return BookingCancellationResult.NotFound;
+        }
+
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
+
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+
+        if (booking.ContactDetails != null)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
+
+        return BookingCancellationResult.Success;
+    }
+
+    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
+    {
+        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        {
+            var slots = (await GetAvailabilityState(booking.Site,
+                DateOnly.FromDateTime(booking.From.Date))).AvailableSlots;
+
+            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+
+            if (canBook)
+            {
+                booking.Created = time.GetUtcNow();
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
+                await bookingDocumentStore.InsertAsync(booking);
+
+                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
+                {
+                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                    await bus.Send(bookingMadeEvents);
+                }
+
+                return (true, booking.Reference);
+            }
+
+            return (false, string.Empty);
+        }
     }
 }

@@ -1,4 +1,3 @@
-using System.Text;
 using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
@@ -7,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -19,6 +16,7 @@ public class CancelBookingFunctionTests
 {
     private readonly CancelBookingFunction _sut;
     private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IAvailabilityService> _availabilityService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
     private readonly Mock<ILogger<CancelBookingFunction>> _logger = new();
@@ -26,7 +24,8 @@ public class CancelBookingFunctionTests
 
     public CancelBookingFunctionTests()
     {
-        _sut = new CancelBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new CancelBookingFunction(_bookingService.Object, _availabilityService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         _bookingService.Setup(x => x.CancelBooking(null, string.Empty)).Returns(Task.FromResult(BookingCancellationResult.NotFound));

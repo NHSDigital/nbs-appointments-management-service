@@ -1,26 +1,30 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Nhs.Appointments.Api.Auth;
-using System;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Routing;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Audit;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class CancelBookingFunction(IBookingsService bookingService, IValidator<CancelBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<CancelBookingFunction> logger, IMetricsRecorder metricsRecorder)
+public class CancelBookingFunction(
+    IBookingsService bookingService,
+    IAvailabilityService availabilityService,
+    IValidator<CancelBookingRequest> validator,
+    IUserContextProvider userContextProvider,
+    ILogger<CancelBookingFunction> logger,
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
 
@@ -42,7 +46,9 @@ public class CancelBookingFunction(IBookingsService bookingService, IValidator<C
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request, ILogger logger)
     {
-        var result = await bookingService.CancelBooking(request.bookingReference, request.site);
+        var result = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+            ? await availabilityService.CancelBooking(request.bookingReference, request.site)
+            : await bookingService.CancelBooking(request.bookingReference, request.site);
 
         switch(result)
         {

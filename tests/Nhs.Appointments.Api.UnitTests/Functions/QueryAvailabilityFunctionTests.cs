@@ -65,7 +65,7 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+        var result = await _sut.RunAsync(httpRequest, functionContext: null) as ContentResult;
         result.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
         response.Count.Should().Be(2);
@@ -99,7 +99,7 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        await _sut.RunAsync(httpRequest);
+        await _sut.RunAsync(httpRequest, functionContext: null);
         _availabilityGrouperFactory.Verify(x => x.Create(queryType), Times.Once());
     }
 
@@ -126,7 +126,7 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+        var result = await _sut.RunAsync(httpRequest, functionContext: null) as ContentResult;
         result.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
@@ -162,7 +162,7 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        await _sut.RunAsync(httpRequest);
+        await _sut.RunAsync(httpRequest, functionContext: null);
 
         _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Exactly(3));

@@ -1,4 +1,3 @@
-using System.Text;
 using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
@@ -7,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -17,19 +14,21 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class CancelBookingFunctionTests
 {
-    private readonly CancelBookingFunction _sut;
     private readonly Mock<IBookingsService> _bookingService = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
     private readonly Mock<ILogger<CancelBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly CancelBookingFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
 
     public CancelBookingFunctionTests()
     {
-        _sut = new CancelBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new CancelBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object,
+            _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _bookingService.Setup(x => x.CancelBooking(null, string.Empty)).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        _bookingService.Setup(x => x.CancelBooking(null, string.Empty))
+            .Returns(Task.FromResult(BookingCancellationResult.NotFound));
     }
 
     [Fact]
@@ -37,11 +36,12 @@ public class CancelBookingFunctionTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingService.Setup(x => x.CancelBooking(bookingRef, site)).Returns(Task.FromResult(BookingCancellationResult.Success));
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request) as ContentResult;
+        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
 
         Assert.Equal(200, response.StatusCode.Value);
     }
@@ -51,11 +51,12 @@ public class CancelBookingFunctionTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingService.Setup(x => x.CancelBooking(bookingRef, site)).Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request) as ContentResult;
+        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
 
         _bookingService.Verify();
     }
@@ -65,11 +66,12 @@ public class CancelBookingFunctionTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(BookingCancellationResult.NotFound));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request) as ContentResult;
+        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
 
         Assert.Equal(404, response.StatusCode.Value);
     }
@@ -80,11 +82,12 @@ public class CancelBookingFunctionTests
         var bookingRef = "some-booking";
         var site = "TEST01";
         var invalidResultCode = 99;
-        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
+        _bookingService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request) as InternalServerErrorResult;
+        var response = await _sut.RunAsync(request, functionContext: null) as InternalServerErrorResult;
 
         Assert.NotNull(response);
         Assert.Equal(500, response.StatusCode);

@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -22,22 +22,30 @@ public class RemoveUserFunction(
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "RemoveUser", tags: ["User"], Summary = "Remove all assigned roles from a user at the specified site")]
+    [OpenApiOperation(operationId: "RemoveUser", tags: ["User"],
+        Summary = "Remove all assigned roles from a user at the specified site")]
     [OpenApiRequestBody("application/json", typeof(RemoveUserRequest), Required = true)]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.OK, "application/json", typeof(RemoveUserRequest), Description = "Users roles removed for the specified site")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(string), Description = "User did not exist to be removed")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(RemoveUserRequest),
+        Description = "Users roles removed for the specified site")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
+        typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(string),
+        Description = "User did not exist to be removed")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
+        typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
+        Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.ManageUsers, typeof(SiteFromBodyInspector))]
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(
-       [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/remove")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/remove")]
+        HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request, ILogger logger)
+    protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request,
+        ILogger logger, FunctionContext functionContext)
     {
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
@@ -45,6 +53,8 @@ public class RemoveUserFunction(
         }
 
         var result = await userService.RemoveUserAsync(request.User, request.Site);
-        return result.Success ? Success(new RemoveUserResponse(request.User, request.Site)) : Failed(HttpStatusCode.NotFound, result.Message);
+        return result.Success
+            ? Success(new RemoveUserResponse(request.User, request.Site))
+            : Failed(HttpStatusCode.NotFound, result.Message);
     }
 }

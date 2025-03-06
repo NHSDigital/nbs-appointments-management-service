@@ -11,6 +11,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
         private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        private readonly Mock<IAvailabilityService> _availabilityService = new();
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
 
@@ -22,6 +23,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _siteLeaseManager.Object,
                 _availabilityCalculator.Object,
                 _availabilityStore.Object,
+                _availabilityService.Object,
                 new EventFactory(),
                 _messageBus.Object,
                 TimeProvider.System);
@@ -42,7 +44,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object,
-                leaseManager, _availabilityCalculator.Object, _availabilityStore.Object, new EventFactory(),
+                leaseManager, _availabilityCalculator.Object, _availabilityStore.Object, _availabilityService.Object,
+                new EventFactory(),
                 _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -350,6 +353,7 @@ namespace Nhs.Appointments.Core.UnitTests
             private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
             private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
             private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+            private readonly Mock<IAvailabilityService> _availabilityService = new();
             private readonly Mock<IMessageBus> _messageBus = new();
             private readonly Mock<TimeProvider> _timeProvider = new();
 
@@ -359,7 +363,7 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 var availabilityCalculator = new AvailabilityCalculator(_availabilityStore.Object,
                     _bookingsDocumentStore.Object,
-                    _timeProvider.Object);
+                    _timeProvider.Object, _availabilityService.Object);
 
                 _bookingsService = new BookingsService(
                     _bookingsDocumentStore.Object,
@@ -367,6 +371,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     _siteLeaseManager.Object,
                     availabilityCalculator,
                     _availabilityStore.Object,
+                    _availabilityService.Object,
                     new EventFactory(),
                     _messageBus.Object,
                     TimeProvider.System);

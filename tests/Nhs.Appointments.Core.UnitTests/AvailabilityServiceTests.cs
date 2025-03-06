@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Concurrency;
+
 namespace Nhs.Appointments.Core.UnitTests;
 
 public class AvailabilityServiceTests
@@ -6,10 +8,11 @@ public class AvailabilityServiceTests
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IBookingsService> _bookingsService = new();
+    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
 
 
     public AvailabilityServiceTests() => _sut = new AvailabilityService(_availabilityStore.Object,
-        _availabilityCreatedEventStore.Object, _bookingsService.Object);
+        _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object);
 
     [Theory]
     [InlineData("")]

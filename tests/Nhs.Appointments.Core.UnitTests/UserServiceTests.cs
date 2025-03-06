@@ -125,9 +125,9 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Theory]
-        [InlineData("USER1")]
-        [InlineData("uSeR2")]
-        [InlineData("User3")]
+        [InlineData("TEST.USER1@NHS.NET")]
+        [InlineData("TeSt.uSeR2@nhs.NET")]
+        [InlineData("test.User3@nHs.NeT")]
         public async Task ConvertsUserIdToLowerCaseWhenCallingStore(string userId)
         {
             const string scope = "site:some-site";

@@ -55,7 +55,14 @@ public class CancelSessionFunction(
             request.SlotLength,
             request.Capacity);
 
-        await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        {
+            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        }
+        else
+        {
+            await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        }
 
         return Success(new EmptyResponse());
     }

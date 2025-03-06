@@ -5,7 +5,11 @@ public interface IAvailabilityCalculator
     Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);    
 }
 
-public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore, TimeProvider time) : IAvailabilityCalculator
+public class AvailabilityCalculator(
+    IAvailabilityStore availabilityStore,
+    IBookingsDocumentStore bookingDocumentStore,
+    TimeProvider time,
+    IAvailabilityService availabilityService) : IAvailabilityCalculator
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -41,9 +45,12 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
 
         foreach (var booking in liveBookings)
         {
-            var slot = slots.FirstOrDefault(s =>
-                s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
-                s.Services.Contains(booking.Service));
+            var slot = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+                ? availabilityService.ChooseHighestPrioritySlot(slots, booking)
+                : slots.FirstOrDefault(s =>
+                    s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
+                    s.Services.Contains(booking.Service));
+
             if (slot != null)
             {
                 slot.Capacity--;

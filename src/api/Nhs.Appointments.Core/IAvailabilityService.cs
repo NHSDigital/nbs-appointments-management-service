@@ -12,4 +12,6 @@ public interface IAvailabilityService
     Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day);
     Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day);
     SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking);
+    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
 }

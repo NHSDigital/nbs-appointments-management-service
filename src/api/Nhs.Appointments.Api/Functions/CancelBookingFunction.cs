@@ -20,12 +20,12 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class CancelBookingFunction(
     IBookingsService bookingService,
+    IAvailabilityService availabilityService,
     IValidator<CancelBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelBookingFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger,
-        metricsRecorder)
+    : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelBooking", tags: ["Booking"], Summary = "Cancel a booking")]
     [OpenApiParameter("bookingReference", Required = true, In = ParameterLocation.Path,
@@ -53,7 +53,9 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingService.CancelBooking(request.bookingReference, request.site);
+        var result = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+            ? await availabilityService.CancelBooking(request.bookingReference, request.site)
+            : await bookingService.CancelBooking(request.bookingReference, request.site);
 
         switch (result)
         {

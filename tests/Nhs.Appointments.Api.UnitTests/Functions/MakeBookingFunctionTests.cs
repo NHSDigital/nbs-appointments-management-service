@@ -17,6 +17,7 @@ public class MakeBookingFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IAvailabilityService> _availabilityService = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();
@@ -26,7 +27,8 @@ public class MakeBookingFunctionTests
 
     public MakeBookingFunctionTests()
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _validator.Object,
+        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _availabilityService.Object,
+            _validator.Object,
             _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

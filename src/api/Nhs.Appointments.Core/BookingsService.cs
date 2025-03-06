@@ -17,6 +17,8 @@ public interface IBookingsService
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
+    Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
+    Task DeleteBooking(string reference, string site);
 }
 
 public class BookingsService(
@@ -25,10 +27,11 @@ public class BookingsService(
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityCalculator availabilityCalculator,
         IAvailabilityStore availabilityStore,
+        IAvailabilityService availabilityService,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
-{ 
+{
     public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
         var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
@@ -52,11 +55,21 @@ public class BookingsService(
         return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
+    public Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
+        bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
+
+    public Task DeleteBooking(string reference, string site) => bookingDocumentStore.DeleteBooking(reference, site);
+
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
-    {            
+    {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
-        {                
-            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+        {
+            var slots = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+                ? (await availabilityService.GetAvailabilityState(booking.Site,
+                    DateOnly.FromDateTime(booking.From.Date))).AvailableSlots
+                : await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
@@ -77,7 +90,7 @@ public class BookingsService(
             }
 
             return (false, string.Empty);
-        }            
+        }
     }
 
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
@@ -91,7 +104,15 @@ public class BookingsService(
 
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
             AvailabilityStatus.Unknown);
-        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+
+        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        {
+            await availabilityService.RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+        }
+        else
+        {
+            await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+        }
 
         if (booking.ContactDetails != null)
         {

@@ -9,7 +9,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.FeatureFilters;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
@@ -35,14 +35,16 @@ public class GetFeatureFlagTimeWindowFunction(
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagTimeWindowFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/time-window")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/time-window")]
+        HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger,
+        FunctionContext functionContext)
     {
-        var isFeatureEnabled = await featureManager.IsEnabledAsync(FeatureFlags.TestFeatureTimeWindowEnabled);
+        var isFeatureEnabled = await featureManager.IsEnabledAsync(Flags.TestFeatureTimeWindowEnabled);
         return ApiResult<bool>.Success(isFeatureEnabled);
     }
 

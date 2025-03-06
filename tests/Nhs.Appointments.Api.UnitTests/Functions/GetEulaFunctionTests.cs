@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -15,11 +14,11 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class GetEulaFunctionTests
 {
     private readonly Mock<IEulaService> _eulaService = new();
-    private readonly Mock<IValidator<EmptyRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetEulaFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly GetEulaFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<EmptyRequest>> _validator = new();
 
     public GetEulaFunctionTests()
     {
@@ -42,15 +41,12 @@ public class GetEulaFunctionTests
     public async Task RunsAsync_Gets_The_Latest_Eula()
     {
         _eulaService.Setup(
-            x => x.GetEulaVersionAsync())
-            .ReturnsAsync(new EulaVersion()
-            {
-                VersionDate = new DateOnly(2020, 1, 1)
-            });
+                x => x.GetEulaVersionAsync())
+            .ReturnsAsync(new EulaVersion { VersionDate = new DateOnly(2020, 1, 1) });
 
         var request = CreateRequest();
 
-        var result = await _sut.RunAsync(request) as ContentResult;
+        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
 
         result?.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<EulaVersion>(result.Content);

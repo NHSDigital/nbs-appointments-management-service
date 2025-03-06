@@ -6,6 +6,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.FeatureFilters;
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Logger;
 using Nhs.Appointments.Api.Middleware;
 using Nhs.Appointments.Audit;
@@ -35,8 +36,8 @@ var host = new HostBuilder()
             .AddFeatureFilter<PercentageFilter>()
             .AddFeatureFilter<TargetingFilter>()
             .AddFeatureFilter<TimeWindowFilter>();
-        
-        services.AddSingleton<ITargetingContextAccessor, TargetingContextAccessor>();
+
+        services.AddSingleton<ITargetingContextAccessor, DefaultContextAccessor>();
     })
     .ConfigureFunctionsWebApplication(builder =>
     {

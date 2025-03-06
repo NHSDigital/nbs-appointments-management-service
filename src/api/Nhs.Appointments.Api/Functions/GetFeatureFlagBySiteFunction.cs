@@ -1,26 +1,26 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.FeatureFilters;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetFeatureFlagBySiteFunction(
-    IFeatureManager featureManager,
     IValidator<SiteBasedResourceRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagBySiteFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFunctionFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<SiteBasedResourceRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlagBySite", tags: ["FeatureFlag"],
@@ -35,20 +35,25 @@ public class GetFeatureFlagBySiteFunction(
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagBySiteFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/site")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/sites/{site}")] HttpRequest req,
+        FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<bool>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
+    protected override async Task<ApiResult<bool>> HandleRequest(SiteBasedResourceRequest request, ILogger logger,
+        FunctionContext functionContext)
     {
-        var context = new TargetingContext { Groups = ["Site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"] };
-        var isFeatureEnabled = await featureManager.IsEnabledAsync(FeatureFlags.TestFeatureSitesEnabled, context);
+        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
+            Flags.TestFeatureSitesEnabled, functionContext, Principal, new SiteFromPathInspector());
         return ApiResult<bool>.Success(isFeatureEnabled);
     }
 
-    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(SiteBasedResourceRequest request)
+    protected override async
+        Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SiteBasedResourceRequest request)> ReadRequestAsync(
+            HttpRequest req)
     {
-        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
+        var site = req.HttpContext.GetRouteValue("site")?.ToString();
+        return ([], new SiteBasedResourceRequest(site, "*"));
     }
 }

@@ -8,10 +8,14 @@ using System.Web.Http;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.FeatureFilters;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -23,7 +27,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 {
     protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
 
-    public virtual async Task<IActionResult> RunAsync(HttpRequest req)
+    public virtual async Task<IActionResult> RunAsync(HttpRequest req, FunctionContext functionContext)
     {
         try
         {
@@ -42,7 +46,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
             ApiResult<TResponse> response;
             using (metricsRecorder.BeginScope(GetType().Name))
             {
-                response = await HandleRequest(request, logger);
+                response = await HandleRequest(request, logger, functionContext);
             }
 
             WriteMetricsToConsole();
@@ -86,7 +90,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
     {
         return JsonResponseWriter.WriteResult(errorDetails, status);
     }
-    
+
     private IActionResult ProblemResponse(HttpStatusCode status, string message)
     {
         var error = new { message };
@@ -104,6 +108,14 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         }
     }
 
+    internal async Task<bool> HasFeatureFlag(string flag, IFeatureManager featureManager,
+        FunctionContext functionContext, IRequestInspector requestInspector)
+    {
+        var siteIds = await requestInspector.GetSiteIds(await functionContext.GetHttpRequestDataAsync());
+        var targetingContext = new TargetingContext { UserId = Principal.Claims.GetUserEmail(), Groups = siteIds };
+        return await featureManager.IsEnabledAsync(flag, targetingContext);
+    }
+
     protected ApiResult<TResponse> Success(TResponse response) => ApiResult<TResponse>.Success(response);
 
     protected ApiResult<TResponse> Failed(HttpStatusCode status, string message) =>
@@ -111,5 +123,6 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 
     protected ApiResult<EmptyResponse> Success() => ApiResult<EmptyResponse>.Success(new EmptyResponse());
 
-    protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger);
+    protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger,
+        FunctionContext functionContext);
 }

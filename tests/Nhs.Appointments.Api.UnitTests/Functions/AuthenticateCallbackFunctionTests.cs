@@ -17,7 +17,7 @@ public class AuthenticateCallbackFunctionTests
     {
         var context = new DefaultHttpContext();
         var defaultHttpRequest = context.Request;
-        defaultHttpRequest.QueryString = new QueryString($"?provider=test-auth&code=123");
+        defaultHttpRequest.QueryString = new QueryString("?provider=test-auth&code=123");
 
         var options = new Mock<IOptions<AuthOptions>>();
         options.Setup(x => x.Value).Returns(new AuthOptions
@@ -40,7 +40,7 @@ public class AuthenticateCallbackFunctionTests
         });
 
         var sut = new AuthenticateCallbackFunction(options.Object);
-        var result = sut.Run(defaultHttpRequest);
+        var result = sut.Run(defaultHttpRequest, functionContext: null);
         result.Should().BeOfType<RedirectResult>();
         (result as RedirectResult).Url.Should().Be("http://test.some.com:80/?code=123");
     }

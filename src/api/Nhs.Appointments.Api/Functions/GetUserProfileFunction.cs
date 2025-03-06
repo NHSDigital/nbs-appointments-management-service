@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,31 +10,31 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions
 {
     public class GetUserProfileFunction(
-        IUserService userService, 
-        IValidator<EmptyRequest> validator, 
-        IUserContextProvider userContextProvider, 
-        ILogger<GetUserProfileFunction> logger, 
+        IUserService userService,
+        IValidator<EmptyRequest> validator,
+        IUserContextProvider userContextProvider,
+        ILogger<GetUserProfileFunction> logger,
         IMetricsRecorder metricsRecorder
-    ): BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger, metricsRecorder)
+    ) : BaseApiFunction<EmptyRequest, UserProfile>(validator, userContextProvider, logger, metricsRecorder)
     {
-        [OpenApiOperation(operationId: "GetUserProfile", tags: ["User"], Summary = "Gets information about the signed in user")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(UserProfile), Description = "Information about the signed in user")]
+        [OpenApiOperation(operationId: "GetUserProfile", tags: ["User"],
+            Summary = "Gets information about the signed in user")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(UserProfile),
+            Description = "Information about the signed in user")]
         [Function("GetUserProfileFunction")]
         public override Task<IActionResult> RunAsync(
-          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/profile")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/profile")]
+            HttpRequest req, FunctionContext functionContext)
         {
-            return base.RunAsync(req);
+            return base.RunAsync(req, functionContext);
         }
 
-        protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger)
+        protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger,
+            FunctionContext functionContext)
         {
             var userEmail = Principal.Claims.GetUserEmail();
 

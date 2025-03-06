@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,6 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
 using AuthorizationLevel = Microsoft.Azure.Functions.Worker.AuthorizationLevel;
-using System.Linq;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -27,7 +27,7 @@ public class GetAuthTokenFunction(
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")]
-        HttpRequest req)
+        HttpRequest req, FunctionContext functionContext)
     {
         // need to resolve the correct auth config here
         var providerName = req.Query["provider"];
@@ -48,7 +48,7 @@ public class GetAuthTokenFunction(
         {
             formValues.Add("client_secret", authProvider.ClientSecret);
         }
-        
+
         var form = new FormUrlEncodedContent(formValues);
         var httpClient = httpClientFactory.CreateClient();
 

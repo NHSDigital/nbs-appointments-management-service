@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -9,19 +10,19 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.FeatureFilters;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetFeatureFlagsFunction(
-    IFeatureManager featureManager,
-    IVariantFeatureManager variantFeatureManager,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagsFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFunctionFeatureToggleHelper functionFeatureToggleHelper)
     : BaseApiFunction<EmptyRequest, GetFeatureFlagsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlags", tags: ["FeatureFlag"],
@@ -36,27 +37,29 @@ public class GetFeatureFlagsFunction(
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagsFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags")]
+        HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<GetFeatureFlagsResponse>> HandleRequest(EmptyRequest request, ILogger logger)
+    protected override async Task<ApiResult<GetFeatureFlagsResponse>> HandleRequest(EmptyRequest request,
+        ILogger logger, FunctionContext functionContext)
     {
         var response = new GetFeatureFlagsResponse([]);
-        
-        var flags = typeof(FeatureFlags)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+
+        var flags = typeof(Flags)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(f => f.FieldType == typeof(string))
             .Select(f => f.GetValue(null)?.ToString())
             .ToList();
 
         foreach (var flag in flags)
         {
-            var enabled = await featureManager.IsEnabledAsync(flag);
+            var enabled = await functionFeatureToggleHelper.IsFeatureEnabled(flag, functionContext, Principal, new NoSiteRequestInspector());
             response.FeatureFlags.Add(new KeyValuePair<string, bool>(flag, enabled));
         }
-        
+
         return ApiResult<GetFeatureFlagsResponse>.Success(response);
     }
 

@@ -39,14 +39,15 @@ public class MakeBookingFunctionTests
             TimeSpan.FromMinutes(5));
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-                "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(), new Location("Point", [0, 0])));
+                "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
+                new Location("Point", [0, 0])));
         _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
         var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request) as ContentResult;
+        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
         result.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
         response.BookingReference.Should().Be("TEST01");
@@ -61,7 +62,7 @@ public class MakeBookingFunctionTests
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request) as ContentResult;
+        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
         result.StatusCode.Should().Be(404);
         var response = await ReadResponseAsync<BadRequestBody>(result.Content);
         response.message.Should().Be("Site for booking request could not be found");
@@ -72,7 +73,8 @@ public class MakeBookingFunctionTests
     {
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-                "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(), new Location("Point", [0, 0])));
+                "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(),
+                new Location("Point", [0, 0])));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 
@@ -80,7 +82,7 @@ public class MakeBookingFunctionTests
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request) as ContentResult;
+        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
         result.StatusCode.Should().Be(404);
         var response = await ReadResponseAsync<BadRequestBody>(result.Content);
         response.message.Should().Be("The time slot for this booking is not available");
@@ -91,7 +93,8 @@ public class MakeBookingFunctionTests
     {
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-                "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(), new Location("Point", [0, 0])));
+                "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(),
+                new Location("Point", [0, 0])));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 
@@ -120,7 +123,7 @@ public class MakeBookingFunctionTests
                 new ContactItem { Value = "0123456789", Type = ContactItemType.Phone }
             ]
         };
-        _sut.RunAsync(request);
+        _sut.RunAsync(request, functionContext: null);
         _bookingService.Invocations.Should().HaveCount(1);
         var actualArgument = _bookingService.Invocations.First().Arguments.First();
         actualArgument.Should().BeEquivalentTo(expectedBooking);

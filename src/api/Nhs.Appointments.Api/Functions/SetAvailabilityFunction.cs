@@ -1,3 +1,5 @@
+using System.Net;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,34 +9,43 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using System.Net;
-using System.Threading.Tasks;
-using Nhs.Appointments.Audit;
 using Nhs.Appointments.Audit.Functions;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetAvailabilityFunction(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+public class SetAvailabilityFunction(
+    IAvailabilityService availabilityService,
+    IValidator<SetAvailabilityRequest> validator,
+    IUserContextProvider userContextProvider,
+    ILogger<SetAvailabilityFunction> logger,
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"], Summary = "Set appointment availability for a single day")]
+    [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"],
+        Summary = "Set appointment availability for a single day")]
     [OpenApiRequestBody("application/json", typeof(SetAvailabilityRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site availability successfully set or updated")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK,
+        Description = "Site availability successfully set or updated")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
+        typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
+        typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
+        Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]
     [RequiresAudit(typeof(SiteFromBodyInspector))]
     [Function("SetAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability")]
+        HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req);
+        return base.RunAsync(req, functionContext);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request,
+        ILogger logger, FunctionContext functionContext)
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
@@ -43,4 +54,3 @@ public class SetAvailabilityFunction(IAvailabilityService availabilityService, I
         return Success(new EmptyResponse());
     }
 }
-

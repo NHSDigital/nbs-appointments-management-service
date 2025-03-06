@@ -1,5 +1,6 @@
 {
   "FeatureManagement": {
+    "TestFeatureEnabled": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {
@@ -27,7 +28,10 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": ["user1@example.com", "user2@example.com"]
+              "Users": [
+                "api@local",
+                "user2@example.com"
+              ]
             }
           }
         }
@@ -40,7 +44,10 @@
           "Parameters": {
             "Audience": {
               "Groups": [
-                { "Name": "Site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb", "RolloutPercentage": 100 }
+                {
+                  "Name": "Site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb",
+                  "RolloutPercentage": 100
+                }
               ]
             }
           }

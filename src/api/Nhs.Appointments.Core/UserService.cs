@@ -30,9 +30,20 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
         }
 
         var oldRoles = await userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
+        IEnumerable<RoleAssignment> rolesRemoved = [];
+        IEnumerable<RoleAssignment> rolesAdded;
 
-        var rolesRemoved = oldRoles.Where(old => !roleAssignments.Any(r => r.Role == old.Role));
-        var rolesAdded = roleAssignments.Where(newRole => !oldRoles.Any(r => r.Role == newRole.Role));
+        // New user
+        if (oldRoles.Length == 0)
+        {
+            rolesAdded = roleAssignments;
+        }
+        else
+        {
+            rolesRemoved = oldRoles.Where(old => !roleAssignments.Any(r => r.Role == old.Role));
+            rolesAdded = roleAssignments.Where(newRole => !oldRoles.Any(r => r.Role == newRole.Role));
+        }
+
         var site = Scope.GetValue("site", scope);
         await bus.Send(new UserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
 

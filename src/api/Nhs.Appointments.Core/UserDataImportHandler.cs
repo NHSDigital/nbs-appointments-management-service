@@ -29,11 +29,11 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
             return report;
         }
 
-        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId).SelectMany(usr => usr))
+        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => new { usr.UserId, usr.SiteId }).SelectMany(usr => usr))
         {
             try
             {
-                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, "site", userAssignmentGroup.RoleAssignments);
+                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, $"site:{userAssignmentGroup.SiteId}", userAssignmentGroup.RoleAssignments);
                 if (!result.Success)
                 {
                     report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));

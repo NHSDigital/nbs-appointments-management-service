@@ -17,15 +17,15 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetFeatureFlagsFunction(
+public class GetAllFeatureFlagsFunction(
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<GetFeatureFlagsFunction> logger,
+    ILogger<GetAllFeatureFlagsFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFunctionFeatureToggleHelper functionFeatureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, GetFeatureFlagsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "GetFeatureFlags", tags: ["FeatureFlag"],
+    [OpenApiOperation(operationId: "GetAllFeatureFlags", tags: ["FeatureFlag"],
         Summary = "Get the enabled state for all the defined feature flags")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetFeatureFlagsResponse),
         Description = "Information for a single site")]
@@ -35,9 +35,9 @@ public class GetFeatureFlagsFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [Function("GetFeatureFlagsFunction")]
+    [Function("GetAllFeatureFlagsFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "all-feature-flags")]
         HttpRequest req, FunctionContext functionContext)
     {
         return base.RunAsync(req, functionContext);
@@ -56,7 +56,7 @@ public class GetFeatureFlagsFunction(
 
         foreach (var flag in flags)
         {
-            var enabled = await functionFeatureToggleHelper.IsFeatureEnabled(flag, functionContext, Principal, new NoSiteRequestInspector());
+            var enabled = await featureToggleHelper.IsFeatureEnabledForFunction(flag, functionContext, Principal, new NoSiteRequestInspector());
             response.FeatureFlags.Add(new KeyValuePair<string, bool>(flag, enabled));
         }
 

@@ -20,7 +20,7 @@ public class GetFeatureFlagPercentageFunction(
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagPercentageFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFunctionFeatureToggleHelper functionFeatureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlagPercentage", tags: ["FeatureFlag"],
@@ -44,7 +44,7 @@ public class GetFeatureFlagPercentageFunction(
     protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger,
         FunctionContext functionContext)
     {
-        var isFeatureEnabled = await functionFeatureToggleHelper.IsFeatureEnabled(Flags.TestFeaturePercentageEnabled, functionContext, Principal, new NoSiteRequestInspector());
+        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabledForFunction(Flags.TestFeaturePercentageEnabled, functionContext, Principal, new NoSiteRequestInspector());
         return ApiResult<bool>.Success(isFeatureEnabled);
     }
 

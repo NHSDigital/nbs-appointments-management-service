@@ -70,8 +70,8 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         }
     }
 
-    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)>
-        ReadRequestAsync(HttpRequest req) => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
+    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(HttpRequest req) 
+        => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {

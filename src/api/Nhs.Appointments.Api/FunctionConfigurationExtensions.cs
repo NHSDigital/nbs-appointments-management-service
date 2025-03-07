@@ -34,7 +34,7 @@ public static class FunctionConfigurationExtensions
     {
         builder.Services.AddRequestInspectors();
         builder.Services.AddCustomAuthentication();
-        builder.Services.AddSingleton<IFunctionFeatureToggleHelper, FunctionFeatureToggleHelper>();
+        builder.Services.AddSingleton<IFeatureToggleHelper, FeatureToggleHelper>();
 
         builder.Services
             .AddSingleton<IOpenApiConfigurationOptions>(_ =>

@@ -20,7 +20,7 @@ public class GetFeatureFlagByUserFunction(
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagByUserFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFunctionFeatureToggleHelper featureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlagByUser", tags: ["FeatureFlag"],
@@ -44,7 +44,7 @@ public class GetFeatureFlagByUserFunction(
     protected override async Task<ApiResult<bool>> HandleRequest(EmptyRequest request, ILogger logger,
         FunctionContext functionContext)
     {
-        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
+        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabledForFunction(
             Flags.TestFeatureUsersEnabled, functionContext, Principal, new NoSiteRequestInspector());
         return ApiResult<bool>.Success(isFeatureEnabled);
     }

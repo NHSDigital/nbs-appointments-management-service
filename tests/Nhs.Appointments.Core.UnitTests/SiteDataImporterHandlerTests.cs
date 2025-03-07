@@ -93,9 +93,7 @@ public class SiteDataImporterHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success ).Should().BeFalse();
-        report.First().Message
-            .Should().Contain($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.")
-            .And.Contain("Text: 'foo'");
+        report.First().Message.Should().Contain("Text: 'foo'");
     }
 
     [Fact]
@@ -148,6 +146,54 @@ public class SiteDataImporterHandlerTests
 
         report.Count().Should().Be(1);
         report.Last().Message.Should().StartWith($"Provided site ODS code: site3 not found in the well known ODS code list.");
+    }
+
+    [Fact]
+    public async Task DataReportsInvalidLongitudeCoordinates_WhenOutOfRange()
+    {
+        const double invalidLongitudeUpper = 2.32;
+        const double invalidLongitudeLower = -9.24;
+
+        var inputRows = new string[]
+        {
+            $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"{invalidLongitudeUpper}\",\"54.12\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",{invalidLongitudeLower},52.43,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        };
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.First().Message.Should().Contain($"Longitude: {invalidLongitudeUpper} is not a valid UK longitude.");
+        report.Last().Message.Should().Contain($"Longitude: {invalidLongitudeLower} is not a valid UK longitude.");
+    }
+
+    [Fact]
+    public async Task DataReportsInvalidLatitudeCoordinates_WhenOutOfRange()
+    {
+        const double invalidLatitudeUpper = 61.75;
+        const double invalidLatitudeLower = 49.12;
+
+        var inputRows = new string[]
+        {
+            $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"0.50\",\"{invalidLatitudeUpper}\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",-1.75,{invalidLatitudeLower},\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        };
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.First().Message.Should().Contain($"Latitude: {invalidLatitudeUpper} is not a valid UK latitude.");
+        report.Last().Message.Should().Contain($"Latitude: {invalidLatitudeLower} is not a valid UK latitude.");
     }
 
     private readonly string[] ValidInputRows =

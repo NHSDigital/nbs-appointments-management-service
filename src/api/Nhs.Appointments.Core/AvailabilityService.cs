@@ -170,8 +170,6 @@ public class AvailabilityService(
         var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
         var slots = await GetSlots(site, day);
 
-        using var leaseContent = siteLeaseManager.Acquire(site);
-
         foreach (var booking in orderedLiveBookings)
         {
             var targetSlot = ChooseHighestPrioritySlot(slots, booking);
@@ -186,6 +184,7 @@ public class AvailabilityService(
                 }
 
                 targetSlot.Capacity--;
+                availabilityState.Bookings.Add(booking);
                 continue;
             }
 
@@ -204,7 +203,6 @@ public class AvailabilityService(
         }
 
         availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
-        availabilityState.Bookings = orderedLiveBookings;
 
         return availabilityState;
     }
@@ -212,6 +210,8 @@ public class AvailabilityService(
     public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
     {
         var availabilityState = await GetAvailabilityState(site, day);
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
 
         foreach (var update in availabilityState.Recalculations)
         {

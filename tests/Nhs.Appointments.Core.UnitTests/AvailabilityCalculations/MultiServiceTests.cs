@@ -68,7 +68,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
 
         // Booking 3 could have been booked if we rejuggled appointments, but currently we do not
-        resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
 
         resultingAvailabilityState.Bookings.Should().HaveCount(2);
         resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");

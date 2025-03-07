@@ -17,7 +17,7 @@ public class BookingDataExtract(
         Console.WriteLine("Loading bookings");
         
         var allBookings = await bookingsStore.RunQueryAsync(
-            b => b.DocumentType == "booking" 
+            b => b.DocumentType == "booking"
                 && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1) 
                 && b.StatusUpdated < timeProvider.GetUtcNow().Date, 
             b => b

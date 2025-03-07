@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import render from '@testing/render';
 import SiteList from '@components/site-list';
 import { Site } from '@types';
@@ -212,12 +212,13 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, 'Beta');
 
-    await new Promise(r => setTimeout(r, 400));
-    const filteredSites = within(screen.getByRole('list')).getAllByRole(
-      'listitem',
-    );
-    expect(filteredSites).toHaveLength(1);
-    expect(filteredSites[0]?.textContent).toBe('Site Beta');
+    await waitFor(() => {
+      const filteredSites = within(screen.getByRole('list')).getAllByRole(
+        'listitem',
+      );
+      expect(filteredSites).toHaveLength(1);
+      expect(filteredSites[0]?.textContent).toBe('Site Beta');
+    });
   });
 
   it('does not filter results when search input is less than 3 characters', async () => {
@@ -293,11 +294,12 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, 'Be');
 
-    await new Promise(r => setTimeout(r, 400));
-    const filteredSites = within(screen.getByRole('list')).getAllByRole(
-      'listitem',
-    );
-    expect(filteredSites).toHaveLength(4);
+    await waitFor(() => {
+      const filteredSites = within(screen.getByRole('list')).getAllByRole(
+        'listitem',
+      );
+      expect(filteredSites).toHaveLength(4);
+    });
   });
 
   it('filters sites on exact match of ODS code', async () => {
@@ -373,12 +375,13 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, '1004');
 
-    await new Promise(r => setTimeout(r, 400));
-    const filteredSites = within(screen.getByRole('list')).getAllByRole(
-      'listitem',
-    );
-    expect(filteredSites).toHaveLength(1);
-    expect(filteredSites[0]?.textContent).toBe('Site Beta');
+    await waitFor(() => {
+      const filteredSites = within(screen.getByRole('list')).getAllByRole(
+        'listitem',
+      );
+      expect(filteredSites).toHaveLength(1);
+      expect(filteredSites[0]?.textContent).toBe('Site Beta');
+    });
   });
 
   it('cannot find site on partial ODS code search', async () => {
@@ -454,10 +457,11 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, '1005');
 
-    await new Promise(r => setTimeout(r, 400));
-    const filteredSites = within(screen.getByRole('list')).queryAllByRole(
-      'listitem',
-    );
-    expect(filteredSites).toHaveLength(0);
+    await waitFor(() => {
+      const filteredSites = within(screen.getByRole('list')).queryAllByRole(
+        'listitem',
+      );
+      expect(filteredSites).toHaveLength(0);
+    });
   });
 });

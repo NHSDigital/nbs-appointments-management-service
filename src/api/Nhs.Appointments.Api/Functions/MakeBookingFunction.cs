@@ -1,21 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class MakeBookingFunction(IBookingsService bookingService, ISiteService siteService, IValidator<MakeBookingRequest> validator, IUserContextProvider userContextProvider, ILogger<MakeBookingFunction> logger, IMetricsRecorder metricsRecorder)
+public class MakeBookingFunction(
+    IBookingsService bookingService,
+    ISiteService siteService,
+    IAvailabilityService availabilityService,
+    IValidator<MakeBookingRequest> validator,
+    IUserContextProvider userContextProvider,
+    ILogger<MakeBookingFunction> logger,
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
@@ -51,7 +59,10 @@ public class MakeBookingFunction(IBookingsService bookingService, ISiteService s
         if(site == null)
             return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
 
-        var bookingResult = await bookingService.MakeBooking(requestedBooking);
+        var bookingResult = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+            ? await availabilityService.MakeBooking(requestedBooking)
+            : await bookingService.MakeBooking(requestedBooking);
+
         if (bookingResult.Success == false)
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");
 
@@ -63,6 +74,6 @@ public class MakeBookingFunction(IBookingsService bookingService, ISiteService s
     {
         BookingKind.Provisional => AppointmentStatus.Provisional,
         BookingKind.Booked => AppointmentStatus.Booked,
-        _ => throw new System.ArgumentOutOfRangeException(nameof(kind))
+        _ => throw new ArgumentOutOfRangeException(nameof(kind))
     };
 }

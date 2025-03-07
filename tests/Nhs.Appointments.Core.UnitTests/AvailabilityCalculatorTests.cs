@@ -7,10 +7,8 @@ public class AvailabilityCalculatorTests
     private readonly Mock<IAvailabilityStore> _availabilityDocumentStore = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
 
-    public AvailabilityCalculatorTests()
-    {
-        _sut = new AvailabilityCalculator(_availabilityDocumentStore.Object, _bookingDocumentStore.Object, _timeProvider.Object);
-    }
+    public AvailabilityCalculatorTests() => _sut = new AvailabilityCalculator(_availabilityDocumentStore.Object,
+        _bookingDocumentStore.Object, _timeProvider.Object);
 
     [Fact]
     public async Task CalculateAvailability_ReturnsEmpty_WhenSessionsAndServiceDoNotMatch()

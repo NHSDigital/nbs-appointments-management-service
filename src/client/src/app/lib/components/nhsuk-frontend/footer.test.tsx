@@ -16,4 +16,10 @@ describe('Footer', () => {
     expect(linkElement).toHaveAttribute('href', '/contact-us');
     expect(linkElement).toHaveAttribute('rel', 'noopener noreferrer');
   });
+
+  it('renders children', () => {
+    render(<Footer>Hello World</Footer>);
+
+    expect(screen.getByText('Hello World')).toBeInTheDocument();
+  });
 });

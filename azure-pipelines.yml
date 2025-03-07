@@ -186,6 +186,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+              BUILD_NUMBER: "$(Build.BuildNumber)"
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Data Extract Integration Tests"
             inputs:
@@ -256,6 +257,7 @@ stages:
             env:
               CI: "true"
               SEED_COSMOS_BEFORE_RUN: "false"
+              BUILD_NUMBER: "$(Build.BuildNumber)"
           - task: PublishTestResults@2
             displayName: "Publish E2E test results"
             condition: succeededOrFailed()
@@ -296,3 +298,4 @@ stages:
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          buildNumber: "$(Build.BuildNumber)"

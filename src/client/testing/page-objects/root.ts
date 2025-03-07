@@ -24,6 +24,7 @@ export default class RootPage {
   readonly acceptButton: Locator;
   readonly cookieBanner: CookieBanner;
   readonly footerLinks: FooterLinks;
+  readonly buildNumber: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -57,6 +58,7 @@ export default class RootPage {
       privacyPolicy: page.getByRole('link', { name: 'Privacy Policy' }),
       cookiesPolicy: page.getByRole('link', { name: 'Cookies Policy' }),
     };
+    this.buildNumber = page.getByText(/^Build number: /);
   }
 
   async goto() {

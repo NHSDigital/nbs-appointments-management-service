@@ -8,24 +8,25 @@ namespace Nhs.Appointments.Api.Features;
 public interface IFeatureToggleHelper
 {
     /// <summary>
-    /// Returns whether the provided featureFlag is enabled in the current configuration
-    /// Checks against the user that requests the function, and against a potential targeted site via the provided SiteRequestInspector
+    /// Check whether the provided featureFlag is enabled for the calling Function.
+    /// Checks if the flag is enabled for the user that invokes the function.
+    /// Ability to check against a potential targeted site for the function, via the provided SiteRequestInspector.
     /// </summary>
-    /// <param name="featureFlag"></param>
-    /// <param name="functionContext"></param>
-    /// <param name="principal"></param>
-    /// <param name="requestInspector"></param>
+    /// <param name="featureFlag">The flag to verify is enabled</param>
+    /// <param name="functionContext">The function invocation context</param>
+    /// <param name="principal">The user context principal for the function invocation</param>
+    /// <param name="requestInspector">The site request inspector to try and extract any relevant siteIds, to be added to targeting context</param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabledForFunction(string featureFlag, FunctionContext functionContext,
         ClaimsPrincipal principal, IRequestInspector requestInspector);
 
     /// <summary>
-    /// Returns whether the provided featureFlag is enabled in the current configuration
-    /// Will check against site and user filters if provided.
+    /// Check whether the provided featureFlag is enabled.
+    /// Will check if the flag is enabled for the site and user parameters, if provided.
     /// </summary>
-    /// <param name="featureFlag"></param>
-    /// <param name="userId"></param>
-    /// <param name="siteId"></param>
+    /// <param name="featureFlag">The flag to verify is enabled</param>
+    /// <param name="userId">The userId, if provided, to add to the feature filter targeting context</param>
+    /// <param name="siteId">The siteId, if provided, to add to the feature filter targeting context</param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabled(string featureFlag, string userId, string siteId);
 }

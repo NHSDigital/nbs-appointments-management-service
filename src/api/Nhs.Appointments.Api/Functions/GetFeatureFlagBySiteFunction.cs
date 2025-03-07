@@ -20,7 +20,7 @@ public class GetFeatureFlagBySiteFunction(
     IUserContextProvider userContextProvider,
     ILogger<GetFeatureFlagBySiteFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFunctionFeatureToggleHelper featureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<SiteBasedResourceRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetFeatureFlagBySite", tags: ["FeatureFlag"],
@@ -44,7 +44,7 @@ public class GetFeatureFlagBySiteFunction(
     protected override async Task<ApiResult<bool>> HandleRequest(SiteBasedResourceRequest request, ILogger logger,
         FunctionContext functionContext)
     {
-        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
+        var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabledForFunction(
             Flags.TestFeatureSitesEnabled, functionContext, Principal, new SiteFromPathInspector());
         return ApiResult<bool>.Success(isFeatureEnabled);
     }

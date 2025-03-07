@@ -12,6 +12,11 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
+        if (report.Any(r => !r.Success))
+        {
+            return report.Where(r => !r.Success);
+        }
+
         var incorrectSiteIds = new List<string>();
         var sites = userImportRows.Select(usr => usr.SiteId).Distinct().ToList();
         foreach (var site in sites)

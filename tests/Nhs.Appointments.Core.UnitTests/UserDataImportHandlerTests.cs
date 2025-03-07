@@ -100,6 +100,7 @@ public class UserDataImportHandlerTests
         [
             "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true",
             "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true",
+            "test1@nhs.net,9a06bacd-e916-4c10-8263-21451ca751b8, true, false, false, true",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);

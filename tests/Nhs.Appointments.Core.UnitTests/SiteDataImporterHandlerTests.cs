@@ -91,7 +91,7 @@ public class SiteDataImporterHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(2);
+        report.Count().Should().Be(1);
         report.All(r => r.Success ).Should().BeFalse();
         report.First().Message.Should().Contain("Text: 'foo'");
     }

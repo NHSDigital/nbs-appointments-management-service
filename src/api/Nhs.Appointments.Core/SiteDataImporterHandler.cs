@@ -11,6 +11,11 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
+        if (report.Any(r => !r.Success))
+        {
+            return report.Where(r => !r.Success);
+        }
+
         var duplicateIds = siteRows.GroupBy(s => s.Id)
             .Where(s => s.Count() > 1)
             .Select(s => s.Key).ToList();

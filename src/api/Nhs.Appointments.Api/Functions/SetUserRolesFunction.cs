@@ -16,7 +16,14 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, IUserDirectory userDirectory, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) 
+public class SetUserRolesFunction(
+    IUserService userService, 
+    IValidator<SetUserRolesRequest> validator, 
+    IUserContextProvider userContextProvider, 
+    IUserDirectory userDirectory, 
+    ILogger<SetUserRolesFunction> logger, 
+    IMetricsRecorder metricsRecorder
+) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"], Summary = "Set role assignments for a user at a site")]

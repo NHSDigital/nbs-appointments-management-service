@@ -510,4 +510,176 @@ public class AvailabilityServiceTests
 
         _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
     }
+
+    public class GetAvailabilityStateTests
+    {
+        private readonly AvailabilityService _sut;
+        private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+        private readonly Mock<IBookingsService> _bookingsService = new();
+        private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+        private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
+        private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
+        private readonly Mock<IBookingEventFactory> _eventFactory = new();
+        private readonly Mock<IMessageBus> _messageBus = new();
+        private readonly Mock<TimeProvider> _time = new();
+
+        private const string MockSite = "some-site";
+
+        public GetAvailabilityStateTests() => _sut = new AvailabilityService(_availabilityStore.Object,
+            _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
+            _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
+            _time.Object);
+
+        private DateTime TestDateAt(string time)
+        {
+            var hour = int.Parse(time.Split(":")[0]);
+            var minute = int.Parse(time.Split(":")[1]);
+            return new DateTime(2025, 01, 01, hour, minute, 0);
+        }
+
+        private Booking TestBooking(string reference, string service, string from = "09:00",
+            int duration = 10, string avStatus = "Orphaned", string status = "Booked",
+            int creationOrder = 1) =>
+            new()
+            {
+                Reference = reference,
+                Service = service,
+                From = TestDateAt(from),
+                Duration = duration,
+                AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = Enum.Parse<AppointmentStatus>(status),
+                Created = new DateTime(2024, 11, 15, 9, 45, creationOrder)
+            };
+
+        private SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
+            int capacity = 1) =>
+            new(TestDateAt(start), TestDateAt(end))
+            {
+                Services = services, SlotLength = slotLength, Capacity = capacity
+            };
+
+        private void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
+        {
+            _bookingsService
+                .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                .ReturnsAsync(bookings);
+
+            _availabilityStore
+                .Setup(x => x.GetSessions(
+                    It.Is<string>(s => s == MockSite),
+                    It.IsAny<DateOnly>(),
+                    It.IsAny<DateOnly>()))
+                .ReturnsAsync(sessions);
+        }
+
+        [Fact]
+        public async Task MakesNoChangesIfAllAppointmentsAreStillValid()
+        {
+            var bookings = new List<Booking>
+            {
+                TestBooking("1", "Green", "09:10", avStatus: "Supported"),
+                TestBooking("2", "Green", "09:20", avStatus: "Supported"),
+                TestBooking("3", "Green", "09:30", avStatus: "Supported")
+            };
+
+            var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+
+            SetupAvailabilityAndBookings(bookings, sessions);
+
+            var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+
+            resultingAvailabilityState.Recalculations.Should().BeEmpty();
+            resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
+            resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        }
+
+        [Fact]
+        public async Task SchedulesOrphanedAppointmentsIfPossible()
+        {
+            var bookings = new List<Booking>
+            {
+                TestBooking("1", "Green", "09:10"),
+                TestBooking("2", "Green", "09:20"),
+                TestBooking("3", "Green", "09:30")
+            };
+
+            var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+
+            SetupAvailabilityAndBookings(bookings, sessions);
+
+            var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+
+            resultingAvailabilityState.Recalculations.Should().HaveCount(3);
+            resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
+            resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        }
+
+        [Fact]
+        public async Task OrphansLiveAppointmentsIfTheyCannotBeFulfilled()
+        {
+            var bookings = new List<Booking>
+            {
+                TestBooking("1", "Green", "09:10", avStatus: "Supported", creationOrder: 1),
+                TestBooking("2", "Green", "09:10", avStatus: "Supported", creationOrder: 2)
+            };
+
+            var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+
+            SetupAvailabilityAndBookings(bookings, sessions);
+
+            var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+
+            resultingAvailabilityState.Recalculations.Should().ContainSingle(s =>
+                s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
+            resultingAvailabilityState.Bookings.Should().HaveCount(1);
+            resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        }
+
+        [Fact]
+        public async Task DeletesProvisionalAppointments()
+        {
+            var bookings = new List<Booking>
+            {
+                TestBooking("1", "Green", avStatus: "Supported", status: "Booked", creationOrder: 1),
+                TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2)
+            };
+
+            var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
+
+            SetupAvailabilityAndBookings(bookings, sessions);
+
+            var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+
+            resultingAvailabilityState.Recalculations.Should().Contain(s =>
+                s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
+            resultingAvailabilityState.Recalculations.Should().Contain(s =>
+                s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
+            resultingAvailabilityState.Bookings.Should().BeEmpty();
+            resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
+        }
+
+        [Fact]
+        public async Task PrioritisesAppointmentsByCreatedDate()
+        {
+            var bookings = new List<Booking>
+            {
+                TestBooking("1", "Green", "09:30", creationOrder: 3),
+                TestBooking("2", "Green", "09:30", creationOrder: 1),
+                TestBooking("3", "Green", "09:30", creationOrder: 2)
+            };
+
+            var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+
+            SetupAvailabilityAndBookings(bookings, sessions);
+
+            var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+
+            resultingAvailabilityState.Bookings.Should().ContainSingle(b => b.Reference == "2");
+            resultingAvailabilityState.Recalculations.Should().ContainSingle(r =>
+                r.Booking.Reference == "2" && r.Action == AvailabilityUpdateAction.SetToSupported);
+            resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        }
+    }
 }

@@ -14,7 +14,7 @@ public class FeatureToggleHelperTests
 {
     private readonly Mock<IFeatureManager> _featureManager = new();
     private readonly Mock<FunctionContext> _functionContext = new();
-    
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -22,14 +22,16 @@ public class FeatureToggleHelperTests
     {
         var testUser = "testUser";
         var testFlag = "testFlag";
-        
-        _featureManager.Setup(x => x.IsEnabledAsync(testFlag, It.Is<TargetingContext>(y => y.Groups == null && y.UserId == testUser))).ReturnsAsync(isEnabled);
-        
+
+        _featureManager
+            .Setup(x => x.IsEnabledAsync(testFlag,
+                It.Is<TargetingContext>(y => y.Groups == null && y.UserId == testUser))).ReturnsAsync(isEnabled);
+
         var sut = new FeatureToggleHelper(_featureManager.Object);
-        var result = await sut.IsFeatureEnabled(testFlag, testUser, "");
+        var result = await sut.IsFeatureEnabled(testFlag, testUser, null);
         result.Should().Be(isEnabled);
     }
-    
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -38,15 +40,18 @@ public class FeatureToggleHelperTests
         var testSite = "testSite";
         var testFlag = "testFlag";
 
-        var array = new List<string>{ $"Site:{testSite}" };
-        
-        _featureManager.Setup(x => x.IsEnabledAsync(testFlag, It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == null))).ReturnsAsync(isEnabled);
-        
+        var array = new List<string> { $"Site:{testSite}" };
+
+        _featureManager
+            .Setup(x => x.IsEnabledAsync(testFlag,
+                It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == null)))
+            .ReturnsAsync(isEnabled);
+
         var sut = new FeatureToggleHelper(_featureManager.Object);
-        var result = await sut.IsFeatureEnabled(testFlag, "", testSite);
+        var result = await sut.IsFeatureEnabled(testFlag, "", [testSite]);
         result.Should().Be(isEnabled);
     }
-    
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -55,27 +60,32 @@ public class FeatureToggleHelperTests
         var testUser = "testUser";
         var testSite = "testSite";
         var testFlag = "testFlag";
-        
+
         var testHttpRequestData = new TestHttpRequestData(_functionContext.Object);
         testHttpRequestData.Query.Add("site", testSite);
 
-        var array = new List<string>{ $"Site:{testSite}" };
+        var array = new List<string> { $"Site:{testSite}" };
 
         var principal = UserDataGenerator.CreateUserPrincipal(testUser);
-        
+
         var mockHttpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
-        mockHttpRequestDataFeature.Setup(x => x.GetHttpRequestDataAsync(It.IsAny<FunctionContext>())).ReturnsAsync(testHttpRequestData);
+        mockHttpRequestDataFeature.Setup(x => x.GetHttpRequestDataAsync(It.IsAny<FunctionContext>()))
+            .ReturnsAsync(testHttpRequestData);
         var mockFeatures = new Mock<IInvocationFeatures>();
         mockFeatures.Setup(x => x.Get<IHttpRequestDataFeature>()).Returns(mockHttpRequestDataFeature.Object);
-        
+
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
-        _featureManager.Setup(x => x.IsEnabledAsync(testFlag, It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == testUser))).ReturnsAsync(isEnabled);
-        
+        _featureManager
+            .Setup(x => x.IsEnabledAsync(testFlag,
+                It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == testUser)))
+            .ReturnsAsync(isEnabled);
+
         var sut = new FeatureToggleHelper(_featureManager.Object);
-        var result = await sut.IsFeatureEnabledForFunction(testFlag, _functionContext.Object, principal, new SiteFromQueryStringInspector());
+        var result = await sut.IsFeatureEnabledForFunction(testFlag, _functionContext.Object, principal,
+            new SiteFromQueryStringInspector());
         result.Should().Be(isEnabled);
     }
-    
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -83,24 +93,29 @@ public class FeatureToggleHelperTests
     {
         var testUser = "testUser";
         var testFlag = "testFlag";
-        
+
         var testHttpRequestData = new TestHttpRequestData(_functionContext.Object);
         testHttpRequestData.SetBody("{\"sites\": [\"1234\", \"5678\"]}");
 
-        var array = new List<string>{ "Site:1234", "Site:5678" };
+        var array = new List<string> { "Site:1234", "Site:5678" };
 
         var principal = UserDataGenerator.CreateUserPrincipal(testUser);
-        
+
         var mockHttpRequestDataFeature = new Mock<IHttpRequestDataFeature>();
-        mockHttpRequestDataFeature.Setup(x => x.GetHttpRequestDataAsync(It.IsAny<FunctionContext>())).ReturnsAsync(testHttpRequestData);
+        mockHttpRequestDataFeature.Setup(x => x.GetHttpRequestDataAsync(It.IsAny<FunctionContext>()))
+            .ReturnsAsync(testHttpRequestData);
         var mockFeatures = new Mock<IInvocationFeatures>();
         mockFeatures.Setup(x => x.Get<IHttpRequestDataFeature>()).Returns(mockHttpRequestDataFeature.Object);
-        
+
         _functionContext.Setup(x => x.Features).Returns(mockFeatures.Object);
-        _featureManager.Setup(x => x.IsEnabledAsync(testFlag, It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == testUser))).ReturnsAsync(isEnabled);
-        
+        _featureManager
+            .Setup(x => x.IsEnabledAsync(testFlag,
+                It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == testUser)))
+            .ReturnsAsync(isEnabled);
+
         var sut = new FeatureToggleHelper(_featureManager.Object);
-        var result = await sut.IsFeatureEnabledForFunction(testFlag, _functionContext.Object, principal, new MultiSiteBodyRequestInspector());
+        var result = await sut.IsFeatureEnabledForFunction(testFlag, _functionContext.Object, principal,
+            new MultiSiteBodyRequestInspector());
         result.Should().Be(isEnabled);
     }
 }

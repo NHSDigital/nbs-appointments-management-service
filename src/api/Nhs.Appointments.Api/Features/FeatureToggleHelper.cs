@@ -16,24 +16,22 @@ public class FeatureToggleHelper(IFeatureManager featureManager) : IFeatureToggl
     public async Task<bool> IsFeatureEnabledForFunction(string featureFlag, FunctionContext functionContext,
         ClaimsPrincipal principal, IRequestInspector requestInspector)
     {
-        var siteIds = (await requestInspector.GetSiteIds(await functionContext.GetHttpRequestDataAsync())).ToList();
-        var targetingContext = new TargetingContext
-        {
-            UserId = principal.Claims.GetUserEmail(), Groups = siteIds.Select(x => $"Site:{x}")
-        };
-        return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
+        var siteIds = (await requestInspector.GetSiteIds(await functionContext.GetHttpRequestDataAsync())).ToArray();
+        return await IsFeatureEnabled(featureFlag, principal.Claims.GetUserEmail(), siteIds);
     }
-    
-    public async Task<bool> IsFeatureEnabled(string featureFlag, string userId, string siteId)
+
+    public async Task<bool> IsFeatureEnabled(string featureFlag, string userId, string[] sites)
     {
         var targetingUser = userId.IsNullOrWhiteSpace() ? null : userId;
-        var targetingSite = siteId.IsNullOrWhiteSpace() ? null : new List<string>{ $"Site:{siteId}" };
-        
-        var targetingContext = new TargetingContext
+        IEnumerable<string> targetingSites = null;
+
+        if (sites != null && sites.Length != 0)
         {
-            UserId = targetingUser, Groups = targetingSite
-        };
-        
+            targetingSites = sites.Select(x => $"Site:{x}");
+        }
+
+        var targetingContext = new TargetingContext { UserId = targetingUser, Groups = targetingSites };
+
         return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
     }
 }

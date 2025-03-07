@@ -52,10 +52,17 @@ public class GetFeatureFlagFunction(
             ? Principal.Claims.GetUserEmail()
             : enabledRequest.UserOverrideId;
 
+        string[] siteIds = null;
+
+        if (!enabledRequest.SiteId.IsNullOrWhiteSpace())
+        {
+            siteIds = [enabledRequest.SiteId];
+        }
+
         var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
             enabledRequest.Flag,
             userId,
-            enabledRequest.SiteId);
+            siteIds);
 
         return ApiResult<bool>.Success(isFeatureEnabled);
     }

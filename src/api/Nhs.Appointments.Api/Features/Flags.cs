@@ -13,5 +13,7 @@ public static class Flags
     public const string TestFeatureUsersEnabled = "TestFeatureUsersEnabled";
     //a flag configured to be enabled for a specific collection of sites
     public const string TestFeatureSitesEnabled = "TestFeatureSitesEnabled";
+    //a flag configured to be enabled for a specific collection of sites OR users. this demonstrates that targeting is LOGICAL OR
+    public const string TestFeatureSiteOrUserEnabled = "TestFeatureSiteOrUserEnabled";
     #endregion
 }

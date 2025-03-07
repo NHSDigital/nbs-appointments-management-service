@@ -25,7 +25,7 @@ public class GetFeatureFlagFunction(
 {
     [OpenApiOperation(operationId: "GetFeatureFlag", tags: ["FeatureFlag"],
         Summary =
-            "Get the enabled state for the requested flag, by the siteId query parameter (if provided) and an optional userId override")]
+            "Get the enabled state for the requested flag, by the siteId query parameter (if provided) and an optional userId override (if provided)")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(bool),
         Description = "The enabled state for the requested flag")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
@@ -47,7 +47,7 @@ public class GetFeatureFlagFunction(
         ILogger logger,
         FunctionContext functionContext)
     {
-        //fallback to API user if not provided
+        //fallback to the API user if not provided
         var userId = enabledRequest.UserOverrideId.IsNullOrWhiteSpace()
             ? Principal.Claims.GetUserEmail()
             : enabledRequest.UserOverrideId;

@@ -29,8 +29,7 @@
           "Parameters": {
             "Audience": {
               "Users": [
-                "api@local",
-                "user2@example.com"
+                "api@test"
               ]
             }
           }
@@ -45,7 +44,34 @@
             "Audience": {
               "Groups": [
                 {
-                  "Name": "Site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb",
+                  "Name": "Site:24c36a82-489e-4fc1-877a-6e8cae0deaae",
+                  "RolloutPercentage": 100
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "TestFeatureSiteOrUserEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.Targeting",
+          "Parameters": {
+            "Audience": {
+              "Users": [
+                "api@test"
+              ]
+            }
+          }
+        },
+        {
+          "Name": "Microsoft.Targeting",
+          "Parameters": {
+            "Audience": {
+              "Groups": [
+                {
+                  "Name": "Site:5bb9177c-1555-42a5-91cd-a2c3c8efa0ff",
                   "RolloutPercentage": 100
                 }
               ]

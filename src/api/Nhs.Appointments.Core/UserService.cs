@@ -29,7 +29,7 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
             return new UpdateUserRoleAssignmentsResult(false, "", invalidRoles.Select(ra => ra.Role));
         }
 
-        var oldRoles = await userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
+        var oldRoles = await userStore.UpdateUserRoleAssignments(userId.ToLower(), scope, roleAssignments);
         IEnumerable<RoleAssignment> rolesRemoved = [];
         IEnumerable<RoleAssignment> rolesAdded;
 

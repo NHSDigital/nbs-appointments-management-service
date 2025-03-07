@@ -123,5 +123,26 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Verify();
         }
+
+        [Theory]
+        [InlineData("TEST.USER1@NHS.NET")]
+        [InlineData("TeSt.uSeR2@nhs.NET")]
+        [InlineData("test.User3@nHs.NeT")]
+        public async Task ConvertsUserIdToLowerCaseWhenCallingStore(string userId)
+        {
+            const string scope = "site:some-site";
+            RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1" }];
+            IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
+
+            _userStore.Setup(x => x.UpdateUserRoleAssignments(It.IsAny<string>(), scope, It.IsAny<IEnumerable<RoleAssignment>>()))
+                .ReturnsAsync([new RoleAssignment { Role = "someoldrole" }]);
+            _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
+
+            _ = await _sut.UpdateUserRoleAssignmentsAsync(userId, scope, newRoles);
+
+            var expectedUserId = userId.ToLower();
+
+            _userStore.Verify(x => x.UpdateUserRoleAssignments(expectedUserId, scope, It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        }
     }
 }

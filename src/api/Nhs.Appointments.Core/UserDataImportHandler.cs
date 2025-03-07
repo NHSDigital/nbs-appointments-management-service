@@ -12,11 +12,6 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        if (report.Any(r => !r.Success))
-        {
-            return report.Where(r => !r.Success);
-        }
-
         var incorrectSiteIds = new List<string>();
         var sites = userImportRows.Select(usr => usr.SiteId).Distinct().ToList();
         foreach (var site in sites)
@@ -29,9 +24,12 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
 
         if (incorrectSiteIds.Count > 0)
         {
-            report.Clear();
             report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
-            return report;
+        }
+
+        if (report.Any(r => !r.Success))
+        {
+            return report.Where(r => !r.Success);
         }
 
         foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => new { usr.UserId, usr.SiteId }).SelectMany(usr => usr))

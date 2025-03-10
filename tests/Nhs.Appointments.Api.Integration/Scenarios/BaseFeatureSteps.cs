@@ -10,6 +10,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
@@ -283,6 +284,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Service = row.Cells.ElementAt(3).Value,
             Site = GetSiteId(siteDesignation),
             Status = MapStatus(bookingType),
+            AvailabilityStatus = MapAvailabilityStatus(bookingType),
             Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
                 ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
                 : GetCreationDateTime(bookingType),                        
@@ -380,6 +382,28 @@ public abstract partial class BaseFeatureSteps : Feature
                 .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
         exception.Message.Should().Contain("404");
     }
+    
+    [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
+    [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
+    public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)
+    {
+        var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
+
+        await AssertAvailabilityStatusByReference(bookingReference, expectedStatus, false);
+    }
+
+    private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
+        bool expectStatusToHaveChanged = true)
+    {
+        var siteId = GetSiteId();
+        var bookingDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        bookingDocument.Resource.AvailabilityStatus.Should().Be(status);
+        if (expectStatusToHaveChanged)
+        {
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        }
+    }
 
     private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,
         bool expectStatusToHaveChanged = true)
@@ -403,7 +427,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),
         BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
         BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
-        BookingType.ExpiredProvisional => DateTime.UtcNow.AddMinutes(-8),
+        BookingType.ExpiredProvisional => DateTime.UtcNow.AddHours(-25),
         BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
         BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
@@ -441,9 +465,20 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Confirmed => AppointmentStatus.Booked,
         BookingType.Provisional => AppointmentStatus.Provisional,
         BookingType.ExpiredProvisional => AppointmentStatus.Provisional,
-        BookingType.Orphaned => AppointmentStatus.Orphaned,
+        BookingType.Orphaned => AppointmentStatus.Booked,
         BookingType.Cancelled => AppointmentStatus.Cancelled,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType)),
+    };
+
+    protected AvailabilityStatus MapAvailabilityStatus(BookingType bookingType) => bookingType switch
+    {
+        BookingType.Recent => AvailabilityStatus.Supported,
+        BookingType.Confirmed => AvailabilityStatus.Supported,
+        BookingType.Provisional => AvailabilityStatus.Supported,
+        BookingType.ExpiredProvisional => AvailabilityStatus.Supported,
+        BookingType.Orphaned => AvailabilityStatus.Orphaned,
+        BookingType.Cancelled => AvailabilityStatus.Unknown,
+        _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
 
     protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>
@@ -466,19 +501,21 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "Role for integration test user.",
                     Permissions =
                     [
-                        "site:get-meta-data",
-                        "availability:query",
-                        "booking:make",
-                        "booking:query",
-                        "booking:cancel",
-                        "users:manage",
-                        "users:view",
-                        "sites:query",
-                        "site:view",
-                        "site:manage",
-                        "availability:setup",
-                        "system:run-provisional-sweep",
-                        "system:run-reminders"
+                        Permissions.MakeBooking,
+                        Permissions.QueryBooking,
+                        Permissions.CancelBooking,
+                        Permissions.ManageUsers,
+                        Permissions.ViewUsers,
+                        Permissions.QuerySites,
+                        Permissions.ViewSiteMetadata,
+                        Permissions.ViewSite,
+                        Permissions.ViewSitePreview,
+                        Permissions.ManageSite,
+                        Permissions.ManageSiteAdmin,
+                        Permissions.QueryAvailability,
+                        Permissions.SetupAvailability,
+                        Permissions.SystemRunProvisionalSweeper,
+                        Permissions.SystemRunReminders
                     ]
                 },
                 new Role
@@ -488,17 +525,16 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "A user can create, view, and manage site availability.",
                     Permissions =
                     [
-                        "availability:setup", "availability:query", "booking:query", "site:view",
-                        "site:get-meta-data"
+                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
                     ]
                 },
                 new Role
                 {
                     Id = "canned:appointment-manager",
                     Name = "Appointment manager",
-                    Description = "A user can cancel appointments.",
+                    Description = "A user can view and cancel appointments.",
                     Permissions =
-                        ["availability:query", "booking:cancel", "booking:query", "site:view", "site:get-meta-data"]
+                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata]
                 },
                 new Role
                 {
@@ -506,7 +542,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Site details manager",
                     Description = "A user can edit site details and accessibility information.",
                     Permissions =
-                        ["availability:query", "booking:query", "site:view", "site:manage", "site:get-meta-data"]
+                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata]
                 },
             ]
         };

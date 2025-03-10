@@ -1,13 +1,13 @@
 import { forwardRef, HTMLProps } from 'react';
 
-type Option = {
+export type SelectOption = {
   value: string;
   label: string;
 };
 
 type Props = {
   label: string;
-  options?: Option[];
+  options?: SelectOption[];
 } & HTMLProps<HTMLSelectElement>;
 type Ref = HTMLSelectElement;
 

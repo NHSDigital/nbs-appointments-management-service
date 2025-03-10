@@ -22,6 +22,7 @@ provider "azurerm" {
 
 module "mya_application_stag" {
   environment                                    = "stag"
+  build_number                                   = var.BUILD_NUMBER
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
   nhs_mail_authorize_uri                         = var.NHS_MAIL_AUTHORIZE_URI
@@ -63,6 +64,7 @@ module "mya_application_stag" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
+  cosmos_synapse_enabled                         = false
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

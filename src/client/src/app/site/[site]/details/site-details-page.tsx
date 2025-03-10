@@ -1,6 +1,6 @@
 import { Card, SummaryList } from '@components/nhsuk-frontend';
 import {
-  fetchAttributeDefinitions,
+  fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import {
@@ -21,17 +21,10 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const [attributeDefinitions, site] = await Promise.all([
-    fetchAttributeDefinitions(),
+  const [accessibilityDefinitions, site] = await Promise.all([
+    fetchAccessibilityDefinitions(),
     fetchSite(siteId),
   ]);
-
-  const accessibilityAttributeDefinitions = attributeDefinitions.filter(ad =>
-    ad.id.startsWith('accessibility'),
-  );
-  const informationForCitizenAttribute = site.attributeValues.find(
-    sa => sa.id === 'site_details/info_for_citizen',
-  );
 
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(
     site,
@@ -45,6 +38,14 @@ const SiteDetailsPage = async ({
         {siteReferenceSummaryData && (
           <SummaryList {...siteReferenceSummaryData}></SummaryList>
         )}
+        {permissions.includes('site:manage:admin') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-reference-details`}
+            className="nhsuk-link"
+          >
+            Edit site reference details
+          </Link>
+        ) : null}
       </Card>
       <Card title="Site details">
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
@@ -60,11 +61,11 @@ const SiteDetailsPage = async ({
       <Card title="Access needs">
         <SummaryList
           borders={true}
-          items={accessibilityAttributeDefinitions.map(definition => {
+          items={accessibilityDefinitions.map(definition => {
             return {
               title: definition.displayName,
               value:
-                site?.attributeValues.find(value => value.id === definition.id)
+                site?.accessibilities.find(value => value.id === definition.id)
                   ?.value === 'true'
                   ? 'Yes'
                   : 'No',
@@ -73,7 +74,7 @@ const SiteDetailsPage = async ({
         />
         {permissions.includes('site:manage') ? (
           <Link
-            href={`/site/${site.id}/details/edit-attributes`}
+            href={`/site/${site.id}/details/edit-accessibilities`}
             className="nhsuk-link"
           >
             Edit access needs
@@ -81,8 +82,8 @@ const SiteDetailsPage = async ({
         ) : null}
       </Card>
       <Card title="Information for citizens">
-        {informationForCitizenAttribute ? (
-          <p>{informationForCitizenAttribute.value}</p>
+        {site.informationForCitizens ? (
+          <p>{site.informationForCitizens}</p>
         ) : (
           <p>Information for people visiting the site</p>
         )}

@@ -2,11 +2,10 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import {
-  AttributeDefinition,
+  AccessibilityDefinition,
   Role,
-  SetAttributesRequest,
+  SetAccessibilitiesRequest,
   ApplyAvailabilityTemplateRequest,
-  SiteWithAttributes,
   User,
   UserProfile,
   SetAvailabilityRequest,
@@ -22,7 +21,9 @@ import {
   CancelSessionRequest,
   SessionSummary,
   SetSiteDetailsRequest,
+  SetInformationForCitizensRequest,
   Site,
+  SetSiteReferenceDetailsRequest,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -83,26 +84,21 @@ export async function fetchUsers(site: string) {
 }
 
 export const fetchSite = async (siteId: string) => {
-  const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}?scope=*`,
-    {
-      next: { tags: ['site'] },
-    },
-  );
+  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`, {
+    next: { tags: ['site'] },
+  });
   return handleBodyResponse(response);
 };
 
-export const fetchSiteAttributeValues = async (siteId: string) => {
-  const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${siteId}?scope=*`,
-  );
+export const fetchSiteAccessibilities = async (siteId: string) => {
+  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
 
-  return handleBodyResponse(response)?.attributeValues ?? [];
+  return handleBodyResponse(response)?.accessibilities ?? [];
 };
 
-export async function fetchAttributeDefinitions() {
-  const response = await appointmentsApi.get<AttributeDefinition[]>(
-    'attributeDefinitions',
+export async function fetchAccessibilityDefinitions() {
+  const response = await appointmentsApi.get<AccessibilityDefinition[]>(
+    'accessibilityDefinitions',
     {
       cache: 'force-cache',
     },
@@ -248,11 +244,15 @@ function handleEmptyResponse(response: ApiResponse<unknown>): void {
 export const saveUserRoleAssignments = async (
   site: string,
   user: string,
+  firstName: string,
+  lastName: string,
   roles: string[],
 ) => {
   const payload = {
     scope: `site:${site}`,
     user: user,
+    firstName,
+    lastName,
     roles: roles,
   };
 
@@ -266,13 +266,13 @@ export const saveUserRoleAssignments = async (
   redirect(`/site/${site}/users`);
 };
 
-export const saveSiteAttributeValues = async (
+export const saveSiteAccessibilities = async (
   site: string,
-  attributeValues: SetAttributesRequest,
+  accessibilities: SetAccessibilitiesRequest,
 ) => {
   const response = await appointmentsApi.post(
-    `sites/${site}/attributes`,
-    JSON.stringify(attributeValues),
+    `sites/${site}/accessibilities`,
+    JSON.stringify(accessibilities),
   );
 
   handleEmptyResponse(response);
@@ -282,7 +282,7 @@ export const saveSiteAttributeValues = async (
     'You have successfully updated the access needs for the current site.';
   raiseNotification(notificationType, notificationMessage);
 
-  revalidatePath(`/site/${site}/attributes`);
+  revalidatePath(`/site/${site}/accessibilities`);
 };
 
 export const removeUserFromSite = async (site: string, user: string) => {
@@ -342,21 +342,19 @@ export const saveAvailability = async (request: SetAvailabilityRequest) => {
   revalidateTag(`fetchAvailability`);
 };
 
-export async function fetchInformationForCitizens(site: string, scope: string) {
-  const response = await appointmentsApi.get<SiteWithAttributes>(
-    `sites/${site}?scope=${scope}`,
-  );
+export async function fetchInformationForCitizens(site: string) {
+  const response = await appointmentsApi.get<Site>(`sites/${site}`);
 
-  return handleBodyResponse(response)?.attributeValues ?? [];
+  return handleBodyResponse(response)?.informationForCitizens ?? '';
 }
 
 export const setSiteInformationForCitizen = async (
   site: string,
-  attributeValues: SetAttributesRequest,
+  informationForCitizens: SetInformationForCitizensRequest,
 ) => {
   const response = await appointmentsApi.post(
-    `sites/${site}/attributes`,
-    JSON.stringify(attributeValues),
+    `sites/${site}/informationForCitizens`,
+    JSON.stringify(informationForCitizens),
   );
 
   const notificationType = 'ams-notification';
@@ -432,8 +430,22 @@ export const saveSiteDetails = async (
   const notificationMessage =
     'You have successfully updated the details for the current site.';
   raiseNotification(notificationType, notificationMessage);
+};
 
-  revalidateTag(`fetchAvailability`);
+export const saveSiteReferenceDetails = async (
+  site: string,
+  referenceDetails: SetSiteReferenceDetailsRequest,
+) => {
+  const response = await appointmentsApi.post(
+    `sites/${site}/reference-details`,
+    JSON.stringify(referenceDetails),
+  );
+  handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    'You have successfully updated the reference details for the current site.';
+  raiseNotification(notificationType, notificationMessage);
 };
 
 export const editSession = async (request: EditSessionRequest) => {

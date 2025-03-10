@@ -1,14 +1,14 @@
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -24,7 +24,7 @@ public class SetBookingStatusFunction(IBookingsService bookingService, IValidato
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>), Description = "Booking not found")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("booking:set-status", typeof(SiteFromBodyInspector))]
+    [RequiresPermission(Permissions.SetBookingStatus, typeof(SiteFromBodyInspector))]
     [Function("SetBookingStatusFunction")]
     public override Task<IActionResult> RunAsync(
        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/set-status")] HttpRequest req)
@@ -34,9 +34,16 @@ public class SetBookingStatusFunction(IBookingsService bookingService, IValidato
 
     protected override async Task<ApiResult<SetBookingStatusResponse>> HandleRequest(SetBookingStatusRequest request, ILogger logger)
     {
-        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status);
-        return result ?
-            Success(new SetBookingStatusResponse(request.bookingReference, request.status)):
-            Failed(System.Net.HttpStatusCode.NotFound, $"Booking {request.bookingReference} not found");
+        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status,
+            DeriveAvailabilityStatusFromAppointmentStatus(request.status));
+        return result ? Success(new SetBookingStatusResponse(request.bookingReference, request.status))
+            : Failed(
+                HttpStatusCode.NotFound, $"Booking {request.bookingReference} not found");
     }
+
+    private static AvailabilityStatus
+        DeriveAvailabilityStatusFromAppointmentStatus(AppointmentStatus appointmentStatus) =>
+        appointmentStatus is AppointmentStatus.Cancelled or AppointmentStatus.Unknown
+            ? AvailabilityStatus.Unknown
+            : AvailabilityStatus.Supported;
 }

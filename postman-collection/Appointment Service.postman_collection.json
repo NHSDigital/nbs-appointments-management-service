@@ -28,8 +28,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/availability/apply-template",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability", "apply-template"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "availability", "apply-template" ]
         }
       },
       "response": []
@@ -56,8 +56,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/availability",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "availability" ]
         }
       },
       "response": []
@@ -87,8 +87,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/availability/query",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability", "query"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "availability", "query" ]
         }
       },
       "response": []
@@ -118,8 +118,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/availability/query",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability", "query"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "availability", "query" ]
         }
       },
       "response": []
@@ -149,8 +149,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/availability/query",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability", "query"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "availability", "query" ]
         }
       },
       "response": []
@@ -174,7 +174,7 @@
         {
           "listen": "prerequest",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -203,8 +203,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking" ]
         }
       },
       "response": []
@@ -228,7 +228,7 @@
         {
           "listen": "prerequest",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -257,8 +257,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking" ]
         }
       },
       "response": []
@@ -269,7 +269,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -277,7 +277,7 @@
         {
           "listen": "prerequest",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -306,8 +306,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking/{{bookingReference}}/confirm",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "{{bookingReference}}", "confirm"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "{{bookingReference}}", "confirm" ]
         }
       },
       "response": []
@@ -318,7 +318,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -326,7 +326,7 @@
         {
           "listen": "prerequest",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -355,8 +355,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking/{{bookingReference}}/confirm",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "{{bookingReference}}", "confirm"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "{{bookingReference}}", "confirm" ]
         }
       },
       "response": []
@@ -367,7 +367,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [""],
+            "exec": [ "" ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -396,8 +396,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking/query",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "query"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "query" ]
         }
       },
       "response": []
@@ -427,8 +427,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking/{{bookingReference}}/cancel",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "{{bookingReference}}", "cancel"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "{{bookingReference}}", "cancel" ]
         }
       },
       "response": []
@@ -458,14 +458,14 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/booking/set-status",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "set-status"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "set-status" ]
         }
       },
       "response": []
     },
     {
-      "name": "sites/{site}/attributes",
+      "name": "sites/{site}/accessibilities",
       "request": {
         "auth": {
           "type": "noauth"
@@ -480,7 +480,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"scope\": \"*\",\r\n    \"attributeValues\": [\r\n        {\r\n            \"id\": \"accessibility/accessible_toilet\",\r\n            \"value\": \"false\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/braille_translation_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/disabled_car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/induction_loop\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/sign_language_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/step_free_access\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/text_relay\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/wheelchair_access\",\r\n            \"value\": \"false\"\r\n        }\r\n    ]\r\n}",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n     \"accessibilities\": [\r\n        {\r\n            \"id\": \"accessibility/accessible_toilet\",\r\n            \"value\": \"false\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/braille_translation_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/disabled_car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/car_parking_on_site\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/induction_loop\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/sign_language_service\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/step_free_access\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/text_relay\",\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"id\": \"accessibility/wheelchair_access\",\r\n            \"value\": \"false\"\r\n        }\r\n    ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -488,9 +488,40 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/api/sites/{{site}}/attributes",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites", "{{site}}", "attributes"]
+          "raw": "{{baseUrl}}/api/sites/{{site}}/accessibilities",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "sites", "{{site}}", "accessibilities" ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sites/{site}/informationForCitizens",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n  \"informationForCitizens\": \"Information for citizen\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/sites/{{site}}/informationForCitizens",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "sites", "{{site}}", "informationForCitizens" ]
         }
       },
       "response": []
@@ -520,8 +551,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/user/roles",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user", "roles"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "user", "roles" ]
         }
       },
       "response": []
@@ -551,8 +582,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/user/remove",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user", "remove"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "user", "remove" ]
         }
       },
       "response": []
@@ -582,8 +613,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/system/run-reminders",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "system", "run-reminders"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "system", "run-reminders" ]
         }
       },
       "response": []
@@ -604,14 +635,14 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/system/run-provisional-sweep",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "system", "run-provisional-sweep"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "system", "run-provisional-sweep" ]
         }
       },
       "response": []
     },
     {
-      "name": "attributeDefinitions",
+      "name": "accessibilityDefinitions",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -637,9 +668,9 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/api/attributeDefinitions",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "attributeDefinitions"]
+          "raw": "{{baseUrl}}/api/accessibilityDefinitions",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "accessibilityDefinitions" ]
         }
       },
       "response": []
@@ -660,8 +691,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/booking/{{bookingReference}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking", "{{bookingReference}}"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking", "{{bookingReference}}" ]
         }
       },
       "response": []
@@ -682,8 +713,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/booking?nhsNumber={{nhsNumber}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "booking"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "booking" ],
           "query": [
             {
               "key": "nhsNumber",
@@ -722,8 +753,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/sites/{{site}}/meta",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites", "{{site}}", "meta"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "sites", "{{site}}", "meta" ]
         }
       },
       "response": []
@@ -756,8 +787,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/sites/{{site}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites", "{{site}}"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "sites", "{{site}}" ]
         }
       },
       "response": []
@@ -790,8 +821,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/sites?long=-1.663038&lat=53.796638&searchRadius=100000&maxRecords=50",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "sites" ],
           "query": [
             {
               "key": "long",
@@ -848,8 +879,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/roles?tag=canned",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "roles"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "roles" ],
           "query": [
             {
               "key": "tag",
@@ -888,8 +919,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/users?site={{site}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "users"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "users" ],
           "query": [
             {
               "key": "site",
@@ -928,8 +959,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/user/permissions?site={{site}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user", "permissions"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "user", "permissions" ],
           "query": [
             {
               "key": "site",
@@ -953,8 +984,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/daily-availability?site=6877d86e-c2df-4def-8508-e1eccf0ea6be&from=2024-12-03&until=2024-12-08",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "daily-availability"],
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "daily-availability" ],
           "query": [
             {
               "key": "site",
@@ -1001,8 +1032,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/wellKnownOdsCodeEntries",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "wellKnownOdsCodeEntries"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "wellKnownOdsCodeEntries" ]
         }
       },
       "response": []
@@ -1032,8 +1063,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/session/cancel",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "session", "cancel"]
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "session", "cancel" ]
         }
       },
       "response": []

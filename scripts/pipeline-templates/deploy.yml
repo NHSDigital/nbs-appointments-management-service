@@ -22,11 +22,16 @@ parameters:
     type: string
   - name: isMain
     type: string
+  - name: buildNumber
+    type: string
 
 stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
-    dependsOn: Build
+    dependsOn:
+      - Build
+      - ${{ if eq(parameters.env, 'prod') }}:
+          - DeployStag
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     variables:
       - group: ${{parameters.variable_group}}
@@ -56,7 +61,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)"
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"
@@ -120,7 +125,7 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployHttpFunctionApp
@@ -143,12 +148,12 @@ stages:
               appName: ${{parameters.httpFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -189,7 +194,7 @@ stages:
               appName: ${{parameters.serviceBusFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: DeployTimerFunctionApp
@@ -212,7 +217,7 @@ stages:
               appName: ${{parameters.timerFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              ${{ if eq(parameters.env, 'stag') }}:
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
       - job: UploadCosmosDocuments
@@ -220,19 +225,10 @@ stages:
         dependsOn:
           - DeployWeb
           - DeployHttpFunctionApp
-          - DeployHighLoadFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-        condition: |
-          and
-          (
-            in(dependencies.DeployWeb.result, 'Succeeded'),
-            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployHighLoadFunctionApp.result, 'Succeeded', 'Skipped'),
-            in(dependencies.DeployServiceBusFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployHttpFunctionApp.result, 'Succeeded'),
-            in(dependencies.DeployTimerFunctionApp.result, 'Succeeded')
-          )
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}
         steps:
@@ -256,7 +252,7 @@ stages:
       - job: WaitForSlotApproval
         dependsOn:
           - UploadCosmosDocuments
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         displayName: "Wait for approval to swap slots"
         pool: server
         steps:
@@ -268,20 +264,20 @@ stages:
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: 'Swap Slots'
+              Action: "Swap Slots"
               WebAppName: ${{parameters.webServerName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
-              SourceSlot: 'preview'
+              SourceSlot: "preview"
       - job: SwapHttpFuncAppSlots
         displayName: "Swap http function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -294,7 +290,7 @@ stages:
       - job: SwapHighLoadFuncAppSlots
         displayName: "Swap high load function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -307,20 +303,20 @@ stages:
       - job: SwapServiceBusFuncAppSlots
         displayName: "Swap servicebus function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: 'Swap Slots'
+              Action: "Swap Slots"
               WebAppName: ${{parameters.serviceBusFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
       - job: SwapTimerFuncAppSlots
         displayName: "Swap timer function app slots"
         dependsOn: WaitForSlotApproval
-        condition: and(succeeded(), ${{ eq(parameters.env, 'stag') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureAppServiceManage@0
@@ -330,3 +326,48 @@ stages:
               WebAppName: ${{parameters.timerFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
+      - job: SetEnvironmentTag
+        displayName: "Move Environment Deployment Tag"
+        condition: succeeded()
+        dependsOn:
+          - UploadCosmosDocuments
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - SwapWebAppSlots
+              - SwapHttpFuncAppSlots
+              - SwapHighLoadFuncAppSlots
+              - SwapServiceBusFuncAppSlots
+              - SwapTimerFuncAppSlots
+        steps:
+          - checkout: self
+            persistCredentials: true # Ensures authentication for Git push
+          - script: |
+              COMMIT_SHA=$(Build.SourceVersion)
+
+              echo "Moving tag: ${{parameters.env}} to commit: $COMMIT_SHA"
+
+              git config --global user.name "MYA Azure DevOps Pipeline"
+              git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
+
+              git tag -d ${{parameters.env}}
+              git push origin :refs/tags/${{parameters.env}}
+
+              git tag -a ${{parameters.env}} -m "The latest successful deployment to this environment" $COMMIT_SHA
+              git push origin ${{parameters.env}}
+      - job: CreateReleaseTag
+        displayName: "Create The Release Tag"
+        condition: and(succeeded(), ${{ eq(parameters.env, 'prod') }})
+        dependsOn: SetEnvironmentTag
+        steps:
+          - checkout: self
+            persistCredentials: true # Ensures authentication for Git push
+          - script: |
+              TAG_NAME="release-$(Build.BuildNumber)"
+              COMMIT_SHA=$(Build.SourceVersion)
+
+              echo "Creating tag: $TAG_NAME for commit: $COMMIT_SHA"
+
+              git config --global user.name "MYA Azure DevOps Pipeline"
+              git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
+
+              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildNumber)" $COMMIT_SHA
+              git push origin $TAG_NAME

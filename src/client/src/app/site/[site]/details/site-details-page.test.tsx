@@ -1,30 +1,32 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AttributeDefinition, SiteWithAttributes } from '@types';
+import { AccessibilityDefinition, Site } from '@types';
 import {
-  fetchAttributeDefinitions,
+  fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import {
-  mockAttributeDefinitions,
+  mockAccessibilityDefinitions,
   mockSite,
-  mockSiteWithAttributes,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 jest.mock('@services/appointmentsService');
-const fetchAttributeDefinitionsMock = fetchAttributeDefinitions as jest.Mock<
-  Promise<AttributeDefinition[]>
->;
+const fetchAccessibilityDefinitionsMock =
+  fetchAccessibilityDefinitions as jest.Mock<
+    Promise<AccessibilityDefinition[]>
+  >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<SiteWithAttributes>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
 describe('Site Details Page', () => {
   beforeEach(() => {
-    fetchAttributeDefinitionsMock.mockResolvedValue(mockAttributeDefinitions);
-    fetchSiteMock.mockResolvedValue(mockSiteWithAttributes);
+    fetchAccessibilityDefinitionsMock.mockResolvedValue(
+      mockAccessibilityDefinitions,
+    );
+    fetchSiteMock.mockResolvedValue(mockSite);
   });
 
   it('renders', async () => {
@@ -54,11 +56,11 @@ describe('Site Details Page', () => {
     verifySummaryListItem('Address', mockSite.address);
     verifySummaryListItem(
       'Latitude',
-      mockSite.location.coordinates[0].toString(),
+      mockSite.location.coordinates[1].toString(),
     );
     verifySummaryListItem(
       'Longitude',
-      mockSite.location.coordinates[1].toString(),
+      mockSite.location.coordinates[0].toString(),
     );
     verifySummaryListItem('Phone Number', mockSite.phoneNumber);
   });
@@ -185,7 +187,10 @@ describe('Site Details Page', () => {
 
     expect(
       screen.getByRole('link', { name: 'Edit access needs' }),
-    ).toHaveAttribute('href', `/site/${mockSite.id}/details/edit-attributes`);
+    ).toHaveAttribute(
+      'href',
+      `/site/${mockSite.id}/details/edit-accessibilities`,
+    );
   });
 
   it('hides the edit access needs hyperlink if the user does not have permission', async () => {

@@ -1,11 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import OAuthLoginPage from './page-objects/oauth';
 import RootPage from './page-objects/root';
 import SiteSelectionPage from './page-objects/site-selection';
-import env from './testEnvironment';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-const { TEST_USERS } = env;
 
 test('User visits the site origin, signs in and see the Site Selection menu', async ({
   page,
@@ -40,6 +37,8 @@ test('User visits the site origin, signs in, then signs out again', async ({
   await expect(siteSelectionPage.logOutButton).toBeVisible();
   await siteSelectionPage.logOutButton.click();
 
+  await page.waitForURL('**/login');
+
   await expect(
     page.getByRole('heading', { name: 'Manage your appointments' }),
   ).toBeVisible();
@@ -55,6 +54,7 @@ test('User visits the site origin, signs in, then signs out again', async ({
 
 test('Users with no roles at any site but valid auth credentials can still sign in', async ({
   page,
+  getTestUser,
 }) => {
   const rootPage = new RootPage(page);
   const oAuthPage = new OAuthLoginPage(page);
@@ -62,7 +62,7 @@ test('Users with no roles at any site but valid auth credentials can still sign 
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(TEST_USERS.testUser4);
+  await oAuthPage.signIn(getTestUser(4));
 
   await expect(siteSelectionPage.noSitesMessage).toBeVisible();
 });

@@ -1,4 +1,4 @@
-using BookingsDataExtracts.Documents;
+using DataExtract.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -20,13 +20,12 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractNhsNumber(BookingDocument booking) => booking.AttendeeDetails.NhsNumber;
 
-    public static string ExtractAppointmentDateTime(BookingDocument booking) => booking.From.ToString("yyyy-MM-dd HH:mm:ss");
+    public static string ExtractAppointmentDateTime(BookingDocument booking) => booking.From.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
-    public static string ExtractCreatedDateTime(BookingDocument booking) => booking.Created.ToString("yyyy-MM-dd HH:mm:ss");
+    public static string ExtractCreatedDateTime(BookingDocument booking) => booking.Created.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
     public static string ExtractAppointmentStatus(BookingDocument booking) => booking.Status switch
-    {        
-        AppointmentStatus.Orphaned => "B",
+    {
         AppointmentStatus.Booked => "B",
         AppointmentStatus.Cancelled => "C",
         _ => throw new ArgumentOutOfRangeException(nameof(booking.Status)),
@@ -34,7 +33,9 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData?.ReferralType == "SelfReferred";
 
-    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData != null ? booking.AdditionalData.Source : "Unknown";
+    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData != null ? 
+        booking.AdditionalData.Source.Equals("NBS", StringComparison.OrdinalIgnoreCase) ? "NBS_Website" : booking.AdditionalData.Source.Replace(" ", "_")
+        : "Unknown";
 
     public static string ExtractDateOfBirth(BookingDocument booking) => booking.AttendeeDetails.DateOfBirth.ToString("yyyy-MM-dd");
 
@@ -42,5 +43,5 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractService(BookingDocument booking) => booking.Service;
 
-    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty;
+    public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("ddMMyyyy:HH:mm:ss") : string.Empty;
 }

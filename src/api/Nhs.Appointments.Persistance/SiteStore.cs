@@ -24,14 +24,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return siteDocument.ReferenceNumberGroup;
     }
 
-    public Task AssignPrefix(string site, int prefix)
-    {
-        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
-        var partitionKey = cosmosStore.GetDocumentType();
-        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
-    }
-
-    public async Task<OperationResult> UpdateSiteAttributes(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
+    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
@@ -39,20 +32,52 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        var originalAttributes = originalDocument.AttributeValues;
-        var newAttributes = scope == "*"
-            ? attributeValues
-            : originalAttributes
-                .Where(a => !a.Id.Contains(scope))
-                .Concat(attributeValues);
-        var siteDocumentPatch = PatchOperation.Add("/attributeValues", newAttributes.Where(a => !string.IsNullOrEmpty(a.Value)));
+        PatchOperation[] detailsPatchOperations =
+        [
+            PatchOperation.Replace("/odsCode", odsCode),
+            PatchOperation.Replace("/integratedCareBoard", icb),
+            PatchOperation.Replace("/region", region)
+        ];
+
+        await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
+        return new OperationResult(true);
+    }
+
+    public Task AssignPrefix(string site, int prefix)
+    {
+        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
+        var partitionKey = cosmosStore.GetDocumentType();
+        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
+    }
+
+    public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return new OperationResult(false, "The specified site was not found.");
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        var siteDocumentPatch = PatchOperation.Add("/accessibilities", accessibilities.Where(a => !string.IsNullOrEmpty(a.Value)));
+        await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
+        return new OperationResult(true);
+    }
+    public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument == null)
+        {
+            return new OperationResult(false, "The specified site was not found.");
+        }
+        var documentType = cosmosStore.GetDocumentType();
+        var siteDocumentPatch = PatchOperation.Set("/informationForCitizens", informationForCitizens);
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }
     
-    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal longitude, decimal latitude)
     {
-        decimal[] coords = [latitude, longitude];
+        decimal[] coords = [longitude, latitude];
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
@@ -83,5 +108,40 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return default;
         }
     }
-    
+
+    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument is null)
+        {
+            var site = new SiteDocument
+            {
+                Id = siteId,
+                OdsCode = odsCode,
+                Name = name,
+                Address = address,
+                PhoneNumber = phoneNumber,
+                DocumentType = "site",
+                Accessibilities = accessibilities.ToArray(),
+                InformationForCitizens = string.Empty,
+                IntegratedCareBoard = icb,
+                Location = location,
+                Region = region,
+            };
+            var document = cosmosStore.ConvertToDocument(site);
+            await cosmosStore.WriteAsync(document);
+
+            return new OperationResult(true);
+        }
+        else
+        {
+            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
+            var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
+
+            await Task.WhenAll(updateSite, updateAccessiblities);
+
+            return new OperationResult(true);
+        }
+    }
 }

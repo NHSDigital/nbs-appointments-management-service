@@ -20,14 +20,15 @@ export const mapSiteOverviewSummaryData = (
       title: 'ICB',
       value:
         wellKnownOdsCodeEntries.find(
-          e => e.odsCode === site.integratedCareBoard,
+          e => e.type === 'icb' && e.odsCode === site.integratedCareBoard,
         )?.displayName ?? site.integratedCareBoard,
     },
     {
       title: 'Region',
       value:
-        wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-          ?.displayName ?? site.region,
+        wellKnownOdsCodeEntries.find(
+          e => e.type === 'region' && e.odsCode === site.region,
+        )?.displayName ?? site.region,
     },
   ];
 
@@ -49,12 +50,12 @@ export const mapCoreSiteSummaryData = (site: Site) => {
   if (site.location.type === 'Point') {
     items.push({
       title: 'Latitude',
-      value: `${site.location.coordinates[0]}`,
+      value: `${site.location.coordinates[1]}`,
     });
 
     items.push({
       title: 'Longitude',
-      value: `${site.location.coordinates[1]}`,
+      value: `${site.location.coordinates[0]}`,
     });
 
     items.push({ title: 'Phone Number', value: site.phoneNumber });
@@ -77,14 +78,15 @@ export const mapSiteReferenceSummaryData = (
       title: 'ICB',
       value:
         wellKnownOdsCodeEntries.find(
-          e => e.odsCode === site.integratedCareBoard,
+          e => e.type === 'icb' && e.odsCode === site.integratedCareBoard,
         )?.displayName ?? site.integratedCareBoard,
     },
     {
       title: 'Region',
       value:
-        wellKnownOdsCodeEntries.find(e => e.odsCode === site.region)
-          ?.displayName ?? site.region,
+        wellKnownOdsCodeEntries.find(
+          e => e.type === 'region' && e.odsCode === site.region,
+        )?.displayName ?? site.region,
     },
   ];
 

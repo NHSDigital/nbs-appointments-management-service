@@ -246,7 +246,9 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
             
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+            _bookingsDocumentStore
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .ReturnsAsync(true).Verifiable();
 
             await _bookingsService.CancelBooking(bookingRef, site);
 
@@ -279,7 +281,9 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingRef = "some-booking";
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult<Booking>(new Booking() { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled)).ReturnsAsync(true).Verifiable();
+            _bookingsDocumentStore
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .ReturnsAsync(true).Verifiable();
 
             var result = await _bookingsService.CancelBooking(bookingRef, "some-other-site");
 
@@ -439,12 +443,14 @@ namespace Nhs.Appointments.Core.UnitTests
                 var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
                 _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>()),
+                _bookingsDocumentStore.Verify(
+                    x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                        It.IsAny<AvailabilityStatus>()),
                     Times.Never);
             }
 
             [Fact]
-            public async Task RecalculateAppointmentStatuses_SchedulesOrpanedAppointmentsIfPossible()
+            public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
             {
                 IEnumerable<Booking> bookings = new List<Booking>
                 {
@@ -453,7 +459,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         From = new DateTime(2025, 01, 01, 9, 0, 0),
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                        Status = AppointmentStatus.Orphaned,
+                        Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Orphaned,
                         Duration = 10,
                         Service = "Service 1"
                     },
@@ -462,7 +469,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         From = new DateTime(2025, 01, 01, 9, 10, 0),
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                        Status = AppointmentStatus.Orphaned,
+                        Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Orphaned,
                         Duration = 10,
                         Service = "Service 1"
                     }
@@ -489,14 +497,14 @@ namespace Nhs.Appointments.Core.UnitTests
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "1"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
                     Times.Once);
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "2"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
                     Times.Once);
             }
 
@@ -511,6 +519,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                         Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Supported,
                         Duration = 10
                     },
                     new()
@@ -519,6 +528,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                         Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Supported,
                         Duration = 10
                     }
                 };
@@ -544,14 +554,14 @@ namespace Nhs.Appointments.Core.UnitTests
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "1"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
                     Times.Once);
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "2"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
                     Times.Once);
             }
 
@@ -566,6 +576,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                         Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Supported,
                         Duration = 10
                     },
                     new()
@@ -575,7 +586,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                         Status = AppointmentStatus.Provisional,
                         Duration = 10,
-                        Site = "mock-site"
+                        Site = "mock-site",
+                        AvailabilityStatus = AvailabilityStatus.Supported,
                     }
                 };
 
@@ -600,9 +612,9 @@ namespace Nhs.Appointments.Core.UnitTests
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "1"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Orphaned)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
                     Times.Once);
 
                 _bookingsDocumentStore.Verify(x => x.DeleteBooking(
@@ -621,7 +633,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         From = new DateTime(2025, 01, 01, 9, 0, 0),
                         Reference = "1",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                        Status = AppointmentStatus.Orphaned,
+                        Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Orphaned,
                         Service = "Service 1",
                         Duration = 10,
                         Created = new DateTime(2024, 12, 01, 12, 0, 0)
@@ -631,7 +644,8 @@ namespace Nhs.Appointments.Core.UnitTests
                         From = new DateTime(2025, 01, 01, 9, 0, 0),
                         Reference = "2",
                         AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                        Status = AppointmentStatus.Orphaned,
+                        Status = AppointmentStatus.Booked,
+                        AvailabilityStatus = AvailabilityStatus.Orphaned,
                         Service = "Service 1",
                         Duration = 10,
                         Created = new DateTime(2024, 11, 01, 12, 0, 0)
@@ -659,14 +673,14 @@ namespace Nhs.Appointments.Core.UnitTests
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "1"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
                     Times.Never);
 
-                _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                         It.Is<string>(s => s == "2"),
-                        It.Is<AppointmentStatus>(s => s == AppointmentStatus.Booked)),
+                        It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
                     Times.Once);
             }
         }

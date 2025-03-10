@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -26,7 +26,7 @@ namespace Nhs.Appointments.Api.Functions
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>),  Description = "The body of the request is invalid" )]
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
         [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-        [RequiresPermission("users:view", typeof(SiteFromQueryStringInspector))]
+        [RequiresPermission(Permissions.ViewUsers, typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]
         public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req)
         {
@@ -40,6 +40,8 @@ namespace Nhs.Appointments.Api.Functions
             var redactedUsers = users.Select(usr => new User
             {
                 Id = usr.Id,
+                FirstName = usr.FirstName,
+                LastName = usr.LastName,
                 RoleAssignments = usr.RoleAssignments.Where(roleAssignmentFilter).ToArray()
             });
             return ApiResult<IEnumerable<User>>.Success(redactedUsers);

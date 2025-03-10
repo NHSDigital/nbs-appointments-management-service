@@ -9,10 +9,14 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
-    Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues);    
+    Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
+    Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
+    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal longitude, decimal latitude);
 
-    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
-        decimal latitude, decimal longitude);
+    Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
+
+    Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -20,20 +24,21 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
     {        
-        var attributeIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
+        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
         {
-            sites = await siteStore.GetAllSites();            
+            sites = await siteStore.GetAllSites();
             memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
         }
 
         var sitesWithDistance = sites
-                .Select(s => new SiteWithDistance(s, CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
+            .Select(s => new SiteWithDistance(s,
+                CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
 
-        Func<SiteWithDistance, bool> filterPredicate = attributeIds.Any() ?
-            s => attributeIds.All(attr => s.Site.AttributeValues.SingleOrDefault(a => a.Id == attr)?.Value == "true") :
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
+            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
         
         return sitesWithDistance
@@ -56,8 +61,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             return site;
         }
 
-        site.AttributeValues =
-            site.AttributeValues.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
+        site.Accessibilities =
+            site.Accessibilities.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
     }
@@ -71,17 +76,41 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
         }
 
-        return sites.Select(s => new SitePreview(s.Id, s.Name));
+        return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
     }
 
-    public Task<OperationResult> UpdateSiteAttributesAsync(string siteId, string scope, IEnumerable<AttributeValue> attributeValues)
+    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
+        string region, Location location, IEnumerable<Accessibility> accessibilities)
+            => await siteStore.SaveSiteAsync(
+                siteId,
+                odsCode,
+                name,
+                address,
+                phoneNumber,
+                icb,
+                region,
+                location,
+                accessibilities);
+
+    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
-        return siteStore.UpdateSiteAttributes(siteId, scope, attributeValues);
+        return siteStore.UpdateAccessibilities(siteId, accessibilities);
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal latitude, decimal longitude)
+    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens) 
     {
-        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, latitude, longitude);
+        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
+    }
+
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,  decimal longitude, decimal latitude)
+    {
+        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
+    }
+
+    public Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
+        string region)
+    {
+        return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
@@ -90,16 +119,20 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var deltaLatitude = lat1 - lat2;
         var deltaLongitude = lon1 - lon2;
 
-        if( Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon )
+        if (Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon)
+        {
             return 0;
+        }
 
-        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) + Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) * Math.Cos(DegreesToRadians(deltaLongitude));
+        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) +
+                   Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
+                   Math.Cos(DegreesToRadians(deltaLongitude));
         dist = Math.Acos(dist);
         dist = RadiansToDegrees(dist);
-        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);        
+        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
     }
 
-    private double DegreesToRadians(double deg) => (deg * Math.PI / 180.0);
+    private double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
 
-    private double RadiansToDegrees(double rad) => (rad / Math.PI * 180.0);    
+    private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 }

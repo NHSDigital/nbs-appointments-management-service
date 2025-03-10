@@ -22,7 +22,7 @@ public class PermissionSnapShotTest
     [InlineData("get", "users", "users:view")]
     [InlineData("get", "sites", "sites:query")]
     [InlineData("get", "sites/{site}", "site:view")]
-    [InlineData("post", "sites/{site}/attributes", "site:manage")]
+    [InlineData("post", "sites/{site}/accessibilities", "site:manage")]
     [InlineData("post", "availability/apply-template", "availability:setup")]
     [InlineData("post", "availability", "availability:setup")]
     [InlineData("post", "user/remove", "users:manage")]

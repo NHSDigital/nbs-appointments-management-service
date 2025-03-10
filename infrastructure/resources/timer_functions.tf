@@ -42,7 +42,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
-    SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token    
+    SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -55,7 +55,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
@@ -77,7 +77,8 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
     "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAttributesFunction.Disabled"                      = true
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
     "AzureWebJobs.SetUserRoles.Disabled"                                   = true
     "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
@@ -142,7 +143,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
     "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
     "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAttributeDefinitionsFunction.Disabled"                = true
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true

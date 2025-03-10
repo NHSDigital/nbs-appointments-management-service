@@ -5,28 +5,28 @@ namespace Nhs.Appointments.UserManagement.Okta;
 
 public class OktaUserDirectory(IOktaUserService oktaUserService) : IUserDirectory
 {
-    public async Task<UserProvisioningStatus> CreateIfNotExists(string user)
+    public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string? firstName, string? lastName)
     {
         var success = false;
         var failureReason = string.Empty;
-        var userr = await oktaUserService.GetUserAsync(user);
+        var oktaUser = await oktaUserService.GetUserAsync(userEmail);
 
-        if (userr != null)
+        if (oktaUser != null)
         {
-            var isOlderThanOneDay = DateTime.UtcNow - userr.Created > TimeSpan.FromDays(1);
+            var isOlderThanOneDay = DateTime.UtcNow - oktaUser.Created > TimeSpan.FromDays(1);
 
-            if (userr.Status == UserStatus.PROVISIONED && isOlderThanOneDay)
+            if (oktaUser.Status == UserStatus.PROVISIONED && isOlderThanOneDay)
             {
-                success = await oktaUserService.ReactivateUserAsync(user); ;
+                success = await oktaUserService.ReactivateUserAsync(userEmail); ;
             }
-            else if (userr.Status == UserStatus.ACTIVE)
+            else if (oktaUser.Status == UserStatus.ACTIVE)
             {
                 success = true;
             }
         }
         else
         {
-            success = await oktaUserService.CreateUserAsync(user);
+            success = await oktaUserService.CreateUserAsync(userEmail, firstName, lastName);
             if (!success)
             {
                 failureReason = "User could not be created";

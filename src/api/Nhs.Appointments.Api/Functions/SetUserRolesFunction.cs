@@ -32,7 +32,7 @@ public class SetUserRolesFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json", typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Unauthorized, "application/json", typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode:HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem), Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("users:manage", typeof(SiteFromScopeInspector))]
+    [RequiresPermission(Permissions.ManageUsers, typeof(SiteFromScopeInspector))]
     [Function("SetUserRoles")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/roles")] HttpRequest req)
@@ -50,7 +50,7 @@ public class SetUserRolesFunction(
         if (!request.User.ToLowerInvariant().EndsWith("@nhs.net"))
         {
             // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
-            var externalDirectoryResult = await userDirectory.CreateIfNotExists(request.User);
+            var externalDirectoryResult = await userDirectory.CreateIfNotExists(request.User, request.FirstName, request.LastName);
             if (!externalDirectoryResult.Success)
             {
                 return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);

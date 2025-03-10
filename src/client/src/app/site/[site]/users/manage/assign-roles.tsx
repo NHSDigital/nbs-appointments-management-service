@@ -15,9 +15,10 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
     fetchUsers(params.site),
   ]);
 
+  const currentUser = users.find(usr => usr.id === user);
   const currentUserAssignments =
-    users.find(usr => usr.id === user)?.roleAssignments ??
-    ([] as RoleAssignment[]);
+    currentUser?.roleAssignments ?? ([] as RoleAssignment[]);
+
   return (
     <>
       <div className="nhsuk-form-group">
@@ -31,6 +32,8 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
         roles={roles}
         assignments={currentUserAssignments}
         site={params.site}
+        firstName={currentUser?.firstName as string}
+        lastName={currentUser?.lastName as string}
       />
     </>
   );

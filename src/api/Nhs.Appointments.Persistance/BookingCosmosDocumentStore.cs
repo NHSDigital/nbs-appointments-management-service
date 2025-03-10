@@ -1,12 +1,19 @@
 using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocument> bookingStore, ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, IMetricsRecorder metricsRecorder, TimeProvider time) : IBookingsDocumentStore
+public class BookingCosmosDocumentStore(
+    ITypedDocumentCosmosStore<BookingDocument> bookingStore, 
+    ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, 
+    IMetricsRecorder metricsRecorder, 
+    TimeProvider time,
+    ILogger<BookingCosmosDocumentStore> logger
+) : IBookingsDocumentStore
 {
     private const int PointReadLimit = 3;    
            
@@ -70,30 +77,66 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
                 {
                     var siteId = document.Site;
                     var bookingReference = document.Reference;
-                    var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId); 
-                    results.Add(result);
+
+                    try
+                    {
+                        var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId);
+                        if (result != null)
+                        {
+                            results.Add(result);
+                        }
+                    }
+                    catch (Exception ex) {
+                        logger.LogError(ex, "Did not find booking: {BookingReference} in booking container", bookingReference);
+                    }
                 }
             }
         }
         return results;
     }
-    public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status)
+
+    public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
         {
             return false;
         }
-        await UpdateStatus(bookingIndexDocument, status);
+
+        await UpdateStatus(bookingIndexDocument, status, availabilityStatus);
         return true;
     }
 
-    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status)
+    public async Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status)
+    {
+        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        if (bookingIndexDocument == null)
+        {
+            return false;
+        }
+
+        await UpdateAvailabilityStatus(bookingIndexDocument, status);
+        return true;
+    }
+
+    private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status,
+        AvailabilityStatus availabilityStatus)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+        var updateAvailabilityStatusPatch =
+            PatchOperation.Replace("/availabilityStatus", availabilityStatus);
+
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch,
+            updateAvailabilityStatusPatch);
+    }
+
+    private async Task UpdateAvailabilityStatus(BookingIndexDocument booking, AvailabilityStatus status)
+    {
+        var updateStatusPatch = PatchOperation.Replace("/availabilityStatus", status);
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch);
     }
 
     private async Task<(BookingConfirmationResult, BookingIndexDocument)> GetBookingForReschedule(string bookingReference, string nhsNumber)
@@ -143,7 +186,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled);
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown);
         }
         
         return BookingConfirmationResult.Success;
@@ -173,7 +216,7 @@ public class BookingCosmosDocumentStore(ITypedDocumentCosmosStore<BookingDocumen
 
     public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        var expiryDateTime = time.GetUtcNow().AddMinutes(-5);        
+        var expiryDateTime = time.GetUtcNow().AddDays(-1);        
 
         var query = new QueryDefinition(
                 query: "SELECT * " +

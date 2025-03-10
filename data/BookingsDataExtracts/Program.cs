@@ -1,4 +1,7 @@
 using BookingsDataExtracts;
+using DataExtract;
+using DataExtract.Documents;
+using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -7,11 +10,13 @@ builder.Configuration
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddEnvironmentVariables()
-            .AddNbsAzureKeyVault();            
+            .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddDataExtractServices(builder.Configuration)
-    .AddHostedService<DataExtractWorker>();
+    .AddDataExtractServices("booking", builder.Configuration)
+    .AddCosmosStore<NbsBookingDocument>()
+    .AddCosmosStore<SiteDocument>()
+    .AddExtractWorker<BookingDataExtract>();
 
 var host = builder.Build();
 host.Run();

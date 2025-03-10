@@ -27,6 +27,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     NBS_API_BASE_URL = local.mya_function_app_url
     AUTH_HOST        = local.mya_function_app_url
     CLIENT_BASE_PATH = "/manage-your-appointments"
+    BUILD_NUMBER = var.build_number
   }
 
   sticky_settings {
@@ -54,6 +55,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
     NBS_API_BASE_URL = "https://${azurerm_windows_function_app_slot.nbs_mya_http_func_app_preview[0].default_hostname}"
     AUTH_HOST        = "https://${azurerm_windows_function_app_slot.nbs_mya_http_func_app_preview[0].default_hostname}"
     CLIENT_BASE_PATH = "/manage-your-appointments"
+    BUILD_NUMBER = var.build_number
   }
 
   identity {

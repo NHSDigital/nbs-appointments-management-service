@@ -10,11 +10,12 @@ public record Site(
     [JsonProperty("odsCode")] string OdsCode,
     [JsonProperty("region")] string Region,
     [JsonProperty("integratedCareBoard")] string IntegratedCareBoard,
-    [JsonProperty("attributeValues")] IEnumerable<AttributeValue> AttributeValues,
+    [JsonProperty("informationForCitizens")] string InformationForCitizens,
+    [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
     [JsonProperty("location")] Location Location
 )
 {
-    public IEnumerable<AttributeValue> AttributeValues { get; set; } = AttributeValues;
+    public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;
 }
 
 public record Location(
@@ -23,7 +24,7 @@ public record Location(
     double[] Coordinates
 );
 
-public record AttributeValue(
+public record Accessibility(
     [property: JsonProperty("id")] string Id,
     [property: JsonProperty("value")] string Value
 );
@@ -33,12 +34,16 @@ public record SiteWithDistance(
     [JsonProperty("distance")] int Distance
 );
 
-public record AttributeRequest
+public record AccessibilityRequest
 (
-    [JsonProperty("scope")]
-    string Scope,
-    [JsonProperty("attributeValues")]
-    IEnumerable<AttributeValue> AttributeValues
+    [JsonProperty("accessibilities")]
+    IEnumerable<Accessibility> Accessibilities
+);
+
+public record InformationForCitizensRequest
+(
+    [JsonProperty("informationForCitizens")]
+    string InformationForCitizens
 );
 
 public record SitePreview
@@ -46,13 +51,21 @@ public record SitePreview
     [JsonProperty("id")]
     string Id,
     [JsonProperty("name")]
-    string Name
+    string Name,
+    [JsonProperty("odsCode")]
+    string OdsCode
 );
 
 public record DetailsRequest(
     [JsonProperty("name")] string Name,
     [JsonProperty("phoneNumber")] string PhoneNumber,
     [JsonProperty("address")] string Address,
-    [JsonProperty("latitude")] string Latitude,
-    [JsonProperty("longitude")] string Longitude
+    [JsonProperty("longitude")] string Longitude,
+    [JsonProperty("latitude")] string Latitude
+);
+
+public record ReferenceDetailsRequest(
+    [JsonProperty("odsCode")] string OdsCode,
+    [JsonProperty("icb")] string Icb,
+    [JsonProperty("region")] string Region
 );

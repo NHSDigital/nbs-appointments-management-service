@@ -8,4 +8,5 @@ public interface IUserService
     Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<IEnumerable<User>> GetUsersAsync(string site);
     Task<OperationResult> RemoveUserAsync(string userId, string site);
+    Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
 }

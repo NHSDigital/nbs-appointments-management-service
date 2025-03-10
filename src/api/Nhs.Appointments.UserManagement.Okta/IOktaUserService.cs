@@ -5,5 +5,5 @@ public interface IOktaUserService
 {
     Task<UserGetSingleton?> GetUserAsync(string user);
     Task<bool> ReactivateUserAsync(string user);
-    Task<bool> CreateUserAsync(string user);
+    Task<bool> CreateUserAsync(string user, string? firstName, string? lastName);
 }

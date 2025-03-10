@@ -8,18 +8,11 @@ type Props = {
 };
 
 export const EditInformationForCitizensPage = async ({ site }: Props) => {
-  const informationForCitizens = await fetchInformationForCitizens(
-    site,
-    'site_details',
-  );
-  const siteInformation = informationForCitizens.find(
-    i => i.id === 'site_details/info_for_citizen',
-  );
-
+  const informationForCitizens = await fetchInformationForCitizens(site);
   return (
     <FormGroup hint="Configure the information you wish to display to citizens about the site">
       <AddInformationForCitizensForm
-        information={siteInformation?.value ?? ''}
+        information={informationForCitizens}
         site={site}
       />
     </FormGroup>

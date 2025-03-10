@@ -435,7 +435,7 @@ describe('Time and Capacity Step', () => {
         }}
       >
         <TimeAndCapacityStep
-          stepNumber={1}
+          stepNumber={2}
           currentStep={1}
           isActive
           setCurrentStep={mockSetCurrentStep}
@@ -449,8 +449,6 @@ describe('Time and Capacity Step', () => {
 
     await user.click(screen.getByRole('link', { name: 'Go back' }));
 
-    waitFor(() => {
-      expect(goToPreviousStepOverride).toHaveBeenCalled();
-    });
+    expect(goToPreviousStepOverride).toHaveBeenCalled();
   });
 });

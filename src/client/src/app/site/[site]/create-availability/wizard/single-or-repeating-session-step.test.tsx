@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
@@ -25,11 +25,13 @@ describe('Single or Repeating Session Step', () => {
       </MockForm>,
     );
 
-    expect(
-      screen.getByRole('heading', {
-        name: 'Create availability What type of session do you want to create?',
-      }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', {
+          name: 'Create availability What type of session do you want to create?',
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('toggles between single and repeat', async () => {

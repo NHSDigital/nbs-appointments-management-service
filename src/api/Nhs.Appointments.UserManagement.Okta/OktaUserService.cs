@@ -18,11 +18,11 @@ public class OktaUserService : IOktaUserService
         return true;
     }
 
-    public async Task<bool> CreateUserAsync(string user)
+    public async Task<bool> CreateUserAsync(string user, string? firstName, string? lastName)
     {
         var createdUser = await _userApi.CreateUserAsync(new CreateUserRequest
         {
-            Profile = new UserProfile { Email = user, Login = user, FirstName = "Not", LastName = "Applicable" },
+            Profile = new UserProfile { Email = user, Login = user, FirstName = firstName, LastName = lastName },
         });
         return createdUser != null;
     }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 
@@ -35,7 +36,8 @@ public class SetSiteDetailsFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission("site:manage", typeof(SiteFromPathInspector))]
+    [RequiresPermission(Permissions.ManageSite, typeof(SiteFromPathInspector))]
+    [RequiresAudit(typeof(SiteFromPathInspector))]
     [Function("SetSiteDetailsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/details")]
@@ -46,7 +48,7 @@ public class SetSiteDetailsFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger)
     {
-        var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address, request.PhoneNumber, request.LatitudeDecimal, request.LongitudeDecimal);
+        var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address, request.PhoneNumber, request.LongitudeDecimal, request.LatitudeDecimal);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
@@ -61,7 +63,7 @@ public class SetSiteDetailsFunction(
                 details.Name,
                 details.Address,
                 details.PhoneNumber,
-                details.Latitude,
-                details.Longitude));
+                details.Longitude,
+                details.Latitude));
     }
 }

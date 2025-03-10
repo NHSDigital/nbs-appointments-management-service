@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -43,10 +43,11 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 OdsCode = row.Cells.ElementAt(4).Value,
                 Region = row.Cells.ElementAt(5).Value,
                 IntegratedCareBoard = row.Cells.ElementAt(6).Value,
+                InformationForCitizens = row.Cells.ElementAt(7).Value,
                 DocumentType = "site",
-                AttributeValues = ParseAttributes(row.Cells.ElementAt(7).Value),
+                Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
                 Location = new Location("Point",
-                    new[] { double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value) }),
+                    new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) }),
             });
 
         foreach (var site in sites)
@@ -94,26 +95,27 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             OdsCode: row.Cells.ElementAt(4).Value,
             Region: row.Cells.ElementAt(5).Value,
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            AttributeValues: ParseAttributes(row.Cells.ElementAt(7).Value),
+            InformationForCitizens: row.Cells.ElementAt(7).Value,
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)])
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var actualResult = await Client.GetContainer("appts", "core_data")
-            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site"));
-        actualResult.Resource.Should().BeEquivalentTo(expectedSite);
+            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
+        actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
 
-    protected static AttributeValue[] ParseAttributes(string attributes)
+    protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {
-        if (attributes == "__empty__")
+        if (accessibilities == "__empty__")
         {
-            return Array.Empty<AttributeValue>();
+            return Array.Empty<Accessibility>();
         }
 
-        var pairs = attributes.Split(",");
-        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new AttributeValue(kvp[0], kvp[1])).ToArray();
+        var pairs = accessibilities.Split(",");
+        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
     }
 }

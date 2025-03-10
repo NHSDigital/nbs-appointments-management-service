@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import LogInButton from './log-in-button';
-import NhsHeaderLogIn from '@components/nhs-header-log-in';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 
 export type LoginPageProps = {
@@ -15,23 +14,27 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const redirectUrl = searchParams?.redirectUrl ?? '/';
+  const redirectUrl = searchParams?.redirectUrl ?? '/sites';
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>
         You are currently not signed in. You must sign in to access this
         service.
       </p>
+      <p style={{ display: 'none' }}>
+        Auth: {process.env.AUTH_HOST} Base Url: {process.env.NBS_API_BASE_URL}
+      </p>
       <LogInButton
         redirectUrl={redirectUrl}
         provider={'nhs-mail'}
         friendlyName={'NHS Mail'}
       />
-      <LogInButton
+      {/* TODO add feature toggle management to UI */}
+      {/* <LogInButton
         redirectUrl={redirectUrl}
         provider={'okta'}
         friendlyName={'Other Email'}
-      />
+      /> */}
     </NhsAnonymousPage>
   );
 };

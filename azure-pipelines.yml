@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag"]
+    default: ["dev", "int", "stag", "prod"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
@@ -82,7 +82,7 @@ stages:
           - task: SonarCloudPublish@3
             displayName: "Publish Sonar cloud results"
             inputs:
-              pollingTimeoutSec: '300'
+              pollingTimeoutSec: "300"
           - task: ArchiveFiles@2
             displayName: Zip Api
             inputs:
@@ -178,7 +178,7 @@ stages:
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
-                cd data/BookingsDataExtracts && docker compose up --build --detach
+              cd data/BookingsDataExtracts && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
               docker compose up --build --detach
@@ -186,6 +186,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+              BUILD_NUMBER: "$(Build.BuildNumber)"
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Data Extract Integration Tests"
             inputs:
@@ -256,6 +257,7 @@ stages:
             env:
               CI: "true"
               SEED_COSMOS_BEFORE_RUN: "false"
+              BUILD_NUMBER: "$(Build.BuildNumber)"
           - task: PublishTestResults@2
             displayName: "Publish E2E test results"
             condition: succeededOrFailed()
@@ -296,3 +298,4 @@ stages:
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
           isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          buildNumber: "$(Build.BuildNumber)"

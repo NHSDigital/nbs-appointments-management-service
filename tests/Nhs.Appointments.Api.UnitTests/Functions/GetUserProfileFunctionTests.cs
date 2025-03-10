@@ -40,7 +40,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
             var context = new DefaultHttpContext();
             var request = context.Request;
 
-            await _sut.RunAsync(request, functionContext: null);
+            await _sut.RunAsync(request);
 
             _userSiteAssignmentService.Verify(x => x.GetUserAsync("test@test.com"), Times.Once());
         }
@@ -58,7 +58,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 Id = "test@test.com", RoleAssignments = [],
             });
 
-            var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+            var response = await _sut.RunAsync(request) as ContentResult;
             var actualResponse = await ReadResponseAsync<UserProfile>(response.Content);
             actualResponse.EmailAddress.Should().Be("test@test.com");
         }
@@ -99,7 +99,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
                     new Location("point", new[] { 0.2, 11 }))
             };
 
-            var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+            var result = await _sut.RunAsync(request) as ContentResult;
 
             var actualResponse = await ReadResponseAsync<UserProfile>(result.Content);
             actualResponse.hasSites.Should().Be(hasSites);

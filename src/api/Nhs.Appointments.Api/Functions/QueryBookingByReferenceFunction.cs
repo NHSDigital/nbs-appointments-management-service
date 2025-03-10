@@ -42,13 +42,13 @@ public class QueryBookingByReferenceFunction(
     [Function("QueryBookingByBookingReference")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "booking/{bookingReference}")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<Booking>> HandleRequest(QueryBookingByReferenceRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var booking = await bookingsService.GetBookingByReference(request.bookingReference);
 

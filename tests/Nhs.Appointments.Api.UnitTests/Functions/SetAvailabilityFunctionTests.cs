@@ -74,6 +74,6 @@ public class SetAvailabilityFunctionTests
         private readonly ILogger<SetAvailabilityFunction> _logger = logger;
 
         public async Task<ApiResult<EmptyResponse>> Invoke(SetAvailabilityRequest request) =>
-            await HandleRequest(request, _logger, null);
+            await HandleRequest(request, _logger);
     }
 }

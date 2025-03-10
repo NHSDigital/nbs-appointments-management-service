@@ -41,14 +41,14 @@ public class GetDailyAvailabilityFunction(
     [RequiresPermission(Permissions.QueryAvailability, typeof(SiteFromQueryStringInspector))]
     [Function("GetDailyAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "daily-availability")] HttpRequest req,
-        FunctionContext functionContext)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "daily-availability")] HttpRequest req
+)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<DailyAvailability>>> HandleRequest(
-        GetDailyAvailabilityRequest request, ILogger logger, FunctionContext functionContext)
+        GetDailyAvailabilityRequest request, ILogger logger)
     {
         var availability =
             await availabilityService.GetDailyAvailability(request.Site, request.FromDate, request.UntilDate);

@@ -34,7 +34,7 @@ public class GetSiteMetaDataFunctionTests
     public async Task RunAsync_ReturnsNotFound_WhenRequestedSiteIsNotConfigured()
     {
         var request = CreateRequest();
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
     }
 
@@ -59,7 +59,7 @@ public class GetSiteMetaDataFunctionTests
             ));
         var request = CreateRequest();
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.StatusCode.Should().Be(200);
 

@@ -31,13 +31,13 @@ public class GetWellKnownOdsCodeEntriesFunction(
     [Function("GetWellKnownOdsCodeEntriesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "wellKnownOdsCodeEntries")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<WellKnownOdsEntry>>> HandleRequest(EmptyRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var wellKnownOdsCodeEntries = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
         return ApiResult<IEnumerable<WellKnownOdsEntry>>.Success(wellKnownOdsCodeEntries);

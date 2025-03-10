@@ -29,13 +29,12 @@ public class GetRolesFunction(
     [Function("GetRolesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<GetRolesResponse>> HandleRequest(GetRolesRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<GetRolesResponse>> HandleRequest(GetRolesRequest request, ILogger logger)
     {
         var roles = await rolesService.GetRoles();
         var mappedRoles = roles

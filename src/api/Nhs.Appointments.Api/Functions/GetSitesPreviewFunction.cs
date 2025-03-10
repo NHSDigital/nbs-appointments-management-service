@@ -31,13 +31,13 @@ public class GetSitesPreviewFunction(
     [Function("GetSitesPreviewFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites-preview")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<SitePreview>>> HandleRequest(EmptyRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var userEmail = Principal.Claims.GetUserEmail();
 

@@ -17,7 +17,7 @@ public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
     [AllowAnonymous]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "authenticate")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
         // here we need to resolve the correct auth provider
         var providerName = req.Query["provider"];

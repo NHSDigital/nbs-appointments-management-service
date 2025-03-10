@@ -35,13 +35,12 @@ public class TriggerBookingRemindersFunction(
     [Function("TriggerBookingReminders")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "system/run-reminders")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
         await bookingService.SendBookingReminders();
         return Success(new EmptyResponse());

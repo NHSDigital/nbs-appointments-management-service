@@ -67,7 +67,7 @@ public class AvailabilityCalculator(
                       && sl.From == booking.From
                       && (int)sl.Duration.TotalMinutes == booking.Duration
                       && sl.Services.Contains(booking.Service))
-            .OrderBy(slot => slot.Services.Length)
+            .OrderBy(slot => slot.Services.Count)
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
 }

@@ -1,12 +1,11 @@
 using Newtonsoft.Json;
-using Polly.Caching;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.Notifications;
 
 public class NotificationConfiguration
 {
-    [JsonProperty("services")]
-    public string[] Services { get; set; }
+    //[JsonProperty("services")]
+    //public string[] Services { get; set; }
 
     [JsonProperty("emailTemplate")]
     public string EmailTemplateId { get; set; }

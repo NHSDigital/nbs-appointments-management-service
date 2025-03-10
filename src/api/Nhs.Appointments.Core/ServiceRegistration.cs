@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.Notifications;
 
 namespace Nhs.Appointments.Core;
 
@@ -15,6 +17,18 @@ public static class ServiceRegistration
         {
             services.AddSingleton(type);
         }
+
+        return services;
+    }
+
+    public static IServiceCollection AddCommsOptions(this IServiceCollection services)
+    {
+        // Set up configuration
+        var builder = new ConfigurationBuilder()
+            .AddEnvironmentVariables();
+        var configuration = builder.Build();
+
+        services.Configure<CommsOptions>(opts => configuration.GetSection("Comms").Bind(opts));
 
         return services;
     }

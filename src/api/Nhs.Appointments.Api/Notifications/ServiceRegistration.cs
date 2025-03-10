@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using System;
@@ -17,7 +18,8 @@ public static class ServiceRegistration
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingNotifier, BookingNotifier>()
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
-                .AddScoped<NotifyBookingReminderFunction>();
+                .AddScoped<NotifyBookingReminderFunction>()
+                .AddCommsOptions();
 
         switch (userNotificationsProvider)
         {

@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Notifications;
+
+namespace Nhs.Appointments.Core;
 
 public interface INotificationConfigurationService
 {

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Nhs.Appointments.Core.Notifications;
 
 namespace Nhs.Appointments.Core;
 
@@ -21,11 +22,6 @@ public interface IBookingsDocumentStore
 public interface IRolesStore
 {
     Task<IEnumerable<Role>> GetRoles();
-}
-
-public interface INotificationConfigurationStore
-{
-    Task<IEnumerable<NotificationConfiguration>> GetNotificationConfiguration();    
 }
 
 public interface IDocumentUpdate<TModel>

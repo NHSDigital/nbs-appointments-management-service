@@ -50,17 +50,10 @@ public class GetFeatureFlagFunction(
             ? Principal.Claims.GetUserEmail()
             : enabledRequest.UserOverrideId;
 
-        string[] siteIds = null;
-
-        if (!enabledRequest.SiteId.IsNullOrWhiteSpace())
-        {
-            siteIds = [enabledRequest.SiteId];
-        }
-
         var isFeatureEnabled = await featureToggleHelper.IsFeatureEnabled(
             enabledRequest.Flag,
             userId,
-            siteIds);
+            enabledRequest.SiteIds);
 
         return ApiResult<bool>.Success(isFeatureEnabled);
     }
@@ -70,9 +63,9 @@ public class GetFeatureFlagFunction(
         ReadRequestAsync(HttpRequest req)
     {
         var flag = req.HttpContext.GetRouteValue("flag")?.ToString();
-        var siteId = req.Query["siteId"].ToString();
+        var siteIds = req.Query["siteId"].ToArray();
         var userId = req.Query["userId"].ToString();
 
-        return ([], new FeatureFlagEnabledRequest(flag, siteId, userId));
+        return ([], new FeatureFlagEnabledRequest(flag, siteIds, userId));
     }
 }

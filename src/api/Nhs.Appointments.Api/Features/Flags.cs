@@ -7,6 +7,8 @@ public static class Flags
     public const string TestFeatureEnabled = "TestFeatureEnabled";
     //a flag configured to be enabled for a pre-defined time period
     public const string TestFeatureTimeWindowEnabled = "TestFeatureTimeWindowEnabled";
+    //a flag configured to be enabled for a pre-defined time period
+    public const string TestFeatureTimeWindowDisabled = "TestFeatureTimeWindowDisabled";
     //a flag configured to return enabled/disabled randomly on each request at the provided probability percentage
     public const string TestFeaturePercentageEnabled = "TestFeaturePercentageEnabled";
     //a flag configured to be enabled for a specific cohort of users

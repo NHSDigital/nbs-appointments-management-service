@@ -17,7 +17,7 @@ public interface IFeatureToggleHelper
     /// <param name="principal">The user context principal for the function invocation</param>
     /// <param name="requestInspector">
     ///     The site request inspector to try and extract any relevant siteIds, to be added to
-    ///     targeting context
+    ///     targeting context. If ANY of the sites have this feature enabled, this will return true!
     /// </param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabledForFunction(string featureFlag, FunctionContext functionContext,

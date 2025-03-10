@@ -44,13 +44,13 @@ public class SetSiteAccessibilitiesFunction(
     [Function("SetSiteAttributesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/accessibilities")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAccessibilitiesRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);

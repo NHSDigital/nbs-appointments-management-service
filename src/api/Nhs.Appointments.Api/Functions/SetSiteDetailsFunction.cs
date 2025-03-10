@@ -41,13 +41,12 @@ public class SetSiteDetailsFunction(
     [Function("SetSiteDetailsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/details")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger)
     {
         var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address,
             request.PhoneNumber, request.LongitudeDecimal, request.LatitudeDecimal);

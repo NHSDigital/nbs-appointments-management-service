@@ -52,14 +52,13 @@ public class GetSitesByAreaFunction(
     [RequiresPermission(Permissions.QuerySites, typeof(NoSiteRequestInspector))]
     [Function("GetSitesByAreaFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req,
-        FunctionContext functionContext)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesByAreaRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius,
             request.maximumRecords, request.accessNeeds, request.ignoreCache);

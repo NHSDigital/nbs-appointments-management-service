@@ -44,13 +44,13 @@ public class SetSiteReferenceDetailsFunction(
     [Function("SetSiteReferenceDetailsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/reference-details")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result =
             await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb,

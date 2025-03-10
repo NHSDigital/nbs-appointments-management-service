@@ -43,6 +43,6 @@ public class GetAuthTokenFunctionTests
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var response = _sut.RunAsync(request, functionContext: null);
+        var response = _sut.RunAsync(request);
     }
 }

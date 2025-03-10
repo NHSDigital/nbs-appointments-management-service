@@ -28,13 +28,12 @@ namespace Nhs.Appointments.Api.Functions
         [Function("GetUserProfileFunction")]
         public override Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/profile")]
-            HttpRequest req, FunctionContext functionContext)
+            HttpRequest req)
         {
-            return base.RunAsync(req, functionContext);
+            return base.RunAsync(req);
         }
 
-        protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger,
-            FunctionContext functionContext)
+        protected override async Task<ApiResult<UserProfile>> HandleRequest(EmptyRequest request, ILogger logger)
         {
             var userEmail = Principal.Claims.GetUserEmail();
 

@@ -16,7 +16,7 @@ public class AuthenticateCallbackFunction(IOptions<AuthOptions> authOptions)
     [AllowAnonymous]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth-return")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
         var code = req.Query["code"];
         var redirectUri = req.Query["state"];

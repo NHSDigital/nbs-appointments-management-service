@@ -41,7 +41,7 @@ public class GetUserPermissionsFunctionTests
         var expectedResult = new PermissionsResponse { Permissions = ["Permission-1", "Permission-2"] };
 
         var request = CreateRequest();
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
         var actualResponse = await ReadResponseAsync<PermissionsResponse>(result.Content);
         actualResponse.Should().BeEquivalentTo(expectedResult);

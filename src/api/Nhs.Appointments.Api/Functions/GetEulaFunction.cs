@@ -27,13 +27,13 @@ namespace Nhs.Appointments.Api.Functions
         [Function("GetEulaFunction")]
         public override Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eula")]
-            HttpRequest req, FunctionContext functionContext)
+            HttpRequest req)
         {
-            return base.RunAsync(req, functionContext);
+            return base.RunAsync(req);
         }
 
-        protected override async Task<ApiResult<EulaVersion>> HandleRequest(EmptyRequest request, ILogger logger,
-            FunctionContext functionContext)
+        protected override async Task<ApiResult<EulaVersion>> HandleRequest(EmptyRequest request, ILogger logger
+    )
         {
             var eula = await eulaService.GetEulaVersionAsync();
 

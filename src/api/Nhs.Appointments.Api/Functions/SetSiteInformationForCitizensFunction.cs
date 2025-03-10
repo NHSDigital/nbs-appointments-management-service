@@ -42,13 +42,13 @@ public class SetSiteInformationForCitizensFunction(
     [Function("SetSiteInformationForCitizensFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/informationForCitizens")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteInformationForCitizensRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result = await siteService.UpdateInformationForCitizens(request.Site, request.InformationForCitizens);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);

@@ -27,7 +27,7 @@ public class GetAuthTokenFunction(
     [AllowAnonymous]
     public async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "token")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
         // need to resolve the correct auth config here
         var providerName = req.Query["provider"];

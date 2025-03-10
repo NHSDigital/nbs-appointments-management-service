@@ -35,7 +35,7 @@ public class BaseApiFunctionTests
 
         _sut.HandleDelegate = (r, l) => { throw exception; };
 
-        await _sut.RunAsync(request, functionContext: null);
+        await _sut.RunAsync(request);
 
         _logger.LogEntries.First().LogLevel.Should().Be(LogLevel.Error);
         _logger.LogEntries.First().Message.Should().Be("Test Exception");
@@ -50,7 +50,7 @@ public class BaseApiFunctionTests
 
         _sut.ReadRequestDelegate = http => { throw exception; };
 
-        await _sut.RunAsync(request, functionContext: null);
+        await _sut.RunAsync(request);
 
         _logger.LogEntries.First().LogLevel.Should().Be(LogLevel.Error);
         _logger.LogEntries.First().Message.Should().Be("Test Exception");
@@ -65,7 +65,7 @@ public class BaseApiFunctionTests
 
         _sut.ValidateRequestDelegate = req => { throw exception; };
 
-        await _sut.RunAsync(request, functionContext: null);
+        await _sut.RunAsync(request);
 
         _logger.LogEntries.First().LogLevel.Should().Be(LogLevel.Error);
         _logger.LogEntries.First().Message.Should().Be("Test Exception");
@@ -81,7 +81,7 @@ public class BaseApiFunctionTests
 
         _sut.ReadRequestDelegate = req => (errors.AsReadOnly(), "");
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(400);
@@ -93,7 +93,7 @@ public class BaseApiFunctionTests
         var request = GetDefaultRequest();
         _sut.ValidateRequestDelegate = req => new[] { new ErrorMessageResponseItem() };
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(400);
@@ -105,7 +105,7 @@ public class BaseApiFunctionTests
         var request = GetDefaultRequest();
         _sut.HandleDelegate = (req, log) => ApiResult<string>.Failed(HttpStatusCode.NotFound, "Not Found");
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(404);
@@ -117,7 +117,7 @@ public class BaseApiFunctionTests
         var request = GetDefaultRequest();
         _sut.HandleDelegate = (req, log) => ApiResult<string>.Success("hooray");
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(200);
@@ -189,8 +189,7 @@ internal class TestableBaseApiFunction : BaseApiFunction<string, string>
         return base.ValidateRequest(request);
     }
 
-    protected override Task<ApiResult<string>> HandleRequest(string request, ILogger logger,
-        FunctionContext functionContext)
+    protected override Task<ApiResult<string>> HandleRequest(string request, ILogger logger)
     {
         if (HandleDelegate is null)
         {

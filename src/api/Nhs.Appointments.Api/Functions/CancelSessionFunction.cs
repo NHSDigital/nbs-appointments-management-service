@@ -38,13 +38,13 @@ public class CancelSessionFunction(
     [Function("CancelSessionFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/cancel")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger
+)
     {
         await availabilityService.CancelSession(
             request.Site,

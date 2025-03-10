@@ -63,6 +63,6 @@ public class SetSiteInformationForCitizensFunctionTests
         private readonly ILogger<SetSiteInformationForCitizensFunction> _logger = logger;
 
         public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteInformationForCitizensRequest request) =>
-            await HandleRequest(request, _logger, null);
+            await HandleRequest(request, _logger);
     }
 }

@@ -38,13 +38,13 @@ public class SetBookingStatusFunction(
     [Function("SetBookingStatusFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/set-status")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<SetBookingStatusResponse>> HandleRequest(SetBookingStatusRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result = await bookingService.SetBookingStatus(request.bookingReference, request.status,
             DeriveAvailabilityStatusFromAppointmentStatus(request.status));

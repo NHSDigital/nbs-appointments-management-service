@@ -48,7 +48,7 @@ public class CancelSessionFunctionTests
 
         var request = BuildRequest(cancelSessionRequest);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         _availabilityService.Verify(x => x.CancelSession(
             cancelSessionRequest.Site,

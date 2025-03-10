@@ -24,7 +24,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 {
     protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
 
-    public virtual async Task<IActionResult> RunAsync(HttpRequest req, FunctionContext functionContext)
+    public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
         try
         {
@@ -43,7 +43,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
             ApiResult<TResponse> response;
             using (metricsRecorder.BeginScope(GetType().Name))
             {
-                response = await HandleRequest(request, logger, functionContext);
+                response = await HandleRequest(request, logger);
             }
 
             WriteMetricsToConsole();
@@ -113,6 +113,5 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 
     protected ApiResult<EmptyResponse> Success() => ApiResult<EmptyResponse>.Success(new EmptyResponse());
 
-    protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger,
-        FunctionContext functionContext);
+    protected abstract Task<ApiResult<TResponse>> HandleRequest(TRequest request, ILogger logger);
 }

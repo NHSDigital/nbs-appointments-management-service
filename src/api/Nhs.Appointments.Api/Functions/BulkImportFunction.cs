@@ -39,9 +39,9 @@ public class BulkImportFunction(
     [Function("BulkImportFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>
@@ -75,7 +75,7 @@ public class BulkImportFunction(
     }
 
     protected override async Task<ApiResult<IEnumerable<ReportItem>>> HandleRequest(BulkImportRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var handler = dataImportHandlerFactory.CreateDataImportHandler(request.Type);
         var result = await handler.ProcessFile(request.File);

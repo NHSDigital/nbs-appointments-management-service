@@ -38,13 +38,12 @@ public class SetUserRolesFunction(
     [Function("SetUserRoles")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/roles")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetUserRolesRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetUserRolesRequest request, ILogger logger)
     {
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {

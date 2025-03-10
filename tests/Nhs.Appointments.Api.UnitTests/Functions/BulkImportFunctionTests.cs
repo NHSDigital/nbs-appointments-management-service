@@ -44,7 +44,7 @@ public class BulkImportFunctionTests
     {
         var request = CreateBadRequest_NoFiles();
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(400);
     }
@@ -54,7 +54,7 @@ public class BulkImportFunctionTests
     {
         var request = CreateBadRequest_MultipleFiles();
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(400);
     }
@@ -81,7 +81,7 @@ public class BulkImportFunctionTests
         _mockSiteDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
             .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(200);
 
@@ -112,7 +112,7 @@ public class BulkImportFunctionTests
         _mockUserDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
             .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(200);
 

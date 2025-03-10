@@ -43,13 +43,13 @@ public class GetSiteMetaDataFunction(
     [Function("GetSiteMetaData")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}/meta")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<GetSiteMetaDataResponse>> HandleRequest(SiteBasedResourceRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         const string scope = "site_details";
         var site = await siteService.GetSiteByIdAsync(request.Site, scope);

@@ -36,13 +36,13 @@ public class GetUserPermissionsFunction(
     [Function("GetPermissionsForUserFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/permissions")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<PermissionsResponse>> HandleRequest(SiteBasedResourceRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var user = Principal.Claims.GetUserEmail();
         var permissions = await permissionChecker.GetPermissionsAsync(user, request.Site);

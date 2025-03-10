@@ -32,13 +32,13 @@ public class GetAccessibilityDefinitionsFunction(
     [Function("GetAccessibilityDefinitionsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "AccessibilityDefinitions")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<AccessibilityDefinition>>> HandleRequest(EmptyRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var AccessibilityDefinitions = await AccessibilityDefinitionsService.GetAccessibilityDefinitions();
         return ApiResult<IEnumerable<AccessibilityDefinition>>.Success(AccessibilityDefinitions);

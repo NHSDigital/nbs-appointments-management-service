@@ -38,7 +38,7 @@ public class GetSitesByAreaFunctionTests
     public async Task RunAsync_ReturnsBadRequest_WhenAccessNeedsContainsEmptyString(string accessNeeds)
     {
         var request = CreateRequest(34.6, 2.1, 10, 10, true, accessNeeds);
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(400);
         _siteService.Verify(x => x.FindSitesByArea(34.6, 2.1, 10, 10, Array.Empty<string>(), false), Times.Never());
     }
@@ -71,7 +71,7 @@ public class GetSitesByAreaFunctionTests
             .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, true, accessNeeds);
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
             x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false),
@@ -105,7 +105,7 @@ public class GetSitesByAreaFunctionTests
             .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, false);
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
             x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false),

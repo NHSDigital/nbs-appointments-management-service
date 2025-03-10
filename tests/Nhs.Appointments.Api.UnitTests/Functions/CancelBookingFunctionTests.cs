@@ -41,7 +41,7 @@ public class CancelBookingFunctionTests
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         Assert.Equal(200, response.StatusCode.Value);
     }
@@ -56,7 +56,7 @@ public class CancelBookingFunctionTests
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         _bookingService.Verify();
     }
@@ -71,7 +71,7 @@ public class CancelBookingFunctionTests
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         Assert.Equal(404, response.StatusCode.Value);
     }
@@ -87,7 +87,7 @@ public class CancelBookingFunctionTests
 
         var request = BuildRequest(bookingRef, site);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as InternalServerErrorResult;
+        var response = await _sut.RunAsync(request) as InternalServerErrorResult;
 
         Assert.NotNull(response);
         Assert.Equal(500, response.StatusCode);

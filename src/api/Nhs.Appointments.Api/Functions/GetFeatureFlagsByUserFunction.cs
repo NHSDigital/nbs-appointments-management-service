@@ -24,6 +24,8 @@ public class GetFeatureFlagsByUserFunction(
     IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, GetFeatureFlagsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
+    private FunctionContext FunctionContext { get; set; }
+    
     [OpenApiOperation(operationId: "GetFeatureFlagsByUser", tags: ["FeatureFlag"],
         Summary =
             "Get the enabled state for all the defined feature flags, using the calling users id for any feature filters")]
@@ -36,15 +38,15 @@ public class GetFeatureFlagsByUserFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagsByUserFunction")]
-    public override Task<IActionResult> RunAsync(
+    public Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags/by-user")]
         HttpRequest req, FunctionContext functionContext)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<GetFeatureFlagsResponse>> HandleRequest(EmptyRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var response = new GetFeatureFlagsResponse([]);
 
@@ -56,7 +58,7 @@ public class GetFeatureFlagsByUserFunction(
 
         foreach (var flag in flags)
         {
-            var enabled = await featureToggleHelper.IsFeatureEnabledForFunction(flag, functionContext, Principal,
+            var enabled = await featureToggleHelper.IsFeatureEnabledForFunction(flag, FunctionContext, Principal,
                 new NoSiteRequestInspector());
             response.FeatureFlags.Add(new KeyValuePair<string, bool>(flag, enabled));
         }

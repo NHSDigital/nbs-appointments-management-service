@@ -41,13 +41,13 @@ public class MakeBookingFunction(
     [Function("MakeBookingFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<MakeBookingResponse>> HandleRequest(MakeBookingRequest bookingRequest,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var requestedBooking = new Booking
         {

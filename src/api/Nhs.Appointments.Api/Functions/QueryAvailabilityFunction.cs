@@ -43,13 +43,13 @@ public class QueryAvailabilityFunction(
     [Function("QueryAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<QueryAvailabilityResponse>> HandleRequest(QueryAvailabilityRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var concurrentResults = new ConcurrentBag<QueryAvailabilityResponseItem>();
         var response = new QueryAvailabilityResponse();

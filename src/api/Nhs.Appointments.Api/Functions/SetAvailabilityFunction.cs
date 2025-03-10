@@ -39,13 +39,13 @@ public class SetAvailabilityFunction(
     [Function("SetAvailabilityFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 

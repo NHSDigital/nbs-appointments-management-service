@@ -45,13 +45,13 @@ public class CancelBookingFunction(
     [Function("CancelBookingFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/cancel")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result = await bookingService.CancelBooking(request.bookingReference, request.site);
 

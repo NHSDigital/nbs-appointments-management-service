@@ -62,7 +62,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         var request = CreateRequest();
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result?.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<IEnumerable<AvailabilityCreatedEvent>>(result.Content);

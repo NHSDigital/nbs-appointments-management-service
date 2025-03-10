@@ -35,13 +35,13 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     [Function("TriggerUnconfirmedProvisionalBookingsCollector")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "system/run-provisional-sweep")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(
-        EmptyRequest request, ILogger logger, FunctionContext functionContext)
+        EmptyRequest request, ILogger logger)
     {
         var removedIds = await bookingService.RemoveUnconfirmedProvisionalBookings();
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));

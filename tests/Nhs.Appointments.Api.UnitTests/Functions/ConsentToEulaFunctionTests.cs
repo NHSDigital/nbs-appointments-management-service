@@ -59,7 +59,7 @@ public class ConsentToEulaFunctionTests
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         var request = CreateRequest();
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         _eulaService.Verify(x => x.GetEulaVersionAsync(), Times.Once);
         _eulaService.Verify(x => x.ConsentToEula("test@test.com"), Times.Once);
@@ -77,7 +77,7 @@ public class ConsentToEulaFunctionTests
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         var request = CreateRequest("1989-03-01");
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
 
         result.Should().NotBeNull();
         result.StatusCode.Should().Be(400);

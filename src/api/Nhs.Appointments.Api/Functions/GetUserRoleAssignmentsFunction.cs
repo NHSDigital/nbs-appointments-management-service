@@ -40,14 +40,13 @@ namespace Nhs.Appointments.Api.Functions
         [RequiresPermission(Permissions.ViewUsers, typeof(SiteFromQueryStringInspector))]
         [Function("GetUserRoleAssignmentsFunction")]
         public override Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req,
-            FunctionContext functionContext)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequest req)
         {
-            return base.RunAsync(req, functionContext);
+            return base.RunAsync(req);
         }
 
         protected override async Task<ApiResult<IEnumerable<User>>> HandleRequest(SiteBasedResourceRequest request,
-            ILogger logger, FunctionContext functionContext)
+            ILogger logger)
         {
             Func<RoleAssignment, bool> roleAssignmentFilter = ra => ra.Scope == $"site:{request.Site}";
             var users = await userService.GetUsersAsync(request.Site);

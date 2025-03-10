@@ -51,3 +51,13 @@ Feature: Feature Flags
   Scenario: Local flag TestFeatureSiteOrUserEnabled is disabled when the user is outside the targeting audience and the site is outside the targeting audience
     When I request the user and site enabled state for feature flag 'TestFeatureSiteOrUserEnabled' with user 'test@nhs.net' and site '24c36a82-489e-4fc1-877a-6e8cae0deaae'
     Then the response should be 200 with enabled state 'false'
+    
+# Logical OR
+  Scenario: Local flag TestFeatureSitesEnabled is enabled for ANY of the sites within the targeting audience
+    When I request the site enabled state for feature flag 'TestFeatureSitesEnabled' sites '24c36a82-489e-4fc1-877a-6e8cae0deaae' and '5bb9177c-1555-42a5-91cd-a2c3c8efa0ff'
+    Then the response should be 200 with enabled state 'true'
+    
+# Logical OR (Neither case)
+  Scenario: Local flag TestFeatureSitesEnabled is disabled if NONE of the sites within the targeting audience
+    When I request the site enabled state for feature flag 'TestFeatureSitesEnabled' sites '46cfec08-03c4-4ac2-a0ed-72f825487459' and '5bb9177c-1555-42a5-91cd-a2c3c8efa0ff'
+    Then the response should be 200 with enabled state 'false'

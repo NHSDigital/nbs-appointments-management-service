@@ -33,6 +33,16 @@ public sealed class FeatureFlags : BaseFeatureSteps
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<bool>(await _response.Content.ReadAsStreamAsync());
     }
+    
+    [When(@"I request the site enabled state for feature flag '(.*)' sites '(.*)' and '(.*)'")]
+    public async Task FeatureFlagEnabledForSites(string featureFlag, string siteId1, string siteId2)
+    {
+        _response = await Http.GetAsync(
+            $"http://localhost:7071/api/feature-flag/{featureFlag}?siteId={siteId1}&siteId={siteId2}");
+        _statusCode = _response.StatusCode;
+        (_, _actualResponse) =
+            await JsonRequestReader.ReadRequestAsync<bool>(await _response.Content.ReadAsStreamAsync());
+    }
 
     [Then(@"the response should be 200 with enabled state '(true|false)'")]
     public async Task AssertEnabled(bool enabled)

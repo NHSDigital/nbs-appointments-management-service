@@ -20,14 +20,14 @@ public class FeatureToggleHelper(IFeatureManager featureManager) : IFeatureToggl
         return await IsFeatureEnabled(featureFlag, principal.Claims.GetUserEmail(), siteIds);
     }
 
-    public async Task<bool> IsFeatureEnabled(string featureFlag, string userId, string[] sites)
+    public async Task<bool> IsFeatureEnabled(string featureFlag, string userId, string[] siteIds)
     {
         var targetingUser = userId.IsNullOrWhiteSpace() ? null : userId;
         IEnumerable<string> targetingSites = null;
 
-        if (sites != null && sites.Length != 0)
+        if (siteIds != null && siteIds.Length != 0)
         {
-            targetingSites = sites.Select(x => $"Site:{x}");
+            targetingSites = siteIds.Select(x => $"Site:{x}");
         }
 
         var targetingContext = new TargetingContext { UserId = targetingUser, Groups = targetingSites };

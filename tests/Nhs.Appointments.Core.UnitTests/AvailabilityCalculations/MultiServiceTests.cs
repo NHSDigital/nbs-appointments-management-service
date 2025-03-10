@@ -2,8 +2,10 @@
 
 public class MultiServiceTests : AvailabilityCalculationsBase
 {
-    [Fact]
-    public async Task MultipleServicesByCreatedDate()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MultipleServicesByCreatedDate(bool useV2)
     {
         var bookings = new List<Booking>
         {
@@ -26,7 +28,16 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        AvailabilityState resultingAvailabilityState;
+
+        if (useV2)
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -40,8 +51,10 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
 
-    [Fact]
-    public async Task TheBestFitProblem()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem(bool useV2)
     {
         // See: https://app.mural.co/t/nhsdigital8118/m/nhsdigital8118/1737058837342/35b45e0418f8661f6ad19efed4bf3fd0cc9bb3d5
 
@@ -61,16 +74,107 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        AvailabilityState resultingAvailabilityState;
+
+        if (useV2)
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        // Bookings 1 and 2 can be booked
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
+
+        resultingAvailabilityState.Bookings.Should().HaveCount(3);
+        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3");
+    }
+    
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem_2(bool useV2)
+    {
+        // See: https://app.mural.co/t/nhsdigital8118/m/nhsdigital8118/1737058837342/35b45e0418f8661f6ad19efed4bf3fd0cc9bb3d5
+
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "B", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "B", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "A", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "A", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "B", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "C", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "D", avStatus: "Orphaned", creationOrder: 7),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "10:00", ["A", "B", "C"], capacity: 1),
+            TestSession("09:00", "10:00", ["A", "C", "D"], capacity: 2),
+            TestSession("09:00", "10:00", ["B", "C", "D"], capacity: 2),
+            TestSession("09:00", "10:00", ["A", "B", "D"], capacity: 2),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        AvailabilityState resultingAvailabilityState;
+
+        if (useV2)
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        // Bookings 1 and 2 can be booked
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
+
+        resultingAvailabilityState.Bookings.Should().HaveCount(7);
+        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
+    }
+    
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem_3(bool useV2)
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "B", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "A", avStatus: "Orphaned", creationOrder: 2)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "10:00", ["A", "B"], capacity: 1),
+            TestSession("09:00", "10:00", ["B", "C", "D"], capacity: 4)
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        AvailabilityState resultingAvailabilityState;
+
+        if (useV2)
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
 
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
 
-        // Booking 3 could have been booked if we rejuggled appointments, but currently we do not
-        resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(2);
+        resultingAvailabilityState.Bookings.Should().HaveCount(7);
         resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
     }
 }

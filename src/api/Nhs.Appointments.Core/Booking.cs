@@ -41,6 +41,9 @@ public class Booking
 
     [JsonProperty("additionalData")]
     public object AdditionalData { get; set; }
+
+    //TODO test
+    public bool Done { get; set; }
 }
 
 public class AttendeeDetails

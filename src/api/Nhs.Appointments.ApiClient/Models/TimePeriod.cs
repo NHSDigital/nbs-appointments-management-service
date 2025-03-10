@@ -4,6 +4,11 @@ namespace Nhs.Appointments.ApiClient.Models
 {
     public class TimePeriod
     {
+        [JsonConstructor]
+        public TimePeriod()
+        {
+        }
+        
         public TimePeriod(DateTime from, DateTime until)
         {
             if (until <= from)

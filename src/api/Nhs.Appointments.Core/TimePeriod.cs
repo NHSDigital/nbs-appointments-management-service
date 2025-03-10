@@ -4,6 +4,12 @@ namespace Nhs.Appointments.Core;
 
 public class TimePeriod
 {
+    [JsonConstructor]
+    public TimePeriod()
+    {
+        
+    }
+    
     public TimePeriod(DateTime from, DateTime until)
     {
         if (until <= from)

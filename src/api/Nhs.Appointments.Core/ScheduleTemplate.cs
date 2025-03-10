@@ -29,9 +29,16 @@ public class Session
 
 public class SessionInstance : TimePeriod
 {
+    [Newtonsoft.Json.JsonConstructor]
+    public SessionInstance()
+    {
+    }
+
+    public Guid InternalId { get; set; }
+    
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
     public SessionInstance(DateTime from, DateTime until) : base(from, until) { }    
-    public string[] Services { get; set; }
+    public List<string> Services { get; set; }
     public int SlotLength { get; set; }
     public int Capacity { get; set; }
     public IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>

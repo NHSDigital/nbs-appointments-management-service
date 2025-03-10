@@ -57,6 +57,11 @@ public class CancelSessionFunction(
 
         if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
         {
+            if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculationsV2)
+            {
+                await availabilityService.RecalculateAppointmentStatusesV2(request.Site, request.Date);
+            }
+            
             await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
         }
         else

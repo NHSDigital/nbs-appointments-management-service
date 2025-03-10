@@ -27,7 +27,7 @@ public class CapacityDataExtract(
             availability => availability.Sessions.Select(
                 s => new SiteSessionInstance(availability.Site, availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
                 {
-                    Services = s.Services,
+                    Services = s.Services.ToList(),
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();

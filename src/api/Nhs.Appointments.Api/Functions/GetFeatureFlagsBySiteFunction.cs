@@ -25,6 +25,8 @@ public class GetFeatureFlagsBySiteFunction(
     IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EmptyRequest, GetFeatureFlagsResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
+    private FunctionContext FunctionContext { get; set; }
+    
     [OpenApiOperation(operationId: "GetFeatureFlagsBySite", tags: ["FeatureFlag"],
         Summary = "Get the enabled state for all the defined feature flags, using the provided site id for any feature filters")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(GetFeatureFlagsResponse),
@@ -40,6 +42,7 @@ public class GetFeatureFlagsBySiteFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags/sites/{site}")]
         HttpRequest req, FunctionContext functionContext)
     {
+        FunctionContext = functionContext;
         return base.RunAsync(req, functionContext);
     }
 
@@ -56,7 +59,7 @@ public class GetFeatureFlagsBySiteFunction(
 
         foreach (var flag in flags)
         {
-            var enabled = await featureToggleHelper.IsFeatureEnabledForFunction(flag, functionContext, Principal, new SiteFromPathInspector());
+            var enabled = await featureToggleHelper.IsFeatureEnabledForFunction(flag, FunctionContext, Principal, new SiteFromPathInspector());
             response.FeatureFlags.Add(new KeyValuePair<string, bool>(flag, enabled));
         }
 

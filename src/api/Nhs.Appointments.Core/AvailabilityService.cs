@@ -18,50 +18,33 @@ public class AvailabilityService(
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
-    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly day)
-    {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
-
-        var bookings = (await bookingsService.GetBookings(dayStart, dayEnd, site))
-            .Where(b => _liveStatuses.Contains(b.Status))
-            .OrderBy(b => b.From)
-            .ThenBy(b=> b.Duration)
-            .ThenBy(b => b.Created)
-            .ToList();
-
-        return bookings;
-    }
-
-    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly day)
-    {
-        var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day))
-            .ToList();
-
-        var slots = sessionsOnThatDay
-            .SelectMany(session => session.ToSlots())
-            .ToList();
-
-        return slots;
-    }
-
-    public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
+    public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template,
+        ApplyAvailabilityMode mode, string user)
     {
         if (string.IsNullOrEmpty(site))
+        {
             throw new ArgumentException("site must have a value");
+        }
 
         if (from > until)
+        {
             throw new ArgumentException("until date must be after from date");
+        }
 
         if (template == null)
+        {
             throw new ArgumentException("template must be provided");
+        }
 
         if (template.Sessions is null || template.Sessions.Length == 0)
+        {
             throw new ArgumentException("template must contain one or more sessions");
+        }
 
         if (template.Days is null || template.Days.Length == 0)
+        {
             throw new ArgumentException("template must specify one or more weekdays");
+        }
 
         var dates = GetDatesBetween(from, until, template.Days);
         foreach (var date in dates)
@@ -74,7 +57,7 @@ public class AvailabilityService(
                 {
                     await RecalculateAppointmentStatusesV2(site, date);
                 }
-                
+
                 await RecalculateAppointmentStatuses(site, date);
             }
             else
@@ -97,7 +80,7 @@ public class AvailabilityService(
             {
                 await RecalculateAppointmentStatusesV2(site, date);
             }
-            
+
             await RecalculateAppointmentStatuses(site, date);
         }
         else
@@ -108,7 +91,8 @@ public class AvailabilityService(
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
-    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from)
+    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site,
+        DateOnly from)
     {
         var events = await availabilityCreatedEventStore.GetAvailabilityCreatedEvents(site);
 
@@ -118,29 +102,13 @@ public class AvailabilityService(
             .ThenBy(e => e.To);
     }
 
-    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
-        Session sessionToEdit = null)
-    {
-        if (string.IsNullOrEmpty(site))
-            throw new ArgumentException("Site must have a value.");
-
-        if (sessions is null || sessions.Length == 0)
-            throw new ArgumentException("Availability must contain one or more sessions.");
-
-        if (mode is ApplyAvailabilityMode.Edit && sessionToEdit is null)
-        {
-            throw new ArgumentException("When editing a session a session to edit must be supplied.");
-        }
-
-        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
-    }
-
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
 
-    public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
+    public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services,
+        int slotLength, int capacity)
     {
         var sessionToCancel = new Session
         {
@@ -154,17 +122,6 @@ public class AvailabilityService(
         await availabilityStore.CancelSession(site, date, sessionToCancel);
     }
 
-    private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
-    {
-        var cursor = start;
-        while (cursor <= end)
-        {
-            if (weekdays.Contains(cursor.DayOfWeek))
-                yield return cursor;
-            cursor = cursor.AddDays(1);
-        }
-    }
-
     public SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
         slots.Where(
                 sl => sl.Capacity > 0
@@ -174,7 +131,7 @@ public class AvailabilityService(
             .OrderBy(slot => slot.Services.Count)
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
-    
+
     public async Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day)
     {
         var availabilityState = new AvailabilityState();
@@ -221,183 +178,6 @@ public class AvailabilityService(
         return availabilityState;
     }
 
-    public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly day)
-    {
-        var availabilityState = new AvailabilityState();
-
-        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
-        var slots = await GetSlots(site, day);
-
-        var groupedBookingSlots = orderedLiveBookings
-            .GroupBy(slot => new { slot.From, slot.Duration });
-
-        //apply logic to assign booking slots into session slots
-        //i.e lets just consider all the bookings from 9:00 to 9:10 (as example), and all the slots offered for this time
-        foreach (var groupedBookingSlot in groupedBookingSlots)
-        {
-            var allBookings = groupedBookingSlot.ToList();
-            var allSlots = slots.Where(x => x.From == groupedBookingSlot.Key.From && x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToList();
-            
-            //generate some random internal IDs??
-            foreach (var slot in allSlots)
-            {
-                slot.InternalId = Guid.NewGuid();
-            }
-
-            //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
-            var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToList();
-            
-            //group by service offering also?
-            var groupedSlotsByServiceCount = allSlots.GroupBy(slot => new { slot.Services.Count }).Order();
-
-            //loop through the slots by their session service array length (i.e slots that only offer one service, then two, etc...)
-            foreach (var slotsByServiceCount in groupedSlotsByServiceCount)
-            {
-                //now that we've got the bookingPriorityDictionary order, we will use this to remove the lowest priority
-                //item with the lowest fractions when making decisions!
-                foreach (var booking in allBookings)
-                {
-                    //go and get all bookings left 
-                    var remainingBookings = groupedBookingSlot.Where(x => !x.Done).ToList();
-                    //go and reevaluate what slots are remaining to use
-                    var allRemainingSlots = slotsByServiceCount.Where(x => x.Capacity > 0).ToList();
-                
-                    //based on all available services from 9:00 - 9:10, and for slots of this service length, what are the current totals?
-                    var slotTotalsDictionary = new Dictionary<string, decimal>();
-                    var bookingPriorityDictionary = new Dictionary<string, decimal>();
-                
-                    foreach (var service in allServicesOfferedInTheseSlots)
-                    {
-                        //ignore for the service we're booking for
-                        if (service == booking.Service)
-                        {
-                            continue;
-                        }
-                        
-                        slotTotalsDictionary.Add(service, allRemainingSlots.Count(x => x.Services.Contains(service)));
-                    }
-                    
-                    //recalculate booking priority dictionary
-                    var bookingTotalsDictionary = new Dictionary<string, decimal>();
-                    foreach (var service in allServicesOfferedInTheseSlots)
-                    {
-                        //ignore for the service we're booking for
-                        if (service == booking.Service)
-                        {
-                            continue;
-                        }
-                        
-                        bookingTotalsDictionary.Add(service, remainingBookings.Count(x => x.Service.Equals(service)));
-                    }
-                    
-                    foreach (var service in allServicesOfferedInTheseSlots)
-                    {
-                        //ignore for the service we're booking for
-                        if (service == booking.Service)
-                        {
-                            continue;
-                        }
-                        
-                        var bookingTotalForService = bookingTotalsDictionary[service];
-                        var slotsTotalForService = slotTotalsDictionary[service];
-
-                        if (slotsTotalForService == 0)
-                        {
-                            bookingPriorityDictionary.Add(service, 0);
-                        }
-                        else
-                        {
-                            bookingPriorityDictionary.Add(service, (bookingTotalForService / slotsTotalForService));
-                        }
-                    }
-                    
-                    //need to deep clone remaining slot state for each booking
-                    //this is required as we are going to alter state of remaining slots for this calculation
-                    var clonedSlots = JsonConvert.DeserializeObject<List<SessionInstance>>(
-                        JsonConvert.SerializeObject(allRemainingSlots)
-                    );
-                    
-                    var orderedPriority = bookingPriorityDictionary.OrderBy(x => x.Value).ToList();
-                    
-                    //when deciding which slot to take, we need to iterate through services offered
-                    //and remove slots that offer services in lowest remainingAvailability order
-                    var serviceIterations = slotsByServiceCount.Key.Count;
-
-                    SessionInstance clonedTargetSlot = null;
-
-                    // var servicesRemoved = new List<string>();
-                    
-                    //this should reduce all slots down service by service until only one service remains (the one we want to book)
-                    for (var i = 0; i < serviceIterations; i++)
-                    {
-                        var nextLowestService = orderedPriority[i].Key;
-                        
-                        //need to do it in a way here that doesn't impact overall slots for future calculations
-                        foreach (var clonedSlot in clonedSlots)
-                        {
-                            clonedSlot.Services.Remove(nextLowestService);
-                        }
-                        
-                        // //TODO HOW DO WE KNOW WHAT SERVICES THE FOUND SLOT HAD!!!
-                        // servicesRemoved.Add(nextLowestService);
-                        
-                        //try and find a matching slot with exactly the one service!!
-                        clonedTargetSlot = clonedSlots.FirstOrDefault(x => x.Services.Count == 1 && x.Services.Contains(booking.Service));
-
-                        if (clonedTargetSlot != null)
-                        {
-                            break;
-                        }
-                    }
-
-                    SessionInstance targetSlot = null;
-
-                    //since we found a slot, need to add back in all the removed services we used to find it
-                    //and get the real slot to use
-                    if (clonedTargetSlot != null)
-                    {
-                        // clonedTargetSlot.Services.AddRange(servicesRemoved);
-                        targetSlot = allRemainingSlots.SingleOrDefault(x => x.InternalId == clonedTargetSlot.InternalId);
-                    }
-                    
-                    booking.Done = true;
-                    
-                    var bookingIsSupportedByAvailability = targetSlot is not null;
-        
-                    if (bookingIsSupportedByAvailability)
-                    {
-                        if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
-                        {
-                            availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                                AvailabilityUpdateAction.SetToSupported));
-                        }
-        
-                        targetSlot.Capacity--;
-                        availabilityState.Bookings.Add(booking);
-                        continue;
-                    }
-        
-                    if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-                        booking.Status is not AppointmentStatus.Provisional)
-                    {
-                        availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                            AvailabilityUpdateAction.SetToOrphaned));
-                    }
-        
-                    if (booking.Status is AppointmentStatus.Provisional)
-                    {
-                        availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                            AvailabilityUpdateAction.ProvisionalToDelete));
-                    }
-                }
-            }
-        }
-
-        availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
-
-        return availabilityState;
-    }
-
     public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
     {
         var availabilityState = await GetAvailabilityState(site, day);
@@ -431,7 +211,7 @@ public class AvailabilityService(
             AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
         };
     }
-    
+
     public async Task<AvailabilityState> RecalculateAppointmentStatusesV2(string site, DateOnly day)
     {
         var availabilityState = await GetAvailabilityStateV2(site, day);
@@ -467,7 +247,7 @@ public class AvailabilityService(
             AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
         };
     }
-    
+
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
@@ -519,5 +299,243 @@ public class AvailabilityService(
 
             return (false, string.Empty);
         }
+    }
+
+    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var bookings = (await bookingsService.GetBookings(dayStart, dayEnd, site))
+            .Where(b => _liveStatuses.Contains(b.Status))
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.Duration)
+            .ThenBy(b => b.Created)
+            .ToList();
+
+        return bookings;
+    }
+
+    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly day)
+    {
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, day, day))
+            .ToList();
+
+        var slots = sessionsOnThatDay
+            .SelectMany(session => session.ToSlots())
+            .ToList();
+
+        return slots;
+    }
+
+    public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
+        Session sessionToEdit = null)
+    {
+        if (string.IsNullOrEmpty(site))
+        {
+            throw new ArgumentException("Site must have a value.");
+        }
+
+        if (sessions is null || sessions.Length == 0)
+        {
+            throw new ArgumentException("Availability must contain one or more sessions.");
+        }
+
+        if (mode is ApplyAvailabilityMode.Edit && sessionToEdit is null)
+        {
+            throw new ArgumentException("When editing a session a session to edit must be supplied.");
+        }
+
+        await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
+    }
+
+    private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
+    {
+        var cursor = start;
+        while (cursor <= end)
+        {
+            if (weekdays.Contains(cursor.DayOfWeek))
+            {
+                yield return cursor;
+            }
+
+            cursor = cursor.AddDays(1);
+        }
+    }
+
+    public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly day)
+    {
+        var availabilityState = new AvailabilityState();
+
+        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
+        var slots = await GetSlots(site, day);
+
+        var groupedBookingSlots = orderedLiveBookings
+            .GroupBy(slot => new { slot.From, slot.Duration });
+
+        //apply logic to assign booking slots into session slots
+        //i.e lets just consider all the bookings from 9:00 to 9:10 (as example), and all the slots offered for this time
+        foreach (var groupedBookingSlot in groupedBookingSlots)
+        {
+            var allBookings = groupedBookingSlot.ToList();
+            var allSlots = slots.Where(x =>
+                x.From == groupedBookingSlot.Key.From &&
+                x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToList();
+
+            //generate some random internal IDs??
+            foreach (var slot in allSlots)
+            {
+                slot.InternalId = Guid.NewGuid();
+            }
+
+            //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
+            var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToList();
+
+            foreach (var booking in allBookings)
+            {
+                //go and get all bookings left 
+                var remainingBookings = groupedBookingSlot.Where(x => !x.Processed).ToList();
+                //go and reevaluate what slots are remaining to use
+                var remainingSlots = allSlots.Where(x => x.Capacity > 0).ToList();
+
+                //based on all available services from 9:00 - 9:10, and for slots of this service length, what are the current totals?
+                var slotTotalsDictionary = new Dictionary<string, decimal>();
+                var bookingPriorityDictionary = new Dictionary<string, decimal>();
+
+                foreach (var service in allServicesOfferedInTheseSlots)
+                {
+                    //ignore for the service we're booking for
+                    if (service == booking.Service)
+                    {
+                        continue;
+                    }
+                    
+                    var totalSlotsCapacity = remainingSlots.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity);
+                    slotTotalsDictionary.Add(service, totalSlotsCapacity);
+                }
+
+                //recalculate booking priority dictionary
+                var bookingTotalsDictionary = new Dictionary<string, decimal>();
+                foreach (var service in allServicesOfferedInTheseSlots)
+                {
+                    //ignore for the service we're booking for
+                    if (service == booking.Service)
+                    {
+                        continue;
+                    }
+
+                    bookingTotalsDictionary.Add(service, remainingBookings.Count(x => x.Service.Equals(service)));
+                }
+
+                foreach (var service in allServicesOfferedInTheseSlots)
+                {
+                    //ignore for the service we're booking for
+                    if (service == booking.Service)
+                    {
+                        continue;
+                    }
+
+                    var bookingTotalForService = bookingTotalsDictionary[service];
+                    var slotsTotalForService = slotTotalsDictionary[service];
+
+                    //protect against divide by zero :D
+                    if (slotsTotalForService == 0)
+                    {
+                        bookingPriorityDictionary.Add(service, 0);
+                    }
+                    else
+                    {
+                        //service purple, 0 bookings remaining, 8 slots that support green. = 0
+                        //service green, 4 bookings remaining, 9 slots that support green. = 4/9
+                        //service blue, 2 bookings remaining, 13 slots that support green. = 2/13
+                        //service orange, 8 bookings remaining, 2 slots that support green. = 4
+                        bookingPriorityDictionary.Add(service, bookingTotalForService / slotsTotalForService);
+                    }
+                }
+
+                //need to deep clone remaining slot state for each booking
+                //this is required as we are going to alter state of remaining slots for this calculation
+                var clonedRemainingSlots = JsonConvert.DeserializeObject<List<SessionInstance>>(
+                    JsonConvert.SerializeObject(remainingSlots)
+                );
+
+                var orderedPriority = bookingPriorityDictionary.OrderBy(x => x.Value).ToList();
+
+                SessionInstance possibleTargetSlot;
+                
+                //check first if there are any slots where only offer single service that we need to book (no need to attempt priority check)
+                possibleTargetSlot = clonedRemainingSlots.FirstOrDefault(x => x.Services.Count == 1 && x.Services.Contains(booking.Service));
+
+                //if we couldn't find a single slot, try and find the next possible slot with best fit
+                if (possibleTargetSlot == null)
+                {
+                    //this should reduce all slots down service by service until only one service remains (the one we want to book)
+                    foreach (var priority in orderedPriority)
+                    {
+                        var nextLowestService = priority.Key;
+
+                        //need to do it in a way here that doesn't impact overall slots for future calculations
+                        foreach (var clonedSlot in clonedRemainingSlots)
+                        {
+                            clonedSlot.Services.Remove(nextLowestService);
+                        }
+
+                        //try and find a matching slot with exactly the one service!!
+                        possibleTargetSlot = clonedRemainingSlots.FirstOrDefault(x =>
+                            x.Services.Count == 1 && x.Services.Contains(booking.Service));
+
+                        if (possibleTargetSlot != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                SessionInstance targetSlot = null;
+
+                //since we found a slot, need to add back in all the removed services we used to find it
+                //and get the real slot to use
+                if (possibleTargetSlot != null)
+                {
+                    // clonedTargetSlot.Services.AddRange(servicesRemoved);
+                    targetSlot = remainingSlots.SingleOrDefault(x => x.InternalId == possibleTargetSlot.InternalId);
+                }
+
+                booking.Processed = true;
+
+                var bookingIsSupportedByAvailability = targetSlot is not null;
+
+                if (bookingIsSupportedByAvailability)
+                {
+                    if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
+                    {
+                        availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                            AvailabilityUpdateAction.SetToSupported));
+                    }
+
+                    targetSlot.Capacity--;
+                    availabilityState.Bookings.Add(booking);
+                    continue;
+                }
+
+                if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                    booking.Status is not AppointmentStatus.Provisional)
+                {
+                    availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                        AvailabilityUpdateAction.SetToOrphaned));
+                }
+
+                if (booking.Status is AppointmentStatus.Provisional)
+                {
+                    availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                        AvailabilityUpdateAction.ProvisionalToDelete));
+                }
+            }
+        }
+
+        availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
+
+        return availabilityState;
     }
 }

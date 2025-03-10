@@ -43,7 +43,7 @@ public class Booking
     public object AdditionalData { get; set; }
 
     //TODO test
-    public bool Done { get; set; }
+    public bool Processed { get; set; }
 }
 
 public class AttendeeDetails

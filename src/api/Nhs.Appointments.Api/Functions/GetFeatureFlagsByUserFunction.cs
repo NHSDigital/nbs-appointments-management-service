@@ -38,10 +38,11 @@ public class GetFeatureFlagsByUserFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagsByUserFunction")]
-    public Task<IActionResult> RunAsync(
+    public Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags/by-user")]
         HttpRequest req, FunctionContext functionContext)
     {
+        FunctionContext = functionContext;
         return base.RunAsync(req);
     }
 

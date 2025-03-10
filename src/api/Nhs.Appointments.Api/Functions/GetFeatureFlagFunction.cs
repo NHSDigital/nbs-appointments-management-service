@@ -23,6 +23,8 @@ public class GetFeatureFlagFunction(
     IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<FeatureFlagEnabledRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
+    private FunctionContext FunctionContext { get; set; }
+    
     [OpenApiOperation(operationId: "GetFeatureFlag", tags: ["FeatureFlag"],
         Summary =
             "Get the enabled state for the requested flag, by the siteId query parameter (if provided) and an optional userId override (if provided)")]
@@ -40,6 +42,7 @@ public class GetFeatureFlagFunction(
         HttpRequest req,
         FunctionContext functionContext)
     {
+        FunctionContext = functionContext;
         return base.RunAsync(req, functionContext);
     }
 

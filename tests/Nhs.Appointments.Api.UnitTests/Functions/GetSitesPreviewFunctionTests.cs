@@ -5,32 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using Nhs.Appointments.Api.Auth;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
+
 public class GetSitesPreviewFunctionTests
 {
+    private readonly Mock<ILogger<GetSitesPreviewFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly Mock<IPermissionChecker> _permissionChecker = new();
     private readonly Mock<ISiteService> _siteService = new();
+    private readonly GetSitesPreviewFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IUserService> _userSiteAssignmentService = new();
     private readonly Mock<IValidator<EmptyRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private readonly Mock<ILogger<GetSitesPreviewFunction>> _logger = new();
-    private readonly Mock<IPermissionChecker> _permissionChecker = new();
-    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
-    private GetSitesPreviewFunction _sut;
 
     public GetSitesPreviewFunctionTests()
     {
-        _sut = new GetSitesPreviewFunction(_siteService.Object, _userSiteAssignmentService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _permissionChecker.Object);
+        _sut = new GetSitesPreviewFunction(_siteService.Object, _userSiteAssignmentService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _permissionChecker.Object);
     }
 
     [Fact]
@@ -54,15 +50,15 @@ public class GetSitesPreviewFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
         {
-            Id = "test@test.com",
-            RoleAssignments = [],
+            Id = "test@test.com", RoleAssignments = [],
         });
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
-        _userSiteAssignmentService.Verify(x => x.GetUserAsync(It.Is<string>(email => email == "test@test.com")), Times.Once);
+        _userSiteAssignmentService.Verify(x => x.GetUserAsync(It.Is<string>(email => email == "test@test.com")),
+            Times.Once);
     }
 
     [Fact]
@@ -89,22 +85,19 @@ public class GetSitesPreviewFunctionTests
         var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var roleAssignments = new RoleAssignment[] {
-            new(){ Role = "Role1", Scope = "site:1" },
-            new(){ Role = "system:admin-user", Scope = "global" }
-        };
-        var sitesPreview = new SitePreview[] {
-            new("1", "Site1", "ODS1"),
-            new("2", "Site2", "ODS2"),
-        };
-        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
-        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+        var roleAssignments = new RoleAssignment[]
         {
-            Id = "test@test.com",
-            RoleAssignments = roleAssignments
+            new() { Role = "Role1", Scope = "site:1" }, new() { Role = "system:admin-user", Scope = "global" }
+        };
+        var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1"), new("2", "Site2", "ODS2"), };
+        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
+        {
+            Id = "test@test.com", RoleAssignments = roleAssignments
         });
         _siteService.Setup(x => x.GetSitesPreview()).ReturnsAsync(sitesPreview);
-        _permissionChecker.Setup(x => x.HasGlobalPermissionAsync("test@test.com", Permissions.ViewSitePreview)).ReturnsAsync(true);
+        _permissionChecker.Setup(x => x.HasGlobalPermissionAsync("test@test.com", Permissions.ViewSitePreview))
+            .ReturnsAsync(true);
 
         var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
@@ -120,9 +113,7 @@ public class GetSitesPreviewFunctionTests
         var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var roleAssignments = new RoleAssignment[] {
-            new(){ Role = "Role1", Scope = "site:1" }
-        };
+        var roleAssignments = new RoleAssignment[] { new() { Role = "Role1", Scope = "site:1" } };
         var site1 = new Site(
             Id: "1",
             Name: "Alpha",
@@ -135,7 +126,7 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
         );
-        
+
         var site2 = new Site(
             Id: "2",
             Name: "Beta",
@@ -148,7 +139,7 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
         );
-        
+
         var site3 = new Site(
             Id: "3",
             Name: "Gamma",
@@ -161,20 +152,19 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
         );
-        
+
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
-        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User()
+        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
         {
-            Id = "test@test.com",
-            RoleAssignments = roleAssignments
+            Id = "test@test.com", RoleAssignments = roleAssignments
         });
-        
+
         _siteService.Setup(x => x.GetSiteByIdAsync(site1.Id, It.IsAny<string>())).ReturnsAsync(site1);
         _siteService.Setup(x => x.GetSiteByIdAsync(site2.Id, It.IsAny<string>())).ReturnsAsync(site2);
         _siteService.Setup(x => x.GetSiteByIdAsync(site3.Id, It.IsAny<string>())).ReturnsAsync(site3);
-        
-        _permissionChecker.Setup(x=> x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
-            .ReturnsAsync(new List<string>() {site1.Id, site3.Id});
+
+        _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
+            .ReturnsAsync(new List<string> { site1.Id, site3.Id });
 
         var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);

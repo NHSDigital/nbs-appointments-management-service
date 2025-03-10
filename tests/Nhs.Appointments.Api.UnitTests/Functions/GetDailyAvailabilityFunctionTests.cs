@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -17,10 +16,10 @@ namespace Nhs.Appointments.Api.Tests.Functions
     public class GetDailyAvailabilityFunctionTests
     {
         private readonly Mock<IAvailabilityService> _mockAvailabilityService = new();
-        private readonly Mock<IValidator<GetDailyAvailabilityRequest>> _mockValidator = new();
-        private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
         private readonly Mock<ILogger<GetDailyAvailabilityFunction>> _mockLogger = new();
         private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
+        private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
+        private readonly Mock<IValidator<GetDailyAvailabilityRequest>> _mockValidator = new();
 
         private readonly GetDailyAvailabilityFunction _sut;
 
@@ -33,7 +32,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 _mockLogger.Object,
                 _mockMetricsRecorder.Object);
 
-            _mockValidator.Setup(x => x.ValidateAsync(It.IsAny<GetDailyAvailabilityRequest>(), It.IsAny<CancellationToken>()))
+            _mockValidator.Setup(x =>
+                    x.ValidateAsync(It.IsAny<GetDailyAvailabilityRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ValidationResult());
         }
 
@@ -77,7 +77,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 }
             };
 
-            _mockAvailabilityService.Setup(x => x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+            _mockAvailabilityService.Setup(x =>
+                    x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
                 .ReturnsAsync(availability);
 
             var request = CreateRequest();
@@ -86,7 +87,8 @@ namespace Nhs.Appointments.Api.Tests.Functions
 
             result.StatusCode.Should().Be(200);
 
-            var dailyAvailabilities = (await ReadResponseAsync<IEnumerable<DailyAvailability>>(result.Content)).ToList();
+            var dailyAvailabilities =
+                (await ReadResponseAsync<IEnumerable<DailyAvailability>>(result.Content)).ToList();
 
             dailyAvailabilities.Should().NotBeNull();
             dailyAvailabilities.Any().Should().BeTrue();
@@ -106,10 +108,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         {
             var deserializerSettings = new JsonSerializerSettings
             {
-                Converters =
-                {
-                    new ShortTimeOnlyJsonConverter()
-                },
+                Converters = { new ShortTimeOnlyJsonConverter() },
             };
             var body = await new StringReader(response).ReadToEndAsync();
             return JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings);

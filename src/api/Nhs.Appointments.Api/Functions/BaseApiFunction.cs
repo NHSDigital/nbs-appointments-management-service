@@ -10,12 +10,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.FeatureFilters;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -70,7 +67,8 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         }
     }
 
-    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(HttpRequest req) 
+    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(
+        HttpRequest req)
         => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
@@ -106,14 +104,6 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
                 Console.WriteLine(metric.Path + ": " + metric.Value);
             }
         }
-    }
-
-    internal async Task<bool> HasFeatureFlag(string flag, IFeatureManager featureManager,
-        FunctionContext functionContext, IRequestInspector requestInspector)
-    {
-        var siteIds = await requestInspector.GetSiteIds(await functionContext.GetHttpRequestDataAsync());
-        var targetingContext = new TargetingContext { UserId = Principal.Claims.GetUserEmail(), Groups = siteIds };
-        return await featureManager.IsEnabledAsync(flag, targetingContext);
     }
 
     protected ApiResult<TResponse> Success(TResponse response) => ApiResult<TResponse>.Success(response);

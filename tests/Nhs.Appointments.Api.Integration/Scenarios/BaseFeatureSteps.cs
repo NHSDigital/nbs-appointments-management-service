@@ -553,25 +553,25 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var notificationConfiguration = new NotificationConfigurationDocument
         {
-            Id = "notification_configuration",
-            DocumentType = "system",
-            Configs =
-            [
-                new NotificationConfigurationItem
-                {
-                    Services = ["COVID", "COVID:18_74"],
-                    EmailTemplateId = "COVID Email Confirmation",
-                    SmsTemplateId = "COVID SMS Confirmation",
-                    EventType = "BookingMade"
-                },
-                new NotificationConfigurationItem
-                {
-                    Services = ["COVID", "COVID:18_74"],
-                    EmailTemplateId = "COVID Email Reminder",
-                    SmsTemplateId = "COVID SMS Reminder",
-                    EventType = "BookingReminder"
-                }
-            ]
+            //Id = "notification_configuration",
+            //DocumentType = "system",
+            //Configs =
+            //[
+            //    new NotificationConfigurationItem
+            //    {
+            //        Services = ["COVID", "COVID:18_74"],
+            //        EmailTemplateId = "COVID Email Confirmation",
+            //        SmsTemplateId = "COVID SMS Confirmation",
+            //        EventType = "BookingMade"
+            //    },
+            //    new NotificationConfigurationItem
+            //    {
+            //        Services = ["COVID", "COVID:18_74"],
+            //        EmailTemplateId = "COVID Email Reminder",
+            //        SmsTemplateId = "COVID SMS Reminder",
+            //        EventType = "BookingReminder"
+            //    }
+            //]
         };
         await Client.GetContainer("appts", "core_data").UpsertItemAsync(notificationConfiguration);
     }

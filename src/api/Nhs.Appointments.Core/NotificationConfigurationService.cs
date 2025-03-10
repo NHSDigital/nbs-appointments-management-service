@@ -1,31 +1,26 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core.Notifications;
 
 namespace Nhs.Appointments.Core;
 
-public class NotificationConfigurationService(IMemoryCache memoryCache, INotificationConfigurationStore notificationConfigurationStore) : INotificationConfigurationService
+public class NotificationConfigurationService : INotificationConfigurationService
 {
+    private readonly List<NotificationConfiguration> _configurations;
+
+    public NotificationConfigurationService(IOptions<CommsOptions> commsOptions)
+    {
+        _configurations = commsOptions.Value?.Configurations ?? new List<NotificationConfiguration>();
+    }
+
     public async Task<NotificationConfiguration> GetNotificationConfigurationsAsync(string eventType)
     {
-        var config = await LoadNotificationConfiguration();
-        return config.SingleOrDefault(x => x.EventType == eventType);
+        return _configurations.SingleOrDefault(x => x.EventType == eventType);
     }
 
     public async Task<NotificationConfiguration> GetNotificationConfigurationsAsync(string eventType, string service)
     {
-        var config = await LoadNotificationConfiguration();
-        return config.SingleOrDefault(x => x.EventType == eventType && x.Services.Contains(service));
-    }
-
-    private async Task<IEnumerable<NotificationConfiguration>> LoadNotificationConfiguration()
-    {
-        const string cacheKey = "notification_configuration";
-        var notificationConfiguration = memoryCache.Get<IEnumerable<NotificationConfiguration>>(cacheKey);
-        if(notificationConfiguration == null)
-        {
-            notificationConfiguration = await notificationConfigurationStore.GetNotificationConfiguration();
-            memoryCache.Set(cacheKey, notificationConfiguration, DateTimeOffset.UtcNow.AddMinutes(60));
-        }
-        return notificationConfiguration;
+        //return _configurations.SingleOrDefault(x => x.EventType == eventType && x.Services.Contains(service));
+        return _configurations.SingleOrDefault(x => x.EventType == eventType);
     }
 }
 

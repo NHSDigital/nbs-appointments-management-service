@@ -2,6 +2,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;

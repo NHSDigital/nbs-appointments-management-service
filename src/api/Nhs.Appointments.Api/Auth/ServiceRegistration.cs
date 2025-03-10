@@ -1,11 +1,9 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
+using System;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Nhs.Appointments.Api.Auth;
 
@@ -18,9 +16,8 @@ public static class ServiceRegistration
             .AddEnvironmentVariables();
         var configuration = builder.Build();
 
-        return services
-            .Configure<AuthOptions>(opts => configuration.GetSection("Auth").Bind(opts))
-            .Configure<SignedRequestAuthenticator.Options>(opts =>
+        services.Configure<AuthOptions>(opts => configuration.GetSection("Auth").Bind(opts));
+        services.Configure<SignedRequestAuthenticator.Options>(opts =>
             {
                 opts.RequestTimeTolerance = TimeSpan.FromMinutes(3);
             })
@@ -32,5 +29,7 @@ public static class ServiceRegistration
             .AddTransient<ISecurityTokenValidator, JwtSecurityTokenHandler>()
             .AddTransient<IRequestSigner, RequestSigner>()
             .AddMemoryCache();
+
+        return services;
     }
 }

@@ -64,7 +64,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddTransient<ISiteStore, SiteStore>()
-            .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()

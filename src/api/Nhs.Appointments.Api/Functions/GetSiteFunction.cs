@@ -39,14 +39,12 @@ public class GetSiteFunction(
     [RequiresPermission(Permissions.ViewSite, typeof(SiteFromPathInspector))]
     [Function("GetSiteFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req,
-        FunctionContext functionContext)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites/{site}")] HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<Site>> HandleRequest(SiteBasedResourceRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<Site>> HandleRequest(SiteBasedResourceRequest request, ILogger logger)
     {
         var site = await siteService.GetSiteByIdAsync(request.Site, request.Scope);
         if (site != null)

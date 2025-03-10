@@ -23,8 +23,6 @@ public class GetFeatureFlagFunction(
     IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<FeatureFlagEnabledRequest, bool>(validator, userContextProvider, logger, metricsRecorder)
 {
-    private FunctionContext FunctionContext { get; set; }
-    
     [OpenApiOperation(operationId: "GetFeatureFlag", tags: ["FeatureFlag"],
         Summary =
             "Get the enabled state for the requested flag, by the siteId query parameter (if provided) and an optional userId override (if provided)")]
@@ -39,16 +37,13 @@ public class GetFeatureFlagFunction(
     [Function("GetFeatureFlagFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag/{flag}")]
-        HttpRequest req,
-        FunctionContext functionContext)
+        HttpRequest req)
     {
-        FunctionContext = functionContext;
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<bool>> HandleRequest(FeatureFlagEnabledRequest enabledRequest,
-        ILogger logger,
-        FunctionContext functionContext)
+        ILogger logger)
     {
         //fallback to the API user if not provided
         var userId = enabledRequest.UserOverrideId.IsNullOrWhiteSpace()

@@ -37,7 +37,7 @@ public class GetSitesPreviewFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
 
-        await _sut.RunAsync(request, functionContext: null);
+        await _sut.RunAsync(request);
 
         _userSiteAssignmentService.Verify(x => x.GetUserAsync("test@test.com"), Times.Once());
     }
@@ -55,7 +55,7 @@ public class GetSitesPreviewFunctionTests
             Id = "test@test.com", RoleAssignments = [],
         });
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
         _userSiteAssignmentService.Verify(x => x.GetUserAsync(It.Is<string>(email => email == "test@test.com")),
             Times.Once);
@@ -70,7 +70,7 @@ public class GetSitesPreviewFunctionTests
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(() => null);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
 
         response.StatusCode.Should().Be(200);
@@ -99,7 +99,7 @@ public class GetSitesPreviewFunctionTests
         _permissionChecker.Setup(x => x.HasGlobalPermissionAsync("test@test.com", Permissions.ViewSitePreview))
             .ReturnsAsync(true);
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
 
         actualResponse.Count().Should().Be(2);
@@ -166,7 +166,7 @@ public class GetSitesPreviewFunctionTests
         _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
             .ReturnsAsync(new List<string> { site1.Id, site3.Id });
 
-        var response = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
 
         actualResponse.Count().Should().Be(2);

@@ -39,14 +39,14 @@ public class GetAvailabilityCreatedEventsFunction(
     [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromQueryStringInspector))]
     [Function("GetAvailabilityCreatedEventsFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "availability-created")] HttpRequest req,
-        FunctionContext functionContext)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "availability-created")] HttpRequest req
+)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<AvailabilityCreatedEvent>>> HandleRequest(
-        GetAvailabilityCreatedEventsRequest request, ILogger logger, FunctionContext functionContext)
+        GetAvailabilityCreatedEventsRequest request, ILogger logger)
     {
         var availabilityCreatedEvents =
             await availabilityService.GetAvailabilityCreatedEventsAsync(request.Site, request.FromDate);

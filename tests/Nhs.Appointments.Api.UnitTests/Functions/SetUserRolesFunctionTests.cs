@@ -88,7 +88,7 @@ public class SetUserRolesFunctionTests
 
         public async Task<ApiResult<EmptyResponse>> Invoke(SetUserRolesRequest request)
         {
-            return await HandleRequest(request, _logger, null);
+            return await HandleRequest(request, _logger);
         }
     }
 }

@@ -39,13 +39,13 @@ public class RemoveUserFunction(
     [Function("RemoveUserFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user/remove")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {

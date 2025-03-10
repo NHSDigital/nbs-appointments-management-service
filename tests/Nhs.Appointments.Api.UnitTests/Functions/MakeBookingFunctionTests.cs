@@ -47,7 +47,7 @@ public class MakeBookingFunctionTests
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(200);
         var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
         response.BookingReference.Should().Be("TEST01");
@@ -62,7 +62,7 @@ public class MakeBookingFunctionTests
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
         var response = await ReadResponseAsync<BadRequestBody>(result.Content);
         response.message.Should().Be("Site for booking request could not be found");
@@ -82,7 +82,7 @@ public class MakeBookingFunctionTests
             "FirstName", "LastName",
             "1958-06-08", "test@tempuri.org", "0123456789", null);
 
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(404);
         var response = await ReadResponseAsync<BadRequestBody>(result.Content);
         response.message.Should().Be("The time slot for this booking is not available");
@@ -123,7 +123,7 @@ public class MakeBookingFunctionTests
                 new ContactItem { Value = "0123456789", Type = ContactItemType.Phone }
             ]
         };
-        _sut.RunAsync(request, functionContext: null);
+        _sut.RunAsync(request);
         _bookingService.Invocations.Should().HaveCount(1);
         var actualArgument = _bookingService.Invocations.First().Arguments.First();
         actualArgument.Should().BeEquivalentTo(expectedBooking);

@@ -29,13 +29,13 @@ public class ConsentToEulaFunction(
     [Function("ConsentToEula")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "eula/consent")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConsentToEulaRequest request, ILogger logger,
-        FunctionContext functionContext)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConsentToEulaRequest request, ILogger logger
+)
     {
         var latestEulaVersion = await eulaService.GetEulaVersionAsync();
         if (request.VersionDate != latestEulaVersion.VersionDate)

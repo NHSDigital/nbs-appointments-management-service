@@ -48,13 +48,13 @@ public class ConfirmProvisionalBookingFunction(
     [Function("ConfirmProvisionalBookingFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/{bookingReference}/confirm")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),

@@ -38,16 +38,16 @@ public class GetFeatureFlagsBySiteFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [Function("GetFeatureFlagsBySiteFunction")]
-    public override Task<IActionResult> RunAsync(
+    public Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flags/sites/{site}")]
         HttpRequest req, FunctionContext functionContext)
     {
         FunctionContext = functionContext;
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<GetFeatureFlagsResponse>> HandleRequest(EmptyRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var response = new GetFeatureFlagsResponse([]);
 

@@ -80,7 +80,7 @@ public class GetUserRoleAssignmentsFunctionTests
         };
         _userService.Setup(x => x.GetUsersAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(users);
         var request = CreateRequest();
-        var result = await _sut.RunAsync(request, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         var actualResponse = await ReadResponseAsync<IEnumerable<User>>(result.Content);
         actualResponse.Should().BeEquivalentTo(expectedResult);

@@ -44,7 +44,7 @@ public class AuthenticateFunctionTests
         request.QueryString = new QueryString("?provider=test-auth");
 
 
-        var result = _sut.Run(request, functionContext: null);
+        var result = _sut.Run(request);
         result.Should().BeOfType<RedirectResult>();
         (result as RedirectResult).Url.StartsWith("https://test.oauth.com/auth");
     }

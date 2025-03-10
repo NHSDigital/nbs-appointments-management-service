@@ -38,7 +38,7 @@ public class RemoveUserFunctionTests
 
         var request = CreateRequest("test.user@nhs.net", "34e990af-5dc9-43a6-8895-b9123216d699");
 
-        var result = ParseResponse(await _sut.RunAsync(request, functionContext: null));
+        var result = ParseResponse(await _sut.RunAsync(request));
         result.StatusCode.Should().Be(200);
 
         var response = await ReadResponseAsync<RemoveUserResponse>(result.Content);
@@ -61,7 +61,7 @@ public class RemoveUserFunctionTests
 
         var request = CreateRequest("test.user@nhs.net", "34e990af-5dc9-43a6-8895-b9123216d699");
 
-        var result = ParseResponse(await _sut.RunAsync(request, functionContext: null));
+        var result = ParseResponse(await _sut.RunAsync(request));
         result.StatusCode.Should().Be(404);
 
         _userService.Verify(
@@ -74,7 +74,7 @@ public class RemoveUserFunctionTests
     {
         var request = CreateRequest("", "34e990af-5dc9-43a6-8895-b9123216d699");
 
-        var result = ParseResponse(await _sut.RunAsync(request, functionContext: null));
+        var result = ParseResponse(await _sut.RunAsync(request));
         result.StatusCode.Should().Be(400);
 
         _userService.Verify(service => service.RemoveUserAsync("", "34e990af-5dc9-43a6-8895-b9123216d699"),
@@ -92,7 +92,7 @@ public class RemoveUserFunctionTests
 
         var request = CreateRequest(testUser, "34e990af-5dc9-43a6-8895-b9123216d699");
 
-        var result = ParseResponse(await _sut.RunAsync(request, functionContext: null));
+        var result = ParseResponse(await _sut.RunAsync(request));
         result.StatusCode.Should().Be(400);
 
         _userService.Verify(service => service.RemoveUserAsync(testUser, "34e990af-5dc9-43a6-8895-b9123216d699"),

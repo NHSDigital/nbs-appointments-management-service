@@ -60,7 +60,7 @@ public class QueryBookingByReferenceNumberTests
         var request = new QueryBookingByReferenceRequest(bookingRef, site);
         var httpRequest = CreateRequest(request.site);
 
-        var result = await _sut.RunAsync(httpRequest, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
 
         var response = await ReadResponseAsync<Booking>(result.Content);
@@ -91,7 +91,7 @@ public class QueryBookingByReferenceNumberTests
         var request = new QueryBookingByReferenceRequest(bookingRef, "TEST03");
         var httpRequest = CreateRequest(request.site);
 
-        var result = await _sut.RunAsync(httpRequest, functionContext: null) as ContentResult;
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(404);
     }
 

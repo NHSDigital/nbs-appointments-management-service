@@ -38,13 +38,13 @@ public class QueryBookingsFunction(
     [Function("QueryBookingsFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "booking/query")]
-        HttpRequest req, FunctionContext functionContext)
+        HttpRequest req)
     {
-        return base.RunAsync(req, functionContext);
+        return base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
-        ILogger logger, FunctionContext functionContext)
+        ILogger logger)
     {
         var booking = await bookingsService.GetBookings(request.from, request.to, request.site);
         return Success(booking);

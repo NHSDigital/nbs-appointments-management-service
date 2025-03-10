@@ -8,6 +8,14 @@ Feature: Feature Flags
     When I request the enabled state for feature flag 'TestFeatureDisabled'
     Then the response should be 200 with enabled state 'false'
 
+  Scenario: Local flag TestFeatureTimeWindowDisabled is disabled
+    When I request the enabled state for feature flag 'TestFeatureTimeWindowDisabled'
+    Then the response should be 200 with enabled state 'false'
+
+  Scenario: Local flag TestFeatureTimeWindowEnabled is enabled
+    When I request the enabled state for feature flag 'TestFeatureTimeWindowEnabled'
+    Then the response should be 200 with enabled state 'true'
+
   Scenario: Local flag TestFeatureUsersEnabled is enabled for users within the targeting audience
     When I request the user and site enabled state for feature flag 'TestFeatureUsersEnabled' with user 'api@test' and site ''
     Then the response should be 200 with enabled state 'true'

@@ -25,7 +25,9 @@ var host = new HostBuilder()
             {
                 options.Connect(azureAppConfigConnection)
                     .UseFeatureFlags()
-                    .ConfigureRefresh(refresh => refresh.RegisterAll().SetRefreshInterval(TimeSpan.FromMinutes(10)));
+                    .ConfigureRefresh(refresh => refresh
+                        .RegisterAll()
+                        .SetRefreshInterval(TimeSpan.FromMinutes(10)));
             });
         }
     })

@@ -301,4 +301,85 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState.Bookings.Should().HaveCount(5);
         resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
     }
+    
+    
+    /// <summary>
+    /// Prove adding extra orphaned bookings doesn't change the booked status of the first one
+    /// </summary>
+    /// <param name="useV2"></param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem_7(bool useV2)
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Green", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Green", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Purple", avStatus: "Orphaned", creationOrder: 3),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Purple", "Orange"], capacity: 1)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        AvailabilityState resultingAvailabilityState1;
+
+        if (useV2)
+        {
+            resultingAvailabilityState1 = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState1 = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        resultingAvailabilityState1.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1");
+        
+        resultingAvailabilityState1.Recalculations.Should().NotContain(r => r.Booking.Reference == "2");
+        resultingAvailabilityState1.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
+
+        resultingAvailabilityState1.Bookings.Should().HaveCount(1);
+        resultingAvailabilityState1.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1");
+        
+        
+        //now append orange orphaned bookings on, to make orange now the higher opportunity cost service
+        bookings.AddRange([
+            TestBooking("4", "Orange", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "Orange", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "Orange", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "Orange", avStatus: "Orphaned", creationOrder: 7),
+        ]);
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        AvailabilityState resultingAvailabilityState2;
+        
+        if (useV2)
+        {
+            resultingAvailabilityState2 = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState2 = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        resultingAvailabilityState2.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1");
+        
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "2");
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "6");
+        resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "7");
+
+        resultingAvailabilityState2.Bookings.Should().HaveCount(1);
+        resultingAvailabilityState2.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1");
+
+    }
 }

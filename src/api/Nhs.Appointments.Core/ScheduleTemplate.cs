@@ -33,8 +33,6 @@ public class SessionInstance : TimePeriod
     public SessionInstance()
     {
     }
-
-    public Guid InternalId { get; set; }
     
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
     public SessionInstance(DateTime from, DateTime until) : base(from, until) { }    

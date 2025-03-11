@@ -226,8 +226,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
             TestBooking("1", "B", avStatus: "Orphaned", creationOrder: 1),
             TestBooking("2", "E", avStatus: "Orphaned", creationOrder: 2)
         };
-
-        //3a, 2b, 2c, 1d, 1e, 1f
+        
         var sessions = new List<SessionInstance>
         {
             TestSession("09:00", "09:10", ["A", "B", "C", "E"], capacity: 1),

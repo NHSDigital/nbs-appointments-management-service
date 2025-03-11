@@ -67,9 +67,9 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         var sessions = new List<SessionInstance>
         {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-            TestSession("09:00", "10:00", ["Orange", "Blue"], capacity: 1)
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Orange", "Blue"], capacity: 1)
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -113,10 +113,10 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         var sessions = new List<SessionInstance>
         {
-            TestSession("09:00", "10:00", ["A", "B", "C"], capacity: 1),
-            TestSession("09:00", "10:00", ["A", "B", "D"], capacity: 2),
-            TestSession("09:00", "10:00", ["A", "C", "D"], capacity: 2),
-            TestSession("09:00", "10:00", ["B", "C", "D"], capacity: 2),
+            TestSession("09:00", "09:10", ["A", "B", "C"], capacity: 1),
+            TestSession("09:00", "09:10", ["A", "B", "D"], capacity: 2),
+            TestSession("09:00", "09:10", ["A", "C", "D"], capacity: 2),
+            TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 2),
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -153,8 +153,8 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         var sessions = new List<SessionInstance>
         {
-            TestSession("09:00", "10:00", ["A", "B"], capacity: 1),
-            TestSession("09:00", "10:00", ["B", "C", "D"], capacity: 4)
+            TestSession("09:00", "09:10", ["A", "B"], capacity: 1),
+            TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 4)
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -191,8 +191,8 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         var sessions = new List<SessionInstance>
         {
-            TestSession("09:00", "10:00", ["A", "B"], capacity: 1),
-            TestSession("09:00", "10:00", ["B", "C", "D"], capacity: 4)
+            TestSession("09:00", "09:10", ["A", "B"], capacity: 1),
+            TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 4)
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -230,10 +230,10 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         //3a, 2b, 2c, 1d, 1e, 1f
         var sessions = new List<SessionInstance>
         {
-            TestSession("09:00", "10:00", ["A", "B", "C", "E"], capacity: 1),
-            TestSession("09:00", "10:00", ["A", "D"], capacity: 1),
-            TestSession("09:00", "10:00", ["A", "F"], capacity: 1),
-            TestSession("09:00", "10:00", ["B", "C"], capacity: 90)
+            TestSession("09:00", "09:10", ["A", "B", "C", "E"], capacity: 1),
+            TestSession("09:00", "09:10", ["A", "D"], capacity: 1),
+            TestSession("09:00", "09:10", ["A", "F"], capacity: 1),
+            TestSession("09:00", "09:10", ["B", "C"], capacity: 90)
         };
         
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -255,5 +255,50 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         resultingAvailabilityState.Bookings.Should().HaveCount(2);
         resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
+    }
+    
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem_6(bool useV2)
+    {
+        //purple blue green
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Purple", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Green", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Blue", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "Purple", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "Green", avStatus: "Orphaned", creationOrder: 5)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Blue", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Blue", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Blue", "Green"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Purple", "Green"], capacity: 1),
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        AvailabilityState resultingAvailabilityState;
+
+        if (useV2)
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
+
+        resultingAvailabilityState.Bookings.Should().HaveCount(5);
+        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
     }
 }

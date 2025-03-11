@@ -446,10 +446,6 @@ public class AvailabilityService(
                     }
                     else
                     {
-                        //service purple, 0 bookings remaining, 8 slots that support green. = 0
-                        //service green, 4 bookings remaining, 9 slots that support green. = 4/9
-                        //service blue, 2 bookings remaining, 13 slots that support green. = 2/13
-                        //service orange, 8 bookings remaining, 2 slots that support green. = 4
                         bookingPriorityDictionary.Add(service, bookingTotalForService / slotsTotalForService);
                     }
                 }

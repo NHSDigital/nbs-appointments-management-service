@@ -37,7 +37,7 @@ public class AvailibilityCalculator : IAvailibilityCalculator
 
         foreach (var service in distinctServices) 
         {
-            var serviceReport = new Capacity();//GetCapacityReportForService(service, availabilities, bookedServices);
+            var serviceReport = GetCapacityReportForService(service, availabilities, bookedServices);
             reports.Add(serviceReport);
             final.Available.Add(service, serviceReport.Available[service]);
         }
@@ -45,29 +45,55 @@ public class AvailibilityCalculator : IAvailibilityCalculator
         return final;
     }
 
-    //private Capacity GetCapacityReportForService(string service, IEnumerable<Availability> availabilities, string[] bookedServices) 
-    //{
-    //    var report = new Capacity();
-    //    if (!bookedServices.Any())
-    //    {
-    //        report.Available.Add(service, availabilities.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity));
-    //        return report;
-    //    }
+    private Capacity GetCapacityReportForService(string service, IEnumerable<Availability> availabilities, string[] bookedServices)
+    {
+        var report = new Capacity();
+        if (!bookedServices.Any())
+        {
+            report.Available.Add(service, availabilities.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity));
+            return report;
+        }
 
-    //    foreach (var presentService in bookedServices.Union(availabilities.SelectMany(x => x.Services)).Distinct()
-    //        .OrderBy(x => x.Equals(service) ? 1 : 0)
-    //        .ThenByDescending(x => bookedServices.Count(bs => x.Contains(bs))))
-    //    {
-    //        var count = bookedServices.Count(x => x.Equals(presentService));
-    //        availabilities.OrderBy(x => x.Services.Contains(presentService) ? 1 : 0)
-    //                .ThenByDescending(x => bookedServices.Count(bs => x.Services.Contains(bs)));
+        var remaining = new List<UnAvailable>();
 
-    //        while (count > 0)
-    //        {
+        foreach (var presentService in bookedServices.Union(availabilities.SelectMany(x => x.Services)).Distinct()
+            .OrderBy(x => x.Equals(service) ? 1 : 0)
+            .ThenByDescending(x => bookedServices.Count(bs => x.Contains(bs))))
+        {
+            var presentServiceBookings = bookedServices.Where(x => x.Equals(presentService)).ToArray();
+            availabilities.OrderBy(x => x.Services.Contains(presentService) ? 1 : 0)
+                    .ThenByDescending(x => bookedServices.Count(bs => x.Services.Contains(bs)));
 
-    //        }
-    //    }
-    //}
+            foreach (var available in availabilities.Where(x => x.RemainingCapacity > 0 && x.Services.Contains(presentService)))
+            {
+                if (presentServiceBookings is null || presentServiceBookings.Count() <= 0) break;
+
+                available.TryAddBookings(presentServiceBookings);
+            }
+
+            if (presentServiceBookings is not null && presentServiceBookings.Count() > 0) 
+            {
+                var relatedServices = new string[] { presentService }.Union(availabilities.Where(x => x.Services.Contains(service)).SelectMany(x => x.Services)).Distinct().ToArray()
+                
+                remaining.Add(new UnAvailable(new string[] { presentService }.Union(availabilities.Where(x => x.Services.Contains(service)).SelectMany(x => x.Services)).Distinct().ToArray(), presentServiceBookings.Count()))
+            }
+        }
+
+        foreach (var remain in remaining)
+        {
+            while (remain.Occurance > 0)
+            {
+                var findCapacity = capacity.Totals.FirstOrDefault(x => x.Value > 0 && remaining.ServiceCombination.Any(sc => sc.Contains(x.Key)));
+
+                if (findCapacity.Value == 0) break;
+
+                capacity.Totals[findCapacity.Key]--;
+                remaining.Capacity--;
+            }
+        }
+
+        return report;
+    }
 
     //public Capacity GetCapacityReport(IEnumerable<Availability> availabilities, string[] bookedServices) 
     //{

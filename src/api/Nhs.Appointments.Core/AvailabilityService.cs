@@ -55,7 +55,7 @@ public class AvailabilityService(
             {
                 if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculationsV2)
                 {
-                    await RecalculateAppointmentStatusesV2(site, date);
+                    await RecalculateAppointmentStatusesV2(site, date, date);
                 }
 
                 await RecalculateAppointmentStatuses(site, date);
@@ -78,7 +78,7 @@ public class AvailabilityService(
         {
             if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculationsV2)
             {
-                await RecalculateAppointmentStatusesV2(site, date);
+                await RecalculateAppointmentStatusesV2(site, date, date);
             }
 
             await RecalculateAppointmentStatuses(site, date);
@@ -136,8 +136,8 @@ public class AvailabilityService(
     {
         var availabilityState = new AvailabilityState();
 
-        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
-        var slots = await GetSlots(site, day);
+        var orderedLiveBookings = await GetOrderedLiveBookings(site, day, day);
+        var slots = await GetSlots(site, day, day);
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
@@ -212,9 +212,9 @@ public class AvailabilityService(
         };
     }
 
-    public async Task<AvailabilityState> RecalculateAppointmentStatusesV2(string site, DateOnly day)
+    public async Task<AvailabilityState> RecalculateAppointmentStatusesV2(string site, DateOnly from, DateOnly to)
     {
-        var availabilityState = await GetAvailabilityStateV2(site, day);
+        var availabilityState = await GetAvailabilityStateV2(site, from, to);
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
@@ -301,10 +301,10 @@ public class AvailabilityService(
         }
     }
 
-    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly day)
+    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly from, DateOnly to)
     {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = to.ToDateTime(new TimeOnly(23, 59));
 
         var bookings = (await bookingsService.GetBookings(dayStart, dayEnd, site))
             .Where(b => _liveStatuses.Contains(b.Status))
@@ -316,10 +316,10 @@ public class AvailabilityService(
         return bookings;
     }
 
-    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly day)
+    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to)
     {
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day))
+            (await availabilityStore.GetSessions(site, from, to))
             .ToList();
 
         var slots = sessionsOnThatDay
@@ -363,13 +363,20 @@ public class AvailabilityService(
             cursor = cursor.AddDays(1);
         }
     }
-
-    public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly day)
+    //
+    // private bool CanIBook(string service, DateTime from, string site)
+    // {
+    //     
+    // }
+    
+    //overload with service to query, if needed!
+    public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly from, DateOnly to, string serviceToQuery = null)
     {
         var availabilityState = new AvailabilityState();
 
-        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
-        var slots = await GetSlots(site, day);
+        var orderedLiveBookings = await GetOrderedLiveBookings(site, from, to);
+        
+        var slots = await GetSlots(site, from, to);
 
         var groupedBookingSlots = orderedLiveBookings
             .GroupBy(slot => new { slot.From, slot.Duration });
@@ -379,6 +386,18 @@ public class AvailabilityService(
         foreach (var groupedBookingSlot in groupedBookingSlots)
         {
             var allBookings = groupedBookingSlot.ToList();
+            
+            if (serviceToQuery != null)
+            {
+                allBookings.Add(new Booking
+                {
+                    From = groupedBookingSlot.Key.From,
+                    Duration = groupedBookingSlot.Key.Duration,
+                    Service = serviceToQuery,
+                    Created = DateTimeOffset.UtcNow.AddYears(100)
+                });
+            }
+            
             var allSlots = slots.Where(x =>
                 x.From == groupedBookingSlot.Key.From &&
                 x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToList();
@@ -392,10 +411,18 @@ public class AvailabilityService(
             //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
             var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToList();
 
-            foreach (var booking in allBookings)
+            for (int i = 0; i < allBookings.Count; i++)
             {
+                var booking = allBookings[i];
+                
+                //if querying service and processing the final 'ghost' booking, don't do any of the actions
+                if (serviceToQuery != null && i == (allBookings.Count - 1))
+                {
+                    continue;
+                }
+                
                 //go and get all bookings left 
-                var remainingBookings = groupedBookingSlot.Where(x => !x.Processed).ToList();
+                var remainingBookings = allBookings.Where(x => !x.Processed).ToList();
                 //go and reevaluate what slots are remaining to use
                 var remainingSlots = allSlots.Where(x => x.Capacity > 0).ToList();
 

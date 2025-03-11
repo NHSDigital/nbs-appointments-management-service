@@ -32,7 +32,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -78,7 +78,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -125,7 +125,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -163,7 +163,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -201,7 +201,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -242,7 +242,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {
@@ -288,7 +288,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         if (useV2)
         {
-            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1));
+            resultingAvailabilityState = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
         }
         else
         {

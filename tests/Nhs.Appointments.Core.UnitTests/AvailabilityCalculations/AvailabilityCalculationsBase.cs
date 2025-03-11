@@ -22,7 +22,13 @@ public class AvailabilityCalculationsBase
     protected AvailabilityCalculationsBase() => _sut = new AvailabilityService(_availabilityStore.Object,
         _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
         _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object);
+        new TestTimeProvider());
+    
+    public class TestTimeProvider : TimeProvider 
+    {
+        public DateTimeOffset Now { get; set; }
+        public override DateTimeOffset GetUtcNow() => Now;
+    }
 
     private DateTime TestDateAt(string time)
     {

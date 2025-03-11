@@ -25,9 +25,9 @@ public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
-        IAvailabilityCalculator availabilityCalculator,
         IAvailabilityStore availabilityStore,
         IBookingEventFactory eventFactory,
+        IAvailabilityService availabilityService,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 {
@@ -63,8 +63,11 @@ public class BookingsService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
-                DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            var slots = (await availabilityService.GetAvailabilityStateV2
+                (booking.Site, 
+                    DateOnly.FromDateTime(booking.From.Date), 
+                    DateOnly.FromDateTime(booking.From.Date.AddDays(1)), 
+                    booking.Service)).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

@@ -230,5 +230,4 @@ variable "create_frontdoor" {
 
 variable "build_number" {
   type = string
-  default = ""
 }

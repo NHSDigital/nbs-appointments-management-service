@@ -49,7 +49,7 @@ public class AvailabilityCalculationsBase
             AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
             AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
             Status = Enum.Parse<AppointmentStatus>(status),
-            Created = new DateTime(2024, 11, 15, 9, 45, creationOrder)
+            Created = new DateTime(2024, 11, 15, 9, 45, 0).AddSeconds(creationOrder)
         };
 
     protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,

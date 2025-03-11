@@ -20,7 +20,7 @@ public class SetUserRolesFunction(
     IUserService userService, 
     IValidator<SetUserRolesRequest> validator, 
     IUserContextProvider userContextProvider, 
-    IUserDirectory userDirectory, 
+    IOktaService oktaService, 
     ILogger<SetUserRolesFunction> logger, 
     IMetricsRecorder metricsRecorder
 ) 
@@ -50,7 +50,7 @@ public class SetUserRolesFunction(
         if (!request.User.ToLowerInvariant().EndsWith("@nhs.net"))
         {
             // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
-            var externalDirectoryResult = await userDirectory.CreateIfNotExists(request.User, request.FirstName, request.LastName);
+            var externalDirectoryResult = await oktaService.CreateIfNotExists(request.User, request.FirstName, request.LastName);
             if (!externalDirectoryResult.Success)
             {
                 return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);

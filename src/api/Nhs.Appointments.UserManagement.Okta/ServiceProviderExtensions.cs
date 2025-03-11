@@ -13,8 +13,8 @@ public static class ServiceProviderExtensions
     public static IServiceCollection AddOktaUserDirectory(this IServiceCollection services, IConfigurationRoot configuration)
     {
         services.Configure<OktaConfiguration>(opts => configuration.GetSection("Okta").Bind(opts));
-        services.AddSingleton<IUserDirectory, OktaUserDirectory>();
-        services.AddSingleton<IOktaUserService, OktaUserService>();
+        services.AddSingleton<IOktaService, OktaService>();
+        services.AddSingleton<IOktaUserDirectory, OktaUserDirectory>();
         services.AddSingleton<UserApi>(sp =>
         {
             var oktaOptions = sp.GetRequiredService<IOptions<OktaConfiguration>>().Value;

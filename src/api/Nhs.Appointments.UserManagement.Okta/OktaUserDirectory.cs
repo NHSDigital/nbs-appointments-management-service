@@ -1,38 +1,60 @@
-using Nhs.Appointments.Core;
+using Microsoft.Extensions.Logging;
+using Okta.Sdk.Api;
 using Okta.Sdk.Model;
 
+
 namespace Nhs.Appointments.UserManagement.Okta;
-
-public class OktaUserDirectory(IOktaUserService oktaUserService) : IUserDirectory
+public class OktaUserDirectory : IOktaUserDirectory
 {
-    public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string? firstName, string? lastName)
+    private readonly UserApi _userApi;
+    private readonly ILogger<OktaUserDirectory> _logger;
+
+    public OktaUserDirectory(UserApi userApi, ILogger<OktaUserDirectory> logger)
     {
-        var success = false;
-        var failureReason = string.Empty;
-        var oktaUser = await oktaUserService.GetUserAsync(userEmail);
+        _userApi = userApi;
+        _logger = logger;
+    }
 
-        if (oktaUser != null)
+    public async Task<bool> ReactivateUserAsync(string user)
+    {
+        try
         {
-            var isOlderThanOneDay = DateTime.UtcNow - oktaUser.Created > TimeSpan.FromDays(1);
-
-            if (oktaUser.Status == UserStatus.PROVISIONED && isOlderThanOneDay)
-            {
-                success = await oktaUserService.ReactivateUserAsync(userEmail); ;
-            }
-            else if (oktaUser.Status == UserStatus.ACTIVE)
-            {
-                success = true;
-            }
+            await _userApi.ReactivateUserAsync(user, true);
+            return true;
         }
-        else
+        catch (Exception ex) 
         {
-            success = await oktaUserService.CreateUserAsync(userEmail, firstName, lastName);
-            if (!success)
-            {
-                failureReason = "User could not be created";
-            }
+            _logger.LogInformation($"Failed to reactivate okta user: {user}!");
+            return false;
         }
+    }
 
-        return new UserProvisioningStatus{ Success = success, FailureReason = failureReason };
+    public async Task<bool> CreateUserAsync(string user, string? firstName, string? lastName)
+    {
+        try
+        {
+            var createdUser = await _userApi.CreateUserAsync(new CreateUserRequest
+            {
+                Profile = new UserProfile { Email = user, Login = user, FirstName = firstName, LastName = lastName }
+            });
+            return createdUser != null;
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogInformation($"Failed to create okta, user: {user}, firstName: {firstName}, lastName: {lastName}!");
+            return false;
+        }
+    }
+
+    public async Task<UserGetSingleton?> GetUserAsync(string user){
+        try
+        {
+            return await _userApi.GetUserAsync(user);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogInformation($"User not found in okta directory: {user}!" );
+            return null;
+        }
     }
 }

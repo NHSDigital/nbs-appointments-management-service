@@ -15,12 +15,19 @@ public class SetUserRolesFunctionTests
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContext = new();
-    private readonly Mock<IUserDirectory> _userDirectory = new();
+    private readonly Mock<IOktaService> _oktaService = new();
     private readonly Mock<ILogger<SetUserRolesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     public SetUserRolesFunctionTests()
     {
-        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _userDirectory.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new SetUserRolesFunctionTestProxy(
+            _userService.Object, 
+            _validator.Object, 
+            _userContext.Object, 
+            _oktaService.Object, 
+            _logger.Object, 
+            _metricsRecorder.Object
+        );
     }
 
     [Fact]
@@ -75,10 +82,10 @@ public class SetUserRolesFunctionTests
             IUserService userService,
             IValidator<SetUserRolesRequest> validator,
             IUserContextProvider userContextProvider,
-            IUserDirectory userDirectory,
+            IOktaService oktaService,
             ILogger<SetUserRolesFunction> logger,
             IMetricsRecorder metricsRecorder)
-            : base(userService, validator, userContextProvider, userDirectory, logger, metricsRecorder)
+            : base(userService, validator, userContextProvider, oktaService, logger, metricsRecorder)
         {
             _logger = logger;
         }

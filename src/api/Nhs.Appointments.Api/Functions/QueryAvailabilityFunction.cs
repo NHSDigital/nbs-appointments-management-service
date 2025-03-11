@@ -55,7 +55,6 @@ public class QueryAvailabilityFunction(IAvailabilityService availabilityService,
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
     {
         var slots = (await availabilityService.GetAvailabilityStateV2(site, from, until, service)).AvailableSlots;
-        
         var slotsForService = slots.Where(x => x.Services.Contains(service)).ToList();
         
         var availability = new List<QueryAvailabilityResponseInfo>();

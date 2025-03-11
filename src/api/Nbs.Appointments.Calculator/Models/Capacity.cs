@@ -1,9 +1,9 @@
 namespace Nbs.Appointments.Calculator.Models;
 public class Capacity
 {
-    public Dictionary<string, int> Available { get; set; }
+    public Dictionary<string, int> Available { get; set; } = new Dictionary<string, int>();
 
-    public IEnumerable<UnAvailable> NotAvailable { get; set; }
+    public List<UnAvailable> NotAvailable { get; set; } = new List<UnAvailable>();
 }
 
 public class UnAvailable 

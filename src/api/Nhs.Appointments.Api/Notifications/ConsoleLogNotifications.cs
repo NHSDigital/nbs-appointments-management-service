@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using System;
@@ -32,10 +32,23 @@ public class ConsoleLogNotifications : IMessageBus
     protected virtual void ProcessMessage<T>(T message) { }
 }
 
-public class ConsoleLogWithMessageDelivery(IConsumer<UserRolesChanged> userRolesChangedConsumer, IConsumer<BookingMade> bookingMadeConsumer, IConsumer<BookingReminder> bookingReminderConsumer, IConsumer<BookingCancelled> bookingCancelledConsumer, IConsumer<BookingRescheduled> bookingRescheduledConsumer) : ConsoleLogNotifications
+public class ConsoleLogWithMessageDelivery(
+    IConsumer<OktaUserRolesChanged> oktaUserRolesChangedConsumer,
+    IConsumer<UserRolesChanged> userRolesChangedConsumer, 
+    IConsumer<BookingMade> bookingMadeConsumer, 
+    IConsumer<BookingReminder> bookingReminderConsumer, 
+    IConsumer<BookingCancelled> bookingCancelledConsumer, 
+    IConsumer<BookingRescheduled> bookingRescheduledConsumer
+) : ConsoleLogNotifications
 {
     protected override void ProcessMessage<T>(T message)
     {
+        if(message is OktaUserRolesChanged oktaUserRolesChanged)
+        {
+            oktaUserRolesChangedConsumer.Consume(new DummyConsumeContext<OktaUserRolesChanged>() { Message = oktaUserRolesChanged });
+            return;
+        }
+
         if(message is UserRolesChanged userRolesChanged)
         {
             userRolesChangedConsumer.Consume(new DummyConsumeContext<UserRolesChanged>() { Message = userRolesChanged });

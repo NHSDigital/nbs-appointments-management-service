@@ -25,5 +25,5 @@ public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
 
     public static int ExtractCapacity(SiteSessionInstance document) => document.Capacity;
 
-    public static string[] ExtractService(SiteSessionInstance document) => document.Services.ToArray();
+    public static string[] ExtractService(SiteSessionInstance document) => document.Services;
 }

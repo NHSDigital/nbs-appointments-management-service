@@ -266,12 +266,12 @@ public class AvailabilityService(
                     decimal totalRemainingSlotsCapacity = remainingSlots.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity);
                     decimal totalRemainingBookings = remainingBookings.Count(x => x.Service.Equals(service));
 
-                    //protect against divide by zero, can't set to infinity
-                    //but put it far back in the queue at least?!
+                    //protect against divide by zero
                     if (totalRemainingSlotsCapacity == 0)
                     {
                         //TODO investigate knock-on effect of removing this from the dictionary
-                        opportunityCostDictionary.Add(service, 0);
+                        //put to the back of the queue
+                        opportunityCostDictionary.Add(service, int.MaxValue);
                     }
                     else
                     {
@@ -341,16 +341,6 @@ public class AvailabilityService(
 
         return availabilityState;
     }
-
-    public SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
-        slots.Where(
-                sl => sl.Capacity > 0
-                      && sl.From == booking.From
-                      && (int)sl.Duration.TotalMinutes == booking.Duration
-                      && sl.Services.Contains(booking.Service))
-            .OrderBy(slot => slot.Services.Length)
-            .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
-            .FirstOrDefault();
 
     internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly from, DateOnly to)
     {

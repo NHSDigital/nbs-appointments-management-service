@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -41,10 +40,6 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))
             .Returns(_availabilityGrouper.Object);
-        
-        //
-        // _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
-        //     .Returns(new SlotAvailabilityGrouper());
         
         _validator.Setup(x => x.ValidateAsync(It.IsAny<QueryAvailabilityRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -136,12 +131,8 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
     [Fact]
     public async Task RunAsync_ReturnsResults_ForEachDayInRequest()
     {
-        var blocks = new[]
-        {
-            new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 9, 5, 0)),
-            new SessionInstance(new DateTime(2077, 1, 2, 10, 0, 0), new DateTime(2077, 1, 2, 10, 5, 0)),
-            new SessionInstance(new DateTime(2077, 1, 3, 11, 0, 0), new DateTime(2077, 1, 3, 11, 5, 0)),
-        };
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(10, 0),
+            TimeSpan.FromMinutes(5));
         var responseBlocks = CreateAmPmResponseBlocks(12, 0);
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
@@ -149,7 +140,7 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
         _availabilityCalculator.Setup(x =>
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
+            .ReturnsAsync(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
@@ -175,6 +166,9 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
     [InlineData("Blue")]
     public async Task RunAsync_BestFitModel_QuerySlots(string queriedService)
     {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Purple", avStatus: "Orphaned", creationOrder: 1),
@@ -221,6 +215,9 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
     [InlineData("Blue")]
     public async Task RunAsync_BestFitModel_QuerySlots_2(string queriedService)
     {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Purple", avStatus: "Orphaned", creationOrder: 1),
@@ -273,6 +270,9 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
     [Fact(Skip = "Turn on when feature management mocked")]
     public async Task RunAsync_BestFitModel_QuerySlots_3()
     {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Purple", avStatus: "Supported", creationOrder: 1),
@@ -316,6 +316,9 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
     [Fact(Skip = "Turn on when feature management mocked")]
     public async Task RunAsync_BestFitModel_QuerySlots_4()
     {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Orange", avStatus: "Orphaned", creationOrder: 1),
@@ -366,8 +369,10 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        
-        //TODO missing setup
+        _availabilityCalculator.Setup(x =>
+                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
+                    It.IsAny<DateOnly>()))
+            .ReturnsAsync(blocks.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },

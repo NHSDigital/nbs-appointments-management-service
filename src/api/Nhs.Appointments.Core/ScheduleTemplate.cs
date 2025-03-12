@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Core;
 
@@ -24,23 +24,18 @@ public class Session
     [JsonProperty("capacity")]
     [JsonPropertyName("capacity")]
     public int Capacity { get; set; }
-    
 }
 
 public class SessionInstance : TimePeriod
 {
-    [Newtonsoft.Json.JsonConstructor]
-    public SessionInstance()
-    {
-    }
-    
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
-    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }    
+    public SessionInstance(DateTime from, DateTime until) : base(from, until) { }
     public List<string> Services { get; set; }
     public int SlotLength { get; set; }
     public int Capacity { get; set; }
+
     public IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
-                new SessionInstance(sl) { Services = Services, Capacity = Capacity });
+        new SessionInstance(sl) { Services = Services, Capacity = Capacity });
 }
 
 public class Template

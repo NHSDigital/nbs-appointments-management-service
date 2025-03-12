@@ -204,7 +204,6 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
         response[0].availability[0].date.Should().Be(new DateOnly(2025, 01, 01));
-
         var expectedBlocks = new QueryAvailabilityResponseBlock(new TimeOnly(09, 00, 00), new TimeOnly(09, 10, 00), 1);
         response[0].availability[0].blocks.Should().BeEquivalentTo([expectedBlocks]);
     }
@@ -355,7 +354,101 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
 
         response[0].availability[0].blocks.Should().BeEmpty();
     }
+    
+    /// <summary>
+    /// Prove that earlier bookings take the potential slots as needed, meaning no room for purple.
+    /// </summary>
+    [Theory(Skip = "Turn on when feature management mocked")]
+    [InlineData("Purple")]
+    [InlineData("Green")]
+    [InlineData("Blue")]
+    [InlineData("Red")]
+    [InlineData("Orange")]
+    public async Task RunAsync_BestFitModel_QuerySlots_5(string queriedService)
+    {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Orange", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Blue", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Green", avStatus: "Orphaned", creationOrder: 3)
+        };
 
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Orange", "Red"], capacity: 1),
+            TestSession("09:00", "09:10", ["Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        var request = new QueryAvailabilityRequest(
+            new[] { MockSite },
+            queriedService,
+            new DateOnly(2025, 01, 01),
+            new DateOnly(2025, 01, 01),
+            QueryType.Slots);
+
+        var httpRequest = CreateRequest(request);
+
+        var result = await _query_sut.RunAsync(httpRequest) as ContentResult;
+        result.StatusCode.Should().Be(200);
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+
+        response[0].availability[0].date.Should().Be(new DateOnly(2025, 01, 01));
+        var expectedBlocks = new QueryAvailabilityResponseBlock(new TimeOnly(09, 00, 00), new TimeOnly(09, 10, 00), 1);
+        response[0].availability[0].blocks.Should().BeEquivalentTo([expectedBlocks]);
+    }
+    
+    [Theory(Skip = "Turn on when feature management mocked")]
+    [InlineData("Purple", 1)]
+    [InlineData("Green", 2)]
+    [InlineData("Blue", 1)]
+    [InlineData("Red", 1)]
+    [InlineData("Orange", 1)]
+    public async Task RunAsync_BestFitModel_QuerySlots_6(string queriedService, int expectedCapacity)
+    {
+        _availabilityGrouperFactory.Setup(x => x.Create(QueryType.Slots))
+            .Returns(new SlotAvailabilityGrouper());
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Orange", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Blue", avStatus: "Orphaned", creationOrder: 2)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Orange", "Red"], capacity: 1),
+            TestSession("09:00", "09:10", ["Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        var request = new QueryAvailabilityRequest(
+            new[] { MockSite },
+            queriedService,
+            new DateOnly(2025, 01, 01),
+            new DateOnly(2025, 01, 01),
+            QueryType.Slots);
+
+        var httpRequest = CreateRequest(request);
+
+        var result = await _query_sut.RunAsync(httpRequest) as ContentResult;
+        result.StatusCode.Should().Be(200);
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+
+        response[0].availability[0].date.Should().Be(new DateOnly(2025, 01, 01));
+        var expectedBlocks = new QueryAvailabilityResponseBlock(new TimeOnly(09, 00, 00), new TimeOnly(09, 10, 00), expectedCapacity);
+        response[0].availability[0].blocks.Should().BeEquivalentTo([expectedBlocks]);
+    }
+    
     [Fact]
     public async Task RunAsync_CallsGrouperWithCorrectSlots_ForEachDayInRequest()
     {

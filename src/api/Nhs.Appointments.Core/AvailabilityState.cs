@@ -4,7 +4,6 @@ public class AvailabilityState
 {
     public List<SessionInstance> AvailableSlots = [];
     public List<AvailabilityUpdate> Recalculations = [];
-    public List<Booking> Bookings = [];
 }
 
 public class AvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)

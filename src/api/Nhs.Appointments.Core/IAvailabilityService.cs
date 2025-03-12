@@ -12,7 +12,7 @@ public interface IAvailabilityService
     Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day);
     Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly from, DateOnly to, string serviceToQuery = null);
     Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day);
-    Task<AvailabilityState> RecalculateAppointmentStatusesV2(string site, DateOnly from, DateOnly to);
+    Task RecalculateAppointmentStatusesV2(string site, DateOnly from, DateOnly to);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
 }

@@ -197,11 +197,11 @@ public class AvailabilityService(
 
         return new AvailabilityState
         {
-            AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
+            AvailableSlots = availabilityState.AvailableSlots
         };
     }
 
-    public async Task<AvailabilityState> RecalculateAppointmentStatusesV2(string site, DateOnly from, DateOnly to)
+    public async Task RecalculateAppointmentStatusesV2(string site, DateOnly from, DateOnly to)
     {
         var availabilityState = await GetAvailabilityStateV2(site, from, to);
 
@@ -230,11 +230,6 @@ public class AvailabilityService(
                     break;
             }
         }
-
-        return new AvailabilityState
-        {
-            AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
-        };
     }
 
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
@@ -330,8 +325,6 @@ public class AvailabilityService(
             //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
             var allServicesOfferedInTheseSlots = new HashSet<string>(allSlots?.SelectMany(x => x.Services));
 
-            // var allServicesOfferedInTheseSlots = allSlots?.SelectMany(x => x.Services).Distinct().ToArray() ?? [];
-
             for (var i = 0; i < allBookings.Count; i++)
             {
                 var booking = allBookings[i];
@@ -412,7 +405,6 @@ public class AvailabilityService(
                     }
 
                     targetSlot.Capacity--;
-                    availabilityState.Bookings.Add(booking);
                     continue;
                 }
 

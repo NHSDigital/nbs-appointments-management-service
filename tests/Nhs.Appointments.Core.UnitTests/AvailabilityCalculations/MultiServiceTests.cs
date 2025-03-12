@@ -46,9 +46,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
         resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
         resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(5);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
 
     [Theory]
@@ -88,9 +85,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(3);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3");
     }
     
     [Theory]
@@ -135,9 +129,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(7);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
     }
     
     [Theory]
@@ -173,9 +164,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(2);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
     }
     
     [Theory]
@@ -211,9 +199,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(2);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
     }
     
     [Theory]
@@ -251,9 +236,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(2);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
     }
     
     [Theory]
@@ -296,9 +278,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(5);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
     }
     
     
@@ -342,10 +321,6 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState1.Recalculations.Should().NotContain(r => r.Booking.Reference == "2");
         resultingAvailabilityState1.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
 
-        resultingAvailabilityState1.Bookings.Should().HaveCount(1);
-        resultingAvailabilityState1.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1");
-        
-        
         //now append orange orphaned bookings on, to make orange now the higher opportunity cost service
         bookings.AddRange([
             TestBooking("4", "Orange", avStatus: "Orphaned", creationOrder: 4),
@@ -376,9 +351,5 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
         resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "6");
         resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "7");
-
-        resultingAvailabilityState2.Bookings.Should().HaveCount(1);
-        resultingAvailabilityState2.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1");
-
     }
 }

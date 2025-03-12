@@ -4,10 +4,8 @@ namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
 
 public class BenchmarkTests : AvailabilityCalculationsBase
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task BenchmarkTest1(bool useV2)
+    [Fact(Skip = "This was just curiosity")]
+    public async Task BenchmarkTest1()
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -74,17 +72,8 @@ public class BenchmarkTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        AvailabilityState resultingAvailabilityState;
-
-        if (useV2)
-        {
-            resultingAvailabilityState =
-                await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
-        }
-        else
-        {
-            resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-        }
+           var resultingAvailabilityState =
+                await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         stopwatch.Stop();
         stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(3));

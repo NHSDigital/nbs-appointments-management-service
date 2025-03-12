@@ -54,7 +54,7 @@ public class AvailabilityCalculationsBase
 
     protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
         int capacity = 1) =>
-        new(TestDateAt(start), TestDateAt(end)) { Services = services.ToList(), SlotLength = slotLength, Capacity = capacity };
+        new(TestDateAt(start), TestDateAt(end)) { Services = services, SlotLength = slotLength, Capacity = capacity };
 
     protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
     {

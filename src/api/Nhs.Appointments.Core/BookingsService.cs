@@ -11,10 +11,15 @@ public interface IBookingsService
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
+
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
+
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
     Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
@@ -22,14 +27,15 @@ public interface IBookingsService
 }
 
 public class BookingsService(
-        IBookingsDocumentStore bookingDocumentStore,
-        IReferenceNumberProvider referenceNumberProvider,
-        ISiteLeaseManager siteLeaseManager,
-        IAvailabilityStore availabilityStore,
-        IBookingEventFactory eventFactory,
-        IAvailabilityService availabilityService,
-        IMessageBus bus,
-        TimeProvider time) : IBookingsService
+    IBookingsDocumentStore bookingDocumentStore,
+    IReferenceNumberProvider referenceNumberProvider,
+    ISiteLeaseManager siteLeaseManager,
+    IAvailabilityStore availabilityStore,
+    IBookingEventFactory eventFactory,
+    IAvailabilityCalculator availabilityCalculator,
+    IAvailabilityService availabilityService,
+    IMessageBus bus,
+    TimeProvider time) : IBookingsService
 {
     public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
@@ -39,16 +45,11 @@ public class BookingsService(
             .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
-    protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
-    {
-        return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
-    }
-
     public Task<Booking> GetBookingByReference(string bookingReference)
     {
         return bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
     }
-    
+
     public Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
     {
         return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
@@ -63,17 +64,26 @@ public class BookingsService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            var slots = (await availabilityService.GetAvailabilityStateV2
-                (booking.Site, 
-                    DateOnly.FromDateTime(booking.From.Date), 
-                    DateOnly.FromDateTime(booking.From.Date.AddDays(1)), 
+            IEnumerable<SessionInstance> slots;
+            if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+            {
+                slots = (await availabilityService.GetAvailabilityState
+                (booking.Site,
+                    DateOnly.FromDateTime(booking.From.Date),
+                    DateOnly.FromDateTime(booking.From.Date.AddDays(1)),
                     booking.Service)).AvailableSlots;
+            }
+            else
+            {
+                slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            }
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {
-                booking.Created = time.GetUtcNow();                
+                booking.Created = time.GetUtcNow();
                 booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
                 booking.ReminderSent = false;
                 booking.AvailabilityStatus = AvailabilityStatus.Supported;
@@ -115,13 +125,15 @@ public class BookingsService(
         return BookingCancellationResult.Success;
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+        var result =
+            await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
-        if(result == BookingConfirmationResult.Success)
+        if (result == BookingConfirmationResult.Success)
         {
             var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -180,11 +192,13 @@ public class BookingsService(
         var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
 
         using var leaseContent = siteLeaseManager.Acquire(site);
-        
+
         foreach (var booking in bookings)
-        {            
+        {
             var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
-                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration && sl.Services.Contains(booking.Service));
+                                                        sl.From == booking.From &&
+                                                        (int)sl.Duration.TotalMinutes == booking.Duration &&
+                                                        sl.Services.Contains(booking.Service));
 
             if (targetSlot != null)
             {
@@ -193,6 +207,7 @@ public class BookingsService(
                     await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference,
                         AvailabilityStatus.Supported);
                 }
+
                 targetSlot.Capacity--;
                 continue;
             }
@@ -209,5 +224,10 @@ public class BookingsService(
                 await bookingDocumentStore.DeleteBooking(booking.Reference, booking.Site);
             }
         }
+    }
+
+    protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
+    {
+        return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
     }
 }

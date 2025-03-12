@@ -20,7 +20,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
                 results.AddRange(day.Sessions.Select(
                     s => new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
                     {
-                        Services = s.Services.ToList(),
+                        Services = s.Services,
                         SlotLength = s.SlotLength,
                         Capacity = s.Capacity
                     }
@@ -102,7 +102,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
 
         return new SessionInstance(dayDocument.Date.ToDateTime(session.From), dayDocument.Date.ToDateTime(session.Until))
         {
-            Services = session.Services.ToList(),
+            Services = session.Services,
             SlotLength = session.SlotLength,
             Capacity = session.Capacity,
         };

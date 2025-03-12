@@ -289,11 +289,6 @@ public class AvailabilityService(
             return (false, string.Empty);
         }
     }
-    //
-    // private bool CanIBook(string service, DateTime from, string site)
-    // {
-    //     
-    // }
 
     //overload with service to query, if needed!
     public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly from, DateOnly to,

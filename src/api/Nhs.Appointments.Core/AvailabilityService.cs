@@ -322,10 +322,10 @@ public class AvailabilityService(
 
             var allSlots = slots.Where(x =>
                 x.From == groupedBookingSlot.Key.From &&
-                x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToList();
+                x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToArray();
 
             //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
-            var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToList();
+            var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToArray();
 
             for (var i = 0; i < allBookings.Count; i++)
             {
@@ -341,10 +341,8 @@ public class AvailabilityService(
                 var remainingBookings = allBookings.Skip(i);
                 
                 //go and reevaluate what slots are remaining to use
-                var remainingSlots = allSlots.Where(x => x.Capacity > 0).ToList();
+                var remainingSlots = allSlots.Where(x => x.Capacity > 0).ToArray();
 
-                //based on all available services from 9:00 - 9:10, and for slots of this service length, what are the current totals?
-                var slotTotalsDictionary = new Dictionary<string, decimal>();
                 var opportunityCostDictionary = new Dictionary<string, decimal>();
 
                 foreach (var service in allServicesOfferedInTheseSlots)
@@ -354,52 +352,25 @@ public class AvailabilityService(
                     {
                         continue;
                     }
-
-                    var totalSlotsCapacity =
-                        remainingSlots.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity);
-                    slotTotalsDictionary.Add(service, totalSlotsCapacity);
-                }
-
-                //recalculate booking priority dictionary
-                var bookingTotalsDictionary = new Dictionary<string, decimal>();
-                foreach (var service in allServicesOfferedInTheseSlots)
-                {
-                    //ignore for the service we're booking for
-                    if (service == booking.Service)
-                    {
-                        continue;
-                    }
-
-                    bookingTotalsDictionary.Add(service, remainingBookings.Count(x => x.Service.Equals(service)));
-                }
-
-                foreach (var service in allServicesOfferedInTheseSlots)
-                {
-                    //ignore for the service we're booking for
-                    if (service == booking.Service)
-                    {
-                        continue;
-                    }
-
-                    var bookingTotalForService = bookingTotalsDictionary[service];
-                    var slotsTotalForService = slotTotalsDictionary[service];
+                    
+                    decimal totalRemainingSlotsCapacity = remainingSlots.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity);
+                    decimal totalRemainingBookings = remainingBookings.Count(x => x.Service.Equals(service));
 
                     //protect against divide by zero :D
-                    if (slotsTotalForService == 0)
+                    if (totalRemainingSlotsCapacity == 0)
                     {
                         opportunityCostDictionary.Add(service, 0);
                     }
                     else
                     {
-                        opportunityCostDictionary.Add(service, bookingTotalForService / slotsTotalForService);
+                        opportunityCostDictionary.Add(service, totalRemainingBookings / totalRemainingSlotsCapacity);
                     }
                 }
 
                 var orderedOpportunityCost = opportunityCostDictionary.OrderBy(x => x.Value).ToList();
 
                 //check first if there are any slots where only offer single service that we need to book (no need to attempt priority check)
-                var targetSlot =
-                    remainingSlots.FirstOrDefault(x => x.Services.Count == 1 && x.Services.Contains(booking.Service));
+                var targetSlot = remainingSlots.FirstOrDefault(x => x.Services.Count == 1 && x.Services.Contains(booking.Service));
 
                 //if we couldn't find a single slot, try and find the next possible slot with best fit
                 if (targetSlot == null)

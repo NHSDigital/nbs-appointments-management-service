@@ -4,16 +4,13 @@ namespace Nhs.Appointments.Core;
 
 public class TimePeriod
 {
-    [JsonConstructor]
-    public TimePeriod()
-    {
-        
-    }
-    
     public TimePeriod(DateTime from, DateTime until)
     {
         if (until <= from)
+        {
             throw new ArgumentException("Start must be earlier than finish");
+        }
+
         From = from;
         Duration = until - from;
     }
@@ -24,25 +21,20 @@ public class TimePeriod
         Duration = duration;
     }
 
-    public DateTime From { get; private set; }
+    public DateTime From { get; }
 
-    [JsonIgnore]
-    public TimeSpan Duration { get; private set; }
+    [JsonIgnore] public TimeSpan Duration { get; }
 
     public DateTime Until => From.Add(Duration);
 
     public TimePeriod[] Split(DateTime pointInTime)
     {
-        if(pointInTime > From && pointInTime < Until)
+        if (pointInTime > From && pointInTime < Until)
         {
-            return new TimePeriod[]
-            {
-                new TimePeriod(From, pointInTime),
-                new TimePeriod(pointInTime, Until)
-            };
+            return new[] { new TimePeriod(From, pointInTime), new TimePeriod(pointInTime, Until) };
         }
 
-        return new TimePeriod[] { this };
+        return new[] { this };
     }
 
     public TimePeriod[] Split(TimePeriod block)
@@ -61,23 +53,19 @@ public class TimePeriod
             }
 
             // case 1 from is before original start date, then create a new one that starts at the until
-            return new TimePeriod[] { new TimePeriod(until, Until) };
+            return new[] { new TimePeriod(until, Until) };
         }
 
         if (until >= Until)
         {
-            return new TimePeriod[] { new TimePeriod(From, from) };
+            return new[] { new TimePeriod(From, from) };
         }
 
-        return new TimePeriod[]
-        {
-            new TimePeriod(From, from),
-            new TimePeriod(until, Until)
-        };
+        return new[] { new TimePeriod(From, from), new TimePeriod(until, Until) };
     }
 
     public bool Overlaps(TimePeriod other) => Overlaps(other.From, other.Until);
-    
+
 
     public bool Overlaps(DateTime from, DateTime until)
     {
@@ -90,7 +78,7 @@ public class TimePeriod
         return Contains(block.From, block.Until);
     }
 
-    public bool Contains(DateTime from, DateTime until) 
+    public bool Contains(DateTime from, DateTime until)
     {
         return From <= from && Until >= until;
     }
@@ -98,12 +86,14 @@ public class TimePeriod
     public TimePeriod[] Divide(TimeSpan division)
     {
         if (division == TimeSpan.Zero)
+        {
             throw new DivideByZeroException();
+        }
 
         var blocks = new List<TimePeriod>();
         var block = new TimePeriod(From, Until);
 
-        while(block != null && block.Duration >= division)
+        while (block != null && block.Duration >= division)
         {
             var chip = new TimePeriod(block.From, division);
             blocks.Add(chip);
@@ -112,4 +102,4 @@ public class TimePeriod
 
         return blocks.ToArray();
     }
-}       
+}

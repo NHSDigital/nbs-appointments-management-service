@@ -17,7 +17,7 @@ public class BookingDataExtract(
         Console.WriteLine("Loading bookings");
         
         var allBookings = await bookingsStore.RunQueryAsync(
-            b => b.DocumentType == "booking" 
+            b => b.DocumentType == "booking"
                 && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1) 
                 && b.StatusUpdated < timeProvider.GetUtcNow().Date, 
             b => b
@@ -47,7 +47,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => "NULL"),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => null),
         };
            
         Console.WriteLine("Preparing to write");

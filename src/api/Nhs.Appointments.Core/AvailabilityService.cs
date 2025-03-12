@@ -290,7 +290,6 @@ public class AvailabilityService(
         }
     }
 
-    //overload with service to query, if needed!
     public async Task<AvailabilityState> GetAvailabilityStateV2(string site, DateOnly from, DateOnly to,
         string serviceToQuery = null)
     {
@@ -299,6 +298,9 @@ public class AvailabilityService(
         var orderedLiveBookings = await GetOrderedLiveBookings(site, from, to);
 
         var slots = await GetSlots(site, from, to);
+        
+        var slotsDictionary = slots.GroupBy(x => new { x.From, x.Duration })
+            .ToDictionary(g => g.Key, g => g.ToList());
 
         var groupedBookingSlots = orderedLiveBookings
             .GroupBy(slot => new { slot.From, slot.Duration });
@@ -319,13 +321,16 @@ public class AvailabilityService(
                     Created = DateTimeOffset.UtcNow.AddYears(100)
                 });
             }
-
-            var allSlots = slots.Where(x =>
-                x.From == groupedBookingSlot.Key.From &&
-                x.Duration == TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration)).ToArray();
-
+            
+            slotsDictionary.TryGetValue(new {
+                groupedBookingSlot.Key.From,
+                Duration = TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration),
+            } , out var allSlots);
+            
             //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
-            var allServicesOfferedInTheseSlots = allSlots.SelectMany(x => x.Services).Distinct().ToArray();
+            var allServicesOfferedInTheseSlots = new HashSet<string>(allSlots?.SelectMany(x => x.Services));
+
+            // var allServicesOfferedInTheseSlots = allSlots?.SelectMany(x => x.Services).Distinct().ToArray() ?? [];
 
             for (var i = 0; i < allBookings.Count; i++)
             {

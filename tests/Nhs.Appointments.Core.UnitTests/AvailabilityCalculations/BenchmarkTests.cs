@@ -46,7 +46,6 @@ public class BenchmarkTests : AvailabilityCalculationsBase
 
         var rnd = new Random();
 
-        //generate 10k bookings
         for (var i = 0; i < 5000; i++)
         {
             var randomAlphabetLetter = rnd.Next(0, 25);

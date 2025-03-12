@@ -352,4 +352,99 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "6");
         resultingAvailabilityState2.Recalculations.Should().NotContain(r => r.Booking.Reference == "7");
     }
+    
+    /// <summary>
+    /// Prove that having the capacity across multiple sessions in any combination gives you the same outcome
+    /// </summary>
+    /// <param name="useV2"></param>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TheBestFitProblem_8(bool useV2)
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Blue", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Blue", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "Blue", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "Blue", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "Green", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "Blue", avStatus: "Orphaned", creationOrder: 7), //should fail
+            TestBooking("8", "Green", avStatus: "Orphaned", creationOrder: 8),
+        };
+        
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 6), //single session with capcity 6
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 2),
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        AvailabilityState resultingAvailabilityState1;
+
+        if (useV2)
+        {
+            resultingAvailabilityState1 = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState1 = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+
+        resultingAvailabilityState1.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7", "8");
+        resultingAvailabilityState1.AvailableSlots.Should().BeEmpty();
+
+        
+        //third pass
+        sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 2), //same capacity 6 divided by 3 sessions of length 2
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 2),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 2),
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 2),
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        AvailabilityState resultingAvailabilityState3;
+        
+        if (useV2)
+        {
+            resultingAvailabilityState3 = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState3 = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+        
+        resultingAvailabilityState1.Recalculations.Should().BeEquivalentTo(resultingAvailabilityState3.Recalculations);
+        resultingAvailabilityState1.AvailableSlots.Should().BeEquivalentTo(resultingAvailabilityState3.AvailableSlots);
+        
+        //second pass
+        sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 3), //same capacity 6 divided by 2 sessions of length 3
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 3),
+            TestSession("09:00", "09:10", ["Green", "Purple"], capacity: 2),
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        AvailabilityState resultingAvailabilityState2;
+        
+        if (useV2)
+        {
+            resultingAvailabilityState2 = await _sut.GetAvailabilityStateV2(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        }
+        else
+        {
+            resultingAvailabilityState2 = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        }
+        
+        resultingAvailabilityState1.Recalculations.Should().BeEquivalentTo(resultingAvailabilityState2.Recalculations);
+        resultingAvailabilityState1.AvailableSlots.Should().BeEquivalentTo(resultingAvailabilityState2.AvailableSlots);
+    }
 }

@@ -110,7 +110,7 @@ public class AvailabilityService(
 
         await availabilityStore.CancelSession(site, date, sessionToCancel);
     }
-    
+
     public async Task RecalculateAppointmentStatuses(string site, DateOnly from, DateOnly to)
     {
         var availabilityState = await GetAvailabilityState(site, from, to);
@@ -154,7 +154,8 @@ public class AvailabilityService(
         await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
             AvailabilityStatus.Unknown);
 
-        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From), DateOnly.FromDateTime(booking.From));
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From),
+            DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
         {
@@ -170,7 +171,8 @@ public class AvailabilityService(
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
             //TODO improve performance by only querying state for the bookings exact From and To datetimes
-            var slots = (await GetAvailabilityState(booking.Site, DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date))).AvailableSlots;
+            var slots = (await GetAvailabilityState(booking.Site, DateOnly.FromDateTime(booking.From.Date),
+                DateOnly.FromDateTime(booking.From.Date))).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
@@ -203,8 +205,8 @@ public class AvailabilityService(
         var orderedLiveBookings = await GetOrderedLiveBookings(site, from, to);
 
         var slots = await GetSlots(site, from, to);
-        
-        var slotsDictionary = slots.GroupBy(x => new { x.From, x.Duration })
+
+        var groupedSlotsDictionary = slots.GroupBy(x => new { x.From, x.Duration })
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var groupedBookingSlots = orderedLiveBookings
@@ -226,14 +228,13 @@ public class AvailabilityService(
                     Created = DateTimeOffset.UtcNow.AddYears(100)
                 });
             }
-            
-            slotsDictionary.TryGetValue(new {
-                groupedBookingSlot.Key.From,
-                Duration = TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration),
-            } , out var allSlots);
+
+            groupedSlotsDictionary.TryGetValue(
+                new { groupedBookingSlot.Key.From, Duration = TimeSpan.FromMinutes(groupedBookingSlot.Key.Duration), },
+                out var allSlots);
 
             allSlots ??= [];
-            
+
             //go and get all the possible services offered by all slots in the 9:00 to 9:10 range
             var allServicesOfferedInTheseSlots = new HashSet<string>(allSlots.SelectMany(x => x.Services));
 
@@ -249,44 +250,48 @@ public class AvailabilityService(
 
                 //go and get all bookings left (skipping the first i that have already been processed)
                 var remainingBookings = allBookings.Skip(i);
-                
+
                 //go and reevaluate what slots are remaining to use
                 var remainingSlots = allSlots.Where(x => x.Capacity > 0).ToArray();
 
-                var opportunityCostDictionary = new Dictionary<string, decimal>();
-
-                foreach (var service in allServicesOfferedInTheseSlots)
-                {
-                    //ignore for the service we're booking for
-                    if (service == booking.Service)
-                    {
-                        continue;
-                    }
-                    
-                    decimal totalRemainingSlotsCapacity = remainingSlots.Where(x => x.Services.Contains(service)).Sum(x => x.Capacity);
-                    decimal totalRemainingBookings = remainingBookings.Count(x => x.Service.Equals(service));
-
-                    //protect against divide by zero
-                    if (totalRemainingSlotsCapacity == 0)
-                    {
-                        //TODO investigate knock-on effect of removing this from the dictionary
-                        //put to the back of the queue
-                        opportunityCostDictionary.Add(service, int.MaxValue);
-                    }
-                    else
-                    {
-                        opportunityCostDictionary.Add(service, totalRemainingBookings / totalRemainingSlotsCapacity);
-                    }
-                }
-
-                var orderedOpportunityCost = opportunityCostDictionary.OrderBy(x => x.Value).ToList();
-
                 //check first if there are any slots where only offer single service that we need to book (no need to attempt priority check)
-                var targetSlot = remainingSlots.FirstOrDefault(x => x.Services.Length == 1 && x.Services.Contains(booking.Service));
+                var targetSlot =
+                    remainingSlots.FirstOrDefault(x => x.Services.Length == 1 && x.Services.Contains(booking.Service));
 
-                //if we couldn't find a single slot, try and find the next possible slot with best fit
                 if (targetSlot == null)
                 {
+                    var opportunityCostDictionary = new Dictionary<string, decimal>();
+
+                    foreach (var service in allServicesOfferedInTheseSlots)
+                    {
+                        //ignore for the service we're booking for
+                        if (service == booking.Service)
+                        {
+                            continue;
+                        }
+
+                        decimal totalRemainingSlotsCapacity = remainingSlots.Where(x => x.Services.Contains(service))
+                            .Sum(x => x.Capacity);
+                        decimal totalRemainingBookings = remainingBookings.Count(x => x.Service.Equals(service));
+
+                        //protect against divide by zero
+                        if (totalRemainingSlotsCapacity == 0)
+                        {
+                            //TODO investigate knock-on effect of removing this from the dictionary
+                            //put to the back of the queue
+                            opportunityCostDictionary.Add(service, int.MaxValue);
+                        }
+                        else
+                        {
+                            opportunityCostDictionary.Add(service,
+                                totalRemainingBookings / totalRemainingSlotsCapacity);
+                        }
+                    }
+
+                    var orderedOpportunityCost = opportunityCostDictionary.OrderBy(x => x.Value).ToList();
+
+                    //if we couldn't find a single slot, try and find the next possible slot with best fit
+
                     var bestFitCandidateServices = new List<string> { booking.Service };
 
                     //this should reduce all slots down service by service until only one service remains (the one we want to book)

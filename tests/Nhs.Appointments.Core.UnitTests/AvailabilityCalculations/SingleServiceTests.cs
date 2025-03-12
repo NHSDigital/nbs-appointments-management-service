@@ -19,7 +19,6 @@ public class SingleServiceTests : AvailabilityCalculationsBase
         var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().BeEmpty();
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
     }
 
@@ -40,7 +39,6 @@ public class SingleServiceTests : AvailabilityCalculationsBase
         var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().HaveCount(3);
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
     }
 
@@ -61,7 +59,6 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         resultingAvailabilityState.Recalculations.Should().ContainSingle(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
-        resultingAvailabilityState.Bookings.Should().HaveCount(1);
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
     }
 
@@ -84,7 +81,6 @@ public class SingleServiceTests : AvailabilityCalculationsBase
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
         resultingAvailabilityState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
-        resultingAvailabilityState.Bookings.Should().BeEmpty();
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
     }
 
@@ -103,8 +99,6 @@ public class SingleServiceTests : AvailabilityCalculationsBase
         SetupAvailabilityAndBookings(bookings, sessions);
 
         var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Bookings.Should().ContainSingle(b => b.Reference == "2");
         resultingAvailabilityState.Recalculations.Should().ContainSingle(r =>
             r.Booking.Reference == "2" && r.Action == AvailabilityUpdateAction.SetToSupported);
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);

@@ -57,26 +57,30 @@ public abstract class BestFitBaseFeatureSteps : BaseFeatureSteps
         }
     }
 
-    [Then("I cancel the following session")]
+    [Then("I cancel the following sessions")]
     public async Task CancelSession(DataTable dataTable)
     {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
-        var date = DateTime.ParseExact(ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
-            "yyyy-MM-dd", null);
-
-        object payload = new
+        foreach (var row in dataTable.Rows.Skip(1))
         {
-            site = GetSiteId(),
-            date = DateOnly.FromDateTime(date),
-            until = cells.ElementAt(2).Value,
-            from = cells.ElementAt(1).Value,
-            services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
-            slotLength = int.Parse(cells.ElementAt(4).Value),
-            capacity = int.Parse(cells.ElementAt(5).Value)
-        };
+            var cells = row.Cells.ToList();
+            var date = DateTime.ParseExact(
+                ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
+                "yyyy-MM-dd", null);
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/cancel", payload);
-        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+            object payload = new
+            {
+                site = GetSiteId(),
+                date = DateOnly.FromDateTime(date),
+                until = cells.ElementAt(2).Value,
+                from = cells.ElementAt(1).Value,
+                services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
+                slotLength = int.Parse(cells.ElementAt(4).Value),
+                capacity = int.Parse(cells.ElementAt(5).Value)
+            };
+
+            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/cancel", payload);
+            _response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
     }
 
     [Then("I make the following bookings")]

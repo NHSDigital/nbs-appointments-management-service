@@ -13,8 +13,8 @@ public class NotifyOktaUserRolesChangedFunction(IMessageReceiver receiver)
 
     [Function("NotifyOktaUserRolesChanged")]
     [AllowAnonymous]
-    public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+    public Task NotifyOktaUserRolesChangedAsync([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
-        return receiver.HandleConsumer<UserRolesChangedConsumer>(QueueName, message, cancellationToken);
+        return receiver.HandleConsumer<OktaUserRolesChangedConsumer>(QueueName, message, cancellationToken);
     }
 }

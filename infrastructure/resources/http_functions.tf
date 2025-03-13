@@ -68,6 +68,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.NotifyBookingReminder.Disabled"                = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"             = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"               = true
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"           = true
     "AzureWebJobs.SendBookingReminders.Disabled"                 = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
   }
@@ -142,6 +143,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.NotifyBookingReminder.Disabled"                = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"             = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"               = true
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"           = true
     "AzureWebJobs.SendBookingReminders.Disabled"                 = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
   }

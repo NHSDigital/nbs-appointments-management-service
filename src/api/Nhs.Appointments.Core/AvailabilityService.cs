@@ -197,6 +197,8 @@ public class AvailabilityService(
         }
     }
 
+    private record OpportunityCostMetric(decimal BookingsOverSlots, int UpcomingBookingToProcess);
+
     public async Task<AvailabilityState> GetAvailabilityState(string site, DateOnly from, DateOnly to,
         string serviceToQuery = null)
     {
@@ -271,13 +273,13 @@ public class AvailabilityService(
                     //if we couldn't find a single slot, try and find the next possible slot with best fit
                     if (targetSlot == null)
                     {
-                        var opportunityCostDictionary = new Dictionary<string, decimal>();
-
-                        // var remainingOtherServicesLengths = remainingValidSlots
-                        //     .Select(x => x.Services.Distinct().Where(y => y != booking.Service))
-                        //     .Select(y => y.Count())
-                        //     .Distinct()
-                        //     .Order();
+                        var opportunityCostDictionary = new Dictionary<string, OpportunityCostMetric>();
+                        
+                        var remainingUpcomingBookingServices = remainingBookings
+                            .Where(x => x.Service != booking.Service)
+                            .Select(x => x.Service)
+                            .Distinct()
+                            .ToList();
 
                         foreach (var service in allServicesOfferedInTheseSlots)
                         {
@@ -297,49 +299,29 @@ public class AvailabilityService(
                                 decimal totalRemainingBookings =
                                     remainingBookings.Count(x => x.Service.Equals(service));
                                 
-                                opportunityCostDictionary.Add(service,
-                                    totalRemainingBookings / totalRemainingSlotsCapacity);
+                                opportunityCostDictionary.Add(service, 
+                                    new OpportunityCostMetric(
+                                        totalRemainingBookings / totalRemainingSlotsCapacity, //first metric
+                                        remainingUpcomingBookingServices.IndexOf(service) //second
+                                    ));
                             }
                         }
 
-                        var secondarySort = remainingBookings
-                            .Where(x => x.Service != booking.Service)
-                            .Select(x => x.Service)
-                            .Distinct()
-                            .ToList();
-
                         var orderedOpportunityCost = opportunityCostDictionary
                             //first order by the opportunity cost metric
-                            .OrderBy(x => x.Value)
+                            .OrderBy(x => x.Value.BookingsOverSlots)
                             //the further down the remaining bookings list a service is, the lower the opportunity cost
-                            .ThenByDescending(x => secondarySort.IndexOf(x.Key))
+                            .ThenByDescending(x => x.Value.UpcomingBookingToProcess)
                             //then by alphabetical for determinism if all else equal
                             .ThenBy(x => x.Key)
                             .ToList();
 
                         var bestFitCandidateServices = new List<string> { booking.Service };
-
-                        //TODO only do subset checks for each instance when bestFitCandidateServices
-                        //is equal to the services lengths
-                        // foreach (var servicesLength in remainingOtherServicesLengths)
-                        // {
-                        //     var firstXOpportunityCostServices = orderedOpportunityCost
-                        //         .Take(servicesLength)
-                        //         .Select(x=> x.Key).ToList();
-                        //     
-                        //     var bestFitCandidateServices = new List<string> { booking.Service };
-                        //     bestFitCandidateServices.AddRange(firstXOpportunityCostServices);
-                        //
-                        //     //a valid slots services must be a subset of the bestFitCandidateServices
-                        //     //and it must contain the booking service
-                        //     targetSlot = remainingValidSlots.FirstOrDefault(x => x.Services.Intersect(bestFitCandidateServices).Count() == x.Services.Length);
-                        //
-                        //     if (targetSlot != null)
-                        //     {
-                        //         break;
-                        //     }
-                        // }
-
+                        
+                        //TODO performance - can we start the loop at the min services remaining left across all remainingSlots
+                        //i.e if all remaining slots left have minimum length of 10, why would we bother doing the first 9 loops of this orderedOpportunityCost
+                        //as the subset check can't possibly pass either of the 9 times
+ 
                         //this should reduce all slots down service by service until only one service remains (the one we want to book)
                         foreach (var opportunityCost in orderedOpportunityCost)
                         {
@@ -349,6 +331,8 @@ public class AvailabilityService(
                             //TODO add short circuit if none of the remainingValidSlots service lengths are >= bestFitCandidateServices length
                             //as the subset check can't possibly pass
 
+                            //TODO need to order the remainingValidSlots be service length descending if multiple found??
+                            
                             //a valid slots services must be a subset of the bestFitCandidateServices
                             targetSlot = remainingValidSlots.FirstOrDefault(x =>
                                 x.Services.Intersect(bestFitCandidateServices).Count() == x.Services.Length);

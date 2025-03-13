@@ -38,6 +38,32 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
         resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
     }
+    
+    /// <summary>
+    /// Check that if there is only one candidate slot, it finds it early
+    /// </summary>
+    [Fact]
+    public async Task BestFitModel_PerformanceCheck_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "10:00", ["Green", "Blue", "Orange", "Black", "Grey"], capacity: 1),
+            TestSession("09:00", "10:00", ["Pink"], capacity: 1)
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1");
+    }
 
     [Fact]
     public async Task TheBestFitProblem()

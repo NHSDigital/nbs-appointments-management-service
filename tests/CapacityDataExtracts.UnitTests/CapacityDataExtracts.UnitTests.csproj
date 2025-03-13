@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\data\CapacityDataExtract\CapacityDataExtracts.csproj" />
+    <ProjectReference Include="..\..\data\CapacityDataExtract\CapacityDataExtracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

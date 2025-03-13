@@ -157,6 +157,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
             TestBooking("13", "Grey", avStatus: "Orphaned", creationOrder: 13),
             TestBooking("14", "Blue", avStatus: "Orphaned", creationOrder: 14),
             TestBooking("15", "Black", avStatus: "Orphaned", creationOrder: 15),
+            TestBooking("15", "Blue", avStatus: "Orphaned", creationOrder: 16),
         };
 
         var sessions = new List<SessionInstance>
@@ -176,6 +177,57 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         //only first 5 can fit!!
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5");
+    }
+    
+    /// <summary>
+    /// Check that if all the opportunity costs are the same
+    /// no bookings for some of the offered services
+    /// </summary>
+    [Fact]
+    public async Task BestFitModel_EqualOpportunityCost_3()
+    {
+        //configured in a way where all opportunity cost values are equal!
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Orange", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Blue", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "Blue", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "Black", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "Black", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "Grey", avStatus: "Orphaned", creationOrder: 7),
+            TestBooking("8", "Green", avStatus: "Orphaned", creationOrder: 8),
+            TestBooking("9", "Green", avStatus: "Orphaned", creationOrder: 9),
+            TestBooking("10", "Blue", avStatus: "Orphaned", creationOrder: 10),
+            TestBooking("11", "Blue", avStatus: "Orphaned", creationOrder: 11),
+            TestBooking("12", "Purple", avStatus: "Orphaned", creationOrder: 12),
+            TestBooking("13", "Grey", avStatus: "Orphaned", creationOrder: 13),
+            TestBooking("14", "Blue", avStatus: "Orphaned", creationOrder: 14),
+            TestBooking("15", "Black", avStatus: "Orphaned", creationOrder: 15),
+            TestBooking("16", "Grey", avStatus: "Orphaned", creationOrder: 16),
+            TestBooking("17", "Green", avStatus: "Orphaned", creationOrder: 17),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Black", "Grey", "Blue", "Orange", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Black", "Grey", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Grey", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Blue"], capacity: 1),
+            //equal opp.cost but no bookings for these colours
+            TestSession("09:00", "09:10", ["Pink", "Lilac", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Yellow", "Maroon", "Blue"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        
+        //only first 7 can fit!!
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
     }
     
     [Fact]

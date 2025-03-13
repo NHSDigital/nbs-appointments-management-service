@@ -230,6 +230,189 @@ public class MultiServiceTests : AvailabilityCalculationsBase
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7");
     }
     
+    /// <summary>
+    /// Check that if all the opportunity costs are the same
+    /// it prioritises the ones with more bookings coming up!
+    /// </summary>
+    [Fact(Skip = "Not finished writing")]
+    public async Task BestFitModel_EqualOpportunityCost_4()
+    {
+        //configured in a way where all opportunity cost values are equal!
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "Orange", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "Green", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "Grey", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "Black", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "Black", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "Green", avStatus: "Orphaned", creationOrder: 7),
+            TestBooking("8", "Grey", avStatus: "Orphaned", creationOrder: 8),
+            TestBooking("9", "Purple", avStatus: "Orphaned", creationOrder: 9),
+            TestBooking("10", "Blue", avStatus: "Orphaned", creationOrder: 10),
+            TestBooking("11", "Blue", avStatus: "Orphaned", creationOrder: 11),
+        };
+
+        for (var i = 0; i < 10; i++)
+        {
+            bookings.Add(TestBooking($"{12+i}", "Purple", avStatus: "Orphaned", creationOrder: 12+i));
+        }
+        
+        for (var i = 0; i < 10; i++)
+        {
+            bookings.Add(TestBooking($"{22+i}", "Blue", avStatus: "Orphaned", creationOrder: 22+i));
+        }
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Black", "Grey", "Blue", "Orange", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Grey", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue"], capacity: 1),
+            //want to preserve this slot as more bookings coming up?
+            TestSession("09:00", "09:10", ["Purple", "Blue"], capacity: 10),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        
+        //only first 3 can fit!!
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
+    }
+    
+     /// <summary>
+    /// Prove that equal opportunity cost metric is not enough, and that it needs something else to sort by
+    /// Try and make the algorithm make 2 sub-optimal decisions, leading to loss of booking
+    ///  Verify that oversubscribed services don't impact best fit model
+    /// </summary>
+    [Fact]
+    public async Task BestFitModel_EqualOpportunityCost_5()
+    {
+        //configured in a way where all opportunity cost values are equal
+        
+        //setup so that opp.cost for when evaluating first A booking is 0.5 for each of X,Y,Z (x misses out)
+        //setup so that opp.cost for when evaluating the final A booking is 1 for each of P,X (x misses out again)
+        
+        //start with single A booking
+        var bookings = new List<Booking>
+        {
+            //first 'decision', takes 'AX' cause all other slots have 50% opp.cost
+            TestBooking("1", "A", avStatus: "Orphaned", creationOrder: 1),
+        };
+
+        for (var i = 0; i < 5; i++)
+        {
+            bookings.Add(TestBooking($"{i+2}", "Y", avStatus: "Orphaned", creationOrder: i+2));
+        }
+        
+        for (var i = 0; i < 5; i++)
+        {
+            bookings.Add(TestBooking($"{i+7}", "A", avStatus: "Orphaned", creationOrder: i+7));
+        }
+        
+        //second 'decision', takes 'AX' cause all other slots have 100% opp.cost
+        bookings.Add(TestBooking("12", "A", avStatus: "Orphaned", creationOrder: 12));
+        
+        for (var i = 0; i < 10; i++)
+        {
+            bookings.Add(TestBooking($"{i+13}", "Z", avStatus: "Orphaned", creationOrder: i+13));
+        }
+        
+        //the booking that 'could' miss out
+        bookings.Add(TestBooking("23", "X", avStatus: "Orphaned", creationOrder: 23));
+        
+        //loads of T bookings to put them at the back of the queue.
+        for (var i = 0; i < 100; i++)
+        {
+            bookings.Add(TestBooking($"{i+24}", "T", avStatus: "Orphaned", creationOrder: i+24));
+        }
+        
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["T","A","X"], capacity: 2),
+            TestSession("09:00", "09:10", ["T","A","Y"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A","Z"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A"], capacity: 50)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+
+        var expectedArray = new List<string>();
+        
+        //all first 72 bookings should make the cut, and the last 50+ 'T' bookings don't
+        for (var i = 0; i < 72; i++)
+        {
+            expectedArray.Add($"{i + 1}");
+        }
+        
+        resultingAvailabilityState.Recalculations.Should().HaveCount(expectedArray.Count);
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo(expectedArray);
+    }
+    
+     /// <summary>
+     /// Verify that oversubscribed services don't impact best fit model
+     /// </summary>
+    [Fact]
+    public async Task BestFitModel_EqualOpportunityCost_6()
+    {
+        var bookings = new List<Booking>();
+
+        //possibly load up the first 3 sessions with bookings 'A' incorrectly
+        for (var i = 0; i < 22; i++)
+        {
+            bookings.Add(TestBooking($"{i+1}", "A", avStatus: "Orphaned", creationOrder: i+1));
+        }
+        
+        for (var i = 0; i < 5; i++)
+        {
+            bookings.Add(TestBooking($"{i+23}", "Y", avStatus: "Orphaned", creationOrder: i+23));
+        }
+        
+        for (var i = 0; i < 10; i++)
+        {
+            bookings.Add(TestBooking($"{i+28}", "Z", avStatus: "Orphaned", creationOrder: i+28));
+        }
+        
+        bookings.Add(TestBooking("38", "X", avStatus: "Orphaned", creationOrder: 38));
+        
+        //loads of T bookings to put them at the back of the queue.
+        for (var i = 0; i < 72; i++)
+        {
+            bookings.Add(TestBooking($"{i+39}", "T", avStatus: "Orphaned", creationOrder: i+39));
+        }
+        
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["T","A","X"], capacity: 2),
+            TestSession("09:00", "09:10", ["T","A","Y"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A","Z"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A"], capacity: 50)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+
+        var expectedArray = new List<string>();
+        
+        //all first 72 bookings should make the cut, and the last 50+ 'T' bookings don't
+        for (var i = 0; i < 72; i++)
+        {
+            expectedArray.Add($"{i + 1}");
+        }
+        
+        resultingAvailabilityState.Recalculations.Should().HaveCount(expectedArray.Count);
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo(expectedArray);
+    }
+    
     [Fact]
     public async Task TheBestFitProblem()
     {

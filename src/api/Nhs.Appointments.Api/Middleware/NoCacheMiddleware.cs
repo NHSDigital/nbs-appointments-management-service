@@ -9,7 +9,13 @@ public class NoCacheMiddleware : IFunctionsWorkerMiddleware
     {
         await next(context);
 
-        var response = context.GetHttpContext().Response;
+        var httpContext = context.GetHttpContext();
+        if (httpContext is null)
+        {
+            return;
+        }
+
+        var response = httpContext.Response;
         response.Headers["Cache-Control"] = "no-store, no-cache, max-age=0";
         response.Headers["Pragma"] = "no-cache";
     }

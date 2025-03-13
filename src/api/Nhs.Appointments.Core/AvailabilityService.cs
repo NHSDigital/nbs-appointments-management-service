@@ -301,7 +301,7 @@ public class AvailabilityService(
                                 
                                 opportunityCostDictionary.Add(service, 
                                     new OpportunityCostMetric(
-                                        totalRemainingBookings / totalRemainingSlotsCapacity, //first metric
+                                        Math.Min(1, totalRemainingBookings / totalRemainingSlotsCapacity), //first metric, limit to 1 (don't let oversubscribed bookings skew the data)
                                         remainingUpcomingBookingServices.IndexOf(service) //second
                                     ));
                             }

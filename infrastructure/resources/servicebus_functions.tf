@@ -92,7 +92,6 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
       "AzureWebJobs.NotifyBookingReminder.Disabled",
       "AzureWebJobs.NotifyBookingRescheduled.Disabled",
       "AzureWebJobs.NotifyUserRolesChanged.Disabled",
-      "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"
 
     ]
   }
@@ -136,7 +135,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
     "AzureWebJobs.AuthenticateFunction.Disabled"                           = true

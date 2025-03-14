@@ -27,7 +27,6 @@ public static class ServiceRegistration
             case "local":
                 services
                     .AddScoped<IConsumer<UserRolesChanged>, UserRolesChangedConsumer>()
-                    .AddScoped<IConsumer<OktaUserRolesChanged>, OktaUserRolesChangedConsumer>()
                     .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
                     .AddScoped<IConsumer<BookingCancelled>, BookingCancelledConsumer>()
                     .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
@@ -47,17 +46,14 @@ public static class ServiceRegistration
                     .AddScoped<NotifyBookingCancelledFunction>()
                     .AddScoped<ScheduledBookingRemindersFunction>()
                     .AddScoped<NotifyBookingRescheduledFunction>()
-                    .AddScoped<NotifyOktaUserRolesChangedFunction>()
                     .AddMassTransitForAzureFunctions(cfg =>
                         {
                             EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
-                            EndpointConvention.Map<OktaUserRolesChanged>(new Uri($"queue:{NotifyOktaUserRolesChangedFunction.QueueName}"));
                             EndpointConvention.Map<BookingMade>(new Uri($"queue:{NotifyBookingMadeFunction.QueueName}"));
                             EndpointConvention.Map<BookingRescheduled>(new Uri($"queue:{NotifyBookingRescheduledFunction.QueueName}"));
                             EndpointConvention.Map<BookingCancelled>(new Uri($"queue:{NotifyBookingCancelledFunction.QueueName}"));
                             EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
                             cfg.AddConsumer<UserRolesChangedConsumer>();
-                            cfg.AddConsumer<OktaUserRolesChangedConsumer>();
                             cfg.AddConsumer<BookingReminderConsumer>();
                             cfg.AddConsumer<BookingMadeConsumer>();
                             cfg.AddConsumer<BookingCancelledConsumer>();

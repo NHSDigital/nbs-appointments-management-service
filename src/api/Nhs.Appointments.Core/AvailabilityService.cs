@@ -307,6 +307,7 @@ public class AvailabilityService(
                             }
                         }
 
+                        //TODO do we need to add the denominator of the service (totalRemainingSlotsCapacity) to the metric and order by it?
                         var orderedOpportunityCost = opportunityCostDictionary
                             //first order by the opportunity cost metric
                             .OrderBy(x => x.Value.BookingsOverSlots)
@@ -328,10 +329,12 @@ public class AvailabilityService(
                             var nextLowestService = opportunityCost.Key;
                             bestFitCandidateServices.Add(nextLowestService);
 
-                            //TODO add short circuit if none of the remainingValidSlots service lengths are >= bestFitCandidateServices length
+                            //TODO add short circuit if none of the remainingValidSlots service lengths are >= bestFitCandidateServices length??
                             //as the subset check can't possibly pass
 
                             //TODO need to order the remainingValidSlots be service length descending if multiple found??
+                            
+                            //TODO add orderBy bestFitCandidateServices when trying to find firstOrDefault??
                             
                             //a valid slots services must be a subset of the bestFitCandidateServices
                             targetSlot = remainingValidSlots.FirstOrDefault(x =>

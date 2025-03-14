@@ -22,7 +22,13 @@ public class AvailabilityCalculationsBase
     protected AvailabilityCalculationsBase() => _sut = new AvailabilityService(_availabilityStore.Object,
         _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
         _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object);
+        new TestTimeProvider());
+    
+    public class TestTimeProvider : TimeProvider 
+    {
+        public DateTimeOffset Now { get; set; }
+        public override DateTimeOffset GetUtcNow() => Now;
+    }
 
     private DateTime TestDateAt(string time)
     {
@@ -43,7 +49,7 @@ public class AvailabilityCalculationsBase
             AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
             AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
             Status = Enum.Parse<AppointmentStatus>(status),
-            Created = new DateTime(2024, 11, 15, 9, 45, creationOrder)
+            Created = new DateTime(2024, 11, 15, 9, 45, 0).AddSeconds(creationOrder)
         };
 
     protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,

@@ -21,9 +21,10 @@ namespace Nhs.Appointments.Core.UnitTests
                 _bookingsDocumentStore.Object,
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
-                _availabilityCalculator.Object,
                 _availabilityStore.Object,
                 new EventFactory(),
+                _availabilityCalculator.Object,
+                _availabilityService.Object,
                 _messageBus.Object,
                 TimeProvider.System);
         }
@@ -43,8 +44,10 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object,
-                leaseManager, _availabilityCalculator.Object, _availabilityStore.Object,
+                leaseManager, _availabilityStore.Object,
                 new EventFactory(),
+                _availabilityCalculator.Object,
+                _availabilityService.Object,
                 _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -352,6 +355,7 @@ namespace Nhs.Appointments.Core.UnitTests
             private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
             private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
             private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+            private readonly Mock<IAvailabilityService> _availabilityService = new();
             private readonly Mock<IMessageBus> _messageBus = new();
             private readonly Mock<TimeProvider> _timeProvider = new();
 
@@ -367,9 +371,10 @@ namespace Nhs.Appointments.Core.UnitTests
                     _bookingsDocumentStore.Object,
                     _referenceNumberProvider.Object,
                     _siteLeaseManager.Object,
-                    availabilityCalculator,
                     _availabilityStore.Object,
                     new EventFactory(),
+                    availabilityCalculator,
+                    _availabilityService.Object,
                     _messageBus.Object,
                     TimeProvider.System);
             }

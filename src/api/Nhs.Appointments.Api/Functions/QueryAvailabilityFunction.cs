@@ -18,7 +18,7 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+public class QueryAvailabilityFunction(IAvailabilityService availabilityService, IAvailabilityCalculator availabilityCalculator, IValidator<QueryAvailabilityRequest> validator, IAvailabilityGrouperFactory availabilityGrouperFactory, IUserContextProvider userContextProvider, ILogger<QueryAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "QueryAvailability", tags: ["Availability"], Summary = "Query appointment availability by days, hours or slots")]
@@ -54,7 +54,18 @@ public class QueryAvailabilityFunction(IAvailabilityCalculator availabilityCalcu
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until)
     {
-        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();        
+        IEnumerable<SessionInstance> slots;
+        
+        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        {
+             var availableSlots = (await availabilityService.GetAvailabilityState(site, from, until, service)).AvailableSlots;
+             slots = availableSlots.Where(x => x.Services.Contains(service)).ToList();
+        }
+        else
+        {
+             slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+        }
+        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;

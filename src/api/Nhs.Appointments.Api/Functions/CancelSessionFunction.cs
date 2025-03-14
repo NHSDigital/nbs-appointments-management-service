@@ -43,7 +43,7 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
 
         if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
         {
-            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
+            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date, request.Date);
         }
         else
         {

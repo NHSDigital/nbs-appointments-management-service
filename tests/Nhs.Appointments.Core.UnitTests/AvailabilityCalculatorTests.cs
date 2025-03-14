@@ -34,10 +34,10 @@ public class AvailabilityCalculatorTests
 
         var expectedResults = new[]
         {
-            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = new []{"COVID"}, Capacity = 1 },
-            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = new []{"COVID"}, Capacity = 1 },
-            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = new []{"COVID"}, Capacity = 1 },
-            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = new []{"COVID"}, Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,9,15,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,15,0), new DateTime(2077,1,1,9,30,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,9,45,0)){ Services = ["COVID"], Capacity = 1 },
+            new SessionInstance(new DateTime(2077,1,1,9,45,0), new DateTime(2077,1,1,10,0,0)){ Services = ["COVID"], Capacity = 1 },
         };
 
         results.Should().BeEquivalentTo(expectedResults);

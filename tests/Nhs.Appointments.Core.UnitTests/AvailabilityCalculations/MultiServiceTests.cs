@@ -412,6 +412,155 @@ public class MultiServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo(expectedArray);
     }
+     
+     /// <summary>
+    /// Prove that equal opportunity cost metric is not enough, and that it needs something else to sort by
+    /// Try and make the algorithm make 2 sub-optimal decisions, leading to loss of booking
+    /// Verify that oversubscribed services don't impact best fit model
+    /// </summary>
+    [Fact]
+    public async Task BestFitModel_EqualOpportunityCost_7()
+    {
+        //configured in a way where all opportunity cost values are equal
+        
+        //setup so that opp.cost for when evaluating first A booking is 0.5 for each of X,Y,Z (x misses out)
+        //setup so that opp.cost for when evaluating the final A booking is 1 for each of P,X (x misses out again)
+        
+        //start with single A booking
+        var bookings = new List<Booking>
+        {
+            //first 'decision', takes 'AX' cause all other slots have 50% opp.cost
+            TestBooking("1", "A", avStatus: "Orphaned", creationOrder: 1),
+        };
+
+        for (var i = 0; i < 5; i++)
+        {
+            bookings.Add(TestBooking($"{i+2}", "Y", avStatus: "Orphaned", creationOrder: i+2));
+        }
+        
+        for (var i = 0; i < 5; i++)
+        {
+            bookings.Add(TestBooking($"{i+7}", "A", avStatus: "Orphaned", creationOrder: i+7));
+        }
+        
+        //second 'decision', takes 'AX' cause all other slots have 100% opp.cost
+        bookings.Add(TestBooking("12", "A", avStatus: "Orphaned", creationOrder: 12));
+        
+        for (var i = 0; i < 10; i++)
+        {
+            bookings.Add(TestBooking($"{i+13}", "Z", avStatus: "Orphaned", creationOrder: i+13));
+        }
+        
+        bookings.Add(TestBooking("23", "T", avStatus: "Orphaned", creationOrder: 23));
+        
+        //the booking that 'could' miss out
+        bookings.Add(TestBooking("24", "X", avStatus: "Orphaned", creationOrder: 24));
+        
+        //loads of T bookings to put them at the back of the queue.
+        for (var i = 0; i < 71; i++)
+        {
+            bookings.Add(TestBooking($"{i+25}", "T", avStatus: "Orphaned", creationOrder: i+25));
+        }
+        
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["T","A","X"], capacity: 2),
+            TestSession("09:00", "09:10", ["T","A","Y"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A","Z"], capacity: 10),
+            TestSession("09:00", "09:10", ["T","A"], capacity: 50)
+        };
+        
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+
+        var expectedArray = new List<string>();
+        
+        //all first 72 bookings should make the cut, and the last 50+ 'T' bookings don't
+        for (var i = 0; i < 72; i++)
+        {
+            expectedArray.Add($"{i + 1}");
+        }
+        
+        resultingAvailabilityState.Recalculations.Should().HaveCount(expectedArray.Count);
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo(expectedArray);
+    }
+     
+    /// <summary>
+    /// Prove that the model needs to be smart enough to make a correct decision when there are
+    /// multiple permutation candidates to check at the same time, and that it tries to prioritise booking order
+    /// when making a decision
+    /// </summary>
+    [Fact]
+    public async Task BestFitModel_EqualOpportunityCost_8()
+    {
+        //setup in such a way, that when choosing for first booking for X
+        //there could be 4 equally weighted permutation slots to choose from (1-4)
+        //it needs to choose the correct one so that not only can it fit as many bookings in as possible in general,
+        //that in that decision it still prioritises booking order
+        
+        //22 bookings
+        
+        //X,T,4A,4B,4C,4D,4T
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "X", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "T", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "A", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "A", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "A", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "A", avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("7", "B", avStatus: "Orphaned", creationOrder: 7),
+            TestBooking("8", "B", avStatus: "Orphaned", creationOrder: 8),
+            TestBooking("9", "B", avStatus: "Orphaned", creationOrder: 9),
+            TestBooking("10", "B", avStatus: "Orphaned", creationOrder: 10),
+            TestBooking("11", "C", avStatus: "Orphaned", creationOrder: 11),
+            TestBooking("12", "C", avStatus: "Orphaned", creationOrder: 12),
+            TestBooking("13", "C", avStatus: "Orphaned", creationOrder: 13),
+            TestBooking("14", "C", avStatus: "Orphaned", creationOrder: 14),
+            TestBooking("15", "D", avStatus: "Orphaned", creationOrder: 15),
+            TestBooking("16", "D", avStatus: "Orphaned", creationOrder: 16),
+            TestBooking("17", "D", avStatus: "Orphaned", creationOrder: 17),
+            TestBooking("18", "D", avStatus: "Orphaned", creationOrder: 18),
+            TestBooking("19", "T", avStatus: "Orphaned", creationOrder: 19),
+            TestBooking("20", "T", avStatus: "Orphaned", creationOrder: 20),
+            TestBooking("21", "T", avStatus: "Orphaned", creationOrder: 21),
+            TestBooking("22", "T", avStatus: "Orphaned", creationOrder: 22),
+        };
+        
+        //9 slots
+        var sessions = new List<SessionInstance>
+        {
+            //the permutations are ABC,ABD,ACD,BCD
+            TestSession("09:00", "09:10", ["X", "A", "B", "C", "T"], capacity: 1),
+            TestSession("09:00", "09:10", ["X", "A", "B", "D", "T"], capacity: 1),
+            TestSession("09:00", "09:10", ["X", "A", "C", "D", "T"], capacity: 1),
+            TestSession("09:00", "09:10", ["X", "B", "C", "D", "T"], capacity: 1),
+            //the permutations are ABC,ABD,ACD,BCD
+            TestSession("09:00", "09:10", ["A"], capacity: 1),
+            TestSession("09:00", "09:10", ["B"], capacity: 1),
+            TestSession("09:00", "09:10", ["C"], capacity: 1),
+            TestSession("09:00", "09:10", ["D"], capacity: 1),
+            TestSession("09:00", "09:10", ["T"], capacity: 1)
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
+        
+        //only 9 of the 22 bookings can be honoured, but WHICH 9 matters!
+        
+        //X is assigned in the 'XBCDT' virtual slot.
+        //T is assigned in its single slot
+        //all 4 'A' bookings now have room using 'XABCT', 'XABDT', 'XACDT', and its single 'A' slot
+        //and one of each B,C and D get a space in their single slots
+        resultingAvailabilityState.Recalculations.Should().HaveCount(9);
+        resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "4", "5", "6", "7", "11", "15");
+    }
     
     [Fact]
     public async Task TheBestFitProblem()

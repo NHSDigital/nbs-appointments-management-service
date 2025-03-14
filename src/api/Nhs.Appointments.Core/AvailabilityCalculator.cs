@@ -2,10 +2,15 @@ namespace Nhs.Appointments.Core;
 
 public interface IAvailabilityCalculator
 {
-    Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);    
+    Task<IEnumerable<SessionInstance>>
+        CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
 }
 
-public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore, TimeProvider time) : IAvailabilityCalculator
+// TODO: Remove this service. Subsume its methods into AvailabilityService
+public class AvailabilityCalculator(
+    IAvailabilityStore availabilityStore,
+    IBookingsDocumentStore bookingDocumentStore,
+    TimeProvider time) : IAvailabilityCalculator
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -41,9 +46,12 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
 
         foreach (var booking in liveBookings)
         {
-            var slot = slots.FirstOrDefault(s =>
-                s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
-                s.Services.Contains(booking.Service));
+            var slot = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+                ? ChooseHighestPrioritySlot(slots, booking)
+                : slots.FirstOrDefault(s =>
+                    s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
+                    s.Services.Contains(booking.Service));
+
             if (slot != null)
             {
                 slot.Capacity--;
@@ -52,4 +60,14 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
 
         return slots.Where(s => s.Capacity > 0);
     }
+
+    private SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
+        slots.Where(
+                sl => sl.Capacity > 0
+                      && sl.From == booking.From
+                      && (int)sl.Duration.TotalMinutes == booking.Duration
+                      && sl.Services.Contains(booking.Service))
+            .OrderBy(slot => slot.Services.Length)
+            .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
+            .FirstOrDefault();
 }

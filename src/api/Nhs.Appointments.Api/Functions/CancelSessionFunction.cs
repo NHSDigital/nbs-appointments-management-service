@@ -1,17 +1,15 @@
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -43,7 +41,14 @@ public class CancelSessionFunction(IAvailabilityService availabilityService, IBo
             request.SlotLength,
             request.Capacity);
 
-        await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        {
+            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        }
+        else
+        {
+            await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
+        }
 
         return Success(new EmptyResponse());
     }

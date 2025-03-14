@@ -1,4 +1,6 @@
+'use server';
 import { Footer } from '@nhsuk-frontend-components';
+import { buildNumber } from './getBuildNumber';
 
 const NhsFooter = () => {
   const buildNumberText = `Build number: ${process.env.BUILD_NUMBER}`;
@@ -29,6 +31,9 @@ const NhsFooter = () => {
     >
       <span aria-hidden style={{ display: 'none' }}>
         {buildNumberText}
+      </span>
+      <span aria-hidden style={{ display: 'none' }}>
+        {buildNumber()}
       </span>
     </Footer>
   );

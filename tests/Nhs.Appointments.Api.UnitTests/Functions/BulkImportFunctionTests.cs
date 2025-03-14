@@ -1,28 +1,28 @@
+using System.Text;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Moq;
 using Nhs.Appointments.Api.Factories;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.UnitTests;
-using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
+
 public class BulkImportFunctionTests
 {
     private readonly Mock<IDataImportHandlerFactory> _mockDataImportFactory = new();
-    private readonly Mock<IValidator<BulkImportRequest>> _mockValidator = new();
-    private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
     private readonly Mock<ILogger<BulkImportFunction>> _mockLogger = new();
     private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
     private readonly Mock<ISiteDataImportHandler> _mockSiteDataImporter = new();
+    private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
     private readonly Mock<IUserDataImportHandler> _mockUserDataImporter = new();
+    private readonly Mock<IValidator<BulkImportRequest>> _mockValidator = new();
 
     private readonly BulkImportFunction _sut;
 
@@ -36,7 +36,7 @@ public class BulkImportFunctionTests
             _mockMetricsRecorder.Object);
 
         _mockValidator.Setup(x => x.ValidateAsync(It.IsAny<BulkImportRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ValidationResult());
     }
 
     [Fact]
@@ -79,10 +79,7 @@ public class BulkImportFunctionTests
         _mockDataImportFactory.Setup(x => x.CreateDataImportHandler(It.IsAny<string>()))
             .Returns(_mockSiteDataImporter.Object);
         _mockSiteDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
-            .ReturnsAsync(new List<ReportItem>
-            {
-                new(0, "Test 1", true, "")
-            });
+            .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -113,10 +110,7 @@ public class BulkImportFunctionTests
         _mockDataImportFactory.Setup(x => x.CreateDataImportHandler(It.IsAny<string>()))
             .Returns(_mockUserDataImporter.Object);
         _mockUserDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
-            .ReturnsAsync(new List<ReportItem>
-            {
-                new(0, "Test 1", true, "")
-            });
+            .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -128,8 +122,10 @@ public class BulkImportFunctionTests
     private static HttpRequest CreateBadRequest_MultipleFiles()
     {
         var request = CreateDefaultRequest();
-        var file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("This is a dummy file")), 0, 0, "Data", "dummy.csv");
-        var file2 = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("This is another dummy file")), 0, 0, "Data", "dummy2.csv");
+        var file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("This is a dummy file")), 0, 0, "Data",
+            "dummy.csv");
+        var file2 = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("This is another dummy file")), 0, 0, "Data",
+            "dummy2.csv");
         request.Form = new FormCollection([], new FormFileCollection { file, file2 });
         return request;
     }

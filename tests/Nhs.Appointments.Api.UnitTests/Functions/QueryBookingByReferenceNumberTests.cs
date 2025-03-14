@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
+
 public class QueryBookingByReferenceNumberTests
 {
-    private readonly Mock<IValidator<QueryBookingByReferenceRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IBookingsService> _bookingService = new();
     private readonly Mock<ILogger<QueryBookingByReferenceFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
-    private readonly Mock<IBookingsService> _bookingService = new();
 
     private readonly QueryBookingByReferenceFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<QueryBookingByReferenceRequest>> _validator = new();
 
     public QueryBookingByReferenceNumberTests()
     {
@@ -32,7 +32,8 @@ public class QueryBookingByReferenceNumberTests
             _logger.Object,
             _metricsRecorder.Object);
 
-        _validator.Setup(x => x.ValidateAsync(It.IsAny<QueryBookingByReferenceRequest>(), It.IsAny<CancellationToken>()))
+        _validator.Setup(
+                x => x.ValidateAsync(It.IsAny<QueryBookingByReferenceRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(new ValidationResult()));
     }
 
@@ -48,9 +49,7 @@ public class QueryBookingByReferenceNumberTests
             Duration = 5,
             AttendeeDetails = new AttendeeDetails
             {
-                FirstName = "John",
-                LastName = "Bloggs",
-                NhsNumber = "1234567890"
+                FirstName = "John", LastName = "Bloggs", NhsNumber = "1234567890"
             },
             Site = site
         };
@@ -81,9 +80,7 @@ public class QueryBookingByReferenceNumberTests
             Duration = 5,
             AttendeeDetails = new AttendeeDetails
             {
-                FirstName = "John",
-                LastName = "Bloggs",
-                NhsNumber = "1234567890"
+                FirstName = "John", LastName = "Bloggs", NhsNumber = "1234567890"
             },
             Site = "TEST01"
         };
@@ -113,9 +110,10 @@ public class QueryBookingByReferenceNumberTests
         {
             Converters =
             {
-                new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new NullableShortDateOnlyJsonConverter()
+                new ShortTimeOnlyJsonConverter(),
+                new ShortDateOnlyJsonConverter(),
+                new NullableShortDateOnlyJsonConverter()
             },
-
         };
         var body = await new StringReader(response).ReadToEndAsync();
         return JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings);

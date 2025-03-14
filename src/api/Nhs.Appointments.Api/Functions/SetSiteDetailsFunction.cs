@@ -48,7 +48,8 @@ public class SetSiteDetailsFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger)
     {
-        var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address, request.PhoneNumber, request.LongitudeDecimal, request.LatitudeDecimal);
+        var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address,
+            request.PhoneNumber, request.LongitudeDecimal, request.LatitudeDecimal);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

@@ -48,7 +48,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
     "AzureWebJobs.AuthenticateFunction.Disabled"                           = true
@@ -139,7 +138,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
     "AzureWebJobs.AuthenticateFunction.Disabled"                           = true

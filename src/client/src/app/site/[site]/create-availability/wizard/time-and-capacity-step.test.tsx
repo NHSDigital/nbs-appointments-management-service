@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import TimeAndCapacityStep from './time-and-capacity-step';

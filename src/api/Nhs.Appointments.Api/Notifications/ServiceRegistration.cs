@@ -47,6 +47,7 @@ public static class ServiceRegistration
                     .AddScoped<NotifyBookingCancelledFunction>()
                     .AddScoped<ScheduledBookingRemindersFunction>()
                     .AddScoped<NotifyBookingRescheduledFunction>()
+                    .AddScoped<NotifyOktaUserRolesChangedFunction>()
                     .AddMassTransitForAzureFunctions(cfg =>
                         {
                             EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));

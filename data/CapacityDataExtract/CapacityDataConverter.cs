@@ -19,7 +19,7 @@ public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractDate(SiteSessionInstance document) => document.From.ToString("yyyy-MM-dd");
 
-    public static string ExtractTime(SiteSessionInstance document) => document.From.ToString("hh:mm");
+    public static string ExtractTime(SiteSessionInstance document) => document.From.ToString("hh:mm:ss");
 
     public static string ExtractSlotLength(SiteSessionInstance document) => document.Duration.ToString("mm");
 

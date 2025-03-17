@@ -22,7 +22,7 @@ public class Booking
     [JsonProperty("status")]
     public AppointmentStatus Status{ get; set; }
 
-    [JsonProperty("availabilityStatus")] public AvailabilityStatus? AvailabilityStatus { get; set; }
+    [JsonProperty("availabilityStatus")] public AvailabilityStatus AvailabilityStatus { get; set; }
     
     [JsonProperty("attendeeDetails")]
     public AttendeeDetails AttendeeDetails { get; set; }

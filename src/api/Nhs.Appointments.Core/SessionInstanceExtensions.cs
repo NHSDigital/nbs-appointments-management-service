@@ -24,7 +24,7 @@ public static class SessionInstanceExtensions
                 continue;
             }
 
-            consecutiveSlots.Add(new SessionInstance(new TimePeriod(slot.From, slot.Duration * consecutive))
+            consecutiveSlots.Add(new SessionInstance(new TimePeriod(slot.From, slot.Duration))
             {
                 Capacity = consecutiveCapacity.Min(x => x.Capacity),
                 Services = consecutiveCapacity.SelectMany(x => x.Services).Distinct().ToArray()

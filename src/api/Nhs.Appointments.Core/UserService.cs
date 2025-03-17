@@ -23,13 +23,14 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
     public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
         var allRoles = await rolesStore.GetRoles();
+        var lowerUserId = userId.ToLower();
         var invalidRoles = roleAssignments.Where(ra => !allRoles.Any(r => r.Id == ra.Role));
         if (invalidRoles.Any())
         {
             return new UpdateUserRoleAssignmentsResult(false, "", invalidRoles.Select(ra => ra.Role));
         }
 
-        var oldRoles = await userStore.UpdateUserRoleAssignments(userId.ToLower(), scope, roleAssignments);
+        var oldRoles = await userStore.UpdateUserRoleAssignments(lowerUserId, scope, roleAssignments);
         IEnumerable<RoleAssignment> rolesRemoved = [];
         IEnumerable<RoleAssignment> rolesAdded;
 
@@ -46,15 +47,15 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
 
         var site = Scope.GetValue("site", scope);
 
-        if (userId.ToLower().EndsWith("@nhs.net"))
+        if (lowerUserId.EndsWith("@nhs.net"))
         {
             //NHS user
-            await bus.Send(new UserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
+            await bus.Send(new UserRolesChanged { UserId = lowerUserId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
         }
         else
         {
             //OKTA user
-            await bus.Send(new OktaUserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
+            await bus.Send(new OktaUserRolesChanged { UserId = lowerUserId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
         }
 
         return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);

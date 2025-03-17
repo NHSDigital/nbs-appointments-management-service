@@ -42,8 +42,8 @@ public class SessionInstanceExtensionsTests
 
         var result = sessions.GroupByConsecutive(2);
 
-        Assert.Single(result);
         Assert.Equal(5, result.First().Capacity);
+        Assert.Equal(0, result.Last().Capacity);
     }
 
     [Fact]
@@ -75,10 +75,11 @@ public class SessionInstanceExtensionsTests
 
         var result = sessions.GroupByConsecutive(2).ToArray();
 
-        Assert.Equal(3, result.Count());
+        Assert.Equal(4, result.Count());
         Assert.Equal(5, result[0].Capacity);
         Assert.Equal(10, result[1].Capacity);
         Assert.Equal(12, result[2].Capacity);
+        Assert.Equal(0, result[3].Capacity);
     }
 
     [Fact]
@@ -103,10 +104,11 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(3);
+        var result = sessions.GroupByConsecutive(3).ToArray();
 
-        Assert.Single(result);
-        Assert.Equal(5, result.First().Capacity);
+        Assert.Equal(5, result[0].Capacity);
+        Assert.Equal(0, result[1].Capacity);
+        Assert.Equal(0, result[2].Capacity);
     }
 
     [Fact]
@@ -136,10 +138,12 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(4);
+        var result = sessions.GroupByConsecutive(4).ToArray();
 
-        Assert.Single(result);
-        Assert.Equal(2, result.First().Capacity);
+        Assert.Equal(2, result[0].Capacity);
+        Assert.Equal(0, result[1].Capacity);
+        Assert.Equal(0, result[2].Capacity);
+        Assert.Equal(0, result[3].Capacity);
     }
 
     [Fact]
@@ -174,9 +178,12 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(5);
+        var result = sessions.GroupByConsecutive(5).ToArray();
 
-        Assert.Single(result);
-        Assert.Equal(2, result.First().Capacity);
+        Assert.Equal(2, result[0].Capacity);
+        Assert.Equal(0, result[1].Capacity);
+        Assert.Equal(0, result[2].Capacity);
+        Assert.Equal(0, result[3].Capacity);
+        Assert.Equal(0, result[4].Capacity);
     }
 }

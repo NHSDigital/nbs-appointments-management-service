@@ -40,7 +40,7 @@ const NhsAnonymousPage = ({
         <NhsHeading title={title} caption={caption} />
         {children}
       </NhsMainContainer>
-      <NhsFooter />
+      <NhsFooter buildNumber={null} />
     </>
   );
 };

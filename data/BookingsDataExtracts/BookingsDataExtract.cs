@@ -1,4 +1,5 @@
-using BookingsDataExtracts.Documents;
+using DataExtract;
+using DataExtract.Documents;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Parquet;
@@ -9,14 +10,14 @@ namespace BookingsDataExtracts;
 public class BookingDataExtract(
     CosmosStore<NbsBookingDocument> bookingsStore,
     CosmosStore<SiteDocument> sitesStore,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider) : IExtractor
 {
     public async Task RunAsync(FileInfo outputFile)
     {
         Console.WriteLine("Loading bookings");
         
         var allBookings = await bookingsStore.RunQueryAsync(
-            b => b.DocumentType == "booking" 
+            b => b.DocumentType == "booking"
                 && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1) 
                 && b.StatusUpdated < timeProvider.GetUtcNow().Date, 
             b => b
@@ -46,7 +47,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => "NULL"),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => null),
         };
            
         Console.WriteLine("Preparing to write");

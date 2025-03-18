@@ -1,6 +1,8 @@
 import { Footer } from '@nhsuk-frontend-components';
 
 const NhsFooter = () => {
+  const buildNumberText = `Build number: ${process.env.BUILD_NUMBER}`;
+
   return (
     <Footer
       supportLinks={[
@@ -24,7 +26,11 @@ const NhsFooter = () => {
           href: '/cookies-policy',
         },
       ]}
-    />
+    >
+      <span aria-hidden style={{ display: 'none' }}>
+        {buildNumberText}
+      </span>
+    </Footer>
   );
 };
 

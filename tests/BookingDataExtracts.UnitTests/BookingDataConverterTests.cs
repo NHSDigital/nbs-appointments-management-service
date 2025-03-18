@@ -1,5 +1,5 @@
 using BookingsDataExtracts;
-using BookingsDataExtracts.Documents;
+using DataExtract.Documents;
 using FluentAssertions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -33,8 +33,8 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData(AppointmentStatus.Booked, "2025-01-01 14:44", "")]
-    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "01012025:14:44:00")]
+    [InlineData(AppointmentStatus.Booked, "2025-01-01 14:44", null)]
+    [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "2025-01-01T14:44:00+00:00")]
     public void ExtractCancelledDateTime_GetDateTime_OnlyWhenCancelled(AppointmentStatus status, string statusDateTime, string expectedData)
     {
         var testDocument = new NbsBookingDocument
@@ -115,10 +115,10 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData(false, false, "NBS")]
-    [InlineData(true, false, "NHS App")]
-    [InlineData(true, true, "NHS App")]
-    [InlineData(false, true, "NHS Call Centre")]
+    [InlineData(false, false, "NBS_Website")]
+    [InlineData(true, false, "NHS_App")]
+    [InlineData(true, true, "NHS_App")]
+    [InlineData(false, true, "NHS_Call_Centre")]
     public void ExtractSource_GetsCorrectData(bool isNhsApp, bool isCallCentre, string expectedData)
     {
         var testDocument = new NbsBookingDocument

@@ -37,6 +37,8 @@ test('User visits the site origin, signs in, then signs out again', async ({
   await expect(siteSelectionPage.logOutButton).toBeVisible();
   await siteSelectionPage.logOutButton.click();
 
+  await page.waitForURL('**/login');
+
   await expect(
     page.getByRole('heading', { name: 'Manage your appointments' }),
   ).toBeVisible();

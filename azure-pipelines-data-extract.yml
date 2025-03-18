@@ -1,0 +1,102 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+schedules:
+  - cron: "0 2 * * *"
+    displayName: "Data extract schedule"
+    branches:
+      include:
+      - main
+    batch: false
+    always: true
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "prod"
+    values: ["int", "stag", "prod"]
+  - name: runCapacity
+    displayName: "Run Capacity Data Extract"
+    type: boolean
+    default: true
+  - name: runBooking
+    displayName: "Run Booking Data Extract"
+    type: boolean
+    default: true
+    
+variables:
+  - group: covid19bookingkv${{parameters.env}}uks
+  - group: mya-extract-${{parameters.env}}
+  - name: cosmosAccountName 
+    value: nbs-mya-cdb-${{parameters.env}}-uks
+  - name: resourceGroupName
+    value: nbs-mya-rg-${{parameters.env}}-uks
+
+stages:
+  - stage: "CreateCapacityDailyExtract"
+    displayName: "Create Capacity data extract"
+    condition: eq('${{ parameters.runCapacity }}', 'true')
+    jobs:
+      - job: "GenerateCapacityDailyExtract"
+        displayName: "Generate and send capacity extract"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create capacity data extract"
+            inputs:
+              command: "run"
+              projects: "data/CapacityDataExtract/CapacityDataExtracts.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(meshCapacityWorkflowId)
+              KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
+              KeyVault__TenantId: $(tenantId)
+              KeyVault__ClientId: $(ClientId)
+              KeyVault__ClientSecret: $(ClientSecret)
+              MeshClientOptions__BaseUrl: $(meshApiBaseUri)
+              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
+              MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
+  - stage: "CreateBookingDailyExtract"
+    displayName: "Create booking data extract"
+    condition: eq('${{ parameters.runBooking }}', 'true')
+    jobs:
+      - job: "GenerateBookingDailyExtract"
+        displayName: "Generate and send booking extract"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create booking data extract"
+            inputs:
+              command: "run"
+              projects: "data/BookingsDataExtracts/BookingsDataExtracts.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(meshBookingWorkflowId)
+              KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
+              KeyVault__TenantId: $(tenantId)
+              KeyVault__ClientId: $(ClientId)
+              KeyVault__ClientSecret: $(ClientSecret)
+              MeshClientOptions__BaseUrl: $(meshApiBaseUri)
+              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
+              MeshAuthorizationOptions__CertificateName: $(meshCertificateName)

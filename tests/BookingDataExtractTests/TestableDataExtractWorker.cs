@@ -1,4 +1,5 @@
 using BookingsDataExtracts;
+using DataExtract;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
@@ -12,9 +13,10 @@ public class TestableDataExtractWorker(
     IOptions<MeshAuthorizationOptions> meshAuthOptions,
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
-    BookingDataExtract bookingDataExtract
-    ) : DataExtractWorker(hostApplicationLifetime, meshSendOptions, meshAuthOptions, meshFactory, timeProvider,
-        bookingDataExtract)
+    BookingDataExtract bookingDataExtract,
+    IOptions<FileNameOptions> fileOptions
+    ) : DataExtractWorker<BookingDataExtract>(hostApplicationLifetime, meshSendOptions, meshAuthOptions, meshFactory, timeProvider,
+        bookingDataExtract, fileOptions)
 {
     public Task Test()
     {

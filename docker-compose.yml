@@ -9,6 +9,7 @@ services:
       NBS_API_BASE_URL: http://api:80
       AUTH_HOST: http://localhost:7071
       CLIENT_BASE_PATH: /manage-your-appointments
+      BUILD_NUMBER: ${BUILD_NUMBER:-local}
 
     volumes:
       - ./src/client/src:/app/src
@@ -27,6 +28,7 @@ services:
     environment:
       - AzureWebJobsStorage="UseDevelopmentStorage=true"
       - AzureWebJobs.NotifyUserRolesChanged.Disabled=true
+      - AzureWebJobs.NotifyOktaUserRolesChanged.Disabled=true
       - AzureWebJobs.NotifyBookingMade.Disabled=true
       - AzureWebJobs.NotifyBookingRescheduled.Disabled=true
       - AzureWebJobs.NotifyBookingCancelled.Disabled = true

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { HTMLAttributeAnchorTarget } from 'react';
+import { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
 type supportLink = {
   text: string;
@@ -9,6 +9,7 @@ type supportLink = {
 
 type FooterProps = {
   supportLinks?: supportLink[];
+  children?: ReactNode;
 };
 
 /**
@@ -16,7 +17,7 @@ type FooterProps = {
  * Before making changes to this component, please consult the NHS UK Frontend documentation for it.
  * @see https://service-manual.nhs.uk/design-system/components/footer
  */
-const Footer = ({ supportLinks = [] }: FooterProps) => {
+const Footer = ({ supportLinks = [], children }: FooterProps) => {
   return (
     <footer role="contentinfo">
       <div className="nhsuk-footer-container">
@@ -43,6 +44,7 @@ const Footer = ({ supportLinks = [] }: FooterProps) => {
             <div>
               <p className="nhsuk-footer__copyright">© NHS England</p>
             </div>
+            <div>{children}</div>
           </div>
         </div>
       </div>

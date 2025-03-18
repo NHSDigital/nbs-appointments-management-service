@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Nbs.MeshClient.Auth;
 using System.Security.Cryptography.X509Certificates;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public class KeyVaultCertificateProvider(IOptions<AzureKeyVaultConfiguration> providerOptions) : ICertificateProvider
 {

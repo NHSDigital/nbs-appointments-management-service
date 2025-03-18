@@ -1,17 +1,16 @@
-using BookingsDataExtracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Nhs.Appointments.Api.Json;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Nhs.Appointments.Persistance.Models;
 using Azure.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace BookingsDataExtracts;
+namespace DataExtract;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, IConfigurationBuilder configurationBuilder)
+    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, string fileName, IConfigurationBuilder configurationBuilder)
     {
         var configuration = configurationBuilder.Build();
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
@@ -42,12 +41,13 @@ public static class ServiceRegistration
                 opts.DestinationMailboxId = destinationMailbox;
                 opts.WorkflowId = meshWorkflow;
             })
-            .AddSingleton<TimeProvider>(TimeProvider.System)
+            .Configure<FileNameOptions>(opts => 
+            { 
+                opts.FileName = fileName;
+            })
+            .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
-            .AddSingleton<CosmosStore<NbsBookingDocument>>()
-            .AddSingleton<CosmosStore<SiteDocument>>()
-            .AddSingleton<BookingDataExtract>()
-        .AddMesh(configuration);
+            .AddMesh(configuration);
 
         var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
         if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
@@ -68,6 +68,13 @@ public static class ServiceRegistration
         return services;
     }
 
+    public static IServiceCollection AddCosmosStore<TDocument>(this IServiceCollection services) where TDocument : class
+    { 
+        services.AddSingleton<CosmosStore<TDocument>>();
+
+        return services;
+    }
+
     public static IConfigurationBuilder AddNbsAzureKeyVault(this IConfigurationBuilder builder, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
     {
         var tempConfig = builder.Build();
@@ -76,7 +83,7 @@ public static class ServiceRegistration
         if (config is null || string.IsNullOrEmpty(config?.KeyVaultName))
         {
             Console.WriteLine("Failed to add key vault config");
-            return builder;            
+            return builder;
         }
 
         Console.WriteLine("Added key vault config");
@@ -89,5 +96,13 @@ public static class ServiceRegistration
     public static AzureKeyVaultConfiguration? GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
     {
         return configuration.GetSection(configSectionName)?.Get<AzureKeyVaultConfiguration>();
+    }
+
+    public static IServiceCollection AddExtractWorker<TExtractor>(this IServiceCollection services) where TExtractor : class, IExtractor 
+    {
+        services.AddSingleton<TExtractor>();
+        services.AddHostedService<DataExtractWorker<TExtractor>>();
+
+        return services;
     }
 }

@@ -34,7 +34,7 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
   await expect(eulaConsentPage.title).toBeVisible();
 
   // Try to bypass EULA consent
-  await page.goto('/');
+  await page.goto('/manage-your-appointments/sites');
 
   await page.waitForURL('**/eula');
   await expect(eulaConsentPage.title).toBeVisible();

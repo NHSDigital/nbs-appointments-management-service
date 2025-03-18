@@ -67,7 +67,7 @@ describe('Cookie consent form', () => {
 
     await waitFor(() => {
       expect(mockSetCookieConsent).toHaveBeenCalledWith(false);
-      expect(mockPush).toHaveBeenCalledWith('/');
+      expect(mockPush).toHaveBeenCalledWith('/sites');
     });
   });
 

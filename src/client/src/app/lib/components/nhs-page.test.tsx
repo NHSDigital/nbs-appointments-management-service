@@ -92,8 +92,8 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [
-        { name: 'Level One', href: '/' },
-        { name: 'Level Two', href: '/' },
+        { name: 'Level One', href: '/sites' },
+        { name: 'Level Two', href: '/sites' },
       ],
       originPage: '',
     });
@@ -108,8 +108,8 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [
-        { name: 'Level One', href: '/' },
-        { name: 'Level Two', href: '/' },
+        { name: 'Level One', href: '/sites' },
+        { name: 'Level Two', href: '/sites' },
       ],
       omitTitleFromBreadcrumbs: true,
       originPage: '',
@@ -131,8 +131,8 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [
-        { name: 'Level One', href: '/' },
-        { name: 'Level Two', href: '/' },
+        { name: 'Level One', href: '/sites' },
+        { name: 'Level Two', href: '/sites' },
       ],
       omitTitleFromBreadcrumbs: true,
       originPage: '',
@@ -149,8 +149,8 @@ describe('Nhs Page', () => {
       title: 'Test title',
       children: null,
       breadcrumbs: [
-        { name: 'Level One', href: '/' },
-        { name: 'Level Two', href: '/' },
+        { name: 'Level One', href: '/sites' },
+        { name: 'Level Two', href: '/sites' },
       ],
       omitTitleFromBreadcrumbs: true,
       originPage: '',

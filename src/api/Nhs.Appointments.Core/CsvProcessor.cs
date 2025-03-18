@@ -44,19 +44,27 @@ public class CsvProcessor<TDocument, TMap>(
         {
             csv.Context.RegisterClassMap<TMap>();
 
-            var imported = csv.GetRecords<TDocument>();
-
-            foreach (var item in imported)
+            try
             {
-                try
+                var imported = csv.GetRecords<TDocument>();
+
+                foreach (var item in imported)
                 {
-                    await processRow(item);
-                    report.Add(new ReportItem(index, getItemName(item), true, ""));
+                    try
+                    {
+                        await processRow(item);
+                        report.Add(new ReportItem(index, getItemName(item), true, ""));
+                    }
+                    catch (Exception ex)
+                    {
+                        report.Add(new ReportItem(index, getItemName(item), false, ex.Message));
+                    }
                 }
-                catch (Exception ex)
-                {
-                    report.Add(new ReportItem(index, getItemName(item), false, ex.Message));
-                }
+
+            }
+            catch (Exception ex)
+            {
+                report.Add(new ReportItem(index, "Error trying to parse CSV file.", false, $"Error trying to parse CSV file: {ex.Message}"));
             }
         }
 

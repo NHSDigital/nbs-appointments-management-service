@@ -23,6 +23,8 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@azure/app-configuration-provider": "^2.0.1",
+    "@microsoft/feature-management": "^2.0.2",
     "@next/env": "^14.2.23",
     "dayjs": "^1.11.13",
     "manage-your-appointments": "file:",

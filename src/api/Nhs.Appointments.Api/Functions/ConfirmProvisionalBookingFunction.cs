@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -44,9 +44,20 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest, ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
+        var result = BookingConfirmationResult.NotFound;
+
+        if (bookingRequest.childBookings.Any()) 
+        {
+            result = await bookingService.ConfirmProvisionalBookingWithChildren(bookingRequest.bookingReference,
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
+            bookingRequest.childBookings);
+        } 
+        else
+        {
+            result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
             bookingRequest.bookingToReschedule);
+        }
 
         switch (result)
         {
@@ -62,6 +73,9 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
             case BookingConfirmationResult.StatusMismatch:
                 return Failed(HttpStatusCode.PreconditionFailed,
                     "The booking cannot be confirmed because it is not provisional");
+            case BookingConfirmationResult.ChildBookingInvalid:
+                return Failed(HttpStatusCode.PreconditionFailed,
+                    "The booking cannot be confirmed because child references are not valid");
             case BookingConfirmationResult.Success:
                 return Success();
         }
@@ -73,6 +87,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
     {
         var contactDetails = new ContactItem[] { };
         var bookingToReschedule = string.Empty;
+        var childBookings = Array.Empty<string>();
         if (req.Body != null && req.Body.Length > 0)
         {
             var (errors, payload) = await JsonRequestReader.ReadRequestAsync<ConfirmBookingRequestPayload>(req.Body, true);
@@ -80,6 +95,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
                 return (errors, null);
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
+            childBookings = payload.childBookings ?? Array.Empty<string>();
 
             var payloadErrors = new List<ErrorMessageResponseItem>();
             if(payload?.contactDetails == null && payload.bookingToReschedule == null)
@@ -91,7 +107,7 @@ public class ConfirmProvisionalBookingFunction(IBookingsService bookingService,
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (ErrorMessageResponseItem.None, new ConfirmBookingRequest(bookingReference, contactDetails, bookingToReschedule));
+        return (ErrorMessageResponseItem.None, new ConfirmBookingRequest(bookingReference, contactDetails, childBookings, bookingToReschedule));
     }
     
 }

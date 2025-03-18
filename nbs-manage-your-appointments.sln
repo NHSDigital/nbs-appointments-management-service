@@ -62,7 +62,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataExtract", "data\DataExt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.Integration", "tests\CapacityDataExtracts.Integration\CapacityDataExtracts.Integration.csproj", "{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.UnitTests", "CapacityDataExtracts.UnitTests\CapacityDataExtracts.UnitTests.csproj", "{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.UnitTests", "tests\CapacityDataExtracts.UnitTests\CapacityDataExtracts.UnitTests.csproj", "{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

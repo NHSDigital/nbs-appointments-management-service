@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using System;
@@ -47,8 +48,8 @@ public class TypeFixDocumentFilter(IEnumerable<Type> typesToFix, TimeProvider ti
             return new OpenApiSchema
             {
                 Type = "string",
-                Enum = type.GetEnumNames().Select(n => new OpenApiString(n)).Cast<IOpenApiAny>().ToList(),
-                Default = new OpenApiString(type.GetEnumNames().Last())
+                Enum = underlyingType.GetEnumNames().Select(n => new OpenApiString(n)).Cast<IOpenApiAny>().ToList(),
+                Default = new OpenApiString(underlyingType.GetEnumNames().Last())
             };
         }
         else if(underlyingType == typeof(DateOnly))

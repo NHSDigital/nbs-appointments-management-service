@@ -31,7 +31,7 @@ const FindUserForm = ({ site }: { site: string }) => {
   const submitForm: SubmitHandler<FormFields> = form => {
     const params = new URLSearchParams(searchParams);
     if (form.email) {
-      params.set('user', form.email);
+      params.set('user', form.email.toLowerCase());
     } else {
       params.delete('user');
     }

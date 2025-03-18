@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Persistance.Models;
 
@@ -13,6 +13,12 @@ public class UserDocument : CoreDataCosmosDocument
 
     [JsonProperty("latestAcceptedEulaVersion")]
     public DateOnly LatestAcceptedEulaVersion { get; set; }
+
+    [JsonProperty("firstName")]
+    public string FirstName { get; set; }
+
+    [JsonProperty("lastName")]
+    public string LastName { get; set; }
 }
 
 public class RoleAssignment

@@ -1,6 +1,8 @@
 import 'nhsuk-frontend/dist/nhsuk.css';
-import './global.css';
+import './styles/global.css';
+import './styles/cookie-banner.css';
 import { Inter } from 'next/font/google';
+import CookieBanner from '@components/cookie-banner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -11,7 +13,10 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <CookieBanner />
+        {children}
+      </body>
     </html>
   );
 }

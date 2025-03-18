@@ -104,8 +104,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var actualResult = await Client.GetContainer("appts", "core_data")
-            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site"));
-        actualResult.Resource.Should().BeEquivalentTo(expectedSite);
+            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
+        actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
 
     protected static Accessibility[] ParseAccessibilities(string accessibilities)

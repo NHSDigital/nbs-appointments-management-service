@@ -9,6 +9,12 @@
       "eventType": "UserRolesChanged"
     },
     {
+      "services": [],
+      "emailTemplate": "a93ca4e5-00bd-47b6-9936-4f935c422309",
+      "smsTemplate": "",
+      "eventType": "OktaUserRolesChanged"
+    },
+    {
       "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
       "emailTemplate": "5028cb32-6168-41ee-8773-2493d073f369",
       "smsTemplate": "1203db45-e5fc-479d-a64e-079c5723b1c3",
@@ -28,7 +34,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "c096719c-5aef-4803-9a05-099c136e1c73",
+      "emailTemplate": "f8ea99be-a78d-42a6-bf81-a6233a7987cf",
       "smsTemplate": "474af7ec-bf1c-4c6b-9dec-a20955c58a33",
       "eventType": "BookingMade"
     },
@@ -52,7 +58,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "b560d593-34d8-4641-8517-ec563e8122ad",
+      "emailTemplate": "92f0ae99-03bb-41b9-9ed9-f68d0ae4b9c0",
       "smsTemplate": "b21afedd-e6a2-417e-a146-6f1b7ae2865c",
       "eventType": "BookingReminder"
     },
@@ -82,7 +88,7 @@
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "ae42294c-ef05-4026-a01a-3020f581f377",
+      "emailTemplate": "2bdba7e7-901e-46a7-b763-1b301cebf060",
       "smsTemplate": "24e7e620-8e03-4b6c-abe9-79a911b874b3",
       "eventType": "BookingRescheduled"
     }

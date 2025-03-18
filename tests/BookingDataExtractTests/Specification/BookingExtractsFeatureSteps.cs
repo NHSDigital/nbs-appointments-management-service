@@ -11,10 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Parquet.Serialization;
 using FluentAssertions;
-using BookingsDataExtracts.Documents;
 using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
 using Microsoft.Azure.Cosmos.Linq;
+using DataExtract.Documents;
+using BookingsDataExtracts;
+using DataExtract;
 
 namespace BookingDataExtracts.Integration.Specification;
 
@@ -138,7 +140,10 @@ public sealed class BookingExtractsFeatureSteps : Feature
     public async Task RunDataExtract(string dateTime)
     {
         var serviceCollection = new ServiceCollection();
-        BookingsDataExtracts.ServiceRegistration.AddDataExtractServices(serviceCollection, _configurationBuilder);
+        serviceCollection.AddDataExtractServices("booking", _configurationBuilder)
+            .AddCosmosStore<NbsBookingDocument>()
+            .AddCosmosStore<SiteDocument>()
+            .AddExtractWorker<BookingDataExtract>();
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);
@@ -203,9 +208,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
             while (iterator.HasMoreResults)
             {
                 var resultSet = await iterator.ReadNextAsync();
-                bookingsToDelete.AddRange(resultSet.Select(bd => bd.Reference));                
+                bookingsToDelete.AddRange(resultSet.Select(bd => bd.Reference));
             }
-        }        
+        }
 
         var partitionKey = new PartitionKey("BookingExtractDataTests");
         foreach (var bookingRef in bookingsToDelete)

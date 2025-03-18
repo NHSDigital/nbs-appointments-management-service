@@ -22,6 +22,7 @@ const config = {
     '@types': '<rootDir>/src/app/lib/types/index',
     '@components/(.*)$': '<rootDir>/src/app/lib/components/$1',
     '@services/(.*)$': '<rootDir>/src/app/lib/services/$1',
+    '@constants': '<rootDir>/src/constants',
   },
   modulePathIgnorePatterns: ['.next'],
   moduleFileExtensions: [

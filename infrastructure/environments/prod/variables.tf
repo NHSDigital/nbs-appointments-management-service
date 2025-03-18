@@ -120,3 +120,7 @@ variable "SPLUNK_HEC_TOKEN" {
 variable "AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS" {
   type = string
 }
+
+variable "BUILD_NUMBER" {
+  type = string
+}

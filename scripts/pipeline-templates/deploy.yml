@@ -22,6 +22,8 @@ parameters:
     type: string
   - name: isMain
     type: string
+  - name: buildNumber
+    type: string
 
 stages:
   - stage: Deploy${{parameters.env}}
@@ -59,7 +61,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)"
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"
@@ -101,7 +103,7 @@ stages:
                       $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                       cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                       terraform init
-                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)"
+                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"

@@ -32,7 +32,7 @@ describe('Error Page', () => {
     expect(screen.getByRole('link', { name: 'Home' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
       'href',
-      '/',
+      '/sites',
     );
   });
 });

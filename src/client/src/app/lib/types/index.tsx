@@ -134,6 +134,11 @@ type RoleAssignment = {
   role: string;
 };
 
+type NhsMyaCookieConsent = {
+  consented: boolean;
+  version: number;
+};
+
 type Site = {
   id: string;
   name: string;
@@ -155,6 +160,8 @@ type Location = {
 type User = {
   id: string;
   roleAssignments: RoleAssignment[];
+  firstName: string;
+  lastName: string;
 };
 
 type UserProfile = {
@@ -366,6 +373,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   EulaVersion,
+  NhsMyaCookieConsent,
   Role,
   RoleAssignment,
   ServiceInformation,

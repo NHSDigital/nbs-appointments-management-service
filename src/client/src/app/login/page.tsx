@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const redirectUrl = searchParams?.redirectUrl ?? '/';
+  const redirectUrl = searchParams?.redirectUrl ?? '/sites';
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>
@@ -29,11 +29,12 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         provider={'nhs-mail'}
         friendlyName={'NHS Mail'}
       />
-      <LogInButton
+      {/* TODO add feature toggle management to UI */}
+      {/* <LogInButton
         redirectUrl={redirectUrl}
         provider={'okta'}
         friendlyName={'Other Email'}
-      />
+      /> */}
     </NhsAnonymousPage>
   );
 };

@@ -8,7 +8,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<ISiteService> _siteServiceMock = new();
 
     private readonly UserDataImportHandler _sut;
-    private const string UsersHeader = "User,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
+    private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
 
     public UserDataImportHandlerTests()
     {
@@ -42,6 +42,38 @@ public class UserDataImportHandlerTests
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[2].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[3].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+    }
+
+    [Fact]
+    public async Task CanValidateOktaUser()
+    {
+        string[] inputRows =
+        [
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test1@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test2@okta.net,Jane,,d3793464-b421-41f3-9bfa-53b06e7b3d19,,false,true,true,true",
+            "test2@okta.net,,,9a06bacd-e916-4c10-8263-21451ca751b8,false,true,true,true",
+        ];
+    
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+        var expectedErrors = 3;
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1])
+            .ReturnsAsync(sites[2])
+            .ReturnsAsync(sites[3]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(expectedErrors);
     }
 
     [Fact]
@@ -98,16 +130,15 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true",
-            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true",
+            "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true",
+            "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true",
         ];
-
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
-
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
-
-        var sites = GetSites(); var report = await _sut.ProcessFile(file);
+        var sites = GetSites(); 
+        
+        var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
@@ -120,17 +151,17 @@ public class UserDataImportHandlerTests
 
         foreach (var row in InputRows)
         {
-            sites.Add(new Site(row.Split(',')[1], "Test", "Test Address", "07777777777", "ABC123", "Test Region", "ICB", "", [], new Location("Test", [1.0, 60.0])));
+            sites.Add(new Site(row.Split(',')[3], "Test", "Test Address", "07777777777", "ABC123", "Test Region", "ICB", "", [], new Location("Test", [1.0, 60.0])));
         }
 
         return sites;
     }
 
     private readonly string[] InputRows =
-        [
-            "test1@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
-            "test1@nhs.net,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true",
-            "test2@nhs.net,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
-            "test2@nhs.net,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true",
-        ];
+    [
+        "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
+        "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true",
+        "test2@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
+        "test2@nhs.net,,,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true",
+    ];
 }

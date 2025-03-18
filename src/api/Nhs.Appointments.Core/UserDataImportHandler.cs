@@ -54,6 +54,8 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
     public class UserImportRow
     {
         public string UserId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string SiteId { get; set; }
         public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
     }

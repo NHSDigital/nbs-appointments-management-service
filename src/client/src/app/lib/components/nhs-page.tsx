@@ -16,6 +16,7 @@ import { Site } from '@types';
 import { fetchPermissions } from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
+import BuildNumber from './build-number';
 
 type Props = {
   children: ReactNode;
@@ -70,7 +71,7 @@ const NhsPage = async ({
         <NotificationBanner notification={notification} />
         {children}
       </NhsMainContainer>
-      <NhsFooter />
+      <NhsFooter buildNumber={<BuildNumber />} />
     </>
   );
 };

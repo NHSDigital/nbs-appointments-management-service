@@ -1,13 +1,18 @@
 import { test, expect } from '../fixtures';
+import OAuthLoginPage from '../page-objects/oauth';
 import RootPage from '../page-objects/root';
 import env from '../testEnvironment';
 
 let rootPage: RootPage;
+let oAuthPage: OAuthLoginPage;
 
 test.beforeEach(async ({ page }) => {
   rootPage = new RootPage(page);
+  oAuthPage = new OAuthLoginPage(page);
 
   await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn();
 });
 
 test('The build number is surfaced in the footer but is not visible', async () => {

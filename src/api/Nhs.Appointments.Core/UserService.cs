@@ -45,7 +45,17 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
         }
 
         var site = Scope.GetValue("site", scope);
-        await bus.Send(new UserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
+
+        if (userId.ToLower().EndsWith("@nhs.net"))
+        {
+            //NHS user
+            await bus.Send(new UserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
+        }
+        else
+        {
+            //OKTA user
+            await bus.Send(new OktaUserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
+        }
 
         return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
     }

@@ -3,6 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobs.NotifyUserRolesChanged.Disabled": true,
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled": true,
     "AzureWebJobs.NotifyBookingMade.Disabled": true,
     "AzureWebJobs.NotifyBookingRescheduled.Disabled": true,
     "AzureWebJobs.NotifyBookingCancelled.Disabled": true,

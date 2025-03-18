@@ -11,7 +11,7 @@ public class CapacityDataConverterTests
     {
         var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
         var result = CapacityDataConverter.ExtractDate(testDocument);
-        result.Should().Be("02/01/2025");
+        result.Should().Be("2025-01-02");
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class CapacityDataConverterTests
     {
         var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
         var result = CapacityDataConverter.ExtractTime(testDocument);
-        result.Should().Be("09:00");
+        result.Should().Be("09:00:00");
     }
 
     [Fact]

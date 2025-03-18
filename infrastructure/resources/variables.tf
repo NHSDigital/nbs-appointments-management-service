@@ -227,3 +227,7 @@ variable "create_app_slot" {
 variable "create_frontdoor" {
   type = bool
 }
+
+variable "build_number" {
+  type = string
+}

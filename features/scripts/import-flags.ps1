@@ -11,5 +11,5 @@ az appconfig kv import `
     --name $appConfigName `
     --source file `
     --path $sourceFile `
-    --format json
+    --format json `
     --yes

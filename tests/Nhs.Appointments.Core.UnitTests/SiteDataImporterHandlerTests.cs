@@ -196,6 +196,28 @@ public class SiteDataImporterHandlerTests
         report.Last().Message.Should().Contain($"Latitude: {invalidLatitudeLower} is not a valid UK latitude.");
     }
 
+    [Fact]
+    public async Task DataReportsMissingColumns()
+    {
+        const string invalidHeaders = "Id,Name,Address,Longitude,Latitude,ICB,Region,accessible_toilet,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
+
+        string[] inputRows =
+        [
+            $"\"{Guid.NewGuid()}\",\"site1\",\"123 test street\",\"0.50\",\"60.0\",\"test icb1\",\"Yorkshire\",true,True,False,false,true,false,true",
+            $"\"{Guid.NewGuid()}\",\"site2\",\"321 test street\",\"0.75\",\"59.5\",\"test icb1\",\"Yorkshire\",true,True,False,false,true,false,true"
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(invalidHeaders, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'OdsCode'[0] was not found");
+    }
+
     private readonly string[] ValidInputRows =
     [
         $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",

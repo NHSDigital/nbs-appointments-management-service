@@ -60,11 +60,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapacityDataExtracts", "dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataExtract", "data\DataExtract\DataExtract.csproj", "{3B2BC975-7992-408F-BE91-9ED8D0888916}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.Integration", "tests\CapacityDataExtracts.Integration\CapacityDataExtracts.Integration.csproj", "{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapacityDataExtracts.Integration", "tests\CapacityDataExtracts.Integration\CapacityDataExtracts.Integration.csproj", "{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.UnitTests", "CapacityDataExtracts.UnitTests\CapacityDataExtracts.UnitTests.csproj", "{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapacityDataExtracts.UnitTests", "CapacityDataExtracts.UnitTests\CapacityDataExtracts.UnitTests.csproj", "{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.UserManagement.Okta", "src\api\Nhs.Appointments.UserManagement.Okta\Nhs.Appointments.UserManagement.Okta.csproj", "{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.UserManagement.Okta", "src\api\Nhs.Appointments.UserManagement.Okta\Nhs.Appointments.UserManagement.Okta.csproj", "{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.UserManagement.Okta.UnitTests", "Nhs.Appointments.UserManagement.Okta.UnitTests\Nhs.Appointments.UserManagement.Okta.UnitTests.csproj", "{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -168,6 +170,10 @@ Global
 		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,6 +205,7 @@ Global
 		{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{E32D1A34-0A19-4038-B692-4C6BA0C9D8C7} = {6F9747AA-DE8B-43B4-B77F-4DDD959BB94C}
+		{5D228D76-03A3-4DE0-B1D7-EDD7E3365AF0} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

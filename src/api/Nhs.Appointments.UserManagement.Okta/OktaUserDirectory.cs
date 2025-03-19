@@ -46,10 +46,17 @@ public class OktaUserDirectory : IOktaUserDirectory
         }
     }
 
-    public async Task<UserGetSingleton?> GetUserAsync(string user){
+    public async Task<OktaUserResponse?> GetUserAsync(string user){
         try
         {
-            return await _userApi.GetUserAsync(user);
+            var oktaUser = await _userApi.GetUserAsync(user);
+
+            return oktaUser == null ? null : new OktaUserResponse
+            {
+                Created = oktaUser.Created,
+                IsActive = oktaUser.Status == UserStatus.ACTIVE,
+                IsProvisioned = oktaUser.Status == UserStatus.PROVISIONED
+            };
         }
         catch(Exception ex)
         {

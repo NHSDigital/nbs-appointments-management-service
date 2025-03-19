@@ -55,7 +55,6 @@ public class SetUserRolesFunction(
             {
                 return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);
             }
-
         }
 
         var roleAssignments = request

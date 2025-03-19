@@ -1,5 +1,6 @@
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Functions;
@@ -37,14 +38,15 @@ public class SetUserRolesFunctionTests
         string[] roles = ["role1"];
         const string scope = "site:some-site";
         var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user2@testdomain.com");
-
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
+        var oktaDirectoryResult = new UserProvisioningStatus { Success = true };
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
             It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
+        _oktaService.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(oktaDirectoryResult);
 
         await _sut.Invoke(request);
 
@@ -73,6 +75,32 @@ public class SetUserRolesFunctionTests
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Reason.Should().Be(expectedReason);
+    }
+
+    [Fact]
+    public async Task FailedToCreateOktaUser_ResultIsBadRequest()
+    {
+        const string User = "test@user.com";
+        string[] roles = ["role1"];
+        const string scope = "site:some-site";
+        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user2@testdomain.com");
+        var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
+        var oktaDirectoryResult = new UserProvisioningStatus { Success = false };
+
+        _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
+            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+            .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
+        _userContext.Setup(x => x.UserPrincipal)
+            .Returns(userPrincipal);
+        _oktaService.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(oktaDirectoryResult);
+
+        var response = await _sut.Invoke(request);
+
+        Assert.Multiple(
+            () => response.StatusCode.Should().Be(HttpStatusCode.BadRequest),
+            () => response.IsSuccess.Should().BeFalse(),
+            () => _userService.Verify()
+        );
     }
 
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction

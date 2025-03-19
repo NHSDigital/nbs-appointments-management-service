@@ -1,0 +1,99 @@
+{
+    "FeatureManagement": {
+      "TestFeatureEnabled": true,
+      "TestFeaturePercentageEnabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.Percentage",
+            "Parameters": {
+              "Value": 50
+            }
+          }
+        ]
+      },
+      "TestFeatureTimeWindowDisabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.TimeWindow",
+            "Parameters": {
+              "Start": "1975-02-01T00:00:00Z",
+              "End": "2024-02-01T23:59:59Z"
+            }
+          }
+        ]
+      },
+      "TestFeatureTimeWindowEnabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.TimeWindow",
+            "Parameters": {
+              "Start": "2025-02-01T00:00:00Z",
+              "End": "2099-02-01T23:59:59Z"
+            }
+          }
+        ]
+      },
+      "TestFeatureUsersEnabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.Targeting",
+            "Parameters": {
+              "Audience": {
+                "Users": [
+                  "api@test"
+                ],
+                "DefaultRolloutPercentage": 0
+              }
+            }
+          }
+        ]
+      },
+      "TestFeatureSitesEnabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.Targeting",
+            "Parameters": {
+              "Audience": {
+                "Groups": [
+                  {
+                    "Name": "Site:24c36a82-489e-4fc1-877a-6e8cae0deaae",
+                    "RolloutPercentage": 100
+                  }
+                ],
+                "DefaultRolloutPercentage": 0
+              }
+            }
+          }
+        ]
+      },
+      "TestFeatureSiteOrUserEnabled": {
+        "EnabledFor": [
+          {
+            "Name": "Microsoft.Targeting",
+            "Parameters": {
+              "Audience": {
+                "Users": [
+                  "api@test"
+                ],
+                "DefaultRolloutPercentage": 0
+              }
+            }
+          },
+          {
+            "Name": "Microsoft.Targeting",
+            "Parameters": {
+              "Audience": {
+                "Groups": [
+                  {
+                    "Name": "Site:5bb9177c-1555-42a5-91cd-a2c3c8efa0ff",
+                    "RolloutPercentage": 100
+                  }
+                ],
+                "DefaultRolloutPercentage": 0
+              }
+            }
+          }
+        ]
+      }
+    }
+  }

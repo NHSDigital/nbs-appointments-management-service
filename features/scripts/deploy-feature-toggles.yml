@@ -1,0 +1,33 @@
+﻿#
+parameters:
+  - name: env
+    type: string
+  - name: isMain
+    type: string
+
+stages:
+  - stage: Deploy-Features-${{parameters.env}}
+    displayName: Deploy Features ${{parameters.env}}
+    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    jobs:
+      - job: ApproveFeatureToggles
+        displayName: "Approve Feature Toggles"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Review Feature Toggles"
+            inputs:
+              notifyUsers: ""
+              instructions: Approve Toggles to ${{parameters.env}}
+      - job: ApplyFeatureToggles
+        dependsOn: ApproveFeatureToggles
+        displayName: "Apply Feature Toggles"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Apply Feature Toggles"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"

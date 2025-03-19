@@ -21,4 +21,11 @@ if ($confirmChanges) {
         --source file `
         --path $sourceFile `
         --format json `
+
+    az appconfig kv import `
+        --name $appConfigName `
+        --source file `
+        --path empty.json `
+        --format json `
+        --yes
 }

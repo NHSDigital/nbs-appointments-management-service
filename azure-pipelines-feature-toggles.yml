@@ -14,5 +14,4 @@ stages:
       - template: "features/scripts/deploy-feature-toggles.yml"
         parameters:
           env: ${{env}}
-          isMain: "true"
-          # isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

@@ -8,29 +8,28 @@ namespace Nhs.Appointments.Api.Features;
 public interface IFeatureToggleHelper
 {
     /// <summary>
-    ///     Check whether the provided featureFlag is enabled for the calling Function.
-    ///     Checks if the flag is enabled for the user that invokes the function.
-    ///     Ability to check against a potential targeted site for the function, via the provided SiteRequestInspector.
+    ///     Check whether the provided featureFlag is enabled.
+    ///     This method does not consider any targeting context (i.e. checking by user or site)
     /// </summary>
-    /// <param name="featureFlag">The flag to verify is enabled</param>
-    /// <param name="functionContext">The function invocation context</param>
-    /// <param name="principal">The user context principal for the function invocation</param>
-    /// <param name="requestInspector">
-    ///     The site request inspector to try and extract any relevant siteIds, to be added to
-    ///     targeting context. If ANY of the sites have this feature enabled, this will return true!
-    /// </param>
-    /// <returns></returns>
-    Task<bool> IsFeatureEnabledForFunction(string featureFlag, FunctionContext functionContext,
-        ClaimsPrincipal principal, IRequestInspector requestInspector);
+    /// <param name="featureFlag">The flag to verify</param>
+    /// <returns>Boolean value to indicate if the flag is enabled</returns>
+    Task<bool> IsFeatureEnabled(string featureFlag);
 
     /// <summary>
-    ///     Check whether the provided featureFlag is enabled.
-    ///     Will check if the flag is enabled for any of the sites or user parameters, if provided.\
-    ///     This will return true if ANY of the sites have the flag, as feature management is LOGICAL OR
+    ///     Check whether the provided featureFlag is enabled for the provided site.
+    ///     If the flag has no specific site targeting, it will return the global state of the flag
     /// </summary>
-    /// <param name="featureFlag">The flag to verify is enabled</param>
-    /// <param name="userId">The userId, if provided, to add to the feature filter targeting context</param>
-    /// <param name="siteIds">The siteIds, if provided, to add to the feature filter targeting context</param>
+    /// <param name="featureFlag">The flag to verify</param>
+    /// <param name="siteId">The site to add to the feature filter targeting context</param>
     /// <returns></returns>
-    Task<bool> IsFeatureEnabled(string featureFlag, string userId, string[] siteIds);
+    Task<bool> IsFeatureEnabledForSite(string featureFlag, string siteId);
+    
+    /// <summary>
+    ///     Check whether the provided featureFlag is enabled for the provided user.
+    ///     If the flag has no specific user targeting, it will return the global state of the flag
+    /// </summary>
+    /// <param name="featureFlag">The flag to verify</param>
+    /// <param name="userId">The user to add to the feature filter targeting context</param>
+    /// <returns></returns>
+    Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId);
 }

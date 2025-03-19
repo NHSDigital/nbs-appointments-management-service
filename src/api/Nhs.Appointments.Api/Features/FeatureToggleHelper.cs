@@ -1,36 +1,52 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.FeatureFilters;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Features;
 
 public class FeatureToggleHelper(IFeatureManager featureManager) : IFeatureToggleHelper
 {
-    public async Task<bool> IsFeatureEnabledForFunction(string featureFlag, FunctionContext functionContext,
-        ClaimsPrincipal principal, IRequestInspector requestInspector)
+    public async Task<bool> IsFeatureEnabled(string featureFlag)
     {
-        var siteIds = (await requestInspector.GetSiteIds(await functionContext.GetHttpRequestDataAsync())).ToArray();
-        return await IsFeatureEnabled(featureFlag, principal.Claims.GetUserEmail(), siteIds);
+        if (string.IsNullOrEmpty(featureFlag))
+        {
+            throw new ArgumentException("FeatureFlag cannot be null or empty.");
+        }
+        
+        return await featureManager.IsEnabledAsync(featureFlag);
     }
 
-    public async Task<bool> IsFeatureEnabled(string featureFlag, string userId, string[] siteIds)
+    public async Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId)
     {
-        var targetingUser = userId.IsNullOrWhiteSpace() ? null : userId;
-        IEnumerable<string> targetingSites = null;
-
-        if (siteIds != null && siteIds.Length != 0)
+        if (string.IsNullOrEmpty(featureFlag))
         {
-            targetingSites = siteIds.Select(x => $"Site:{x}");
+            throw new ArgumentException("FeatureFlag cannot be null or empty.");
+        }
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new ArgumentException("UserId cannot be null or empty.");
         }
 
-        var targetingContext = new TargetingContext { UserId = targetingUser, Groups = targetingSites };
+        var targetingContext = new TargetingContext { UserId = userId };
+
+        return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
+    }
+
+    public async Task<bool> IsFeatureEnabledForSite(string featureFlag, string siteId)
+    {
+        if (string.IsNullOrEmpty(featureFlag))
+        {
+            throw new ArgumentException("FeatureFlag cannot be null or empty.");
+        }
+        
+        if (string.IsNullOrEmpty(siteId))
+        {
+            throw new ArgumentException("SiteId cannot be null or empty.");
+        }
+
+        var targetingContext = new TargetingContext { Groups = [$"Site:{siteId}"] };
 
         return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
     }

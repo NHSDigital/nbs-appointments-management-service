@@ -10,7 +10,19 @@ stages:
     displayName: Deploy Features ${{parameters.env}}
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     jobs:
+      - job: PreviewFeatureToggles
+        displayName: "Preview Feature Toggles"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Preview Feature Toggles"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
       - job: ApproveFeatureToggles
+        dependsOn: PreviewFeatureToggles
         displayName: "Approve Feature Toggles"
         pool: server
         steps:
@@ -30,4 +42,4 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json -confirmChanges"

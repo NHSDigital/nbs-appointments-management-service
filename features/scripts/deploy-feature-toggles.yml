@@ -6,7 +6,7 @@ parameters:
     type: string
 
 stages:
-  - stage: Deploy-Features-${{parameters.env}}
+  - stage: DeployFeatures${{parameters.env}}
     displayName: Deploy Features ${{parameters.env}}
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     jobs:

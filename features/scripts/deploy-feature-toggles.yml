@@ -20,7 +20,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json -confirmChanges 0"
       - job: ApproveFeatureToggles
         dependsOn: PreviewFeatureToggles
         displayName: "Approve Feature Toggles"
@@ -42,4 +42,4 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json -confirmChanges"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json -confirmChanges 1"

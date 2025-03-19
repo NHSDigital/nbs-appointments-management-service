@@ -11,7 +11,6 @@ stages:
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     jobs:
       - job: ApproveFeatureToggles
-        dependsOn: PreviewFeatureToggles
         displayName: "Approve Feature Toggles"
         pool: server
         steps:

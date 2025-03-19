@@ -15,8 +15,8 @@ public static class CsvFieldValidator
 
     public static bool IsValidPhoneNumber(string phoneNumber)
     {
-        return !string.IsNullOrWhiteSpace(phoneNumber)
-            && (RegularExpressionConstants.LandlineNumberRegex().IsMatch(phoneNumber)
-            || RegularExpressionConstants.MobileNumberRegex().IsMatch(phoneNumber));
+        // 'N' is valid for the bulk import in the scenario we don't have a number for that site
+        return phoneNumber == "N" || (!string.IsNullOrWhiteSpace(phoneNumber)
+            && (RegularExpressionConstants.LandlineNumberRegex().IsMatch(phoneNumber) || RegularExpressionConstants.MobileNumberRegex().IsMatch(phoneNumber)));
     }
 }

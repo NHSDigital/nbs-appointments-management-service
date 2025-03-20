@@ -44,6 +44,7 @@ describe('AssignRoles', () => {
     fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
     fetchRolesMock.mockResolvedValue(mockRoles);
   });
+
   it('throws error when rendered without user', async () => {
     await expect(
       AssignRoles({
@@ -53,24 +54,19 @@ describe('AssignRoles', () => {
     ).rejects.toThrow('You must specify a valid NHS email address');
   });
 
-  it('throws error when rendered with non NHS email', async () => {
-    await expect(
-      AssignRoles({
+  it.each([['test@nhs.net'], ['test@gmail.com']])(
+    'displays the email address of the user',
+    async (email: string) => {
+      const jsx = await AssignRoles({
         params: { site: 'TEST' },
-        searchParams: { user: 'test@test.com' },
-      }),
-    ).rejects.toThrow('You must specify a valid NHS email address');
-  });
+        searchParams: { user: email },
+      });
+      render(jsx);
+      expect(screen.getByText('Email')).toBeVisible();
+      expect(screen.getByText(email));
+    },
+  );
 
-  it('displays the email address of the user', async () => {
-    const jsx = await AssignRoles({
-      params: { site: 'TEST' },
-      searchParams: { user: 'test@nhs.net' },
-    });
-    render(jsx);
-    expect(screen.getByText('Email')).toBeVisible();
-    expect(screen.getByText('test@nhs.net'));
-  });
   it('calls fetch users with the correct site id', async () => {
     const jsx = await AssignRoles({
       params: { site: 'TEST' },
@@ -79,6 +75,7 @@ describe('AssignRoles', () => {
     render(jsx);
     expect(fetchUsersMock).toHaveBeenCalledWith('TEST');
   });
+
   it('passes the correct props', async () => {
     const jsx = await AssignRoles({
       params: { site: 'TEST' },

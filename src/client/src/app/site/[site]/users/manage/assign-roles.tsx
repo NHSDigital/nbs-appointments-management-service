@@ -1,4 +1,5 @@
 ﻿import { UserPageProps } from './page';
+import { RoleAssignment } from '@types';
 import AssignRolesForm from './assign-roles-form';
 import React from 'react';
 import { fetchRoles, fetchUsers } from '@services/appointmentsService';
@@ -17,11 +18,8 @@ const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
   ]);
 
   const currentUser = users.find(usr => usr.id === user);
-  if (!currentUser) {
-    return notFound();
-  }
-
-  const currentUserAssignments = currentUser.roleAssignments;
+  const currentUserAssignments =
+    currentUser?.roleAssignments ?? ([] as RoleAssignment[]);
 
   return (
     <>

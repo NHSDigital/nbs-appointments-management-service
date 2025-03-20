@@ -58,25 +58,9 @@ describe('AssignRoles', () => {
     expect(notFoundMock).toHaveBeenCalled();
   });
 
-  it('returns not found when provided user is not a user at that site', async () => {
-    fetchUsersMock.mockResolvedValue([]);
-
-    const jsx = await AssignRoles({
-      params: { site: 'TEST' },
-      searchParams: { user: 'nosuchuser@nhs.net' },
-    });
-    render(jsx);
-
-    expect(notFoundMock).toHaveBeenCalled();
-  });
-
   it.each([['test@nhs.net'], ['test@gmail.com']])(
     'displays the email address of the user',
     async (email: string) => {
-      const mockUsers = getMockUserAssignments(mockSiteId);
-      mockUsers[0].id = email;
-      fetchUsersMock.mockResolvedValue(mockUsers);
-
       const jsx = await AssignRoles({
         params: { site: 'TEST' },
         searchParams: { user: email },

@@ -23,7 +23,7 @@ public class CapacityDataExtract(
         
         await Task.WhenAll(availabilityTask, siteTask);
 
-        var capacity = availabilityTask.Result.SelectMany(
+        var capacity = availabilityTask.Result.Where(x => siteTask.Result.Select(x => x.Id).Contains(x.Site)).SelectMany(
             availability => availability.Sessions.Select(
                 s => new SiteSessionInstance(availability.Site, availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
                 {

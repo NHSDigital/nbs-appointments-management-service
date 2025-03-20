@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    default: ["dev"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
@@ -297,5 +297,6 @@ stages:
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isMain: "true"
+          # isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
           buildNumber: "$(Build.BuildNumber)"

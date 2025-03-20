@@ -33,10 +33,6 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
       <p>This will:</p>
       <ul>
         <li>Revoke the user's access to this site only</li>
-        <li>
-          This will not affect their wider @nhs.net account - this will only
-          remove them from the National Booking System
-        </li>
         <li>This will not remove their access from any other sites</li>
       </ul>
 

@@ -10,11 +10,32 @@ import { setSiteInformationForCitizen } from '@services/appointmentsService';
 import { SetInformationForCitizensRequest } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
 
 type FormFields = {
   informationForCitizen: string;
 };
+
+const maxLength = 150;
+const schema = yup
+  .object({
+    informationForCitizen: yup
+      .string()
+      .ensure()
+      .max(maxLength, 'Site information cannot exceed 150 characters')
+      .matches(
+        SPECIAL_CHARACTER_REGEX,
+        'Site information cannot contain a URL or special characters except full stops, commas, and hyphens',
+      )
+      .test(
+        'no-urls',
+        'Site information cannot contain a URL or special characters except full stops, commas, and hyphens',
+        value => !URL_REGEX.test(value),
+      ),
+  })
+  .required();
 
 const AddInformationForCitizensForm = ({
   information,
@@ -33,10 +54,10 @@ const AddInformationForCitizensForm = ({
     defaultValues: {
       informationForCitizen: information,
     },
+    resolver: yupResolver(schema),
   });
 
   const infoWatch = watch('informationForCitizen');
-  const maxLength = 150;
 
   const cancel = () => {
     replace(`/site/${site}/details`);
@@ -66,15 +87,7 @@ const AddInformationForCitizensForm = ({
           <TextArea
             label="What information would you like to include?"
             maxLength={maxLength}
-            {...register('informationForCitizen', {
-              validate: {
-                validInput: value =>
-                  value.length === 0 ||
-                  (!URL_REGEX.test(value) &&
-                    SPECIAL_CHARACTER_REGEX.test(value)),
-              },
-              maxLength: 150,
-            })}
+            {...register('informationForCitizen')}
           />
         </div>
         <div

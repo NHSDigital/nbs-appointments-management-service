@@ -16,6 +16,7 @@ describe('FindUserForm', () => {
       replace: mockReplace,
     });
   });
+
   it('shows a validation error when no data is submitted', async () => {
     const { user } = render(<FindUserForm site="TEST" />);
     const searchButton = screen.getByRole('button', { name: 'Search user' });
@@ -24,6 +25,43 @@ describe('FindUserForm', () => {
     expect(
       await screen.findByText('You have not entered a valid NHS email address'),
     ).toBeVisible();
+  });
+
+  it('shows a validation error when an invalid email address is submitted', async () => {
+    const { user } = render(<FindUserForm site="TEST" />);
+
+    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const emailInput = screen.getByRole('textbox', {
+      name: 'Enter an email address',
+    });
+
+    await user.type(emailInput, 'invalid@@email@nhs.com');
+    await user.click(searchButton);
+
+    expect(
+      await screen.findByText('You have not entered a valid NHS email address'),
+    ).toBeVisible();
+  });
+
+  it('trims and lowercases the input', async () => {
+    const { user } = render(<FindUserForm site="TEST" />);
+
+    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const emailInput = screen.getByRole('textbox', {
+      name: 'Enter an email address',
+    });
+
+    await user.type(emailInput, '   TEST@nhs.net  ');
+    await user.click(searchButton);
+
+    expect(
+      await screen.queryByText(
+        'You have not entered a valid nhs email address',
+      ),
+    ).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/TEST/users?user=test%40nhs.net',
+    );
   });
 
   it('shows a validation error when an none nhs.net email address is submitted', async () => {

@@ -231,5 +231,5 @@ resource "azurerm_role_assignment" "highload_func_preview_config_reader" {
   count                = var.create_high_load_function_app && var.create_app_slot ? 1 : 0
   scope                = azurerm_app_configuration.nbs_mya_app_configuration.id
   role_definition_name = "App Configuration Data Reader"
-  principal_id         = azurerm_windows_function_app.nbs_mya_high_load_func_app_preview[0].identity[0].principal_id
+  principal_id         = azurerm_windows_function_app_slot.nbs_mya_high_load_func_app_preview[0].identity[0].principal_id
 }

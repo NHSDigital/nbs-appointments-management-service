@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -31,7 +31,9 @@ public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSt
         {
             user = GetUserId(user),
             scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
-            roles = row.Cells.ElementAt(1).Value.Split(",")
+            roles = row.Cells.ElementAt(1).Value.Split(","),
+            firstName = "firstName",
+            lastName = "lastName"
         };
         
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/user/roles", payload);

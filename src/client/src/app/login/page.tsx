@@ -30,11 +30,11 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         friendlyName={'NHS Mail'}
       />
       {/* TODO add feature toggle management to UI */}
-      {/* <LogInButton
+      <LogInButton
         redirectUrl={redirectUrl}
         provider={'okta'}
         friendlyName={'Other Email'}
-      /> */}
+      />
     </NhsAnonymousPage>
   );
 };

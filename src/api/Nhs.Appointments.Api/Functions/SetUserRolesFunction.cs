@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -16,7 +16,14 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRolesRequest> validator, IUserContextProvider userContextProvider, ILogger<SetUserRolesFunction> logger, IMetricsRecorder metricsRecorder) 
+public class SetUserRolesFunction(
+    IUserService userService, 
+    IValidator<SetUserRolesRequest> validator, 
+    IUserContextProvider userContextProvider, 
+    IOktaService oktaService, 
+    ILogger<SetUserRolesFunction> logger, 
+    IMetricsRecorder metricsRecorder
+) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"], Summary = "Set role assignments for a user at a site")]
@@ -38,6 +45,16 @@ public class SetUserRolesFunction(IUserService userService, IValidator<SetUserRo
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
             return Failed(HttpStatusCode.BadRequest, "You cannot update the role assignments of the currently logged in user.");
+        }
+
+        if (!request.User.ToLowerInvariant().EndsWith("@nhs.net"))
+        {
+            // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
+            var externalDirectoryResult = await oktaService.CreateIfNotExists(request.User, request.FirstName, request.LastName);
+            if (!externalDirectoryResult.Success)
+            {
+                return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);
+            }
         }
 
         var roleAssignments = request

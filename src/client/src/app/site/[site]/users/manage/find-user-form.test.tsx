@@ -26,22 +26,6 @@ describe('FindUserForm', () => {
     ).toBeVisible();
   });
 
-  it('shows a validation error when an none nhs.net email address is submitted', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
-
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
-    const emailInput = screen.getByRole('textbox', {
-      name: 'Enter an email address',
-    });
-
-    await user.type(emailInput, 'test@test.com');
-    await user.click(searchButton);
-
-    expect(
-      await screen.findByText('You have not entered a valid NHS email address'),
-    ).toBeVisible();
-  });
-
   it('takes the user to the main user page when they cancel', async () => {
     const { user } = render(<FindUserForm site="TEST" />);
 

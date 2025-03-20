@@ -2,8 +2,9 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { EMAIL_REGEX } from '../../../../../constants';
+import * as yup from 'yup';
 import {
   TextInput,
   FormGroup,
@@ -16,6 +17,23 @@ type FormFields = {
   email: string;
 };
 
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      .required()
+      .trim()
+      .lowercase()
+      .email()
+      // TODO: Toggle or remove this to permit Okta user creation
+      .test(
+        'is-nhs-email',
+        'You have not entered a valid NHS email address',
+        email => email.endsWith('@nhs.net'),
+      ),
+  })
+  .required();
+
 const FindUserForm = ({ site }: { site: string }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -26,6 +44,7 @@ const FindUserForm = ({ site }: { site: string }) => {
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<FormFields>({
     defaultValues: { email: '' },
+    resolver: yupResolver(schema),
   });
 
   const submitForm: SubmitHandler<FormFields> = form => {
@@ -54,10 +73,7 @@ const FindUserForm = ({ site }: { site: string }) => {
         <TextInput
           id="email"
           label="Enter an email address"
-          {...register('email', {
-            required: true,
-            pattern: EMAIL_REGEX,
-          })}
+          {...register('email')}
         ></TextInput>
       </FormGroup>
 

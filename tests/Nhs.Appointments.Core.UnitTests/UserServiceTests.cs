@@ -142,6 +142,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var expectedUserId = userId.ToLower();
 
+            _messageBus.Verify(x => x.Send(It.Is<UserRolesChanged>(e => e.UserId.Equals(expectedUserId))));
             _userStore.Verify(x => x.UpdateUserRoleAssignments(expectedUserId, scope, It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
         }
     }

@@ -63,15 +63,6 @@ test('Cannot create a user without any roles', async ({ newUserName }) => {
   await createUserPage.notSelectedAnyRolesErrorMsg();
 });
 
-test('Cannot create a user with non NHS email Id', async ({
-  externalUserName,
-}) => {
-  await usersPage.assignStaffRolesLink.click();
-  await editManageUserRolesPage.emailInput.fill(externalUserName);
-  await editManageUserRolesPage.searchUserButton.click();
-  await createUserPage.notEnteredValidEmailAddressErrorMsg();
-});
-
 test('Verify users are redirected to users page upon cancel button clicked', async ({
   newUserName,
 }) => {

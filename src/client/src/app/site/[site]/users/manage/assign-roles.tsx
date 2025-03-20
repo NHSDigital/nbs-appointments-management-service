@@ -7,7 +7,7 @@ import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
   const user = searchParams?.user;
 
-  if (user === undefined || !user.endsWith('@nhs.net'))
+  if (user === undefined)
     throw Error('You must specify a valid NHS email address');
 
   const [roles, users] = await Promise.all([

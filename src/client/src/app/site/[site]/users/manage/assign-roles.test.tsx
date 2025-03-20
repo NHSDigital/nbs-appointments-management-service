@@ -3,6 +3,7 @@ import AssignRoles from './assign-roles';
 import { Role, RoleAssignment, User } from '@types';
 import { getMockUserAssignments, mockRoles } from '@testing/data';
 import { fetchRoles, fetchUsers } from '@services/appointmentsService';
+import { notFound } from 'next/navigation';
 
 jest.mock('./assign-roles-form', () => {
   const MockForm = ({
@@ -34,10 +35,12 @@ jest.mock('./assign-roles-form', () => {
 });
 
 jest.mock('@services/appointmentsService');
-
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
 const mockSiteId = 'TEST';
+
+jest.mock('next/navigation');
+const notFoundMock = notFound as jest.Mock<never>;
 
 describe('AssignRoles', () => {
   beforeEach(() => {
@@ -45,18 +48,35 @@ describe('AssignRoles', () => {
     fetchRolesMock.mockResolvedValue(mockRoles);
   });
 
-  it('throws error when rendered without user', async () => {
-    await expect(
-      AssignRoles({
-        params: { site: 'TEST' },
-        searchParams: {},
-      }),
-    ).rejects.toThrow('You must specify a valid NHS email address');
+  it('returns not found when no user is provided', async () => {
+    const jsx = await AssignRoles({
+      params: { site: 'TEST' },
+      searchParams: { user: undefined },
+    });
+    render(jsx);
+
+    expect(notFoundMock).toHaveBeenCalled();
+  });
+
+  it('returns not found when provided user is not a user at that site', async () => {
+    fetchUsersMock.mockResolvedValue([]);
+
+    const jsx = await AssignRoles({
+      params: { site: 'TEST' },
+      searchParams: { user: 'nosuchuser@nhs.net' },
+    });
+    render(jsx);
+
+    expect(notFoundMock).toHaveBeenCalled();
   });
 
   it.each([['test@nhs.net'], ['test@gmail.com']])(
     'displays the email address of the user',
     async (email: string) => {
+      const mockUsers = getMockUserAssignments(mockSiteId);
+      mockUsers[0].id = email;
+      fetchUsersMock.mockResolvedValue(mockUsers);
+
       const jsx = await AssignRoles({
         params: { site: 'TEST' },
         searchParams: { user: email },

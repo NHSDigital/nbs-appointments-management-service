@@ -25,26 +25,24 @@ public class ApplyAvailabilityTemplateFunction(
     : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
-    [OpenApiOperation(operationId: "ApplyAvailabilityTemplate", tags: ["Availability"],
+    [OpenApiOperation("ApplyAvailabilityTemplate", ["Availability"],
         Summary = "Set appointment availability for a date range")]
     [OpenApiRequestBody("application/json", typeof(ApplyAvailabilityTemplateRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK,
+    [OpenApiResponseWithoutBody(HttpStatusCode.OK,
         Description = "Site availability successfully set or updated")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
+    [OpenApiResponseWithBody(HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
+    [OpenApiResponseWithBody(HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
+    [OpenApiResponseWithBody(HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]
     [RequiresAudit(typeof(SiteFromBodyInspector))]
     [Function("ApplyAvailabilityTemplateFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/apply-template")]
-        HttpRequest req)
-    {
-        return base.RunAsync(req);
-    }
+        HttpRequest req) =>
+        base.RunAsync(req);
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ApplyAvailabilityTemplateRequest request,
         ILogger logger)

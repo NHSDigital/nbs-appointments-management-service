@@ -2,6 +2,8 @@ namespace Nhs.Appointments.Api.Features;
 
 public static class Flags
 {
+    public const string OktaLogin = "OktaLogin";
+    
     #region TestFlags
     //a simple on/off global flag
     public const string TestFeatureEnabled = "TestFeatureEnabled";

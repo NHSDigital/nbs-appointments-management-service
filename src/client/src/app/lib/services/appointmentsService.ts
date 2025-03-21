@@ -90,6 +90,13 @@ export const fetchSite = async (siteId: string) => {
   return handleBodyResponse(response);
 };
 
+export const fetchFeatureFlagEnabled = async (featureFlag: string) => {
+  const response = await appointmentsApi.get<boolean>(
+    `feature-flag/${featureFlag}`,
+  );
+  return handleBodyResponse(response);
+};
+
 export const fetchSiteAccessibilities = async (siteId: string) => {
   const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
 

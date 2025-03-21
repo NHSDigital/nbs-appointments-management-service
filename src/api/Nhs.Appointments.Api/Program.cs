@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,7 +18,8 @@ var host = new HostBuilder()
         var azureAppConfigConnection = Environment.GetEnvironmentVariable("APP_CONFIG_CONNECTION");
         if (azureAppConfigConnection == "local")
         {
-            cfg.AddJsonFile("local.feature.flags.json", optional: false, reloadOnChange: true);
+            var configPath = Path.Combine(AppContext.BaseDirectory, "local.feature.flags.json");
+            cfg.AddJsonFile(configPath, optional: false, reloadOnChange: true);
         }
         else
         {

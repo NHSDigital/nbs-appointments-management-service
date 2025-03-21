@@ -24,6 +24,7 @@ import {
   SetInformationForCitizensRequest,
   Site,
   SetSiteReferenceDetailsRequest,
+  FeatureFlag,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -90,8 +91,8 @@ export const fetchSite = async (siteId: string) => {
   return handleBodyResponse(response);
 };
 
-export const fetchFeatureFlagEnabled = async (featureFlag: string) => {
-  const response = await appointmentsApi.get<boolean>(
+export const fetchFeatureFlag = async (featureFlag: string) => {
+  const response = await appointmentsApi.get<FeatureFlag>(
     `feature-flag/${featureFlag}`,
   );
   return handleBodyResponse(response);

@@ -25,7 +25,13 @@ var host = new HostBuilder()
         {
             cfg.AddAzureAppConfiguration(options =>
             {
-                options.Connect(azureAppConfigConnection).UseFeatureFlags();
+                options
+                    .Connect(azureAppConfigConnection)
+                    .UseFeatureFlags()
+                    .ConfigureRefresh(refresh =>
+                    {
+                        refresh.RegisterAll().SetRefreshInterval(TimeSpan.FromMinutes(1));
+                    });
             });
         }
     })

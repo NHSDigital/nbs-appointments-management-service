@@ -14,7 +14,7 @@ using Nhs.Appointments.Audit;
 var host = new HostBuilder()
     .ConfigureAppConfiguration((ctx, cfg) =>
     {
-        var azureAppConfigConnection = Environment.GetEnvironmentVariable("AzureAppConfigConnection");
+        var azureAppConfigConnection = Environment.GetEnvironmentVariable("APP_CONFIG_CONNECTION");
         if (azureAppConfigConnection == "local")
         {
             cfg.AddJsonFile("local.feature.flags.json", optional: false, reloadOnChange: true);
@@ -23,11 +23,7 @@ var host = new HostBuilder()
         {
             cfg.AddAzureAppConfiguration(options =>
             {
-                options.Connect(azureAppConfigConnection)
-                    .UseFeatureFlags()
-                    .ConfigureRefresh(refresh => refresh
-                        .RegisterAll()
-                        .SetRefreshInterval(TimeSpan.FromMinutes(10)));
+                options.Connect(azureAppConfigConnection).UseFeatureFlags();
             });
         }
     })

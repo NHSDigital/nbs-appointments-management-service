@@ -218,6 +218,36 @@ public class SiteDataImporterHandlerTests
         report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'OdsCode'[0] was not found");
     }
 
+    [Fact]
+    public async Task DuplicateSiteNamesReportsBadData()
+    {
+        const string site = "Test Site 1";
+
+        string[] inputRows =
+        [
+            $"\"{Guid.NewGuid()}\",\"site1\",\"{site}\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"site2\",\"{site}\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+            });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.First().Message.Should().StartWith($"Duplicate site name provided: {site}. Site names must be unique.");
+        report.Count(r => !r.Success).Should().Be(1);
+    }
+
     private readonly string[] ValidInputRows =
     [
         $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",

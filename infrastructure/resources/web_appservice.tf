@@ -219,9 +219,3 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
     }
   }
 }
-
-resource "azurerm_role_assignment" "web_app_config_reader" {
-  scope                = azurerm_app_configuration.nbs_mya_app_configuration.id
-  role_definition_name = "App Configuration Data Reader"
-  principal_id         = azurerm_linux_web_app.nbs_mya_web_app_service.identity[0].principal_id
-}

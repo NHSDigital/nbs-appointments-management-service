@@ -89,12 +89,6 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
   }
 }
 
-resource "azurerm_role_assignment" "http_func_config_reader" {
-  scope                = azurerm_app_configuration.nbs_mya_app_configuration.id
-  role_definition_name = "App Configuration Data Reader"
-  principal_id         = azurerm_windows_function_app.nbs_mya_http_func_app.identity[0].principal_id
-}
-
 resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
   count                      = var.create_app_slot ? 1 : 0
   name                       = "preview"
@@ -157,11 +151,4 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
   identity {
     type = "SystemAssigned"
   }
-}
-
-resource "azurerm_role_assignment" "http_func_preview_config_reader" {
-  count                = var.create_app_slot ? 1 : 0
-  scope                = azurerm_app_configuration.nbs_mya_app_configuration.id
-  role_definition_name = "App Configuration Data Reader"
-  principal_id         = azurerm_windows_function_app_slot.nbs_mya_http_func_app_preview[0].identity[0].principal_id
 }

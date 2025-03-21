@@ -1,5 +1,5 @@
 {
     "FeatureManagement": {
-      "TestFeatureEnabled": true
+      "OktaLogin": false
     }
   }

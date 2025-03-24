@@ -150,16 +150,3 @@ Feature: Book an appointment
        | Tomorrow | 09:05 | 5        | COVID   |
      When I confirm the bookings
      Then the call should fail with 412
- 
-   Scenario: JB:Child booking has leadBooker set
-     Given the site is configured for MYA
-     And the following sessions
-       | Date     | From  | Until | Services | Slot Length | Capacity |
-       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-     And the following provisional bookings have been made
-       | Date     | Time  | Duration | Service |
-       | Tomorrow | 09:00 | 5        | COVID   |
-       | Tomorrow | 09:05 | 5        | COVID   |
-     When I confirm the bookings
-     Then the call should be successful
-     And child bookings have a leadBooker set

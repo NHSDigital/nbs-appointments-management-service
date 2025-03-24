@@ -1,0 +1,21 @@
+trigger:
+  paths:
+    include:
+    - features/*
+  branches:
+    include:
+    - main
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: environments
+    type: object
+    default: ["dev", "int", "stag", "prod"]
+
+stages:
+  - ${{ each env in parameters.environments }}:
+      - template: "features/scripts/deploy-feature-toggles.yml"
+        parameters:
+          env: ${{env}}
+          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}

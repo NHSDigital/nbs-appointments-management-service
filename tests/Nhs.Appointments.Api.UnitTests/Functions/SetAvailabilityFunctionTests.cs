@@ -2,7 +2,6 @@
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
@@ -12,13 +11,13 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class SetAvailabilityFunctionTests
 {
+    private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<ILogger<SetAvailabilityFunction>> _logger = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly SetAvailabilityFunctionTestProxy _sut;
+    private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IValidator<SetAvailabilityRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContext = new();
-    private readonly Mock<ILogger<SetAvailabilityFunction>> _logger = new();
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
-    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public SetAvailabilityFunctionTests()
     {
@@ -50,7 +49,7 @@ public class SetAvailabilityFunctionTests
         }.ToArray();
 
         var request = new SetAvailabilityRequest(
-            new DateOnly(2024, 10, 10 ),
+            new DateOnly(2024, 10, 10),
             "test-site",
             sessions,
             ApplyAvailabilityMode.Overwrite);
@@ -64,11 +63,17 @@ public class SetAvailabilityFunctionTests
                 "test.user3@nhs.net", null), Times.Once);
     }
 
-    private class SetAvailabilityFunctionTestProxy(IAvailabilityService availabilityService, IValidator<SetAvailabilityRequest> validator, IUserContextProvider userContextProvider, ILogger<SetAvailabilityFunction> logger, IMetricsRecorder metricsRecorder)
+    private class SetAvailabilityFunctionTestProxy(
+        IAvailabilityService availabilityService,
+        IValidator<SetAvailabilityRequest> validator,
+        IUserContextProvider userContextProvider,
+        ILogger<SetAvailabilityFunction> logger,
+        IMetricsRecorder metricsRecorder)
         : SetAvailabilityFunction(availabilityService, validator, userContextProvider, logger, metricsRecorder)
     {
         private readonly ILogger<SetAvailabilityFunction> _logger = logger;
 
-        public async Task<ApiResult<EmptyResponse>> Invoke(SetAvailabilityRequest request) => await HandleRequest(request, _logger);
+        public async Task<ApiResult<EmptyResponse>> Invoke(SetAvailabilityRequest request) =>
+            await HandleRequest(request, _logger);
     }
 }

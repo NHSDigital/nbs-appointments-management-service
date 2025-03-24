@@ -38,7 +38,8 @@ public class GetUserRoleAssignmentsFunctionTests
             new()
             {
                 Id = "test1@test.com",
-                RoleAssignments = [new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }],
+                RoleAssignments =
+                    [new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }],
                 FirstName = "first1",
                 LastName = "last1"
             },
@@ -59,14 +60,20 @@ public class GetUserRoleAssignmentsFunctionTests
             new()
             {
                 Id = "test1@test.com",
-                RoleAssignments = [new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }],
+                RoleAssignments =
+                [
+                    new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }
+                ],
                 FirstName = "first1",
                 LastName = "last1"
             },
             new()
             {
                 Id = "test2@test.com",
-                RoleAssignments = [new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }],
+                RoleAssignments =
+                [
+                    new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }
+                ],
                 FirstName = "first2",
                 LastName = "last2"
             }

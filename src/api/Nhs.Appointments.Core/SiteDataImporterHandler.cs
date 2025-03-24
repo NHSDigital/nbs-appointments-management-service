@@ -11,14 +11,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        var duplicateIds = siteRows.GroupBy(s => s.Id)
-            .Where(s => s.Count() > 1)
-            .Select(s => s.Key).ToList();
-
-        if (duplicateIds.Count > 0)
-        {
-            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
-        }
+        CheckForDuplicatedSites(siteRows, report);
 
         var invalidOdsCodes = await GetSitesWithInvalidOdsCodes(siteRows);
         if (invalidOdsCodes.Count > 0)
@@ -64,6 +57,27 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         return siteRows.Where(s => !wellKnownOdsCodes.Contains(s.OdsCode.ToLower()))
             .Select(s => s.OdsCode)
             .ToList();
+    }
+
+    private static void CheckForDuplicatedSites(List<SiteImportRow> siteRows, List<ReportItem> report)
+    {
+        var duplicateIds = siteRows.GroupBy(s => s.Id)
+            .Where(s => s.Count() > 1)
+            .Select(s => s.Key).ToList();
+
+        if (duplicateIds.Count > 0)
+        {
+            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
+        }
+
+        var duplicateSiteNames = siteRows.GroupBy(s => s.Name)
+            .Where(s => s.Count() > 1)
+            .Select(s => s.Key).ToList();
+
+        if (duplicateSiteNames.Count > 0)
+        {
+            report.AddRange(duplicateSiteNames.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site name provided: {dup}. Site names must be unique.")));
+        }
     }
 
     public class SiteImportRow

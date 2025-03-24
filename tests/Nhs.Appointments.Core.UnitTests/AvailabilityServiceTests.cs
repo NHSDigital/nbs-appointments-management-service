@@ -1,4 +1,6 @@
 using Nhs.Appointments.Core.Concurrency;
+
+using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -15,8 +17,7 @@ public class AvailabilityServiceTests
     private readonly Mock<IBookingEventFactory> _eventFactory = new();
     private readonly Mock<IMessageBus> _messageBus = new();
     private readonly Mock<TimeProvider> _time = new();
-
-
+    
     public AvailabilityServiceTests() => _sut = new AvailabilityService(_availabilityStore.Object,
         _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
         _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,

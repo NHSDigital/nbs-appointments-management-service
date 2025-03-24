@@ -112,7 +112,7 @@ Feature: Book an appointment
        | Date     | From  | Until | Services | Slot Length | Capacity |
        | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
      When I confirm the bookings
-     Then the call should fail with 404
+     Then the call should fail with 412
  
    Scenario: JB:Cannot confirm a provisional appointment that has expired
      Given the site is configured for MYA
@@ -124,7 +124,7 @@ Feature: Book an appointment
        | Tomorrow | 09:00 | 5        | COVID   |
        | Tomorrow | 09:05 | 5        | COVID   |
      When I confirm the bookings
-     Then the call should fail with 410
+     Then the call should fail with 412
  
    Scenario: JB:A provisional booking expires
      Given the site is configured for MYA

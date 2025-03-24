@@ -40,7 +40,4 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("reminderSent")]
     public Boolean ReminderSent { get; set; }
-
-    [JsonProperty("leadBooker")]
-    public string LeadBooker { get; set; }
 }

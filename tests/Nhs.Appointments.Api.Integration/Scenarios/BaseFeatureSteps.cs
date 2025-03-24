@@ -383,20 +383,6 @@ public abstract partial class BaseFeatureSteps : Feature
         exception.Message.Should().Contain("404");
     }
 
-    [And("child bookings have a leadBooker set")]
-    [Then("child bookings have a leadBooker set")]
-    public async Task AssertChildrenBookingsHaveLeadBooker()
-    {
-        var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var childBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
-        var childBookingDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(childBookingReference, new PartitionKey(siteId));
-
-        childBookingDocument.Resource.LeadBooker.Should().Be(bookingReference);
-
-    }
-
     [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
     [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
     public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)

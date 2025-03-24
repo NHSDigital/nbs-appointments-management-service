@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Factories;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -30,7 +31,8 @@ namespace Nhs.Appointments.Api;
 
 public static class FunctionConfigurationExtensions
 {
-    public static IFunctionsWorkerApplicationBuilder ConfigureFunctionDependencies(this IFunctionsWorkerApplicationBuilder builder)
+    public static IFunctionsWorkerApplicationBuilder ConfigureFunctionDependencies(
+        this IFunctionsWorkerApplicationBuilder builder)
     {
         // Set up configuration
         var configurationBuilder = new ConfigurationBuilder()
@@ -38,6 +40,7 @@ public static class FunctionConfigurationExtensions
         var configuration = configurationBuilder.Build();
 
         builder.Services.AddRequestInspectors();
+        builder.Services.AddSingleton<IFeatureToggleHelper, FeatureToggleHelper>();
         builder.Services.AddCustomAuthentication(configuration);
         builder.Services.AddOktaUserDirectory(configuration);
 
@@ -126,7 +129,7 @@ public static class FunctionConfigurationExtensions
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         SetupCosmosDatabase(cosmosClient).GetAwaiter().GetResult();
-        
+
         return builder;
     }
 
@@ -138,7 +141,7 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "audit_data", partitionKeyPath: "/user");
     }
-    
+
     private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)
     {
         if (ignoreSslCert)

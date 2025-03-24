@@ -24,6 +24,7 @@ import {
   SetInformationForCitizensRequest,
   Site,
   SetSiteReferenceDetailsRequest,
+  FeatureFlag,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
@@ -87,6 +88,13 @@ export const fetchSite = async (siteId: string) => {
   const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`, {
     next: { tags: ['site'] },
   });
+  return handleBodyResponse(response);
+};
+
+export const fetchFeatureFlag = async (featureFlag: string) => {
+  const response = await appointmentsApi.get<FeatureFlag>(
+    `feature-flag/${featureFlag}`,
+  );
   return handleBodyResponse(response);
 };
 

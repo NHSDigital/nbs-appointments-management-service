@@ -65,7 +65,7 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
     public async Task ConfirmBookingsWithContactDetails(Gherkin.Ast.DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var childBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
+        var relatedBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
         var payload = new
         {
             contactDetails = new[]
@@ -74,7 +74,7 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
                 new { type = "Phone", value = cells.ElementAt(1).Value },
                 new { type = "Landline", value = cells.ElementAt(2).Value }
             },
-            childBookings = new[] { childBookingReference }
+            relatedBookings = new[] { relatedBookingReference }
         };
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", payload);

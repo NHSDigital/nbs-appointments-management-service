@@ -12,6 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -23,8 +24,9 @@ public class ConfirmProvisionalBookingFunction(
     IBookingsService bookingService,
     IValidator<ConfirmBookingRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<MakeBookingFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    ILogger<ConfirmProvisionalBookingFunction> logger,
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: ["Booking"],
@@ -58,7 +60,8 @@ public class ConfirmProvisionalBookingFunction(
     {
         var result = BookingConfirmationResult.NotFound;
 
-        if (bookingRequest.childBookings.Any()) 
+        // If Joint Bookings disabled ignore the child bookings param
+        if (await featureToggleHelper.IsFeatureEnabled("JointBookings") && bookingRequest.childBookings.Any()) 
         {
             result = await bookingService.ConfirmProvisionalBookingWithChildren(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
@@ -126,6 +129,6 @@ public class ConfirmProvisionalBookingFunction(
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
         return (ErrorMessageResponseItem.None,
-            new ConfirmBookingRequest(bookingReference, contactDetails, bookingToReschedule));
+            new ConfirmBookingRequest(bookingReference, contactDetails, childBookings, bookingToReschedule));
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;

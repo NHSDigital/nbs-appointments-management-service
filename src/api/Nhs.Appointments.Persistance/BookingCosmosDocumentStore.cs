@@ -160,27 +160,18 @@ public class BookingCosmosDocumentStore(
         return (BookingConfirmationResult.Unknown, null);
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisionalWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings)
+    public async Task<BookingConfirmationResult> ConfirmProvisionals(string[] bookingReferences, IEnumerable<ContactItem> contactDetails)
     {
-        var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
-        var provisionalValidationResult = ValidateBookingDocumentProvisionalState(bookingIndexDocument);
         var bookingDocuments = new List<BookingIndexDocument>();
 
-        if (provisionalValidationResult != BookingConfirmationResult.Success)
+        foreach (var reference in bookingReferences) 
         {
-            return provisionalValidationResult;
-        }
-
-        bookingDocuments.Add(bookingIndexDocument);
-
-        foreach (var childReference in childBookings) 
-        {
-            var childIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(childReference);
+            var childIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(reference);
             var childProvisionalValidationResult = ValidateBookingDocumentProvisionalState(childIndexDocument);
 
             if (childProvisionalValidationResult != BookingConfirmationResult.Success)
             {
-                return BookingConfirmationResult.ChildBookingInvalid;
+                return BookingConfirmationResult.GroupBookingInvalid;
             }
 
             bookingDocuments.Add(childIndexDocument);
@@ -188,7 +179,7 @@ public class BookingCosmosDocumentStore(
 
         foreach (var document in bookingDocuments) 
         {
-            await PatchProvisionalToConfirmed(document, contactDetails, bookingReference);
+            await PatchProvisionalToConfirmed(document, contactDetails);
         }
 
         return BookingConfirmationResult.Success;
@@ -219,14 +210,13 @@ public class BookingCosmosDocumentStore(
         return BookingConfirmationResult.Success;
     }
 
-    private async Task PatchProvisionalToConfirmed(BookingIndexDocument bookingIndexDocument, IEnumerable<ContactItem> contactDetails, string? leadBooker = null) 
+    private async Task PatchProvisionalToConfirmed(BookingIndexDocument bookingIndexDocument, IEnumerable<ContactItem> contactDetails) 
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
-        var addLeadBookerPath = PatchOperation.Add("/leadBooker", leadBooker);
         await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath, addLeadBookerPath);
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
     }
 
     private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 

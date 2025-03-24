@@ -27,10 +27,10 @@ public sealed class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
     public async Task ConfirmBookings()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var childbookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
+        var relatedBookingsReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
         var payload = new ConfirmBookingRequestPayload( 
             contactDetails: [],
-            childBookings: new string[] { childbookingReference },
+            relatedBookings: new string[] { relatedBookingsReference },
             bookingToReschedule: "test-booking-to-reschedule"
         );
         var jsonPayload = JsonSerializer.Serialize(payload);

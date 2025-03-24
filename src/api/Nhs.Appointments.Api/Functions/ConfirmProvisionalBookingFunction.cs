@@ -61,11 +61,10 @@ public class ConfirmProvisionalBookingFunction(
         var result = BookingConfirmationResult.NotFound;
 
         // If Joint Bookings disabled ignore the child bookings param
-        if (await featureToggleHelper.IsFeatureEnabled("JointBookings") && bookingRequest.childBookings.Any()) 
+        if (await featureToggleHelper.IsFeatureEnabled("JointBookings") && bookingRequest.relatedBookings.Any()) 
         {
-            result = await bookingService.ConfirmProvisionalBookingWithChildren(bookingRequest.bookingReference,
-            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
-            bookingRequest.childBookings);
+            result = await bookingService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }));
         } 
         else
         {
@@ -88,9 +87,9 @@ public class ConfirmProvisionalBookingFunction(
             case BookingConfirmationResult.StatusMismatch:
                 return Failed(HttpStatusCode.PreconditionFailed,
                     "The booking cannot be confirmed because it is not provisional");
-            case BookingConfirmationResult.ChildBookingInvalid:
+            case BookingConfirmationResult.GroupBookingInvalid:
                 return Failed(HttpStatusCode.PreconditionFailed,
-                    "The booking cannot be confirmed because child references are not valid");
+                    "The booking cannot be confirmed because group references are not valid");
             case BookingConfirmationResult.Success:
                 return Success();
         }
@@ -104,7 +103,7 @@ public class ConfirmProvisionalBookingFunction(
     {
         var contactDetails = new ContactItem[] { };
         var bookingToReschedule = string.Empty;
-        var childBookings = Array.Empty<string>();
+        var relatedBookings = Array.Empty<string>();
         if (req.Body != null && req.Body.Length > 0)
         {
             var (errors, payload) =
@@ -116,7 +115,7 @@ public class ConfirmProvisionalBookingFunction(
 
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
-            childBookings = payload.childBookings ?? Array.Empty<string>();
+            relatedBookings = payload.relatedBookings ?? Array.Empty<string>();
 
             var payloadErrors = new List<ErrorMessageResponseItem>();
             if (payload?.contactDetails == null && payload.bookingToReschedule == null)
@@ -129,6 +128,6 @@ public class ConfirmProvisionalBookingFunction(
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
         return (ErrorMessageResponseItem.None,
-            new ConfirmBookingRequest(bookingReference, contactDetails, childBookings, bookingToReschedule));
+            new ConfirmBookingRequest(bookingReference, contactDetails, relatedBookings, bookingToReschedule));
     }
 }

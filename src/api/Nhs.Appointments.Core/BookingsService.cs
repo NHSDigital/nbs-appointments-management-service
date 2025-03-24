@@ -14,7 +14,7 @@ public interface IBookingsService
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBookingWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings);
+    Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences, IEnumerable<ContactItem> contactDetails);
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
@@ -102,16 +102,14 @@ public class BookingsService(
 
         return BookingCancellationResult.Success;
     }
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBookingWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings) 
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences, IEnumerable<ContactItem> contactDetails) 
     {
 
-        var result = await bookingDocumentStore.ConfirmProvisionalWithChildren(bookingReference, contactDetails, childBookings);
+        var result = await bookingDocumentStore.ConfirmProvisionals(bookingReferences, contactDetails);
 
-        await SendConfirmNotification(bookingReference, result, false);
-
-        foreach (var child in childBookings) 
+        foreach (var booking in bookingReferences) 
         {
-            await SendConfirmNotification(child, result, false);
+            await SendConfirmNotification(booking, result, false);
         }
 
         return result;

@@ -12,7 +12,7 @@ public interface IBookingsDocumentStore
     Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status, AvailabilityStatus availabilityStatus);
     IDocumentUpdate<Booking> BeginUpdate(string site, string reference);
     Task SetReminderSent(string bookingReference, string site);
-    Task<BookingConfirmationResult> ConfirmProvisionalWithChildren(string bookingReference, IEnumerable<ContactItem> contactDetails, string[] childBookings);
+    Task<BookingConfirmationResult> ConfirmProvisionals(string[] bookingReferences, IEnumerable<ContactItem> contactDetails);
     Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task DeleteBooking(string reference, string site);
@@ -44,7 +44,7 @@ public enum BookingConfirmationResult
     RescheduleNotFound,
     RescheduleMismatch,
     StatusMismatch,
-    ChildBookingInvalid
+    GroupBookingInvalid
 }
 
 public enum BookingCancellationResult

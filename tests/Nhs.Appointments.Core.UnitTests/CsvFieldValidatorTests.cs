@@ -41,4 +41,26 @@ public class CsvFieldValidatorTests
 
         result.Should().Be(expectedResult);
     }
+
+    [Theory]
+    [InlineData("N")]
+    [InlineData("01234 856856")]
+    public void ShouldReturnTrueForValidPhoneNUmber(string phoneNumber)
+    {
+        var result = CsvFieldValidator.IsValidPhoneNumber(phoneNumber);
+
+        result.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    [InlineData("test string")]
+    public void ShouldReturnFalseForValidPhoneNumber(string? phoneNumber)
+    {
+        var result = CsvFieldValidator.IsValidPhoneNumber(phoneNumber);
+
+        result.Should().BeFalse();
+    }
 }

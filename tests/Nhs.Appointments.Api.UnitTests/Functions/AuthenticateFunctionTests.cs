@@ -10,8 +10,8 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class AuthenticateFunctionTests
 {
-    private readonly AuthenticateFunction _sut;
     private readonly Mock<IOptions<AuthOptions>> _options = new();
+    private readonly AuthenticateFunction _sut;
 
     public AuthenticateFunctionTests()
     {
@@ -38,10 +38,10 @@ public class AuthenticateFunctionTests
 
     [Fact]
     public void Run_RedirectsToOidc_WhenInvoked()
-    {            
+    {
         var context = new DefaultHttpContext();
         var request = context.Request;
-        request.QueryString = new QueryString($"?provider=test-auth");
+        request.QueryString = new QueryString("?provider=test-auth");
 
 
         var result = _sut.Run(request);

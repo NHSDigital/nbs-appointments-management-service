@@ -17,7 +17,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    app_configuration {
+      purge_soft_delete_on_destroy = false
+      recover_soft_deleted         = false
+    }
+  }
 }
 
 module "mya_application_dev" {

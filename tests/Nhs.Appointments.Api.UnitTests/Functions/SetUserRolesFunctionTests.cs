@@ -1,26 +1,27 @@
-﻿using FluentAssertions;
+﻿using System.Net;
+using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using System.Net;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class SetUserRolesFunctionTests
 {
-    private readonly SetUserRolesFunctionTestProxy _sut;
-    private readonly Mock<IUserService> _userService = new();
-    private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
-    private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<ILogger<SetUserRolesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
+    private readonly SetUserRolesFunctionTestProxy _sut;
+    private readonly Mock<IUserContextProvider> _userContext = new();
+    private readonly Mock<IUserService> _userService = new();
+    private readonly Mock<IValidator<SetUserRolesRequest>> _validator = new();
+
     public SetUserRolesFunctionTests()
     {
-        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new SetUserRolesFunctionTestProxy(_userService.Object, _validator.Object, _userContext.Object,
+            _logger.Object, _metricsRecorder.Object);
     }
 
     [Fact]
@@ -34,7 +35,8 @@ public class SetUserRolesFunctionTests
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
-            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+                It.Is<string>(x => x == User), It.Is<string>(x => x == scope),
+                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
@@ -56,7 +58,8 @@ public class SetUserRolesFunctionTests
         var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
-            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+                It.Is<string>(x => x == User), It.Is<string>(x => x == scope),
+                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
@@ -70,7 +73,8 @@ public class SetUserRolesFunctionTests
 
     internal class SetUserRolesFunctionTestProxy : SetUserRolesFunction
     {
-        private ILogger<SetUserRolesFunction> _logger;
+        private readonly ILogger<SetUserRolesFunction> _logger;
+
         public SetUserRolesFunctionTestProxy(
             IUserService userService,
             IValidator<SetUserRolesRequest> validator,

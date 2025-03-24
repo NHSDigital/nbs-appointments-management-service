@@ -23,11 +23,14 @@ public class SetSiteReferenceDetailsFunction(
     IUserContextProvider userContextProvider,
     ILogger<SetSiteReferenceDetailsRequest> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<SetSiteReferenceDetailsRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<SetSiteReferenceDetailsRequest, EmptyResponse>(validator, userContextProvider, logger,
+        metricsRecorder)
 {
-    [OpenApiOperation(operationId: "SetSiteReferenceDetails", tags: ["Sites"], Summary = "Set reference details for a site")]
+    [OpenApiOperation(operationId: "SetSiteReferenceDetails", tags: ["Sites"],
+        Summary = "Set reference details for a site")]
     [OpenApiRequestBody("application/json", typeof(SetSiteDetailsRequest), Required = true)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site reference details successfully saved")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK,
+        Description = "Site reference details successfully saved")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ApiResult<object>),
@@ -46,13 +49,17 @@ public class SetSiteReferenceDetailsFunction(
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request,
+        ILogger logger)
     {
-        var result = await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb, request.Region);
+        var result =
+            await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb,
+                request.Region);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteReferenceDetailsRequest request)>
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteReferenceDetailsRequest
+            request)>
         ReadRequestAsync(HttpRequest req)
     {
         var site = req.HttpContext.GetRouteValue("site")?.ToString();

@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import LogInButton from './log-in-button';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
+import { fetchFeatureFlag } from '@services/appointmentsService';
 
 export type LoginPageProps = {
   searchParams?: {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
+  const oktaLoginFlag = await fetchFeatureFlag('OktaLogin');
   const redirectUrl = searchParams?.redirectUrl ?? '/sites';
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
@@ -29,12 +31,13 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         provider={'nhs-mail'}
         friendlyName={'NHS Mail'}
       />
-      {/* TODO add feature toggle management to UI */}
-      {/* <LogInButton
-        redirectUrl={redirectUrl}
-        provider={'okta'}
-        friendlyName={'Other Email'}
-      /> */}
+      {oktaLoginFlag.enabled && (
+        <LogInButton
+          redirectUrl={redirectUrl}
+          provider={'okta'}
+          friendlyName={'Other Email'}
+        />
+      )}
     </NhsAnonymousPage>
   );
 };

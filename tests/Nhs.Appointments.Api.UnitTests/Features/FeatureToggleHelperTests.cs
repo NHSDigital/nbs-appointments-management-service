@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.FeatureManagement;
 using Microsoft.FeatureManagement.FeatureFilters;
 using Moq;
@@ -10,6 +11,7 @@ public class FeatureToggleHelperTests
 {
     private static readonly string TestFlag = "testFlag";
     private readonly Mock<IFeatureManager> _featureManager = new();
+    private readonly Mock<IConfigurationRefresher> _configRefresher = new();
 
     [Theory]
     [InlineData(false)]
@@ -18,7 +20,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(isEnabled);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var result = await sut.IsFeatureEnabled(TestFlag);
         result.Should().Be(isEnabled);
     }
@@ -30,7 +32,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(true);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var featureEnabled = async () => { await sut.IsFeatureEnabled(flag); };
         await featureEnabled.Should().ThrowAsync<ArgumentException>().WithMessage("FeatureFlag cannot be null or empty.");
     }
@@ -42,7 +44,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(true);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var featureEnabled = async () => { await sut.IsFeatureEnabledForUser(flag, "testUser"); };
         await featureEnabled.Should().ThrowAsync<ArgumentException>().WithMessage("FeatureFlag cannot be null or empty.");
     }
@@ -54,7 +56,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(true);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var featureEnabled = async () => { await sut.IsFeatureEnabledForUser(TestFlag, user); };
         await featureEnabled.Should().ThrowAsync<ArgumentException>().WithMessage("UserId cannot be null or empty.");
     }
@@ -66,7 +68,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(true);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var featureEnabled = async () => { await sut.IsFeatureEnabledForSite(flag, "testUser"); };
         await featureEnabled.Should().ThrowAsync<ArgumentException>().WithMessage("FeatureFlag cannot be null or empty.");
     }
@@ -78,7 +80,7 @@ public class FeatureToggleHelperTests
     {
         _featureManager.Setup(x => x.IsEnabledAsync(TestFlag)).ReturnsAsync(true);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var featureEnabled = async () => { await sut.IsFeatureEnabledForSite(TestFlag, site); };
         await featureEnabled.Should().ThrowAsync<ArgumentException>().WithMessage("SiteId cannot be null or empty.");
     }
@@ -94,7 +96,7 @@ public class FeatureToggleHelperTests
             .Setup(x => x.IsEnabledAsync(TestFlag,
                 It.Is<TargetingContext>(y => y.Groups == null && y.UserId == testUser))).ReturnsAsync(isEnabled);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var result = await sut.IsFeatureEnabledForUser(TestFlag, testUser);
         result.Should().Be(isEnabled);
     }
@@ -113,7 +115,7 @@ public class FeatureToggleHelperTests
                 It.Is<TargetingContext>(y => y.Groups.SequenceEqual(array) && y.UserId == null)))
             .ReturnsAsync(isEnabled);
 
-        var sut = new FeatureToggleHelper(_featureManager.Object);
+        var sut = new FeatureToggleHelper(_featureManager.Object, _configRefresher.Object);
         var result = await sut.IsFeatureEnabledForSite(TestFlag, testSite);
         result.Should().Be(isEnabled);
     }

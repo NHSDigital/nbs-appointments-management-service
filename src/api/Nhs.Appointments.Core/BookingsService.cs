@@ -33,7 +33,6 @@ public class BookingsService(
     IAvailabilityStore availabilityStore,
     IBookingEventFactory eventFactory,
     IAvailabilityCalculator availabilityCalculator,
-    IAvailabilityService availabilityService,
     IMessageBus bus,
     TimeProvider time) : IBookingsService
 {
@@ -64,20 +63,9 @@ public class BookingsService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            IEnumerable<SessionInstance> slots;
-            if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
-            {
-                slots = (await availabilityService.GetAvailabilityState
-                (booking.Site,
-                    DateOnly.FromDateTime(booking.From.Date),
-                    DateOnly.FromDateTime(booking.From.Date.AddDays(1)),
-                    booking.Service)).AvailableSlots;
-            }
-            else
-            {
-                slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+            //TODO use availability service to get state
+            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
                     DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
-            }
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

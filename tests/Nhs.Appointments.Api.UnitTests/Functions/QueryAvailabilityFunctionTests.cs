@@ -8,9 +8,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -25,6 +27,8 @@ public class QueryAvailabilityFunctionTests
     private readonly QueryAvailabilityFunction _sut;
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<QueryAvailabilityRequest>> _validator = new();
+    private readonly Mock<IGroupSessionsByConsecutive> _groupSessionsByConsecutive = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     public QueryAvailabilityFunctionTests()
     {
@@ -34,7 +38,9 @@ public class QueryAvailabilityFunctionTests
             _availabilityGrouperFactory.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object);
+            _metricsRecorder.Object,
+            _featureToggleHelper.Object,
+            _groupSessionsByConsecutive.Object);
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))
             .Returns(_availabilityGrouper.Object);
@@ -55,6 +61,8 @@ public class QueryAvailabilityFunctionTests
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
             .ReturnsAsync(slots.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _groupSessionsByConsecutive.Setup(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699" },
@@ -67,6 +75,7 @@ public class QueryAvailabilityFunctionTests
 
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
+        _groupSessionsByConsecutive.Verify(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
         response.Count.Should().Be(2);
         response[0].site.Should().Be("2de5bb57-060f-4cb5-b14d-16587d0c2e8f");
@@ -89,6 +98,8 @@ public class QueryAvailabilityFunctionTests
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
             .ReturnsAsync(slots.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _groupSessionsByConsecutive.Setup(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
@@ -117,6 +128,8 @@ public class QueryAvailabilityFunctionTests
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
             .ReturnsAsync(slots.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _groupSessionsByConsecutive.Setup(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
@@ -129,11 +142,42 @@ public class QueryAvailabilityFunctionTests
 
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
+        _groupSessionsByConsecutive.Verify(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
         response[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
         response[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
         response[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
+    }
+
+    [Fact]
+    public async Task RunAsync_RunsJointBookings_WhenJointBookingsEnabled()
+    {
+        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(9, 0), new TimeOnly(10, 0),
+            TimeSpan.FromMinutes(5));
+        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
+
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
+            .Returns(responseBlocks);
+        _availabilityCalculator.Setup(x =>
+                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
+                    It.IsAny<DateOnly>()))
+            .ReturnsAsync(slots.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(true);
+        _groupSessionsByConsecutive.Setup(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+
+        var request = new QueryAvailabilityRequest(
+            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
+            QueryType.Days);
+
+        var httpRequest = CreateRequest(request);
+
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+        result.StatusCode.Should().Be(200);
+        _groupSessionsByConsecutive.Verify(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -153,6 +197,8 @@ public class QueryAvailabilityFunctionTests
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
             .ReturnsAsync(blocks.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _groupSessionsByConsecutive.Setup(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
@@ -167,6 +213,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Exactly(3));
+        _groupSessionsByConsecutive.Verify(x => x.GroupByConsecutive(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
     }
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
@@ -182,7 +229,7 @@ public class QueryAvailabilityFunctionTests
         var context = new DefaultHttpContext();
         var request = context.Request;
         var body =
-            $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": \"{consecutive}\" }} ";
+            $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": {consecutive} }} ";
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;

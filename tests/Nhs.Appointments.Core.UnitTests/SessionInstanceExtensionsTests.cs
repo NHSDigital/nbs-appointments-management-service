@@ -1,6 +1,13 @@
 namespace Nhs.Appointments.Core.UnitTests;
-public class SessionInstanceExtensionsTests
+public class GroupSessionByConsecutiveTests
 {
+    public GroupSessionByConsecutiveTests()
+    {
+        _sut = new GroupSessionByConsecutive();
+    }
+
+    private IGroupSessionsByConsecutive _sut;
+
     [Fact]
     public void GroupByConsecutive_ReturnsAll_WhenConsecutive1()
     {
@@ -18,7 +25,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(1);
+        var result = _sut.GroupByConsecutive(sessions, 1);
 
         Assert.Equivalent(sessions, result);
     }
@@ -40,7 +47,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(2);
+        var result = _sut.GroupByConsecutive(sessions, 2);
 
         Assert.Equal(5, result.First().Capacity);
         Assert.Equal(0, result.Last().Capacity);
@@ -73,7 +80,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(2).ToArray();
+        var result = _sut.GroupByConsecutive(sessions, 2).ToArray();
 
         Assert.Equal(4, result.Count());
         Assert.Equal(5, result[0].Capacity);
@@ -104,7 +111,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(3).ToArray();
+        var result = _sut.GroupByConsecutive(sessions, 3).ToArray();
 
         Assert.Equal(5, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);
@@ -138,7 +145,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(4).ToArray();
+        var result = _sut.GroupByConsecutive(sessions, 4).ToArray();
 
         Assert.Equal(2, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);
@@ -178,7 +185,7 @@ public class SessionInstanceExtensionsTests
             }
         };
 
-        var result = sessions.GroupByConsecutive(5).ToArray();
+        var result = _sut.GroupByConsecutive(sessions, 5).ToArray();
 
         Assert.Equal(2, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);

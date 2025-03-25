@@ -17,6 +17,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using Microsoft.AspNetCore.Routing;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Features;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -26,7 +27,9 @@ public class QueryAvailabilityFunction(
     IAvailabilityGrouperFactory availabilityGrouperFactory,
     IUserContextProvider userContextProvider,
     ILogger<QueryAvailabilityFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper,
+    IGroupSessionsByConsecutive groupSessionsByConsecutive)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -71,7 +74,13 @@ public class QueryAvailabilityFunction(
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until, int consecutive)
     {
-        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).GroupByConsecutive(consecutive).ToList();        
+        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+
+        if (await featureToggleHelper.IsFeatureEnabled("JointBookings")) 
+        {
+            slots = groupSessionsByConsecutive.GroupByConsecutive(slots, consecutive).ToList();
+        }
+
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;

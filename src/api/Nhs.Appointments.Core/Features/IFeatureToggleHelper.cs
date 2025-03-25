@@ -27,4 +27,6 @@ public interface IFeatureToggleHelper
     /// <param name="userId">The user to add to the feature filter targeting context</param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId);
+
+    void SetOverride(string flagName, bool enabled);
 }

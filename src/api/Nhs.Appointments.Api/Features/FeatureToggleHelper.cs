@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.FeatureManagement;
@@ -9,6 +10,8 @@ namespace Nhs.Appointments.Api.Features;
 
 public class FeatureToggleHelper(IFeatureManager featureManager, IConfigurationRefresher configRefresher) : IFeatureToggleHelper
 {
+    private readonly ConcurrentDictionary<string, bool?> _overrides = new();
+    
     public async Task<bool> IsFeatureEnabled(string featureFlag)
     {
         if (string.IsNullOrEmpty(featureFlag))
@@ -16,10 +19,14 @@ public class FeatureToggleHelper(IFeatureManager featureManager, IConfigurationR
             throw new ArgumentException("FeatureFlag cannot be null or empty.");
         }
         
+        if (_overrides.TryGetValue(featureFlag, out var overrideValue) && overrideValue.HasValue)
+        {
+            return overrideValue.Value;
+        }
+        
         // fire and forget to not block execution
         // means a slight delay in applying the very latest configuration, but its worth it to not block every time this is invoked
         _ = configRefresher.RefreshAsync();
-        
         return await featureManager.IsEnabledAsync(featureFlag);
     }
 
@@ -34,13 +41,17 @@ public class FeatureToggleHelper(IFeatureManager featureManager, IConfigurationR
         {
             throw new ArgumentException("UserId cannot be null or empty.");
         }
+        
+        if (_overrides.TryGetValue(featureFlag, out var overrideValue) && overrideValue.HasValue)
+        {
+            return overrideValue.Value;
+        }
 
         var targetingContext = new TargetingContext { UserId = userId };
 
         // fire and forget to not block execution
         // means a slight delay in applying the very latest configuration, but its worth it to not block every time this is invoked
         _ = configRefresher.RefreshAsync();
-        
         return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
     }
 
@@ -55,13 +66,23 @@ public class FeatureToggleHelper(IFeatureManager featureManager, IConfigurationR
         {
             throw new ArgumentException("SiteId cannot be null or empty.");
         }
+        
+        if (_overrides.TryGetValue(featureFlag, out var overrideValue) && overrideValue.HasValue)
+        {
+            return overrideValue.Value;
+        }
 
         var targetingContext = new TargetingContext { Groups = [$"Site:{siteId}"] };
 
         // fire and forget to not block execution
         // means a slight delay in applying the very latest configuration, but its worth it to not block every time this is invoked
         _ = configRefresher.RefreshAsync();
-        
         return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
     }
+    
+#if DEBUG
+    public void SetOverride(string flagName, bool enabled) => _overrides[flagName] = enabled;
+
+    public void ClearOverride(string flagName) => _overrides.TryRemove(flagName, out _);
+#endif
 }

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
@@ -329,7 +329,7 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{siteId}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{siteId}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -342,7 +342,9 @@ public class SiteDataImporterHandlerTests
             {
                 new("site1", "Site 1", "Test1"),
                 new("site2", "Site 2", "Test2"),
-                new("site3", "Site 3", "Test3")
+                new("site3", "Site 3", "Test3"),
+                new("Yorkshire", "Site 4", "Region"),
+                new("test icb", "Site 5", "ICB")
             });
         _siteServiceMock.Setup(x => x.GetSiteByIdAsync(siteId.ToString(), "*"))
             .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5])));

@@ -2,6 +2,7 @@
     "FeatureManagement": {
       "OktaLogin": true,
       "TestFeatureEnabled": true,
+      "JointBookings": true,
       "TestFeaturePercentageEnabled": {
         "EnabledFor": [
           {

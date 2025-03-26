@@ -1,4 +1,5 @@
 {
     "FeatureManagement": {
-      "OktaLogin": false
+      "OktaLogin": false,
+      "JointBookings": false
   }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,6 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -23,8 +24,9 @@ public class ConfirmProvisionalBookingFunction(
     IBookingsService bookingService,
     IValidator<ConfirmBookingRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<MakeBookingFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    ILogger<ConfirmProvisionalBookingFunction> logger,
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: ["Booking"],
@@ -56,9 +58,20 @@ public class ConfirmProvisionalBookingFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest,
         ILogger logger)
     {
-        var result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
+        var result = BookingConfirmationResult.NotFound;
+
+        // If Joint Bookings disabled ignore the child bookings param
+        if (await featureToggleHelper.IsFeatureEnabled("JointBookings") && bookingRequest.relatedBookings.Any()) 
+        {
+            result = await bookingService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
+            bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }));
+        } 
+        else
+        {
+            result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
             bookingRequest.bookingToReschedule);
+        }
 
         switch (result)
         {
@@ -74,6 +87,9 @@ public class ConfirmProvisionalBookingFunction(
             case BookingConfirmationResult.StatusMismatch:
                 return Failed(HttpStatusCode.PreconditionFailed,
                     "The booking cannot be confirmed because it is not provisional");
+            case BookingConfirmationResult.GroupBookingInvalid:
+                return Failed(HttpStatusCode.PreconditionFailed,
+                    "The booking cannot be confirmed because group references are not valid");
             case BookingConfirmationResult.Success:
                 return Success();
         }
@@ -87,6 +103,7 @@ public class ConfirmProvisionalBookingFunction(
     {
         var contactDetails = new ContactItem[] { };
         var bookingToReschedule = string.Empty;
+        var relatedBookings = Array.Empty<string>();
         if (req.Body != null && req.Body.Length > 0)
         {
             var (errors, payload) =
@@ -98,6 +115,7 @@ public class ConfirmProvisionalBookingFunction(
 
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
+            relatedBookings = payload.relatedBookings ?? Array.Empty<string>();
 
             var payloadErrors = new List<ErrorMessageResponseItem>();
             if (payload?.contactDetails == null && payload.bookingToReschedule == null)
@@ -110,6 +128,6 @@ public class ConfirmProvisionalBookingFunction(
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
         return (ErrorMessageResponseItem.None,
-            new ConfirmBookingRequest(bookingReference, contactDetails, bookingToReschedule));
+            new ConfirmBookingRequest(bookingReference, contactDetails, relatedBookings, bookingToReschedule));
     }
 }

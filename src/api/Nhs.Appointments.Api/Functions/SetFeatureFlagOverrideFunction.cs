@@ -15,7 +15,6 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-#if DEBUG
 public class SetFeatureFlagOverrideFunction(
     IValidator<SetFeatureFlagOverrideRequest> validator,
     IUserContextProvider userContextProvider,
@@ -55,4 +54,3 @@ public class SetFeatureFlagOverrideFunction(
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetFeatureFlagOverrideRequest request)>(([], new SetFeatureFlagOverrideRequest(flag, enabled)));
     }
 }
-#endif

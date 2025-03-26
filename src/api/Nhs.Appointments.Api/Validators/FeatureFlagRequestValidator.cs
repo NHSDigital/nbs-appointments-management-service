@@ -10,3 +10,11 @@ public class FeatureFlagRequestValidator : AbstractValidator<FeatureFlagRequest>
         RuleFor(x => x.Flag).NotEmpty().WithMessage("Provide a valid flag");        
     }
 }
+
+public class SetFeatureFlagOverrideRequestValidator : AbstractValidator<SetFeatureFlagOverrideRequest>
+{ 
+    public SetFeatureFlagOverrideRequestValidator()
+    {        
+        RuleFor(x => x.Flag).NotEmpty().WithMessage("Provide a valid flag");    
+    }
+}

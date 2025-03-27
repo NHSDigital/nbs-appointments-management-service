@@ -88,6 +88,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
+            .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

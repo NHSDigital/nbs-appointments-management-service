@@ -84,12 +84,12 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         return [];
     }
 
-    private IActionResult ProblemResponse(HttpStatusCode status, object errorDetails)
+    protected IActionResult ProblemResponse(HttpStatusCode status, object errorDetails)
     {
         return JsonResponseWriter.WriteResult(errorDetails, status);
     }
 
-    private IActionResult ProblemResponse(HttpStatusCode status, string message)
+    protected IActionResult ProblemResponse(HttpStatusCode status, string message)
     {
         var error = new { message };
         return ProblemResponse(status, error);

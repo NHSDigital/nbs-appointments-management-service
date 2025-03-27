@@ -140,10 +140,9 @@ public class BulkImportFunctionTests
 
         var request = CreateDefaultRequest();
 
-        var response = await _sut.RunAsync(request) as ContentResult;
+        var response = await _sut.RunAsync(request) as NotFoundResult;
 
-        response.StatusCode.Should().Be(400);
-        response.Content.Should().Contain("Bulk import feature is not enabled");
+        response.StatusCode.Should().Be(404);
     }
 
     private static HttpRequest CreateBadRequest_MultipleFiles()

@@ -140,9 +140,9 @@ public class BulkImportFunctionTests
 
         var request = CreateDefaultRequest();
 
-        var response = await _sut.RunAsync(request) as NotFoundResult;
+        var response = await _sut.RunAsync(request) as ContentResult;
 
-        response.StatusCode.Should().Be(404);
+        response.StatusCode.Should().Be(501);
     }
 
     private static HttpRequest CreateBadRequest_MultipleFiles()

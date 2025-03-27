@@ -29,7 +29,7 @@ public class QueryAvailabilityFunction(
     ILogger<QueryAvailabilityFunction> logger,
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper,
-    IGroupSessionsByConsecutive groupSessionsByConsecutive)
+    IHasConsecutiveCapacityFilter groupSessionsByConsecutive)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -78,7 +78,7 @@ public class QueryAvailabilityFunction(
 
         if (await featureToggleHelper.IsFeatureEnabled("JointBookings")) 
         {
-            slots = groupSessionsByConsecutive.GroupByConsecutive(slots, consecutive).ToList();
+            slots = groupSessionsByConsecutive.SessionHasConsecutiveSessions(slots, consecutive).ToList();
         }
 
         var availability = new List<QueryAvailabilityResponseInfo>();

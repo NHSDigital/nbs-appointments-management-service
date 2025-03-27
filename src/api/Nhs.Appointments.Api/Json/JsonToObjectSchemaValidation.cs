@@ -18,7 +18,7 @@ namespace Nhs.Appointments.Api.Json
             {
                 document = JsonDocument.Parse(json);
             }
-            catch(System.Text.Json.JsonException ex)
+            catch(System.Text.Json.JsonException)
             {
                 errorList.Add(new ErrorMessageResponseItem { Property = "document", Message = "The json is not properly formatted" });
                 return errorList;

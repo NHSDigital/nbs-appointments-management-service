@@ -16,15 +16,14 @@ export const WeekCardList = async ({ site, weeks }: Props) => {
   );
 
   return (
-    <>
+    <ol className="card-list">
       {weekSummaries.map((week, weekIndex) => {
         return (
-          <WeekSummaryCard
-            weekSummary={week}
-            key={`week-summary-${weekIndex}`}
-          />
+          <li key={`week-summary-${weekIndex}`}>
+            <WeekSummaryCard weekSummary={week} />
+          </li>
         );
       })}
-    </>
+    </ol>
   );
 };

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,9 +6,12 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 

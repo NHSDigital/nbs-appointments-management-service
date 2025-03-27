@@ -1,14 +1,24 @@
-using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
 
-public class UserDataImportHandler(IUserService userService, ISiteService siteService) : IUserDataImportHandler
+public class UserDataImportHandler(
+    IUserService userService, 
+    ISiteService siteService, 
+    IFeatureToggleHelper featureToggleHelper
+) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
+        var oktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
+
         var userImportRows = new List<UserImportRow>();
-        var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(ui => Task.Run(() => userImportRows.Add(ui)), ui => ui.UserId);
+        var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(
+            ui => Task.Run(() => userImportRows.Add(ui)), 
+            ui => ui.UserId,
+            () => new UserImportRowMap(oktaEnabled) 
+        );
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
@@ -54,6 +64,8 @@ public class UserDataImportHandler(IUserService userService, ISiteService siteSe
     public class UserImportRow
     {
         public string UserId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string SiteId { get; set; }
         public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
     }

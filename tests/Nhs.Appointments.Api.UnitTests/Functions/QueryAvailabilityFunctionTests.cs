@@ -1,4 +1,3 @@
-using System.Text;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -8,10 +7,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

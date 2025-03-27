@@ -1,6 +1,6 @@
 {
-    "FeatureManagement": {
-      "OktaLogin": false,
-      "JointBookings": true
-    }
+  "FeatureManagement": {
+    "OktaEnabled": false,
+    "JointBookings": true
   }
+}

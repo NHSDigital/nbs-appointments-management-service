@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +7,16 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -61,7 +61,7 @@ public class ConfirmProvisionalBookingFunction(
         var result = BookingConfirmationResult.NotFound;
 
         // If Joint Bookings disabled ignore the child bookings param
-        if (await featureToggleHelper.IsFeatureEnabled("JointBookings") && bookingRequest.relatedBookings.Any()) 
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings) && bookingRequest.relatedBookings.Any()) 
         {
             result = await bookingService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }));

@@ -1,9 +1,4 @@
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
-using Nhs.Appointments.Core.Inspectors;
-
-namespace Nhs.Appointments.Api.Features;
+namespace Nhs.Appointments.Core.Features;
 
 public interface IFeatureToggleHelper
 {

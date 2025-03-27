@@ -7,7 +7,11 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
         var siteRows = new List<SiteImportRow>();
-        var processor = new CsvProcessor<SiteImportRow, SiteMap>(sr => Task.Run(() => siteRows.Add(sr)), sr => sr.Id);
+        var processor = new CsvProcessor<SiteImportRow, SiteMap>(
+            sr => Task.Run(() => siteRows.Add(sr)), 
+            sr => sr.Id,
+            () => new SiteMap()
+        );
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 

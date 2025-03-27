@@ -1,23 +1,23 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Inspectors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
-using Microsoft.AspNetCore.Routing;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Features;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -76,7 +76,7 @@ public class QueryAvailabilityFunction(
     {
         var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
 
-        if (await featureToggleHelper.IsFeatureEnabled("JointBookings")) 
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {
             slots = hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive).ToList();
         }

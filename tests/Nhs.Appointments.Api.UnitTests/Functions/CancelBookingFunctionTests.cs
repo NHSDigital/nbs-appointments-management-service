@@ -9,10 +9,11 @@ using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-public class CancelBookingFunctionTests
+public class CancelBookingFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IBookingsService> _bookingService = new();
     private readonly Mock<IAvailabilityService> _availabilityService = new();
@@ -25,7 +26,7 @@ public class CancelBookingFunctionTests
     public CancelBookingFunctionTests()
     {
         _sut = new CancelBookingFunction(_bookingService.Object, _availabilityService.Object, _validator.Object,
-            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _featureToggleHelper.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         _bookingService.Setup(x => x.CancelBooking(null, string.Empty))

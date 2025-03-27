@@ -9,10 +9,11 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-public class CancelSessionFunctionTests
+public class CancelSessionFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IAvailabilityService> _availabilityService = new();
     private readonly Mock<IBookingsService> _bookingService = new();
@@ -31,7 +32,8 @@ public class CancelSessionFunctionTests
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object);
+            _metricsRecorder.Object,
+            _featureToggleHelper.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelSessionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }

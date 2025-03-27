@@ -14,6 +14,7 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -24,7 +25,8 @@ public class CancelBookingFunction(
     IValidator<CancelBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelBookingFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -54,7 +56,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = TemporaryFeatureToggles.MultiServiceAvailabilityCalculations
+        var result = await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations)
             ? await availabilityService.CancelBooking(request.bookingReference, request.site)
             : await bookingService.CancelBooking(request.bookingReference, request.site);
 

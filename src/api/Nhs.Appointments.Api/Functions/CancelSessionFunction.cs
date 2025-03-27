@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -20,7 +21,8 @@ public class CancelSessionFunction(
     IValidator<CancelSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelSessionFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<CancelSessionRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]
@@ -55,7 +57,7 @@ public class CancelSessionFunction(
             request.SlotLength,
             request.Capacity);
 
-        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
         {
             await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
         }

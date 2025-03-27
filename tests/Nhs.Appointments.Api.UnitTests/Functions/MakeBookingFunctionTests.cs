@@ -10,10 +10,11 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-public class MakeBookingFunctionTests
+public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly Mock<IBookingsService> _bookingService = new();
@@ -29,7 +30,7 @@ public class MakeBookingFunctionTests
     {
         _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _availabilityService.Object,
             _validator.Object,
-            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _featureToggleHelper.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }

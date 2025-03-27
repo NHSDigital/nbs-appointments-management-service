@@ -3,7 +3,7 @@ using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
 
-public class AvailabilityCalculationsBase
+public class AvailabilityCalculationsBase : FeatureToggledTests
 {
     protected readonly AvailabilityService _sut;
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
@@ -22,7 +22,7 @@ public class AvailabilityCalculationsBase
     protected AvailabilityCalculationsBase() => _sut = new AvailabilityService(_availabilityStore.Object,
         _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
         _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object);
+        _time.Object, _featureToggleHelper.Object);
 
     private DateTime TestDateAt(string time)
     {

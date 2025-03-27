@@ -1,4 +1,5 @@
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -13,7 +14,8 @@ public class AvailabilityService(
     IReferenceNumberProvider referenceNumberProvider,
     IBookingEventFactory eventFactory,
     IMessageBus bus,
-    TimeProvider time) : IAvailabilityService
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper) : IAvailabilityService
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -65,7 +67,7 @@ public class AvailabilityService(
         {
             await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
 
-            if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
             {
                 await RecalculateAppointmentStatuses(site, date);
             }
@@ -84,7 +86,7 @@ public class AvailabilityService(
     {
         await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
 
-        if (TemporaryFeatureToggles.MultiServiceAvailabilityCalculations)
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
         {
             await RecalculateAppointmentStatuses(site, date);
         }

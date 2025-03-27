@@ -3,6 +3,7 @@ using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
+[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
 public class AvailabilityServiceTests : FeatureToggledTests
 {
     private readonly AvailabilityService _sut;
@@ -16,19 +17,17 @@ public class AvailabilityServiceTests : FeatureToggledTests
     private readonly Mock<IMessageBus> _messageBus = new();
     private readonly Mock<TimeProvider> _time = new();
 
-
-    public AvailabilityServiceTests() => _sut = new AvailabilityService(_availabilityStore.Object,
-        _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
-        _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object, _featureToggleHelper.Object);
+    public AvailabilityServiceTests() : base(typeof(AvailabilityServiceTests)) =>
+        _sut = new AvailabilityService(_availabilityStore.Object,
+            _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
+            _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
+            _time.Object, _featureToggleHelper.Object);
 
     [Theory]
     [InlineData("")]
     [InlineData(null)]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfSiteIsEmpty(string siteId)
     {
-        Toggle("MultiServiceAvailabilityCalculations", false);
-
         var site = siteId;
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);

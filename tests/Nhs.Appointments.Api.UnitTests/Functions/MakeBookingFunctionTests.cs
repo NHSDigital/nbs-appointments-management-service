@@ -14,6 +14,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
+[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
 public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
@@ -26,7 +27,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<MakeBookingRequest>> _validator = new();
 
-    public MakeBookingFunctionTests()
+    public MakeBookingFunctionTests() : base(typeof(MakeBookingFunctionTests))
     {
         _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _availabilityService.Object,
             _validator.Object,

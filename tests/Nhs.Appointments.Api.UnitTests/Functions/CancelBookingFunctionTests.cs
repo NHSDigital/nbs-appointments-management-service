@@ -13,6 +13,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
+[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
 public class CancelBookingFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IBookingsService> _bookingService = new();
@@ -23,7 +24,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly CancelBookingFunction _sut;
 
-    public CancelBookingFunctionTests()
+    public CancelBookingFunctionTests() : base(typeof(CancelBookingFunctionTests))
     {
         _sut = new CancelBookingFunction(_bookingService.Object, _availabilityService.Object, _validator.Object,
             _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _featureToggleHelper.Object);

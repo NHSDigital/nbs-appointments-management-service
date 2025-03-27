@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
@@ -39,30 +40,27 @@ public class BulkImportFunction(
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
     [Function("BulkImportFunction")]
-    public override Task<IActionResult> RunAsync(
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")]
         HttpRequest req)
     {
-        return base.RunAsync(req);
+        return !await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport)
+            ? new NotFoundResult()
+            : await base.RunAsync(req);
     }
 
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>
+    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>
         ReadRequestAsync(HttpRequest req)
     {
         var errors = new List<ErrorMessageResponseItem>();
-
-        if (!await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport))
-        {
-            errors.Add(new ErrorMessageResponseItem { Message = "Bulk import feature is not enabled." });
-            return (errors, null);
-        }
 
         var files = req.Form?.Files;
 
         if (files is null || files?.Count is 0)
         {
             errors.Add(new ErrorMessageResponseItem { Message = "No file uploaded in the request form." });
-            return (errors, null);
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((
+                errors, null));
         }
 
         if (files.Count > 1)
@@ -71,13 +69,15 @@ public class BulkImportFunction(
             {
                 Message = "Too many files uploaded. Only upload one file at a time."
             });
-            return (errors, null);
+            return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((
+                errors, null));
         }
 
         var type = req.HttpContext.GetRouteValue("type")?.ToString();
         var parsedRequest = new BulkImportRequest(files[0], type);
 
-        return (errors, parsedRequest);
+        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((
+                errors, parsedRequest));
     }
 
     protected override async Task<ApiResult<IEnumerable<ReportItem>>> HandleRequest(BulkImportRequest request,

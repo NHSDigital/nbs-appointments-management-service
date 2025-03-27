@@ -1,10 +1,10 @@
 using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Auth;
@@ -27,7 +27,7 @@ public class AuthenticateFunction(IOptions<AuthOptions> authOptions)
 
         var queryStringValues = new Dictionary<string, string>
         {
-            { "client_id",  authProvider.ClientId},
+            { "client_id", authProvider.ClientId },
             { "redirect_uri", authProvider.ReturnUri },
             { "response_type", "code" },
             { "response_mode", "query" },

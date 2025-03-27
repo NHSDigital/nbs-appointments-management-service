@@ -96,7 +96,7 @@ const Page = async () => {
               [
                 'com.adobe.reactor.dataElementCookiesMigrated',
                 'Used by Adobe Analytics. Includes data elements set to capture usage of our website.',
-                'When you close the browser',
+                'No expiry',
               ],
               [
                 'demdex',

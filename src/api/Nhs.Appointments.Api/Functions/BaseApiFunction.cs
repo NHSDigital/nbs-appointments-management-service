@@ -8,6 +8,7 @@ using System.Web.Http;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -66,8 +67,9 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         }
     }
 
-    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)>
-        ReadRequestAsync(HttpRequest req) => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
+    protected virtual Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync(
+        HttpRequest req)
+        => JsonRequestReader.ReadRequestAsync<TRequest>(req.Body);
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {
@@ -86,7 +88,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
     {
         return JsonResponseWriter.WriteResult(errorDetails, status);
     }
-    
+
     private IActionResult ProblemResponse(HttpStatusCode status, string message)
     {
         var error = new { message };

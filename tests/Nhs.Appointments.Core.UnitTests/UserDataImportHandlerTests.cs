@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -143,6 +143,28 @@ public class UserDataImportHandlerTests
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
         report.First().Message.Should().Contain("Invalid bool string format:  test");
+    }
+
+    [Fact]
+    public async Task DataReportsMissingColumns()
+    {
+        const string invalidHeaders = "Site,appointment-manager,availability-manager,site-details-manager";
+
+        string[] inputRows =
+        [
+            "d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true",
+            "308d515c-2002-450e-b248-4ba36f6667bb, true, false, true"
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(invalidHeaders, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'User'[0] was not found");
     }
 
     private List<Site> GetSites()

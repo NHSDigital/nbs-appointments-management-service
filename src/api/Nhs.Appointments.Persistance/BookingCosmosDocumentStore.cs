@@ -160,35 +160,81 @@ public class BookingCosmosDocumentStore(
         return (BookingConfirmationResult.Unknown, null);
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisionals(string[] bookingReferences, IEnumerable<ContactItem> contactDetails)
+    {
+        var bookingDocuments = new List<BookingIndexDocument>();
+
+        foreach (var reference in bookingReferences) 
+        {
+            var childIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(reference);
+            var childProvisionalValidationResult = ValidateBookingDocumentProvisionalState(childIndexDocument);
+
+            if (childProvisionalValidationResult != BookingConfirmationResult.Success)
+            {
+                return BookingConfirmationResult.GroupBookingInvalid;
+            }
+
+            bookingDocuments.Add(childIndexDocument);
+        }
+
+        foreach (var document in bookingDocuments) 
+        {
+            await PatchProvisionalToConfirmed(document, contactDetails);
+        }
+
+        return BookingConfirmationResult.Success;
+    }
+
+    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string? bookingToReschedule)
     {
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
-        if (bookingIndexDocument == null)
-            return BookingConfirmationResult.NotFound;
-        if (bookingIndexDocument.Status is not AppointmentStatus.Provisional)
+        var provisionalValidationResult = ValidateBookingDocumentProvisionalState(bookingIndexDocument);
+
+        if (provisionalValidationResult != BookingConfirmationResult.Success)
         {
-            return BookingConfirmationResult.StatusMismatch;
+            return provisionalValidationResult;
         }
 
         var (getRescheduleResult, rescheduleDocument) = await GetBookingForReschedule(bookingToReschedule, bookingIndexDocument.NhsNumber);
 
         if (getRescheduleResult != BookingConfirmationResult.Unknown)
             return getRescheduleResult;
-        
-        if (bookingIndexDocument.Created.AddMinutes(5) < time.GetUtcNow())
-            return BookingConfirmationResult.Expired;
 
-        var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
-        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
-        await indexStore.PatchDocument("booking_index", bookingReference, updateStatusPatch);
-        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingReference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
+        await PatchProvisionalToConfirmed(bookingIndexDocument, contactDetails);
 
         if (rescheduleDocument != null)
         {
             await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown);
         }
         
+        return BookingConfirmationResult.Success;
+    }
+
+    private async Task PatchProvisionalToConfirmed(BookingIndexDocument bookingIndexDocument, IEnumerable<ContactItem> contactDetails) 
+    {
+        var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
+    }
+
+    private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 
+    {
+        if (document == null)
+        {
+            return BookingConfirmationResult.NotFound;
+        }
+        if (document.Status is not AppointmentStatus.Provisional)
+        {
+            return BookingConfirmationResult.StatusMismatch;
+        }
+
+        if (document.Created.AddMinutes(5) < time.GetUtcNow())
+        {
+            return BookingConfirmationResult.Expired;
+        }
+
         return BookingConfirmationResult.Success;
     }
 

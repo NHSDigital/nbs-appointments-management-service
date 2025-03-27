@@ -198,6 +198,10 @@ type FetchAvailabilityRequest = {
   queryType: '*' | 'Days' | 'Hours' | 'Slots';
 };
 
+type FeatureFlag = {
+  enabled: boolean;
+};
+
 type AvailabilityResponse = {
   site: string;
   service: string;
@@ -392,6 +396,7 @@ export type {
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
+  FeatureFlag,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

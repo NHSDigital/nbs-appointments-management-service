@@ -12,7 +12,6 @@ type FooterLinks = {
   termsOfUse: Locator;
   privacyPolicy: Locator;
   cookiesPolicy: Locator;
-  accessibilityStatement: Locator;
 };
 
 export default class RootPage {
@@ -58,9 +57,6 @@ export default class RootPage {
       termsOfUse: page.getByRole('link', { name: 'Terms of use' }),
       privacyPolicy: page.getByRole('link', { name: 'Privacy Policy' }),
       cookiesPolicy: page.getByRole('link', { name: 'Cookies Policy' }),
-      accessibilityStatement: page.getByRole('link', {
-        name: 'Accessibility Statement',
-      }),
     };
     this.buildNumber = page.getByText(/^Build number: /);
   }

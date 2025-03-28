@@ -66,6 +66,48 @@ public class CancelSessionFunctionTests : FeatureToggledTests
             cancelSessionRequest.Date), Times.Once());
     }
 
+    [Fact]
+    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
+    {
+        var cancelSessionRequest = new CancelSessionRequest(
+            "TEST01",
+            new DateOnly(2025, 1, 10),
+            "09:00",
+            "12:00",
+            ["RSV:Adult"], 5, 2);
+
+        var request = BuildRequest(cancelSessionRequest);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+        _availabilityService.Verify(
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
+    {
+        Toggle("MultiServiceAvailabilityCalculations", true);
+
+        var cancelSessionRequest = new CancelSessionRequest(
+            "TEST01",
+            new DateOnly(2025, 1, 10),
+            "09:00",
+            "12:00",
+            ["RSV:Adult"], 5, 2);
+
+        var request = BuildRequest(cancelSessionRequest);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+        _availabilityService.Verify(
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+    }
+
     private static HttpRequest BuildRequest(CancelSessionRequest requestBody)
     {
         var body = JsonConvert.SerializeObject(requestBody);

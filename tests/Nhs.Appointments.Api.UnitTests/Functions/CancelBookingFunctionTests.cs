@@ -96,6 +96,44 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         Assert.Equal(500, response.StatusCode);
     }
 
+    [Fact]
+    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
+    {
+        var bookingRef = "some-booking";
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+        _availabilityService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+
+        var request = BuildRequest(bookingRef, site);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(x => x.CancelBooking(bookingRef, site), Times.Once);
+        _availabilityService.Verify(x => x.CancelBooking(bookingRef, site), Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
+    {
+        Toggle("MultiServiceAvailabilityCalculations", true);
+
+        var bookingRef = "some-booking";
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+        _availabilityService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+
+        var request = BuildRequest(bookingRef, site);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(x => x.CancelBooking(bookingRef, site), Times.Never);
+        _availabilityService.Verify(x => x.CancelBooking(bookingRef, site), Times.Once);
+    }
+
     private static HttpRequest BuildRequest(string reference, string site)
     {
         var context = new DefaultHttpContext();

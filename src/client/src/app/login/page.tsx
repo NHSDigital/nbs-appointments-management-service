@@ -23,8 +23,10 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         You are currently not signed in. You must sign in to access this
         service.
       </p>
-      <p style={{ display: 'none' }}>
-        Auth: {process.env.AUTH_HOST} Base Url: {process.env.NBS_API_BASE_URL}
+      <p style={{ display: 'none' }} aria-hidden>
+        <span>Auth: {process.env.AUTH_HOST}</span>
+        <span>Base Url: {process.env.NBS_API_BASE_URL}</span>
+        <span>Build Number: {process.env.BUILD_NUMBER}</span>
       </p>
       <LogInButton
         redirectUrl={redirectUrl}

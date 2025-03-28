@@ -2,7 +2,11 @@ import { render, screen } from '@testing-library/react';
 import AssignRoles from './assign-roles';
 import { Role, RoleAssignment, User } from '@types';
 import { getMockUserAssignments, mockRoles } from '@testing/data';
-import { fetchRoles, fetchUsers } from '@services/appointmentsService';
+import {
+  fetchRoles,
+  fetchUsers,
+  fetchFeatureFlag,
+} from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 
 jest.mock('./assign-roles-form', () => {
@@ -37,6 +41,9 @@ jest.mock('./assign-roles-form', () => {
 jest.mock('@services/appointmentsService');
 const fetchUsersMock = fetchUsers as jest.Mock<Promise<User[]>>;
 const fetchRolesMock = fetchRoles as jest.Mock<Promise<Role[]>>;
+const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
+  Promise<{ enabled: boolean }>
+>;
 const mockSiteId = 'TEST';
 
 jest.mock('next/navigation');
@@ -46,6 +53,7 @@ describe('AssignRoles', () => {
   beforeEach(() => {
     fetchUsersMock.mockResolvedValue(getMockUserAssignments(mockSiteId));
     fetchRolesMock.mockResolvedValue(mockRoles);
+    fetchFeatureFlagMock.mockResolvedValue({ enabled: true });
   });
 
   it('returns not found when no user is provided', async () => {
@@ -70,6 +78,18 @@ describe('AssignRoles', () => {
       expect(screen.getByText(email));
     },
   );
+
+  it('yields a 404 if a non-NHS email is provided but Okta is disabled', async () => {
+    fetchFeatureFlagMock.mockResolvedValue({ enabled: false });
+
+    const jsx = await AssignRoles({
+      params: { site: 'TEST' },
+      searchParams: { user: 'test@gmail.com' },
+    });
+    render(jsx);
+
+    expect(notFoundMock).toHaveBeenCalled();
+  });
 
   it('calls fetch users with the correct site id', async () => {
     const jsx = await AssignRoles({

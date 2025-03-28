@@ -1,10 +1,50 @@
+using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
+
 namespace Nhs.Appointments.Core;
 
 public class AvailabilityService(
     IAvailabilityStore availabilityStore,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
-    IBookingsService bookingsService) : IAvailabilityService
+    IBookingsService bookingsService,
+    ISiteLeaseManager siteLeaseManager,
+    IBookingsDocumentStore bookingDocumentStore,
+    IReferenceNumberProvider referenceNumberProvider,
+    IBookingEventFactory eventFactory,
+    IMessageBus bus,
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper) : IAvailabilityService
 {
+    private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
+
+    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var bookings = (await bookingsService.GetBookings(dayStart, dayEnd, site))
+            .Where(b => _liveStatuses.Contains(b.Status))
+            .OrderBy(b => b.Created)
+            .ToList();
+
+        return bookings;
+    }
+
+    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly day)
+    {
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, day, day))
+            .ToList();
+
+        var slots = sessionsOnThatDay
+            .SelectMany(session => session.ToSlots())
+            .ToList();
+
+        return slots;
+    }
+
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
         if (string.IsNullOrEmpty(site))
@@ -26,7 +66,16 @@ public class AvailabilityService(
         foreach (var date in dates)
         {
             await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
-            await bookingsService.RecalculateAppointmentStatuses(site, date);
+
+            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
+            {
+                await RecalculateAppointmentStatuses(site, date);
+            }
+            else
+            {
+                await bookingsService.RecalculateAppointmentStatuses(site, date);
+            }
+
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
@@ -36,7 +85,16 @@ public class AvailabilityService(
         ApplyAvailabilityMode mode, string user, Session sessionToEdit = null)
     {
         await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
-        await bookingsService.RecalculateAppointmentStatuses(site, date);
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
+        {
+            await RecalculateAppointmentStatuses(site, date);
+        }
+        else
+        {
+            await bookingsService.RecalculateAppointmentStatuses(site, date);
+        }
+
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
@@ -94,6 +152,149 @@ public class AvailabilityService(
             if (weekdays.Contains(cursor.DayOfWeek))
                 yield return cursor;
             cursor = cursor.AddDays(1);
+        }
+    }
+
+    public SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
+        slots.Where(
+                sl => sl.Capacity > 0
+                      && sl.From == booking.From
+                      && (int)sl.Duration.TotalMinutes == booking.Duration
+                      && sl.Services.Contains(booking.Service))
+            .OrderBy(slot => slot.Services.Length)
+            .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
+            .FirstOrDefault();
+
+    public async Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day)
+    {
+        var availabilityState = new AvailabilityState();
+
+        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
+        var slots = await GetSlots(site, day);
+
+        foreach (var booking in orderedLiveBookings)
+        {
+            var targetSlot = ChooseHighestPrioritySlot(slots, booking);
+            var bookingIsSupportedByAvailability = targetSlot is not null;
+
+            if (bookingIsSupportedByAvailability)
+            {
+                if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
+                {
+                    availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                        AvailabilityUpdateAction.SetToSupported));
+                }
+
+                targetSlot.Capacity--;
+                availabilityState.Bookings.Add(booking);
+                continue;
+            }
+
+            if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                booking.Status is not AppointmentStatus.Provisional)
+            {
+                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                    AvailabilityUpdateAction.SetToOrphaned));
+            }
+
+            if (booking.Status is AppointmentStatus.Provisional)
+            {
+                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                    AvailabilityUpdateAction.ProvisionalToDelete));
+            }
+        }
+
+        availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
+
+        return availabilityState;
+    }
+
+    public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
+    {
+        var availabilityState = await GetAvailabilityState(site, day);
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
+
+        foreach (var update in availabilityState.Recalculations)
+        {
+            switch (update.Action)
+            {
+                case AvailabilityUpdateAction.ProvisionalToDelete:
+                    await bookingsService.DeleteBooking(update.Booking.Reference, update.Booking.Site);
+                    break;
+
+                case AvailabilityUpdateAction.SetToOrphaned:
+                    await bookingsService.UpdateAvailabilityStatus(update.Booking.Reference,
+                        AvailabilityStatus.Orphaned);
+                    break;
+
+                case AvailabilityUpdateAction.SetToSupported:
+                    await bookingsService.UpdateAvailabilityStatus(update.Booking.Reference,
+                        AvailabilityStatus.Supported);
+                    break;
+
+                case AvailabilityUpdateAction.Default:
+                default:
+                    break;
+            }
+        }
+
+        return new AvailabilityState
+        {
+            AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
+        };
+    }
+
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
+    {
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
+        {
+            return BookingCancellationResult.NotFound;
+        }
+
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
+
+        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+
+        if (booking.ContactDetails != null)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
+
+        return BookingCancellationResult.Success;
+    }
+
+    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
+    {
+        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        {
+            var slots = (await GetAvailabilityState(booking.Site,
+                DateOnly.FromDateTime(booking.From.Date))).AvailableSlots;
+
+            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+
+            if (canBook)
+            {
+                booking.Created = time.GetUtcNow();
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
+                await bookingDocumentStore.InsertAsync(booking);
+
+                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
+                {
+                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                    await bus.Send(bookingMadeEvents);
+                }
+
+                return (true, booking.Reference);
+            }
+
+            return (false, string.Empty);
         }
     }
 }

@@ -1,16 +1,16 @@
 {
-    "FeatureManagement": {
-      "OktaLogin": true,
-      "TestFeatureEnabled": true,
-      "JointBookings": true,
-      "BulkImport": true,
-      "TestFeaturePercentageEnabled": {
-        "EnabledFor": [
-          {
-            "Name": "Microsoft.Percentage",
-            "Parameters": {
-              "Value": 50
-            }
+  "FeatureManagement": {
+    "OktaLogin": true,
+    "MultiServiceAvailabilityCalculations": false,
+    "TestFeatureEnabled": true,
+    "JointBookings": true,
+    "BulkImport": true,
+    "TestFeaturePercentageEnabled": {
+      "EnabledFor": [
+        {
+          "Name": "Microsoft.Percentage",
+          "Parameters": {
+            "Value": 50
           }
         }
       ]
@@ -43,9 +43,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [
-                "api@test"
-              ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -76,9 +74,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [
-                "api@test"
-              ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }

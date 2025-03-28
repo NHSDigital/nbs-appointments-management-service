@@ -66,18 +66,31 @@ describe('AssignRoles', () => {
     expect(notFoundMock).toHaveBeenCalled();
   });
 
-  it.each([['test@nhs.net'], ['test@gmail.com']])(
-    'displays the email address of the user',
-    async (email: string) => {
-      const jsx = await AssignRoles({
-        params: { site: 'TEST' },
-        searchParams: { user: email },
-      });
-      render(jsx);
-      expect(screen.getByText('Email')).toBeVisible();
-      expect(screen.getByText(email));
-    },
-  );
+  it.each([
+    ['test@nhs.net'],
+    ['test@gmail.com'],
+    ['TEST@nHs.NeT'],
+    ['TEST@gMaIl.CoM'],
+  ])('displays the email address of the user', async (email: string) => {
+    fetchUsersMock.mockResolvedValue([
+      ...getMockUserAssignments(mockSiteId),
+      {
+        id: email.toLowerCase(),
+        firstName: 'Test',
+        lastName: 'User',
+        roleAssignments: [],
+      },
+    ]);
+
+    const jsx = await AssignRoles({
+      params: { site: 'TEST' },
+      searchParams: { user: email },
+    });
+    render(jsx);
+
+    expect(screen.getByText('Email')).toBeVisible();
+    expect(screen.getByText(email.toLowerCase()));
+  });
 
   it('yields a 404 if a non-NHS email is provided but Okta is disabled', async () => {
     fetchFeatureFlagMock.mockResolvedValue({ enabled: false });

@@ -10,7 +10,7 @@ import {
 import { notFound } from 'next/navigation';
 
 const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
-  const user = searchParams?.user;
+  const user = searchParams?.user?.toLowerCase();
 
   if (user === undefined) {
     return notFound();

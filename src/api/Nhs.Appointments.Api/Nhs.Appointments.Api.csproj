@@ -6,6 +6,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>disable</Nullable>
     <LangVersion>latestmajor</LangVersion>
+    <UserSecretsId>6c3b185b-e458-4b9d-9353-ba22192c1d1c</UserSecretsId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,6 +52,7 @@
     <ProjectReference Include="..\Nhs.Appointments.Audit\Nhs.Appointments.Audit.csproj" />
     <ProjectReference Include="..\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
     <ProjectReference Include="..\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj" />
+    <ProjectReference Include="..\Nhs.Appointments.UserManagement.Okta\Nhs.Appointments.UserManagement.Okta.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

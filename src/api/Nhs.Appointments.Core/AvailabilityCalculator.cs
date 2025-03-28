@@ -2,10 +2,15 @@ namespace Nhs.Appointments.Core;
 
 public interface IAvailabilityCalculator
 {
-    Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from, DateOnly until);    
+    Task<IEnumerable<SessionInstance>>
+        CalculateAvailability(string site, string service, DateOnly from, DateOnly until);
 }
 
-public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBookingsDocumentStore bookingDocumentStore, TimeProvider time) : IAvailabilityCalculator
+// TODO: Remove this service. Subsume its methods into AvailabilityService
+public class AvailabilityCalculator(
+    IAvailabilityStore availabilityStore,
+    IBookingsDocumentStore bookingDocumentStore,
+    TimeProvider time) : IAvailabilityCalculator
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
@@ -42,8 +47,9 @@ public class AvailabilityCalculator(IAvailabilityStore availabilityStore, IBooki
         foreach (var booking in liveBookings)
         {
             var slot = slots.FirstOrDefault(s =>
-                s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
-                s.Services.Contains(booking.Service));
+                    s.Capacity > 0 && s.From == booking.From && (int)s.Duration.TotalMinutes == booking.Duration &&
+                    s.Services.Contains(booking.Service));
+
             if (slot != null)
             {
                 slot.Capacity--;

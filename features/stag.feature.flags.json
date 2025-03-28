@@ -1,7 +1,8 @@
 {
-    "FeatureManagement": {
-      "OktaLogin": false,
-      "JointBookings": false,
-      "BulkImport": false
+  "FeatureManagement": {
+    "OktaLogin": false,
+    "MultiServiceAvailabilityCalculations": false,
+    "JointBookings": false,
+    "BulkImport": false
   }
 }

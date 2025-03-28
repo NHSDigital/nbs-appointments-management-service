@@ -16,7 +16,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().BeEmpty();
         resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
@@ -37,7 +38,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().HaveCount(3);
         resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
@@ -57,7 +59,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().ContainSingle(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -78,7 +81,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -102,7 +106,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         resultingAvailabilityState.Bookings.Should().ContainSingle(b => b.Reference == "2");
         resultingAvailabilityState.Recalculations.Should().ContainSingle(r =>

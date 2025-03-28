@@ -40,24 +40,25 @@ public class IdempotencyTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var firstRunResult = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var firstRunResult =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         firstRunResult.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
-            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
-                "14", "15", "16", "19", "20", "18");
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "13",
+                "10", "14", "15", "16", "19", "20", "18");
 
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
         firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
         firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
         firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "6");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "13");
         firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "17");
         firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "21");
 
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+            var newResult =
+                await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
             newResult.Should().BeEquivalentTo(firstRunResult);
             runs -= 1;
         }

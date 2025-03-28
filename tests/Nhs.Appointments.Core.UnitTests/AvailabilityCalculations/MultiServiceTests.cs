@@ -26,7 +26,8 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -61,16 +62,14 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var resultingAvailabilityState =
+            await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1));
 
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
-            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
 
-        // Booking 3 could have been booked if we rejuggled appointments, but currently we do not
-        resultingAvailabilityState.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
-
-        resultingAvailabilityState.Bookings.Should().HaveCount(2);
-        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
+        resultingAvailabilityState.Bookings.Should().HaveCount(3);
+        resultingAvailabilityState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3");
     }
 }

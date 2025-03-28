@@ -6,8 +6,11 @@ namespace Nhs.Appointments.Core;
 
 public class UserImportRowMap : ClassMap<UserImportRow>
 {
-    public UserImportRowMap()
+    private readonly bool _oktaEnabled;
+    public UserImportRowMap(bool oktaEnabled)
     {
+        _oktaEnabled = oktaEnabled;
+
         var userRoleKeys = new[]
         {
             "appointment-manager",
@@ -18,7 +21,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
 
         Map(m => m.UserId)
             .Name("User")
-            .Validate(f => !string.IsNullOrWhiteSpace(f.Field));
+            .Validate(f => ValidateUser(f.Row));
         Map(m => m.FirstName)
             .Name("FirstName")
             .Validate(f => ValidateName(f.Row, "FirstName"));
@@ -57,5 +60,18 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             return !string.IsNullOrWhiteSpace(name);
         }
         return true; // No validation required for non-okta users
+    }
+
+    private bool ValidateUser(IReaderRow row)
+    {
+        var user = row.GetField("User");
+
+        if (string.IsNullOrWhiteSpace(user)) 
+            return false;
+
+        if (!_oktaEnabled && IsOktaUser(row))
+            return false;
+        
+        return true;
     }
 }

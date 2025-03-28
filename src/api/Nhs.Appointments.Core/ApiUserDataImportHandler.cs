@@ -8,7 +8,11 @@ public class ApiUserDataImportHandler(IUserService userService) : IApiUserDataIm
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
         var apiUserImportRows = new List<ApiUserImportRow>();
-        var processor = new CsvProcessor<ApiUserImportRow, ApiUserImportRowMap>(aui => Task.Run(() => apiUserImportRows.Add(aui)), aui => aui.ClientId);
+        var processor = new CsvProcessor<ApiUserImportRow, ApiUserImportRowMap>(
+            aui => Task.Run(() => apiUserImportRows.Add(aui)), 
+            aui => aui.ClientId,
+            () => new ApiUserImportRowMap()
+        );
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 

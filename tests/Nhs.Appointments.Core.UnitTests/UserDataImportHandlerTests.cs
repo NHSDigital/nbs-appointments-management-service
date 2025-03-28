@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.Features;
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -6,23 +7,26 @@ public class UserDataImportHandlerTests
 {
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<ISiteService> _siteServiceMock = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelperMock = new();
 
     private readonly UserDataImportHandler _sut;
     private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
 
     public UserDataImportHandlerTests()
     {
-        _sut = new UserDataImportHandler(_userServiceMock.Object, _siteServiceMock.Object);
+        _sut = new UserDataImportHandler(
+            _userServiceMock.Object, 
+            _siteServiceMock.Object, 
+            _featureToggleHelperMock.Object
+        );
     }
 
     [Fact]
     public async Task CanReadUserData()
     {
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, InputRows);
-
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
-
         var sites = GetSites();
 
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
@@ -32,6 +36,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[3]);
         _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
 
         var report = await _sut.ProcessFile(file);
 
@@ -42,6 +47,68 @@ public class UserDataImportHandlerTests
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[2].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[3].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+    }
+
+    [Fact]
+    public async Task OktaIsDisabled_OktaUsersNotProcessed()
+    {
+        string[] inputRows =
+        [
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test2@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(false);
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.First().Success.Should().BeFalse();
+
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task OktaIsEnabled_OktaUsersProcessed()
+    {
+        string[] inputRows =
+        [
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(x => x.Success).Should().BeTrue();
+
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
     }
 
     [Fact]
@@ -70,6 +137,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[3]);
         _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
 
         var report = await _sut.ProcessFile(file);
 
@@ -116,6 +184,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(false, string.Empty, ["test-role:one", "test-role:two"]));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
 
         var report = await _sut.ProcessFile(file);
 

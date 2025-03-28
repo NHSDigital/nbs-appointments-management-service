@@ -1,9 +1,11 @@
-namespace Nhs.Appointments.Api.Features;
+namespace Nhs.Appointments.Core.Features;
 
 public static class Flags
 {
-    public const string OktaLogin = "OktaLogin";
-    
+    public const string BulkImport = "BulkImport";
+    public const string OktaEnabled = "OktaEnabled";
+    public const string JointBookings = "JointBookings";
+
     #region TestFlags
     //a simple on/off global flag
     public const string TestFeatureEnabled = "TestFeatureEnabled";

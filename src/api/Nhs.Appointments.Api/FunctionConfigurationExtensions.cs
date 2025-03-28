@@ -23,6 +23,7 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.UserManagement.Okta;
@@ -96,6 +97,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
+            .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications()

@@ -2,13 +2,24 @@
 import { RoleAssignment } from '@types';
 import AssignRolesForm from './assign-roles-form';
 import React from 'react';
-import { fetchRoles, fetchUsers } from '@services/appointmentsService';
+import {
+  fetchFeatureFlag,
+  fetchRoles,
+  fetchUsers,
+} from '@services/appointmentsService';
+import { notFound } from 'next/navigation';
 
 const AssignRoles = async ({ params, searchParams }: UserPageProps) => {
-  const user = searchParams?.user;
+  const user = searchParams?.user?.toLowerCase();
 
-  if (user === undefined || !user.endsWith('@nhs.net'))
-    throw Error('You must specify a valid NHS email address');
+  if (user === undefined) {
+    return notFound();
+  }
+
+  const oktaLoginFlag = await fetchFeatureFlag('OktaLogin');
+  if (!oktaLoginFlag.enabled && !user.includes('@nhs.net')) {
+    return notFound();
+  }
 
   const [roles, users] = await Promise.all([
     fetchRoles(),

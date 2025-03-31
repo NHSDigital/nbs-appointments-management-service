@@ -1,8 +1,8 @@
 ## App service plan and app service for web app
 resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
-  name                = "${var.application}-asp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = var.location
+  name                   = "${var.application}-asp-${var.environment}-${var.loc}"
+  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  location               = var.location
   # location               = data.azurerm_resource_group.nbs_mya_resource_group.location
   os_type                = "Linux"
   sku_name               = var.web_app_service_sku
@@ -15,8 +15,8 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
   # location            = data.azurerm_resource_group.nbs_mya_resource_group.location
-  service_plan_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
-  https_only      = true
+  service_plan_id     = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+  https_only          = true
 
   site_config {
     app_command_line = "node standalone/server.js"
@@ -29,6 +29,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     NBS_API_BASE_URL = "${var.nhs_host_url}/manage-your-appointments"
     AUTH_HOST        = "${var.nhs_host_url}/manage-your-appointments"
     CLIENT_BASE_PATH = "/manage-your-appointments"
+    BUILD_NUMBER     = var.build_number
   }
 
   identity {
@@ -42,7 +43,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
   # location            = data.azurerm_resource_group.nbs_mya_resource_group.location
-  target_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+  target_resource_id  = azurerm_service_plan.nbs_mya_web_app_service_plan.id
 
   profile {
     name = "defaultProfile"

@@ -2,7 +2,7 @@
   "FeatureManagement": {
     "BulkImport": true,
     "JointBookings": true,
-    "OktaLogin": true,
+    "OktaEnabled": true,
     "MultiServiceAvailabilityCalculations": false,
     "TestFeatureEnabled": true,
     "TestFeaturePercentageEnabled": {
@@ -43,7 +43,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": ["api@test"]
+              "Users": [ "api@test" ]
             }
           }
         }
@@ -72,7 +72,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": ["api@test"]
+              "Users": [ "api@test" ]
             }
           }
         },

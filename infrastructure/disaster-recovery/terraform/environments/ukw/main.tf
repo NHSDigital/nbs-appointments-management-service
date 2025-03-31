@@ -17,13 +17,19 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    app_configuration {
+      purge_soft_delete_on_destroy = false
+      recover_soft_deleted         = false
+    }
+  }
 }
 
 module "mya_application_stag_ukw" {
   environment                                    = "stag"
   location                                       = "ukwest"
   loc                                            = "ukw"
+  build_number                                   = var.BUILD_NUMBER
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
   nhs_mail_authorize_uri                         = var.NHS_MAIL_AUTHORIZE_URI
@@ -52,6 +58,11 @@ module "mya_application_stag_ukw" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   cosmos_endpoint                                = var.COSMOS_ENDPOINT
   cosmos_token                                   = var.COSMOS_TOKEN
+  disable_query_availability_function            = true
+  create_high_load_function_app                  = true
+  create_app_slot                                = true
+  create_autoscale_settings                      = true
+  create_frontdoor                               = true
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = false
@@ -61,4 +72,18 @@ module "mya_application_stag_ukw" {
   web_app_service_plan_scale_in_worker_count     = 1
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "LRS"
+  cosmos_automatic_failover_enabled              = false
+  cosmos_synapse_enabled                         = false
+  cosmos_booking_autoscale_settings = [{
+    max_throughput = 60000
+  }]
+  cosmos_core_autoscale_settings = [{
+    max_throughput = 25000
+  }]
+  cosmos_index_autoscale_settings = [{
+    max_throughput = 4000
+  }]
+  cosmos_audit_autoscale_settings = [{
+    max_throughput = 2000
+  }]
 }

@@ -13,11 +13,13 @@ variable "environment" {
 }
 
 variable "location" {
-  type = string
+  type    = string
+  default = "uksouth"
 }
 
 variable "loc" {
-  type = string
+  type    = string
+  default = "uks"
 }
 
 variable "nhs_host_url" {
@@ -95,6 +97,7 @@ variable "okta_client_id" {
 variable "okta_client_secret" {
   type      = string
   sensitive = true
+  default   = ""
 }
 
 variable "gov_notify_base_uri" {
@@ -121,6 +124,35 @@ variable "splunk_hec_token" {
 
 variable "splunk_host_url" {
   type = string
+}
+
+variable "cosmos_geo_locations" {
+  type    = list(any)
+  default = []
+}
+variable "cosmos_capabilities" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_booking_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_core_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_index_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_audit_autoscale_settings" {
+  type    = list(any)
+  default = []
 }
 
 variable "web_app_service_sku" {
@@ -164,8 +196,40 @@ variable "storage_account_replication_type" {
   type = string
 }
 
+variable "cosmos_automatic_failover_enabled" {
+  type = bool
+}
+
+variable "cosmos_synapse_enabled" {
+  type = bool
+}
+
 variable "app_insights_sampling_percentage" {
   type = number
+}
+
+variable "disable_query_availability_function" {
+  type = bool
+}
+
+variable "create_high_load_function_app" {
+  type = bool
+}
+
+variable "create_autoscale_settings" {
+  type = bool
+}
+
+variable "create_app_slot" {
+  type = bool
+}
+
+variable "create_frontdoor" {
+  type = bool
+}
+
+variable "build_number" {
+  type = string
 }
 
 variable "cosmos_endpoint" {

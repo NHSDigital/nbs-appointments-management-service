@@ -8,8 +8,8 @@ resource "azurerm_service_plan" "nbs_mya_http_func_service_plan" {
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
   # location            = data.azurerm_resource_group.nbs_mya_resource_group.location
-  os_type  = "Windows"
-  sku_name = "Y1"
+  os_type             = "Windows"
+  sku_name            = "Y1"
 }
 
 resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
@@ -37,6 +37,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     WEBSITE_RUN_FROM_PACKAGE                                     = 1
     COSMOS_ENDPOINT                                              = var.cosmos_endpoint
     COSMOS_TOKEN                                                 = var.cosmos_token
+    APP_CONFIG_CONNECTION                                        = azurerm_app_configuration.nbs_mya_app_configuration.primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                     = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                        = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                       = "azure"
@@ -70,6 +71,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.NotifyBookingReminder.Disabled"                = true
     "AzureWebJobs.NotifyBookingRescheduled.Disabled"             = true
     "AzureWebJobs.NotifyUserRolesChanged.Disabled"               = true
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"           = true
     "AzureWebJobs.SendBookingReminders.Disabled"                 = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
   }

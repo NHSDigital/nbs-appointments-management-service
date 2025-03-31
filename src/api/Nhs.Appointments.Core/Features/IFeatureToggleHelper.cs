@@ -1,7 +1,4 @@
-using System;
-using System.Threading.Tasks;
-
-namespace Nhs.Appointments.Api.Features;
+namespace Nhs.Appointments.Core.Features;
 
 public interface IFeatureToggleHelper
 {

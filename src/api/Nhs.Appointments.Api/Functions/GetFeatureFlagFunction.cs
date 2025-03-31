@@ -11,7 +11,7 @@ using Nhs.Appointments.Core;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Nhs.Appointments.Api.Features;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Api.Functions;
 

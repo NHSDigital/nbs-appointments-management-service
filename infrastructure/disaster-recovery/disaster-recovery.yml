@@ -53,7 +53,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/appservices/stop-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
           - task: AzureCLI@2
             displayName: "Fail over cosmos to UKW"
@@ -62,7 +62,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/cosmosdb/failover-cosmosdb.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"
@@ -70,7 +70,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/cosmosdb/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
           - task: AzureCLI@2
             displayName: "Apply Terraform for UKW resources"
@@ -158,7 +158,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/create-fd-origin-groups.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origin-groups.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
           - task: AzureCLI@2
             displayName: "Create frontdoor origins for routing traffic to UKW resources"
@@ -166,7 +166,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/create-fd-origins.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origins.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -profileName $(frontdoorProfileName)"
           - task: AzureCLI@2
             displayName: "Create frontdoor route override rule for UKW"
@@ -174,7 +174,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/create-fd-rule.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
           - task: AzureCLI@2
             displayName: "Update routes to use ukw origin groups"
@@ -182,7 +182,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/update-fd-routes.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/update-fd-routes.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUkw) -apiOriginGroupName $(apiOriginGroupNameUkw) -webOriginGroupName $(webOriginGroupNameUkw)"
 
       - job: ConfirmFailBackToUkSouth
@@ -208,7 +208,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/appservices/start-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/start-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
           - task: AzureCLI@2
             displayName: "Fail over cosmos to UKS"
@@ -216,7 +216,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/cosmosdb/failover-cosmosdb.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion uksouth -readRegion ukwest"
           - task: AzureCLI@2
             displayName: "Update routes to use UKS origin groups"
@@ -224,7 +224,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/update-fd-routes.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/update-fd-routes.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"
@@ -232,7 +232,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/cosmosdb/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
           - task: AzureCLI@2
             displayName: "Destroy UKW resources"
@@ -259,7 +259,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/delete-fd-rule.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/delete-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
           - task: AzureCLI@2
             displayName: "Delete frontdoor origin groups for UKW"
@@ -267,5 +267,5 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/MYA/mya-dr/scripts/frontdoor/delete-fd-origin-groups.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/delete-fd-origin-groups.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"

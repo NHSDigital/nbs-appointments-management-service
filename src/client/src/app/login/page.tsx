@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const oktaLoginFlag = await fetchFeatureFlag('OktaLogin');
+  const oktaEnabledFlag = await fetchFeatureFlag('OktaEnabled');
   const redirectUrl = searchParams?.redirectUrl ?? '/sites';
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
@@ -31,7 +31,7 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         provider={'nhs-mail'}
         friendlyName={'NHS Mail'}
       />
-      {oktaLoginFlag.enabled && (
+      {oktaEnabledFlag.enabled && (
         <LogInButton
           redirectUrl={redirectUrl}
           provider={'okta'}

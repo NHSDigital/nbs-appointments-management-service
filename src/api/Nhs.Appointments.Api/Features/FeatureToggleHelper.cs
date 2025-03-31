@@ -80,9 +80,9 @@ public class FeatureToggleHelper(IFeatureManager featureManager, IConfigurationR
         return await featureManager.IsEnabledAsync(featureFlag, targetingContext);
     }
     
-#if DEBUG
+    [Obsolete("Only for use in local testing purposes.")]
     public void SetOverride(string flagName, bool enabled) => _overrides[flagName] = enabled;
 
-    public void ClearOverride(string flagName) => _overrides.TryRemove(flagName, out _);
-#endif
+    [Obsolete("Only for use in local testing purposes.")]
+    public void ClearOverrides() => _overrides.Clear();
 }

@@ -3,17 +3,17 @@ using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class FeatureFlagRequestValidator : AbstractValidator<FeatureFlagRequest>
+public class GetFeatureFlagRequestValidator : AbstractValidator<GetFeatureFlagRequest>
 { 
-    public FeatureFlagRequestValidator()
+    public GetFeatureFlagRequestValidator()
     {        
         RuleFor(x => x.Flag).NotEmpty().WithMessage("Provide a valid flag");        
     }
 }
 
-public class SetFeatureFlagOverrideRequestValidator : AbstractValidator<SetFeatureFlagOverrideRequest>
+public class SetLocalFeatureFlagOverrideRequestValidator : AbstractValidator<SetLocalFeatureFlagOverrideRequest>
 { 
-    public SetFeatureFlagOverrideRequestValidator()
+    public SetLocalFeatureFlagOverrideRequestValidator()
     {        
         RuleFor(x => x.Flag).NotEmpty().WithMessage("Provide a valid flag");    
     }

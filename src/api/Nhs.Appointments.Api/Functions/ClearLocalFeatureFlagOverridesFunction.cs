@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -15,16 +16,16 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class SetFeatureFlagOverrideFunction(
-    IValidator<SetFeatureFlagOverrideRequest> validator,
+public class ClearLocalFeatureFlagOverridesFunction(
+    IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<SetFeatureFlagOverrideFunction> logger,
+    ILogger<ClearLocalFeatureFlagOverridesFunction> logger,
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper)
-    : BaseApiFunction<SetFeatureFlagOverrideRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<EmptyRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "SetFeatureFlagOverrideFunction", tags: ["FeatureFlag"],
-        Summary = "Override the enabled state for the requested flag")]
+    [OpenApiOperation(operationId: "ClearLocalFeatureFlagOverrides", tags: ["FeatureFlag"],
+        Summary = "Clear the local overrides for all feature flags")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(bool), Description = "")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
@@ -32,25 +33,30 @@ public class SetFeatureFlagOverrideFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [Function("SetFeatureFlagOverrideFunction")]
-    //TODO don't allow anon??
+    [Function("ClearLocalFeatureFlagOverridesFunction")]
     [AllowAnonymous]
-    public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "feature-flag-override/{flag}")] HttpRequest req)
+    public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "feature-flag-overrides-clear")] HttpRequest req)
     {
+        var appConfigEnvironment = Environment.GetEnvironmentVariable("APP_CONFIG_CONNECTION");
+
+        if (appConfigEnvironment != "local")
+        {
+            return Task.FromResult(ProblemResponse(HttpStatusCode.Forbidden, "Clearing overridden feature-flags is only supported locally"));
+        }
+        
         return base.RunAsync(req);
     }
 
-    protected override Task<ApiResult<EmptyResponse>> HandleRequest(SetFeatureFlagOverrideRequest request, ILogger logger)
+    protected override Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        featureToggleHelper.SetOverride(request.Flag, request.Enabled);
+#pragma warning disable CS0618 // Intended use
+        featureToggleHelper.ClearOverrides();
+#pragma warning restore CS0618 // Intended use
         return Task.FromResult(ApiResult<EmptyResponse>.Success(new EmptyResponse()));
     }
-
-    protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetFeatureFlagOverrideRequest request)> ReadRequestAsync(HttpRequest req)
+    
+    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
     {
-        var flag = req.HttpContext.GetRouteValue("flag")?.ToString();
-        var enabled = bool.Parse(req.Query["enabled"]);
-        return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetFeatureFlagOverrideRequest request)>(([], new SetFeatureFlagOverrideRequest(flag, enabled)));
+        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
     }
 }

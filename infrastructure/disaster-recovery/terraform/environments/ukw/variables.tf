@@ -51,7 +51,6 @@ variable "NHS_MAIL_CLIENT_ID" {
 variable "NHS_MAIL_CLIENT_SECRET" {
   type      = string
   sensitive = true
-  default   = ""
 }
 
 variable "OKTA_ISSUER" {
@@ -82,7 +81,6 @@ variable "OKTA_CLIENT_ID" {
 variable "OKTA_CLIENT_SECRET" {
   type      = string
   sensitive = true
-  default   = ""
 }
 
 variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
@@ -120,6 +118,10 @@ variable "SPLUNK_HEC_TOKEN" {
 }
 
 variable "AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS" {
+  type = string
+}
+
+variable "BUILD_NUMBER" {
   type = string
 }
 

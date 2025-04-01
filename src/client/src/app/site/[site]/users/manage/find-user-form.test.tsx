@@ -109,4 +109,25 @@ describe('FindUserForm', () => {
       '/site/TEST/users?user=test%40nhs.net',
     );
   });
+
+  it('initiates the user edit with lower case when a valid email address is submitted', async () => {
+    const { user } = render(<FindUserForm site="TEST" />);
+
+    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const emailInput = screen.getByRole('textbox', {
+      name: 'Enter an email address',
+    });
+
+    await user.type(emailInput, 'TEST@NHS.NET');
+    await user.click(searchButton);
+
+    expect(
+      await screen.queryByText(
+        'You have not entered a valid nhs email address',
+      ),
+    ).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/TEST/users?user=test%40nhs.net',
+    );
+  });
 });

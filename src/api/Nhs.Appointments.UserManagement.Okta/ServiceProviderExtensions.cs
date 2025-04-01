@@ -18,9 +18,12 @@ public static class ServiceProviderExtensions
         services.AddSingleton<UserApi>(sp =>
         {
             var oktaOptions = sp.GetRequiredService<IOptions<OktaConfiguration>>().Value;
+            var pemKey = configuration["Okta:PEM"];
+
+            Console.WriteLine($"Okta:PEM:{pemKey}");
 
             var rsa = RSA.Create();
-            rsa.ImportFromPem(oktaOptions.PEM);
+            rsa.ImportFromPem(pemKey);
             var keyParams = rsa.ExportParameters(true);
 
             var privateKey = new JsonWebKeyConfiguration

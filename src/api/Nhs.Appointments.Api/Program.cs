@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
@@ -7,6 +8,10 @@ using Nhs.Appointments.Api.Middleware;
 using Nhs.Appointments.Audit;
 
 var host = new HostBuilder()
+    .ConfigureAppConfiguration((context, config) =>
+    {
+        config.AddUserSecrets<Program>();
+    })
     .ConfigureFeatureDependencies()
     .ConfigureFunctionsWebApplication(builder =>
     {

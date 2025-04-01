@@ -10,6 +10,7 @@ using Nhs.Appointments.Api.Factories;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -23,6 +24,7 @@ public class BulkImportFunctionTests
     private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
     private readonly Mock<IUserDataImportHandler> _mockUserDataImporter = new();
     private readonly Mock<IValidator<BulkImportRequest>> _mockValidator = new();
+    private readonly Mock<IFeatureToggleHelper> _mockFeatureToggleHelper = new();
 
     private readonly BulkImportFunction _sut;
 
@@ -33,7 +35,8 @@ public class BulkImportFunctionTests
             _mockValidator.Object,
             _mockUserContextProvider.Object,
             _mockLogger.Object,
-            _mockMetricsRecorder.Object);
+            _mockMetricsRecorder.Object,
+            _mockFeatureToggleHelper.Object);
 
         _mockValidator.Setup(x => x.ValidateAsync(It.IsAny<BulkImportRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -44,6 +47,9 @@ public class BulkImportFunctionTests
     {
         var request = CreateBadRequest_NoFiles();
 
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
+            .ReturnsAsync(true);
+
         var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(400);
@@ -53,6 +59,9 @@ public class BulkImportFunctionTests
     public async Task RunAsync_ReturnsBadRequest_WhenMultipleFilesSent()
     {
         var request = CreateBadRequest_MultipleFiles();
+
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
+            .ReturnsAsync(true);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -80,6 +89,8 @@ public class BulkImportFunctionTests
             .Returns(_mockSiteDataImporter.Object);
         _mockSiteDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
             .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
+            .ReturnsAsync(true);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -111,12 +122,27 @@ public class BulkImportFunctionTests
             .Returns(_mockUserDataImporter.Object);
         _mockUserDataImporter.Setup(x => x.ProcessFile(It.IsAny<IFormFile>()))
             .ReturnsAsync(new List<ReportItem> { new(0, "Test 1", true, "") });
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
+            .ReturnsAsync(true);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
         response.StatusCode.Should().Be(200);
 
         _mockUserDataImporter.Verify(x => x.ProcessFile(It.IsAny<IFormFile>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsFeatureNotEnabled()
+    {
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
+            .ReturnsAsync(false);
+
+        var request = CreateDefaultRequest();
+
+        var response = await _sut.RunAsync(request) as ContentResult;
+
+        response.StatusCode.Should().Be(501);
     }
 
     private static HttpRequest CreateBadRequest_MultipleFiles()

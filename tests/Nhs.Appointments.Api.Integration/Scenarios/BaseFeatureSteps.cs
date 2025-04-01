@@ -382,7 +382,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
         exception.Message.Should().Contain("404");
     }
-    
+
     [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
     [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
     public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Factories;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -22,7 +24,8 @@ public class BulkImportFunction(
     IValidator<BulkImportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<BulkImportFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -35,20 +38,23 @@ public class BulkImportFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
+    //[RequiresPermission(Permissions.SystemDataImporter, typeof(NoSiteRequestInspector))]
     [Function("BulkImportFunction")]
-    public override Task<IActionResult> RunAsync(
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")]
         HttpRequest req)
     {
-        return base.RunAsync(req);
+        return !await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport)
+            ? ProblemResponse(HttpStatusCode.NotImplemented, null)
+            : await base.RunAsync(req);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>
         ReadRequestAsync(HttpRequest req)
     {
-        var files = req.Form?.Files;
         var errors = new List<ErrorMessageResponseItem>();
+
+        var files = req.Form?.Files;
 
         if (files is null || files?.Count is 0)
         {
@@ -71,7 +77,7 @@ public class BulkImportFunction(
         var parsedRequest = new BulkImportRequest(files[0], type);
 
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>((
-            errors, parsedRequest));
+                errors, parsedRequest));
     }
 
     protected override async Task<ApiResult<IEnumerable<ReportItem>>> HandleRequest(BulkImportRequest request,

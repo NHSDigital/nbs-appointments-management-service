@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -19,10 +20,12 @@ namespace Nhs.Appointments.Api.Functions;
 public class MakeBookingFunction(
     IBookingsService bookingService,
     ISiteService siteService,
+    IAvailabilityService availabilityService,
     IValidator<MakeBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<MakeBookingFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
@@ -67,7 +70,10 @@ public class MakeBookingFunction(
             return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
         }
 
-        var bookingResult = await bookingService.MakeBooking(requestedBooking);
+        var bookingResult = await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations)
+            ? await availabilityService.MakeBooking(requestedBooking)
+            : await bookingService.MakeBooking(requestedBooking);
+
         if (bookingResult.Success == false)
         {
             return Failed(HttpStatusCode.NotFound, "The time slot for this booking is not available");

@@ -9,22 +9,25 @@ using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-public class CancelBookingFunctionTests
+[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
+public class CancelBookingFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
     private readonly Mock<ILogger<CancelBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly CancelBookingFunction _sut;
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
 
-    public CancelBookingFunctionTests()
+    public CancelBookingFunctionTests() : base(typeof(CancelBookingFunctionTests))
     {
-        _sut = new CancelBookingFunction(_bookingService.Object, _validator.Object, _userContextProvider.Object,
-            _logger.Object, _metricsRecorder.Object);
+        _sut = new CancelBookingFunction(_bookingService.Object, _availabilityService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _featureToggleHelper.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         _bookingService.Setup(x => x.CancelBooking(null, string.Empty))
@@ -91,6 +94,44 @@ public class CancelBookingFunctionTests
 
         Assert.NotNull(response);
         Assert.Equal(500, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
+    {
+        var bookingRef = "some-booking";
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+        _availabilityService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+
+        var request = BuildRequest(bookingRef, site);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(x => x.CancelBooking(bookingRef, site), Times.Once);
+        _availabilityService.Verify(x => x.CancelBooking(bookingRef, site), Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
+    {
+        Toggle("MultiServiceAvailabilityCalculations", true);
+
+        var bookingRef = "some-booking";
+        var site = "TEST01";
+        _bookingService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+        _availabilityService.Setup(x => x.CancelBooking(bookingRef, site))
+            .Returns(Task.FromResult(BookingCancellationResult.Success));
+
+        var request = BuildRequest(bookingRef, site);
+
+        _ = await _sut.RunAsync(request) as ContentResult;
+
+        _bookingService.Verify(x => x.CancelBooking(bookingRef, site), Times.Never);
+        _availabilityService.Verify(x => x.CancelBooking(bookingRef, site), Times.Once);
     }
 
     private static HttpRequest BuildRequest(string reference, string site)

@@ -6,7 +6,8 @@ namespace Nhs.Appointments.Core;
 
 public class CsvProcessor<TDocument, TMap>(
     Func<TDocument, Task> processRow,
-    Func<TDocument, string> getItemName)
+    Func<TDocument, string> getItemName,
+    Func<TMap> createMap)
     where TMap : ClassMap
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
@@ -42,7 +43,7 @@ public class CsvProcessor<TDocument, TMap>(
 
         using (var csv = new CsvReader(csvReader, config))
         {
-            csv.Context.RegisterClassMap<TMap>();
+            csv.Context.RegisterClassMap(createMap());
 
             try
             {

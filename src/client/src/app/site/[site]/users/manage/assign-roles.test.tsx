@@ -62,7 +62,15 @@ describe('AssignRoles', () => {
     expect(screen.getByText('Email')).toBeVisible();
     expect(screen.getByText('test@nhs.net'));
   });
-
+  it('email is not case sensitive', async () => {
+    const jsx = await AssignRoles({
+      params: { site: 'TEST' },
+      searchParams: { user: 'TEST@NHS.NET' },
+    });
+    render(jsx);
+    expect(screen.getByText('Email')).toBeVisible();
+    expect(screen.getByText('TEST@NHS.NET'));
+  });
   it('calls fetch users with the correct site id', async () => {
     const jsx = await AssignRoles({
       params: { site: 'TEST' },

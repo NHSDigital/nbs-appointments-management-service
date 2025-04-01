@@ -76,6 +76,8 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"           = true
     "AzureWebJobs.SendBookingReminders.Disabled"                 = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled" = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
   }
 
   sticky_settings {
@@ -156,6 +158,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"           = true
     "AzureWebJobs.SendBookingReminders.Disabled"                 = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled" = true
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled" = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
   }
 
   identity {

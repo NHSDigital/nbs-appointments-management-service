@@ -81,14 +81,15 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
     "AzureWebJobs.BulkImportFunction.Disabled"                             = true
-    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
     "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
     "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
-
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
   }
 
   sticky_settings {

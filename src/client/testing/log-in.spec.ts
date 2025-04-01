@@ -14,7 +14,7 @@ test.describe.configure({ mode: 'serial' });
 [true, false].forEach(oktaEnabled => {
   test.describe(`Login Tests for OKTA enabled: '${oktaEnabled}'`, () => {
     test.beforeAll(async () => {
-      await overrideFeatureFlag('OKTALogin', oktaEnabled);
+      await overrideFeatureFlag('OktaEnabled', oktaEnabled);
     });
 
     test.afterAll(async () => {

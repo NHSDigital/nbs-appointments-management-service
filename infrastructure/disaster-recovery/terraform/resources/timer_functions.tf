@@ -5,7 +5,6 @@ resource "azurerm_service_plan" "nbs_mya_timer_func_service_plan" {
   name                = "${var.application}-timerfsp-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
-  # location            = data.azurerm_resource_group.nbs_mya_resource_group.location
   os_type             = "Windows"
   sku_name            = "Y1"
 }
@@ -14,7 +13,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
   name                = "${var.application}-timerfunc-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
-  # location            = data.azurerm_resource_group.nbs_mya_resource_group.location
 
   storage_account_name       = azurerm_storage_account.nbs_mya_timer_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_timer_func_storage_account.primary_access_key

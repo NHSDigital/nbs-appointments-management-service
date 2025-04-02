@@ -41,6 +41,10 @@ module "mya_application_dev" {
   okta_jwks_uri                                  = var.OKTA_JWKS_URI
   okta_client_id                                 = var.OKTA_CLIENT_ID
   okta_client_secret                             = var.OKTA_CLIENT_SECRET
+  okta_domain                                    = var.OKTA_ISSUER
+  okta_management_id                             = var.OKTA_MANAGEMENT_ID
+  okta_private_key_kid                           = var.OKTA_PRIVATE_KEY_KID
+  okta_pem                                       = var.OKTA_PEM
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
   web_app_base_uri                               = var.WEB_APP_BASE_URI

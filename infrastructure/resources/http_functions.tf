@@ -63,6 +63,10 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     Auth__Providers__1__ClientCodeExchangeUri                    = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                = "${local.auth_provider_return_uri}?provider=okta"
     Auth__Providers__1__RequiresStateForAuthorize                = true
+    Okta__Domain                                                 = var.okta_domain
+    Okta__ManagementId                                           = var.okta_management_id
+    Okta__PrivateKeyKid                                          = var.okta_private_key_kid
+    Okta__PEM                                                    = var.okta_pem
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"            = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"               = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                    = true
@@ -139,6 +143,10 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     Auth__Providers__1__ClientCodeExchangeUri                    = "${var.web_app_slot_base_uri}/manage-your-appointments/auth/set-cookie?provider=okta"
     Auth__Providers__1__ReturnUri                                = "${var.func_app_slot_base_uri}/api/auth-return?provider=okta"
     Auth__Providers__1__RequiresStateForAuthorize                = true
+    Okta__Domain                                                 = var.okta_domain
+    Okta__ManagementId                                           = var.okta_management_id
+    Okta__PrivateKeyKid                                          = var.okta_private_key_kid
+    Okta__PEM                                                    = var.okta_pem
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"            = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"               = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                    = true

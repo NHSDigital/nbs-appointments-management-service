@@ -100,6 +100,24 @@ variable "okta_client_secret" {
   default   = ""
 }
 
+variable "okta_domain" {
+  type = string
+}
+
+variable "okta_management_id" {
+  type = string
+}
+
+variable "okta_private_key_kid" {
+  type      = string
+  sensitive = true
+}
+
+variable "okta_pem" {
+  type      = string
+  sensitive = true
+}
+
 variable "gov_notify_base_uri" {
   type = string
 }

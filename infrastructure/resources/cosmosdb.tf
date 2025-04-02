@@ -1,6 +1,6 @@
 resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
   name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
-  location                   = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location                   = var.location
   resource_group_name        = data.azurerm_resource_group.nbs_mya_resource_group.name
   offer_type                 = "Standard"
   kind                       = "GlobalDocumentDB"

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,16 +12,20 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class SetUserRolesFunction(
-    IUserService userService,
-    IValidator<SetUserRolesRequest> validator,
-    IUserContextProvider userContextProvider,
-    ILogger<SetUserRolesFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IUserService userService, 
+    IValidator<SetUserRolesRequest> validator, 
+    IUserContextProvider userContextProvider, 
+    IOktaService oktaService, 
+    ILogger<SetUserRolesFunction> logger, 
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper
+) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"],
@@ -49,6 +53,23 @@ public class SetUserRolesFunction(
         {
             return Failed(HttpStatusCode.BadRequest,
                 "You cannot update the role assignments of the currently logged in user.");
+        }
+
+        if (IsOktaUser(request.User))
+        {
+            var isOktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
+
+            if (!isOktaEnabled)
+            {
+                return Failed(HttpStatusCode.ServiceUnavailable, "Okta is disabled.");
+            }
+
+            // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
+            var externalDirectoryResult = await oktaService.CreateIfNotExists(request.User, request.FirstName, request.LastName);
+            if (!externalDirectoryResult.Success)
+            {
+                return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);
+            }
         }
 
         var roleAssignments = request
@@ -80,5 +101,10 @@ public class SetUserRolesFunction(
         }
 
         return $"Invalid role(s): {string.Join(", ", result.ErrorRoles)}";
+    }
+
+    private bool IsOktaUser(string user)
+    {
+        return !user.ToLowerInvariant().EndsWith("@nhs.net");
     }
 }

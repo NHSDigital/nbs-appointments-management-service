@@ -50,16 +50,7 @@ describe('AssignRoles', () => {
         params: { site: 'TEST' },
         searchParams: {},
       }),
-    ).rejects.toThrow('You must specify a valid NHS email address');
-  });
-
-  it('throws error when rendered with non NHS email', async () => {
-    await expect(
-      AssignRoles({
-        params: { site: 'TEST' },
-        searchParams: { user: 'test@test.com' },
-      }),
-    ).rejects.toThrow('You must specify a valid NHS email address');
+    ).rejects.toThrow('User with specified email address not found');
   });
 
   it('displays the email address of the user', async () => {
@@ -88,6 +79,7 @@ describe('AssignRoles', () => {
     render(jsx);
     expect(fetchUsersMock).toHaveBeenCalledWith('TEST');
   });
+
   it('passes the correct props', async () => {
     const jsx = await AssignRoles({
       params: { site: 'TEST' },

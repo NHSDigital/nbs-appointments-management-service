@@ -51,6 +51,7 @@
     <ProjectReference Include="..\Nhs.Appointments.Audit\Nhs.Appointments.Audit.csproj" />
     <ProjectReference Include="..\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
     <ProjectReference Include="..\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj" />
+    <ProjectReference Include="..\Nhs.Appointments.UserManagement.Okta\Nhs.Appointments.UserManagement.Okta.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -61,6 +61,7 @@ module "mya_application_dev" {
   create_app_slot                                = false
   create_autoscale_settings                      = false
   create_frontdoor                               = false
+  create_cosmos_db                               = true
   web_app_service_sku                            = "B1"
   web_app_service_plan_default_worker_count      = 1
   app_service_plan_zone_redundancy_enabled       = false

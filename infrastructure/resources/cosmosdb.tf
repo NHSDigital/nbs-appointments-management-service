@@ -1,4 +1,5 @@
 resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
   location                   = var.location
   resource_group_name        = data.azurerm_resource_group.nbs_mya_resource_group.name
@@ -30,12 +31,14 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "nbs_appts_database" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                = "appts"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                   = "booking_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
@@ -100,6 +103,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                   = "core_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
@@ -116,6 +120,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                   = "index_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
@@ -132,6 +137,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_container" {
+  count                    = var.create_cosmos_db ? 1 : 0
   name                   = "audit_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name

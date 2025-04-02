@@ -6,7 +6,6 @@
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>disable</Nullable>
     <LangVersion>latestmajor</LangVersion>
-    <UserSecretsId>6c3b185b-e458-4b9d-9353-ba22192c1d1c</UserSecretsId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>AnyCPU</PlatformTarget>

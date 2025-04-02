@@ -8,7 +8,7 @@ resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   count                                = var.cosmos_synapse_enabled ? 1 : 0
   name                                 = "${var.application_short}synw${var.environment}${var.loc}"
   resource_group_name                  = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location                             = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location                             = var.location
   storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.nbs_mya_synapse_workspace_gen2_filesystem[0].id
   sql_administrator_login              = "sqladminuser"
   sql_administrator_login_password     = "S3cur3_this_p0st_p0c!"
@@ -33,7 +33,7 @@ resource "azurerm_synapse_integration_runtime_azure" "nbs_mya_synapse_runtime" {
   count                = var.cosmos_synapse_enabled ? 1 : 0
   name                 = "${var.application_short}synrun${var.environment}${var.loc}"
   synapse_workspace_id = azurerm_synapse_workspace.nbs_mya_synapse_workspace[0].id
-  location             = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location             = var.location
 }
 
 resource "azurerm_synapse_linked_service" "nbs_mya_synapse_linked_service" {

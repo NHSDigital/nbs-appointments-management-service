@@ -244,6 +244,10 @@ variable "create_frontdoor" {
   type = bool
 }
 
+variable "create_cosmos_db" {
+  type = bool
+}
+
 variable "build_number" {
   type = string
 }

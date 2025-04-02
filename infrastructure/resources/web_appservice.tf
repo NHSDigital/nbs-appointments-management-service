@@ -2,7 +2,7 @@
 resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
   name                   = "${var.application}-asp-${var.environment}-${var.loc}"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location               = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location               = var.location
   os_type                = "Linux"
   sku_name               = var.web_app_service_sku
   worker_count           = var.web_app_service_plan_default_worker_count
@@ -12,7 +12,7 @@ resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
 resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   name                = "${var.application}-app-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location            = var.location
   service_plan_id     = azurerm_service_plan.nbs_mya_web_app_service_plan.id
   https_only          = true
 
@@ -68,7 +68,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
   count               = var.create_autoscale_settings ? 1 : 0
   name                = "NbsMyaWebAppAutoscaleSetting"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location            = var.location
   target_resource_id  = azurerm_service_plan.nbs_mya_web_app_service_plan.id
 
   profile {

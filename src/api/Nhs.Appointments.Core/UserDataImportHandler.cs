@@ -6,7 +6,8 @@ namespace Nhs.Appointments.Core;
 public class UserDataImportHandler(
     IUserService userService, 
     ISiteService siteService, 
-    IFeatureToggleHelper featureToggleHelper
+    IFeatureToggleHelper featureToggleHelper,
+    IOktaService oktaService
 ) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
@@ -50,6 +51,15 @@ public class UserDataImportHandler(
                 if (!result.Success)
                 {
                     report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
+                }
+
+                if (!userAssignmentGroup.UserId.ToLower().EndsWith("@nhs.net"))
+                {
+                    var status = await oktaService.CreateIfNotExists(userAssignmentGroup.UserId, userAssignmentGroup.FirstName, userAssignmentGroup.LastName);
+                    if (!status.Success)
+                    {
+                        report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to create or update OKTA user. Failure reason: {status.FailureReason}"));
+                    }
                 }
             }
             catch (Exception ex)

@@ -107,6 +107,14 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
+    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
+    "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
+    "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
+    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
   }
 
   sticky_settings {

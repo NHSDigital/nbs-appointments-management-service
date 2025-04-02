@@ -225,6 +225,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
   }
 
   identity {

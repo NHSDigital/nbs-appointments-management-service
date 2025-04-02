@@ -27,6 +27,8 @@ provider "azurerm" {
 
 module "mya_application_dev" {
   environment                                    = "dev"
+  location                                       = "uksouth"
+  loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER

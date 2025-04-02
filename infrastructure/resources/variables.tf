@@ -14,12 +14,10 @@ variable "environment" {
 
 variable "location" {
   type    = string
-  default = "uksouth"
 }
 
 variable "loc" {
   type    = string
-  default = "uks"
 }
 
 variable "nhs_host_url" {

@@ -8,6 +8,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<IUserService> _userServiceMock = new();
     private readonly Mock<ISiteService> _siteServiceMock = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelperMock = new();
+    private readonly Mock<IOktaService> _oktaServiceMock = new();
 
     private readonly UserDataImportHandler _sut;
     private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
@@ -17,7 +18,8 @@ public class UserDataImportHandlerTests
         _sut = new UserDataImportHandler(
             _userServiceMock.Object, 
             _siteServiceMock.Object, 
-            _featureToggleHelperMock.Object
+            _featureToggleHelperMock.Object,
+            _oktaServiceMock.Object
         );
     }
 
@@ -101,6 +103,8 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[1]);
         _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _oktaServiceMock.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new UserProvisioningStatus { Success = true });
 
         var report = await _sut.ProcessFile(file);
 
@@ -234,6 +238,70 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(1);
         report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'User'[0] was not found");
+    }
+
+    [Fact]
+    public async Task ReadsUserData_AndAddsUserToOkta()
+    {
+        string[] inputRows =
+        [
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new UserProvisioningStatus { Success = true });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+
+        _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task ReadsUserData_AndReportsUnsuccessfulOktaReason()
+    {
+        string[] inputRows =
+        [
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new UserProvisioningStatus { Success = false, FailureReason = "Test failure reason." });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(4);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Failed to create or update OKTA user. Failure reason: Test failure reason.");
+
+        _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
     private List<Site> GetSites()

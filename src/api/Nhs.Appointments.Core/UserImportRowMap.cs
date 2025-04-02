@@ -46,18 +46,20 @@ public class UserImportRowMap : ClassMap<UserImportRow>
         });
     }
 
-    private bool IsOktaUser(IReaderRow row)
+    private static bool IsOktaUser(IReaderRow row)
     {
         var userId = row.GetField("User");
         return !userId.EndsWith("@nhs.net", StringComparison.OrdinalIgnoreCase);
     }
 
-    private bool ValidateName(IReaderRow row, string fieldName)
+    private static bool ValidateName(IReaderRow row, string fieldName)
     {
         if (IsOktaUser(row))
         {
             var name = row.GetField(fieldName);
-            return !string.IsNullOrWhiteSpace(name);
+            return CsvFieldValidator.StringHasValue(name)
+                ? true
+                : throw new ArgumentNullException($"OKTA user must have {fieldName} set.");
         }
         return true; // No validation required for non-okta users
     }
@@ -66,11 +68,11 @@ public class UserImportRowMap : ClassMap<UserImportRow>
     {
         var user = row.GetField("User");
 
-        if (string.IsNullOrWhiteSpace(user)) 
-            return false;
+        if (!CsvFieldValidator.StringHasValue(user))
+            throw new ArgumentNullException("User must have a value.");
 
         if (!_oktaEnabled && IsOktaUser(row))
-            return false;
+            throw new ArgumentException($"User: {user} is an OKTA user and OKTA is not enabled.");
         
         return true;
     }

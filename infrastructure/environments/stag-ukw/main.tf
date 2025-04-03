@@ -20,7 +20,7 @@ provider "azurerm" {
   features {
     app_configuration {
       purge_soft_delete_on_destroy = false
-      recover_soft_deleted         = false
+      recover_soft_deleted         = true
     }
   }
 }

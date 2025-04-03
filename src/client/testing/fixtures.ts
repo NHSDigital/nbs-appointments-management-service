@@ -1,7 +1,7 @@
 // We need this to avoid SSL errors when running tests locally
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-import { test as baseTest } from '@playwright/test';
+import { test as baseTest, request } from '@playwright/test';
 import { Site } from '@types';
 
 export * from '@playwright/test';
@@ -41,6 +41,23 @@ export const userBySubjectId = (testUserId = 1): UserSeedData => {
     password: zzzTestUser.Password,
   };
 };
+
+export async function overrideFeatureFlag(
+  featureFlag: string,
+  enabled: boolean,
+) {
+  const api = await request.newContext();
+  await api.patch(
+    `${process.env.NBS_API_BASE_URL}/api/feature-flag-override/${featureFlag}?enabled=${enabled}`,
+  );
+}
+
+export async function clearAllFeatureFlagOverrides() {
+  const api = await request.newContext();
+  await api.patch(
+    `${process.env.NBS_API_BASE_URL}/api/feature-flag-overrides-clear`,
+  );
+}
 
 const siteById = (testSiteId = 1) => {
   switch (testSiteId) {

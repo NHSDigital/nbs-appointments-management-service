@@ -272,7 +272,7 @@ public class UserDataImportHandlerTests
     }
 
     [Fact]
-    public async Task ReadsUserData_AndReportsUnsuccessfulOktaReason()
+    public async Task ReadsUserData_AndReportsUnsuccessfulOktaReason_AndDoesntCallUserService()
     {
         string[] inputRows =
         [
@@ -302,6 +302,7 @@ public class UserDataImportHandlerTests
         report.First(r => !r.Success).Message.Should().Be("Failed to create or update OKTA user. Failure reason: Test failure reason.");
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _userServiceMock.Verify(s => s.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
     }
 
     private List<Site> GetSites()

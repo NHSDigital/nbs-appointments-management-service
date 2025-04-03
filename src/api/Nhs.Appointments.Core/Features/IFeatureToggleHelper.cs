@@ -18,7 +18,7 @@ public interface IFeatureToggleHelper
     /// <param name="siteId">The site to add to the feature filter targeting context</param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabledForSite(string featureFlag, string siteId);
-    
+
     /// <summary>
     ///     Check whether the provided featureFlag is enabled for the provided user.
     ///     If the flag has no specific user targeting, it will return the global state of the flag
@@ -27,4 +27,10 @@ public interface IFeatureToggleHelper
     /// <param name="userId">The user to add to the feature filter targeting context</param>
     /// <returns></returns>
     Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId);
+
+    [Obsolete("Only for use in local testing purposes.")]
+    void SetOverride(string flagName, bool enabled);
+
+    [Obsolete("Only for use in local testing purposes.")]
+    void ClearOverrides();
 }

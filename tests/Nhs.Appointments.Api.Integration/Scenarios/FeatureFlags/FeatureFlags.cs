@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.FeatureFlags;
 [FeatureFile("./Scenarios/FeatureFlags/FeatureFlags.feature")]
 public sealed class FeatureFlags : BaseFeatureSteps
 {
-    private FeatureFlagResponse _actualResponse;
+    private GetFeatureFlagResponse _actualResponse;
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     
@@ -22,7 +22,7 @@ public sealed class FeatureFlags : BaseFeatureSteps
             $"http://localhost:7071/api/feature-flag/{featureFlag}");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =
-            await JsonRequestReader.ReadRequestAsync<FeatureFlagResponse>(await _response.Content.ReadAsStreamAsync());
+            await JsonRequestReader.ReadRequestAsync<GetFeatureFlagResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"the response should be 200 with enabled state '(true|false)'")]

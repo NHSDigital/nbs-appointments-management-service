@@ -18,6 +18,7 @@ export default class RootPage {
   readonly page: Page;
   readonly headerLogInButton: Locator;
   readonly pageContentLogInButton: Locator;
+  readonly OKTALogInButton: Locator;
   readonly logOutButton: Locator;
   readonly serviceName: Locator;
   readonly homeBreadcrumb: Locator;
@@ -32,6 +33,9 @@ export default class RootPage {
     this.headerLogInButton = page.getByRole('button', { name: 'Log In' });
     this.pageContentLogInButton = page.getByRole('button', {
       name: 'Sign in to service with NHS Mail',
+    });
+    this.OKTALogInButton = page.getByRole('button', {
+      name: 'Sign in to service with Other Email',
     });
     this.logOutButton = page.getByRole('button', { name: 'Log Out' });
     this.homeBreadcrumb = page.getByRole('link', {

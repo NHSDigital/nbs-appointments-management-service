@@ -51,8 +51,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Auth__Providers__0__ChallengePhrase                                    = var.auth_provider_challenge_phrase
     Auth__Providers__0__ClientId                                           = var.nhs_mail_client_id
     Auth__Providers__0__ClientSecret                                       = var.nhs_mail_client_secret
-    Auth__Providers__0__ClientCodeExchangeUri                              = "${var.nhs_host_url}/manage-your-appointments/auth/set-cookie?provider=nhs-mail"
-    Auth__Providers__0__ReturnUri                                          = "${var.nhs_host_url}/manage-your-appointments/api/auth-return"
+    Auth__Providers__0__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=nhs-mail"
+    Auth__Providers__0__ReturnUri                                          = "${local.auth_provider_return_uri}"
     Auth__Providers__1__Name                                               = "okta"
     Auth__Providers__1__Issuer                                             = var.okta_issuer
     Auth__Providers__1__AuthorizeUri                                       = var.okta_authorize_uri
@@ -61,8 +61,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Auth__Providers__1__ChallengePhrase                                    = var.auth_provider_challenge_phrase
     Auth__Providers__1__ClientId                                           = var.okta_client_id
     Auth__Providers__1__ClientSecret                                       = var.okta_client_secret
-    Auth__Providers__1__ClientCodeExchangeUri                              = "${var.nhs_host_url}/manage-your-appointments/auth/set-cookie?provider=okta"
-    Auth__Providers__1__ReturnUri                                          = "${var.nhs_host_url}/manage-your-appointments/api/auth-return?provider=okta"
+    Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
+    Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
     Auth__Providers__1__RequiresStateForAuthorize                          = true
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true

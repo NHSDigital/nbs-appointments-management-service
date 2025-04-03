@@ -14,12 +14,10 @@ variable "environment" {
 
 variable "location" {
   type    = string
-  default = "uksouth"
 }
 
 variable "loc" {
   type    = string
-  default = "uks"
 }
 
 variable "nhs_host_url" {
@@ -225,6 +223,10 @@ variable "create_app_slot" {
 }
 
 variable "create_frontdoor" {
+  type = bool
+}
+
+variable "create_cosmos_db" {
   type = bool
 }
 

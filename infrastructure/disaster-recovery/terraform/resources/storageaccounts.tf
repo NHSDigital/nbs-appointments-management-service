@@ -9,6 +9,7 @@ resource "azurerm_storage_account" "nbs_mya_http_func_storage_account" {
 
 # High load trigger function app storage account
 resource "azurerm_storage_account" "nbs_mya_high_load_func_storage_account" {
+  count                    = var.create_high_load_function_app ? 1 : 0
   name                     = "${var.application_short}strghlfunc${var.environment}${var.loc}"
   resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
   location                 = var.location

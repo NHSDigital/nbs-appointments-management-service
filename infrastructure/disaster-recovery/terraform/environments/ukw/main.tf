@@ -20,7 +20,7 @@ provider "azurerm" {
   features {
     app_configuration {
       purge_soft_delete_on_destroy = false
-      recover_soft_deleted         = false
+      recover_soft_deleted         = true
     }
   }
 }
@@ -58,11 +58,12 @@ module "mya_application_stag_ukw" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   cosmos_endpoint                                = var.COSMOS_ENDPOINT
   cosmos_token                                   = var.COSMOS_TOKEN
-  disable_query_availability_function            = true
+  disable_query_availability_function            = false
   create_high_load_function_app                  = true
-  create_app_slot                                = true
-  create_autoscale_settings                      = true
-  create_frontdoor                               = true
+  create_app_slot                                = false
+  create_autoscale_settings                      = false
+  create_frontdoor                               = false
+  create_cosmos_db                               = false
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = false

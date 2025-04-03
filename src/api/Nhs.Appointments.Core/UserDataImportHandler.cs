@@ -47,19 +47,20 @@ public class UserDataImportHandler(
         {
             try
             {
-                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, $"site:{userAssignmentGroup.SiteId}", userAssignmentGroup.RoleAssignments);
-                if (!result.Success)
-                {
-                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
-                }
-
                 if (!userAssignmentGroup.UserId.ToLower().EndsWith("@nhs.net"))
                 {
                     var status = await oktaService.CreateIfNotExists(userAssignmentGroup.UserId, userAssignmentGroup.FirstName, userAssignmentGroup.LastName);
                     if (!status.Success)
                     {
                         report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to create or update OKTA user. Failure reason: {status.FailureReason}"));
+                        continue;
                     }
+                }
+
+                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, $"site:{userAssignmentGroup.SiteId}", userAssignmentGroup.RoleAssignments);
+                if (!result.Success)
+                {
+                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
                 }
             }
             catch (Exception ex)

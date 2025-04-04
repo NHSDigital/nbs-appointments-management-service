@@ -19,12 +19,14 @@ export type serviceOverview = {
 export default class ViewWeekAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
   readonly dayCards: Locator[];
+  readonly changeButtons: Locator[];
   readonly expectedDayCards: dayOverview[];
 
   constructor(page: Page, _expectedDayCards: dayOverview[]) {
     super(page);
 
     this.dayCards = [];
+    this.changeButtons = [];
     this.expectedDayCards = _expectedDayCards;
 
     this.nextButton = page.getByRole('link', {
@@ -39,6 +41,13 @@ export default class ViewWeekAvailabilityPage extends RootPage {
         .locator('..');
 
       this.dayCards.push(divWrapper);
+
+      if (this.expectedDayCards[i].services.length > 0) {
+        const changeButton = divWrapper.getByRole('link', {
+          name: 'Change',
+        });
+        this.changeButtons.push(changeButton);
+      }
     }
   }
 

@@ -1,12 +1,14 @@
-import { test } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 import RootPage from '../../page-objects/root';
 import OAuthLoginPage from '../../page-objects/oauth';
 import { Site } from '@types';
 import ViewWeekAvailabilityPage from '../../page-objects/view-availability-appointment-pages/view-week-availability-page';
+import EditSessionDecisionPage from '../../page-objects/edit-availability/edit-session-decision-page';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let viewWeekAvailabilityPage: ViewWeekAvailabilityPage;
+let editSessionDecisionPage: EditSessionDecisionPage;
 let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
@@ -78,6 +80,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
       unbooked: 420,
     },
   ]);
+  editSessionDecisionPage = new EditSessionDecisionPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -92,4 +95,128 @@ test.beforeEach(async ({ page, getTestSite }) => {
 test('All the view week page data is arranged in the day cards as expected', async () => {
   await viewWeekAvailabilityPage.verifyViewNextWeekButtonDisplayed();
   await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly();
+});
+
+test('Clicking into the BST session has the correct information, for the edit session decision page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[0].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
+  );
+
+  expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 25 October 2025',
+  );
+
+  //table headers!
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', { name: 'Time' }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Services',
+    }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Booked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Unbooked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  //no action header
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', { name: 'Action' }),
+  ).not.toBeVisible();
+
+  const timeCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '10:00 - 17:00',
+  });
+  const serviceCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: 'RSV (Adult)',
+  });
+  const bookedCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '0 booked',
+  });
+  const unbookedCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '420 unbooked',
+  });
+
+  await expect(timeCell).toBeVisible();
+  await expect(serviceCell).toBeVisible();
+  await expect(bookedCell).toBeVisible();
+  await expect(unbookedCell).toBeVisible();
+});
+
+test('Clicking into the UTC session has the correct information, for the edit session decision page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[1].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
+  );
+
+  expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 26 October 2025',
+  );
+
+  //table headers!
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', { name: 'Time' }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Services',
+    }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Booked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', {
+      name: 'Unbooked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  //no action header
+  await expect(
+    editSessionDecisionPage.page.getByRole('columnheader', { name: 'Action' }),
+  ).not.toBeVisible();
+
+  const timeCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '10:00 - 17:00',
+  });
+  const serviceCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: 'RSV (Adult)',
+  });
+  const bookedCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '0 booked',
+  });
+  const unbookedCell = editSessionDecisionPage.page.getByRole('cell', {
+    name: '420 unbooked',
+  });
+
+  await expect(timeCell).toBeVisible();
+  await expect(serviceCell).toBeVisible();
+  await expect(bookedCell).toBeVisible();
+  await expect(unbookedCell).toBeVisible();
 });

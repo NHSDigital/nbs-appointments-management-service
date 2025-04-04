@@ -68,7 +68,8 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
-            QueryType.Days);
+            QueryType.Days,
+            null);
 
         var httpRequest = CreateRequest(request);
 
@@ -106,7 +107,7 @@ public class QueryAvailabilityFunctionTests
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
             queryType,
-            1);
+            null);
 
         var httpRequest = CreateRequest(request);
 
@@ -135,7 +136,8 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
-            QueryType.Days);
+            QueryType.Days,
+            null);
 
         var httpRequest = CreateRequest(request);
 
@@ -170,7 +172,8 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
-            QueryType.Days);
+            QueryType.Days,
+            2);
 
         var httpRequest = CreateRequest(request);
 
@@ -204,7 +207,8 @@ public class QueryAvailabilityFunctionTests
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
-            QueryType.Days);
+            QueryType.Days, 
+            null);
 
         var httpRequest = CreateRequest(request);
 
@@ -221,14 +225,22 @@ public class QueryAvailabilityFunctionTests
     }
 
     private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service,
-        QueryType queryType, int? consecutive = null)
+        QueryType queryType, int? consecutive)
     {
         var sitesArray = string.Join(",", sites.Select(x => $"\"{x}\""));
 
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var body =
+        var body = string.Empty;
+        if (consecutive.HasValue)
+        {
+            body =
             $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": {consecutive} }} ";
+        } else 
+        {
+            body =
+                $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
+        }
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;

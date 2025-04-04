@@ -1,7 +1,9 @@
 import { Footer } from '@nhsuk-frontend-components';
+import { getConfig } from '../utils/config';
 
-const NhsFooter = () => {
-  const buildNumberText = `Build number: ${process.env.BUILD_NUMBER}`;
+const NhsFooter = async () => {
+  const config = await getConfig();
+  const buildNumberText = `Build number: ${config.BUILD_NUMBER}`;
 
   return (
     <Footer

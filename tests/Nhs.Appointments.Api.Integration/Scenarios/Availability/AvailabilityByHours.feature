@@ -56,3 +56,14 @@
           | 10:00 | 11:00 | 12    |
           | 11:00 | 12:00 | 12    |
           | 12:00 | 13:00 | 12    |
+
+    Scenario: Hourly availability is returned in ascending order
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+          | Tomorrow | 07:00 | 08:00 | COVID    | 5           | 1        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 07:00 | 08:00 | 12    |
+          | 09:00 | 10:00 | 12    |

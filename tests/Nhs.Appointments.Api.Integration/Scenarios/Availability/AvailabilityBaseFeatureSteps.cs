@@ -64,13 +64,10 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         _statusCode.Should().Be(HttpStatusCode.OK);
         var actualBlocks = _actualResponse
             .Single().availability
-            .Single(x => x.date == expectedDate).blocks.ToArray();
-
-        foreach (var expected in expectedAvailability.blocks.Select((value, i) => new { i, value })) 
-        {
-            actualBlocks[expected.i].Should().BeEquivalentTo(expected.value);
-        }
+            .Single(x => x.date == expectedDate)
+            .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
+
     [When(@"I send an invalid availability query request")]
     public async Task SendInvalidAvailabilityQueryRequest()
     {

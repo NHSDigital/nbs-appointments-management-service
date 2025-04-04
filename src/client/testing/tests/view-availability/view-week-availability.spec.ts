@@ -4,11 +4,13 @@ import OAuthLoginPage from '../../page-objects/oauth';
 import { Site } from '@types';
 import ViewWeekAvailabilityPage from '../../page-objects/view-availability-appointment-pages/view-week-availability-page';
 import EditSessionDecisionPage from '../../page-objects/edit-availability/edit-session-decision-page';
+import EditSessionPage from '../../page-objects/edit-availability/edit-session-page';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let viewWeekAvailabilityPage: ViewWeekAvailabilityPage;
 let editSessionDecisionPage: EditSessionDecisionPage;
+let editSessionPage: EditSessionPage;
 let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
@@ -81,6 +83,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
     },
   ]);
   editSessionDecisionPage = new EditSessionDecisionPage(page);
+  editSessionPage = new EditSessionPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -97,7 +100,7 @@ test('All the view week page data is arranged in the day cards as expected', asy
   await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly();
 });
 
-test('Clicking into the BST session has the correct information, for the edit session decision page', async ({
+test('Clicking into the change BST session has the correct information, for the edit session decision page', async ({
   page,
 }) => {
   await viewWeekAvailabilityPage.changeButtons[0].click();
@@ -159,7 +162,46 @@ test('Clicking into the BST session has the correct information, for the edit se
   await expect(unbookedCell).toBeVisible();
 });
 
-test('Clicking into the UTC session has the correct information, for the edit session decision page', async ({
+test('Clicking into the change BST session, and clicking through to the edit session page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[0].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
+  );
+
+  await expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 25 October 2025',
+  );
+
+  await editSessionDecisionPage.editLengthCapacityRadioOption.click();
+  await editSessionDecisionPage.continueButton.click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/availability/edit?session**`,
+  );
+
+  await expect(editSessionPage.editSessionHeader).toHaveText(
+    'Edit sessionEdit time and capacity for 25 October 2025',
+  );
+
+  await expect(
+    editSessionPage.page.getByText('0 booked appointments in this session.'),
+  ).toBeVisible();
+  await expect(
+    editSessionPage.page.getByText(
+      '420 unbooked appointments in this session.',
+    ),
+  ).toBeVisible();
+
+  await expect(editSessionPage.startHourInput).toHaveValue('10');
+  await expect(editSessionPage.startMinuteInput).toHaveValue('00');
+  await expect(editSessionPage.endHourInput).toHaveValue('17');
+  await expect(editSessionPage.endMinuteInput).toHaveValue('00');
+});
+
+test('Clicking into the change UTC session has the correct information, for the edit session decision page', async ({
   page,
 }) => {
   await viewWeekAvailabilityPage.changeButtons[1].click();
@@ -219,4 +261,43 @@ test('Clicking into the UTC session has the correct information, for the edit se
   await expect(serviceCell).toBeVisible();
   await expect(bookedCell).toBeVisible();
   await expect(unbookedCell).toBeVisible();
+});
+
+test('Clicking into the change UTC session, and clicking through to the edit session page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[1].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
+  );
+
+  await expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 26 October 2025',
+  );
+
+  await editSessionDecisionPage.editLengthCapacityRadioOption.click();
+  await editSessionDecisionPage.continueButton.click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/availability/edit?session**`,
+  );
+
+  await expect(editSessionPage.editSessionHeader).toHaveText(
+    'Edit sessionEdit time and capacity for 26 October 2025',
+  );
+
+  await expect(
+    editSessionPage.page.getByText('0 booked appointments in this session.'),
+  ).toBeVisible();
+  await expect(
+    editSessionPage.page.getByText(
+      '420 unbooked appointments in this session.',
+    ),
+  ).toBeVisible();
+
+  await expect(editSessionPage.startHourInput).toHaveValue('10');
+  await expect(editSessionPage.startMinuteInput).toHaveValue('00');
+  await expect(editSessionPage.endHourInput).toHaveValue('17');
+  await expect(editSessionPage.endMinuteInput).toHaveValue('00');
 });

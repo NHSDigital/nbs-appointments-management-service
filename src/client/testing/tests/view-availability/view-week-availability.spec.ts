@@ -5,12 +5,14 @@ import { Site } from '@types';
 import ViewWeekAvailabilityPage from '../../page-objects/view-availability-appointment-pages/view-week-availability-page';
 import EditSessionDecisionPage from '../../page-objects/edit-availability/edit-session-decision-page';
 import EditSessionPage from '../../page-objects/edit-availability/edit-session-page';
+import CancelSessionPage from '../../page-objects/edit-availability/cancel-session-page';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let viewWeekAvailabilityPage: ViewWeekAvailabilityPage;
 let editSessionDecisionPage: EditSessionDecisionPage;
 let editSessionPage: EditSessionPage;
+let cancelSessionPage: CancelSessionPage;
 let site: Site;
 
 test.beforeEach(async ({ page, getTestSite }) => {
@@ -84,6 +86,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   ]);
   editSessionDecisionPage = new EditSessionDecisionPage(page);
   editSessionPage = new EditSessionPage(page);
+  cancelSessionPage = new CancelSessionPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -201,6 +204,80 @@ test('Clicking into the change BST session, and clicking through to the edit ses
   await expect(editSessionPage.endMinuteInput).toHaveValue('00');
 });
 
+test('Clicking into the change BST session, and clicking through to the cancel session page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[0].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
+  );
+
+  await expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 25 October 2025',
+  );
+
+  await editSessionDecisionPage.cancelRadioOption.click();
+  await editSessionDecisionPage.continueButton.click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
+  );
+
+  await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
+    'Cancel sessionAre you sure you want to cancel this session?',
+  );
+
+  //single table
+  await expect(cancelSessionPage.page.locator('table')).toHaveCount(1);
+
+  //table headers!
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Time' }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Services' }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', {
+      name: 'Booked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', {
+      name: 'Unbooked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  //no actions
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Action' }),
+  ).not.toBeVisible();
+
+  const timeCell = cancelSessionPage.page.getByRole('cell', {
+    name: '10:00 - 17:00',
+  });
+  const serviceCell = cancelSessionPage.page.getByRole('cell', {
+    name: 'RSV (Adult)',
+  });
+  const bookedCell = cancelSessionPage.page.getByRole('cell', {
+    name: '0 booked',
+  });
+  const unbookedCell = cancelSessionPage.page.getByRole('cell', {
+    name: '420 unbooked',
+  });
+
+  await expect(timeCell).toBeVisible();
+  await expect(serviceCell).toBeVisible();
+  await expect(bookedCell).toBeVisible();
+  await expect(unbookedCell).toBeVisible();
+});
+
 test('Clicking into the change UTC session has the correct information, for the edit session decision page', async ({
   page,
 }) => {
@@ -300,4 +377,78 @@ test('Clicking into the change UTC session, and clicking through to the edit ses
   await expect(editSessionPage.startMinuteInput).toHaveValue('00');
   await expect(editSessionPage.endHourInput).toHaveValue('17');
   await expect(editSessionPage.endMinuteInput).toHaveValue('00');
+});
+
+test('Clicking into the change UTC session, and clicking through to the cancel session page', async ({
+  page,
+}) => {
+  await viewWeekAvailabilityPage.changeButtons[1].click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
+  );
+
+  await expect(editSessionDecisionPage.changeHeader).toHaveText(
+    'Church Lane PharmacyChange availability for 26 October 2025',
+  );
+
+  await editSessionDecisionPage.cancelRadioOption.click();
+  await editSessionDecisionPage.continueButton.click();
+
+  await page.waitForURL(
+    `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
+  );
+
+  await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
+    'Cancel sessionAre you sure you want to cancel this session?',
+  );
+
+  //single table
+  await expect(cancelSessionPage.page.locator('table')).toHaveCount(1);
+
+  //table headers!
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Time' }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Services' }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', {
+      name: 'Booked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', {
+      name: 'Unbooked',
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  //no actions
+  await expect(
+    cancelSessionPage.page.getByRole('columnheader', { name: 'Action' }),
+  ).not.toBeVisible();
+
+  const timeCell = cancelSessionPage.page.getByRole('cell', {
+    name: '10:00 - 17:00',
+  });
+  const serviceCell = cancelSessionPage.page.getByRole('cell', {
+    name: 'RSV (Adult)',
+  });
+  const bookedCell = cancelSessionPage.page.getByRole('cell', {
+    name: '0 booked',
+  });
+  const unbookedCell = cancelSessionPage.page.getByRole('cell', {
+    name: '420 unbooked',
+  });
+
+  await expect(timeCell).toBeVisible();
+  await expect(serviceCell).toBeVisible();
+  await expect(bookedCell).toBeVisible();
+  await expect(unbookedCell).toBeVisible();
 });

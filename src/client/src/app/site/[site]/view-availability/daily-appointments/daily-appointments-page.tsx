@@ -1,7 +1,7 @@
 'use client';
 import { Table, Pagination } from '@nhsuk-frontend-components';
 import { AttendeeDetails, ContactItem, Booking } from '@types';
-import { formatDateTimeToTime, dateToString } from '@services/timeService';
+import { formatUkDatetimeToTime, dateToString } from '@services/timeService';
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -77,7 +77,7 @@ export const DailyAppointmentsPage = ({
 
     const rows = getPagedBookings(bookings).map(booking => {
       const row = [
-        formatDateTimeToTime(booking.from),
+        formatUkDatetimeToTime(booking.from),
         mapNameAndNHSNumber(booking.attendeeDetails),
         dateToString(booking.attendeeDetails.dateOfBirth),
         booking.contactDetails

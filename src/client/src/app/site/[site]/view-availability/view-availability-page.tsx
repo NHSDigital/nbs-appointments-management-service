@@ -1,9 +1,9 @@
 import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
-import dayjs from 'dayjs';
 import { Suspense } from 'react';
 import { getWeeksOfTheMonth } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
+import dayjs from 'dayjs';
 
 type Props = {
   site: Site;

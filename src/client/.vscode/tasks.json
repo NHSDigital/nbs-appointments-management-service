@@ -54,6 +54,12 @@
       "problemMatcher": []
     },
     {
+      "label": "Run Jest Tests in UTC Timezone",
+      "type": "npm",
+      "script": "test:utc:tz",
+      "problemMatcher": []
+    },
+    {
       "label": "NPM Install",
       "type": "npm",
       "script": "install",
@@ -94,3 +100,4 @@
     }
   ]
 }
+

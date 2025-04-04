@@ -1,5 +1,5 @@
 import { Table } from '@components/nhsuk-frontend';
-import { parseDateString } from '@services/timeService';
+import { parseDateStringToUkDatetime } from '@services/timeService';
 import { AvailabilityCreatedEvent, clinicalServices } from '@types';
 import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
 
@@ -25,7 +25,7 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {
       return [
-        `${parseDateString(availability.from).format('D MMM YYYY')} - ${parseDateString(availability.to ?? '').format('D MMM YYYY')}`,
+        `${parseDateStringToUkDatetime(availability.from).format('D MMM YYYY')} - ${parseDateStringToUkDatetime(availability.to ?? '').format('D MMM YYYY')}`,
         availability.template.days.length === 7
           ? 'All'
           : availability.template.days.map(d => d.substring(0, 3)).join(', '),
@@ -36,8 +36,8 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
       ];
     }
     return [
-      parseDateString(availability.from).format('D MMM YYYY'),
-      parseDateString(availability.from).format('ddd'),
+      parseDateStringToUkDatetime(availability.from).format('D MMM YYYY'),
+      parseDateStringToUkDatetime(availability.from).format('ddd'),
       availability.sessions
         ? availability.sessions[0].services.map(serviceValueToLabel)
         : 'Error',

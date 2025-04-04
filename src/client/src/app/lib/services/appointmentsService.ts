@@ -30,7 +30,7 @@ import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
-import { now } from '@services/timeService';
+import { isoTimezoneToDayjs, ukNow } from '@services/timeService';
 import dayjs from 'dayjs';
 
 export const fetchAccessToken = async (code: string, provider: string) => {
@@ -142,7 +142,7 @@ export async function fetchPermissions(site: string) {
 
 export async function fetchAvailabilityCreatedEvents(site: string) {
   const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
-    `availability-created?site=${site}&from=${now().format('YYYY-MM-DD')}`,
+    `availability-created?site=${site}&from=${ukNow().format('YYYY-MM-DD')}`,
     {
       next: { tags: ['availability-created'] },
     },
@@ -477,11 +477,13 @@ export const cancelSession = async (
   sessionSummary: SessionSummary,
   site: string,
 ) => {
+  const ukStart = isoTimezoneToDayjs(sessionSummary.ukStart);
+  const ukEnd = isoTimezoneToDayjs(sessionSummary.ukEnd);
   const payload: CancelSessionRequest = {
     site: site,
-    date: dayjs(sessionSummary.start).format('YYYY-MM-DD'),
-    from: dayjs(sessionSummary.start).format('HH:mm'),
-    until: dayjs(sessionSummary.end).format('HH:mm'),
+    ukDate: ukStart.format('YYYY-MM-DD'),
+    ukFrom: ukStart.format('HH:mm'),
+    ukUntil: ukEnd.format('HH:mm'),
     services: Object.keys(sessionSummary.bookings),
     capacity: sessionSummary.capacity,
     slotLength: sessionSummary.slotLength,

@@ -14,6 +14,7 @@ import { Controller } from 'react-hook-form';
 import {
   compareTimes,
   formatTimeString,
+  isoTimezoneToDayjs,
   toTimeComponents,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
@@ -28,17 +29,18 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
-  existingSessionStart: string;
-  existingSessionEnd: string;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
-  existingSessionStart,
-  existingSessionEnd,
 }: Props) => {
+  const ukStartTime = isoTimezoneToDayjs(existingSession.ukStart).format(
+    'HH:mm',
+  );
+  const ukEndTime = isoTimezoneToDayjs(existingSession.ukEnd).format('HH:mm');
+
   const {
     handleSubmit,
     watch,
@@ -47,21 +49,15 @@ const EditSessionTimeAndCapacityForm = ({
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
-        startTime: toTimeComponents(existingSessionStart),
-        endTime: toTimeComponents(existingSessionEnd),
+        startTime: toTimeComponents(ukStartTime),
+        endTime: toTimeComponents(ukEndTime),
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
       newSession: {
-        startTime: {
-          hour: existingSessionStart.split(':')[0],
-          minute: existingSessionStart.split(':')[1],
-        },
-        endTime: {
-          hour: existingSessionEnd.split(':')[0],
-          minute: existingSessionEnd.split(':')[1],
-        },
+        startTime: toTimeComponents(ukStartTime),
+        endTime: toTimeComponents(ukEndTime),
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,

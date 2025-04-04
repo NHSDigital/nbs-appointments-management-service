@@ -2,7 +2,7 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { DaySummaryCard } from './day-summary-card';
 import { mockDaySummaries, mockEmptyDays } from '@testing/data';
-import { isInTheFuture, now } from '@services/timeService';
+import { isInTheFuture, ukNow } from '@services/timeService';
 import dayjs from 'dayjs';
 
 jest.mock('@services/timeService', () => {
@@ -15,14 +15,14 @@ jest.mock('@services/timeService', () => {
 });
 
 const mockIsInTheFuture = isInTheFuture as jest.Mock<boolean>;
-const mockNow = now as jest.Mock<dayjs.Dayjs>;
+const mockUkNow = ukNow as jest.Mock<dayjs.Dayjs>;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
     mockIsInTheFuture.mockReturnValue(true);
-    mockNow.mockReturnValue(dayjs().year(2024).month(10).date(1));
+    mockUkNow.mockReturnValue(dayjs().year(2024).month(10).date(1));
   });
 
   it('renders', () => {

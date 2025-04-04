@@ -1,20 +1,26 @@
-import { DateComponents, TimeComponents } from '@types';
+import { DateComponents, IsoTimezone, TimeComponents } from '@types';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(customParseFormat);
-// Our times are treated as zone agnostic, but if we don't
-// specify this then midnight 2020-09-16 will get formatted as 23:00 2020-09-15
+
+//only want utc date for passing dayjs props between server and client components (via session params)
+//everything else should use 'Europe/London' where possible
 dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrBefore);
 
-export const now = () => dayjs.utc();
+export const ukTimezone = 'Europe/London';
 
-export const isValidDate = (
+const utcNow = () => dayjs.utc();
+export const ukNow = () => dayjs.tz(utcNow(), ukTimezone);
+
+export const isValidUkDate = (
   day: string | number,
   month: string | number,
   year: string | number,
@@ -32,19 +38,23 @@ export const isValidDate = (
   }
 
   const inputString = `${toTwoDigitFormat(parsedDay)}-${toTwoDigitFormat(parsedMonth)}-${parsedYear}`;
-  const potentialDate = dayjs.utc(inputString, 'DD-MM-YYYY', true);
+  const potentialDate = parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
 
   return potentialDate.isValid();
 };
 
-export const parseDateComponents = ({ day, month, year }: DateComponents) => {
-  if (!isValidDate(day, month, year)) {
+export const parseDateComponentsToUkDatetime = ({
+  day,
+  month,
+  year,
+}: DateComponents) => {
+  if (!isValidUkDate(day, month, year)) {
     return undefined;
   }
 
   const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
 
-  return dayjs.utc(inputString, 'DD-MM-YYYY', true);
+  return parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
 };
 
 export const isSameDayOrBefore = (
@@ -56,12 +66,12 @@ export const isSameDayOrBefore = (
   );
 };
 
-export const formatDateTimeToTime = (dateTime: string) => {
-  const date = new Date(dateTime);
+export const formatUkDatetimeToTime = (dateTime: string) => {
+  const date = parseDateStringToUkDatetime(dateTime, 'YYYY-MM-DDTHH:mm:ss');
 
   const timeComponents: TimeComponents = {
-    hour: date.getHours().toString(),
-    minute: date.getMinutes().toString(),
+    hour: date.hour(),
+    minute: date.minute(),
   };
 
   return formatTimeString(timeComponents);
@@ -99,16 +109,23 @@ export const toTwoDigitFormat = (
   return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };
 
-export const parseDateString = (dateString: string, format = 'YYYY-MM-DD') => {
-  return dayjs.utc(dateString, format, true);
+export const parseDateStringToUkDatetime = (
+  dateString: string,
+  format = 'YYYY-MM-DD',
+) => {
+  return dayjs.tz(dateString, format, ukTimezone);
 };
 
-export const startOfWeek = (dateString: string) => {
-  return dayjs(dateString).startOf('isoWeek').hour(0).minute(0).second(0);
+export const isoTimezoneToDayjs = (isoTimezone: IsoTimezone) => {
+  return dayjs.tz(isoTimezone.iso, isoTimezone.tz);
 };
 
-export const endOfWeek = (dateString: string) => {
-  return dayjs(dateString).endOf('isoWeek').hour(23).minute(59).second(59);
+export const ukStartOfWeek = (dateString: string) => {
+  return dayjs.tz(dateString, ukTimezone).startOf('isoWeek');
+};
+
+export const ukEndOfWeek = (dateString: string) => {
+  return dayjs.tz(dateString, ukTimezone).endOf('isoWeek');
 };
 
 export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
@@ -138,7 +155,7 @@ export const toTimeComponents = (time: string): TimeComponents | undefined => {
 };
 
 export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
-  return dayjs.utc(date).format(format);
+  return dayjs.tz(date, ukTimezone).format(format);
 };
 
 export const isInTheFuture = (date: string, format = 'YYYY-MM-DD') => {

@@ -1,8 +1,11 @@
 import { Footer } from '@nhsuk-frontend-components';
+import { ReactNode } from 'react';
 
-const NhsFooter = () => {
-  const buildNumberText = `Build number: ${process.env.BUILD_NUMBER}`;
+type NhsFooterProps = {
+  buildNumber: ReactNode;
+};
 
+const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
   return (
     <Footer
       supportLinks={[
@@ -27,9 +30,7 @@ const NhsFooter = () => {
         },
       ]}
     >
-      <span aria-hidden style={{ display: 'none' }}>
-        {buildNumberText}
-      </span>
+      {buildNumber}
     </Footer>
   );
 };

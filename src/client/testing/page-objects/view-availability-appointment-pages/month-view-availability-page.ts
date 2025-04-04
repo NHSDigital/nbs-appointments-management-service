@@ -1,7 +1,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
-export default class ViewAvailabilityPage extends RootPage {
+export default class ViewMonthAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
 
   constructor(page: Page) {
@@ -11,7 +11,7 @@ export default class ViewAvailabilityPage extends RootPage {
     });
   }
 
-  async verifyViewMonthDisplayed() {
+  async verifyViewNextMonthButtonDisplayed() {
     await expect(this.nextButton).toBeEnabled();
   }
 }

@@ -13,7 +13,7 @@ jest.mock('@types', () => ({
 
 describe('Week Summary Card', () => {
   it('renders', () => {
-    render(<WeekSummaryCard weekSummary={mockWeekSummary} />);
+    render(<WeekSummaryCard ukWeekSummary={mockWeekSummary} />);
 
     expect(
       screen.getByRole('heading', { name: '10 June to 16 June' }),
@@ -21,7 +21,7 @@ describe('Week Summary Card', () => {
   });
 
   it('renders a table with appointments by service', async () => {
-    render(<WeekSummaryCard weekSummary={mockWeekSummary} />);
+    render(<WeekSummaryCard ukWeekSummary={mockWeekSummary} />);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(
@@ -42,7 +42,7 @@ describe('Week Summary Card', () => {
   });
 
   it('renders an appointment counts summary', async () => {
-    render(<WeekSummaryCard weekSummary={mockWeekSummary} />);
+    render(<WeekSummaryCard ukWeekSummary={mockWeekSummary} />);
 
     expect(screen.getByText('Total appointments: 480')).toBeInTheDocument();
     expect(screen.getByText('Booked: 6')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('Week Summary Card', () => {
   it('renders a warning if there are cancelled appointments', () => {
     render(
       <WeekSummaryCard
-        weekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
+        ukWeekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
       />,
     );
 
@@ -66,7 +66,7 @@ describe('Week Summary Card', () => {
   it('renders a warning if there are orphaned appointments', () => {
     render(
       <WeekSummaryCard
-        weekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
+        ukWeekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
       />,
     );
 
@@ -78,7 +78,7 @@ describe('Week Summary Card', () => {
   });
 
   it('renders a link to week view', async () => {
-    render(<WeekSummaryCard weekSummary={mockWeekSummary} />);
+    render(<WeekSummaryCard ukWeekSummary={mockWeekSummary} />);
 
     expect(screen.getByRole('link', { name: 'View week' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View week' })).toHaveAttribute(

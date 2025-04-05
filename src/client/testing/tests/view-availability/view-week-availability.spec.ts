@@ -60,28 +60,28 @@ test.beforeEach(async ({ page, getTestSite }) => {
       services: [
         {
           serviceName: 'RSV (Adult)',
-          booked: 0,
-          unbooked: 420,
+          booked: 2,
+          unbooked: 418,
           sessionTimeInterval: '10:00 - 17:00',
         },
       ],
       totalAppointments: 420,
-      booked: 0,
-      unbooked: 420,
+      booked: 2,
+      unbooked: 418,
     },
     {
       header: 'Sunday 26 October',
       services: [
         {
           serviceName: 'RSV (Adult)',
-          booked: 0,
-          unbooked: 420,
+          booked: 2,
+          unbooked: 418,
           sessionTimeInterval: '10:00 - 17:00',
         },
       ],
       totalAppointments: 420,
-      booked: 0,
-      unbooked: 420,
+      booked: 2,
+      unbooked: 418,
     },
   ]);
   editSessionDecisionPage = new EditSessionDecisionPage(page);
@@ -153,10 +153,10 @@ test('Clicking into the change BST session has the correct information, for the 
     name: 'RSV (Adult)',
   });
   const bookedCell = editSessionDecisionPage.page.getByRole('cell', {
-    name: '0 booked',
+    name: '2 booked',
   });
   const unbookedCell = editSessionDecisionPage.page.getByRole('cell', {
-    name: '420 unbooked',
+    name: '418 unbooked',
   });
 
   await expect(timeCell).toBeVisible();
@@ -190,11 +190,11 @@ test('Clicking into the change BST session, and clicking through to the edit ses
   );
 
   await expect(
-    editSessionPage.page.getByText('0 booked appointments in this session.'),
+    editSessionPage.page.getByText('2 booked appointments in this session.'),
   ).toBeVisible();
   await expect(
     editSessionPage.page.getByText(
-      '420 unbooked appointments in this session.',
+      '418 unbooked appointments in this session.',
     ),
   ).toBeVisible();
 
@@ -266,10 +266,10 @@ test('Clicking into the change BST session, and clicking through to the cancel s
     name: 'RSV (Adult)',
   });
   const bookedCell = cancelSessionPage.page.getByRole('cell', {
-    name: '0 booked',
+    name: '2 booked',
   });
   const unbookedCell = cancelSessionPage.page.getByRole('cell', {
-    name: '420 unbooked',
+    name: '418 unbooked',
   });
 
   await expect(timeCell).toBeVisible();
@@ -328,10 +328,10 @@ test('Clicking into the change UTC session has the correct information, for the 
     name: 'RSV (Adult)',
   });
   const bookedCell = editSessionDecisionPage.page.getByRole('cell', {
-    name: '0 booked',
+    name: '2 booked',
   });
   const unbookedCell = editSessionDecisionPage.page.getByRole('cell', {
-    name: '420 unbooked',
+    name: '418 unbooked',
   });
 
   await expect(timeCell).toBeVisible();
@@ -369,7 +369,7 @@ test('Clicking into the change UTC session, and clicking through to the edit ses
   ).toBeVisible();
   await expect(
     editSessionPage.page.getByText(
-      '420 unbooked appointments in this session.',
+      '418 unbooked appointments in this session.',
     ),
   ).toBeVisible();
 
@@ -441,10 +441,10 @@ test('Clicking into the change UTC session, and clicking through to the cancel s
     name: 'RSV (Adult)',
   });
   const bookedCell = cancelSessionPage.page.getByRole('cell', {
-    name: '0 booked',
+    name: '2 booked',
   });
   const unbookedCell = cancelSessionPage.page.getByRole('cell', {
-    name: '420 unbooked',
+    name: '418 unbooked',
   });
 
   await expect(timeCell).toBeVisible();

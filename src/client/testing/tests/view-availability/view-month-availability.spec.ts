@@ -37,10 +37,10 @@ test.beforeEach(async ({ page, getTestSite }) => {
     },
     {
       header: '20 October to 26 October',
-      services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 0 }],
+      services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 4 }],
       totalAppointments: 840,
-      booked: 0,
-      unbooked: 840,
+      booked: 4,
+      unbooked: 836,
     },
     {
       header: '27 October to 2 November',

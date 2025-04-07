@@ -20,31 +20,10 @@ export const getDateInFuture = (
   };
 };
 
-export const getRequiredDateInFormat = (
-  numberOfDaysFromToday: number,
-  requiredformat: string,
-) => {
-  const date = new Date();
-  let requiredDate = '';
-  const futureDate = date.setDate(date.getDate() + numberOfDaysFromToday);
-  requiredDate = dayjs(futureDate).format(requiredformat);
-  return requiredDate;
-};
+export const daysFromToday = (
+  numberOfDaysFromToday = 1,
+  requiredformat = 'YYYY-MM-DD',
+) => dayjs().add(numberOfDaysFromToday, 'day').format(requiredformat);
 
-export const getWeekRange = (numberOfDaysFromToday: number) => {
-  const date = dayjs().add(numberOfDaysFromToday, 'day').format('YYYY-MM-DD');
-  const startOfWeek = dayjs(date).startOf('isoWeek');
-  const endOfWeek = dayjs(date).endOf('isoWeek');
-  const formattedStartOfWeek = startOfWeek.format('D MMMM');
-  const formattedendOfWeek = endOfWeek.format('D MMMM');
-  return `${formattedStartOfWeek} to ${formattedendOfWeek}`;
-};
-
-export const getWeekRangeForRequiredDate = (requiredDate: string) => {
-  const date = dayjs(requiredDate).format('YYYY-MM-DD');
-  const startOfWeek = dayjs(date).startOf('isoWeek');
-  const endOfWeek = dayjs(date).endOf('isoWeek');
-  const formattedStartOfWeek = startOfWeek.format('D MMMM');
-  const formattedendOfWeek = endOfWeek.format('D MMMM');
-  return `${formattedStartOfWeek} to ${formattedendOfWeek}`;
-};
+export const weekHeaderText = (date: string) =>
+  `${dayjs(date).startOf('isoWeek').format('D MMMM')} to ${dayjs(date).endOf('isoWeek').format('D MMMM')}`;

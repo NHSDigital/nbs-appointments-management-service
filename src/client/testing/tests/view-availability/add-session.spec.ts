@@ -4,11 +4,7 @@ import OAuthLoginPage from '../../page-objects/oauth';
 import SiteSelectionPage from '../../page-objects/site-selection';
 import SitePage from '../../page-objects/site';
 import MonthViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
-import {
-  getRequiredDateInFormat,
-  getWeekRange,
-  getWeekRangeForRequiredDate,
-} from '../../utils/date-utility';
+import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
 import WeekViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
 import AddSessionPage from '../../page-objects/view-availability-appointment-pages/add-session-page';
 import AddServicesPage from '../../page-objects/view-availability-appointment-pages/add-services-page';
@@ -56,8 +52,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Verify user is able to add a session for future date', async () => {
-  const requiredDate = getRequiredDateInFormat(1, 'D MMMM');
-  const requiredWeekRange = getWeekRange(1);
+  const requiredDate = daysFromToday(1, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(1));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -72,8 +68,8 @@ test('Verify user is able to add a session for future date', async () => {
 });
 
 test('Verify add availability option displayed for future date', async () => {
-  const requiredDate = getRequiredDateInFormat(2, 'D MMMM');
-  const requiredWeekRange = getWeekRange(2);
+  const requiredDate = daysFromToday(2, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(2));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -83,8 +79,8 @@ test('Verify add availability option displayed for future date', async () => {
 });
 
 test('Verify user is able to change availability', async () => {
-  const requiredDate = getRequiredDateInFormat(1, 'D MMMM');
-  const requiredWeekRange = getWeekRange(1);
+  const requiredDate = daysFromToday(1, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(1));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -101,8 +97,8 @@ test('Verify user is able to change availability', async () => {
 });
 
 test('Verify user is able to cancel session', async () => {
-  const requiredDate = getRequiredDateInFormat(5, 'D MMMM');
-  const requiredWeekRange = getWeekRange(5);
+  const requiredDate = daysFromToday(5, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(5));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -115,13 +111,13 @@ test('Verify user is able to cancel session', async () => {
   await changeAvailabilityPage.selectChangeType('CancelSession');
   await changeAvailabilityPage.saveChanges();
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
-  const cancelDate = getRequiredDateInFormat(5, 'DD MMMM');
+  const cancelDate = daysFromToday(5, 'DD MMMM');
   await cancelSessionDetailsPage.verifySessionCancelled(cancelDate);
 });
 
 test('Verify session not canceled if not confirmed', async () => {
-  const requiredDate = getRequiredDateInFormat(3, 'D MMMM');
-  const requiredWeekRange = getWeekRange(3);
+  const requiredDate = daysFromToday(3, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(3));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -144,8 +140,8 @@ test('Verify session not canceled if not confirmed', async () => {
 });
 
 test('Verify view daily appointment link displayed', async () => {
-  const requiredDate = getRequiredDateInFormat(3, 'D MMMM');
-  const requiredWeekRange = getWeekRange(3);
+  const requiredDate = daysFromToday(3, 'D MMMM');
+  const requiredWeekRange = weekHeaderText(daysFromToday(3));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
@@ -162,7 +158,7 @@ test('Verify appointment not cancelled when not confirmed', async () => {
   const requiredDate = '2025-08-05';
   const formattedDate = dayjs(requiredDate).format('D MMMM');
   await monthViewAvailabilityPage.navigateToRequiredMonth(requiredDate);
-  const requiredWeekRange = getWeekRangeForRequiredDate(requiredDate);
+  const requiredWeekRange = weekHeaderText(requiredDate);
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(formattedDate);
@@ -174,9 +170,9 @@ test('Verify appointment not cancelled when not confirmed', async () => {
 });
 
 test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async () => {
-  const requiredDate = getRequiredDateInFormat(1, 'D MMMM');
+  const requiredDate = daysFromToday(1, 'D MMMM');
   const formattedDate = dayjs(requiredDate).format('DD MMMM');
-  const requiredWeekRange = getWeekRange(1);
+  const requiredWeekRange = weekHeaderText(daysFromToday(1));
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);

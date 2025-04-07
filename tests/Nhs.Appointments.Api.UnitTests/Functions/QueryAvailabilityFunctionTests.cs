@@ -159,6 +159,7 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
 
         var result = await _query_sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(200);
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
         var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
         response[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
@@ -510,6 +511,8 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
                 x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>()))
             .ReturnsAsync(blocks.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
             new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
@@ -525,22 +528,30 @@ public class QueryAvailabilityFunctionTests : AvailabilityCalculationsBase
 
         _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Exactly(3));
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
     }
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
     {
-        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType);
+        return CreateRequest(request.Sites, request.From, request.Until, request.Service, request.QueryType, request.Consecutive);
     }
 
-    private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service,
-        QueryType queryType)
+    private static HttpRequest CreateRequest(string[] sites, DateOnly from, DateOnly until, string service, QueryType queryType, int? consecutive)
     {
         var sitesArray = string.Join(",", sites.Select(x => $"\"{x}\""));
 
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var body =
-            $"{{ sites:[{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
+        var body = string.Empty;
+        if (consecutive.HasValue)
+        {
+            body =
+                $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": {consecutive} }} ";
+        } else 
+        {
+            body =
+                $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
+        }
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;

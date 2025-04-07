@@ -44,12 +44,8 @@ public class ConfirmProvisionalBookingFunction(
         Description = "Request failed due to insufficient permissions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Gone, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed because the provisional booking has expired")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.Gone, "application/json", typeof(ErrorMessageResponseItem),
-        Description = "The booking cannot be confirmed because group references are not valid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.PreconditionFailed, "application/json", typeof(ErrorMessageResponseItem),
-        Description = "The nhs number for the provisional booking and the booking to be rescheduled do not match")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.PreconditionFailed, "application/json", typeof(ErrorMessageResponseItem),
-        Description = "The booking cannot be confirmed because it is not provisional")]
+        Description = "Request failed because the provisional booking and the booking to be rescheduled do not match")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed because a provisional booking with matching reference could not be found")]
     [RequiresPermission(Permissions.MakeBooking, typeof(SiteFromPathInspector))]

@@ -1,6 +1,8 @@
 import {
+  getTimeBetweenDates,
   getWeek,
   isBeforeOrEqual,
+  now,
   toTimeComponents,
 } from '@services/timeService';
 import {
@@ -42,9 +44,15 @@ export const summariseWeek = async (
   const daySummaries: DaySummary[] = week.map(day => {
     const availability = dailyAvailability.find(a => dayjs(a.date).isSame(day));
 
-    const bookings = dailyBookings.filter(booking =>
-      dayjs(booking.from).isSame(day, 'date'),
-    );
+    const bookings = dailyBookings.filter(booking => {
+      let isExpiredProvisional = false;
+      if (booking.status === 'Provisional') {
+        isExpiredProvisional =
+          getTimeBetweenDates(dayjs(booking.created), now()) <= -5;
+      }
+
+      return dayjs(booking.from).isSame(day, 'date') && !isExpiredProvisional;
+    });
 
     return summariseDay(day, bookings, availability);
   });

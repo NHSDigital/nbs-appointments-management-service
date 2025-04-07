@@ -32,7 +32,7 @@ export const summariseWeek = async (
     ),
     fetchBookings({
       from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
-      to: weekEnd.format('YYYY-MM-DD HH:mm:ss'),
+      to: weekEnd.add(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),
   ]);

@@ -197,21 +197,23 @@ export default class WeekViewAvailabilityPage extends RootPage {
     ).toBeVisible();
   }
 
-  async addAvailability(requiredDate: string) {
-    const addAvailabilityButton = await this.page
+  async clickAddAvailabilityToDayLink(requiredDate: string) {
+    const addAvailabilityButton = this.page
       .getByRole('listitem')
       .filter({ has: this.page.getByText(`${requiredDate}`) })
       .getByRole('link', { name: 'Add availability to this day' });
-    const count: number = await addAvailabilityButton.count();
-    if (count == 1) {
-      await addAvailabilityButton.click();
-    } else {
-      await this.page
-        .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) })
-        .getByRole('link', { name: 'Add Session' })
-        .click();
-    }
+
+    await expect(addAvailabilityButton).toBeVisible();
+    await addAvailabilityButton.click();
+  }
+
+  async clickAddSessionLink(requiredDate: string) {
+    const addSessionButton = this.page
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .getByRole('link', { name: 'Add Session' });
+    await expect(addSessionButton).toBeVisible();
+    await addSessionButton.click();
   }
 
   async verifySessionAdded() {

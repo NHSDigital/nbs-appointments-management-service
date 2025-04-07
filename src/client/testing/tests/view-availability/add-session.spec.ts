@@ -57,7 +57,7 @@ test('Verify user is able to add a session for future date', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddAvailabilityToDayLink(requiredDate);
   await addSessionPage.verifyAddSessionPageDisplayed();
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.verifyAddServicesPageDisplayed();
@@ -84,7 +84,7 @@ test('Verify user is able to change availability', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddAvailabilityToDayLink(requiredDate);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();
@@ -102,7 +102,7 @@ test('Verify user is able to cancel session', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddAvailabilityToDayLink(requiredDate);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();
@@ -121,7 +121,7 @@ test('Verify session not canceled if not confirmed', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddAvailabilityToDayLink(requiredDate);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();
@@ -145,7 +145,7 @@ test('Verify view daily appointment link displayed', async () => {
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddSessionLink(requiredDate);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();
@@ -176,7 +176,7 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.clickAddSessionLink(requiredDate);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await addServicesPage.addService('RSV (Adult)');
   await checkSessionDetailsPage.saveSession();

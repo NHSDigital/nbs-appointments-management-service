@@ -32,8 +32,8 @@ test.beforeEach(async ({ page }) => {
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
-  monthViewAvailabilityPage = new MonthViewAvailabilityPage(page);
-  weekViewAvailabilityPage = new WeekViewAvailabilityPage(page);
+  monthViewAvailabilityPage = new MonthViewAvailabilityPage(page, []);
+  weekViewAvailabilityPage = new WeekViewAvailabilityPage(page, []);
   addSessionPage = new AddSessionPage(page);
   addServicesPage = new AddServicesPage(page);
   checkSessionDetailsPage = new CheckSessionDetailsPage(page);
@@ -90,7 +90,7 @@ test('Verify user is able to change availability', async () => {
   await checkSessionDetailsPage.saveSession();
   await weekViewAvailabilityPage.verifySessionAdded();
   await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
-  await changeAvailabilityPage.selectChangeType('ShortenLenght');
+  await changeAvailabilityPage.selectChangeType('ChangeLengthCapacity');
   await changeAvailabilityPage.saveChanges();
   await addSessionPage.updateSessionEndTime('9', '30');
   await changeAvailabilityPage.verifySessionUpdated();

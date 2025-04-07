@@ -4,25 +4,33 @@ import RootPage from '../root';
 export default class ChangeAvailabilityPage extends RootPage {
   readonly goBackButton: Locator;
   readonly continueButton: Locator;
+  readonly editLengthCapacityRadioOption: Locator;
+  readonly cancelRadioOption: Locator;
+  readonly changeHeader: Locator;
 
   constructor(page: Page) {
     super(page);
+    this.changeHeader = page.getByRole('heading', { level: 1 }).first();
     this.goBackButton = page.getByRole('link', {
       name: 'Go back',
     });
     this.continueButton = page.getByRole('button', {
       name: 'Continue',
     });
+    this.editLengthCapacityRadioOption = page.getByRole('radio', {
+      name: 'Change the length or capacity of this session',
+    });
+    this.cancelRadioOption = page.getByRole('radio', {
+      name: 'Cancel this session',
+    });
   }
 
-  async selectChangeType(changeType: 'ShortenLenght' | 'CancelSession') {
-    if (changeType == 'ShortenLenght') {
-      await this.page
-        .getByLabel('Change the length or capacity of this session')
-        .click();
+  async selectChangeType(changeType: 'ChangeLengthCapacity' | 'CancelSession') {
+    if (changeType == 'ChangeLengthCapacity') {
+      await this.editLengthCapacityRadioOption.click();
     }
     if (changeType == 'CancelSession') {
-      await this.page.getByLabel('Cancel this session').click();
+      await this.cancelRadioOption.click();
     }
   }
 

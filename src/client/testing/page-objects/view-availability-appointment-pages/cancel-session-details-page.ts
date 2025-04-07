@@ -4,9 +4,11 @@ import RootPage from '../root';
 export default class CancelSessionDetailsPage extends RootPage {
   readonly goBackButton: Locator;
   readonly continueButton: Locator;
+  readonly cancelSessionHeader: Locator;
 
   constructor(page: Page) {
     super(page);
+    this.cancelSessionHeader = page.getByRole('heading', { level: 1 }).first();
     this.goBackButton = page.getByRole('link', {
       name: 'Go back',
     });

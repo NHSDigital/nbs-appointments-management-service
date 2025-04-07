@@ -2,6 +2,7 @@ import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
 export default class AddSessionPage extends RootPage {
+  readonly addSessionHeader: Locator;
   readonly goBackButton: Locator;
   readonly continueButton: Locator;
   readonly startTimeHour: Locator;
@@ -13,6 +14,7 @@ export default class AddSessionPage extends RootPage {
 
   constructor(page: Page) {
     super(page);
+    this.addSessionHeader = page.getByRole('heading', { level: 1 }).first();
     this.goBackButton = page.getByRole('link', {
       name: 'Go back',
     });

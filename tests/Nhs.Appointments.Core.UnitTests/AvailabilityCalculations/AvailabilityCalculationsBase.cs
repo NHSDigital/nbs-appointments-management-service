@@ -1,4 +1,5 @@
 ﻿using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
@@ -16,15 +17,20 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
     private readonly Mock<IBookingEventFactory> _eventFactory = new();
     private readonly Mock<IMessageBus> _messageBus = new();
     private readonly Mock<TimeProvider> _time = new();
-
-
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
+    
     protected const string MockSite = "some-site";
 
-    protected AvailabilityCalculationsBase() : base(typeof(AvailabilityCalculationsBase)) => _sut =
-        new AvailabilityService(_availabilityStore.Object,
+    protected AvailabilityCalculationsBase()  : base(typeof(AvailabilityCalculationsBase)) => _sut = new AvailabilityService(_availabilityStore.Object,
         _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
         _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object, _featureToggleHelper.Object);
+        new TestTimeProvider(), _featureToggleHelper.Object);
+
+    public class TestTimeProvider : TimeProvider 
+    {
+        public DateTimeOffset Now { get; set; }
+        public override DateTimeOffset GetUtcNow() => Now;
+    }
 
     private DateTime TestDateAt(string time)
     {
@@ -45,7 +51,7 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
             AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
             AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
             Status = Enum.Parse<AppointmentStatus>(status),
-            Created = new DateTime(2024, 11, 15, 9, 45, creationOrder)
+            Created = new DateTime(2024, 11, 15, 9, 45, 0).AddSeconds(creationOrder)
         };
 
     protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,

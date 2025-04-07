@@ -21,7 +21,6 @@ Feature: The Best Fit Problem
 
   # Booking 2 (Orange) goes in session 3 (Orange,Blue), leaving no space for booking 3 (blue)
   # Booking 2 should instead go in session 2, leaving space for booking 3 to go in session 3
-  @ignore
   Scenario: The best fit problem
     Given the site is configured for MYA
     When I create the following availability
@@ -53,7 +52,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
-    Then I cancel the following sessions
+    Then I cancel the following session
       | Date     | From  | Until | Blue        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Blue,Orange | 10          | 1        |
     When I query the current bookings
@@ -74,7 +73,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Green   |
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
-    Then I cancel the following sessions
+    Then I cancel the following session
       | Date     | From  | Until | Blue        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Blue,Orange | 10          | 2        |
     When I query the current bookings

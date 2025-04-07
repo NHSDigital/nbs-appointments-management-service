@@ -277,8 +277,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         start: dayjs('2024-06-11 09:00:00'),
         end: dayjs('2024-06-11 12:00:00'),
         maximumCapacity: 36,
-        totalBookings: 3,
-        bookings: { 'RSV:Adult': 2, 'FLU:18_64': 1 },
+        totalBookings: 2,
+        bookings: { 'RSV:Adult': 1, 'FLU:18_64': 1 },
         capacity: 2,
         slotLength: 10,
       },
@@ -293,10 +293,10 @@ const mockWeekAvailability__Summary: DaySummary[] = [
       },
     ],
     maximumCapacity: 72,
-    bookedAppointments: 3,
+    bookedAppointments: 2,
     cancelledAppointments: 1,
     orphanedAppointments: 0,
-    remainingCapacity: 69,
+    remainingCapacity: 70,
   },
   {
     date: dayjs('2024-06-12 00:00:00'),
@@ -389,10 +389,10 @@ const mockWeekSummary: WeekSummary = {
   endDate: sundayThe16thOfJune2024,
   daySummaries: mockWeekAvailability__Summary,
   maximumCapacity: 480,
-  bookedAppointments: 5,
+  bookedAppointments: 4,
   cancelledAppointments: 1,
   orphanedAppointments: 1,
-  remainingCapacity: 475,
+  remainingCapacity: 476,
 };
 
 export {

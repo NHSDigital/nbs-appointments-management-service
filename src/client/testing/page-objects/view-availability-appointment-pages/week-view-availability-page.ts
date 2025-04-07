@@ -27,8 +27,13 @@ export default class WeekViewAvailabilityPage extends RootPage {
     });
   }
 
-  async verifyWeekViewDisplayed() {
+  async verifyWeekViewDisplayed(requiredDate: string) {
     await expect(this.backToMonthButton).toBeVisible();
+    await expect(
+      this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredDate}`) }),
+    ).toBeVisible();
   }
 
   async addAvailability(requiredDate: string) {
@@ -91,10 +96,10 @@ export default class WeekViewAvailabilityPage extends RootPage {
     ).toBeVisible();
   }
 
-  async openDailyAppoitmentPage(appoitmentDate: string) {
+  async openDailyAppoitmentPage(appointmentDate: string) {
     await this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByText(`${appoitmentDate}`) })
+      .filter({ has: this.page.getByText(`${appointmentDate}`) })
       .getByRole('link', { name: 'View daily appointments' })
       .click();
   }

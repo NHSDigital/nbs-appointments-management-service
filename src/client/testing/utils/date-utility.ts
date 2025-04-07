@@ -20,7 +20,7 @@ export const getDateInFuture = (
   };
 };
 
-export const geRequiredtDateInFormat = (
+export const getRequiredDateInFormat = (
   numberOfDaysFromToday: number,
   requiredformat: string,
 ) => {

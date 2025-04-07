@@ -11,14 +11,19 @@ export default class MonthViewAvailabilityPage extends RootPage {
     });
   }
 
-  async verifyViewMonthDisplayed() {
+  async verifyViewMonthDisplayed(requiredWeek: string) {
     await expect(this.nextButton).toBeEnabled();
+    await expect(
+      this.page
+        .getByRole('listitem')
+        .filter({ has: this.page.getByText(`${requiredWeek}`) }),
+    ).toBeVisible();
   }
 
-  async openWeekViewHavingDate(requiredDate: string) {
+  async openWeekViewHavingDate(requiredWeek: string) {
     await this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .filter({ has: this.page.getByText(`${requiredWeek}`) })
       .getByRole('link', { name: 'View week' })
       .click();
   }

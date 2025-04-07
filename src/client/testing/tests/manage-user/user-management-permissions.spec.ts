@@ -40,7 +40,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   siteDetailsPage1 = new SiteDetailsPage(page, site1);
   createAvailabilityPage = new CreateAvailabilityPage(page);
-  viewAvailabilityPage = new ViewAvailabilityPage(page);
+  viewAvailabilityPage = new ViewAvailabilityPage(page, []);
 });
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async ({
@@ -215,7 +215,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewAvailabilityPage.verifyViewNextMonthButtonDisplayed();
 });
 
 test('Verify user can only view user manager related tiles In app when user is assigned user Manager role.', async ({
@@ -255,7 +255,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await siteDetailsPage1.verifyEditButtonNotVisible();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewAvailabilityPage.verifyViewNextMonthButtonDisplayed();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.userManagementCard.click();
   await expect(usersPage.title).toBeVisible();
@@ -298,5 +298,5 @@ test('Verify user can only view site details manager related tiles In app when u
   await siteDetailsPage1.verifyEditButtonToBeVisible();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewAvailabilityPage.verifyViewNextMonthButtonDisplayed();
 });

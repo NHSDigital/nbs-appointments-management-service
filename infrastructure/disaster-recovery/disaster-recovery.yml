@@ -1,6 +1,6 @@
 parameters:
   - name: myaPipelineBuildId
-    displayName: "Id of pipeline build to download build artifacts from"
+    displayName: "Build Id of the most recent pipeline to have been deployed to the environment to run a disaster recovery for"
     type: string
   - name: env
     displayName: "Environment to run disaster recovery for"
@@ -55,6 +55,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+
           - task: AzureCLI@2
             displayName: "Fail over cosmos to UKW"
             condition: ${{ eq(variables.env, 'stag') }}
@@ -64,6 +65,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
+
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"
             inputs:
@@ -72,6 +74,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
+
           - task: AzureCLI@2
             displayName: "Apply Terraform for UKW resources"
             name: ApplyTerraformTask
@@ -91,6 +94,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+
           - task: DownloadPipelineArtifact@2
             displayName: Download MYA web app artifact
             inputs:
@@ -101,6 +105,7 @@ stages:
               pipelineId: ${{parameters.myaPipelineBuildId}}
               artifactName: "drop_web"
               targetPath: "$(Pipeline.Workspace)/drop_web"
+
           - task: DownloadPipelineArtifact@2
             displayName: Download MYA api artifact
             inputs:
@@ -111,6 +116,7 @@ stages:
               pipelineId: ${{parameters.myaPipelineBuildId}}
               artifactName: "drop_api"
               targetPath: "$(Pipeline.Workspace)/drop_api"
+
           - task: AzureWebApp@1
             displayName: "Deploy Web App"
             inputs:
@@ -120,6 +126,7 @@ stages:
               package: "$(Pipeline.Workspace)/drop_web/next.zip"
               deploymentMethod: "auto"
               startUpCommand: "node standalone/server.js"
+
           - task: AzureFunctionApp@2
             displayName: "Deploy http function app"
             inputs:
@@ -128,6 +135,7 @@ stages:
               appName: "nbs-mya-func-$(env)-ukw"
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
+
           - task: AzureFunctionApp@2
             displayName: "Deploy high load function app"
             inputs:
@@ -136,6 +144,7 @@ stages:
               appName: "nbs-mya-hlfunc-$(env)-ukw"
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
+
           - task: AzureFunctionApp@2
             displayName: "Deploy servicebus function app"
             inputs:
@@ -144,6 +153,7 @@ stages:
               appName: "nbs-mya-sbfunc-$(env)-ukw"
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
+
           - task: AzureFunctionApp@2
             displayName: "Deploy timer function app"
             inputs:
@@ -160,6 +170,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origin-groups.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
           - task: AzureCLI@2
             displayName: "Create frontdoor origins for routing traffic to UKW resources"
             inputs:
@@ -168,6 +179,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origins.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -profileName $(frontdoorProfileName)"
+
           - task: AzureCLI@2
             displayName: "Create frontdoor route override rule for UKW"
             inputs:
@@ -176,6 +188,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
           - task: AzureCLI@2
             displayName: "Update routes to use ukw origin groups"
             inputs:
@@ -210,6 +223,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/start-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+
           - task: AzureCLI@2
             displayName: "Fail over cosmos to UKS"
             inputs:
@@ -218,6 +232,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion uksouth -readRegion ukwest"
+
           - task: AzureCLI@2
             displayName: "Update routes to use UKS origin groups"
             inputs:
@@ -226,6 +241,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/update-fd-routes.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
+
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"
             inputs:
@@ -234,6 +250,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
+
           - task: AzureCLI@2
             displayName: "Destroy UKW resources"
             name: ApplyTerraformTask
@@ -253,6 +270,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+
           - task: AzureCLI@2
             displayName: "Delete frontdoor route override rule for UKW"
             inputs:
@@ -261,6 +279,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/delete-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
           - task: AzureCLI@2
             displayName: "Delete frontdoor origin groups for UKW"
             inputs:

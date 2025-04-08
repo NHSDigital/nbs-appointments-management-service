@@ -1,4 +1,4 @@
-import { type Locator, type Page, expect } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
 
 export default class ChangeAvailabilityPage extends RootPage {
@@ -36,11 +36,5 @@ export default class ChangeAvailabilityPage extends RootPage {
 
   async saveChanges() {
     await this.continueButton.click();
-  }
-
-  async verifySessionUpdated() {
-    await expect(
-      this.page.getByText('You have successfully edited the session.'),
-    ).toBeVisible();
   }
 }

@@ -83,6 +83,21 @@ variable "OKTA_CLIENT_SECRET" {
   sensitive = true
 }
 
+variable "OKTA_MANAGEMENT_ID" {
+  type      = string
+  sensitive = false
+}
+
+variable "OKTA_PRIVATE_KEY_KID" {
+  type      = string
+  sensitive = true
+}
+
+variable "OKTA_PEM" {
+  type      = string
+  sensitive = true
+}
+
 variable "AUTH_PROVIDER_CHALLENGE_PHRASE" {
   type      = string
   sensitive = false

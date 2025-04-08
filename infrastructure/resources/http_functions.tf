@@ -33,8 +33,8 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME                                       = "dotnet-isolated"
     WEBSITE_RUN_FROM_PACKAGE                                       = 1
-    COSMOS_ENDPOINT                                                = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
-    COSMOS_TOKEN                                                   = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
+    COSMOS_ENDPOINT                                                = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
+    COSMOS_TOKEN                                                   = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
     APP_CONFIG_CONNECTION                                          = azurerm_app_configuration.nbs_mya_app_configuration.primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                       = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                          = azurerm_application_insights.nbs_mya_application_insights.connection_string

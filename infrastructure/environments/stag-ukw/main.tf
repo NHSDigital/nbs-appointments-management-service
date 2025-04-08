@@ -43,6 +43,10 @@ module "mya_application_stag_ukw" {
   okta_jwks_uri                                  = var.OKTA_JWKS_URI
   okta_client_id                                 = var.OKTA_CLIENT_ID
   okta_client_secret                             = var.OKTA_CLIENT_SECRET
+  okta_domain                                    = var.OKTA_ISSUER
+  okta_management_id                             = var.OKTA_MANAGEMENT_ID
+  okta_private_key_kid                           = var.OKTA_PRIVATE_KEY_KID
+  okta_pem                                       = var.OKTA_PEM
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   nhs_host_url                                   = var.NHS_HOST_URL
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
@@ -56,9 +60,8 @@ module "mya_application_stag_ukw" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
-  # TODO: get these from somewhere
-  # cosmos_endpoint                                = var.COSMOS_ENDPOINT
-  # cosmos_token                                   = var.COSMOS_TOKEN
+  cosmos_endpoint                                = var.COSMOS_ENDPOINT
+  cosmos_token                                   = var.COSMOS_TOKEN
   disable_query_availability_function            = false
   create_high_load_function_app                  = true
   create_app_slot                                = false

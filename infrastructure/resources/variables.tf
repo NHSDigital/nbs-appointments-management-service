@@ -251,3 +251,14 @@ variable "create_cosmos_db" {
 variable "build_number" {
   type = string
 }
+
+variable "cosmos_endpoint" {
+  type = string
+  default = ""
+}
+
+variable "cosmos_token" {
+  type      = string
+  default = ""
+  sensitive = true
+}

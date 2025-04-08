@@ -16,59 +16,51 @@ export type serviceOverview = {
 
 export default class MonthViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
-  readonly weekCards: Locator[];
-  readonly expectedWeekCards: weekOverview[];
 
-  constructor(page: Page, _expectedWeekCards: weekOverview[]) {
+  constructor(page: Page) {
     super(page);
     this.nextButton = page.getByRole('link', {
       name: 'Next',
     });
 
-    this.weekCards = [];
-    this.expectedWeekCards = _expectedWeekCards;
-
     this.nextButton = page.getByRole('link', {
       name: 'Next',
     });
-
-    for (let i = 0; i < this.expectedWeekCards.length; i++) {
-      const divWrapper = page
-        .getByRole('heading', {
-          name: this.expectedWeekCards[i].header,
-        })
-        .locator('..');
-
-      this.weekCards.push(divWrapper);
-    }
   }
 
   async verifyViewNextMonthButtonDisplayed() {
     await expect(this.nextButton).toBeEnabled();
   }
 
-  async verifyAllWeekCardInformationDisplayedCorrectly() {
-    for (let i = 0; i < this.weekCards.length; i++) {
-      const cardDiv = this.weekCards[i];
-      const expectedCardInfo = this.expectedWeekCards[i];
+  async verifyAllWeekCardInformationDisplayedCorrectly(
+    expectedWeekOverviews: weekOverview[],
+  ) {
+    for (let i = 0; i < expectedWeekOverviews.length; i++) {
+      const weekOverview = expectedWeekOverviews[i];
+
+      const cardDiv = this.page
+        .getByRole('heading', {
+          name: weekOverview.header,
+        })
+        .locator('..');
 
       const header = cardDiv.getByRole('heading', {
-        name: expectedCardInfo.header,
+        name: weekOverview.header,
       });
 
       //assert header
       await expect(header).toBeVisible();
 
-      if (expectedCardInfo.services.length > 0) {
+      if (weekOverview.services.length > 0) {
         //assert no availability not visible
         expect(cardDiv.getByText('No availability')).not.toBeVisible();
 
         //only do for a single service for now!!
         const serviceCell = cardDiv.getByRole('cell', {
-          name: expectedCardInfo.services[0].serviceName,
+          name: weekOverview.services[0].serviceName,
         });
         const bookedAppointmentsCell = cardDiv.getByRole('cell', {
-          name: expectedCardInfo.services[0].bookedAppointments.toString(),
+          name: weekOverview.services[0].bookedAppointments.toString(),
         });
 
         await expect(serviceCell).toBeVisible();
@@ -77,16 +69,16 @@ export default class MonthViewAvailabilityPage extends RootPage {
         //totals
         await expect(
           cardDiv.getByText(
-            `Total appointments: ${expectedCardInfo.totalAppointments}`,
+            `Total appointments: ${weekOverview.totalAppointments}`,
           ),
         ).toBeVisible();
         await expect(
-          cardDiv.getByText(`Booked: ${expectedCardInfo.booked}`, {
+          cardDiv.getByText(`Booked: ${weekOverview.booked}`, {
             exact: true,
           }),
         ).toBeVisible();
         await expect(
-          cardDiv.getByText(`Unbooked: ${expectedCardInfo.unbooked}`, {
+          cardDiv.getByText(`Unbooked: ${weekOverview.unbooked}`, {
             exact: true,
           }),
         ).toBeVisible();

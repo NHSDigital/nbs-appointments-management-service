@@ -19,7 +19,24 @@ test.beforeEach(async ({ page, getTestSite }) => {
   site = getTestSite(2);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
-  viewWeekAvailabilityPage = new WeekViewAvailabilityPage(page, [
+  viewWeekAvailabilityPage = new WeekViewAvailabilityPage(page);
+  changeAvailabilityPage = new ChangeAvailabilityPage(page);
+  addSessionPage = new AddSessionPage(page);
+  cancelSessionPage = new CancelSessionDetailsPage(page);
+
+  await rootPage.goto();
+  await rootPage.pageContentLogInButton.click();
+  await oAuthPage.signIn();
+
+  //go to a week page that has a daylight savings change
+  await page.goto(
+    `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-10-20`,
+  );
+});
+
+test('All the view week page data is arranged in the day cards as expected', async () => {
+  await viewWeekAvailabilityPage.verifyViewNextWeekButtonDisplayed();
+  await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly([
     {
       header: 'Monday 20 October',
       services: [],
@@ -84,29 +101,21 @@ test.beforeEach(async ({ page, getTestSite }) => {
       unbooked: 418,
     },
   ]);
-  changeAvailabilityPage = new ChangeAvailabilityPage(page);
-  addSessionPage = new AddSessionPage(page);
-  cancelSessionPage = new CancelSessionDetailsPage(page);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-
-  //go to a week page that has a daylight savings change
-  await page.goto(
-    `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-10-20`,
-  );
-});
-
-test('All the view week page data is arranged in the day cards as expected', async () => {
-  await viewWeekAvailabilityPage.verifyViewNextWeekButtonDisplayed();
-  await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly();
 });
 
 test('Clicking into the change BST session has the correct information, for the edit session decision page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[0].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Saturday 25 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
@@ -168,7 +177,16 @@ test('Clicking into the change BST session has the correct information, for the 
 test('Clicking into the change BST session, and clicking through to the edit session page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[0].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Saturday 25 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
@@ -205,7 +223,16 @@ test('Clicking into the change BST session, and clicking through to the edit ses
 test('Clicking into the change BST session, and clicking through to the cancel session page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[0].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Saturday 25 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-25&session**`,
@@ -279,7 +306,16 @@ test('Clicking into the change BST session, and clicking through to the cancel s
 test('Clicking into the change UTC session has the correct information, for the edit session decision page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[1].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Sunday 26 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
@@ -341,7 +377,16 @@ test('Clicking into the change UTC session has the correct information, for the 
 test('Clicking into the change UTC session, and clicking through to the edit session page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[1].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Sunday 26 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
@@ -378,7 +423,16 @@ test('Clicking into the change UTC session, and clicking through to the edit ses
 test('Clicking into the change UTC session, and clicking through to the cancel session page', async ({
   page,
 }) => {
-  await viewWeekAvailabilityPage.changeButtons[1].click();
+  const changeButton = page
+    .getByRole('heading', {
+      name: 'Sunday 26 October',
+    })
+    .locator('..')
+    .getByRole('link', {
+      name: 'Change',
+    });
+
+  await changeButton.click();
 
   await page.waitForURL(
     `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,

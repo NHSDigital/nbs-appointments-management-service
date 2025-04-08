@@ -40,7 +40,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   siteDetailsPage1 = new SiteDetailsPage(page, site1);
   createAvailabilityPage = new CreateAvailabilityPage(page);
-  viewAvailabilityPage = new ViewAvailabilityPage(page, []);
+  viewAvailabilityPage = new ViewAvailabilityPage(page);
 });
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async ({

@@ -22,16 +22,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
   readonly backToMonthButton: Locator;
   readonly sessionSuccessMsg: Locator;
   readonly viewDailyAppointmentButton: Locator;
-  readonly dayCards: Locator[];
-  readonly changeButtons: Locator[];
-  readonly expectedDayCards: dayOverview[];
 
-  constructor(page: Page, _expectedDayCards: dayOverview[]) {
+  constructor(page: Page) {
     super(page);
-
-    this.dayCards = [];
-    this.changeButtons = [];
-    this.expectedDayCards = _expectedDayCards;
 
     this.nextButton = page.getByRole('link', {
       name: 'Next',
@@ -48,42 +41,32 @@ export default class WeekViewAvailabilityPage extends RootPage {
     this.viewDailyAppointmentButton = page.getByRole('link', {
       name: 'View daily appointments',
     });
-
-    for (let i = 0; i < this.expectedDayCards.length; i++) {
-      const divWrapper = page
-        .getByRole('heading', {
-          name: this.expectedDayCards[i].header,
-        })
-        .locator('..');
-
-      this.dayCards.push(divWrapper);
-
-      if (this.expectedDayCards[i].services.length > 0) {
-        const changeButton = divWrapper.getByRole('link', {
-          name: 'Change',
-        });
-        this.changeButtons.push(changeButton);
-      }
-    }
   }
 
   async verifyViewNextWeekButtonDisplayed() {
     await expect(this.nextButton).toBeEnabled();
   }
 
-  async verifyAllDayCardInformationDisplayedCorrectly() {
-    for (let i = 0; i < this.dayCards.length; i++) {
-      const cardDiv = this.dayCards[i];
-      const expectedCardInfo = this.expectedDayCards[i];
+  async verifyAllDayCardInformationDisplayedCorrectly(
+    expectedDayOverviews: dayOverview[],
+  ) {
+    for (let i = 0; i < expectedDayOverviews.length; i++) {
+      const dayOverview = expectedDayOverviews[i];
+
+      const cardDiv = this.page
+        .getByRole('heading', {
+          name: dayOverview.header,
+        })
+        .locator('..');
 
       const header = cardDiv.getByRole('heading', {
-        name: expectedCardInfo.header,
+        name: dayOverview.header,
       });
 
       //assert header
       await expect(header).toBeVisible();
 
-      if (expectedCardInfo.services.length > 0) {
+      if (dayOverview.services.length > 0) {
         //assert no availability not visible
         expect(cardDiv.getByText('No availability')).not.toBeVisible();
 
@@ -112,7 +95,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
         ).toBeVisible();
 
         //only do for a single service for now!!
-        const singleService = expectedCardInfo.services[0];
+        const singleService = dayOverview.services[0];
 
         const timeCell = cardDiv.getByRole('cell', {
           name: singleService.sessionTimeInterval,
@@ -135,16 +118,16 @@ export default class WeekViewAvailabilityPage extends RootPage {
         //totals
         await expect(
           cardDiv.getByText(
-            `Total appointments: ${expectedCardInfo.totalAppointments}`,
+            `Total appointments: ${dayOverview.totalAppointments}`,
           ),
         ).toBeVisible();
         await expect(
-          cardDiv.getByText(`Booked: ${expectedCardInfo.booked}`, {
+          cardDiv.getByText(`Booked: ${dayOverview.booked}`, {
             exact: true,
           }),
         ).toBeVisible();
         await expect(
-          cardDiv.getByText(`Unbooked: ${expectedCardInfo.unbooked}`, {
+          cardDiv.getByText(`Unbooked: ${dayOverview.unbooked}`, {
             exact: true,
           }),
         ).toBeVisible();

@@ -31,8 +31,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME                                               = "dotnet-isolated"
     WEBSITE_RUN_FROM_PACKAGE                                               = 1
-    COSMOS_ENDPOINT                                                        = var.cosmos_endpoint
-    COSMOS_TOKEN                                                           = var.cosmos_token
+    COSMOS_ENDPOINT                                                        = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
+    COSMOS_TOKEN                                                           = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
     APP_CONFIG_CONNECTION                                                  = azurerm_app_configuration.nbs_mya_app_configuration.primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                               = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
@@ -80,6 +80,16 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
+    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
+    "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
+    "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
+    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
   }
 
   sticky_settings {
@@ -175,6 +185,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
   }
 
   identity {

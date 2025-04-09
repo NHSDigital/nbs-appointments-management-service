@@ -66,6 +66,7 @@ module "mya_application_prod" {
   create_autoscale_settings                      = true
   create_frontdoor                               = true
   create_cosmos_db                               = true
+  create_app_config                              = true
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true

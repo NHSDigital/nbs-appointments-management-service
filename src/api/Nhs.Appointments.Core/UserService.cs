@@ -72,7 +72,7 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
     }
 
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-        => userStore.SaveUserAsync(userId, scope, roleAssignments);
+        => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

@@ -62,11 +62,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
     }
 
-    public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-    {
-        await UpdateUserRoleAssignments(userId, scope, roleAssignments);
-    }
-
     public async Task<OperationResult> RemoveUserAsync(string userId, string siteId)
     {
         var user = await GetOrDefaultAsync(userId);

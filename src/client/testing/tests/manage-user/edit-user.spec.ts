@@ -1,11 +1,13 @@
 import { test, expect } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import SiteSelectionPage from '../../page-objects/site-selection';
-import SitePage from '../../page-objects/site';
-import UsersPage from '../../page-objects/manage-users/users-page';
-import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
-import NotAuthorizedPage from '../../page-objects/unauthorized';
+import {
+  EditManageUserRolesPage,
+  NotAuthorizedPage,
+  OAuthLoginPage,
+  RootPage,
+  SitePage,
+  SiteSelectionPage,
+  UsersPage,
+} from '@testing-page-objects';
 import { Site } from '@types';
 
 let rootPage: RootPage;

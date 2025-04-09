@@ -1,11 +1,13 @@
+import {
+  AddSessionPage,
+  CancelSessionDetailsPage,
+  ChangeAvailabilityPage,
+  OAuthLoginPage,
+  RootPage,
+  WeekViewAvailabilityPage,
+} from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
 import { Site } from '@types';
-import WeekViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
-import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
-import CancelSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/cancel-session-details-page';
-import AddSessionPage from '../../page-objects/view-availability-appointment-pages/add-session-page';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;

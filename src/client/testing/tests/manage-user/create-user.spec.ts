@@ -1,13 +1,15 @@
 import { test } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import SiteSelectionPage from '../../page-objects/site-selection';
-import SitePage from '../../page-objects/site';
-import UsersPage from '../../page-objects/manage-users/users-page';
-import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
-import UserSummaryPage from '../../page-objects/manage-users/user-summary-page';
-import RemoveUserPage from '../../page-objects/manage-users/remove-user-page';
-import CreateUserPage from '../../page-objects/manage-users/create-user-page';
+
+import {
+  CreateUserPage,
+  EditManageUserRolesPage,
+  OAuthLoginPage,
+  RemoveUserPage,
+  RootPage,
+  SitePage,
+  SiteSelectionPage,
+  UsersPage,
+} from '@testing-page-objects';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -113,6 +115,7 @@ test('Verify users are redirected to edit roles page when emailId already exists
   await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.continueButton.click();
+  
   await editManageUserRolesPage.verifyUserRedirectedToEditRolePage(
     'Appointment manager',
     'Checked',

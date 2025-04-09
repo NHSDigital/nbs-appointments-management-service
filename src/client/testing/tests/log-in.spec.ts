@@ -3,10 +3,12 @@ import {
   expect,
   overrideFeatureFlag,
   clearAllFeatureFlagOverrides,
-} from './fixtures';
-import OAuthLoginPage from './page-objects/oauth';
-import RootPage from './page-objects/root';
-import SiteSelectionPage from './page-objects/site-selection';
+} from '../fixtures';
+import {
+  OAuthLoginPage,
+  RootPage,
+  SiteSelectionPage,
+} from '@testing-page-objects';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 test.describe.configure({ mode: 'serial' });

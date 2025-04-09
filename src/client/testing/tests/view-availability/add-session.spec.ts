@@ -1,18 +1,20 @@
 import { test } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import SiteSelectionPage from '../../page-objects/site-selection';
-import SitePage from '../../page-objects/site';
-import MonthViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
+import {
+  AddServicesPage,
+  AddSessionPage,
+  CancelSessionDetailsPage,
+  ChangeAvailabilityPage,
+  CheckSessionDetailsPage,
+  DailyAppointmentDetailsPage,
+  EditAvailabilityConfirmedPage,
+  MonthViewAvailabilityPage,
+  OAuthLoginPage,
+  RootPage,
+  SitePage,
+  SiteSelectionPage,
+  WeekViewAvailabilityPage,
+} from '@testing-page-objects';
 import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
-import WeekViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
-import AddSessionPage from '../../page-objects/view-availability-appointment-pages/add-session-page';
-import AddServicesPage from '../../page-objects/view-availability-appointment-pages/add-services-page';
-import CheckSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/check-session-details-page';
-import EditAvailabilityConfirmedPage from '../../page-objects/view-availability-appointment-pages/edit-availability-confirmed';
-import ChangeAvailabilityPage from '../../page-objects/view-availability-appointment-pages/change-availability-page';
-import CancelSessionDetailsPage from '../../page-objects/view-availability-appointment-pages/cancel-session-details-page';
-import DailyAppointmentDetailsPage from '../../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
 import dayjs from 'dayjs';
 
 let rootPage: RootPage;

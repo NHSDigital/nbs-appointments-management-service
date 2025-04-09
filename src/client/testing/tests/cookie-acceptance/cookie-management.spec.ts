@@ -1,6 +1,5 @@
 import { test, expect } from '../../fixtures';
-import CookiesPolicyPage from '../../page-objects/cookies-policy';
-import RootPage from '../../page-objects/root';
+import { CookiesPolicyPage, RootPage } from '@testing-page-objects';
 
 let rootPage: RootPage;
 let cookiesPolicyPage: CookiesPolicyPage;

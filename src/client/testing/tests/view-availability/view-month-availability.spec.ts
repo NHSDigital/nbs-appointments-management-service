@@ -1,7 +1,9 @@
+import {
+  MonthViewAvailabilityPage,
+  OAuthLoginPage,
+  RootPage,
+} from '@testing-page-objects';
 import { test } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import MonthViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
 import { Site } from '@types';
 
 let rootPage: RootPage;

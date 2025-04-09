@@ -1,6 +1,5 @@
-import { test, expect } from './fixtures';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
+import { test, expect } from '../fixtures';
+import { OAuthLoginPage, RootPage } from '@testing-page-objects';
 import { Site } from '@types';
 
 let rootPage: RootPage;

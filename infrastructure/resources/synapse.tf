@@ -43,7 +43,7 @@ resource "azurerm_synapse_linked_service" "nbs_mya_synapse_linked_service" {
   type                 = "CosmosDb"
   type_properties_json = <<JSON
 {
-  "connectionString": "AccountEndpoint=${azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint};AccountKey=${azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key};"
+  "connectionString": "AccountEndpoint=${azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint};AccountKey=${azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key};"
 }
 JSON
   integration_runtime {

@@ -18,7 +18,7 @@ jest.mock('./user-details-form', () => {
   }) => {
     return (
       <>
-        <div>User Details Form</div>
+        <div>Assign Roles Form</div>
         {assignments.map(a => (
           <div key={a.role}>assignment={a.role}</div>
         ))}
@@ -53,24 +53,6 @@ describe('AssignRoles', () => {
     ).rejects.toThrow('User with specified email address not found');
   });
 
-  it('displays the email address of the user', async () => {
-    const jsx = await UserDetails({
-      params: { site: 'TEST' },
-      searchParams: { user: 'test@nhs.net' },
-    });
-    render(jsx);
-    expect(screen.getByText('Email')).toBeVisible();
-    expect(screen.getByText('test@nhs.net'));
-  });
-  it('email is not case sensitive', async () => {
-    const jsx = await UserDetails({
-      params: { site: 'TEST' },
-      searchParams: { user: 'TEST@NHS.NET' },
-    });
-    render(jsx);
-    expect(screen.getByText('Email')).toBeVisible();
-    expect(screen.getByText('TEST@NHS.NET'));
-  });
   it('calls fetch users with the correct site id', async () => {
     const jsx = await UserDetails({
       params: { site: 'TEST' },

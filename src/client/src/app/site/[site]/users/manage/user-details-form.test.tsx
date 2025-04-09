@@ -156,4 +156,42 @@ describe('Assign Roles Form', () => {
     );
     expect(mockPush).toHaveBeenCalledWith('/site/TEST/users/user-summary');
   });
+
+  it('displays the email address of the user', async () => {
+    const user = 'test@okta.net';
+    render(
+      <UserDetailsForm
+        site="TEST"
+        user={user}
+        assignments={[] as RoleAssignment[]}
+        roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
+        isEdit={false}
+      />,
+    );
+
+    const email = screen.getByRole('heading', { name: 'Email' });
+
+    expect(email).toBeVisible();
+    expect(screen.getByText(user)).toBeVisible();
+  });
+
+  it('email is not case sensitive', async () => {
+    const user = 'TEST@NHS.NET';
+    render(
+      <UserDetailsForm
+        site="TEST"
+        user={user}
+        assignments={[] as RoleAssignment[]}
+        roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
+        isEdit={false}
+      />,
+    );
+
+    expect(screen.getByText('Email')).toBeVisible();
+    expect(screen.getByText(user)).toBeVisible();
+  });
 });

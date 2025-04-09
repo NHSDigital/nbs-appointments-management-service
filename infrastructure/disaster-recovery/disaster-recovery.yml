@@ -46,25 +46,25 @@ stages:
       - job: FailOverToUkw
         displayName: "Fail over simulation and deployment of services to ukwest"
         steps:
-          - task: AzureCLI@2
-            displayName: "Stop UKS App services"
-            condition: ${{ eq(variables.env, 'stag') }}
-            inputs:
-              azureSubscription: $(serviceConnection)
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
-              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+          # - task: AzureCLI@2
+          #   displayName: "Stop UKS App services"
+          #   condition: ${{ eq(variables.env, 'stag') }}
+          #   inputs:
+          #     azureSubscription: $(serviceConnection)
+          #     scriptType: pscore
+          #     scriptLocation: scriptPath
+          #     scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
+          #     arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
-          - task: AzureCLI@2
-            displayName: "Fail over cosmos to UKW"
-            condition: ${{ eq(variables.env, 'stag') }}
-            inputs:
-              azureSubscription: $(serviceConnection)
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
-              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
+          # - task: AzureCLI@2
+          #   displayName: "Fail over cosmos to UKW"
+          #   condition: ${{ eq(variables.env, 'stag') }}
+          #   inputs:
+          #     azureSubscription: $(serviceConnection)
+          #     scriptType: pscore
+          #     scriptLocation: scriptPath
+          #     scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
+          #     arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
 
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"

@@ -18,8 +18,8 @@ describe('FindUserForm', () => {
   });
 
   it('shows a validation error when no data is submitted', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
     await user.click(searchButton);
 
     expect(
@@ -28,11 +28,11 @@ describe('FindUserForm', () => {
   });
 
   it('shows a validation error when an invalid email address is submitted', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
 
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'Enter an email address',
+      name: 'Enter email address',
     });
 
     await user.type(emailInput, 'invalid@@email@nhs.com');
@@ -44,11 +44,11 @@ describe('FindUserForm', () => {
   });
 
   it('trims and lowercases the input', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
 
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'Enter an email address',
+      name: 'Enter email address',
     });
 
     await user.type(emailInput, '   TEST@nhs.net  ');
@@ -65,7 +65,7 @@ describe('FindUserForm', () => {
   });
 
   it('takes the user to the main user page when they cancel', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await user.click(cancelButton);
@@ -74,11 +74,11 @@ describe('FindUserForm', () => {
   });
 
   it('initiates the user edit when a valid email address is submitted', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
 
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'Enter an email address',
+      name: 'Enter email address',
     });
 
     await user.type(emailInput, 'test@nhs.net');
@@ -95,11 +95,11 @@ describe('FindUserForm', () => {
   });
 
   it('initiates the user edit with lower case when a valid email address is submitted', async () => {
-    const { user } = render(<FindUserForm site="TEST" />);
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
 
-    const searchButton = screen.getByRole('button', { name: 'Search user' });
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
     const emailInput = screen.getByRole('textbox', {
-      name: 'Enter an email address',
+      name: 'Enter email address',
     });
 
     await user.type(emailInput, 'TEST@NHS.NET');
@@ -113,5 +113,31 @@ describe('FindUserForm', () => {
     expect(mockReplace).toHaveBeenCalledWith(
       '/site/TEST/users?user=test%40nhs.net',
     );
+  });
+
+  it('initiates the user edit when okta is enabled and emails is not nhs email', async () => {
+    const { user } = render(<FindUserForm site="TEST" oktaEnabled={true} />);
+
+    const searchButton = screen.getByRole('button', { name: 'Continue' });
+    const emailInput = screen.getByRole('textbox', {
+      name: 'Enter email address',
+    });
+    const heading = screen.getByRole('heading', {
+      level: 2,
+      name: 'Add a user',
+    });
+
+    await user.type(emailInput, 'test@okta.net');
+    await user.click(searchButton);
+
+    expect(
+      await screen.queryByText(
+        'You have not entered a valid nhs email address',
+      ),
+    ).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/TEST/users?user=test%40okta.net',
+    );
+    expect(heading).toBeInTheDocument();
   });
 });

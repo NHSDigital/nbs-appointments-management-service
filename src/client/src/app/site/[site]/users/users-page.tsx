@@ -1,4 +1,4 @@
-import { Table } from '@nhsuk-frontend-components';
+import { Table, Button } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { Role, User, UserProfile } from '@types';
 import { useMemo } from 'react';
@@ -27,10 +27,7 @@ export const UsersPage = ({
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'baseline' }}>
-        <span className="nhsuk-hint" style={{ flexGrow: '1' }}>
-          Manage your current site's staff roles
-        </span>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         {canSeeAdminControls === true && (
           <span>
             <AddRoleAssignmentsButton />
@@ -76,7 +73,7 @@ export const UsersPage = ({
 const AddRoleAssignmentsButton = () => (
   <div style={{ fontSize: 'large' }}>
     <Link href={`users/manage`} className="nhsuk-link">
-      Assign staff roles
+      <Button type="button">Add user</Button>
     </Link>
   </div>
 );

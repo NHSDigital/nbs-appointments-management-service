@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
-type LinkActionProps = {
+export type LinkActionProps = {
   renderingStrategy: 'server';
   text: string;
   href: string;
 };
 
-type OnClickActionProps = {
+export type OnClickActionProps = {
   renderingStrategy: 'client';
   text: string;
   onClick: () => void;

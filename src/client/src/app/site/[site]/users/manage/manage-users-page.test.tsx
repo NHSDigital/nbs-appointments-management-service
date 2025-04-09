@@ -8,46 +8,35 @@ jest.mock('./find-user-form', () => {
   return MockFindUserForm;
 });
 
-jest.mock('./assign-roles', () => {
-  const MockAssignRolesForm = () => {
-    return <div>Assign Roles Form</div>;
+jest.mock('./user-details', () => {
+  const MockUserDetailsForm = () => {
+    return <div>User Details Form</div>;
   };
-  return MockAssignRolesForm;
+  return MockUserDetailsForm;
 });
 
 describe('User Management Page', () => {
-  it('renders subtitle correctly', () => {
-    render(
-      <ManageUsersPage
-        params={{ site: 'TEST' }}
-        searchParams={{}}
-        userIsSpecified={false}
-      />,
-    );
-    expect(
-      screen.getByText('Set the details and roles of a new user'),
-    ).toBeVisible();
-  });
-
   it('renders search form when no user in search params', () => {
     render(
       <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{}}
         userIsSpecified={false}
+        oktaEnabled={false}
       />,
     );
     expect(screen.getByText('Find User Form')).toBeVisible();
   });
 
-  it('renders assign roles form when user in search params', () => {
+  it('renders user details form when user in search params', () => {
     render(
       <ManageUsersPage
         params={{ site: 'TEST' }}
         searchParams={{ user: 'test@nhs.net' }}
         userIsSpecified
+        oktaEnabled={false}
       />,
     );
-    expect(screen.getByText('Assign Roles Form')).toBeVisible();
+    expect(screen.getByText('User Details Form')).toBeVisible();
   });
 });

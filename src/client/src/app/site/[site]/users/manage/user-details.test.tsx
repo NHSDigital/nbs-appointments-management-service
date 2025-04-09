@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import AssignRoles from './assign-roles';
+import UserDetails from './user-details';
 import { Role, RoleAssignment, User } from '@types';
 import { getMockUserAssignments, mockRoles } from '@testing/data';
 import { fetchRoles, fetchUsers } from '@services/appointmentsService';
 
-jest.mock('./assign-roles-form', () => {
+jest.mock('./user-details-form', () => {
   const MockForm = ({
     site,
     user,
@@ -18,7 +18,7 @@ jest.mock('./assign-roles-form', () => {
   }) => {
     return (
       <>
-        <div>Assign Roles Form</div>
+        <div>User Details Form</div>
         {assignments.map(a => (
           <div key={a.role}>assignment={a.role}</div>
         ))}
@@ -46,7 +46,7 @@ describe('AssignRoles', () => {
   });
   it('throws error when rendered without user', async () => {
     await expect(
-      AssignRoles({
+      UserDetails({
         params: { site: 'TEST' },
         searchParams: {},
       }),
@@ -54,7 +54,7 @@ describe('AssignRoles', () => {
   });
 
   it('displays the email address of the user', async () => {
-    const jsx = await AssignRoles({
+    const jsx = await UserDetails({
       params: { site: 'TEST' },
       searchParams: { user: 'test@nhs.net' },
     });
@@ -63,7 +63,7 @@ describe('AssignRoles', () => {
     expect(screen.getByText('test@nhs.net'));
   });
   it('email is not case sensitive', async () => {
-    const jsx = await AssignRoles({
+    const jsx = await UserDetails({
       params: { site: 'TEST' },
       searchParams: { user: 'TEST@NHS.NET' },
     });
@@ -72,7 +72,7 @@ describe('AssignRoles', () => {
     expect(screen.getByText('TEST@NHS.NET'));
   });
   it('calls fetch users with the correct site id', async () => {
-    const jsx = await AssignRoles({
+    const jsx = await UserDetails({
       params: { site: 'TEST' },
       searchParams: { user: 'test@nhs.net' },
     });
@@ -81,7 +81,7 @@ describe('AssignRoles', () => {
   });
 
   it('passes the correct props', async () => {
-    const jsx = await AssignRoles({
+    const jsx = await UserDetails({
       params: { site: 'TEST' },
       searchParams: { user: 'test.one@nhs.net' },
     });

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -62,11 +62,12 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             expectedHourBlocks);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
-        _actualResponse
+        var actualBlocks = _actualResponse
             .Single().availability
             .Single(x => x.date == expectedDate)
-            .Should().BeEquivalentTo(expectedAvailability);
+            .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
+
     [When(@"I send an invalid availability query request")]
     public async Task SendInvalidAvailabilityQueryRequest()
     {

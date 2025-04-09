@@ -64,7 +64,7 @@ public class QueryAvailabilityFunction(
 
         await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
         {
-            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive);
+            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1);
             concurrentResults.Add(siteAvailability);
         });
 
@@ -110,6 +110,6 @@ public class QueryAvailabilityFunction(
         }
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
-        return (ErrorMessageResponseItem.None, new QueryAvailabilityRequest(request.Sites, request.Service, request.From, request.Until, request.QueryType, request.Consecutive <= 0 ? 1 : request.Consecutive));
+        return (ErrorMessageResponseItem.None, new QueryAvailabilityRequest(request.Sites, request.Service, request.From, request.Until, request.QueryType, request.Consecutive ?? 1));
     }
 }

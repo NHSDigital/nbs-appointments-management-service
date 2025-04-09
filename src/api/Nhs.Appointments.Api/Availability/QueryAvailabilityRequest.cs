@@ -15,5 +15,5 @@ public record QueryAvailabilityRequest(
     [JsonProperty("queryType")]
     QueryType QueryType,
     [JsonProperty("consecutive")]
-    int Consecutive = 1
+    int? Consecutive
 );

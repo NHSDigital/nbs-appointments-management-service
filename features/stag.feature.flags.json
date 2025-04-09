@@ -2,7 +2,7 @@
   "FeatureManagement": {
     "OktaEnabled": false,
     "MultiServiceAvailabilityCalculations": false,
-    "JointBookings": false,
+    "JointBookings": true,
     "BulkImport": false
   }
 }

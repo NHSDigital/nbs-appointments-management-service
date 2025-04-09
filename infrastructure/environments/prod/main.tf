@@ -43,6 +43,10 @@ module "mya_application_prod" {
   okta_jwks_uri                                  = var.OKTA_JWKS_URI
   okta_client_id                                 = var.OKTA_CLIENT_ID
   okta_client_secret                             = var.OKTA_CLIENT_SECRET
+  okta_domain                                    = var.OKTA_ISSUER
+  okta_management_id                             = var.OKTA_MANAGEMENT_ID
+  okta_private_key_kid                           = var.OKTA_PRIVATE_KEY_KID
+  okta_pem                                       = var.OKTA_PEM
   auth_provider_challenge_phrase                 = var.AUTH_PROVIDER_CHALLENGE_PHRASE
   nhs_host_url                                   = var.NHS_HOST_URL
   func_app_base_uri                              = var.FUNC_APP_BASE_URI
@@ -62,6 +66,7 @@ module "mya_application_prod" {
   create_autoscale_settings                      = true
   create_frontdoor                               = true
   create_cosmos_db                               = true
+  create_app_config                              = true
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true

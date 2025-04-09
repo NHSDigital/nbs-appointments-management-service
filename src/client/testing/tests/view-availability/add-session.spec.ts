@@ -174,6 +174,9 @@ test('Verify user is able to cancel session', async ({ page }) => {
   await page.waitForURL('**/site/**/availability/cancel?session=**');
 
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+
+  await page.waitForURL('**/site/**/availability/cancel/confirmed?session=**');
+
   const cancelDate = daysFromToday(5, 'DD MMMM');
   await cancelSessionDetailsPage.verifySessionCancelled(cancelDate);
 });
@@ -304,7 +307,15 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
   await page.waitForURL('**/site/**/availability/cancel?session=**');
 
   await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+
+  await page.waitForURL('**/site/**/availability/cancel/confirmed?session=**');
+
   await cancelSessionDetailsPage.verifySessionCancelled(formattedDate);
   await cancelSessionDetailsPage.clickCancelAppointment();
+
+  await page.waitForURL(
+    '**/site/**/view-availability/daily-appointments?date=**',
+  );
+
   await dailyAppointmentDetailsPage.verifyManualAppointment();
 });

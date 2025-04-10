@@ -5,4 +5,5 @@ resource "azurerm_application_insights" "nbs_mya_application_insights" {
   location            = var.location
   application_type    = "web"
   sampling_percentage = var.app_insights_sampling_percentage
+  workspace_id        = "managed-nbs-mya-ai-stag-ukw-ws"
 }

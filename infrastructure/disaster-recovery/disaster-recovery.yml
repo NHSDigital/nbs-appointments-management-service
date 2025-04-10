@@ -76,6 +76,16 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: AzureCLI@2
+            displayName: "Get app config connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_connection_string.ps1"
+              ## TODO: use the ukw resource group
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
+
+          - task: AzureCLI@2
             displayName: "Apply Terraform for UKW resources"
             name: ApplyTerraformTask
             inputs:
@@ -90,7 +100,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)"
+                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
@@ -266,7 +276,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)"
+                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

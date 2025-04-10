@@ -35,7 +35,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     WEBSITE_RUN_FROM_PACKAGE                                       = 1
     COSMOS_ENDPOINT                                                = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
     COSMOS_TOKEN                                                   = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
-    APP_CONFIG_CONNECTION                                          = azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
+    APP_CONFIG_CONNECTION                                          = var.app_config_connection != "" ? var.app_config_connection : azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                       = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                          = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                         = "azure"
@@ -118,7 +118,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     WEBSITE_RUN_FROM_PACKAGE                                       = 1
     COSMOS_ENDPOINT                                                = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
     COSMOS_TOKEN                                                   = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
-    APP_CONFIG_CONNECTION                                          = azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
+    APP_CONFIG_CONNECTION                                          = var.app_config_connection != "" ? var.app_config_connection : azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                       = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                          = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                         = "none"

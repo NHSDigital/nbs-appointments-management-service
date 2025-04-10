@@ -266,3 +266,9 @@ variable "cosmos_token" {
   default = ""
   sensitive = true
 }
+
+variable "app_config_connection" {
+  type = string
+  default = ""
+  sensitive = true
+}

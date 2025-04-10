@@ -149,3 +149,8 @@ variable "COSMOS_TOKEN" {
   type      = string
   sensitive = true
 }
+
+variable "APP_CONFIG_CONNECTION" {
+  type      = string
+  sensitive = true
+}

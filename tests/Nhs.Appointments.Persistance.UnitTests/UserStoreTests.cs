@@ -19,7 +19,7 @@ namespace Nhs.Appointments.Persistance.UnitTests
         }
 
         [Fact]
-        public async Task UpdateUserRoleAssignments_WhenNoUser_CreatesUserAndReturnsEmptyArray() 
+        public async Task UpdateUserRoleAssignments_WhenNoUser_CreatesUser() 
         {
             _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<User>(It.IsAny<string>())).ReturnsAsync((User)null);
             _cosmosStore.Setup(x => x.ConvertToDocument(It.IsAny<Core.User>())).Returns(default(UserDocument));
@@ -28,9 +28,8 @@ namespace Nhs.Appointments.Persistance.UnitTests
 
             var roleAssignments = new List<Core.RoleAssignment>() { new() { Role = "test", Scope = "*" } };
 
-            var result = await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
+            await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
 
-            Assert.Equal([], result);
             _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
             _cosmosStore.Verify(x => x.ConvertToDocument(It.IsAny<Core.User>()), Times.Once);
             _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
@@ -38,9 +37,9 @@ namespace Nhs.Appointments.Persistance.UnitTests
         }
 
         [Fact]
-        public async Task UpdateUserRoleAssignments_WhenAddRoles_CreatesUserAndReturnsOriginalRoles()
+        public async Task UpdateUserRoleAssignments_WhenAddRoles_UpdatesUser()
         {
-            var user = new Core.User() 
+            var user = new Core.User()
             {
                 Id = "test",
                 RoleAssignments = [new() { Role = "test", Scope = "*" }]
@@ -52,75 +51,8 @@ namespace Nhs.Appointments.Persistance.UnitTests
 
             var roleAssignments = new List<Core.RoleAssignment>() { new() { Role = "test", Scope = "*" }, new() { Role = "test-2", Scope = "*" } };
 
-            var result = await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
+            await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
 
-            Assert.Equal(user.RoleAssignments, result);
-            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
-            _cosmosStore.Verify(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>()));
-        }
-
-        [Fact]
-        public async Task UpdateUserRoleAssignments_WhenRemoveRoles_CreatesUserAndReturnsOriginalRoles()
-        {
-            var user = new Core.User()
-            {
-                Id = "test",
-                RoleAssignments = [new() { Role = "test", Scope = "*" }, new() { Role = "test-2", Scope = "*" }]
-            };
-
-            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
-            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
-            _cosmosStore.Setup(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>())).ReturnsAsync(default(UserDocument));
-
-            var roleAssignments = new List<Core.RoleAssignment>() { new() { Role = "test", Scope = "*" } };
-
-            var result = await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
-
-            Assert.Equal(user.RoleAssignments, result);
-            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
-            _cosmosStore.Verify(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>()));
-        }
-
-        [Fact]
-        public async Task UpdateUserRoleAssignments_WhenUserHasMultipleScopesAndAddRoles_CreatesUserAndReturnsOriginalRoles()
-        {
-            var user = new Core.User()
-            {
-                Id = "test",
-                RoleAssignments = [new Core.RoleAssignment() { Role = "test", Scope = "*" }, new() { Role = "test", Scope = "2" }, new() { Role = "test-2", Scope = "2" }]
-            };
-
-            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
-            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
-            _cosmosStore.Setup(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>())).ReturnsAsync(default(UserDocument));
-
-            var roleAssignments = new List<Core.RoleAssignment>() { new() { Role = "test", Scope = "*" }, new() { Role = "test-2", Scope = "*" } };
-
-            var result = await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
-
-            Assert.Equal(user.RoleAssignments.Where(x => x.Scope.Equals("*")), result);
-            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
-            _cosmosStore.Verify(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>()));
-        }
-
-        [Fact]
-        public async Task UpdateUserRoleAssignments_WhenUserHasMultipleScopesAndRemoveRoles_CreatesUserAndReturnsOriginalRoles()
-        {
-            var user = new Core.User()
-            {
-                Id = "test",
-                RoleAssignments = [new() { Role = "test", Scope = "*" }, new() { Role = "test-2", Scope = "*" }, new() { Role = "test", Scope = "2" }, new() { Role = "test-2", Scope = "2" }]
-            };
-
-            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
-            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
-            _cosmosStore.Setup(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>())).ReturnsAsync(default(UserDocument));
-
-            var roleAssignments = new List<Core.RoleAssignment>() { new() { Role = "test", Scope = "*" } };
-
-            var result = await _sut.UpdateUserRoleAssignments("test", "*", roleAssignments);
-
-            Assert.Equal(user.RoleAssignments.Where(x => x.Scope.Equals("*")), result);
             _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>()));
         }

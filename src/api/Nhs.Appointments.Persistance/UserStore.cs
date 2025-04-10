@@ -35,7 +35,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     /// <param name="roleAssignments"></param>
     /// <returns>The original role assignments for the scope prior to completion of the update operation</returns>
     /// <exception cref="Exception"></exception>
-    public async Task<RoleAssignment[]> UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    public async Task UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
         var originalDocument = await GetOrDefaultAsync(userId);
         if (originalDocument == null)
@@ -46,7 +46,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 RoleAssignments = roleAssignments.ToArray()
             };
             await InsertAsync(user);
-            return [];
         }
         else
         {
@@ -57,8 +56,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 .Concat(roleAssignments);
             var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
             await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
-
-            return originalDocument.RoleAssignments.Where(x => x.Scope == scope).ToArray();
         }
     }
 

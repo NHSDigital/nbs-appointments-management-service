@@ -85,7 +85,7 @@ stages:
               ## TODO: use the ukw resource group
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
-          - task: TerraformInstaller@1
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"
             inputs:
               terraformVersion: "latest"

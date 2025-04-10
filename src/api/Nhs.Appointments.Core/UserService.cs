@@ -22,43 +22,59 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
 
     public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
+        var invalidRolesForScope = roleAssignments.Where(x => !x.Scope.Equals(scope));
+        if (invalidRolesForScope.Any()) 
+        {
+            throw new InvalidOperationException($"Invalid Role assignments based on the passed scope {scope}. Scopes not expected - {string.Join(", ", invalidRolesForScope.Select(x => x.Scope).Distinct())}");
+        }
+
         var allRoles = await rolesStore.GetRoles();
-        var lowerUserId = userId.ToLower();
         var invalidRoles = roleAssignments.Where(ra => !allRoles.Any(r => r.Id == ra.Role));
         if (invalidRoles.Any())
         {
             return new UpdateUserRoleAssignmentsResult(false, "", invalidRoles.Select(ra => ra.Role));
         }
 
-        var oldRoles = await userStore.UpdateUserRoleAssignments(lowerUserId, scope, roleAssignments);
+        var lowerUserId = userId.ToLower();
+
+        var user = await userStore.GetUserAsync(lowerUserId);
+
+        await userStore.UpdateUserRoleAssignments(lowerUserId, scope, roleAssignments);
+
+        if (!scope.Equals("*"))
+        {
+            await NotifyRoleAssignmentChanged(lowerUserId, Scope.GetValue("site", scope), user?.RoleAssignments.Where(x => x.Scope.Equals(scope)) ?? [], roleAssignments);
+        }
+
+        return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
+    }
+
+    private async Task NotifyRoleAssignmentChanged(string userId, string site, IEnumerable<RoleAssignment> oldAssignments, IEnumerable<RoleAssignment> newAssignments) 
+    {
         IEnumerable<RoleAssignment> rolesRemoved = [];
-        IEnumerable<RoleAssignment> rolesAdded;
+        IEnumerable<RoleAssignment> rolesAdded = [];
 
         // New user
-        if (oldRoles.Length == 0)
+        if (oldAssignments.Count() == 0)
         {
-            rolesAdded = roleAssignments;
+            rolesAdded = newAssignments;
         }
         else
         {
-            rolesRemoved = oldRoles.Where(old => !roleAssignments.Any(r => r.Role == old.Role));
-            rolesAdded = roleAssignments.Where(newRole => !oldRoles.Any(r => r.Role == newRole.Role));
+            rolesRemoved = oldAssignments.Where(old => !newAssignments.Any(r => r.Role == old.Role));
+            rolesAdded = newAssignments.Where(newRole => !oldAssignments.Any(r => r.Role == newRole.Role));
         }
 
-        var site = Scope.GetValue("site", scope);
-
-        if (lowerUserId.EndsWith("@nhs.net"))
+        if (userId.EndsWith("@nhs.net"))
         {
             //NHS user
-            await bus.Send(new UserRolesChanged { UserId = lowerUserId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray()});
+            await bus.Send(new UserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
         }
         else
         {
             //OKTA user
-            await bus.Send(new OktaUserRolesChanged { UserId = lowerUserId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
+            await bus.Send(new OktaUserRolesChanged { UserId = userId, SiteId = site, AddedRoleIds = rolesAdded.Select(r => r.Role).ToArray(), RemovedRoleIds = rolesRemoved.Select(r => r.Role).ToArray() });
         }
-
-        return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
     }
 
     public Task<IEnumerable<User>> GetUsersAsync(string site) 
@@ -72,7 +88,7 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
     }
 
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-        => userStore.SaveUserAsync(userId, scope, roleAssignments);
+        => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

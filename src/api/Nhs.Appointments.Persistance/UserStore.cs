@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -33,37 +33,9 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     /// <param name="userId"></param>
     /// <param name="scope"></param>
     /// <param name="roleAssignments"></param>
-    /// <returns>The original role assignments prior to completion of the update operation</returns>
+    /// <returns>The original role assignments for the scope prior to completion of the update operation</returns>
     /// <exception cref="Exception"></exception>
-    public async Task<RoleAssignment[]> UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-    {
-        var originalDocument = await GetOrDefaultAsync(userId);
-        if (originalDocument == null)
-        {
-            var user = new User
-            {
-                Id = userId,
-                RoleAssignments = roleAssignments.ToArray()
-            };
-            await InsertAsync(user);
-            return [];
-        }
-        else
-        {
-            var documentType = cosmosStore.GetDocumentType();
-            var originalRoleAssignments = originalDocument.RoleAssignments;
-            var newRoleAssignments = originalRoleAssignments
-                .Where(ra => ra.Scope != scope)
-                .Concat(roleAssignments);
-            var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
-            await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
-
-
-            return originalDocument.RoleAssignments;
-        }
-    }
-
-    public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    public async Task UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
         var originalDocument = await GetOrDefaultAsync(userId);
         if (originalDocument == null)

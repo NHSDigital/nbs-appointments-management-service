@@ -35,7 +35,7 @@ export const summariseWeek = async (
     ),
     fetchBookings({
       from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
-      to: ukWeekEnd.format('YYYY-MM-DD HH:mm:ss'),
+      to: ukWeekEnd.add(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),
   ]);
@@ -47,9 +47,15 @@ export const summariseWeek = async (
       parseDateStringToUkDatetime(a.date).isSame(ukDay),
     );
 
-    const bookings = dailyBookings.filter(booking =>
-      dayjs(booking.from).isSame(ukDay, 'date'),
-    );
+    const bookings = dailyBookings.filter(booking => {
+      //need to parse booking datetime back to UK date
+      const ukBookingDatetime = parseDateStringToUkDatetime(
+        booking.from,
+        'YYYY-MM-DDTHH:mm:ss',
+      );
+      const result = ukBookingDatetime.isSame(ukDay, 'day');
+      return result;
+    });
 
     return summariseDay(ukDay, bookings, availability);
   });

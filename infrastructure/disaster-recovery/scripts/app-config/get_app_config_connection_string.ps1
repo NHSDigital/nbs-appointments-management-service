@@ -10,7 +10,7 @@ $DebugPreference = "Continue"
 $appConfigAccountName = "nbs-mya-cdb-$environment-uks"
 
 $appConfigConnection =
-az appconfig credentials list `
+az appconfig credential list `
         --name $appConfigAccountName `
         --resource-group $ResourceGroup `
         --query "[?name == 'Primary'].connectionString | [0]" `

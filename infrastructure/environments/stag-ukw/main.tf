@@ -78,6 +78,7 @@ module "mya_application_stag_ukw" {
   web_app_service_plan_scale_out_worker_count    = 1
   web_app_service_plan_scale_in_worker_count     = 1
   app_insights_sampling_percentage               = 12.5
+  app_insights_workspace_id                      = "/subscriptions/b0787d6a-56e3-4899-bc30-723f9d78899c/resourceGroups/ai_nbs-mya-ai-stag-ukw_cfb78ddc-7f41-47fa-a565-0b10aa2252cb_managed/providers/Microsoft.OperationalInsights/workspaces/managed-nbs-mya-ai-stag-ukw-ws" 
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
   cosmos_synapse_enabled                         = false

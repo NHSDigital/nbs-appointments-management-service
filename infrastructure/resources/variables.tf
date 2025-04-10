@@ -221,12 +221,12 @@ variable "cosmos_synapse_enabled" {
 }
 
 variable "app_insights_sampling_percentage" {
-  type = string
-  default = null
+  type = number
 }
 
 variable "app_insights_workspace_id" {
-  type = number
+  type = string
+  default = null
 }
 
 variable "disable_query_availability_function" {

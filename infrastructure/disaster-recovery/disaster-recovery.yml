@@ -85,6 +85,11 @@ stages:
               ## TODO: use the ukw resource group
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
+          - task: TerraformInstaller@1
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
+
           - task: AzureCLI@2
             displayName: "Apply Terraform for UKW resources"
             name: ApplyTerraformTask

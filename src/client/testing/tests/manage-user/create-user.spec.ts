@@ -67,7 +67,7 @@ test('Verify first and last name visible for okta users', async ({}) => {
   await editManageUserRolesPage.verifyFirstNameLastNameAvailable();
 });
 
-test.only('Verify first and last name on summary page', async ({}) => {
+test('Verify first and last name on summary page', async ({}) => {
   const userName = 'test@okta.net';
   const firstName = 'first';
   const lastName = 'last';

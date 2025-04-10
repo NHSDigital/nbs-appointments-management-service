@@ -85,7 +85,7 @@ stages:
               ## TODO: use the ukw resource group
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
-          - task: HashiCorpTerraformInstaller@0
+          - task: TerraformInstaller@1
             displayName: "Install Terraform"
             inputs:
               terraformVersion: "latest"

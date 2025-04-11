@@ -224,11 +224,6 @@ variable "app_insights_sampling_percentage" {
   type = number
 }
 
-variable "app_insights_workspace_id" {
-  type = string
-  default = null
-}
-
 variable "disable_query_availability_function" {
   type = bool
 }

@@ -9,6 +9,7 @@ import {
   SitePage,
   SiteSelectionPage,
   UsersPage,
+  UserSummaryPage,
 } from '@testing-page-objects';
 
 let rootPage: RootPage;
@@ -115,7 +116,7 @@ test('Verify users are redirected to edit roles page when emailId already exists
   await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
   await editManageUserRolesPage.continueButton.click();
-  
+
   await editManageUserRolesPage.verifyUserRedirectedToEditRolePage(
     'Appointment manager',
     'Checked',

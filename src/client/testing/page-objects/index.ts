@@ -21,6 +21,7 @@ import CreateUserPage from '../page-objects/manage-users/create-user-page';
 import EditManageUserRolesPage from '../page-objects/manage-users/edit-manage-user-roles-page';
 import RemoveUserPage from '../page-objects/manage-users/remove-user-page';
 import UsersPage from '../page-objects/manage-users/users-page';
+import UserSummaryPage from '../page-objects/manage-users/user-summary-page';
 
 import AddServicesPage from '../page-objects/view-availability-appointment-pages/add-services-page';
 import AddSessionPage from '../page-objects/view-availability-appointment-pages/add-session-page';
@@ -53,6 +54,7 @@ export {
   EditManageUserRolesPage,
   RemoveUserPage,
   UsersPage,
+  UserSummaryPage,
   AddServicesPage,
   AddSessionPage,
   CancelSessionDetailsPage,

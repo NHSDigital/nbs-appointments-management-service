@@ -177,6 +177,7 @@ stages:
               appName: "nbs-mya-timerfunc-$(env)-ukw"
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
+
           - task: AzureCLI@2
             displayName: "Create frontdoor UKW origin groups"
             inputs:
@@ -265,6 +266,11 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
+
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
 
           - task: AzureCLI@2
             displayName: "Destroy UKW resources"

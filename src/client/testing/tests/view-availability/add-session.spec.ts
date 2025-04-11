@@ -218,7 +218,7 @@ test('Verify session not canceled if not confirmed', async ({ page }) => {
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-  await weekViewAvailabilityPage.verifySessionRecordDetail(
+  await weekViewAvailabilityPage.verifyFirstSessionRecordDetail(
     requiredDate,
     '09:00 - 10:00',
     'RSV (Adult)',

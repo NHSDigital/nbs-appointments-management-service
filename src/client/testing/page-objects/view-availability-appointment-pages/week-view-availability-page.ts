@@ -217,7 +217,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .click();
   }
 
-  async verifySessionRecordDetail(
+  async verifyFirstSessionRecordDetail(
     requiredDate: string,
     time: string,
     service: string,

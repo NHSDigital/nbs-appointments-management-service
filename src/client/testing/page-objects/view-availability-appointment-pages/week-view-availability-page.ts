@@ -69,7 +69,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
         expect(cardDiv.getByText('No availability')).not.toBeVisible();
 
         //single table
-        await expect(cardDiv.locator('table')).toHaveCount(1);
+        expect(cardDiv.getByRole('table')).toBeVisible();
 
         //table headers!
         await expect(
@@ -134,7 +134,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
         await expect(cardDiv.getByText('No availability')).toBeVisible();
 
         //no table
-        await expect(cardDiv.locator('table')).toHaveCount(0);
+        expect(cardDiv.getByRole('table')).not.toBeVisible();
 
         //no table headers!
         await expect(

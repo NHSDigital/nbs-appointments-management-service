@@ -1,15 +1,15 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
-export type dayOverview = {
+type DayOverview = {
   header: string;
-  services: serviceOverview[];
+  services: ServiceOverview[];
   totalAppointments: number;
   booked: number;
   unbooked: number;
 };
 
-export type serviceOverview = {
+type ServiceOverview = {
   sessionTimeInterval: string;
   serviceName: string;
   booked: number;
@@ -48,11 +48,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
   }
 
   async verifyAllDayCardInformationDisplayedCorrectly(
-    expectedDayOverviews: dayOverview[],
+    expectedDayOverviews: DayOverview[],
   ) {
-    for (let i = 0; i < expectedDayOverviews.length; i++) {
-      const dayOverview = expectedDayOverviews[i];
-
+    expectedDayOverviews.forEach(async dayOverview => {
       const cardDiv = this.page
         .getByRole('heading', {
           name: dayOverview.header,
@@ -168,7 +166,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
           cardDiv.getByText('Unbooked: 0', { exact: true }),
         ).toBeVisible();
       }
-    }
+    });
   }
 
   async verifyWeekViewDisplayed(requiredDate: string) {

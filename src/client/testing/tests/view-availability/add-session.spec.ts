@@ -257,7 +257,10 @@ test('Verify appointment not cancelled when not confirmed', async ({
   const formattedDate = dayjs(requiredDate).format('D MMMM');
   const requiredWeekRange = weekHeaderText(requiredDate);
 
-  await monthViewAvailabilityPage.navigateToRequiredMonth(requiredDate);
+  await monthViewAvailabilityPage.navigateToRequiredMonth(
+    '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    requiredDate,
+  );
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
 

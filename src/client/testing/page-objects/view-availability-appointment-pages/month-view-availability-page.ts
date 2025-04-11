@@ -1,15 +1,15 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
-export type weekOverview = {
+type WeekOverview = {
   header: string;
-  services: serviceOverview[];
+  services: ServiceOverview[];
   totalAppointments: number;
   booked: number;
   unbooked: number;
 };
 
-export type serviceOverview = {
+type ServiceOverview = {
   serviceName: string;
   bookedAppointments: number;
 };
@@ -33,11 +33,9 @@ export default class MonthViewAvailabilityPage extends RootPage {
   }
 
   async verifyAllWeekCardInformationDisplayedCorrectly(
-    expectedWeekOverviews: weekOverview[],
+    expectedWeekOverviews: WeekOverview[],
   ) {
-    for (let i = 0; i < expectedWeekOverviews.length; i++) {
-      const weekOverview = expectedWeekOverviews[i];
-
+    expectedWeekOverviews.forEach(async weekOverview => {
       const cardDiv = this.page
         .getByRole('heading', {
           name: weekOverview.header,
@@ -94,7 +92,7 @@ export default class MonthViewAvailabilityPage extends RootPage {
           cardDiv.getByText('Unbooked: 0', { exact: true }),
         ).toBeVisible();
       }
-    }
+    });
   }
 
   async verifyViewMonthDisplayed(requiredWeek: string) {
@@ -114,9 +112,9 @@ export default class MonthViewAvailabilityPage extends RootPage {
       .click();
   }
 
-  async navigateToRequiredMonth(month: string) {
+  async navigateToRequiredMonth(siteId: string, month: string) {
     await this.page.goto(
-      `/manage-your-appointments/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/view-availability?date=${month}`,
+      `/manage-your-appointments/site/${siteId}/view-availability?date=${month}`,
     );
   }
 }

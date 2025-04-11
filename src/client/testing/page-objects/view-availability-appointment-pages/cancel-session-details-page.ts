@@ -25,7 +25,7 @@ export default class CancelSessionDetailsPage extends RootPage {
     ).toBeVisible();
   }
 
-  async confirmSessionCancelation(option: 'Yes' | 'No') {
+  async confirmSessionCancellation(option: 'Yes' | 'No') {
     if (option == 'Yes') {
       await this.page.getByLabel('Yes, I want to cancel this session').click();
     }

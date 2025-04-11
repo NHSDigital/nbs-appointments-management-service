@@ -173,7 +173,7 @@ test('Verify user is able to cancel session', async ({ page }) => {
 
   await page.waitForURL('**/site/**/availability/cancel?session=**');
 
-  await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+  await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
   await page.waitForURL('**/site/**/availability/cancel/confirmed?session=**');
 
@@ -212,7 +212,7 @@ test('Verify session not canceled if not confirmed', async ({ page }) => {
 
   await page.waitForURL('**/site/**/availability/cancel?session=**');
 
-  await cancelSessionDetailsPage.confirmSessionCancelation('No');
+  await cancelSessionDetailsPage.confirmSessionCancellation('No');
   await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
   await dailyAppointmentDetailsPage.navigateToWeekView();
 
@@ -268,7 +268,7 @@ test('Verify appointment not cancelled when not confirmed', async ({
 
   await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
   await dailyAppointmentDetailsPage.cancelAppointment('5932817282');
-  await dailyAppointmentDetailsPage.confirmAppointmentCancelation('No');
+  await dailyAppointmentDetailsPage.confirmAppointmentCancellation('No');
   await dailyAppointmentDetailsPage.verifyAppointmentNotCancelled('5932817282');
 });
 
@@ -306,7 +306,7 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
 
   await page.waitForURL('**/site/**/availability/cancel?session=**');
 
-  await cancelSessionDetailsPage.confirmSessionCancelation('Yes');
+  await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
   await page.waitForURL('**/site/**/availability/cancel/confirmed?session=**');
 

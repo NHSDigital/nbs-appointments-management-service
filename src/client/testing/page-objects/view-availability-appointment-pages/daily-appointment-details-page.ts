@@ -31,7 +31,7 @@ export default class DailyAppointmentDetailsPage extends RootPage {
       .click();
   }
 
-  async confirmAppointmentCancelation(option: 'Yes' | 'No') {
+  async confirmAppointmentCancellation(option: 'Yes' | 'No') {
     if (option == 'Yes') {
       await this.page
         .getByLabel('Yes, I want to cancel this appointment')

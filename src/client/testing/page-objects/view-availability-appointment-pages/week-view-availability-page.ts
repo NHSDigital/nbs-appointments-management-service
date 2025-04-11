@@ -238,7 +238,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
     ).toBeVisible();
   }
 
-  async openDailyAppoitmentPage(appointmentDate: string) {
+  async openDailyAppointmentPage(appointmentDate: string) {
     await this.page
       .getByRole('listitem')
       .filter({ has: this.page.getByText(`${appointmentDate}`) })

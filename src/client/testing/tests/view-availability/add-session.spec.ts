@@ -246,7 +246,7 @@ test('Verify view daily appointment link displayed', async ({ page }) => {
   await page.waitForURL('**/site/**/view-availability/week?date=**');
 
   await weekViewAvailabilityPage.verifySessionAdded();
-  await weekViewAvailabilityPage.openDailyAppoitmentPage(requiredDate);
+  await weekViewAvailabilityPage.openDailyAppointmentPage(requiredDate);
   await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
 });
 
@@ -267,7 +267,7 @@ test('Verify appointment not cancelled when not confirmed', async ({
   await page.waitForURL('**/site/**/view-availability/week?date=**');
 
   await weekViewAvailabilityPage.verifyWeekViewDisplayed(formattedDate);
-  await weekViewAvailabilityPage.openDailyAppoitmentPage(formattedDate);
+  await weekViewAvailabilityPage.openDailyAppointmentPage(formattedDate);
 
   await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
   await dailyAppointmentDetailsPage.cancelAppointment('5932817282');

@@ -46,25 +46,25 @@ stages:
       - job: FailOverToUkw
         displayName: "Fail over simulation and deployment of services to ukwest"
         steps:
-          # - task: AzureCLI@2
-          #   displayName: "Stop UKS App services"
-          #   condition: ${{ eq(variables.env, 'stag') }}
-          #   inputs:
-          #     azureSubscription: $(serviceConnection)
-          #     scriptType: pscore
-          #     scriptLocation: scriptPath
-          #     scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
-          #     arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+          - task: AzureCLI@2
+            displayName: "Stop UKS App services"
+            condition: ${{ eq(variables.env, 'stag') }}
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
-          # - task: AzureCLI@2
-          #   displayName: "Fail over cosmos to UKW"
-          #   condition: ${{ eq(variables.env, 'stag') }}
-          #   inputs:
-          #     azureSubscription: $(serviceConnection)
-          #     scriptType: pscore
-          #     scriptLocation: scriptPath
-          #     scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
-          #     arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
+          - task: AzureCLI@2
+            displayName: "Fail over cosmos to UKW"
+            condition: ${{ eq(variables.env, 'stag') }}
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
 
           - task: AzureCLI@2
             displayName: "Get cosmos account connection string"
@@ -266,6 +266,16 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
+
+          - task: AzureCLI@2
+            displayName: "Get app config connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_connection_string.ps1"
+              ## TODO: use the ukw resource group
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"

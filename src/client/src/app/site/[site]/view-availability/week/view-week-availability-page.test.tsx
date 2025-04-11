@@ -18,8 +18,8 @@ jest.mock('./day-card-list', () => {
 describe('View Week Availability Page', () => {
   it('renders', async () => {
     const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
+      ukWeekStart: mockWeekAvailabilityStart,
+      ukWeekEnd: mockWeekAvailabilityEnd,
       site: mockSite,
     });
     render(jsx);
@@ -27,8 +27,8 @@ describe('View Week Availability Page', () => {
 
   it('renders pagination options with the correct values', async () => {
     const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
+      ukWeekStart: mockWeekAvailabilityStart,
+      ukWeekEnd: mockWeekAvailabilityEnd,
       site: mockSite,
     });
     render(jsx);
@@ -46,8 +46,8 @@ describe('View Week Availability Page', () => {
 
   it('renders a list of day cards', async () => {
     const jsx = await ViewWeekAvailabilityPage({
-      weekStart: mockWeekAvailabilityStart,
-      weekEnd: mockWeekAvailabilityEnd,
+      ukWeekStart: mockWeekAvailabilityStart,
+      ukWeekEnd: mockWeekAvailabilityEnd,
       site: mockSite,
     });
     render(jsx);

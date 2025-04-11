@@ -50,7 +50,7 @@ describe('Week Card List', () => {
   it('renders', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      weeks: mockWeeks,
+      ukWeeks: mockWeeks,
     });
     render(jsx);
   });
@@ -58,7 +58,7 @@ describe('Week Card List', () => {
   it('requests a summary for each week', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      weeks: mockWeeks,
+      ukWeeks: mockWeeks,
     });
     render(jsx);
 

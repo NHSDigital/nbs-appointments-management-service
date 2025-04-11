@@ -36,8 +36,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={searchParams.date}
         site={site}
         existingSession={sessionSummary}
-        existingSessionStart={dayjs(sessionSummary.start).format('HH:mm')}
-        existingSessionEnd={dayjs(sessionSummary.end).format('HH:mm')}
       />
     </NhsPage>
   );

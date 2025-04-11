@@ -4,11 +4,11 @@ import { clinicalServices, WeekSummary } from '@types';
 import Link from 'next/link';
 
 type WeekSummaryCardProps = {
-  weekSummary: WeekSummary;
+  ukWeekSummary: WeekSummary;
 };
 
-export const WeekSummaryCard = ({ weekSummary }: WeekSummaryCardProps) => {
-  const { startDate, endDate, daySummaries } = weekSummary;
+export const WeekSummaryCard = ({ ukWeekSummary }: WeekSummaryCardProps) => {
+  const { startDate, endDate, daySummaries } = ukWeekSummary;
 
   const allBookingsInWeek = daySummaries.reduce(
     (acc, daySummary) => {
@@ -41,7 +41,7 @@ export const WeekSummaryCard = ({ weekSummary }: WeekSummaryCardProps) => {
         <div>No availability</div>
       )}
 
-      <AppointmentCountsSummary period={weekSummary} />
+      <AppointmentCountsSummary period={ukWeekSummary} />
       <br />
       <Link
         className="nhsuk-link"

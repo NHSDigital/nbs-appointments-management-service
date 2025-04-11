@@ -9,14 +9,19 @@ import {
   applyAvailabilityTemplate,
   saveAvailability,
 } from '@services/appointmentsService';
-import { formatTimeString, parseDateComponents } from '@services/timeService';
+import {
+  formatTimeString,
+  parseDateComponentsToUkDatetime,
+} from '@services/timeService';
 
 async function saveAvailabilityTemplate(
   formData: CreateAvailabilityFormValues,
   site: Site,
 ) {
-  const startDate = parseDateComponents(formData.startDate);
-  const endDate = parseDateComponents(formData.endDate ?? formData.startDate);
+  const startDate = parseDateComponentsToUkDatetime(formData.startDate);
+  const endDate = parseDateComponentsToUkDatetime(
+    formData.endDate ?? formData.startDate,
+  );
 
   // TODO: slimline this numbers -> dayjs conversion to be less hacky and avoid checks like this
   if (startDate === undefined || endDate === undefined) {

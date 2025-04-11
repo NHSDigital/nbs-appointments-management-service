@@ -27,7 +27,7 @@ const Page = async ({ params }: PageProps) => {
     ]);
 
   return (
-    <NhsPage title="Manage Staff Roles" site={site} originPage="users">
+    <NhsPage title="Manage users" site={site} originPage="users">
       <UsersPage
         userProfile={userProfile}
         users={users}

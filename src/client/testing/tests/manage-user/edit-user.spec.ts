@@ -37,15 +37,17 @@ test.beforeEach(async ({ page, getTestSite }) => {
 });
 
 test('Verify user manager able to edit user role', async ({ newUserName }) => {
-  await usersPage.assignStaffRolesLink.click();
+  await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.selectStaffRole('Availability manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.clickEditLink(newUserName);
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.verifyUserRoles('Appointment manager', newUserName);
   await usersPage.verifyUserRoleRemoved('Availability manager', newUserName);
@@ -54,28 +56,30 @@ test('Verify user manager able to edit user role', async ({ newUserName }) => {
 test('Verify all roles cannot be removed from existing account', async ({
   newUserName,
 }) => {
-  await usersPage.assignStaffRolesLink.click();
+  await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.selectStaffRole('Availability manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.clickEditLink(newUserName);
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');
   await editManageUserRolesPage.unselectStaffRole('Availability manager');
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.verifyValidationMsgForNoRoles();
 });
 
 test('Verify users are redirected to users page upon cancel button clicked on edit user page', async ({
   newUserName,
 }) => {
-  await usersPage.assignStaffRolesLink.click();
+  await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
   await editManageUserRolesPage.selectStaffRole('Availability manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.clickEditLink(newUserName);
   await editManageUserRolesPage.unselectStaffRole('Appointment manager');

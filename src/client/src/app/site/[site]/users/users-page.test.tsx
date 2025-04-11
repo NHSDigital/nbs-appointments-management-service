@@ -24,14 +24,10 @@ describe('Users Page', () => {
     );
 
     expect(
-      screen.getByRole('link', {
-        name: `Assign staff roles`,
+      screen.getByRole('button', {
+        name: `Add user`,
       }),
     ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Manage your current site's staff roles"),
-    ).toBeVisible();
   });
 
   it('displays each user in the table', async () => {
@@ -81,9 +77,7 @@ describe('Users Page', () => {
       screen.getAllByRole('link', { name: 'Remove from this site' }).length,
     ).toBe(1);
 
-    expect(
-      screen.getByRole('link', { name: 'Assign staff roles' }),
-    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Add user' })).toBeVisible();
   });
 
   it('omits the edit and remove buttons for each user if they may not see it', async () => {
@@ -102,9 +96,7 @@ describe('Users Page', () => {
       screen.queryByRole('link', { name: 'Remove from this site' }),
     ).toBeNull();
 
-    expect(
-      screen.queryByRole('link', { name: 'Assign staff roles' }),
-    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add user' })).toBeNull();
   });
 
   it('Does not display the edit or remove buttons for the current user', async () => {

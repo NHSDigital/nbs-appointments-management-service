@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react';
-import AssignRolesForm from './assign-roles-form';
+import UserDetailsForm from './user-details-form';
 import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import { mockAssignments, mockRoles } from '@testing/data';
@@ -9,6 +9,7 @@ import * as appointmentsService from '@services/appointmentsService';
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
 
 jest.mock('@services/appointmentsService');
 const mockSaveUserRoleAssignments = jest.spyOn(
@@ -16,22 +17,27 @@ const mockSaveUserRoleAssignments = jest.spyOn(
   'saveUserRoleAssignments',
 );
 
+jest.spyOn(window.sessionStorage.__proto__, 'setItem');
+window.sessionStorage.setItem = jest.fn();
+
 describe('Assign Roles Form', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
+      push: mockPush,
     });
   });
 
   it.skip('displays a check box for each available role', () => {
     render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
 
@@ -44,13 +50,14 @@ describe('Assign Roles Form', () => {
 
   it('displays checkboxes for all available roles in ascending alphabetical order', () => {
     render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
     const checkboxes = screen.getAllByRole('checkbox');
@@ -62,13 +69,14 @@ describe('Assign Roles Form', () => {
 
   it('checks the correct options', () => {
     render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
         user="test@nhs.net"
         assignments={mockAssignments}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
 
@@ -80,17 +88,18 @@ describe('Assign Roles Form', () => {
   });
   it('display a validation error when attempting to submit the form with no roles selected', async () => {
     const { user } = render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
     const submitButton = screen.getByRole('button', {
-      name: 'Confirm and save',
+      name: 'Continue',
     });
     await user.click(submitButton);
 
@@ -101,13 +110,14 @@ describe('Assign Roles Form', () => {
 
   it('returns the user to the users list when they cancel', async () => {
     const { user } = render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
         user="test@nhs.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
@@ -116,28 +126,72 @@ describe('Assign Roles Form', () => {
     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
   });
 
-  it('calls the save function when saved', async () => {
+  it('calls user summary page', async () => {
     const { user } = render(
-      <AssignRolesForm
+      <UserDetailsForm
         site="TEST"
-        user="test@nhs.net"
+        user="test@okta.net"
         assignments={[] as RoleAssignment[]}
         roles={mockRoles}
         firstName="firstName"
         lastName="lastName"
+        isEdit={false}
       />,
     );
     const checkBox = screen.getByRole('checkbox', { name: 'Beta Role' });
     await user.click(checkBox);
-    const saveButton = screen.getByRole('button', { name: 'Confirm and save' });
-    await user.click(saveButton);
+    const continueButton = screen.getByRole('button', { name: 'Continue' });
+    await user.click(continueButton);
 
-    expect(mockSaveUserRoleAssignments).toHaveBeenCalledWith(
-      'TEST',
-      'test@nhs.net',
-      'firstName',
-      'lastName',
-      ['role-1'],
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'userFormData',
+      JSON.stringify({
+        site: 'TEST',
+        user: 'test@okta.net',
+        roles: ['role-1'],
+        firstName: 'firstName',
+        lastName: 'lastName',
+        isEdit: false,
+      }),
     );
+    expect(mockPush).toHaveBeenCalledWith('/site/TEST/users/user-summary');
+  });
+
+  it('displays the email address of the user', async () => {
+    const user = 'test@okta.net';
+    render(
+      <UserDetailsForm
+        site="TEST"
+        user={user}
+        assignments={[] as RoleAssignment[]}
+        roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
+        isEdit={false}
+      />,
+    );
+
+    const email = screen.getByRole('heading', { name: 'Email' });
+
+    expect(email).toBeVisible();
+    expect(screen.getByText(user)).toBeVisible();
+  });
+
+  it('email is not case sensitive', async () => {
+    const user = 'TEST@NHS.NET';
+    render(
+      <UserDetailsForm
+        site="TEST"
+        user={user}
+        assignments={[] as RoleAssignment[]}
+        roles={mockRoles}
+        firstName="firstName"
+        lastName="lastName"
+        isEdit={false}
+      />,
+    );
+
+    expect(screen.getByText('Email')).toBeVisible();
+    expect(screen.getByText(user)).toBeVisible();
   });
 });

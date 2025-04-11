@@ -4,13 +4,13 @@ import RootPage from '../root';
 export default class UsersPage extends RootPage {
   readonly title: Locator;
   readonly emailColumn: Locator;
-  readonly assignStaffRolesLink: Locator;
+  readonly addUserButton: Locator;
   readonly manageColumn: Locator;
 
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'Manage Staff Roles',
+      name: 'Manage users',
     });
     this.emailColumn = page.getByRole('columnheader', {
       name: 'Email',
@@ -18,8 +18,8 @@ export default class UsersPage extends RootPage {
     this.manageColumn = page.getByRole('columnheader', {
       name: 'Manage',
     });
-    this.assignStaffRolesLink = page.getByRole('link', {
-      name: 'Assign Staff Roles',
+    this.addUserButton = page.getByRole('button', {
+      name: 'Add user',
     });
   }
 

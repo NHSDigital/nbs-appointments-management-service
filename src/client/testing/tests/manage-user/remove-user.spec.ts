@@ -42,10 +42,11 @@ test.beforeEach(async ({ page, getTestSite }) => {
 test('Verify user manager is able to remove a user', async ({
   newUserName,
 }) => {
-  await usersPage.assignStaffRolesLink.click();
+  await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.removeFromThisSiteLink(newUserName);
@@ -57,10 +58,11 @@ test('Verify user manager is able to remove a user', async ({
 test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
   newUserName,
 }) => {
-  await usersPage.assignStaffRolesLink.click();
+  await usersPage.addUserButton.click();
   await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.searchUserButton.click();
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.selectStaffRole('Appointment manager');
+  await editManageUserRolesPage.continueButton.click();
   await editManageUserRolesPage.confirmAndSaveButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.removeFromThisSiteLink(newUserName);

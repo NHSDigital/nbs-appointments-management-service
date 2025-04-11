@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
-import NotFoundPage from './page-objects/not-found';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
+import { NotFoundPage, OAuthLoginPage, RootPage } from '@testing-page-objects';
 
 test('Invalid roots yield a styled 404 page', async ({ page }) => {
   const rootPage = new RootPage(page);

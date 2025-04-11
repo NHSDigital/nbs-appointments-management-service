@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures';
-import RootPage from '../../page-objects/root';
+import { RootPage } from '@testing-page-objects';
 
 let rootPage: RootPage;
 

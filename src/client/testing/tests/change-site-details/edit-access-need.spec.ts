@@ -1,10 +1,12 @@
+import {
+  EditAccessNeedsPage,
+  OAuthLoginPage,
+  RootPage,
+  SiteDetailsPage,
+  SitePage,
+  SiteSelectionPage,
+} from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import SiteSelectionPage from '../../page-objects/site-selection';
-import SitePage from '../../page-objects/site';
-import EditAccessNeedsPage from '../../page-objects/change-site-details-pages/edit-access-need';
-import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
 import { Site } from '@types';
 
 let rootPage: RootPage;

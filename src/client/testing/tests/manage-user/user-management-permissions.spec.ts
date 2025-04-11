@@ -1,15 +1,17 @@
 import { test, expect } from '../../fixtures';
-import RootPage from '../../page-objects/root';
-import OAuthLoginPage from '../../page-objects/oauth';
-import SiteSelectionPage from '../../page-objects/site-selection';
-import SitePage from '../../page-objects/site';
-import UsersPage from '../../page-objects/manage-users/users-page';
-import UserManagementPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
-import NotAuthorizedPage from '../../page-objects/unauthorized';
-import EditManageUserRolesPage from '../../page-objects/manage-users/edit-manage-user-roles-page';
-import SiteDetailsPage from '../../page-objects/change-site-details-pages/site-details';
-import CreateAvailabilityPage from '../../page-objects/create-availability';
-import ViewAvailabilityPage from '../../page-objects/view-availability-appointment-pages/month-view-availability-page';
+import {
+  CreateAvailabilityPage,
+  EditManageUserRolesPage,
+  MonthViewAvailabilityPage,
+  NotAuthorizedPage,
+  OAuthLoginPage,
+  RootPage,
+  SiteDetailsPage,
+  SitePage,
+  SiteSelectionPage,
+  UserManagementPage,
+  UsersPage,
+} from '@testing-page-objects';
 import { Site } from '@types';
 
 let rootPage: RootPage;
@@ -22,7 +24,7 @@ let notAuthorizedPage: NotAuthorizedPage;
 let editManageUserRolesPage: EditManageUserRolesPage;
 let siteDetailsPage1: SiteDetailsPage;
 let createAvailabilityPage: CreateAvailabilityPage;
-let viewAvailabilityPage: ViewAvailabilityPage;
+let viewMonthAvailabilityPage: MonthViewAvailabilityPage;
 
 let site1: Site;
 let site2: Site;
@@ -40,7 +42,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   editManageUserRolesPage = new EditManageUserRolesPage(page);
   siteDetailsPage1 = new SiteDetailsPage(page, site1);
   createAvailabilityPage = new CreateAvailabilityPage(page);
-  viewAvailabilityPage = new ViewAvailabilityPage(page);
+  viewMonthAvailabilityPage = new MonthViewAvailabilityPage(page);
 });
 
 test('A user with the appropriate permission can view other users at a site but not edit them', async ({
@@ -215,7 +217,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
 });
 
 test('Verify user can only view user manager related tiles In app when user is assigned user Manager role.', async ({
@@ -255,7 +257,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await siteDetailsPage1.verifyEditButtonNotVisible();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.userManagementCard.click();
   await expect(usersPage.title).toBeVisible();
@@ -298,5 +300,5 @@ test('Verify user can only view site details manager related tiles In app when u
   await siteDetailsPage1.verifyEditButtonToBeVisible();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewAvailabilityPage.verifyViewMonthDisplayed();
+  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
 });

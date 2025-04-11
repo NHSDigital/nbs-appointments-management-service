@@ -26,7 +26,8 @@
       "@services/*": ["./src/app/lib/services/*"],
       "@testing/*": ["./src/app/testing/*"],
       "@sorting": ["./src/app/lib/sorting/index"],
-      "@constants": ["./src/constants"]
+      "@constants": ["./src/constants"],
+      "@testing-page-objects": ["./testing/page-objects/index"]
     }
   },
   "include": [
@@ -38,3 +39,4 @@
   ],
   "exclude": ["node_modules"]
 }
+

@@ -1,8 +1,10 @@
-import { test, expect } from './fixtures';
-import RootPage from './page-objects/root';
-import OAuthLoginPage from './page-objects/oauth';
-import SiteSelectionPage from './page-objects/site-selection';
-import EulaConsentPage from './page-objects/eula-consent';
+import { test, expect } from '../fixtures';
+import {
+  EulaConsentPage,
+  OAuthLoginPage,
+  RootPage,
+  SiteSelectionPage,
+} from '@testing-page-objects';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;

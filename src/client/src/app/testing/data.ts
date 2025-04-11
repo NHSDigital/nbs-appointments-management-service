@@ -1,3 +1,4 @@
+import { ukTimezone } from '@services/timeService';
 import {
   AccessibilityDefinition,
   Accessibility,
@@ -488,11 +489,17 @@ const mockDetailedWeeks: Week[] = [
 
 const mockDaySummaries: DaySummary[] = [
   {
-    date: dayjs().year(2024).month(11).date(2),
+    ukDate: dayjs().year(2024).month(11).date(2),
     sessions: [
       {
-        start: dayjs().year(2024).month(11).date(2).hour(9).minute(0),
-        end: dayjs().year(2024).month(11).date(2).hour(17).minute(0),
+        ukStart: {
+          iso: dayjs.utc('2024-11-02 09:00', 'YYYY-MM-DD HH:mm').toISOString(),
+          tz: ukTimezone,
+        },
+        ukEnd: {
+          iso: dayjs.utc('2024-11-02 17:00', 'YYYY-MM-DD HH:mm').toISOString(),
+          tz: ukTimezone,
+        },
         maximumCapacity: 123,
         totalBookings: 5,
         bookings: {
@@ -509,11 +516,11 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 118,
   },
   {
-    date: dayjs().year(2024).month(11).date(4),
+    ukDate: dayjs().year(2024).month(11).date(4),
     sessions: [
       {
-        start: dayjs().year(2024).month(11).date(4).hour(9).minute(0),
-        end: dayjs().year(2024).month(11).date(4).hour(17).minute(0),
+        startIso: dayjs().year(2024).month(11).date(4).hour(9).minute(0),
+        endIso: dayjs().year(2024).month(11).date(4).hour(17).minute(0),
         maximumCapacity: 200,
         totalBookings: 15,
         bookings: {
@@ -530,11 +537,11 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 185,
   },
   {
-    date: dayjs().year(2024).month(11).date(5),
+    ukDate: dayjs().year(2024).month(11).date(5),
     sessions: [
       {
-        start: dayjs().year(2024).month(11).date(5).hour(9).minute(0),
-        end: dayjs().year(2024).month(11).date(5).hour(17).minute(0),
+        startIso: dayjs().year(2024).month(11).date(5).hour(9).minute(0),
+        endIso: dayjs().year(2024).month(11).date(5).hour(17).minute(0),
         maximumCapacity: 200,
         totalBookings: 20,
         bookings: {
@@ -551,7 +558,7 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 140,
   },
   {
-    date: dayjs().year(2024).month(11).date(6),
+    ukDate: dayjs().year(2024).month(11).date(6),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -563,7 +570,7 @@ const mockDaySummaries: DaySummary[] = [
 
 const mockEmptyDays: DaySummary[] = [
   {
-    date: dayjs().year(2024).month(11).date(2),
+    ukDate: dayjs().year(2024).month(11).date(2),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -572,7 +579,7 @@ const mockEmptyDays: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    date: dayjs().year(2024).month(11).date(4),
+    ukDate: dayjs().year(2024).month(11).date(4),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -581,7 +588,7 @@ const mockEmptyDays: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    date: dayjs().year(2024).month(11).date(5),
+    ukDate: dayjs().year(2024).month(11).date(5),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,

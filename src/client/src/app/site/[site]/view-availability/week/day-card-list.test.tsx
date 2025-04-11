@@ -28,8 +28,8 @@ describe('Day Card List', () => {
   it('renders', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      weekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      weekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
+      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
     });
     render(jsx);
   });
@@ -37,8 +37,8 @@ describe('Day Card List', () => {
   it('requests a summary for the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      weekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      weekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
+      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
     });
     render(jsx);
 
@@ -53,8 +53,8 @@ describe('Day Card List', () => {
   it('renders a card for each day in the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      weekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      weekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
+      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
     });
     render(jsx);
 

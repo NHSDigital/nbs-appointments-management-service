@@ -47,7 +47,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const orphanedMessage =
     orphanedAppointments.length > 0
-      ? `${orphanedAppointments.length} booked appointments are affected due to an edit to your availability. These bookings are still scheduled until you click "Cancel".`
+      ? `${orphanedAppointments.length} booked appointments are affected. You'll need to manually cancel these appointments.`
       : 'There are no booked appointments affected by availability changes.';
 
   const backLink: NavigationByHrefProps = {

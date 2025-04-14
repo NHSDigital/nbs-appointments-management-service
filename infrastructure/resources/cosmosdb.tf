@@ -1,5 +1,5 @@
 resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
-  count                    = var.create_cosmos_db ? 1 : 0
+  count                      = var.create_cosmos_db ? 1 : 0
   name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
   location                   = var.location
   resource_group_name        = data.azurerm_resource_group.nbs_mya_resource_group.name

@@ -7,13 +7,13 @@ param (
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$appConfigAccountName = "nbs-mya-config-$environment-uks-replicaukw"
+$appConfigAccountName = "nbs-mya-config-$environment-uks"
 
-$appConfigConnection =
-az appconfig credential list `
-        --name $appConfigAccountName `
-        --resource-group $ResourceGroup `
-        --query "[?name == 'Primary'].connectionString | [0]" `
-        --output tsv
+$appConfigConnection = 
+az appconfig replica show `
+        --store-name $appConfigAccountName `
+        --name replicaukw `
+        --query "endpoint" `
+        --output tsv `
 
 Write-Host "##vso[task.setvariable variable=APP_CONFIG_CONNECTION;issecret=true]$appConfigConnection"

@@ -81,8 +81,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_connection_string.ps1"
-              ## TODO: use the ukw resource group
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_replica_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -282,8 +281,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_connection_string.ps1"
-              ## TODO: use the ukw resource group
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_replica_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0

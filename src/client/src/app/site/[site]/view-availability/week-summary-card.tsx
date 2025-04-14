@@ -10,9 +10,9 @@ type WeekSummaryCardProps = {
 };
 
 export const WeekSummaryCard = ({
-  ukWeekSummary,
-  clinicalServices,
-}: WeekSummaryCardProps) => {
+                                  ukWeekSummary,
+                                  clinicalServices,
+                                }: WeekSummaryCardProps) => {
   const { startDate, endDate, daySummaries } = ukWeekSummary;
 
   const allBookingsInWeek = daySummaries.reduce(

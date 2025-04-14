@@ -1,7 +1,11 @@
 import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewAvailabilityPage } from './view-availability-page';
-import { parseDateStringToUkDatetime, ukNow } from '@services/timeService';
+import {
+  dayStringFormat,
+  parseDateStringToUkDatetime,
+  ukNow,
+} from '@services/timeService';
 
 type PageProps = {
   params: {
@@ -17,7 +21,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
 
   const searchMonth = searchParams?.date
-    ? parseDateStringToUkDatetime(searchParams?.date, 'YYYY-MM-DD')
+    ? parseDateStringToUkDatetime(searchParams?.date, dayStringFormat)
     : ukNow();
 
   return (

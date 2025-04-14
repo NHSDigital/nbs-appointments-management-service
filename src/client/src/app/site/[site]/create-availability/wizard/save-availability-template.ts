@@ -10,6 +10,7 @@ import {
   saveAvailability,
 } from '@services/appointmentsService';
 import {
+  dayStringFormat,
   formatTimeString,
   parseDateComponentsToUkDatetime,
 } from '@services/timeService';
@@ -18,13 +19,13 @@ async function saveAvailabilityTemplate(
   formData: CreateAvailabilityFormValues,
   site: Site,
 ) {
-  const startDate = parseDateComponentsToUkDatetime(formData.startDate);
-  const endDate = parseDateComponentsToUkDatetime(
+  const startUkDatetime = parseDateComponentsToUkDatetime(formData.startDate);
+  const endUkDatetime = parseDateComponentsToUkDatetime(
     formData.endDate ?? formData.startDate,
   );
 
   // TODO: slimline this numbers -> dayjs conversion to be less hacky and avoid checks like this
-  if (startDate === undefined || endDate === undefined) {
+  if (startUkDatetime === undefined || endUkDatetime === undefined) {
     throw new Error(
       'Could not parse dates - this should have been caught in form validation.',
     );
@@ -33,8 +34,8 @@ async function saveAvailabilityTemplate(
   if (formData.sessionType === 'repeating') {
     const request: ApplyAvailabilityTemplateRequest = {
       site: site.id,
-      from: startDate.format('YYYY-MM-DD'),
-      until: endDate.format('YYYY-MM-DD'),
+      from: startUkDatetime.format(dayStringFormat),
+      until: endUkDatetime.format(dayStringFormat),
       template: {
         days: formData.days,
         sessions: [
@@ -54,7 +55,7 @@ async function saveAvailabilityTemplate(
   } else {
     const request: SetAvailabilityRequest = {
       site: site.id,
-      date: startDate.format('YYYY-MM-DD'),
+      date: startUkDatetime.format(dayStringFormat),
       sessions: [
         {
           from: formatTimeString(formData.session.startTime) ?? '',

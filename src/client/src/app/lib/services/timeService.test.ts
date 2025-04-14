@@ -10,6 +10,7 @@ import {
   ukEndOfWeek,
   getUkWeeksOfTheMonth,
   parseDateStringToUkDatetime,
+  dayStringFormat,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 import dayjs from 'dayjs';
@@ -155,7 +156,7 @@ describe('Time Service', () => {
     const dstChangeDateTime = '2025-10-01';
     const dateTime = parseDateStringToUkDatetime(
       dstChangeDateTime,
-      'YYYY-MM-DD',
+      dayStringFormat,
     );
     const weeks = getUkWeeksOfTheMonth(dateTime);
 
@@ -221,8 +222,8 @@ describe('Time Service', () => {
   });
 
   it.each([
-    [dayjs().add(1, 'day').format('YYYY-MM-DD'), true],
-    [dayjs().subtract(1, 'day').format('YYYY-MM-DD'), false],
+    [dayjs().add(1, 'day').format(dayStringFormat), true],
+    [dayjs().subtract(1, 'day').format(dayStringFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {

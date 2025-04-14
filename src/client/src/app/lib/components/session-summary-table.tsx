@@ -18,10 +18,10 @@ type SessionSummaryTableProps = {
 };
 
 export const SessionSummaryTable = ({
-  sessionSummaries,
-  showChangeSessionLink,
-  clinicalServices,
-}: SessionSummaryTableProps) => {
+                                      sessionSummaries,
+                                      showChangeSessionLink,
+                                      clinicalServices,
+                                    }: SessionSummaryTableProps) => {
   return (
     <Table
       headers={[
@@ -72,24 +72,24 @@ export const getSessionSummaryRows = (
       />,
       ...(showChangeSessionLinkProps && isAfter(ukStartDatetime, ukNow())
         ? [
-            <Link
-              key={`session-${sessionIndex}-action-link`}
-              href={buildEditSessionLink(
-                showChangeSessionLinkProps.siteId,
-                showChangeSessionLinkProps.ukDate,
-                sessionSummary,
-              )}
-            >
-              Change
-            </Link>,
-          ]
+          <Link
+            key={`session-${sessionIndex}-action-link`}
+            href={buildEditSessionLink(
+              showChangeSessionLinkProps.siteId,
+              showChangeSessionLinkProps.ukDate,
+              sessionSummary,
+            )}
+          >
+            Change
+          </Link>,
+        ]
         : ['']),
     ];
   });
 
 export const SessionTimesCell = ({
-  sessionSummary,
-}: {
+                                   sessionSummary,
+                                 }: {
   sessionSummary: SessionSummary;
 }) => {
   const ukStartDatetime = extractUkSessionDatetime(
@@ -102,9 +102,9 @@ export const SessionTimesCell = ({
 };
 
 export const SessionServicesCell = ({
-  sessionSummary,
-  clinicalServices,
-}: {
+                                      sessionSummary,
+                                      clinicalServices,
+                                    }: {
   sessionSummary: SessionSummary;
   clinicalServices: ClinicalService[];
 }) => {
@@ -124,8 +124,8 @@ export const SessionServicesCell = ({
 };
 
 export const SessionBookingsCell = ({
-  sessionSummary,
-}: {
+                                      sessionSummary,
+                                    }: {
   sessionSummary: SessionSummary;
 }) => {
   return (
@@ -143,8 +143,8 @@ export const SessionBookingsCell = ({
 };
 
 export const SessionUnbookedCell = ({
-  sessionSummary,
-}: {
+                                      sessionSummary,
+                                    }: {
   sessionSummary: SessionSummary;
 }) => {
   return (

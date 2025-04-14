@@ -13,8 +13,9 @@ import {
 import { Controller } from 'react-hook-form';
 import {
   compareTimes,
+  extractUkSessionDatetime,
   formatTimeString,
-  isoTimezoneToDayjs,
+  parseDateStringToUkDatetime,
   toTimeComponents,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
@@ -36,10 +37,12 @@ const EditSessionTimeAndCapacityForm = ({
   existingSession,
   date,
 }: Props) => {
-  const ukStartTime = isoTimezoneToDayjs(existingSession.ukStart).format(
-    'HH:mm',
-  );
-  const ukEndTime = isoTimezoneToDayjs(existingSession.ukEnd).format('HH:mm');
+  const ukStartTime = extractUkSessionDatetime(
+    existingSession.ukStartDatetime,
+  ).format('HH:mm');
+  const ukEndTime = extractUkSessionDatetime(
+    existingSession.ukEndDatetime,
+  ).format('HH:mm');
 
   const {
     handleSubmit,

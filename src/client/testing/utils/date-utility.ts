@@ -1,3 +1,4 @@
+import { dayStringFormat } from '@services/timeService';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 dayjs.extend(isoWeek);
@@ -22,7 +23,7 @@ export const getDateInFuture = (
 
 export const daysFromToday = (
   numberOfDaysFromToday = 1,
-  requiredformat = 'YYYY-MM-DD',
+  requiredformat = dayStringFormat,
 ) => dayjs().add(numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>

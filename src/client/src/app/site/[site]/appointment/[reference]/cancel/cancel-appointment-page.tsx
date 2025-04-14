@@ -11,6 +11,7 @@ import {
 import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import dayjs from 'dayjs';
+import { dayStringFormat } from '@services/timeService';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -19,10 +20,10 @@ type CancelFormValue = {
 };
 
 const CancelAppointmentPage = ({
-  booking,
-  site,
-  clinicalServices,
-}: {
+                                 booking,
+                                 site,
+                                 clinicalServices,
+                               }: {
   booking: Booking;
   site: string;
   clinicalServices: ClinicalService[];
@@ -46,7 +47,8 @@ const CancelAppointmentPage = ({
       await cancelAppointment(booking.reference, site);
     }
 
-    const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+    //TODO refactor this!!
+    const returnDate = dayjs(booking.from).format(dayStringFormat);
 
     replace(
       `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
@@ -96,6 +98,7 @@ const mapSummaryData = (
 
   const items: SummaryListItem[] = [];
 
+  //TODO refactor!!
   const bookingDate = dayjs(booking.from);
   const contactDetails =
     booking.contactDetails && booking.contactDetails.length > 0

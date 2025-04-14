@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import { DayCardList } from './day-card-list';
+import { addToUkDate, dayStringFormat } from '@services/timeService';
 
 type Props = {
   ukWeekStart: dayjs.Dayjs;
@@ -15,8 +16,8 @@ export const ViewWeekAvailabilityPage = async ({
   ukWeekEnd,
   site,
 }: Props) => {
-  const nextUkWeek = ukWeekStart.add(1, 'week');
-  const previousUkWeek = ukWeekStart.add(-1, 'week');
+  const nextUkWeek = addToUkDate(ukWeekStart, 1, 'week');
+  const previousUkWeek = addToUkDate(ukWeekStart, -1, 'week');
 
   // Example: 2-8 December
   const getPaginationTextSameMonth = (
@@ -34,23 +35,23 @@ export const ViewWeekAvailabilityPage = async ({
     return `${firstDate.format('D MMMM')}-${secondDate.format('D MMMM YYYY')}`;
   };
 
+  const oneWeekAfterWeekEnd = addToUkDate(ukWeekEnd, 1, 'week');
+  const oneWeekBeforeWeekEnd = addToUkDate(ukWeekEnd, -1, 'week');
+
   const next = {
     title:
-      nextUkWeek.month() > ukWeekEnd.add(1, 'week').month()
-        ? getPaginationTextDifferentMonth(nextUkWeek, ukWeekEnd.add(1, 'week'))
-        : getPaginationTextSameMonth(nextUkWeek, ukWeekEnd.add(1, 'week')),
-    href: `week?date=${nextUkWeek.format('YYYY-MM-DD')}`,
+      nextUkWeek.month() > oneWeekAfterWeekEnd.month()
+        ? getPaginationTextDifferentMonth(nextUkWeek, oneWeekAfterWeekEnd)
+        : getPaginationTextSameMonth(nextUkWeek, oneWeekAfterWeekEnd),
+    href: `week?date=${nextUkWeek.format(dayStringFormat)}`,
   };
 
   const previous = {
     title:
       previousUkWeek.month() < ukWeekStart.month()
-        ? getPaginationTextDifferentMonth(
-            previousUkWeek,
-            ukWeekEnd.add(-1, 'week'),
-          )
-        : getPaginationTextSameMonth(previousUkWeek, ukWeekEnd.add(-1, 'week')),
-    href: `week?date=${previousUkWeek.format('YYYY-MM-DD')}`,
+        ? getPaginationTextDifferentMonth(previousUkWeek, oneWeekBeforeWeekEnd)
+        : getPaginationTextSameMonth(previousUkWeek, oneWeekBeforeWeekEnd),
+    href: `week?date=${previousUkWeek.format(dayStringFormat)}`,
   };
 
   return (

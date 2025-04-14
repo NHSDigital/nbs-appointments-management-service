@@ -6,6 +6,7 @@ import {
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
+import { dayStringFormat } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 
 type PageProps = {
@@ -24,7 +25,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchSite(params.site),
     fetchClinicalServices(),
   ]);
-  const date = dayjs(searchParams.date, 'YYYY-MM-DD');
+  //TODO refactor!!
+  const date = dayjs(searchParams.date, dayStringFormat);
 
   const updatedSession: AvailabilitySession = JSON.parse(
     atob(searchParams.updatedSession),

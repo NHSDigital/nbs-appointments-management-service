@@ -61,7 +61,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/cosmosdb/failover-cosmosdb.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
 
           - task: AzureCLI@2

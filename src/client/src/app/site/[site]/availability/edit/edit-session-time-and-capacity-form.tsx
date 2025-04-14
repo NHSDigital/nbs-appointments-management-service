@@ -37,10 +37,10 @@ const EditSessionTimeAndCapacityForm = ({
   existingSession,
   date,
 }: Props) => {
-  const ukStartTime = extractUkSessionDatetime(
+  const existingUkStartTime = extractUkSessionDatetime(
     existingSession.ukStartDatetime,
   ).format('HH:mm');
-  const ukEndTime = extractUkSessionDatetime(
+  const existingUkEndTime = extractUkSessionDatetime(
     existingSession.ukEndDatetime,
   ).format('HH:mm');
 
@@ -52,15 +52,21 @@ const EditSessionTimeAndCapacityForm = ({
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
-        startTime: toTimeComponents(ukStartTime),
-        endTime: toTimeComponents(ukEndTime),
+        startTime: toTimeComponents(existingUkStartTime),
+        endTime: toTimeComponents(existingUkEndTime),
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
       newSession: {
-        startTime: toTimeComponents(ukStartTime),
-        endTime: toTimeComponents(ukEndTime),
+        startTime: {
+          hour: existingUkStartTime.split(':')[0],
+          minute: existingUkStartTime.split(':')[1],
+        },
+        endTime: {
+          hour: existingUkEndTime.split(':')[0],
+          minute: existingUkEndTime.split(':')[1],
+        },
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,

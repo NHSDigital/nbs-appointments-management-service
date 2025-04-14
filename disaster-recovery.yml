@@ -271,7 +271,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-cosmos-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
 
           - task: AzureCLI@2

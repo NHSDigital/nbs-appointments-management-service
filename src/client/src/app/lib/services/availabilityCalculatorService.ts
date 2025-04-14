@@ -1,4 +1,5 @@
 import {
+  addToUkDate,
   getWeek,
   isBeforeOrEqual,
   isoTimezoneToDayjs,
@@ -120,9 +121,14 @@ const summariseDay = (
     }
 
     const matchingSlot = slots.find(slot => {
+      const bookingUkDatetime = parseDateStringToUkDatetime(
+        booking.from,
+        'YYYY-MM-DDTHH:mm:ss',
+      );
+
       return (
         slot.capacity > 0 &&
-        slot.from.isSame(dayjs(booking.from)) &&
+        slot.from.isSame(bookingUkDatetime) &&
         slot.length === booking.duration &&
         slot.services.includes(booking.service)
       );
@@ -215,7 +221,12 @@ const divideSessionIntoSlots = (
   while (
     isBeforeOrEqual(
       currentSlot,
-      ukEndTime.add(session.slotLength * -1, 'minute'),
+      addToUkDate(
+        ukEndTime,
+        session.slotLength * -1,
+        'minute',
+        'YYYY-MM-DDTHH:mm:ss',
+      ),
     )
   ) {
     slots.push({
@@ -225,7 +236,13 @@ const divideSessionIntoSlots = (
       length: session.slotLength,
       capacity: session.capacity,
     });
-    currentSlot = currentSlot.add(session.slotLength, 'minute');
+
+    currentSlot = addToUkDate(
+      currentSlot,
+      session.slotLength,
+      'minute',
+      'YYYY-MM-DDTHH:mm:ss',
+    );
   }
 
   return slots;

@@ -186,13 +186,28 @@ export const compareTimes = (
   return 'equal';
 };
 
-export const getWeeksOfTheMonth = (
-  dateInMonth: dayjs.Dayjs,
+//create new date from an operation on a provided UK date.
+//new datetime should have the correct timezone and offset.
+export const addToUkDate = (
+  ukDatetime: dayjs.Dayjs,
+  value: number,
+  manipulateType: dayjs.ManipulateType,
+  format: string,
+): dayjs.Dayjs => {
+  const stringifyDatetime = ukDatetime
+    .add(value, manipulateType)
+    .format(format);
+
+  return parseDateStringToUkDatetime(stringifyDatetime, format);
+};
+
+export const getUkWeeksOfTheMonth = (
+  ukDateInMonth: dayjs.Dayjs,
 ): dayjs.Dayjs[][] => {
-  const startOfFirstWeekInMonth = dateInMonth
+  const startOfFirstWeekInMonth = ukDateInMonth
     .startOf('month')
     .startOf('isoWeek');
-  const endOfLastWeekInMonth = dateInMonth.endOf('month').endOf('isoWeek');
+  const endOfLastWeekInMonth = ukDateInMonth.endOf('month').endOf('isoWeek');
 
   const dates: dayjs.Dayjs[][] = [];
   let currentWeek: dayjs.Dayjs[] = [];
@@ -204,7 +219,8 @@ export const getWeeksOfTheMonth = (
       dates.push(currentWeek);
       currentWeek = [];
     }
-    currentDate = currentDate.add(1, 'day');
+
+    currentDate = addToUkDate(currentDate, 1, 'day', 'YYYY-MM-DD');
   }
 
   if (currentWeek.length > 0) {

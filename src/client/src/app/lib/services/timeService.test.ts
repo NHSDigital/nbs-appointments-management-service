@@ -8,6 +8,8 @@ import {
   toTwoDigitFormat,
   ukStartOfWeek,
   ukEndOfWeek,
+  getUkWeeksOfTheMonth,
+  parseDateStringToUkDatetime,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 import dayjs from 'dayjs';
@@ -147,6 +149,29 @@ describe('Time Service', () => {
     //check it returns UTC hour and mins
     const time = result.format('HH:mm');
     expect(time).toBe('00:00');
+  });
+
+  it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
+    const dstChangeDateTime = '2025-10-01';
+    const dateTime = parseDateStringToUkDatetime(
+      dstChangeDateTime,
+      'YYYY-MM-DD',
+    );
+    const weeks = getUkWeeksOfTheMonth(dateTime);
+
+    expect(weeks).toHaveLength(5);
+
+    //grab time change week
+    const dstChange1 = weeks[3];
+
+    //bst date should be 1 hour behind UTC
+    expect(dstChange1[6].toISOString()).toBe('2025-10-25T23:00:00.000Z');
+
+    //grab time change after week
+    const dstChange2 = weeks[4];
+
+    //utc should be level after change
+    expect(dstChange2[0].toISOString()).toBe('2025-10-27T00:00:00.000Z');
   });
 
   it('ukEndOfWeek summertime', async () => {

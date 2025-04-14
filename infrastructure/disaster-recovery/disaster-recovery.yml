@@ -110,6 +110,15 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
 
+          - task: AzureCLI@2
+            displayName: "Apply Feature Toggles"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
+              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-ukw -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+
           - task: DownloadPipelineArtifact@2
             displayName: Download MYA web app artifact
             inputs:

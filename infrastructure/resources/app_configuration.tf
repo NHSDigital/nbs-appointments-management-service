@@ -5,4 +5,8 @@ resource "azurerm_app_configuration" "nbs_mya_app_configuration" {
   location            = var.location
   sku                 = "standard"
   soft_delete_retention_days = 1
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

@@ -293,18 +293,13 @@ type DayAvailabilityDetails = {
 };
 
 type SessionSummary = {
-  ukStart: IsoTimezone;
-  ukEnd: IsoTimezone;
+  ukStartDatetime: string;
+  ukEndDatetime: string;
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
   capacity: number;
   slotLength: number;
-};
-
-type IsoTimezone = {
-  iso: string;
-  tz: string;
 };
 
 type DaySummary = {
@@ -342,9 +337,9 @@ type ServiceBookingDetails = {
 
 type CancelSessionRequest = {
   site: string;
-  ukDate: string;
-  ukFrom: string;
-  ukUntil: string;
+  date: string;
+  from: string;
+  until: string;
   services: string[];
   slotLength: number;
   capacity: number;
@@ -402,7 +397,6 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  IsoTimezone,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

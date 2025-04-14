@@ -3,6 +3,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
+import { dayStringFormat } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -18,7 +19,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
 
-  const date = dayjs(searchParams.date, 'YYYY-MM-DD');
+  //TODO refactor!!
+  const date = dayjs(searchParams.date, dayStringFormat);
 
   if (searchParams.session === undefined || searchParams.date === undefined) {
     notFound();

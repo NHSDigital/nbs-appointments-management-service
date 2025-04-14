@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import dayjs from 'dayjs';
-import { ukNow } from '@services/timeService';
+import { dayStringFormat, ukNow } from '@services/timeService';
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
@@ -68,7 +68,8 @@ describe('Session summary table', () => {
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          ukDate: mockWeekAvailability__Summary[0].ukDate.format('YYYY-MM-DD'),
+          ukDate:
+            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
         }}
       />,
     );
@@ -109,7 +110,8 @@ describe('Session summary table', () => {
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          ukDate: mockWeekAvailability__Summary[0].ukDate.format('YYYY-MM-DD'),
+          ukDate:
+            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
         }}
       />,
     );

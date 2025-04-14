@@ -1,4 +1,4 @@
-import { ukTimezone } from '@services/timeService';
+import { dayStringFormat, ukTimezone } from '@services/timeService';
 import {
   AccessibilityDefinition,
   Accessibility,
@@ -492,11 +492,11 @@ const mockDaySummaries: DaySummary[] = [
     ukDate: dayjs().year(2024).month(11).date(2),
     sessions: [
       {
-        ukStart: {
+        ukStartDatetime: {
           iso: dayjs.utc('2024-11-02 09:00', 'YYYY-MM-DD HH:mm').toISOString(),
           tz: ukTimezone,
         },
-        ukEnd: {
+        ukEndDatetime: {
           iso: dayjs.utc('2024-11-02 17:00', 'YYYY-MM-DD HH:mm').toISOString(),
           tz: ukTimezone,
         },
@@ -603,7 +603,7 @@ const mockWeekAvailabilityEnd = dayjs('2024-12-08 23:59:59');
 
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mockWeekAvailabilityStart.format('YYYY-MM-DD'),
+    date: mockWeekAvailabilityStart.format(dayStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -622,7 +622,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mockWeekAvailabilityEnd.format('YYYY-MM-DD'),
+    date: mockWeekAvailabilityEnd.format(dayStringFormat),
     sessions: [
       {
         capacity: 2,

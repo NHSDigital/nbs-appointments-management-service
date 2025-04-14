@@ -2,7 +2,7 @@ import { Cell, Table } from '@components/nhsuk-frontend';
 import { clinicalServices, SessionSummary } from '@types';
 import Link from 'next/link';
 import { UrlObject } from 'url';
-import { isoTimezoneToDayjs, ukNow } from '@services/timeService';
+import { extractUkSessionDatetime, ukNow } from '@services/timeService';
 
 type SessionSummaryTableProps = {
   sessionSummaries: SessionSummary[];
@@ -38,7 +38,9 @@ export const getSessionSummaryRows = (
   },
 ): Cell[][] =>
   sessionSummaries.map((sessionSummary, sessionIndex) => {
-    const ukStart = isoTimezoneToDayjs(sessionSummary.ukStart);
+    const ukStartDatetime = extractUkSessionDatetime(
+      sessionSummary.ukStartDatetime,
+    );
     return [
       <SessionTimesCell
         key={`session-${sessionIndex}-start-and-end-time`}
@@ -56,7 +58,7 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-unbooked`}
         sessionSummary={sessionSummary}
       />,
-      ...(showChangeSessionLinkProps && ukStart.isAfter(ukNow())
+      ...(showChangeSessionLinkProps && ukStartDatetime.isAfter(ukNow())
         ? [
             <Link
               key={`session-${sessionIndex}-action-link`}
@@ -78,10 +80,12 @@ export const SessionTimesCell = ({
 }: {
   sessionSummary: SessionSummary;
 }) => {
-  const ukStart = isoTimezoneToDayjs(sessionSummary.ukStart);
-  const ukEnd = isoTimezoneToDayjs(sessionSummary.ukEnd);
+  const ukStartDatetime = extractUkSessionDatetime(
+    sessionSummary.ukStartDatetime,
+  );
+  const ukEndDatetime = extractUkSessionDatetime(sessionSummary.ukEndDatetime);
   return (
-    <strong>{`${ukStart.format('HH:mm')} - ${ukEnd.format('HH:mm')}`}</strong>
+    <strong>{`${ukStartDatetime.format('HH:mm')} - ${ukEndDatetime.format('HH:mm')}`}</strong>
   );
 };
 

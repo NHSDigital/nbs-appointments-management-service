@@ -1,3 +1,4 @@
+import { dayStringFormat } from '@services/timeService';
 import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
 import dayjs from 'dayjs';
 
@@ -11,7 +12,7 @@ const sundayThe16thOfJune2024 = dayjs('2024-06-16T00:00:00Z');
  */
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mondayThe10thOfJune2024.format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.format(dayStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -30,7 +31,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(1, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(1, 'days').format(dayStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -49,7 +50,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(2, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(2, 'days').format(dayStringFormat),
     sessions: [
       {
         capacity: 4,
@@ -61,7 +62,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(3, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(3, 'days').format(dayStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -80,7 +81,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(4, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(4, 'days').format(dayStringFormat),
     sessions: [
       {
         capacity: 3,
@@ -92,11 +93,11 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(5, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(5, 'days').format(dayStringFormat),
     sessions: [],
   },
   {
-    date: mondayThe10thOfJune2024.add(6, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(6, 'days').format(dayStringFormat),
     sessions: [],
   },
 ];

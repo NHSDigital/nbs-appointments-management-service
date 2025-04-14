@@ -1,11 +1,13 @@
 import {
   addToUkDate,
+  buildUkSessionDatetime,
+  dateTimeStringFormat,
+  dayStringFormat,
+  extractUkSessionDatetime,
   getWeek,
   isBeforeOrEqual,
-  isoTimezoneToDayjs,
   parseDateStringToUkDatetime,
   toTimeComponents,
-  ukTimezone,
 } from '@services/timeService';
 import {
   fetchDailyAvailability,
@@ -31,12 +33,12 @@ export const summariseWeek = async (
   const [dailyAvailability, dailyBookings] = await Promise.all([
     fetchDailyAvailability(
       siteId,
-      ukWeekStart.format('YYYY-MM-DD'),
-      ukWeekEnd.format('YYYY-MM-DD'),
+      ukWeekStart.format(dayStringFormat),
+      ukWeekEnd.format(dayStringFormat),
     ),
     fetchBookings({
       from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
-      to: ukWeekEnd.add(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
+      to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),
   ]);
@@ -52,7 +54,7 @@ export const summariseWeek = async (
       //need to parse booking datetime back to UK date
       const ukBookingDatetime = parseDateStringToUkDatetime(
         booking.from,
-        'YYYY-MM-DDTHH:mm:ss',
+        dateTimeStringFormat,
       );
       const result = ukBookingDatetime.isSame(ukDay, 'day');
       return result;
@@ -123,7 +125,7 @@ const summariseDay = (
     const matchingSlot = slots.find(slot => {
       const bookingUkDatetime = parseDateStringToUkDatetime(
         booking.from,
-        'YYYY-MM-DDTHH:mm:ss',
+        dateTimeStringFormat,
       );
 
       return (
@@ -168,10 +170,10 @@ const buildDaySummary = (
   const sessionSummaries = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.session)
     .sort((a, b) => {
-      const aStart = isoTimezoneToDayjs(a.ukStart);
-      const bStart = isoTimezoneToDayjs(b.ukStart);
-      const aEnd = isoTimezoneToDayjs(a.ukEnd);
-      const bEnd = isoTimezoneToDayjs(b.ukEnd);
+      const aStart = extractUkSessionDatetime(a.ukStartDatetime);
+      const bStart = extractUkSessionDatetime(b.ukStartDatetime);
+      const aEnd = extractUkSessionDatetime(a.ukEndDatetime);
+      const bEnd = extractUkSessionDatetime(b.ukEndDatetime);
 
       if (aStart.isBefore(bStart)) {
         return -1;
@@ -211,21 +213,21 @@ const buildDaySummary = (
 
 const divideSessionIntoSlots = (
   sessionIndex: number,
-  ukStartTime: dayjs.Dayjs,
-  ukEndTime: dayjs.Dayjs,
+  ukStartDatetime: dayjs.Dayjs,
+  ukEndDatetime: dayjs.Dayjs,
   session: AvailabilitySession,
 ): AvailabilitySlot[] => {
   const slots: AvailabilitySlot[] = [];
 
-  let currentSlot = ukStartTime.clone();
+  let currentSlot = ukStartDatetime.clone();
   while (
     isBeforeOrEqual(
       currentSlot,
       addToUkDate(
-        ukEndTime,
+        ukEndDatetime,
         session.slotLength * -1,
         'minute',
-        'YYYY-MM-DDTHH:mm:ss',
+        dateTimeStringFormat,
       ),
     )
   ) {
@@ -241,7 +243,7 @@ const divideSessionIntoSlots = (
       currentSlot,
       session.slotLength,
       'minute',
-      'YYYY-MM-DDTHH:mm:ss',
+      dateTimeStringFormat,
     );
   }
 
@@ -256,17 +258,22 @@ const mapSessionsAndSlots = (
     const start = toTimeComponents(session.from);
     const end = toTimeComponents(session.until);
 
-    const ukStartTime = ukDate
-      .hour(Number(start?.hour))
-      .minute(Number(start?.minute));
-    const ukEndTime = ukDate
-      .hour(Number(end?.hour))
-      .minute(Number(end?.minute));
+    const ukStartDatetime = buildUkSessionDatetime(
+      ukDate,
+      Number(start?.hour),
+      Number(start?.minute),
+    );
+
+    const ukEndDatetime = buildUkSessionDatetime(
+      ukDate,
+      Number(end?.hour),
+      Number(end?.minute),
+    );
 
     const slotsInSession = divideSessionIntoSlots(
       index,
-      ukStartTime,
-      ukEndTime,
+      ukStartDatetime,
+      ukEndDatetime,
       session,
     );
 
@@ -276,14 +283,8 @@ const mapSessionsAndSlots = (
     });
 
     const sessionSummary: SessionSummary = {
-      ukStart: {
-        iso: ukStartTime.toISOString(),
-        tz: ukTimezone,
-      },
-      ukEnd: {
-        iso: ukEndTime.toISOString(),
-        tz: ukTimezone,
-      },
+      ukStartDatetime: ukStartDatetime.format(dateTimeStringFormat),
+      ukEndDatetime: ukEndDatetime.format(dateTimeStringFormat),
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
       bookings: bookingsByService,

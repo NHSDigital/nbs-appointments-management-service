@@ -9,6 +9,7 @@ import {
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { cancelAppointment } from '@services/appointmentsService';
+import { dayStringFormat } from '@services/timeService';
 import { Booking, clinicalServices } from '@types';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
@@ -44,7 +45,8 @@ const CancelAppointmentPage = ({
       await cancelAppointment(booking.reference, site);
     }
 
-    const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+    //TODO refactor this!!
+    const returnDate = dayjs(booking.from).format(dayStringFormat);
 
     replace(
       `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,

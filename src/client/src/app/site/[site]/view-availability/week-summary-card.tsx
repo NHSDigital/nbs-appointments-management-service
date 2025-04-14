@@ -1,5 +1,6 @@
 import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
 import { Card, Table } from '@components/nhsuk-frontend';
+import { dayStringFormat } from '@services/timeService';
 import { clinicalServices, WeekSummary } from '@types';
 import Link from 'next/link';
 
@@ -45,7 +46,7 @@ export const WeekSummaryCard = ({ ukWeekSummary }: WeekSummaryCardProps) => {
       <br />
       <Link
         className="nhsuk-link"
-        href={`view-availability/week?date=${startDate.format('YYYY-MM-DD')}`}
+        href={`view-availability/week?date=${startDate.format(dayStringFormat)}`}
       >
         View week
       </Link>

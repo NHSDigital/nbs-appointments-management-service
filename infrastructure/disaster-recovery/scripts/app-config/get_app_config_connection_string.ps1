@@ -7,9 +7,7 @@ param (
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-# TODO: Use the UK West version
-# or pass in loc?
-$appConfigAccountName = "nbs-mya-config-$environment-uks"
+$appConfigAccountName = "nbs-mya-config-$environment-uks-replicaukw"
 
 $appConfigConnection =
 az appconfig credential list `

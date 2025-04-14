@@ -6,7 +6,8 @@ resource "azurerm_app_configuration" "nbs_mya_app_configuration" {
   sku                 = "standard"
   soft_delete_retention_days = 1
 
-  lifecycle {
-    prevent_destroy = true
+  replica {
+    name     = "replicaukw"
+    location = "UK West"
   }
 }

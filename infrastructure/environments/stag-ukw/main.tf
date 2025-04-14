@@ -69,7 +69,7 @@ module "mya_application_stag_ukw" {
   create_autoscale_settings                      = false
   create_frontdoor                               = false
   create_cosmos_db                               = false
-  create_app_config                              = true
+  create_app_config                              = false
   web_app_service_sku                            = "P2v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = false

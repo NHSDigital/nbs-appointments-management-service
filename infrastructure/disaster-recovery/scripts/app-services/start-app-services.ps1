@@ -8,19 +8,17 @@ param (
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$webAppservice = "nbs-mya-app-$environment-$region"
-$functionAppservices = @("nbs-mya-func-$environment-$region", "nbs-mya-hlfunc-$environment-$region", "nbs-mya-sbfunc-$environment-$region", "nbs-mya-timerfunc-$environment-$region")
+$webAppService = "nbs-mya-app-$environment-$region"
+$functionAppServices = @("nbs-mya-func-$environment-$region", "nbs-mya-hlfunc-$environment-$region", "nbs-mya-sbfunc-$environment-$region", "nbs-mya-timerfunc-$environment-$region")
 
-# stop function app services
-foreach ($functionApp in $functionAppservices) {
+foreach ($functionApp in $functionAppServices) {
   az functionapp start `
     --resource-group $resourceGroup `
     --name $functionApp
 }
 
-# stop web app service
 az webapp start `
-  --name $webAppservice `
+  --name $webAppService `
   --resource-group $resourceGroup
 
 

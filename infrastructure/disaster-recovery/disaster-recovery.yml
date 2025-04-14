@@ -52,7 +52,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/stop-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-services/stop-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
@@ -70,7 +70,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get-cosmos-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: AzureCLI@2
@@ -79,7 +79,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_replica_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -244,7 +244,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/appservices/start-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-services/start-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
@@ -280,7 +280,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get_app_config_replica_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0

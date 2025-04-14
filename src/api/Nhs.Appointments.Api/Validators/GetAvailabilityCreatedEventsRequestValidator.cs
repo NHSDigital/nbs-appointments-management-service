@@ -14,8 +14,8 @@ public class GetAvailabilityCreatedEventsRequestValidator : AbstractValidator<Ge
 
         RuleFor(x => x.From)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Provide a date in dayStringFormat")
+            .NotEmpty().WithMessage("Provide a date in 'yyyy-MM-dd'")
             .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _))
-            .WithMessage("Provide a date in the format dayStringFormat");
+            .WithMessage("Provide a date in the format 'yyyy-MM-dd'");
     }
 }

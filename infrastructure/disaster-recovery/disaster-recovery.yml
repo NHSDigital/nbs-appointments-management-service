@@ -1,9 +1,9 @@
 parameters:
   - name: myaPipelineBuildId
-    displayName: "Build Id of the most recent pipeline to have been deployed to the environment to run a disaster recovery for"
+    displayName: "The Build Id of the most recent pipeline to have been deployed to the environment the disaster recovery should be ran for."
     type: string
   - name: env
-    displayName: "Environment to run disaster recovery for"
+    displayName: "The environment the disaster recovery should be ran for."
     type: string
     default: "stag"
     values: ["stag"]
@@ -41,14 +41,13 @@ variables:
 
 stages:
   - stage: "FailoverMyaToUkWest"
-    displayName: "Failover to UK West region"
+    displayName: "Failover to the UK West region"
     jobs:
       - job: FailOverToUkw
-        displayName: "Fail over simulation and deployment of services to ukwest"
+        displayName: "Create resources in UK West, shut down UK South, and failover persistence/configuration"
         steps:
           - task: AzureCLI@2
-            displayName: "Stop UKS App services"
-            condition: ${{ eq(variables.env, 'stag') }}
+            displayName: "Stop UKS App Services"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -57,8 +56,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
-            displayName: "Fail over cosmos to UKW"
-            condition: ${{ eq(variables.env, 'stag') }}
+            displayName: "Failover Cosmos DB to UK West"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -67,7 +65,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
 
           - task: AzureCLI@2
-            displayName: "Get cosmos account connection string"
+            displayName: "Get Cosmos DB connection string"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -76,7 +74,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: AzureCLI@2
-            displayName: "Get app config connection string"
+            displayName: "Get App Config replica connection string"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -90,7 +88,7 @@ stages:
               terraformVersion: "latest"
 
           - task: AzureCLI@2
-            displayName: "Apply Terraform for UKW resources"
+            displayName: "Apply Terraform in UK West"
             name: ApplyTerraformTask
             inputs:
               scriptType: pscore
@@ -109,6 +107,7 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
 
+          ## TODO: Find a way of uploading these to the replica directly to avoid eventual consistency delays
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
             inputs:
@@ -119,7 +118,7 @@ stages:
               arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
 
           - task: DownloadPipelineArtifact@2
-            displayName: Download MYA web app artifact
+            displayName: Download Web App artifact
             inputs:
               buildType: "specific"
               project: "covid19.vaccine-booking"
@@ -130,7 +129,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/drop_web"
 
           - task: DownloadPipelineArtifact@2
-            displayName: Download MYA api artifact
+            displayName: Download API artifact
             inputs:
               buildType: "specific"
               project: "covid19.vaccine-booking"
@@ -151,7 +150,7 @@ stages:
               startUpCommand: "node standalone/server.js"
 
           - task: AzureFunctionApp@2
-            displayName: "Deploy http function app"
+            displayName: "Deploy HTTP function app"
             inputs:
               connectedServiceNameARM: $(serviceConnection)
               appType: "functionApp"
@@ -160,7 +159,7 @@ stages:
               deploymentMethod: "auto"
 
           - task: AzureFunctionApp@2
-            displayName: "Deploy high load function app"
+            displayName: "Deploy High Load function app"
             inputs:
               connectedServiceNameARM: $(serviceConnection)
               appType: "functionApp"
@@ -169,7 +168,7 @@ stages:
               deploymentMethod: "auto"
 
           - task: AzureFunctionApp@2
-            displayName: "Deploy servicebus function app"
+            displayName: "Deploy Service Bus function app"
             inputs:
               connectedServiceNameARM: $(serviceConnection)
               appType: "functionApp"
@@ -178,7 +177,7 @@ stages:
               deploymentMethod: "auto"
 
           - task: AzureFunctionApp@2
-            displayName: "Deploy timer function app"
+            displayName: "Deploy Timer Functions function app"
             inputs:
               connectedServiceNameARM: $(serviceConnection)
               appType: "functionApp"
@@ -187,7 +186,7 @@ stages:
               deploymentMethod: "auto"
 
           - task: AzureCLI@2
-            displayName: "Create frontdoor UKW origin groups"
+            displayName: "Create Frontdoor UK West origin groups"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -196,7 +195,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
-            displayName: "Create frontdoor origins for routing traffic to UKW resources"
+            displayName: "Create Frontdoor origins for routing traffic to UK West resources"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -205,7 +204,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
-            displayName: "Create frontdoor route override rule for UKW"
+            displayName: "Create Frontdoor route override rule for UK West"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -214,7 +213,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
-            displayName: "Update routes to use ukw origin groups"
+            displayName: "Update Frontdoor routes to use UK West origin groups"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -224,23 +223,23 @@ stages:
 
       - job: ConfirmFailBackToUkSouth
         dependsOn: FailOverToUkw
-        displayName: "Confirm failback to UKS"
+        displayName: "Confirm failback to UK South"
         pool: server
         steps:
           - task: ManualValidation@1
-            displayName: "Confirm failback to UKS"
+            displayName: "Confirm failback to UK South"
             inputs:
               notifyUsers: ""
-              instructions: "Approve once ready to failback to UKS"
+              instructions: "Approve this step once you are ready to failback to UK South. This will destroy the UK West resources and restart the UK South resources."
 
   - stage: "FailoverMyaToUkSouth"
-    displayName: "Failback to UK South region"
+    displayName: "Failback to the UK South region"
     jobs:
       - job: FailOverToUksSimulation
-        displayName: "Fail back simulation and deployment of services to uksouth"
+        displayName: "Restart UK South resources, destroy UK West resources, and failback persistence/configuration"
         steps:
           - task: AzureCLI@2
-            displayName: "Start UKS App services"
+            displayName: "Start UK South App Services"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -249,7 +248,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
-            displayName: "Fail over cosmos to UKS"
+            displayName: "Failback Cosmos DB to UK South"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -258,7 +257,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion uksouth -readRegion ukwest"
 
           - task: AzureCLI@2
-            displayName: "Update routes to use UKS origin groups"
+            displayName: "Update Frontdoor routes to use UK South origin groups"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -267,7 +266,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
 
           - task: AzureCLI@2
-            displayName: "Get cosmos account connection string"
+            displayName: "Get Cosmos DB connection string"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -276,7 +275,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
 
           - task: AzureCLI@2
-            displayName: "Get app config connection string"
+            displayName: "Get App Config replica connection string"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -290,7 +289,7 @@ stages:
               terraformVersion: "latest"
 
           - task: AzureCLI@2
-            displayName: "Destroy UKW resources"
+            displayName: "Destroy UK West resources"
             name: ApplyTerraformTask
             inputs:
               scriptType: pscore
@@ -310,7 +309,7 @@ stages:
               COSMOS_TOKEN: $(COSMOS_TOKEN)
 
           - task: AzureCLI@2
-            displayName: "Delete frontdoor route override rule for UKW"
+            displayName: "Delete Frontdoor route override rule for UK West"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
@@ -319,7 +318,7 @@ stages:
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
-            displayName: "Delete frontdoor origin groups for UKW"
+            displayName: "Delete Frontdoor origin groups for UK West"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore

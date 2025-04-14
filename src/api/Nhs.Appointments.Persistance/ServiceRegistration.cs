@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Persistance.Models;
+using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Persistance;
 using System.Reflection;
 

@@ -3,6 +3,7 @@
     "OktaEnabled": false,
     "MultiServiceAvailabilityCalculations": false,
     "JointBookings": true,
-    "BulkImport": true
+    "BulkImport": true,
+    "RSV:Adult": true
   }
 }

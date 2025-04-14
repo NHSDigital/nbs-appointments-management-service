@@ -1,7 +1,7 @@
 import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
 import { Suspense } from 'react';
-import { getWeeksOfTheMonth } from '@services/timeService';
+import { getUkWeeksOfTheMonth } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
 import dayjs from 'dayjs';
 
@@ -23,7 +23,7 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
     href: `view-availability?date=${previousMonth.format('YYYY-MM-DD')}`,
   };
 
-  const weeks = getWeeksOfTheMonth(searchMonth);
+  const ukWeeks = getUkWeeksOfTheMonth(searchMonth);
 
   return (
     <>
@@ -33,7 +33,7 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
         key={searchMonth.format('YYYY-MM-DDTHH:mm:ss')}
         fallback={<Spinner />}
       >
-        <WeekCardList site={site} ukWeeks={weeks} />
+        <WeekCardList site={site} ukWeeks={ukWeeks} />
       </Suspense>
     </>
   );

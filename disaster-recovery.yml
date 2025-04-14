@@ -52,7 +52,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-services/stop-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/stop-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
@@ -61,7 +61,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/cosmosdb/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
 
           - task: AzureCLI@2
@@ -70,7 +70,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get-cosmos-connection-string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-cosmos-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: AzureCLI@2
@@ -79,7 +79,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get-app-config-replica-connection-string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -191,7 +191,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origin-groups.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-origin-groups.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
@@ -200,7 +200,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-origins.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-origins.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
@@ -209,7 +209,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/create-fd-rule.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
@@ -218,7 +218,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/update-fd-routes.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUkw) -apiOriginGroupName $(apiOriginGroupNameUkw) -webOriginGroupName $(webOriginGroupNameUkw)"
 
       - job: ConfirmFailBackToUkSouth
@@ -244,7 +244,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-services/start-app-services.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/start-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
 
           - task: AzureCLI@2
@@ -253,7 +253,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/failover-cosmosdb.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/failover-cosmosdb.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion uksouth -readRegion ukwest"
 
           - task: AzureCLI@2
@@ -262,7 +262,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/update-fd-routes.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
 
           - task: AzureCLI@2
@@ -271,7 +271,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/cosmosdb/get_cosmos_connection_string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
 
           - task: AzureCLI@2
@@ -280,7 +280,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/app-config/get-app-config-replica-connection-string.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
 
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -314,7 +314,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/delete-fd-rule.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/delete-fd-rule.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
 
           - task: AzureCLI@2
@@ -323,5 +323,5 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/infrastructure/disaster-recovery/scripts/frontdoor/delete-fd-origin-groups.ps1"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/delete-fd-origin-groups.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"

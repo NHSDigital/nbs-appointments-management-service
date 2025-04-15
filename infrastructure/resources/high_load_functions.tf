@@ -115,7 +115,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
-    "AzureWebJobs.GetServiceTypesFunction.Disabled"                        = true
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
   }
 
   sticky_settings {

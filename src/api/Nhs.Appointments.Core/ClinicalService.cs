@@ -17,7 +17,7 @@ namespace Nhs.Appointments.Core
 
         private async Task<(ClinicalServiceType Service, bool IsEnabled)> GetServiceFeatureStatus(ClinicalServiceType service) 
         {
-            return (service, await featureToggleHelper.IsFeatureEnabled(service.Value));
+            return (service, await featureToggleHelper.IsFeatureEnabled(service.Value.Replace(':', '-')));
         }
     }
 }

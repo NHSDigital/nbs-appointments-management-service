@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -38,7 +39,12 @@ namespace Nhs.Appointments.Api.Functions
         {
             var serviceTypes = await clinicalService.Get();
             return ApiResult<IEnumerable<ClinicalServiceType>>.Success(serviceTypes);
+        }
 
+
+        protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
+        {
+            return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
         }
     }
 }

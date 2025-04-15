@@ -13,9 +13,11 @@ type AvailabilityCreatedEventsTableProps = {
 export const AvailabilityCreatedEventsTable = async ({
   siteId,
 }: AvailabilityCreatedEventsTableProps) => {
-  const availabilityCreatedEvents =
-    await fetchAvailabilityCreatedEvents(siteId);
-  const clinicalServices = await fetchClinicalServices();
+  const [availabilityCreatedEvents, clinicalServices] = await Promise.all([
+    fetchAvailabilityCreatedEvents(siteId),
+    fetchClinicalServices(),
+  ]);
+
   if (availabilityCreatedEvents.length === 0 || clinicalServices.length === 0) {
     return null;
   }

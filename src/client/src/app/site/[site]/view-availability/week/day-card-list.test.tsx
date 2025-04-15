@@ -1,21 +1,30 @@
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
 import dayjs from 'dayjs';
-import { WeekSummary } from '@types';
+import { ClinicalService, clinicalServices, WeekSummary } from '@types';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 import { DayCardList } from './day-card-list';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchClinicalServices,
+  fetchPermissions,
+} from '@services/appointmentsService';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
 }));
 jest.mock('@services/appointmentsService', () => ({
   fetchPermissions: jest.fn(),
+  fetchClinicalServices: jest.fn(),
 }));
 
 const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
 const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
+const mockClinicalServices = fetchClinicalServices as jest.Mock<
+  Promise<ClinicalService[]>
+>;
+
+const mockServices = clinicalServices;
 
 describe('Day Card List', () => {
   beforeEach(() => {
@@ -23,6 +32,7 @@ describe('Day Card List', () => {
     mockFetchPermissions.mockReturnValue(
       Promise.resolve(['availability:setup']),
     );
+    mockClinicalServices.mockReturnValue(Promise.resolve(mockServices));
   });
 
   it('renders', async () => {
@@ -48,6 +58,7 @@ describe('Day Card List', () => {
       mockSite.id,
     );
     expect(mockFetchPermissions).toHaveBeenCalled();
+    expect(mockClinicalServices).toHaveBeenCalledTimes(1);
   });
 
   it('renders a card for each day in the week', async () => {

@@ -2,6 +2,7 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { mockSite } from '@testing/data';
+import { clinicalServices } from '@types';
 
 describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {
@@ -15,6 +16,7 @@ describe('Cancellation Confirmed Page', () => {
           slotLength: 5,
         }}
         date="2025-01-15"
+        clinicalServices={clinicalServices}
         site={mockSite}
       />,
     );
@@ -34,6 +36,7 @@ describe('Cancellation Confirmed Page', () => {
           capacity: 10,
           slotLength: 5,
         }}
+        clinicalServices={clinicalServices}
         date="2025-01-15"
         site={mockSite}
       />,

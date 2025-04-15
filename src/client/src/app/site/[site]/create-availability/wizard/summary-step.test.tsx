@@ -4,6 +4,7 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SummaryStep from './summary-step';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { clinicalServices } from '@types';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -54,6 +55,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -79,6 +81,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -112,6 +115,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -135,6 +139,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -171,6 +176,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );

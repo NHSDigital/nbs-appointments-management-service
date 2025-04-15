@@ -4,6 +4,7 @@ import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import dayjs from 'dayjs';
 import { now } from '@services/timeService';
+import { clinicalServices } from '@types';
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
@@ -30,6 +31,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -42,6 +44,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -70,6 +73,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           date: mockWeekAvailability__Summary[0].date,
         }}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -111,6 +115,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           date: mockWeekAvailability__Summary[0].date,
         }}
+        clinicalServices={clinicalServices}
       />,
     );
 

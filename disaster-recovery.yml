@@ -107,15 +107,14 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
 
-          ## TODO: Find a way of uploading these to the replica directly to avoid eventual consistency delays
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
             inputs:
               azureSubscription: $(serviceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/import-flags-to-replica.ps1"
+              arguments: "-appConfigConnectionString "$(APP_CONFIG_CONNECTION)" -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
 
           - task: DownloadPipelineArtifact@2
             displayName: Download Web App artifact

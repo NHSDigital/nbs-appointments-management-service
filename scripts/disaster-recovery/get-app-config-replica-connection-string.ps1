@@ -29,7 +29,7 @@ az appconfig replica show `
 
 ## The Replica and the Origin share Access Keys, so the Id and Secret acquired above are still valid.
 ## To derive the ConnectionString of the replica, we need to swap out the Endpoint of the credential with the replica's own
-## TODO: This SHOULD be doable in one command either with az replica --show or az credential list. It seems utterly rediculous that it isn't
+## TODO: This SHOULD be doable in one command either with az replica show or az credential list. It seems utterly rediculous that it isn't
 ## If anyone can do this without resorting to string manipulation, please do so and update this script.
 $appConfigConnection = $normalUKSouthConnectionString -replace "Endpoint=[^;]+", "Endpoint=$UKWestReplicaEndpoint"
 

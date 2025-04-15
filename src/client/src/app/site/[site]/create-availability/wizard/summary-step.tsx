@@ -13,14 +13,19 @@ import { formatTimeString, parseDateComponents } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { calculateCapacity } from './capacity-calculation';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+type SummaryStepProps = {
+  clinicalServices: ClinicalService[];
+};
 
 const SummaryStep = ({
   setCurrentStep,
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
-}: InjectedWizardProps) => {
+  clinicalServices,
+}: InjectedWizardProps & SummaryStepProps) => {
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
@@ -31,7 +36,8 @@ const SummaryStep = ({
   const servicesText = session.services
     .map(
       serviceValue =>
-        clinicalServices.find(service => service.value === serviceValue)?.label,
+        clinicalServices.find(service => service.value === serviceValue)
+          ?.label ?? serviceValue,
     )
     .join(', ');
 

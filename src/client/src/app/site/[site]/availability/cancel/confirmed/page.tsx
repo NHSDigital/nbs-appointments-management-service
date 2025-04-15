@@ -1,5 +1,9 @@
 import NhsPage from '@components/nhs-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchClinicalServices,
+  fetchSite,
+} from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import CancellationConfirmed from './cancellation-confirmed';
@@ -18,7 +22,10 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
 
-  const site = await fetchSite(params.site);
+  const [site, clinicalServices] = await Promise.all([
+    fetchSite(params.site),
+    fetchClinicalServices(),
+  ]);
 
   if (searchParams.session === undefined || searchParams.date === undefined) {
     notFound();
@@ -41,6 +48,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         session={searchParams.session}
         date={searchParams.date}
         site={params.site}
+        clinicalServices={clinicalServices}
       />
     </NhsPage>
   );

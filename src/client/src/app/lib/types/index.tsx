@@ -273,7 +273,7 @@ type BookedAppointments = {
   count: number;
 };
 
-type ClinicalService = {
+export type ClinicalService = {
   label: string;
   value: string;
 };

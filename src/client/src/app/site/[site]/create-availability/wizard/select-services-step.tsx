@@ -10,7 +10,11 @@ import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+type SelectServicesStepProps = {
+  clinicalServices: ClinicalService[];
+};
 
 const SelectServicesStep = ({
   goToNextStep,
@@ -18,7 +22,8 @@ const SelectServicesStep = ({
   stepNumber,
   returnRouteUponCancellation,
   goToPreviousStep,
-}: InjectedWizardProps) => {
+  clinicalServices,
+}: InjectedWizardProps & SelectServicesStepProps) => {
   const { register, watch, trigger, formState, setValue, getValues } =
     useFormContext<CreateAvailabilityFormValues>();
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;

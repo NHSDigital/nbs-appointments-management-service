@@ -1,7 +1,10 @@
 import { Table } from '@components/nhsuk-frontend';
 import { parseDateString } from '@services/timeService';
-import { AvailabilityCreatedEvent, clinicalServices } from '@types';
-import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
+import { AvailabilityCreatedEvent, ClinicalService } from '@types';
+import {
+  fetchAvailabilityCreatedEvents,
+  fetchClinicalServices,
+} from '@services/appointmentsService';
 
 type AvailabilityCreatedEventsTableProps = {
   siteId: string;
@@ -12,14 +15,20 @@ export const AvailabilityCreatedEventsTable = async ({
 }: AvailabilityCreatedEventsTableProps) => {
   const availabilityCreatedEvents =
     await fetchAvailabilityCreatedEvents(siteId);
-  if (availabilityCreatedEvents.length === 0) {
+  const clinicalServices = await fetchClinicalServices();
+  if (availabilityCreatedEvents.length === 0 || clinicalServices.length === 0) {
     return null;
   }
 
-  return <Table {...mapTableData(availabilityCreatedEvents)} />;
+  return (
+    <Table {...mapTableData(availabilityCreatedEvents, clinicalServices)} />
+  );
 };
 
-const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
+const mapTableData = (
+  availabilityCreated: AvailabilityCreatedEvent[],
+  clinicalServices: ClinicalService[],
+) => {
   const headers = ['Dates', 'Days', 'Services', 'Session type'];
 
   const rows = availabilityCreated.map(availability => {
@@ -30,7 +39,7 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
           ? 'All'
           : availability.template.days.map(d => d.substring(0, 3)).join(', '),
         availability.template.sessions[0].services
-          .map(serviceValueToLabel)
+          .map(service => serviceValueToLabel(service, clinicalServices))
           .join(', '),
         'Weekly repeating',
       ];
@@ -39,7 +48,9 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
       parseDateString(availability.from).format('D MMM YYYY'),
       parseDateString(availability.from).format('ddd'),
       availability.sessions
-        ? availability.sessions[0].services.map(serviceValueToLabel)
+        ? availability.sessions[0].services.map(service =>
+            serviceValueToLabel(service, clinicalServices),
+          )
         : 'Error',
       'Single date',
     ];
@@ -48,7 +59,10 @@ const mapTableData = (availabilityCreated: AvailabilityCreatedEvent[]) => {
   return { headers, rows };
 };
 
-const serviceValueToLabel = (serviceValue: string) => {
+const serviceValueToLabel = (
+  serviceValue: string,
+  clinicalServices: ClinicalService[],
+) => {
   const service = clinicalServices.find(s => s.value === serviceValue);
-  return service?.label;
+  return service?.label ?? serviceValue;
 };

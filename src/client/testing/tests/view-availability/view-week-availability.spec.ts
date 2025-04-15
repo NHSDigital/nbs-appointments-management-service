@@ -630,598 +630,356 @@ const weekTestCases: WeekViewTestCase[] = [
   },
 ];
 
-test.describe('View Week Availability', () => {
-  test.beforeEach(async ({ page, getTestSite }) => {
-    site = getTestSite(2);
-    rootPage = new RootPage(page);
-    oAuthPage = new OAuthLoginPage(page);
-    viewWeekAvailabilityPage = new WeekViewAvailabilityPage(page);
-    changeAvailabilityPage = new ChangeAvailabilityPage(page);
-    addSessionPage = new AddSessionPage(page);
-    cancelSessionPage = new CancelSessionDetailsPage(page);
-    dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
-    cancelAppointmentDetailsPage = new CancelAppointmentDetailsPage(page);
+['UTC', 'Europe/London', 'Europe/Paris', 'America/New_York'].forEach(
+  timezone => {
+    test.describe(`Test in timezone: '${timezone}'`, () => {
+      test.use({ timezoneId: timezone });
 
-    await rootPage.goto();
-    await rootPage.pageContentLogInButton.click();
-    await oAuthPage.signIn();
-  });
+      test.describe('View Week Availability', () => {
+        test.beforeEach(async ({ page, getTestSite }) => {
+          site = getTestSite(2);
+          rootPage = new RootPage(page);
+          oAuthPage = new OAuthLoginPage(page);
+          viewWeekAvailabilityPage = new WeekViewAvailabilityPage(page);
+          changeAvailabilityPage = new ChangeAvailabilityPage(page);
+          addSessionPage = new AddSessionPage(page);
+          cancelSessionPage = new CancelSessionDetailsPage(page);
+          dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
+          cancelAppointmentDetailsPage = new CancelAppointmentDetailsPage(page);
 
-  weekTestCases.forEach(week => {
-    test.describe(`Session tests for week: '${week.weekHeader}'`, () => {
-      test.beforeEach(async ({ page }) => {
-        //start test by navigating to the week view that contains this session
-        await page.goto(
-          `manage-your-appointments/site/${site.id}/view-availability/week?date=${week.week}`,
-        );
-      });
+          await rootPage.goto();
+          await rootPage.pageContentLogInButton.click();
+          await oAuthPage.signIn();
+        });
 
-      test(`View week page data is arranged in the day cards as expected`, async () => {
-        await viewWeekAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
-          week.previousWeek,
-          week.nextWeek,
-        );
-        await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
-          week.dayOverviews,
-        );
+        weekTestCases.forEach(week => {
+          test.describe(`Session tests for week: '${week.weekHeader}'`, () => {
+            test.beforeEach(async ({ page }) => {
+              //start test by navigating to the week view that contains this session
+              await page.goto(
+                `manage-your-appointments/site/${site.id}/view-availability/week?date=${week.week}`,
+              );
+            });
+
+            test(`View week page data is arranged in the day cards as expected`, async () => {
+              await viewWeekAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
+                week.previousWeek,
+                week.nextWeek,
+              );
+              await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
+                week.dayOverviews,
+              );
+            });
+          });
+        });
+
+        sessionTestCases.forEach(daySession => {
+          test.describe(`Session tests for day: '${daySession.dayCardHeader}'`, () => {
+            test.beforeEach(async ({ page }) => {
+              //start test by navigating to the week view that contains this session
+              await page.goto(
+                `manage-your-appointments/site/${site.id}/view-availability/week?date=${daySession.week}`,
+              );
+            });
+
+            test('Change session has the correct information on the edit session decision page', async ({
+              page,
+            }) => {
+              const changeButton = page
+                .getByRole('heading', {
+                  name: daySession.dayCardHeader,
+                })
+                .locator('..')
+                .getByRole('link', {
+                  name: 'Change',
+                });
+
+              await changeButton.click();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+              );
+
+              expect(changeAvailabilityPage.changeHeader).toHaveText(
+                `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
+              );
+
+              //table headers!
+              await expect(
+                changeAvailabilityPage.page.getByRole('columnheader', {
+                  name: 'Time',
+                }),
+              ).toBeVisible();
+
+              await expect(
+                changeAvailabilityPage.page.getByRole('columnheader', {
+                  name: 'Services',
+                }),
+              ).toBeVisible();
+
+              await expect(
+                changeAvailabilityPage.page.getByRole('columnheader', {
+                  name: 'Booked',
+                  exact: true,
+                }),
+              ).toBeVisible();
+
+              await expect(
+                changeAvailabilityPage.page.getByRole('columnheader', {
+                  name: 'Unbooked',
+                  exact: true,
+                }),
+              ).toBeVisible();
+
+              //no action header
+              await expect(
+                changeAvailabilityPage.page.getByRole('columnheader', {
+                  name: 'Action',
+                }),
+              ).not.toBeVisible();
+
+              const timeCell = changeAvailabilityPage.page.getByRole('cell', {
+                name: daySession.timeRange,
+              });
+              const serviceCell = changeAvailabilityPage.page.getByRole(
+                'cell',
+                {
+                  name: daySession.service,
+                },
+              );
+              const bookedCell = changeAvailabilityPage.page.getByRole('cell', {
+                name: `${daySession.booked} booked`,
+              });
+              const unbookedCell = changeAvailabilityPage.page.getByRole(
+                'cell',
+                {
+                  name: `${daySession.unbooked} unbooked`,
+                },
+              );
+
+              await expect(timeCell).toBeVisible();
+              await expect(serviceCell).toBeVisible();
+              await expect(bookedCell).toBeVisible();
+              await expect(unbookedCell).toBeVisible();
+            });
+
+            test('Change session has the correct information on the edit session page', async ({
+              page,
+            }) => {
+              const changeButton = page
+                .getByRole('heading', {
+                  name: daySession.dayCardHeader,
+                })
+                .locator('..')
+                .getByRole('link', {
+                  name: 'Change',
+                });
+
+              await changeButton.click();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+              );
+
+              expect(changeAvailabilityPage.changeHeader).toHaveText(
+                `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
+              );
+
+              await changeAvailabilityPage.selectChangeType(
+                'ChangeLengthCapacity',
+              );
+              await changeAvailabilityPage.saveChanges();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/availability/edit?session**`,
+              );
+
+              await expect(addSessionPage.addSessionHeader).toHaveText(
+                `Edit sessionEdit time and capacity for ${daySession.changeSessionHeader}`,
+              );
+
+              await expect(
+                addSessionPage.page.getByText(
+                  `${daySession.booked} booked appointments in this session.`,
+                ),
+              ).toBeVisible();
+              await expect(
+                addSessionPage.page.getByText(
+                  `${daySession.unbooked} unbooked appointments in this session.`,
+                ),
+              ).toBeVisible();
+
+              await expect(addSessionPage.startTimeHour).toHaveValue(
+                daySession.startHour,
+              );
+              await expect(addSessionPage.startTimeMinute).toHaveValue(
+                daySession.startMins,
+              );
+              await expect(addSessionPage.endTimeHour).toHaveValue(
+                daySession.endHour,
+              );
+              await expect(addSessionPage.endTimeMinute).toHaveValue(
+                daySession.endMins,
+              );
+            });
+
+            test('Change session has the correct information on the cancel session page', async ({
+              page,
+            }) => {
+              const changeButton = page
+                .getByRole('heading', {
+                  name: daySession.dayCardHeader,
+                })
+                .locator('..')
+                .getByRole('link', {
+                  name: 'Change',
+                });
+
+              await changeButton.click();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+              );
+
+              expect(changeAvailabilityPage.changeHeader).toHaveText(
+                `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
+              );
+
+              await changeAvailabilityPage.selectChangeType('CancelSession');
+              await changeAvailabilityPage.saveChanges();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
+              );
+
+              await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
+                'Cancel sessionAre you sure you want to cancel this session?',
+              );
+
+              //single table
+              await expect(cancelSessionPage.page.locator('table')).toHaveCount(
+                1,
+              );
+
+              //table headers!
+              await expect(
+                cancelSessionPage.page.getByRole('columnheader', {
+                  name: 'Time',
+                }),
+              ).toBeVisible();
+
+              await expect(
+                cancelSessionPage.page.getByRole('columnheader', {
+                  name: 'Services',
+                }),
+              ).toBeVisible();
+
+              await expect(
+                cancelSessionPage.page.getByRole('columnheader', {
+                  name: 'Booked',
+                  exact: true,
+                }),
+              ).toBeVisible();
+
+              await expect(
+                cancelSessionPage.page.getByRole('columnheader', {
+                  name: 'Unbooked',
+                  exact: true,
+                }),
+              ).toBeVisible();
+
+              //no actions
+              await expect(
+                cancelSessionPage.page.getByRole('columnheader', {
+                  name: 'Action',
+                }),
+              ).not.toBeVisible();
+
+              const timeCell = cancelSessionPage.page.getByRole('cell', {
+                name: daySession.timeRange,
+              });
+              const serviceCell = cancelSessionPage.page.getByRole('cell', {
+                name: daySession.service,
+              });
+              const bookedCell = cancelSessionPage.page.getByRole('cell', {
+                name: `${daySession.booked} booked`,
+              });
+              const unbookedCell = cancelSessionPage.page.getByRole('cell', {
+                name: `${daySession.unbooked} unbooked`,
+              });
+
+              await expect(timeCell).toBeVisible();
+              await expect(serviceCell).toBeVisible();
+              await expect(bookedCell).toBeVisible();
+              await expect(unbookedCell).toBeVisible();
+            });
+
+            test('View daily appointments has the correct information, and on the cancel appointment page', async ({
+              page,
+            }) => {
+              const viewDailyAppointmentsButton = page
+                .getByRole('heading', {
+                  name: daySession.dayCardHeader,
+                })
+                .locator('..')
+                .getByRole('link', {
+                  name: 'View daily appointments',
+                });
+
+              await viewDailyAppointmentsButton.click();
+
+              await page.waitForURL(
+                `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
+              );
+
+              dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
+                daySession.viewDailyAppointments,
+              );
+
+              const allTableRows =
+                await dailyAppointmentDetailsPage.appointmentsTable
+                  .getByRole('row')
+                  .all();
+
+              //dive into the cancel details page and verify information is correct
+              for (
+                let index = 0;
+                index < daySession.cancelDailyAppointments.length;
+                index++
+              ) {
+                const expectedAppointment =
+                  daySession.cancelDailyAppointments[index];
+
+                //start at 1 to ignore header row
+                const tableRow = allTableRows[index + 1];
+
+                const cancelLink = tableRow.getByRole('link', {
+                  name: 'Cancel',
+                });
+
+                await expect(cancelLink).toBeEnabled();
+
+                await cancelLink.click();
+
+                await page.waitForURL(
+                  `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
+                );
+
+                await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
+                  expectedAppointment,
+                );
+
+                //need to go back after this check
+                await cancelAppointmentDetailsPage.backButton.click();
+
+                await page.waitForURL(
+                  `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
+                );
+              }
+            });
+          });
+        });
       });
     });
-  });
-
-  sessionTestCases.forEach(daySession => {
-    test.describe(`Session tests for day: '${daySession.dayCardHeader}'`, () => {
-      test.beforeEach(async ({ page }) => {
-        //start test by navigating to the week view that contains this session
-        await page.goto(
-          `manage-your-appointments/site/${site.id}/view-availability/week?date=${daySession.week}`,
-        );
-      });
-
-      test('Change session has the correct information on the edit session decision page', async ({
-        page,
-      }) => {
-        const changeButton = page
-          .getByRole('heading', {
-            name: daySession.dayCardHeader,
-          })
-          .locator('..')
-          .getByRole('link', {
-            name: 'Change',
-          });
-
-        await changeButton.click();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
-        );
-
-        expect(changeAvailabilityPage.changeHeader).toHaveText(
-          `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
-        );
-
-        //table headers!
-        await expect(
-          changeAvailabilityPage.page.getByRole('columnheader', {
-            name: 'Time',
-          }),
-        ).toBeVisible();
-
-        await expect(
-          changeAvailabilityPage.page.getByRole('columnheader', {
-            name: 'Services',
-          }),
-        ).toBeVisible();
-
-        await expect(
-          changeAvailabilityPage.page.getByRole('columnheader', {
-            name: 'Booked',
-            exact: true,
-          }),
-        ).toBeVisible();
-
-        await expect(
-          changeAvailabilityPage.page.getByRole('columnheader', {
-            name: 'Unbooked',
-            exact: true,
-          }),
-        ).toBeVisible();
-
-        //no action header
-        await expect(
-          changeAvailabilityPage.page.getByRole('columnheader', {
-            name: 'Action',
-          }),
-        ).not.toBeVisible();
-
-        const timeCell = changeAvailabilityPage.page.getByRole('cell', {
-          name: daySession.timeRange,
-        });
-        const serviceCell = changeAvailabilityPage.page.getByRole('cell', {
-          name: daySession.service,
-        });
-        const bookedCell = changeAvailabilityPage.page.getByRole('cell', {
-          name: `${daySession.booked} booked`,
-        });
-        const unbookedCell = changeAvailabilityPage.page.getByRole('cell', {
-          name: `${daySession.unbooked} unbooked`,
-        });
-
-        await expect(timeCell).toBeVisible();
-        await expect(serviceCell).toBeVisible();
-        await expect(bookedCell).toBeVisible();
-        await expect(unbookedCell).toBeVisible();
-      });
-
-      test('Change session has the correct information on the edit session page', async ({
-        page,
-      }) => {
-        const changeButton = page
-          .getByRole('heading', {
-            name: daySession.dayCardHeader,
-          })
-          .locator('..')
-          .getByRole('link', {
-            name: 'Change',
-          });
-
-        await changeButton.click();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
-        );
-
-        expect(changeAvailabilityPage.changeHeader).toHaveText(
-          `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
-        );
-
-        await changeAvailabilityPage.selectChangeType('ChangeLengthCapacity');
-        await changeAvailabilityPage.saveChanges();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/availability/edit?session**`,
-        );
-
-        await expect(addSessionPage.addSessionHeader).toHaveText(
-          `Edit sessionEdit time and capacity for ${daySession.changeSessionHeader}`,
-        );
-
-        await expect(
-          addSessionPage.page.getByText(
-            `${daySession.booked} booked appointments in this session.`,
-          ),
-        ).toBeVisible();
-        await expect(
-          addSessionPage.page.getByText(
-            `${daySession.unbooked} unbooked appointments in this session.`,
-          ),
-        ).toBeVisible();
-
-        await expect(addSessionPage.startTimeHour).toHaveValue(
-          daySession.startHour,
-        );
-        await expect(addSessionPage.startTimeMinute).toHaveValue(
-          daySession.startMins,
-        );
-        await expect(addSessionPage.endTimeHour).toHaveValue(
-          daySession.endHour,
-        );
-        await expect(addSessionPage.endTimeMinute).toHaveValue(
-          daySession.endMins,
-        );
-      });
-
-      test('Change session has the correct information on the cancel session page', async ({
-        page,
-      }) => {
-        const changeButton = page
-          .getByRole('heading', {
-            name: daySession.dayCardHeader,
-          })
-          .locator('..')
-          .getByRole('link', {
-            name: 'Change',
-          });
-
-        await changeButton.click();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
-        );
-
-        expect(changeAvailabilityPage.changeHeader).toHaveText(
-          `Church Lane PharmacyChange availability for ${daySession.changeSessionHeader}`,
-        );
-
-        await changeAvailabilityPage.selectChangeType('CancelSession');
-        await changeAvailabilityPage.saveChanges();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
-        );
-
-        await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
-          'Cancel sessionAre you sure you want to cancel this session?',
-        );
-
-        //single table
-        await expect(cancelSessionPage.page.locator('table')).toHaveCount(1);
-
-        //table headers!
-        await expect(
-          cancelSessionPage.page.getByRole('columnheader', { name: 'Time' }),
-        ).toBeVisible();
-
-        await expect(
-          cancelSessionPage.page.getByRole('columnheader', {
-            name: 'Services',
-          }),
-        ).toBeVisible();
-
-        await expect(
-          cancelSessionPage.page.getByRole('columnheader', {
-            name: 'Booked',
-            exact: true,
-          }),
-        ).toBeVisible();
-
-        await expect(
-          cancelSessionPage.page.getByRole('columnheader', {
-            name: 'Unbooked',
-            exact: true,
-          }),
-        ).toBeVisible();
-
-        //no actions
-        await expect(
-          cancelSessionPage.page.getByRole('columnheader', { name: 'Action' }),
-        ).not.toBeVisible();
-
-        const timeCell = cancelSessionPage.page.getByRole('cell', {
-          name: daySession.timeRange,
-        });
-        const serviceCell = cancelSessionPage.page.getByRole('cell', {
-          name: daySession.service,
-        });
-        const bookedCell = cancelSessionPage.page.getByRole('cell', {
-          name: `${daySession.booked} booked`,
-        });
-        const unbookedCell = cancelSessionPage.page.getByRole('cell', {
-          name: `${daySession.unbooked} unbooked`,
-        });
-
-        await expect(timeCell).toBeVisible();
-        await expect(serviceCell).toBeVisible();
-        await expect(bookedCell).toBeVisible();
-        await expect(unbookedCell).toBeVisible();
-      });
-
-      test('View daily appointments has the correct information, and on the cancel appointment page', async ({
-        page,
-      }) => {
-        const viewDailyAppointmentsButton = page
-          .getByRole('heading', {
-            name: daySession.dayCardHeader,
-          })
-          .locator('..')
-          .getByRole('link', {
-            name: 'View daily appointments',
-          });
-
-        await viewDailyAppointmentsButton.click();
-
-        await page.waitForURL(
-          `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
-        );
-
-        dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
-          daySession.viewDailyAppointments,
-        );
-
-        const allTableRows = await dailyAppointmentDetailsPage.appointmentsTable
-          .getByRole('row')
-          .all();
-
-        //dive into the cancel details page and verify information is correct
-        for (
-          let index = 0;
-          index < daySession.cancelDailyAppointments.length;
-          index++
-        ) {
-          const expectedAppointment = daySession.cancelDailyAppointments[index];
-
-          //start at 1 to ignore header row
-          const tableRow = allTableRows[index + 1];
-
-          const cancelLink = tableRow.getByRole('link', { name: 'Cancel' });
-
-          await expect(cancelLink).toBeEnabled();
-
-          await cancelLink.click();
-
-          await page.waitForURL(
-            `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
-          );
-
-          await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
-            expectedAppointment,
-          );
-
-          //need to go back after this check
-          await cancelAppointmentDetailsPage.backButton.click();
-
-          await page.waitForURL(
-            `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
-          );
-        }
-      });
-    });
-  });
-  //   test('Change session has the correct information on the edit session decision page', async ({
-  //     page,
-  //   }) => {
-  //     const changeButton = page
-  //       .getByRole('heading', {
-  //         name: 'Sunday 26 October',
-  //       })
-  //       .locator('..')
-  //       .getByRole('link', {
-  //         name: 'Change',
-  //       });
-
-  //     await changeButton.click();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
-  //     );
-
-  //     expect(changeAvailabilityPage.changeHeader).toHaveText(
-  //       'Church Lane PharmacyChange availability for 26 October 2025',
-  //     );
-
-  //     //table headers!
-  //     await expect(
-  //       changeAvailabilityPage.page.getByRole('columnheader', { name: 'Time' }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       changeAvailabilityPage.page.getByRole('columnheader', {
-  //         name: 'Services',
-  //       }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       changeAvailabilityPage.page.getByRole('columnheader', {
-  //         name: 'Booked',
-  //         exact: true,
-  //       }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       changeAvailabilityPage.page.getByRole('columnheader', {
-  //         name: 'Unbooked',
-  //         exact: true,
-  //       }),
-  //     ).toBeVisible();
-
-  //     //no action header
-  //     await expect(
-  //       changeAvailabilityPage.page.getByRole('columnheader', {
-  //         name: 'Action',
-  //       }),
-  //     ).not.toBeVisible();
-
-  //     const timeCell = changeAvailabilityPage.page.getByRole('cell', {
-  //       name: '10:00 - 17:00',
-  //     });
-  //     const serviceCell = changeAvailabilityPage.page.getByRole('cell', {
-  //       name: 'RSV (Adult)',
-  //     });
-  //     const bookedCell = changeAvailabilityPage.page.getByRole('cell', {
-  //       name: '2 booked',
-  //     });
-  //     const unbookedCell = changeAvailabilityPage.page.getByRole('cell', {
-  //       name: '418 unbooked',
-  //     });
-
-  //     await expect(timeCell).toBeVisible();
-  //     await expect(serviceCell).toBeVisible();
-  //     await expect(bookedCell).toBeVisible();
-  //     await expect(unbookedCell).toBeVisible();
-  //   });
-
-  //   test('Change session has the correct information on the edit session page', async ({
-  //     page,
-  //   }) => {
-  //     const changeButton = page
-  //       .getByRole('heading', {
-  //         name: 'Sunday 26 October',
-  //       })
-  //       .locator('..')
-  //       .getByRole('link', {
-  //         name: 'Change',
-  //       });
-
-  //     await changeButton.click();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
-  //     );
-
-  //     await expect(changeAvailabilityPage.changeHeader).toHaveText(
-  //       'Church Lane PharmacyChange availability for 26 October 2025',
-  //     );
-
-  //     await changeAvailabilityPage.selectChangeType('ChangeLengthCapacity');
-  //     await changeAvailabilityPage.saveChanges();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/availability/edit?session**`,
-  //     );
-
-  //     await expect(addSessionPage.addSessionHeader).toHaveText(
-  //       'Edit sessionEdit time and capacity for 26 October 2025',
-  //     );
-
-  //     await expect(
-  //       addSessionPage.page.getByText('2 booked appointments in this session.'),
-  //     ).toBeVisible();
-  //     await expect(
-  //       addSessionPage.page.getByText(
-  //         '418 unbooked appointments in this session.',
-  //       ),
-  //     ).toBeVisible();
-
-  //     await expect(addSessionPage.startTimeHour).toHaveValue('10');
-  //     await expect(addSessionPage.startTimeMinute).toHaveValue('00');
-  //     await expect(addSessionPage.endTimeHour).toHaveValue('17');
-  //     await expect(addSessionPage.endTimeMinute).toHaveValue('00');
-  //   });
-
-  //   test('Change session has the correct information on the cancel session page', async ({
-  //     page,
-  //   }) => {
-  //     const changeButton = page
-  //       .getByRole('heading', {
-  //         name: 'Sunday 26 October',
-  //       })
-  //       .locator('..')
-  //       .getByRole('link', {
-  //         name: 'Change',
-  //       });
-
-  //     await changeButton.click();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=2025-10-26&session**`,
-  //     );
-
-  //     await expect(changeAvailabilityPage.changeHeader).toHaveText(
-  //       'Church Lane PharmacyChange availability for 26 October 2025',
-  //     );
-
-  //     await changeAvailabilityPage.selectChangeType('CancelSession');
-  //     await changeAvailabilityPage.saveChanges();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
-  //     );
-
-  //     await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
-  //       'Cancel sessionAre you sure you want to cancel this session?',
-  //     );
-
-  //     //single table
-  //     await expect(cancelSessionPage.page.locator('table')).toHaveCount(1);
-
-  //     //table headers!
-  //     await expect(
-  //       cancelSessionPage.page.getByRole('columnheader', { name: 'Time' }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       cancelSessionPage.page.getByRole('columnheader', { name: 'Services' }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       cancelSessionPage.page.getByRole('columnheader', {
-  //         name: 'Booked',
-  //         exact: true,
-  //       }),
-  //     ).toBeVisible();
-
-  //     await expect(
-  //       cancelSessionPage.page.getByRole('columnheader', {
-  //         name: 'Unbooked',
-  //         exact: true,
-  //       }),
-  //     ).toBeVisible();
-
-  //     //no actions
-  //     await expect(
-  //       cancelSessionPage.page.getByRole('columnheader', { name: 'Action' }),
-  //     ).not.toBeVisible();
-
-  //     const timeCell = cancelSessionPage.page.getByRole('cell', {
-  //       name: '10:00 - 17:00',
-  //     });
-  //     const serviceCell = cancelSessionPage.page.getByRole('cell', {
-  //       name: 'RSV (Adult)',
-  //     });
-  //     const bookedCell = cancelSessionPage.page.getByRole('cell', {
-  //       name: '2 booked',
-  //     });
-  //     const unbookedCell = cancelSessionPage.page.getByRole('cell', {
-  //       name: '418 unbooked',
-  //     });
-
-  //     await expect(timeCell).toBeVisible();
-  //     await expect(serviceCell).toBeVisible();
-  //     await expect(bookedCell).toBeVisible();
-  //     await expect(unbookedCell).toBeVisible();
-  //   });
-
-  //   test('View daily appointments has the correct information, and on the cancel appointment page', async ({
-  //     page,
-  //   }) => {
-  //     const viewDailyAppointmentsButton = page
-  //       .getByRole('heading', {
-  //         name: 'Sunday 26 October',
-  //       })
-  //       .locator('..')
-  //       .getByRole('link', {
-  //         name: 'View daily appointments',
-  //       });
-
-  //     await viewDailyAppointmentsButton.click();
-
-  //     await page.waitForURL(
-  //       `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-26&page=1`,
-  //     );
-
-  //     const expectedDailyAppointments = ;
-
-  //     dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
-  //       expectedDailyAppointments,
-  //     );
-
-  //     const expectedCancellableAppointments = ;
-
-  //     const allTableRows = await dailyAppointmentDetailsPage.appointmentsTable
-  //       .getByRole('row')
-  //       .all();
-
-  //     //dive into the cancel details page and verify information is correct
-  //     for (
-  //       let index = 0;
-  //       index < expectedCancellableAppointments.length;
-  //       index++
-  //     ) {
-  //       const expectedAppointment = expectedCancellableAppointments[index];
-
-  //       //start at 1 to ignore header row
-  //       const tableRow = allTableRows[index + 1];
-
-  //       const cancelLink = tableRow.getByRole('link', { name: 'Cancel' });
-
-  //       await expect(cancelLink).toBeEnabled();
-
-  //       await cancelLink.click();
-
-  //       await page.waitForURL(
-  //         `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
-  //       );
-
-  //       await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
-  //         expectedAppointment,
-  //       );
-
-  //       //need to go back after this check
-  //       await cancelAppointmentDetailsPage.backButton.click();
-
-  //       await page.waitForURL(
-  //         `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-26&page=1`,
-  //       );
-  //     }
-  //   });
-  // });
-});
+  },
+);

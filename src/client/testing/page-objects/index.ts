@@ -26,6 +26,7 @@ import UserSummaryPage from '../page-objects/manage-users/user-summary-page';
 import AddServicesPage from '../page-objects/view-availability-appointment-pages/add-services-page';
 import AddSessionPage from '../page-objects/view-availability-appointment-pages/add-session-page';
 import CancelSessionDetailsPage from '../page-objects/view-availability-appointment-pages/cancel-session-details-page';
+import CancelAppointmentDetailsPage from '../page-objects/view-availability-appointment-pages/cancel-appointment-details-page';
 import ChangeAvailabilityPage from '../page-objects/view-availability-appointment-pages/change-availability-page';
 import CheckSessionDetailsPage from '../page-objects/view-availability-appointment-pages/check-session-details-page';
 import DailyAppointmentDetailsPage from '../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
@@ -58,6 +59,7 @@ export {
   AddServicesPage,
   AddSessionPage,
   CancelSessionDetailsPage,
+  CancelAppointmentDetailsPage,
   ChangeAvailabilityPage,
   CheckSessionDetailsPage,
   DailyAppointmentDetailsPage,

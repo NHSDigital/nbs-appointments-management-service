@@ -1,7 +1,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
-type Appointments = {
+type Appointment = {
   time: string;
   nameNhsNumber: string;
   dob: string;
@@ -46,7 +46,7 @@ export default class DailyAppointmentDetailsPage extends RootPage {
   }
 
   async verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
-    expectedAppointments: Appointments[],
+    expectedAppointments: Appointment[],
   ) {
     await this.verifyTableExistsWithHeaders();
 

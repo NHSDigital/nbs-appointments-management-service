@@ -4,16 +4,17 @@ import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import dayjs from 'dayjs';
 import { now } from '@services/timeService';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
-  clinicalServices: [
-    { label: 'RSV (Adult)', value: 'RSV:Adult' },
-    { label: 'FLU 18-64', value: 'FLU:18_64' },
-    { label: 'COVID 75+', value: 'COVID:75+' },
-  ],
 }));
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+  { label: 'FLU 18-64', value: 'FLU:18_64' },
+  { label: 'COVID 75+', value: 'COVID:75+' },
+];
 
 jest.mock('@services/timeService', () => ({
   now: jest.fn(),

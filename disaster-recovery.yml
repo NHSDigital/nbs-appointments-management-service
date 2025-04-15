@@ -114,7 +114,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/import-flags-to-replica.ps1"
-              arguments: '-sourceFile "$(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"'
+              arguments: '-environment "$(env)" -sourceFile "$(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"'
 
           - task: DownloadPipelineArtifact@2
             displayName: Download Web App artifact

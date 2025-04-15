@@ -28,7 +28,7 @@ namespace Nhs.Appointments.Api.Functions
             Description = "Unauthorized request to a protected API")]
         [Function("GetServiceTypesFunction")]
         public override Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "serviceTypes")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "clinical-services")]
             HttpRequest req)
         {
             return base.RunAsync(req);

@@ -11,7 +11,7 @@ let oAuthPage: OAuthLoginPage;
 let viewMonthAvailabilityPage: MonthViewAvailabilityPage;
 let site: Site;
 
-test.describe('Daylight Savings Tests for the month view - Oct 2025', () => {
+test.describe('View Month Availability', () => {
   test.beforeEach(async ({ page, getTestSite }) => {
     site = getTestSite(2);
     rootPage = new RootPage(page);
@@ -21,14 +21,16 @@ test.describe('Daylight Savings Tests for the month view - Oct 2025', () => {
     await rootPage.goto();
     await rootPage.pageContentLogInButton.click();
     await oAuthPage.signIn();
+  });
 
+  test('All the month page data is arranged in the week cards as expected - Oct 2025', async ({
+    page,
+  }) => {
     //go to a specific month page that has a daylight savings change
     await page.goto(
       `manage-your-appointments/site/${site.id}/view-availability?date=2025-10-20`,
     );
-  });
 
-  test('All the view month page data is arranged in the week cards as expected', async () => {
     await viewMonthAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
       'September 2025',
       'November 2025',
@@ -69,6 +71,66 @@ test.describe('Daylight Savings Tests for the month view - Oct 2025', () => {
           totalAppointments: 420,
           booked: 2,
           unbooked: 418,
+        },
+      ],
+    );
+  });
+
+  test('All the month page data is arranged in the week cards as expected - March 2026', async ({
+    page,
+  }) => {
+    //go to a specific month page that has a daylight savings change
+    await page.goto(
+      `manage-your-appointments/site/${site.id}/view-availability?date=2026-03-01`,
+    );
+
+    await viewMonthAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
+      'February 2026',
+      'April 2026',
+    );
+    await viewMonthAvailabilityPage.verifyAllWeekCardInformationDisplayedCorrectly(
+      [
+        {
+          header: '23 February to 1 March',
+          services: [],
+          totalAppointments: 0,
+          booked: 0,
+          unbooked: 0,
+        },
+        {
+          header: '2 March to 8 March',
+          services: [],
+          totalAppointments: 0,
+          booked: 0,
+          unbooked: 0,
+        },
+        {
+          header: '9 March to 15 March',
+          services: [],
+          totalAppointments: 0,
+          booked: 0,
+          unbooked: 0,
+        },
+        {
+          header: '16 March to 22 March',
+          services: [],
+          totalAppointments: 0,
+          booked: 0,
+          unbooked: 0,
+        },
+        {
+          header: '23 March to 29 March',
+          services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 4 }],
+          totalAppointments: 480,
+          booked: 4,
+          unbooked: 476,
+        },
+        {
+          header: '30 March to 5 April',
+          services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 2 }],
+          totalAppointments: 240,
+          booked: 2,
+          unbooked: 238,
         },
       ],
     );

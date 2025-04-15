@@ -103,8 +103,12 @@ export const fetchClinicalServices = async () => {
   const canUseMultipleServices = await fetchFeatureFlag('multiple-services');
 
   if (canUseMultipleServices.enabled) {
-    const response =
-      await appointmentsApi.get<ClinicalService[]>(`clinical-services`);
+    const response = await appointmentsApi.get<ClinicalService[]>(
+      `clinical-services`,
+      {
+        cache: 'force-cache',
+      },
+    );
     return handleBodyResponse(response);
   }
 

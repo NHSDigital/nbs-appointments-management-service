@@ -1,5 +1,5 @@
 import { summariseWeek } from '@services/availabilityCalculatorService';
-import { clinicalServices, Site } from '@types';
+import { Site } from '@types';
 import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
 import {
@@ -14,7 +14,7 @@ type Props = {
 };
 
 export const DayCardList = async ({ site, weekStart, weekEnd }: Props) => {
-  const [weekSummary, permissions] = await Promise.all([
+  const [weekSummary, permissions, clinicalServices] = await Promise.all([
     summariseWeek(weekStart, weekEnd, site.id),
     fetchPermissions(site.id),
     fetchClinicalServices(),

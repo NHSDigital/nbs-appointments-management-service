@@ -104,7 +104,7 @@ export const fetchClinicalServices = async () => {
 
   if (canUseMultipleServices.enabled) {
     const response =
-      await appointmentsApi.get<ClinicalService[]>(`serviceTypes`);
+      await appointmentsApi.get<ClinicalService[]>(`clinical-services`);
     return handleBodyResponse(response);
   }
 

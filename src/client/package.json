@@ -18,6 +18,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "test": "jest",
+    "test:utc:tz": "TZ=UTC jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -83,3 +84,4 @@
     "glob": "10.4.5"
   }
 }
+

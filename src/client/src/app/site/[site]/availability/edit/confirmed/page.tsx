@@ -3,6 +3,7 @@ import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
 import EditSessionConfirmed from './edit-session-confirmed';
+import { dayStringFormat } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -17,7 +18,9 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
-  const date = dayjs(searchParams.date, 'YYYY-MM-DD');
+
+  //TODO refactor!!
+  const date = dayjs(searchParams.date, dayStringFormat);
 
   const updatedSession: AvailabilitySession = JSON.parse(
     atob(searchParams.updatedSession),

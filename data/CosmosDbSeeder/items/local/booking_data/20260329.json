@@ -1,0 +1,22 @@
+{
+  "date": "2026-03-29",
+  "sessions": [
+    {
+      "from": "08:00",
+      "until": "14:00",
+      "services": [
+        "RSV:Adult"
+      ],
+      "slotLength": 15,
+      "capacity": 10
+    }
+  ],
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "id": "20260329",
+  "docType": "daily_availability",
+  "_rid": "3DQ5APKUkRYqAAAAAAAAAA==",
+  "_self": "dbs/3DQ5AA==/colls/3DQ5APKUkRY=/docs/3DQ5APKUkRYqAAAAAAAAAA==/",
+  "_etag": "\"00005e05-0000-1100-0000-67ed59a40000\"",
+  "_attachments": "attachments/",
+  "_ts": 1743608228
+}

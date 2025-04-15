@@ -30,8 +30,11 @@ import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
-import { now } from '@services/timeService';
-import dayjs from 'dayjs';
+import {
+  dayStringFormat,
+  extractUkSessionDatetime,
+  ukNow,
+} from '@services/timeService';
 
 export const fetchAccessToken = async (code: string, provider: string) => {
   const response = await appointmentsApi.post<{ token: string }>(
@@ -142,7 +145,7 @@ export async function fetchPermissions(site: string) {
 
 export async function fetchAvailabilityCreatedEvents(site: string) {
   const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
-    `availability-created?site=${site}&from=${now().format('YYYY-MM-DD')}`,
+    `availability-created?site=${site}&from=${ukNow().format(dayStringFormat)}`,
     {
       next: { tags: ['availability-created'] },
     },
@@ -255,7 +258,6 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
-  isEdit: boolean,
 ) => {
   const payload = {
     scope: `site:${site}`,
@@ -264,18 +266,13 @@ export const saveUserRoleAssignments = async (
     lastName,
     roles: roles,
   };
+
   const response = await appointmentsApi.post(
     `user/roles`,
     JSON.stringify(payload),
   );
+
   handleEmptyResponse(response);
-
-  const notificationType = 'ams-notification';
-  const notificationMessage = isEdit
-    ? `You have changed a user's role.`
-    : `You have added a new user to MYA The user will be sent information about how to login.`;
-  raiseNotification(notificationType, notificationMessage);
-
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };
@@ -483,11 +480,15 @@ export const cancelSession = async (
   sessionSummary: SessionSummary,
   site: string,
 ) => {
+  const ukStartDatetime = extractUkSessionDatetime(
+    sessionSummary.ukStartDatetime,
+  );
+  const ukEndDatetime = extractUkSessionDatetime(sessionSummary.ukEndDatetime);
   const payload: CancelSessionRequest = {
     site: site,
-    date: dayjs(sessionSummary.start).format('YYYY-MM-DD'),
-    from: dayjs(sessionSummary.start).format('HH:mm'),
-    until: dayjs(sessionSummary.end).format('HH:mm'),
+    date: ukStartDatetime.format(dayStringFormat),
+    from: ukStartDatetime.format('HH:mm'),
+    until: ukEndDatetime.format('HH:mm'),
     services: Object.keys(sessionSummary.bookings),
     capacity: sessionSummary.capacity,
     slotLength: sessionSummary.slotLength,

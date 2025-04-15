@@ -293,8 +293,8 @@ type DayAvailabilityDetails = {
 };
 
 type SessionSummary = {
-  start: dayjs.Dayjs;
-  end: dayjs.Dayjs;
+  ukStartDatetime: string;
+  ukEndDatetime: string;
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
@@ -303,7 +303,7 @@ type SessionSummary = {
 };
 
 type DaySummary = {
-  date: dayjs.Dayjs;
+  ukDate: dayjs.Dayjs;
   sessions: SessionSummary[];
   maximumCapacity: number;
   bookedAppointments: number;

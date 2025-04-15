@@ -1,11 +1,16 @@
 import {
-  formatDateTimeToTime,
+  formatUkDatetimeToTime,
   formatTimeString,
   isInTheFuture,
-  isValidDate,
-  parseDateComponents,
+  isValidUkDate,
+  parseDateComponentsToUkDatetime,
   toTimeComponents,
   toTwoDigitFormat,
+  ukStartOfWeek,
+  ukEndOfWeek,
+  getUkWeeksOfTheMonth,
+  parseDateStringToUkDatetime,
+  dayStringFormat,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 import dayjs from 'dayjs';
@@ -33,7 +38,7 @@ describe('Time Service', () => {
       year: number | string,
       expectedResult: boolean,
     ) => {
-      const result = isValidDate(day, month, year);
+      const result = isValidUkDate(day, month, year);
 
       expect(result).toEqual(expectedResult);
     },
@@ -68,7 +73,7 @@ describe('Time Service', () => {
   ])(
     'can parse dates components: day %p, month %p, year %p should be: %p',
     (day: number, month: number, year: number, expectedResult: string) => {
-      const parsedDate = parseDateComponents({
+      const parsedDate = parseDateComponentsToUkDatetime({
         day,
         month,
         year,
@@ -115,16 +120,110 @@ describe('Time Service', () => {
     },
   );
 
-  it('formats dateTime to time', async () => {
+  it('ukStartOfWeek summertime', async () => {
+    const dateTime = '2025-10-20';
+    const result = ukStartOfWeek(dateTime);
+
+    const iso = result.toISOString();
+    //check it is 1hour behind due to UTC (BST)
+    expect(iso).toBe('2025-10-19T23:00:00.000Z');
+
+    const offset = result.format('Z');
+    expect(offset).toBe('+01:00');
+
+    //check it returns BST hour and mins
+    const time = result.format('HH:mm');
+    expect(time).toBe('00:00');
+  });
+
+  it('ukStartOfWeek wintertime', async () => {
+    const dateTime = '2025-02-04';
+    const result = ukStartOfWeek(dateTime);
+
+    const iso = result.toISOString();
+    //check it is same as UTC (no-BST)
+    expect(iso).toBe('2025-02-03T00:00:00.000Z');
+
+    const offset = result.format('Z');
+    expect(offset).toBe('+00:00');
+
+    //check it returns UTC hour and mins
+    const time = result.format('HH:mm');
+    expect(time).toBe('00:00');
+  });
+
+  it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
+    const dstChangeDateTime = '2025-10-01';
+    const dateTime = parseDateStringToUkDatetime(
+      dstChangeDateTime,
+      dayStringFormat,
+    );
+    const weeks = getUkWeeksOfTheMonth(dateTime);
+
+    expect(weeks).toHaveLength(5);
+
+    //grab time change week
+    const dstChange1 = weeks[3];
+
+    //bst date should be 1 hour behind UTC
+    expect(dstChange1[6].toISOString()).toBe('2025-10-25T23:00:00.000Z');
+
+    //grab time change after week
+    const dstChange2 = weeks[4];
+
+    //utc should be level after change
+    expect(dstChange2[0].toISOString()).toBe('2025-10-27T00:00:00.000Z');
+  });
+
+  it('ukEndOfWeek summertime', async () => {
+    const dateTime = '2025-07-18';
+    const result = ukEndOfWeek(dateTime);
+
+    const iso = result.toISOString();
+    //check it is 1hour behind due to UTC (BST)
+    expect(iso).toBe('2025-07-20T22:59:59.999Z');
+
+    const offset = result.format('Z');
+    expect(offset).toBe('+01:00');
+
+    //check it returns BST hour and mins
+    const time = result.format('HH:mm');
+    expect(time).toBe('23:59');
+  });
+
+  it('ukEndOfWeek wintertime', async () => {
+    const dateTime = '2025-02-04';
+    const result = ukEndOfWeek(dateTime);
+
+    const iso = result.toISOString();
+    //check it is same as UTC (no-BST)
+    expect(iso).toBe('2025-02-09T23:59:59.999Z');
+
+    const offset = result.format('Z');
+    expect(offset).toBe('+00:00');
+
+    //check it returns UTC hour and mins
+    const time = result.format('HH:mm');
+    expect(time).toBe('23:59');
+  });
+
+  it('formats winter dateTime to time', async () => {
     const dateTime = '2024-12-12T12:05:00';
-    const result = formatDateTimeToTime(dateTime);
+    const result = formatUkDatetimeToTime(dateTime);
+
+    expect(result).toEqual('12:05');
+  });
+
+  it('formats summer dateTime to time', async () => {
+    const dateTime = '2025-07-07T12:05:00';
+    const result = formatUkDatetimeToTime(dateTime);
 
     expect(result).toEqual('12:05');
   });
 
   it.each([
-    [dayjs().add(1, 'day').format('YYYY-MM-DD'), true],
-    [dayjs().subtract(1, 'day').format('YYYY-MM-DD'), false],
+    [dayjs().add(1, 'day').format(dayStringFormat), true],
+    [dayjs().subtract(1, 'day').format(dayStringFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {

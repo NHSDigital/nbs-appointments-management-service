@@ -13,7 +13,9 @@ import {
 import { Controller } from 'react-hook-form';
 import {
   compareTimes,
+  extractUkSessionDatetime,
   formatTimeString,
+  parseDateStringToUkDatetime,
   toTimeComponents,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
@@ -28,17 +30,20 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
-  existingSessionStart: string;
-  existingSessionEnd: string;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
-  existingSessionStart,
-  existingSessionEnd,
 }: Props) => {
+  const existingUkStartTime = extractUkSessionDatetime(
+    existingSession.ukStartDatetime,
+  ).format('HH:mm');
+  const existingUkEndTime = extractUkSessionDatetime(
+    existingSession.ukEndDatetime,
+  ).format('HH:mm');
+
   const {
     handleSubmit,
     watch,
@@ -47,20 +52,20 @@ const EditSessionTimeAndCapacityForm = ({
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
-        startTime: toTimeComponents(existingSessionStart),
-        endTime: toTimeComponents(existingSessionEnd),
+        startTime: toTimeComponents(existingUkStartTime),
+        endTime: toTimeComponents(existingUkEndTime),
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
       newSession: {
         startTime: {
-          hour: existingSessionStart.split(':')[0],
-          minute: existingSessionStart.split(':')[1],
+          hour: existingUkStartTime.split(':')[0],
+          minute: existingUkStartTime.split(':')[1],
         },
         endTime: {
-          hour: existingSessionEnd.split(':')[0],
-          minute: existingSessionEnd.split(':')[1],
+          hour: existingUkEndTime.split(':')[0],
+          minute: existingUkEndTime.split(':')[1],
         },
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,

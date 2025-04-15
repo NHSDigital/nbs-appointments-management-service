@@ -2,7 +2,7 @@
 
 import { NhsMyaCookieConsent } from '@types';
 import { cookies } from 'next/headers';
-import { now } from '@services/timeService';
+import { ukNow } from '@services/timeService';
 import { LATEST_CONSENT_COOKIE_VERSION } from '@constants';
 import { raiseNotification } from './notificationService';
 
@@ -29,7 +29,7 @@ export const setCookieConsent = async (consented: boolean) => {
     'nhsuk-mya-cookie-consent',
     encodeURIComponent(JSON.stringify(payload)),
     {
-      expires: now().add(1, 'year').toDate(),
+      expires: ukNow().add(1, 'year').toDate(),
     },
   );
 

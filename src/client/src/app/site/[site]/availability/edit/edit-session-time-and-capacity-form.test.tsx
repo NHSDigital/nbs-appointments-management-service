@@ -30,8 +30,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 
@@ -46,8 +44,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 
@@ -115,8 +111,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 
@@ -173,8 +167,6 @@ describe('Edit Session Time And Capacity Form', () => {
           date={'2024-06-10 07:00:00'}
           site={mockSite}
           existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-          existingSessionStart="09:00"
-          existingSessionEnd="12:00"
         />,
       );
 
@@ -218,8 +210,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 
@@ -239,8 +229,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 
@@ -260,8 +248,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        existingSessionStart="09:00"
-        existingSessionEnd="12:00"
       />,
     );
 

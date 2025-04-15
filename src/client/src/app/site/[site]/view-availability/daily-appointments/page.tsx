@@ -6,10 +6,13 @@ import {
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
-import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import {
+  addToUkDate,
+  parseDateStringToUkDatetime,
+} from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -25,10 +28,12 @@ type PageProps = {
 const Page = async ({ params, searchParams }: PageProps) => {
   await assertPermission(params.site, 'availability:query');
 
-  const date = dayjs(searchParams.date);
+  const date = parseDateStringToUkDatetime(searchParams.date);
+  const toDate = addToUkDate(date, 1, 'day');
+
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
-    to: date.hour(23).minute(59).second(59).format('YYYY-MM-DDTHH:mm:ssZ'),
+    from: date.format('YYYY-MM-DDTHH:mm:ssZ'),
+    to: toDate.format('YYYY-MM-DDTHH:mm:ssZ'),
     site: params.site,
   };
 
@@ -47,7 +52,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const orphanedMessage =
     orphanedAppointments.length > 0
-      ? `${orphanedAppointments.length} booked appointments are affected due to an edit to your availability. These bookings are still scheduled until you click "Cancel".`
+      ? `${orphanedAppointments.length} booked appointments are affected. You'll need to manually cancel these appointments.`
       : 'There are no booked appointments affected by availability changes.';
 
   const backLink: NavigationByHrefProps = {

@@ -1,6 +1,12 @@
 import {
+  addToUkDate,
+  buildUkSessionDatetime,
+  dateTimeStringFormat,
+  dayStringFormat,
+  extractUkSessionDatetime,
   getWeek,
   isBeforeOrEqual,
+  parseDateStringToUkDatetime,
   toTimeComponents,
 } from '@services/timeService';
 import {
@@ -20,33 +26,41 @@ import {
 } from '@types';
 
 export const summariseWeek = async (
-  weekStart: dayjs.Dayjs,
-  weekEnd: dayjs.Dayjs,
+  ukWeekStart: dayjs.Dayjs,
+  ukWeekEnd: dayjs.Dayjs,
   siteId: string,
 ): Promise<WeekSummary> => {
   const [dailyAvailability, dailyBookings] = await Promise.all([
     fetchDailyAvailability(
       siteId,
-      weekStart.format('YYYY-MM-DD'),
-      weekEnd.format('YYYY-MM-DD'),
+      ukWeekStart.format(dayStringFormat),
+      ukWeekEnd.format(dayStringFormat),
     ),
     fetchBookings({
-      from: weekStart.format('YYYY-MM-DD HH:mm:ss'),
-      to: weekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
+      to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),
   ]);
 
-  const week = getWeek(weekStart);
+  const ukWeek = getWeek(ukWeekStart);
 
-  const daySummaries: DaySummary[] = week.map(day => {
-    const availability = dailyAvailability.find(a => dayjs(a.date).isSame(day));
-
-    const bookings = dailyBookings.filter(booking =>
-      dayjs(booking.from).isSame(day, 'date'),
+  const daySummaries: DaySummary[] = ukWeek.map(ukDay => {
+    const availability = dailyAvailability.find(a =>
+      parseDateStringToUkDatetime(a.date).isSame(ukDay),
     );
 
-    return summariseDay(day, bookings, availability);
+    const bookings = dailyBookings.filter(booking => {
+      //need to parse booking datetime back to UK date
+      const ukBookingDatetime = parseDateStringToUkDatetime(
+        booking.from,
+        dateTimeStringFormat,
+      );
+      const result = ukBookingDatetime.isSame(ukDay, 'day');
+      return result;
+    });
+
+    return summariseDay(ukDay, bookings, availability);
   });
 
   const weekSummary = daySummaries.reduce(
@@ -66,8 +80,8 @@ export const summariseWeek = async (
       };
     },
     {
-      startDate: weekStart,
-      endDate: weekEnd,
+      startDate: ukWeekStart,
+      endDate: ukWeekEnd,
       daySummaries: daySummaries,
       maximumCapacity: 0,
       bookedAppointments: 0,
@@ -81,12 +95,12 @@ export const summariseWeek = async (
 };
 
 const summariseDay = (
-  date: dayjs.Dayjs,
+  ukDate: dayjs.Dayjs,
   bookings: Booking[],
   availability?: DailyAvailability,
 ): DaySummary => {
   const sessionsAndSlots = mapSessionsAndSlots(
-    date,
+    ukDate,
     availability?.sessions ?? [],
   );
 
@@ -109,9 +123,14 @@ const summariseDay = (
     }
 
     const matchingSlot = slots.find(slot => {
+      const bookingUkDatetime = parseDateStringToUkDatetime(
+        booking.from,
+        dateTimeStringFormat,
+      );
+
       return (
         slot.capacity > 0 &&
-        slot.from.isSame(dayjs(booking.from)) &&
+        slot.from.isSame(bookingUkDatetime) &&
         slot.length === booking.duration &&
         slot.services.includes(booking.service)
       );
@@ -135,7 +154,7 @@ const summariseDay = (
   });
 
   return buildDaySummary(
-    date,
+    ukDate,
     sessionsAndSlots,
     cancelledAppointments,
     orphanedAppointments,
@@ -143,7 +162,7 @@ const summariseDay = (
 };
 
 const buildDaySummary = (
-  date: dayjs.Dayjs,
+  ukDate: dayjs.Dayjs,
   sessionsAndSlots: SessionAndSlots[],
   cancelledAppointments: number,
   orphanedAppointments: number,
@@ -151,10 +170,15 @@ const buildDaySummary = (
   const sessionSummaries = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.session)
     .sort((a, b) => {
-      if (a.start.isBefore(b.start)) {
+      const aStart = extractUkSessionDatetime(a.ukStartDatetime);
+      const bStart = extractUkSessionDatetime(b.ukStartDatetime);
+      const aEnd = extractUkSessionDatetime(a.ukEndDatetime);
+      const bEnd = extractUkSessionDatetime(b.ukEndDatetime);
+
+      if (aStart.isBefore(bStart)) {
         return -1;
       }
-      if (a.end.isBefore(b.end)) {
+      if (aEnd.isBefore(bEnd)) {
         return -1;
       }
       if (a.bookings > b.bookings) {
@@ -177,7 +201,7 @@ const buildDaySummary = (
   const remainingCapacity = maximumCapacity - bookedAppointments;
 
   return {
-    date: date,
+    ukDate,
     sessions: sessionSummaries,
     maximumCapacity,
     bookedAppointments,
@@ -189,15 +213,23 @@ const buildDaySummary = (
 
 const divideSessionIntoSlots = (
   sessionIndex: number,
-  startTime: dayjs.Dayjs,
-  endTime: dayjs.Dayjs,
+  ukStartDatetime: dayjs.Dayjs,
+  ukEndDatetime: dayjs.Dayjs,
   session: AvailabilitySession,
 ): AvailabilitySlot[] => {
   const slots: AvailabilitySlot[] = [];
 
-  let currentSlot = startTime.clone();
+  let currentSlot = ukStartDatetime.clone();
   while (
-    isBeforeOrEqual(currentSlot, endTime.add(session.slotLength * -1, 'minute'))
+    isBeforeOrEqual(
+      currentSlot,
+      addToUkDate(
+        ukEndDatetime,
+        session.slotLength * -1,
+        'minute',
+        dateTimeStringFormat,
+      ),
+    )
   ) {
     slots.push({
       sessionIndex,
@@ -206,29 +238,42 @@ const divideSessionIntoSlots = (
       length: session.slotLength,
       capacity: session.capacity,
     });
-    currentSlot = currentSlot.add(session.slotLength, 'minute');
+
+    currentSlot = addToUkDate(
+      currentSlot,
+      session.slotLength,
+      'minute',
+      dateTimeStringFormat,
+    );
   }
 
   return slots;
 };
 
 const mapSessionsAndSlots = (
-  date: dayjs.Dayjs,
+  ukDate: dayjs.Dayjs,
   sessions: AvailabilitySession[],
 ): SessionAndSlots[] =>
   sessions.map((session, index) => {
     const start = toTimeComponents(session.from);
     const end = toTimeComponents(session.until);
 
-    const startTime = date
-      .hour(Number(start?.hour))
-      .minute(Number(start?.minute));
-    const endTime = date.hour(Number(end?.hour)).minute(Number(end?.minute));
+    const ukStartDatetime = buildUkSessionDatetime(
+      ukDate,
+      Number(start?.hour),
+      Number(start?.minute),
+    );
+
+    const ukEndDatetime = buildUkSessionDatetime(
+      ukDate,
+      Number(end?.hour),
+      Number(end?.minute),
+    );
 
     const slotsInSession = divideSessionIntoSlots(
       index,
-      startTime,
-      endTime,
+      ukStartDatetime,
+      ukEndDatetime,
       session,
     );
 
@@ -238,8 +283,8 @@ const mapSessionsAndSlots = (
     });
 
     const sessionSummary: SessionSummary = {
-      start: startTime,
-      end: endTime,
+      ukStartDatetime: ukStartDatetime.format(dateTimeStringFormat),
+      ukEndDatetime: ukEndDatetime.format(dateTimeStringFormat),
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
       bookings: bookingsByService,

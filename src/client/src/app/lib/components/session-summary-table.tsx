@@ -1,15 +1,14 @@
 import { Cell, Table } from '@components/nhsuk-frontend';
 import { clinicalServices, SessionSummary } from '@types';
-import dayjs from 'dayjs';
 import Link from 'next/link';
 import { UrlObject } from 'url';
-import { now } from '@services/timeService';
+import { extractUkSessionDatetime, ukNow } from '@services/timeService';
 
 type SessionSummaryTableProps = {
   sessionSummaries: SessionSummary[];
   showChangeSessionLink?: {
     siteId: string;
-    date: dayjs.Dayjs;
+    ukDate: string;
   };
 };
 
@@ -35,10 +34,13 @@ export const getSessionSummaryRows = (
   sessionSummaries: SessionSummary[],
   showChangeSessionLinkProps?: {
     siteId: string;
-    date: dayjs.Dayjs;
+    ukDate: string;
   },
 ): Cell[][] =>
   sessionSummaries.map((sessionSummary, sessionIndex) => {
+    const ukStartDatetime = extractUkSessionDatetime(
+      sessionSummary.ukStartDatetime,
+    );
     return [
       <SessionTimesCell
         key={`session-${sessionIndex}-start-and-end-time`}
@@ -56,13 +58,13 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-unbooked`}
         sessionSummary={sessionSummary}
       />,
-      ...(showChangeSessionLinkProps && sessionSummary.start.isAfter(now())
+      ...(showChangeSessionLinkProps && ukStartDatetime.isAfter(ukNow())
         ? [
             <Link
               key={`session-${sessionIndex}-action-link`}
               href={buildEditSessionLink(
                 showChangeSessionLinkProps.siteId,
-                showChangeSessionLinkProps.date,
+                showChangeSessionLinkProps.ukDate,
                 sessionSummary,
               )}
             >
@@ -78,10 +80,12 @@ export const SessionTimesCell = ({
 }: {
   sessionSummary: SessionSummary;
 }) => {
+  const ukStartDatetime = extractUkSessionDatetime(
+    sessionSummary.ukStartDatetime,
+  );
+  const ukEndDatetime = extractUkSessionDatetime(sessionSummary.ukEndDatetime);
   return (
-    <strong>
-      {`${dayjs(sessionSummary.start).format('HH:mm')} - ${dayjs(sessionSummary.end).format('HH:mm')}`}
-    </strong>
+    <strong>{`${ukStartDatetime.format('HH:mm')} - ${ukEndDatetime.format('HH:mm')}`}</strong>
   );
 };
 
@@ -137,7 +141,7 @@ export const SessionUnbookedCell = ({
 
 const buildEditSessionLink = (
   siteId: string,
-  date: dayjs.Dayjs,
+  ukDate: string,
   sessionSummary: SessionSummary,
 ): UrlObject => {
   const encodedSummary = btoa(JSON.stringify(sessionSummary));
@@ -145,7 +149,7 @@ const buildEditSessionLink = (
   const editSessionLink: UrlObject = {
     pathname: `/site/${siteId}/view-availability/week/edit-session`,
     query: {
-      date: date.format('YYYY-MM-DD'),
+      date: ukDate,
       session: encodedSummary,
     },
   };

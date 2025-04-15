@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import render from '@testing/render';
 import { cancelSession } from '@services/appointmentsService';
+import { clinicalServices } from '@types';
 
 jest.mock('@services/appointmentsService');
 const mockCancelSession = cancelSession as jest.Mock;
@@ -24,7 +25,12 @@ describe('Confirm Cancellation Page', () => {
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
     render(
-      <ConfirmCancellation session={session} date="2025-01-15" site="TEST01" />,
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
     );
 
     expect(
@@ -39,7 +45,12 @@ describe('Confirm Cancellation Page', () => {
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
     render(
-      <ConfirmCancellation session={session} date="2025-01-15" site="TEST01" />,
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
     );
 
     expect(
@@ -57,7 +68,12 @@ describe('Confirm Cancellation Page', () => {
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
     const { user } = render(
-      <ConfirmCancellation session={session} date="2025-01-15" site="TEST01" />,
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
     );
 
     await user.click(
@@ -92,7 +108,12 @@ describe('Confirm Cancellation Page', () => {
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
     const { user } = render(
-      <ConfirmCancellation session={session} date="2025-01-15" site="TEST01" />,
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -119,7 +140,12 @@ describe('Confirm Cancellation Page', () => {
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
     const { user } = render(
-      <ConfirmCancellation session={session} date="2025-01-15" site="TEST01" />,
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
     );
 
     await user.click(

@@ -3,16 +3,22 @@ import {
   SessionServicesCell,
   SessionTimesCell,
 } from '@components/session-summary-table';
-import { SessionSummary } from '@types';
+import { ClinicalService, SessionSummary } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
   session: string;
   site: string;
   date: string;
+  clinicalServices: ClinicalService[];
 };
 
-const CancellationConfirmed = ({ session, site, date }: PageProps) => {
+const CancellationConfirmed = ({
+  session,
+  site,
+  date,
+  clinicalServices,
+}: PageProps) => {
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
   return (
     <>
@@ -27,6 +33,7 @@ const CancellationConfirmed = ({ session, site, date }: PageProps) => {
             <SessionServicesCell
               key={`session-0-service-name`}
               sessionSummary={sessionSummary}
+              clinicalServices={clinicalServices}
             />,
           ],
         ]}

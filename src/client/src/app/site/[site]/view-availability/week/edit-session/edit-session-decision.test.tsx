@@ -4,6 +4,7 @@ import { EditSessionDecision } from './edit-session-decision';
 import { screen, waitFor } from '@testing-library/dom';
 import { mockSite } from '@testing/data';
 import { useRouter } from 'next/navigation';
+import { clinicalServices } from '@types';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -25,6 +26,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -44,6 +46,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -66,6 +69,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -105,6 +109,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -136,6 +141,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
+        clinicalServices={clinicalServices}
       />,
     );
 

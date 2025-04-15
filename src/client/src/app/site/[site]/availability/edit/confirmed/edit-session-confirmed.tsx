@@ -1,14 +1,20 @@
 import { Table, InsetText } from '@components/nhsuk-frontend';
-import { AvailabilitySession, clinicalServices, Site } from '@types';
+import { AvailabilitySession, ClinicalService, Site } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
   updatedSession: AvailabilitySession;
+  clinicalServices: ClinicalService[];
   site: Site;
   date: string;
 };
 
-const EditSessionConfirmed = ({ updatedSession, site, date }: PageProps) => {
+const EditSessionConfirmed = ({
+  updatedSession,
+  clinicalServices,
+  site,
+  date,
+}: PageProps) => {
   return (
     <>
       <Table
@@ -22,7 +28,8 @@ const EditSessionConfirmed = ({ updatedSession, site, date }: PageProps) => {
               {updatedSession.services.map((service, serviceIndex) => {
                 return (
                   <span key={`service-name-${serviceIndex}`}>
-                    {clinicalServices.find(cs => cs.value === service)?.label}
+                    {clinicalServices.find(c => c.value === service)?.label ??
+                      service}
                     <br />
                   </span>
                 );

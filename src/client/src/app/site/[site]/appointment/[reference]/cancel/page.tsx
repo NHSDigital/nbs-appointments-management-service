@@ -2,6 +2,7 @@ import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchBooking,
+  fetchClinicalServices,
   fetchSite,
 } from '@services/appointmentsService';
 import CancelAppointmentPage from './cancel-appointment-page';
@@ -19,9 +20,10 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   await assertPermission(params.site, 'booking:cancel');
 
-  const [site, booking] = await Promise.all([
+  const [site, booking, clinicalServices] = await Promise.all([
     fetchSite(params.site),
     fetchBooking(params.reference, params.site),
+    fetchClinicalServices(),
   ]);
 
   if (!booking || booking.status === 'Cancelled') {
@@ -43,7 +45,11 @@ const Page = async ({ params }: PageProps) => {
       backLink={backLink}
       site={site}
     >
-      <CancelAppointmentPage booking={booking} site={site.id} />
+      <CancelAppointmentPage
+        booking={booking}
+        site={site.id}
+        clinicalServices={clinicalServices}
+      />
     </NhsPage>
   );
 };

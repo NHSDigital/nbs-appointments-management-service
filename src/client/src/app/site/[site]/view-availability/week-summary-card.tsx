@@ -1,13 +1,17 @@
 import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
 import { Card, Table } from '@components/nhsuk-frontend';
-import { clinicalServices, WeekSummary } from '@types';
+import { ClinicalService, WeekSummary } from '@types';
 import Link from 'next/link';
 
 type WeekSummaryCardProps = {
   weekSummary: WeekSummary;
+  clinicalServices: ClinicalService[];
 };
 
-export const WeekSummaryCard = ({ weekSummary }: WeekSummaryCardProps) => {
+export const WeekSummaryCard = ({
+  weekSummary,
+  clinicalServices,
+}: WeekSummaryCardProps) => {
   const { startDate, endDate, daySummaries } = weekSummary;
 
   const allBookingsInWeek = daySummaries.reduce(

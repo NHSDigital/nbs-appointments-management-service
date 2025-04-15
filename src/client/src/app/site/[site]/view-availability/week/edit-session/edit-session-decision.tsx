@@ -9,7 +9,7 @@ import {
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { SessionSummary, Site } from '@types';
+import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -17,6 +17,7 @@ type EditSessionDecisionProps = {
   site: Site;
   sessionSummary: string;
   date: string;
+  clinicalServices: ClinicalService[];
 };
 
 type EditSessionDecisionFormData = {
@@ -27,6 +28,7 @@ export const EditSessionDecision = ({
   site,
   sessionSummary,
   date,
+  clinicalServices,
 }: EditSessionDecisionProps) => {
   const router = useRouter();
   const {
@@ -53,7 +55,10 @@ export const EditSessionDecision = ({
 
   return (
     <>
-      <SessionSummaryTable sessionSummaries={[session]} />
+      <SessionSummaryTable
+        sessionSummaries={[session]}
+        clinicalServices={clinicalServices}
+      />
       <InsetText>
         <p>
           You can only reduce time and/or capacity from this screen. If you want

@@ -1,8 +1,15 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { mockAvailabilityCreatedEvents, mockSite } from '@testing/data';
-import { fetchAvailabilityCreatedEvents } from '@services/appointmentsService';
-import { AvailabilityCreatedEvent } from '@types';
+import {
+  fetchAvailabilityCreatedEvents,
+  fetchClinicalServices,
+} from '@services/appointmentsService';
+import {
+  AvailabilityCreatedEvent,
+  ClinicalService,
+  clinicalServices,
+} from '@types';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
 
 jest.mock('@services/appointmentsService');
@@ -11,11 +18,16 @@ const fetchAvailabilityCreatedEventsMock =
     Promise<AvailabilityCreatedEvent[]>
   >;
 
+const mockClinicalServices = fetchClinicalServices as jest.Mock<
+  Promise<ClinicalService[]>
+>;
+
 describe('Availability Created Events Table', () => {
   beforeEach(() => {
     fetchAvailabilityCreatedEventsMock.mockResolvedValue(
       mockAvailabilityCreatedEvents,
     );
+    mockClinicalServices.mockReturnValue(Promise.resolve(clinicalServices));
   });
 
   it('renders', async () => {

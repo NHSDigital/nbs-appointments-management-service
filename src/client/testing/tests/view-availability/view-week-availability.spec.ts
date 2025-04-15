@@ -6,6 +6,7 @@ import {
   OAuthLoginPage,
   RootPage,
   WeekViewAvailabilityPage,
+  CancelAppointmentDetailsPage,
 } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 import { Site } from '@types';
@@ -17,6 +18,7 @@ let changeAvailabilityPage: ChangeAvailabilityPage;
 let addSessionPage: AddSessionPage;
 let cancelSessionPage: CancelSessionDetailsPage;
 let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
+let cancelAppointmentDetailsPage: CancelAppointmentDetailsPage;
 let site: Site;
 
 test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () => {
@@ -29,6 +31,7 @@ test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () 
     addSessionPage = new AddSessionPage(page);
     cancelSessionPage = new CancelSessionDetailsPage(page);
     dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
+    cancelAppointmentDetailsPage = new CancelAppointmentDetailsPage(page);
 
     await rootPage.goto();
     await rootPage.pageContentLogInButton.click();
@@ -319,7 +322,7 @@ test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () 
       await expect(unbookedCell).toBeVisible();
     });
 
-    test('View daily appointments has the correct information', async ({
+    test('View daily appointments has the correct information, and on the cancel appointment page', async ({
       page,
     }) => {
       const viewDailyAppointmentsButton = page
@@ -337,24 +340,82 @@ test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () 
         `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-25&page=1`,
       );
 
+      const expectedDailyAppointments = [
+        {
+          time: '10:00',
+          nameNhsNumber: 'Jeremy Oswald1975486535',
+          dob: '13 November 1952',
+          contactDetails: '',
+          services: 'RSV',
+        },
+        {
+          time: '16:55',
+          nameNhsNumber: 'Jeremy Oswald1975486535',
+          dob: '13 November 1952',
+          contactDetails: '',
+          services: 'RSV',
+        },
+      ];
+
       dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
-        [
-          {
-            time: '10:00',
-            nameNhsNumber: 'Jeremy Oswald1975486535',
-            dob: '13 November 1952',
-            contactDetails: '',
-            services: 'RSV',
-          },
-          {
-            time: '16:55',
-            nameNhsNumber: 'Jeremy Oswald1975486535',
-            dob: '13 November 1952',
-            contactDetails: '',
-            services: 'RSV',
-          },
-        ],
+        expectedDailyAppointments,
       );
+
+      const expectedCancellableAppointments = [
+        {
+          time: '25 October 202510:00am',
+          name: 'Jeremy Oswald',
+          nhsNumber: '1975486535',
+          dob: '13 November 1952',
+          contactDetails: 'Not provided',
+          services: 'RSV (Adult)',
+        },
+        {
+          time: '25 October 202516:55pm',
+          name: 'Jeremy Oswald',
+          nhsNumber: '1975486535',
+          dob: '13 November 1952',
+          contactDetails: 'Not provided',
+          services: 'RSV (Adult)',
+        },
+      ];
+
+      const allTableRows = await dailyAppointmentDetailsPage.appointmentsTable
+        .getByRole('row')
+        .all();
+
+      //dive into the cancel details page and verify information is correct
+      for (
+        let index = 0;
+        index < expectedCancellableAppointments.length;
+        index++
+      ) {
+        const expectedAppointment = expectedCancellableAppointments[index];
+
+        //start at 1 to ignore header row
+        const tableRow = allTableRows[index + 1];
+
+        const cancelLink = tableRow.getByRole('link', { name: 'Cancel' });
+
+        await expect(cancelLink).toBeEnabled();
+
+        await cancelLink.click();
+
+        await page.waitForURL(
+          `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
+        );
+
+        await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
+          expectedAppointment,
+        );
+
+        //need to go back after this check
+        await cancelAppointmentDetailsPage.backButton.click();
+
+        await page.waitForURL(
+          `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-25&page=1`,
+        );
+      }
     });
   });
 
@@ -563,7 +624,7 @@ test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () 
       await expect(unbookedCell).toBeVisible();
     });
 
-    test('View daily appointments has the correct information', async ({
+    test('View daily appointments has the correct information, and on the cancel appointment page', async ({
       page,
     }) => {
       const viewDailyAppointmentsButton = page
@@ -578,27 +639,85 @@ test.describe('Daylight Savings Tests for the week view - Oct 20-27th 2025', () 
       await viewDailyAppointmentsButton.click();
 
       await page.waitForURL(
-        `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-25&page=1`,
+        `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-26&page=1`,
       );
 
+      const expectedDailyAppointments = [
+        {
+          time: '10:00',
+          nameNhsNumber: 'Jeremy Oswald1975486535',
+          dob: '13 November 1952',
+          contactDetails: '',
+          services: 'RSV',
+        },
+        {
+          time: '16:55',
+          nameNhsNumber: 'Jeremy Oswald1975486535',
+          dob: '13 November 1952',
+          contactDetails: '',
+          services: 'RSV',
+        },
+      ];
+
       dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
-        [
-          {
-            time: '10:00',
-            nameNhsNumber: 'Jeremy Oswald1975486535',
-            dob: '13 November 1952',
-            contactDetails: '',
-            services: 'RSV',
-          },
-          {
-            time: '16:55',
-            nameNhsNumber: 'Jeremy Oswald1975486535',
-            dob: '13 November 1952',
-            contactDetails: '',
-            services: 'RSV',
-          },
-        ],
+        expectedDailyAppointments,
       );
+
+      const expectedCancellableAppointments = [
+        {
+          time: '26 October 202510:00am',
+          name: 'Jeremy Oswald',
+          nhsNumber: '1975486535',
+          dob: '13 November 1952',
+          contactDetails: 'Not provided',
+          services: 'RSV (Adult)',
+        },
+        {
+          time: '26 October 202516:55pm',
+          name: 'Jeremy Oswald',
+          nhsNumber: '1975486535',
+          dob: '13 November 1952',
+          contactDetails: 'Not provided',
+          services: 'RSV (Adult)',
+        },
+      ];
+
+      const allTableRows = await dailyAppointmentDetailsPage.appointmentsTable
+        .getByRole('row')
+        .all();
+
+      //dive into the cancel details page and verify information is correct
+      for (
+        let index = 0;
+        index < expectedCancellableAppointments.length;
+        index++
+      ) {
+        const expectedAppointment = expectedCancellableAppointments[index];
+
+        //start at 1 to ignore header row
+        const tableRow = allTableRows[index + 1];
+
+        const cancelLink = tableRow.getByRole('link', { name: 'Cancel' });
+
+        await expect(cancelLink).toBeEnabled();
+
+        await cancelLink.click();
+
+        await page.waitForURL(
+          `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
+        );
+
+        await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
+          expectedAppointment,
+        );
+
+        //need to go back after this check
+        await cancelAppointmentDetailsPage.backButton.click();
+
+        await page.waitForURL(
+          `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2025-10-26&page=1`,
+        );
+      }
     });
   });
 });

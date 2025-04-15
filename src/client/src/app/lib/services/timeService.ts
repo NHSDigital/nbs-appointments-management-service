@@ -196,3 +196,11 @@ export const getWeeksOfTheMonth = (
 
   return dates;
 };
+
+export const getTimeBetweenDates = (
+  first: dayjs.Dayjs,
+  second: dayjs.Dayjs,
+  unit: 'minute' = 'minute',
+): number => {
+  return first.diff(second, unit);
+};

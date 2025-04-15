@@ -1,6 +1,7 @@
 import {
   formatDateTimeToTime,
   formatTimeString,
+  getTimeBetweenDates,
   isInTheFuture,
   isValidDate,
   parseDateComponents,
@@ -129,6 +130,20 @@ describe('Time Service', () => {
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {
       const result = isInTheFuture(dateToCheck);
+
+      expect(result).toBe(expectedOutcome);
+    },
+  );
+
+  it.each([
+    [dayjs('2025-04-07 12:00:00'), dayjs('2025-04-07 12:10:00'), -10],
+    [dayjs('2025-04-07 12:00:00'), dayjs('2025-04-07 13:00:00'), -60],
+    [dayjs('2025-04-07 12:00:00'), dayjs('2025-04-07 11:00:00'), 60],
+    [dayjs('2025-04-07 12:00:00'), dayjs('2025-04-07 11:45:00'), 15],
+  ])(
+    'works out the minutes between two dates with times',
+    (first: dayjs.Dayjs, second: dayjs.Dayjs, expectedOutcome: number) => {
+      const result = getTimeBetweenDates(first, second);
 
       expect(result).toBe(expectedOutcome);
     },

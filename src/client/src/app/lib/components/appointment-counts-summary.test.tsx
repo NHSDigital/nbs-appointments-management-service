@@ -141,13 +141,13 @@ describe('Appointment Counts Summary', () => {
       render(<AppointmentCountsSummary period={mockWeekSummary} />);
 
       expect(screen.getByText('Total appointments: 480')).toBeInTheDocument();
-      expect(screen.getByText('Unbooked: 475')).toBeInTheDocument();
+      expect(screen.getByText('Unbooked: 476')).toBeInTheDocument();
     });
 
     it('sums orphaned and non-orphaned appointments for the booked count', () => {
       render(<AppointmentCountsSummary period={mockWeekSummary} />);
 
-      expect(screen.getByText('Booked: 6')).toBeInTheDocument();
+      expect(screen.getByText('Booked: 5')).toBeInTheDocument();
     });
 
     it('renders a warning if there is a cancelled appointment', () => {

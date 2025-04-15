@@ -21,7 +21,6 @@ export default class WeekViewAvailabilityPage extends RootPage {
   readonly previousButton: Locator;
   readonly backToMonthButton: Locator;
   readonly sessionSuccessMsg: Locator;
-  readonly viewDailyAppointmentButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -38,9 +37,6 @@ export default class WeekViewAvailabilityPage extends RootPage {
     this.sessionSuccessMsg = page.getByText(
       'You have successfully created availability for the current site.',
     );
-    this.viewDailyAppointmentButton = page.getByRole('link', {
-      name: 'View daily appointments',
-    });
   }
 
   async verifyViewNextWeekButtonDisplayed() {
@@ -76,6 +72,17 @@ export default class WeekViewAvailabilityPage extends RootPage {
 
       //assert header
       await expect(header).toBeVisible();
+
+      const viewDailyAppointmentsButton = cardDiv.getByRole('link', {
+        name: 'View daily appointments',
+      });
+
+      //view daily appointments link visible only if any bookings
+      if (dayOverview.booked > 0) {
+        await expect(viewDailyAppointmentsButton).toBeVisible();
+      } else {
+        await expect(viewDailyAppointmentsButton).not.toBeVisible();
+      }
 
       if (dayOverview.services.length > 0) {
         //assert no availability not visible

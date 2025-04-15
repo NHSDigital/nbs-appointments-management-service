@@ -1,7 +1,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
-type DayOverview = {
+export type DayOverview = {
   header: string;
   services: ServiceOverview[];
   totalAppointments: number;

@@ -65,10 +65,10 @@ test.describe('Daylight Savings Tests for the month view - Oct 2025', () => {
         },
         {
           header: '27 October to 2 November',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
+          services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 2 }],
+          totalAppointments: 420,
+          booked: 2,
+          unbooked: 418,
         },
       ],
     );

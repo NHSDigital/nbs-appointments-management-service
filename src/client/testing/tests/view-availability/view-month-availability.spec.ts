@@ -29,7 +29,10 @@ test.describe('Daylight Savings Tests for the month view - Oct 2025', () => {
   });
 
   test('All the view month page data is arranged in the week cards as expected', async () => {
-    await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
+    await viewMonthAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
+      'September 2025',
+      'November 2025',
+    );
     await viewMonthAvailabilityPage.verifyAllWeekCardInformationDisplayedCorrectly(
       [
         {

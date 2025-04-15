@@ -47,6 +47,19 @@ export default class WeekViewAvailabilityPage extends RootPage {
     await expect(this.nextButton).toBeEnabled();
   }
 
+  async verifyViewNextAndPreviousWeeksButtonsDisplayed(
+    previousWeekText: string,
+    nextWeekText: string,
+  ) {
+    await expect(this.previousButton).toBeVisible();
+    await expect(this.previousButton).toBeEnabled();
+    await expect(this.previousButton).toContainText(previousWeekText);
+
+    await expect(this.nextButton).toBeVisible();
+    await expect(this.nextButton).toBeEnabled();
+    await expect(this.nextButton).toContainText(nextWeekText);
+  }
+
   async verifyAllDayCardInformationDisplayedCorrectly(
     expectedDayOverviews: DayOverview[],
   ) {

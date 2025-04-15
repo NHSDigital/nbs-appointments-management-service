@@ -10,6 +10,7 @@ import {
 } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 import { Site } from '@types';
+import { DayOverview } from '../../page-objects/view-availability-appointment-pages/week-view-availability-page';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -37,6 +38,14 @@ type SessionTestCase = {
   //the contents of these two SHOULD be identical, but there seems to be some indiscrepancies over these pages...
   viewDailyAppointments: ViewDailyAppointment[];
   cancelDailyAppointments: CancelDailyAppointment[];
+};
+
+type WeekViewTestCase = {
+  week: string;
+  weekHeader: string;
+  previousWeek: string;
+  nextWeek: string;
+  dayOverviews: DayOverview[];
 };
 
 type ViewDailyAppointment = {
@@ -154,6 +163,192 @@ const sessionTestCases: SessionTestCase[] = [
       },
     ],
   },
+  {
+    week: '2025-10-27',
+    day: '2025-10-27',
+    dayCardHeader: 'Monday 27 October',
+    changeSessionHeader: '27 October 2025',
+    timeRange: '10:00 - 17:00',
+    startHour: '10',
+    startMins: '00',
+    endHour: '17',
+    endMins: '00',
+    service: 'RSV (Adult)',
+    booked: 2,
+    unbooked: 418,
+    viewDailyAppointments: [
+      {
+        time: '10:00',
+        nameNhsNumber: 'Jeremy Oswald1975486535',
+        dob: '13 November 1952',
+        contactDetails: '',
+        services: 'RSV',
+      },
+      {
+        time: '16:55',
+        nameNhsNumber: 'Jeremy Oswald1975486535',
+        dob: '13 November 1952',
+        contactDetails: '',
+        services: 'RSV',
+      },
+    ],
+    cancelDailyAppointments: [
+      {
+        time: '27 October 202510:00am',
+        name: 'Jeremy Oswald',
+        nhsNumber: '1975486535',
+        dob: '13 November 1952',
+        contactDetails: 'Not provided',
+        services: 'RSV (Adult)',
+      },
+      {
+        time: '27 October 202516:55pm',
+        name: 'Jeremy Oswald',
+        nhsNumber: '1975486535',
+        dob: '13 November 1952',
+        contactDetails: 'Not provided',
+        services: 'RSV (Adult)',
+      },
+    ],
+  },
+];
+
+const weekTestCases: WeekViewTestCase[] = [
+  {
+    week: '2025-10-20',
+    weekHeader: '20 October to 26 October',
+    previousWeek: '13-19 October 2025',
+    nextWeek: '27-2 November 2025',
+    dayOverviews: [
+      {
+        header: 'Monday 20 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Tuesday 21 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Wednesday 22 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Thursday 23 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Friday 24 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Saturday 25 October',
+        services: [
+          {
+            serviceName: 'RSV (Adult)',
+            booked: 2,
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+      },
+      {
+        header: 'Sunday 26 October',
+        services: [
+          {
+            serviceName: 'RSV (Adult)',
+            booked: 2,
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+      },
+    ],
+  },
+  {
+    week: '2025-10-27',
+    weekHeader: '27 October to 2 November',
+    previousWeek: '20-26 October 2025',
+    nextWeek: '3-9 November 2025',
+    dayOverviews: [
+      {
+        header: 'Monday 27 October',
+        services: [
+          {
+            serviceName: 'RSV (Adult)',
+            booked: 2,
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+      },
+      {
+        header: 'Tuesday 28 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Wednesday 29 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Thursday 30 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Friday 31 October',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Saturday 1 November',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+      {
+        header: 'Sunday 2 November',
+        services: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+      },
+    ],
+  },
 ];
 
 test.describe('View Week Availability', () => {
@@ -173,85 +368,25 @@ test.describe('View Week Availability', () => {
     await oAuthPage.signIn();
   });
 
-  test('All the view week page data is arranged in the day cards as expected for Oct 20-27th 2025', async ({
-    page,
-  }) => {
-    //go to a week page that has a daylight savings change
-    await page.goto(
-      `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-10-20`,
-    );
+  weekTestCases.forEach(week => {
+    test.describe(`Session tests for week: '${week.weekHeader}'`, () => {
+      test.beforeEach(async ({ page }) => {
+        //start test by navigating to the week view that contains this session
+        await page.goto(
+          `manage-your-appointments/site/${site.id}/view-availability/week?date=${week.week}`,
+        );
+      });
 
-    await viewWeekAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
-      '13-19 October 2025',
-      '27-2 November 2025',
-    );
-    await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
-      [
-        {
-          header: 'Monday 20 October',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
-        },
-        {
-          header: 'Tuesday 21 October',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
-        },
-        {
-          header: 'Wednesday 22 October',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
-        },
-        {
-          header: 'Thursday 23 October',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
-        },
-        {
-          header: 'Friday 24 October',
-          services: [],
-          totalAppointments: 0,
-          booked: 0,
-          unbooked: 0,
-        },
-        {
-          header: 'Saturday 25 October',
-          services: [
-            {
-              serviceName: 'RSV (Adult)',
-              booked: 2,
-              unbooked: 418,
-              sessionTimeInterval: '10:00 - 17:00',
-            },
-          ],
-          totalAppointments: 420,
-          booked: 2,
-          unbooked: 418,
-        },
-        {
-          header: 'Sunday 26 October',
-          services: [
-            {
-              serviceName: 'RSV (Adult)',
-              booked: 2,
-              unbooked: 418,
-              sessionTimeInterval: '10:00 - 17:00',
-            },
-          ],
-          totalAppointments: 420,
-          booked: 2,
-          unbooked: 418,
-        },
-      ],
-    );
+      test(`View week page data is arranged in the day cards as expected`, async () => {
+        await viewWeekAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
+          week.previousWeek,
+          week.nextWeek,
+        );
+        await viewWeekAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
+          week.dayOverviews,
+        );
+      });
+    });
   });
 
   sessionTestCases.forEach(daySession => {

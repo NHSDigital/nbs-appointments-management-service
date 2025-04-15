@@ -1,9 +1,18 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
 
+type Appointments = {
+  time: string;
+  nameNhsNumber: string;
+  dob: string;
+  services: string;
+  contactDetails: string;
+};
+
 export default class DailyAppointmentDetailsPage extends RootPage {
   readonly backToWeekViewButton: Locator;
   readonly continueButton: Locator;
+  readonly appointmentsTable: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -13,10 +22,56 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     this.continueButton = page.getByRole('button', {
       name: 'Continue',
     });
+    this.appointmentsTable = page.getByRole('table');
   }
 
   async verifyDailyAppointmentDetailsPageDisplayed() {
     await expect(this.page.getByText('Scheduled')).toBeVisible();
+  }
+
+  async verifyTableExistsWithHeaders() {
+    await expect(this.appointmentsTable).toBeVisible();
+    const headerRow = this.appointmentsTable.getByRole('row').first();
+    const headers = await headerRow.getByRole('columnheader').all();
+
+    expect(headers).toHaveLength(6);
+
+    //verify header details
+    await expect(headers[0]).toHaveText('Time');
+    await expect(headers[1]).toHaveText('Name and NHS number');
+    await expect(headers[2]).toHaveText('Date of birth');
+    await expect(headers[3]).toHaveText('Contact details');
+    await expect(headers[4]).toHaveText('Services');
+    await expect(headers[5]).toHaveText('Action');
+  }
+
+  async verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
+    expectedAppointments: Appointments[],
+  ) {
+    await this.verifyTableExistsWithHeaders();
+
+    const tableRows = await this.appointmentsTable.getByRole('row').all();
+
+    //n+1 rows (header included)
+    expect(tableRows).toHaveLength(expectedAppointments.length + 1);
+
+    for (let index = 0; index < expectedAppointments.length; index++) {
+      const expectedAppointment = expectedAppointments[index];
+
+      //start at 1 to ignore header row
+      const tableRow = (await this.appointmentsTable.getByRole('row').all())[
+        index + 1
+      ];
+
+      const cells = await tableRow.getByRole('cell').all();
+
+      //verify cell details
+      await expect(cells[0]).toContainText(expectedAppointment.time);
+      await expect(cells[1]).toContainText(expectedAppointment.nameNhsNumber);
+      await expect(cells[2]).toContainText(expectedAppointment.dob);
+      await expect(cells[3]).toContainText(expectedAppointment.contactDetails);
+      await expect(cells[4]).toContainText(expectedAppointment.services);
+    }
   }
 
   async navigateToWeekView() {

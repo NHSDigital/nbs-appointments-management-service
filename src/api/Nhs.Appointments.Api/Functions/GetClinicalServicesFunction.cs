@@ -26,7 +26,7 @@ namespace Nhs.Appointments.Api.Functions
             Description = "List of service types available")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",typeof(ErrorMessageResponseItem), 
             Description = "Unauthorized request to a protected API")]
-        [Function("GetServiceTypesFunction")]
+        [Function("GetClinicalServicesFunction")]
         public override Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "clinical-services")]
             HttpRequest req)

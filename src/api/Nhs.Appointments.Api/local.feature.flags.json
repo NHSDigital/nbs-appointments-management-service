@@ -5,6 +5,7 @@
     "OktaEnabled": true,
     "MultiServiceAvailabilityCalculations": false,
     "TestFeatureEnabled": true,
+    "multiple-services": true,
     "RSV-Adult": true,
     "TestA-Child": false,
     "TestA-Adult": false,

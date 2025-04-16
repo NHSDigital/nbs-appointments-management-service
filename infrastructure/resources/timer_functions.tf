@@ -87,15 +87,14 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.BulkImportFunction.Disabled"                             = true
-    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
     "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
-    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
   }
 
   sticky_settings {

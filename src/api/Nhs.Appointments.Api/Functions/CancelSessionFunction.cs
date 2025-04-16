@@ -59,7 +59,7 @@ public class CancelSessionFunction(
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
         {
-            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
+            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date, request.Date);
         }
         else
         {

@@ -93,6 +93,7 @@ const mapSummaryData = (booking: Booking) => {
 
   const items: SummaryListItem[] = [];
 
+  //TODO refactor!!
   const bookingDate = dayjs(booking.from);
   const contactDetails =
     booking.contactDetails && booking.contactDetails.length > 0

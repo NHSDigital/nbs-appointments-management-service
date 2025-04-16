@@ -1,7 +1,7 @@
 import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
-import { ukEndOfWeek, ukStartOfWeek } from '@services/timeService';
+import { endOfUkWeek, startOfUkWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
@@ -17,8 +17,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:query');
   const site = await fetchSite(params.site);
 
-  const ukWeekStart = ukStartOfWeek(searchParams.date);
-  const ukWeekEnd = ukEndOfWeek(searchParams.date);
+  const ukWeekStart = startOfUkWeek(searchParams.date);
+  const ukWeekEnd = endOfUkWeek(searchParams.date);
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

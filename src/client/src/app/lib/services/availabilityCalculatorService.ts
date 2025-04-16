@@ -38,6 +38,7 @@ export const summariseWeek = async (
     ),
     fetchBookings({
       from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
+      //TODO do we need to do add day rather than endOf day (does this respect timezone?)
       to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),
@@ -220,17 +221,13 @@ const divideSessionIntoSlots = (
   const slots: AvailabilitySlot[] = [];
 
   let currentSlot = ukStartDatetime.clone();
-  while (
-    isBeforeOrEqual(
-      currentSlot,
-      addToUkDate(
-        ukEndDatetime,
-        session.slotLength * -1,
-        'minute',
-        dateTimeStringFormat,
-      ),
-    )
-  ) {
+  const bookEnd = addToUkDate(
+    ukEndDatetime,
+    session.slotLength * -1,
+    'minute',
+    dateTimeStringFormat,
+  );
+  while (isBeforeOrEqual(currentSlot, bookEnd)) {
     slots.push({
       sessionIndex,
       from: currentSlot,

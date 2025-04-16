@@ -1,7 +1,9 @@
-import { dayStringFormat } from '@services/timeService';
+import {
+  dayStringFormat,
+  endOfUkWeek,
+  startOfUkWeek,
+} from '@services/timeService';
 import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-dayjs.extend(isoWeek);
 
 interface DateComponents {
   day: string;
@@ -27,4 +29,4 @@ export const daysFromToday = (
 ) => dayjs().add(numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>
-  `${dayjs(date).startOf('isoWeek').format('D MMMM')} to ${dayjs(date).endOf('isoWeek').format('D MMMM')}`;
+  `${startOfUkWeek(dayjs(date)).format('D MMMM')} to ${endOfUkWeek(dayjs(date)).format('D MMMM')}`;

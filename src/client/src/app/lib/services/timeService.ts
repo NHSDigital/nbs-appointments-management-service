@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 export const dayStringFormat = 'YYYY-MM-DD';
 export const dateTimeStringFormat = 'YYYY-MM-DDTHH:mm:ss';
@@ -15,8 +15,16 @@ dayjs.extend(customParseFormat);
 //everything else should use 'Europe/London' where possible
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.extend(isoWeek);
 dayjs.extend(isSameOrBefore);
+dayjs.extend(updateLocale);
+
+// Set UK-style weeks: Monday as start
+dayjs.updateLocale('en', {
+  weekStart: 1,
+});
+
+// Set default locale if needed
+dayjs.locale('en');
 
 export const ukTimezone = 'Europe/London';
 
@@ -119,18 +127,10 @@ export const parseDateStringToUkDatetime = (
   return dayjs.tz(dateString, format, ukTimezone);
 };
 
-export const ukStartOfWeek = (dateString: string) => {
-  return dayjs.tz(dateString, ukTimezone).startOf('isoWeek');
-};
-
-export const ukEndOfWeek = (dateString: string) => {
-  return dayjs.tz(dateString, ukTimezone).endOf('isoWeek');
-};
-
 export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
   const week = [];
 
-  const weekStart = dateInWeek.startOf('isoWeek');
+  const weekStart = startOfUkWeek(dateInWeek);
   for (let i = 0; i < 7; i++) {
     week.push(addToUkDate(weekStart, i, 'day'));
   }
@@ -167,7 +167,7 @@ export const isBeforeOrEqual = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   units: 'minute' = 'minute',
-) => first.isSameOrBefore(second, units);
+) => first.utc().isSameOrBefore(second.utc(), units);
 
 export const compareTimes = (
   first: TimeComponents,
@@ -190,16 +190,70 @@ export const compareTimes = (
 export const addToUkDate = (
   ukDatetime: dayjs.Dayjs,
   value: number,
-  manipulateType: dayjs.ManipulateType,
+  // manipulateType: dayjs.ManipulateType,
+  manipulateType: 'day' | 'week' | 'hour' | 'minute',
   format = dayStringFormat,
 ): dayjs.Dayjs => {
-  //have to stringify and parse to ensure the new created datetime has the UK timezone info correct
+  //have to do operation in UTC and stringify and parse to ensure the new created datetime has the UK timezone info correct
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-  const stringifyDatetime = ukDatetime
-    .add(value, manipulateType)
-    .format(format);
+  // const utcDatetime = ukDatetime.utc();
+  // const addedUtcDatetime = utcDatetime.add(value, manipulateType);
+  // const addedUkDatetime = addedUtcDatetime.tz(ukTimezone);
+
+  // const corrected = dayjs.tz(
+  //   addedUkDatetime.format('YYYY-MM-DDTHH:mm:ss'),
+  //   ukTimezone,
+  // );
+
+  // const stringifyDatetime = corrected.format(format);
+
+  // const shifted = ukDatetime.add(value, manipulateType);
+  // //forced reevaluation of timezone using solely Date and Time info
+  // const corrected = dayjs.tz(shifted.format('YYYY-MM-DDTHH:mm:ss'), ukTimezone);
+  // const stringifyDatetime = corrected.format(format);
+
+  let shifted: dayjs.Dayjs = dayjs();
+
+  switch (manipulateType) {
+    case 'day':
+      shifted = ukDatetime.date(ukDatetime.date() + value);
+      break;
+    case 'week':
+      shifted = ukDatetime.date(ukDatetime.date() + value * 7);
+      break;
+    case 'hour':
+      shifted = ukDatetime.hour(ukDatetime.hour() + value);
+      break;
+    case 'minute':
+      shifted = ukDatetime.minute(ukDatetime.minute() + value);
+      break;
+    default:
+      throw new Error('Unsupported');
+  }
+
+  //forced reevaluation of timezone using Date and Time info, to account for if the shift crossed a DST boundary
+  const corrected = dayjs.tz(shifted.format('YYYY-MM-DDTHH:mm:ss'), ukTimezone);
+  const stringifyDatetime = corrected.format(format);
 
   return parseDateStringToUkDatetime(stringifyDatetime, format);
+};
+
+export const startOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
+  if (typeof ukDate === 'string') {
+    const ukDateTime = parseDateStringToUkDatetime(ukDate);
+    return startOfUkWeek(ukDateTime);
+  }
+
+  return ukDate.startOf('week');
+};
+
+export const endOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
+  if (typeof ukDate === 'string') {
+    const ukDateTime = parseDateStringToUkDatetime(ukDate);
+    return endOfUkWeek(ukDateTime);
+  }
+
+  return ukDate.endOf('week');
 };
 
 //build a dayjs with the correct timezone info for the provided day and session start hours and minutes
@@ -208,16 +262,18 @@ export const buildUkSessionDatetime = (
   hours: number,
   minutes: number,
 ): dayjs.Dayjs => {
-  const ukStartOfDay = ukDay.startOf('day');
-
   //have to stringify and parse to ensure the new created datetime has the UK timezone info correct
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-  const stringifyDatetime = ukStartOfDay
-    .add(hours, 'hour')
-    .add(minutes, 'minute')
-    .format(dateTimeStringFormat);
 
-  return parseDateStringToUkDatetime(stringifyDatetime, dateTimeStringFormat);
+  const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeStringFormat);
+  return addToUkDate(newHour, minutes, 'minute', dateTimeStringFormat);
+
+  // const stringifyDatetime = ukStartOfDay
+  //   .add(hours, 'hour')
+  //   .add(minutes, 'minute')
+  //   .format(dateTimeStringFormat);
+
+  // return parseDateStringToUkDatetime(stringifyDatetime, dateTimeStringFormat);
 };
 
 //extract the string version of the ukDatetime out into a dayjs object with the correct timezone
@@ -228,10 +284,8 @@ export const extractUkSessionDatetime = (datetime: string) => {
 export const getUkWeeksOfTheMonth = (
   ukDateInMonth: dayjs.Dayjs,
 ): dayjs.Dayjs[][] => {
-  const startOfFirstWeekInMonth = ukDateInMonth
-    .startOf('month')
-    .startOf('isoWeek');
-  const endOfLastWeekInMonth = ukDateInMonth.endOf('month').endOf('isoWeek');
+  const startOfFirstWeekInMonth = startOfUkWeek(ukDateInMonth.startOf('month'));
+  const endOfLastWeekInMonth = endOfUkWeek(ukDateInMonth.endOf('month'));
 
   const dates: dayjs.Dayjs[][] = [];
   let currentWeek: dayjs.Dayjs[] = [];

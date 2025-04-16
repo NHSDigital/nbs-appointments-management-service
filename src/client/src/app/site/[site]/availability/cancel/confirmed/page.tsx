@@ -39,6 +39,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsPage
+      //TODO refactor!!
       title={`Cancelled session for ${dayjs(searchParams.date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"

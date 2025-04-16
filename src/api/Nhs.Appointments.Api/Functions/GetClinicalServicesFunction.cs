@@ -22,7 +22,7 @@ namespace Nhs.Appointments.Api.Functions
         : BaseApiFunction<EmptyRequest, IEnumerable<ClinicalServiceType>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [OpenApiOperation(operationId: "GetServiceTypes", tags: ["serviceTypes"], 
-            Summary = "Get Services Types for Availibilities Form")]
+            Summary = "Get Services Types for Availabilities Form")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<ClinicalServiceType>), 
             Description = "List of service types available")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",typeof(ErrorMessageResponseItem), 

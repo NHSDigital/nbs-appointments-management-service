@@ -4,6 +4,6 @@
     "MultiServiceAvailabilityCalculations": false,
     "JointBookings": true,
     "BulkImport": false,
-    "RSV:Adult": true
+    "RSV-Adult": true
   }
 }

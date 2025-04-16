@@ -61,15 +61,15 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task Get_ReturnsSome_WhenSomeEnabled()
         {
             _serviceTypeStore.Setup(x => x.Get()).ReturnsAsync(_serviceTypes);
-            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals("TestA:Child")))).ReturnsAsync(false);
-            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => !x.Equals("TestA:Child")))).ReturnsAsync(true);
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals("TestA-Child")))).ReturnsAsync(false);
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => !x.Equals("TestA-Child")))).ReturnsAsync(true);
             _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
 
             var result = await _sut.Get();
 
             Assert.Equivalent(_serviceTypes, result);
-            _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals("TestA:Child"))), Times.Once);
-            _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => !x.Equals("TestA:Child"))), Times.Exactly(8));
+            _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals("TestA-Child"))), Times.Once);
+            _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => !x.Equals("TestA-Child"))), Times.Exactly(8));
         }
     }
 }

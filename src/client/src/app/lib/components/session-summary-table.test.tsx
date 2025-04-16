@@ -4,15 +4,17 @@ import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import dayjs from 'dayjs';
 import { now } from '@services/timeService';
+import { ClinicalService } from '@types';
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
-  clinicalServices: [
-    { label: 'RSV (Adult)', value: 'RSV:Adult' },
-    { label: 'FLU 18-64', value: 'FLU:18_64' },
-    { label: 'COVID 75+', value: 'COVID:75+' },
-  ],
 }));
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+  { label: 'FLU 18-64', value: 'FLU:18_64' },
+  { label: 'COVID 75+', value: 'COVID:75+' },
+];
 
 jest.mock('@services/timeService', () => ({
   now: jest.fn(),
@@ -30,6 +32,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -42,6 +45,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -70,6 +74,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           date: mockWeekAvailability__Summary[0].date,
         }}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -111,6 +116,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           date: mockWeekAvailability__Summary[0].date,
         }}
+        clinicalServices={clinicalServices}
       />,
     );
 

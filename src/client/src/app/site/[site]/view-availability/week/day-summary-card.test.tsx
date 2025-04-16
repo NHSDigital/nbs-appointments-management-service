@@ -4,6 +4,7 @@ import { DaySummaryCard } from './day-summary-card';
 import { mockDaySummaries, mockEmptyDays } from '@testing/data';
 import { isInTheFuture, now } from '@services/timeService';
 import dayjs from 'dayjs';
+import { clinicalServices } from '@types';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -31,6 +32,7 @@ describe('Day Summary Card', () => {
         daySummary={mockDaySummaries[0]}
         siteId={'mock-site'}
         canManageAvailability={true}
+        clinicalServices={clinicalServices}
       />,
     );
 
@@ -46,6 +48,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -67,6 +70,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -88,6 +92,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -111,6 +116,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -127,6 +133,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -141,6 +148,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -155,6 +163,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -169,6 +178,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -185,6 +195,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -201,6 +212,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -225,6 +237,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -241,6 +254,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -267,6 +281,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -285,6 +300,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -303,6 +319,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -319,6 +336,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -335,6 +353,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -349,6 +368,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 1 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -363,6 +383,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 0 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -377,6 +398,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 1 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -391,6 +413,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 0 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -405,6 +428,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -422,6 +446,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -436,6 +461,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -460,6 +486,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -484,6 +511,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 
@@ -500,6 +528,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
+          clinicalServices={clinicalServices}
         />,
       );
 

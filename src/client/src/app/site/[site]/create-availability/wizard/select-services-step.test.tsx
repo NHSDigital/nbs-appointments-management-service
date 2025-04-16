@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SelectServicesStep from './select-services-step';
+import { clinicalServices } from '@types';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -24,6 +25,7 @@ describe('Select Services Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -49,6 +51,7 @@ describe('Select Services Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -83,6 +86,7 @@ describe('Select Services Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );
@@ -112,6 +116,7 @@ describe('Select Services Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          clinicalServices={clinicalServices}
         />
       </MockForm>,
     );

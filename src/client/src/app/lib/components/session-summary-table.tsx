@@ -1,5 +1,5 @@
 import { Cell, Table } from '@components/nhsuk-frontend';
-import { clinicalServices, SessionSummary } from '@types';
+import { ClinicalService, SessionSummary } from '@types';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { UrlObject } from 'url';
@@ -11,11 +11,13 @@ type SessionSummaryTableProps = {
     siteId: string;
     date: dayjs.Dayjs;
   };
+  clinicalServices: ClinicalService[];
 };
 
 export const SessionSummaryTable = ({
   sessionSummaries,
   showChangeSessionLink,
+  clinicalServices,
 }: SessionSummaryTableProps) => {
   return (
     <Table
@@ -26,13 +28,18 @@ export const SessionSummaryTable = ({
         'Unbooked',
         ...(showChangeSessionLink ? ['Action'] : []),
       ]}
-      rows={getSessionSummaryRows(sessionSummaries, showChangeSessionLink)}
+      rows={getSessionSummaryRows(
+        sessionSummaries,
+        clinicalServices,
+        showChangeSessionLink,
+      )}
     />
   );
 };
 
 export const getSessionSummaryRows = (
   sessionSummaries: SessionSummary[],
+  clinicalServices: ClinicalService[],
   showChangeSessionLinkProps?: {
     siteId: string;
     date: dayjs.Dayjs;
@@ -47,6 +54,7 @@ export const getSessionSummaryRows = (
       <SessionServicesCell
         key={`session-${sessionIndex}-service-name`}
         sessionSummary={sessionSummary}
+        clinicalServices={clinicalServices}
       />,
       <SessionBookingsCell
         key={`session-${sessionIndex}-service-bookings`}
@@ -87,15 +95,18 @@ export const SessionTimesCell = ({
 
 export const SessionServicesCell = ({
   sessionSummary,
+  clinicalServices,
 }: {
   sessionSummary: SessionSummary;
+  clinicalServices: ClinicalService[];
 }) => {
   return (
     <>
       {Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
         return (
           <span key={`service-name-${serviceIndex}`}>
-            {clinicalServices.find(cs => cs.value === service)?.label}
+            {clinicalServices.find(cs => cs.value === service)?.label ??
+              service}
             <br />
           </span>
         );

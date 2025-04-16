@@ -25,9 +25,10 @@ import {
   Site,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  clinicalServices,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
-import { ApiResponse } from '@types';
+import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { now } from '@services/timeService';
@@ -96,6 +97,22 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
     `feature-flag/${featureFlag}`,
   );
   return handleBodyResponse(response);
+};
+
+export const fetchClinicalServices = async () => {
+  const canUseMultipleServices = await fetchFeatureFlag('multiple-services');
+
+  if (canUseMultipleServices.enabled) {
+    const response = await appointmentsApi.get<ClinicalService[]>(
+      `clinical-services`,
+      {
+        cache: 'force-cache',
+      },
+    );
+    return handleBodyResponse(response);
+  }
+
+  return clinicalServices;
 };
 
 export const fetchSiteAccessibilities = async (siteId: string) => {

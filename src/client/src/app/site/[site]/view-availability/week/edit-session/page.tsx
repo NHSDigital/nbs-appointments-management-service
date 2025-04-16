@@ -1,5 +1,9 @@
 import NhsPage from '@components/nhs-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchClinicalServices,
+  fetchSite,
+} from '@services/appointmentsService';
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
@@ -16,7 +20,11 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
-  const site = await fetchSite(params.site);
+
+  const [site, clinicalServices] = await Promise.all([
+    fetchSite(params.site),
+    fetchClinicalServices(),
+  ]);
 
   const date = dayjs(searchParams.date, 'YYYY-MM-DD');
 
@@ -40,6 +48,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         sessionSummary={searchParams.session}
         date={searchParams.date}
+        clinicalServices={clinicalServices}
       ></EditSessionDecision>
     </NhsPage>
   );

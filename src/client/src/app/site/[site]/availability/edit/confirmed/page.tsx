@@ -1,4 +1,8 @@
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchClinicalServices,
+  fetchSite,
+} from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import dayjs from 'dayjs';
@@ -16,7 +20,10 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
-  const site = await fetchSite(params.site);
+  const [site, clinicalServices] = await Promise.all([
+    fetchSite(params.site),
+    fetchClinicalServices(),
+  ]);
   const date = dayjs(searchParams.date, 'YYYY-MM-DD');
 
   const updatedSession: AvailabilitySession = JSON.parse(
@@ -38,6 +45,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         updatedSession={updatedSession}
         site={site}
         date={searchParams.date}
+        clinicalServices={clinicalServices}
       />
     </NhsPage>
   );

@@ -9,7 +9,7 @@ import {
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { cancelAppointment } from '@services/appointmentsService';
-import { Booking, clinicalServices } from '@types';
+import { Booking, ClinicalService } from '@types';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -21,9 +21,11 @@ type CancelFormValue = {
 const CancelAppointmentPage = ({
   booking,
   site,
+  clinicalServices,
 }: {
   booking: Booking;
   site: string;
+  clinicalServices: ClinicalService[];
 }) => {
   const { replace } = useRouter();
   const {
@@ -35,7 +37,7 @@ const CancelAppointmentPage = ({
       cancelAppointment: 'yes',
     },
   });
-  const summaryItems = mapSummaryData(booking);
+  const summaryItems = mapSummaryData(booking, clinicalServices);
 
   const submitForm: SubmitHandler<CancelFormValue> = async (
     form: CancelFormValue,
@@ -84,7 +86,10 @@ const CancelAppointmentPage = ({
 
 export default CancelAppointmentPage;
 
-const mapSummaryData = (booking: Booking) => {
+const mapSummaryData = (
+  booking: Booking,
+  clinicalServices: ClinicalService[],
+) => {
   if (!booking) {
     return undefined;
   }

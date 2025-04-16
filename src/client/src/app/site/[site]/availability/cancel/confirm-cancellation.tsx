@@ -9,7 +9,7 @@ import {
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { cancelSession } from '@services/appointmentsService';
-import { SessionSummary } from '@types';
+import { ClinicalService, SessionSummary } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -17,13 +17,19 @@ type PageProps = {
   date: string;
   session: string;
   site: string;
+  clinicalServices: ClinicalService[];
 };
 
 type CancelSessionDecisionFormData = {
   action?: 'cancel-session' | 'dont-cancel-session';
 };
 
-const ConfirmCancellation = ({ date, session, site }: PageProps) => {
+const ConfirmCancellation = ({
+  date,
+  session,
+  site,
+  clinicalServices,
+}: PageProps) => {
   const {
     register,
     handleSubmit,
@@ -46,7 +52,10 @@ const ConfirmCancellation = ({ date, session, site }: PageProps) => {
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <SessionSummaryTable sessionSummaries={[sessionSummary]} />
+      <SessionSummaryTable
+        sessionSummaries={[sessionSummary]}
+        clinicalServices={clinicalServices}
+      />
 
       <InsetText>
         <p>You'll need to manually cancel any affected appointments.</p>

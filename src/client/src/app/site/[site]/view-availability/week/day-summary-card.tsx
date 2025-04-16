@@ -5,19 +5,21 @@ import PipeDelimitedLinks, {
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { isInTheFuture } from '@services/timeService';
-import { DaySummary } from '@types';
+import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
 type DaySummaryCardProps = {
   daySummary: DaySummary;
   siteId: string;
   canManageAvailability: boolean;
+  clinicalServices: ClinicalService[];
 };
 
 export const DaySummaryCard = ({
   daySummary,
   siteId,
   canManageAvailability,
+  clinicalServices,
 }: DaySummaryCardProps) => {
   const { date, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
@@ -67,6 +69,7 @@ export const DaySummaryCard = ({
     <Card title={date.format('dddd D MMMM')}>
       <SessionSummaryTable
         sessionSummaries={sessions}
+        clinicalServices={clinicalServices}
         showChangeSessionLink={
           canManageAvailability
             ? {

@@ -2,7 +2,10 @@ import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Site } from '@types';
 import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchClinicalServices,
+  fetchPermissions,
+} from '@services/appointmentsService';
 
 type Props = {
   site: Site;
@@ -11,9 +14,10 @@ type Props = {
 };
 
 export const DayCardList = async ({ site, weekStart, weekEnd }: Props) => {
-  const [weekSummary, permissions] = await Promise.all([
+  const [weekSummary, permissions, clinicalServices] = await Promise.all([
     summariseWeek(weekStart, weekEnd, site.id),
     fetchPermissions(site.id),
+    fetchClinicalServices(),
   ]);
 
   const canManageAvailability = permissions.includes('availability:setup');
@@ -27,6 +31,7 @@ export const DayCardList = async ({ site, weekStart, weekEnd }: Props) => {
               daySummary={day}
               siteId={site.id}
               canManageAvailability={canManageAvailability}
+              clinicalServices={clinicalServices}
             />
           </li>
         );

@@ -3,7 +3,13 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import StartAndEndDateStep from './start-and-end-date-step';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { DateComponents, Session, Site, DayOfWeek } from '@types';
+import {
+  DateComponents,
+  Session,
+  Site,
+  DayOfWeek,
+  ClinicalService,
+} from '@types';
 import SingleOrRepeatingSessionStep from './single-or-repeating-session-step';
 import SummaryStep from './summary-step';
 import saveAvailabilityTemplate from './save-availability-template';
@@ -13,6 +19,7 @@ import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
 import { ChangeEvent } from 'react';
 import dayjs from 'dayjs';
+import { fetchClinicalServices } from '@services/appointmentsService';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -25,6 +32,7 @@ export type CreateAvailabilityFormValues = {
 type Props = {
   site: Site;
   date: string | null;
+  clinicalServices: ClinicalService[];
 };
 
 export const handlePositiveBoundedNumberInput = (
@@ -43,7 +51,11 @@ export const handlePositiveBoundedNumberInput = (
   return asNumber;
 };
 
-const AvailabilityTemplateWizard = ({ site, date }: Props) => {
+const AvailabilityTemplateWizard = ({
+  site,
+  date,
+  clinicalServices,
+}: Props) => {
   const startDate = dayjs(date, 'YYYY-MM-DD');
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
@@ -111,9 +123,18 @@ const AvailabilityTemplateWizard = ({ site, date }: Props) => {
             )}
           </WizardStep>
           <WizardStep>
-            {stepProps => <SelectServicesStep {...stepProps} />}
+            {stepProps => (
+              <SelectServicesStep
+                {...stepProps}
+                clinicalServices={clinicalServices}
+              />
+            )}
           </WizardStep>
-          <WizardStep>{stepProps => <SummaryStep {...stepProps} />}</WizardStep>
+          <WizardStep>
+            {stepProps => (
+              <SummaryStep {...stepProps} clinicalServices={clinicalServices} />
+            )}
+          </WizardStep>
         </Wizard>
       </form>
     </FormProvider>

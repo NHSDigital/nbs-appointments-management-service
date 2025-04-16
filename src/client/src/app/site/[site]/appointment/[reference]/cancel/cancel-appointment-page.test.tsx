@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import render from '@testing/render';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { clinicalServices } from '@types';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -21,7 +22,13 @@ describe('Cancel Appointment Page', () => {
   });
 
   it('renders', () => {
-    render(<CancelAppointmentPage site="TEST01" booking={mockBookings[0]} />);
+    render(
+      <CancelAppointmentPage
+        site="TEST01"
+        booking={mockBookings[0]}
+        clinicalServices={clinicalServices}
+      />,
+    );
 
     verifySummaryListItem('Date and time', '10 November 202414:05pm');
 
@@ -36,14 +43,24 @@ describe('Cancel Appointment Page', () => {
   });
 
   it('renders not provided when a user has not provided contact details', () => {
-    render(<CancelAppointmentPage site="TEST01" booking={mockBookings[0]} />);
+    render(
+      <CancelAppointmentPage
+        site="TEST01"
+        booking={mockBookings[0]}
+        clinicalServices={clinicalServices}
+      />,
+    );
 
     verifySummaryListItem('Contact information', 'Not provided');
   });
 
   it('calls the cancel appointment endpoint when a user selects yes', async () => {
     const { user } = render(
-      <CancelAppointmentPage site="TEST01" booking={mockBookings[0]} />,
+      <CancelAppointmentPage
+        site="TEST01"
+        booking={mockBookings[0]}
+        clinicalServices={clinicalServices}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));

@@ -8,8 +8,8 @@ parameters:
     default: "stag"
     values: ["stag"]
 
-trigger:
-  - none
+trigger: none
+pr: none
 
 pool:
   vmImage: "ubuntu-latest"

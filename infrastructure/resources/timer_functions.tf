@@ -4,7 +4,7 @@
 resource "azurerm_service_plan" "nbs_mya_timer_func_service_plan" {
   name                = "${var.application}-timerfsp-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location            = var.location
   os_type             = "Windows"
   sku_name            = "Y1"
 }
@@ -12,7 +12,7 @@ resource "azurerm_service_plan" "nbs_mya_timer_func_service_plan" {
 resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
   name                = "${var.application}-timerfunc-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  location            = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location            = var.location
 
   storage_account_name       = azurerm_storage_account.nbs_mya_timer_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_timer_func_storage_account.primary_access_key
@@ -31,9 +31,9 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME                                               = "dotnet-isolated"
     WEBSITE_RUN_FROM_PACKAGE                                               = 1
-    COSMOS_ENDPOINT                                                        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
-    COSMOS_TOKEN                                                           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
-    APP_CONFIG_CONNECTION                                                  = azurerm_app_configuration.nbs_mya_app_configuration.primary_read_key[0].connection_string
+    COSMOS_ENDPOINT                                                        = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+    COSMOS_TOKEN                                                           = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+    APP_CONFIG_CONNECTION                                                  = var.app_config_connection != "" ? var.app_config_connection : azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                               = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                                 = "azure"
@@ -133,9 +133,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME                                               = "dotnet-isolated"
     WEBSITE_RUN_FROM_PACKAGE                                               = 1
-    COSMOS_ENDPOINT                                                        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.endpoint
-    COSMOS_TOKEN                                                           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.primary_key
-    APP_CONFIG_CONNECTION                                                  = azurerm_app_configuration.nbs_mya_app_configuration.primary_read_key[0].connection_string
+    COSMOS_ENDPOINT                                                        = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+    COSMOS_TOKEN                                                           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+    APP_CONFIG_CONNECTION                                                  = var.app_config_connection != "" ? var.app_config_connection : azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                               = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                                 = "none"

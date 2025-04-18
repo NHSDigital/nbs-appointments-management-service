@@ -13,9 +13,11 @@ import {
 } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import {
-  isSameDayOrBefore,
   ukNow,
   parseDateComponentsToUkDatetime,
+  isBeforeOrEqual,
+  isAfter,
+  isBefore,
 } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
@@ -112,11 +114,11 @@ const StartAndEndDateStep = ({
                 return `Session ${sessionDateDescriptor} must be a valid date`;
               }
 
-              if (ukStartDate.isBefore(ukNow().add(1, 'day'), 'day')) {
+              if (isBefore(ukStartDate, ukNow().add(1, 'day'), 'day')) {
                 return `Session ${sessionDateDescriptor} must be in the future`;
               }
 
-              if (ukStartDate.isAfter(ukNow().add(1, 'year'), 'day')) {
+              if (isAfter(ukStartDate, ukNow().add(1, 'year'), 'day')) {
                 return `Session ${sessionDateDescriptor} must be within the next year`;
               }
             },
@@ -208,11 +210,11 @@ const StartAndEndDateStep = ({
                 return 'Session end date must be a valid date';
               }
 
-              if (!isSameDayOrBefore(startDate, endDate)) {
+              if (!isBeforeOrEqual(startDate, endDate, 'day')) {
                 return 'Session end date must be after the start date';
               }
 
-              if (endDate.isAfter(ukNow().add(1, 'year'), 'day')) {
+              if (isAfter(endDate, ukNow().add(1, 'year'), 'day')) {
                 return 'Session end date must be within the next year';
               }
             },

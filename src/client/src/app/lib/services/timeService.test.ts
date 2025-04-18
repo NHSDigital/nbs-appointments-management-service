@@ -12,6 +12,9 @@ import {
   addToUkDate,
   startOfUkWeek,
   endOfUkWeek,
+  isEqual,
+  dateTimeStringFormat,
+  isSameUkDay,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 import dayjs from 'dayjs';
@@ -254,7 +257,7 @@ describe('Time Service', () => {
     const result1 = addToUkDate(dateTime, 0, 'day');
     const result2 = addToUkDate(startOfWeek, 0, 'day');
 
-    expect(result1.isSame(result2)).toBe(true);
+    expect(isEqual(result1, result2)).toBe(true);
 
     expect(result1.toISOString()).toEqual('2025-10-19T23:00:00.000Z');
     expect(result2.toISOString()).toEqual('2025-10-19T23:00:00.000Z');
@@ -267,10 +270,20 @@ describe('Time Service', () => {
     const result1 = addToUkDate(dateTime, 1, 'day');
     const result2 = addToUkDate(startOfWeek, 1, 'day');
 
-    expect(result1.isSame(result2)).toBe(true);
+    expect(isEqual(result1, result2)).toBe(true);
 
     expect(result1.toISOString()).toEqual('2025-10-20T23:00:00.000Z');
     expect(result2.toISOString()).toEqual('2025-10-20T23:00:00.000Z');
+  });
+
+  it('isSameUkDay', async () => {
+    const bookingDate = parseDateStringToUkDatetime(
+      '2025-10-26T10:00:00',
+      dateTimeStringFormat,
+    );
+    const ukDay = parseDateStringToUkDatetime('2025-10-26');
+    const sameDay = isSameUkDay(ukDay, bookingDate);
+    expect(sameDay).toBe(true);
   });
 
   it('addToUkDate preserves UK timezone - 26th 0', async () => {

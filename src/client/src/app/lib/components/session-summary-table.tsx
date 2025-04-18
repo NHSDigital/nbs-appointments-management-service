@@ -2,7 +2,11 @@ import { Cell, Table } from '@components/nhsuk-frontend';
 import { clinicalServices, SessionSummary } from '@types';
 import Link from 'next/link';
 import { UrlObject } from 'url';
-import { extractUkSessionDatetime, ukNow } from '@services/timeService';
+import {
+  extractUkSessionDatetime,
+  isAfter,
+  ukNow,
+} from '@services/timeService';
 
 type SessionSummaryTableProps = {
   sessionSummaries: SessionSummary[];
@@ -58,7 +62,7 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-unbooked`}
         sessionSummary={sessionSummary}
       />,
-      ...(showChangeSessionLinkProps && ukStartDatetime.isAfter(ukNow())
+      ...(showChangeSessionLinkProps && isAfter(ukStartDatetime, ukNow())
         ? [
             <Link
               key={`session-${sessionIndex}-action-link`}

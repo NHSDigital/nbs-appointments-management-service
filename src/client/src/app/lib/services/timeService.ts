@@ -68,15 +68,6 @@ export const parseDateComponentsToUkDatetime = ({
   return parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
 };
 
-export const isSameDayOrBefore = (
-  firstDate: dayjs.Dayjs,
-  secondDate: dayjs.Dayjs,
-) => {
-  return (
-    firstDate.isSame(secondDate, 'day') || firstDate.isBefore(secondDate, 'day')
-  );
-};
-
 export const formatUkDatetimeToTime = (dateTime: string) => {
   const date = parseDateStringToUkDatetime(dateTime, dateTimeStringFormat);
 
@@ -157,17 +148,43 @@ export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
   return dayjs.tz(date, ukTimezone).format(format);
 };
 
+//TODO rewrite??
 export const isInTheFuture = (date: string, format = dayStringFormat) => {
   const inputDate = dayjs(date, format);
   const today = dayjs().startOf('day');
-  return inputDate.isAfter(today);
+  return isAfter(inputDate, today);
 };
 
 export const isBeforeOrEqual = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
-  units: 'minute' = 'minute',
-) => first.utc().isSameOrBefore(second.utc(), units);
+  unit?: dayjs.OpUnitType,
+) => dayjs.utc(first).isSameOrBefore(dayjs.utc(second), unit);
+
+export const isBefore = (
+  first: dayjs.Dayjs,
+  second: dayjs.Dayjs,
+  unit?: dayjs.OpUnitType,
+) => dayjs.utc(first).isBefore(dayjs.utc(second), unit);
+
+export const isAfter = (
+  first: dayjs.Dayjs,
+  second: dayjs.Dayjs,
+  unit?: dayjs.OpUnitType,
+) => dayjs.utc(first).isAfter(dayjs.utc(second), unit);
+
+export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
+  return dayjs.utc(first).isSame(dayjs.utc(second));
+};
+
+export const isSameUkDay = (
+  first: dayjs.Dayjs,
+  second: dayjs.Dayjs,
+): boolean => {
+  return dayjs
+    .tz(first, ukTimezone)
+    .isSame(dayjs.tz(second, ukTimezone), 'day');
+};
 
 export const compareTimes = (
   first: TimeComponents,
@@ -291,7 +308,7 @@ export const getUkWeeksOfTheMonth = (
   let currentWeek: dayjs.Dayjs[] = [];
   let currentDate = startOfFirstWeekInMonth;
 
-  while (currentDate.isSameOrBefore(endOfLastWeekInMonth)) {
+  while (isBeforeOrEqual(currentDate, endOfLastWeekInMonth)) {
     currentWeek.push(currentDate);
     if (currentWeek.length === 7) {
       dates.push(currentWeek);

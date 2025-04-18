@@ -5,7 +5,10 @@ import {
   dayStringFormat,
   extractUkSessionDatetime,
   getWeek,
+  isBefore,
   isBeforeOrEqual,
+  isEqual,
+  isSameUkDay,
   parseDateStringToUkDatetime,
   toTimeComponents,
 } from '@services/timeService';
@@ -48,7 +51,7 @@ export const summariseWeek = async (
 
   const daySummaries: DaySummary[] = ukWeek.map(ukDay => {
     const availability = dailyAvailability.find(a =>
-      parseDateStringToUkDatetime(a.date).isSame(ukDay),
+      isEqual(parseDateStringToUkDatetime(a.date), ukDay),
     );
 
     const bookings = dailyBookings.filter(booking => {
@@ -57,7 +60,7 @@ export const summariseWeek = async (
         booking.from,
         dateTimeStringFormat,
       );
-      const result = ukBookingDatetime.isSame(ukDay, 'day');
+      const result = isSameUkDay(ukBookingDatetime, ukDay);
       return result;
     });
 
@@ -131,7 +134,7 @@ const summariseDay = (
 
       return (
         slot.capacity > 0 &&
-        slot.from.isSame(bookingUkDatetime) &&
+        isEqual(slot.from, bookingUkDatetime) &&
         slot.length === booking.duration &&
         slot.services.includes(booking.service)
       );
@@ -176,10 +179,10 @@ const buildDaySummary = (
       const aEnd = extractUkSessionDatetime(a.ukEndDatetime);
       const bEnd = extractUkSessionDatetime(b.ukEndDatetime);
 
-      if (aStart.isBefore(bStart)) {
+      if (isBefore(aStart, bStart)) {
         return -1;
       }
-      if (aEnd.isBefore(bEnd)) {
+      if (isBefore(aEnd, bEnd)) {
         return -1;
       }
       if (a.bookings > b.bookings) {
@@ -212,7 +215,7 @@ const buildDaySummary = (
   };
 };
 
-const divideSessionIntoSlots = (
+export const divideSessionIntoSlots = (
   sessionIndex: number,
   ukStartDatetime: dayjs.Dayjs,
   ukEndDatetime: dayjs.Dayjs,

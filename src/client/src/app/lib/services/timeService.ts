@@ -155,24 +155,29 @@ export const isInTheFuture = (date: string, format = dayStringFormat) => {
   return isAfter(inputDate, today);
 };
 
+//https://github.com/iamkun/dayjs/issues/1189
 export const isBeforeOrEqual = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isSameOrBefore(dayjs.utc(second), unit);
 
+//https://github.com/iamkun/dayjs/issues/1189
 export const isBefore = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isBefore(dayjs.utc(second), unit);
 
+//https://github.com/iamkun/dayjs/issues/1189
 export const isAfter = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isAfter(dayjs.utc(second), unit);
 
+//https://github.com/iamkun/dayjs/issues/1189
+//need to convert to utc for true equality check (ignore the server timezone)
 export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
   return dayjs.utc(first).isSame(dayjs.utc(second));
 };

@@ -103,16 +103,19 @@ describe('Availability Calculator Service', () => {
     expect(result[0].from.toISOString()).toBe('2026-03-29T07:00:00.000Z');
     expect(lastDateTime.toISOString()).toBe('2026-03-29T12:45:00.000Z');
 
+    //https://github.com/iamkun/dayjs/issues/1189
+
+    //the isSame check fails when test ran in a different TZ,
+    //but passes when ran in UK/UTC timezone
+    //proving that daysJs isSame check doesnt produce the same results when server in different TZ
+    expect(lastDateTime.isSame(expectedLastDateTime)).toBe(true);
+    //proves we NEED an isEqual check that uses utc comparison...
     expect(isEqual(lastDateTime, expectedLastDateTime)).toBe(true);
+
     expect(isBeforeOrEqual(expectedLastDateTime, lastDateTime)).toBe(true);
     expect(isBeforeOrEqual(lastDateTime, expectedLastDateTime)).toBe(true);
     expect(isBefore(lastDateTime, expectedLastDateTime)).toBe(false);
     expect(isAfter(lastDateTime, expectedLastDateTime)).toBe(false);
-
-    //this passes when test ran in different TZ,
-    //but fails when ran in UK timezone
-    //proving that daysJs isSame check doesnt produce the same results when server in different TZ
-    expect(lastDateTime.isSame(expectedLastDateTime)).toBe(false);
   });
 
   it('divideSessionIntoSlots 30th March', async () => {

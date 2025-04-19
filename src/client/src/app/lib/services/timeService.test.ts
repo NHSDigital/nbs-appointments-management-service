@@ -276,14 +276,40 @@ describe('Time Service', () => {
     expect(result2.toISOString()).toEqual('2025-10-20T23:00:00.000Z');
   });
 
-  it('isSameUkDay', async () => {
+  it('isSameUkDay 25th', async () => {
+    const bookingDate = parseDateStringToUkDatetime(
+      '2025-10-25T10:00:00',
+      dateTimeStringFormat,
+    );
+    const ukDay = parseDateStringToUkDatetime('2025-10-25');
+    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
+    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
+    expect(sameDayCorrect).toBe(true);
+    expect(sameDayWrong).toBe(true);
+  });
+
+  it('isSameUkDay 26th', async () => {
     const bookingDate = parseDateStringToUkDatetime(
       '2025-10-26T10:00:00',
       dateTimeStringFormat,
     );
     const ukDay = parseDateStringToUkDatetime('2025-10-26');
-    const sameDay = isSameUkDay(ukDay, bookingDate);
-    expect(sameDay).toBe(true);
+    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
+    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
+    expect(sameDayCorrect).toBe(true);
+    expect(sameDayWrong).toBe(true);
+  });
+
+  it('isSameUkDay 27th', async () => {
+    const bookingDate = parseDateStringToUkDatetime(
+      '2025-10-27T10:00:00',
+      dateTimeStringFormat,
+    );
+    const ukDay = parseDateStringToUkDatetime('2025-10-27');
+    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
+    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
+    expect(sameDayCorrect).toBe(true);
+    expect(sameDayWrong).toBe(true);
   });
 
   it('addToUkDate preserves UK timezone - 26th 0', async () => {

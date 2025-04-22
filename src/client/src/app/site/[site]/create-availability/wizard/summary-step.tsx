@@ -10,7 +10,7 @@ import {
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import {
-  formatTimeString,
+  toTimeFormat,
   parseDateComponentsToUkDatetime,
 } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
@@ -60,7 +60,7 @@ const SummaryStep = ({
           },
           {
             title: 'Time',
-            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            value: `${toTimeFormat(session.startTime)} - ${toTimeFormat(session.endTime)}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
@@ -129,7 +129,7 @@ const SummaryStep = ({
           },
           {
             title: 'Time',
-            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            value: `${toTimeFormat(session.startTime)} - ${toTimeFormat(session.endTime)}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',

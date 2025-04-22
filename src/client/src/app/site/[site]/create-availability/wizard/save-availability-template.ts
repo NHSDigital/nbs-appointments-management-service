@@ -11,7 +11,7 @@ import {
 } from '@services/appointmentsService';
 import {
   dateStringFormat,
-  formatTimeString,
+  toTimeFormat,
   parseDateComponentsToUkDatetime,
 } from '@services/timeService';
 
@@ -40,8 +40,8 @@ async function saveAvailabilityTemplate(
         days: formData.days,
         sessions: [
           {
-            from: formatTimeString(formData.session.startTime) ?? '',
-            until: formatTimeString(formData.session.endTime) ?? '',
+            from: toTimeFormat(formData.session.startTime) ?? '',
+            until: toTimeFormat(formData.session.endTime) ?? '',
             slotLength: formData.session.slotLength,
             capacity: formData.session.capacity,
             services: formData.session.services,
@@ -58,8 +58,8 @@ async function saveAvailabilityTemplate(
       date: startUkDatetime.format(dateStringFormat),
       sessions: [
         {
-          from: formatTimeString(formData.session.startTime) ?? '',
-          until: formatTimeString(formData.session.endTime) ?? '',
+          from: toTimeFormat(formData.session.startTime) ?? '',
+          until: toTimeFormat(formData.session.endTime) ?? '',
           slotLength: formData.session.slotLength,
           capacity: formData.session.capacity,
           services: formData.session.services,

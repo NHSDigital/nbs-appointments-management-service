@@ -33,6 +33,64 @@ export const ukNow = () => dayjs.tz(utcNow(), ukTimezone);
 
 export type DayJsType = dayjs.Dayjs;
 
+//#region Formatter Methods
+
+export const toTwoDigitFormat = (
+  input: number | string,
+): string | undefined => {
+  const inputAsNumber = Number(input);
+  if (inputAsNumber < 0 || inputAsNumber > 99 || Number.isNaN(inputAsNumber)) {
+    return undefined;
+  }
+
+  const stringInput = `${input}`;
+  return stringInput.length === 1 ? `0${stringInput}` : stringInput;
+};
+
+export const toTimeFormat = (
+  input: string | TimeComponents,
+): string | undefined => {
+  if (typeof input === 'string') {
+    const date = parseDateStringToUkDatetime(input, dateTimeStringFormat);
+
+    const timeComponents: TimeComponents = {
+      hour: date.hour(),
+      minute: date.minute(),
+    };
+
+    return toTimeFormat(timeComponents);
+  }
+
+  const parsedHour = Number(input.hour);
+  const parsedMinute = Number(input.minute);
+
+  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
+    return undefined;
+  }
+
+  if (
+    parsedHour < 0 ||
+    parsedHour > 23 ||
+    parsedMinute < 0 ||
+    parsedMinute > 59
+  ) {
+    return undefined;
+  }
+
+  return `${toTwoDigitFormat(input.hour)}:${toTwoDigitFormat(input.minute)}`;
+};
+
+export const jsDateFormat = (date: Date, format = 'D MMMM YYYY') => {
+  return dayjs.tz(date, ukTimezone).format(format);
+};
+
+//#endregion
+
+//extract the string version of the ukDatetime out into a dayjs object with the correct timezone
+export const extractUkSessionDatetime = (datetime: string) => {
+  return parseDateStringToUkDatetime(datetime, dateTimeStringFormat);
+};
+
 export const isValidDate = (
   day: string | number,
   month: string | number,
@@ -70,49 +128,6 @@ export const parseDateComponentsToUkDatetime = ({
   const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
 
   return parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
-};
-
-export const formatUkDatetimeToTime = (dateTime: string) => {
-  const date = parseDateStringToUkDatetime(dateTime, dateTimeStringFormat);
-
-  const timeComponents: TimeComponents = {
-    hour: date.hour(),
-    minute: date.minute(),
-  };
-
-  return formatTimeString(timeComponents);
-};
-
-export const formatTimeString = ({ hour, minute }: TimeComponents) => {
-  const parsedHour = Number(hour);
-  const parsedMinute = Number(minute);
-
-  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
-    return undefined;
-  }
-
-  if (
-    parsedHour < 0 ||
-    parsedHour > 23 ||
-    parsedMinute < 0 ||
-    parsedMinute > 59
-  ) {
-    return undefined;
-  }
-
-  return `${toTwoDigitFormat(hour)}:${toTwoDigitFormat(minute)}`;
-};
-
-export const toTwoDigitFormat = (
-  input: number | string,
-): string | undefined => {
-  const inputAsNumber = Number(input);
-  if (inputAsNumber < 0 || inputAsNumber > 99 || Number.isNaN(inputAsNumber)) {
-    return undefined;
-  }
-
-  const stringInput = `${input}`;
-  return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };
 
 export const parseDateToUkDatetime = (
@@ -153,10 +168,6 @@ export const toTimeComponents = (time: string): TimeComponents | undefined => {
     hour: parsedHour,
     minute: parsedMinute,
   };
-};
-
-export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
-  return dayjs.tz(date, ukTimezone).format(format);
 };
 
 export const isDayBeforeOrEqual = (first: string, second: string) => {
@@ -298,11 +309,6 @@ export const buildUkSessionDatetime = (
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
   const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeStringFormat);
   return addToUkDate(newHour, minutes, 'minute', dateTimeStringFormat);
-};
-
-//extract the string version of the ukDatetime out into a dayjs object with the correct timezone
-export const extractUkSessionDatetime = (datetime: string) => {
-  return parseDateStringToUkDatetime(datetime, dateTimeStringFormat);
 };
 
 export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {

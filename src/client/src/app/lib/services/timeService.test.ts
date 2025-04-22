@@ -1,6 +1,5 @@
 import {
-  formatUkDatetimeToTime,
-  formatTimeString,
+  toTimeFormat,
   isDayAfterUkNow,
   isValidDate,
   parseDateComponentsToUkDatetime,
@@ -102,7 +101,7 @@ describe('Time Service', () => {
   ])(
     'can format time components: hour %p, minute %p should be: %p',
     (hour: number, minute: number, expectedResult: string | undefined) => {
-      const formattedTime = formatTimeString({
+      const formattedTime = toTimeFormat({
         hour,
         minute,
       });
@@ -213,7 +212,7 @@ describe('Time Service', () => {
 
   it('formats winter dateTime to time', async () => {
     const dateTime = '2024-12-12T12:05:00';
-    const result = formatUkDatetimeToTime(dateTime);
+    const result = toTimeFormat(dateTime);
 
     expect(result).toEqual('12:05');
   });
@@ -375,7 +374,7 @@ describe('Time Service', () => {
 
   it('formats summer dateTime to time', async () => {
     const dateTime = '2025-07-07T12:05:00';
-    const result = formatUkDatetimeToTime(dateTime);
+    const result = toTimeFormat(dateTime);
 
     expect(result).toEqual('12:05');
   });

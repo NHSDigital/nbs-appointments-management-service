@@ -14,8 +14,8 @@ import { Controller } from 'react-hook-form';
 import {
   compareTimes,
   extractUkSessionDatetime,
-  formatTimeString,
   toTimeComponents,
+  toTimeFormat,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
@@ -80,8 +80,8 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
   ) => {
     const updatedSession: AvailabilitySession = {
-      from: formatTimeString(form.newSession.startTime) ?? '',
-      until: formatTimeString(form.newSession.endTime) ?? '',
+      from: toTimeFormat(form.newSession.startTime) ?? '',
+      until: toTimeFormat(form.newSession.endTime) ?? '',
       slotLength: form.newSession.slotLength,
       capacity: form.newSession.capacity,
       services: form.newSession.services,
@@ -93,8 +93,8 @@ const EditSessionTimeAndCapacityForm = ({
       mode: 'Edit',
       sessions: [updatedSession],
       sessionToEdit: {
-        from: formatTimeString(form.sessionToEdit.startTime) ?? '',
-        until: formatTimeString(form.sessionToEdit.endTime) ?? '',
+        from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+        until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
         slotLength: form.sessionToEdit.slotLength,
         capacity: form.sessionToEdit.capacity,
         services: form.sessionToEdit.services,
@@ -170,7 +170,7 @@ const EditSessionTimeAndCapacityForm = ({
           control={control}
           rules={{
             validate: value => {
-              if (formatTimeString(value) === undefined) {
+              if (toTimeFormat(value) === undefined) {
                 return 'Enter a valid start time';
               }
 
@@ -251,8 +251,8 @@ const EditSessionTimeAndCapacityForm = ({
           control={control}
           rules={{
             validate: (value, form) => {
-              const endTime = formatTimeString(value);
-              const startTime = formatTimeString(form.newSession.startTime);
+              const endTime = toTimeFormat(value);
+              const startTime = toTimeFormat(form.newSession.startTime);
               if (endTime === undefined || startTime === undefined) {
                 return 'Enter a valid end time';
               }

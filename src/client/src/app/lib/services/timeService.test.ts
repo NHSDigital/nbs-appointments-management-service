@@ -282,10 +282,16 @@ describe('Time Service', () => {
       dateTimeStringFormat,
     );
     const ukDay = parseDateStringToUkDatetime('2025-10-25');
-    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
-    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
-    expect(sameDayCorrect).toBe(true);
-    expect(sameDayWrong).toBe(true);
+    const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
+    const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
+    expect(sameDayCorrect1).toBe(true);
+    expect(sameDayCorrect2).toBe(true);
+
+    //prove that when running these tests in a different TZ, these fail and therefore can't be used
+    const sameDayWrong1 = ukDay.isSame(bookingDate, 'day');
+    const sameDayWrong2 = bookingDate.isSame(ukDay, 'day');
+    expect(sameDayWrong1).toBe(true);
+    expect(sameDayWrong2).toBe(true);
   });
 
   it('isSameUkDay 26th', async () => {
@@ -294,10 +300,16 @@ describe('Time Service', () => {
       dateTimeStringFormat,
     );
     const ukDay = parseDateStringToUkDatetime('2025-10-26');
-    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
-    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
-    expect(sameDayCorrect).toBe(true);
-    expect(sameDayWrong).toBe(true);
+    const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
+    const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
+    expect(sameDayCorrect1).toBe(true);
+    expect(sameDayCorrect2).toBe(true);
+
+    //prove that when running these tests in a different TZ, these fail and therefore can't be used
+    const sameDayWrong1 = ukDay.isSame(bookingDate, 'day');
+    const sameDayWrong2 = bookingDate.isSame(ukDay, 'day');
+    expect(sameDayWrong1).toBe(true);
+    expect(sameDayWrong2).toBe(true);
   });
 
   it('isSameUkDay 27th', async () => {
@@ -306,10 +318,16 @@ describe('Time Service', () => {
       dateTimeStringFormat,
     );
     const ukDay = parseDateStringToUkDatetime('2025-10-27');
-    const sameDayCorrect = isSameUkDay(ukDay, bookingDate);
-    const sameDayWrong = ukDay.isSame(bookingDate, 'day');
-    expect(sameDayCorrect).toBe(true);
-    expect(sameDayWrong).toBe(true);
+    const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
+    const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
+    expect(sameDayCorrect1).toBe(true);
+    expect(sameDayCorrect2).toBe(true);
+
+    //prove that when running these tests in a different TZ, these fail and therefore can't be used
+    const sameDayWrong1 = ukDay.isSame(bookingDate, 'day');
+    const sameDayWrong2 = bookingDate.isSame(ukDay, 'day');
+    expect(sameDayWrong1).toBe(true);
+    expect(sameDayWrong2).toBe(true);
   });
 
   it('addToUkDate preserves UK timezone - 26th 0', async () => {

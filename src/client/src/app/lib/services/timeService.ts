@@ -155,40 +155,46 @@ export const isInTheFuture = (date: string, format = dayStringFormat) => {
   return isAfter(inputDate, today);
 };
 
-//https://github.com/iamkun/dayjs/issues/1189
+//#region Equality Checks
+// All datetime equality checks need converting to UTC time first, then comparing.
+// dayJs seems to have an issue with equality checks (especially if node server is in a different timezone) for datetime objects in across timezones, even if they ARE the same
+// see: https://github.com/iamkun/dayjs/issues/1189
+
 export const isBeforeOrEqual = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isSameOrBefore(dayjs.utc(second), unit);
 
-//https://github.com/iamkun/dayjs/issues/1189
 export const isBefore = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isBefore(dayjs.utc(second), unit);
 
-//https://github.com/iamkun/dayjs/issues/1189
 export const isAfter = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
   unit?: dayjs.OpUnitType,
 ) => dayjs.utc(first).isAfter(dayjs.utc(second), unit);
 
-//https://github.com/iamkun/dayjs/issues/1189
-//need to convert to utc for true equality check (ignore the server timezone)
 export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
   return dayjs.utc(first).isSame(dayjs.utc(second));
 };
+//#endregion
 
+//when checking whether two datetimes occur on the same UK date
 export const isSameUkDay = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
 ): boolean => {
-  return dayjs
-    .tz(first, ukTimezone)
-    .isSame(dayjs.tz(second, ukTimezone), 'day');
+  //dayJs 'isSame' DOES NOT WORK HERE!! this is due to a timezone asymmetry issue (even when both converted to same tz)
+  //i.e a.isSame(b, 'day') !== b.isSame(a, 'day') in some cases!
+
+  //they must first each be converted to Uk timezone, then day format compared.
+  const firstUk = dayjs.tz(first, ukTimezone);
+  const secondUk = dayjs.tz(second, ukTimezone);
+  return firstUk.format('YYYY-MM-DD') === secondUk.format('YYYY-MM-DD');
 };
 
 export const compareTimes = (
@@ -216,24 +222,6 @@ export const addToUkDate = (
   manipulateType: 'day' | 'week' | 'hour' | 'minute',
   format = dayStringFormat,
 ): dayjs.Dayjs => {
-  //have to do operation in UTC and stringify and parse to ensure the new created datetime has the UK timezone info correct
-  //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-  // const utcDatetime = ukDatetime.utc();
-  // const addedUtcDatetime = utcDatetime.add(value, manipulateType);
-  // const addedUkDatetime = addedUtcDatetime.tz(ukTimezone);
-
-  // const corrected = dayjs.tz(
-  //   addedUkDatetime.format('YYYY-MM-DDTHH:mm:ss'),
-  //   ukTimezone,
-  // );
-
-  // const stringifyDatetime = corrected.format(format);
-
-  // const shifted = ukDatetime.add(value, manipulateType);
-  // //forced reevaluation of timezone using solely Date and Time info
-  // const corrected = dayjs.tz(shifted.format('YYYY-MM-DDTHH:mm:ss'), ukTimezone);
-  // const stringifyDatetime = corrected.format(format);
-
   let shifted: dayjs.Dayjs = dayjs();
 
   switch (manipulateType) {
@@ -286,16 +274,8 @@ export const buildUkSessionDatetime = (
 ): dayjs.Dayjs => {
   //have to stringify and parse to ensure the new created datetime has the UK timezone info correct
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-
   const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeStringFormat);
   return addToUkDate(newHour, minutes, 'minute', dateTimeStringFormat);
-
-  // const stringifyDatetime = ukStartOfDay
-  //   .add(hours, 'hour')
-  //   .add(minutes, 'minute')
-  //   .format(dateTimeStringFormat);
-
-  // return parseDateStringToUkDatetime(stringifyDatetime, dateTimeStringFormat);
 };
 
 //extract the string version of the ukDatetime out into a dayjs object with the correct timezone

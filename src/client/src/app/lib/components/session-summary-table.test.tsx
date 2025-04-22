@@ -6,7 +6,7 @@ import {
   dateTimeStringFormat,
   DayJsType,
   dateStringFormat,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
 import { ClinicalService } from '@types';
@@ -37,7 +37,7 @@ describe('Session summary table', () => {
 
   it('renders', () => {
     mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
     );
 
     render(
@@ -52,7 +52,7 @@ describe('Session summary table', () => {
 
   it('renders expected headers and rows', () => {
     mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
     );
 
     render(
@@ -79,7 +79,7 @@ describe('Session summary table', () => {
 
   it('renders action column when showChangeSessionLink is provided', () => {
     mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
     );
 
     render(
@@ -124,7 +124,7 @@ describe('Session summary table', () => {
 
   it('only renders action column for sessions in the future', () => {
     mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2024-06-10T09:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T09:34:00', dateTimeStringFormat),
     );
 
     render(

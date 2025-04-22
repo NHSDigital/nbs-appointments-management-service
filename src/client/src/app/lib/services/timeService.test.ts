@@ -3,10 +3,10 @@ import {
   isDayAfterUkNow,
   isValidDate,
   parseDateComponentsToUkDatetime,
-  toTimeComponents,
+  parseToTimeComponents,
   toTwoDigitFormat,
   getUkWeeksOfTheMonth,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   dateStringFormat,
   addToUkDate,
   startOfUkWeek,
@@ -117,7 +117,7 @@ describe('Time Service', () => {
   ])(
     'parses a time string to time components',
     (time: string, expectedResult: TimeComponents | undefined) => {
-      const result = toTimeComponents(time);
+      const result = parseToTimeComponents(time);
 
       expect(result).toEqual(expectedResult);
     },
@@ -157,10 +157,7 @@ describe('Time Service', () => {
 
   it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
     const dstChangeDateTime = '2025-10-01';
-    const dateTime = parseDateStringToUkDatetime(
-      dstChangeDateTime,
-      dateStringFormat,
-    );
+    const dateTime = parseToUkDatetime(dstChangeDateTime, dateStringFormat);
     const weeks = getUkWeeksOfTheMonth(dateTime);
 
     expect(weeks).toHaveLength(5);
@@ -218,7 +215,7 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate startOfUkWeek - 20th', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-20');
+    const dateTime = parseToUkDatetime('2025-10-20');
     const startOfWeek = startOfUkWeek('2025-10-20');
 
     const isoString1 = dateTime.toISOString();
@@ -228,7 +225,7 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate startOfUkWeek - 27th', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-27');
+    const dateTime = parseToUkDatetime('2025-10-27');
     const startOfWeek = startOfUkWeek('2025-10-27');
 
     const isoString1 = dateTime.toISOString();
@@ -238,19 +235,19 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate crossing DST - Clocks Back', async () => {
-    const dateTime = parseDateStringToUkDatetime('2026-03-30');
+    const dateTime = parseToUkDatetime('2026-03-30');
     const result1 = addToUkDate(dateTime, -1, 'day');
     expect(result1.toISOString()).toEqual('2026-03-29T00:00:00.000Z');
   });
 
   it('addToUkDate crossing DST - Clocks Forward', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-26');
+    const dateTime = parseToUkDatetime('2025-10-26');
     const result1 = addToUkDate(dateTime, 1, 'day');
     expect(result1.toISOString()).toEqual('2025-10-27T00:00:00.000Z');
   });
 
   it('addToUkDate preserves UK timezone - 20th 0', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-20');
+    const dateTime = parseToUkDatetime('2025-10-20');
     const startOfWeek = startOfUkWeek('2025-10-20');
 
     const result1 = addToUkDate(dateTime, 0, 'day');
@@ -263,7 +260,7 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate preserves UK timezone - 20th 1', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-20');
+    const dateTime = parseToUkDatetime('2025-10-20');
     const startOfWeek = startOfUkWeek('2025-10-20');
 
     const result1 = addToUkDate(dateTime, 1, 'day');
@@ -276,11 +273,11 @@ describe('Time Service', () => {
   });
 
   it('isSameUkDay 25th', async () => {
-    const bookingDate = parseDateStringToUkDatetime(
+    const bookingDate = parseToUkDatetime(
       '2025-10-25T10:00:00',
       dateTimeStringFormat,
     );
-    const ukDay = parseDateStringToUkDatetime('2025-10-25');
+    const ukDay = parseToUkDatetime('2025-10-25');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
     const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
     expect(sameDayCorrect1).toBe(true);
@@ -294,11 +291,11 @@ describe('Time Service', () => {
   });
 
   it('isSameUkDay 26th', async () => {
-    const bookingDate = parseDateStringToUkDatetime(
+    const bookingDate = parseToUkDatetime(
       '2025-10-26T10:00:00',
       dateTimeStringFormat,
     );
-    const ukDay = parseDateStringToUkDatetime('2025-10-26');
+    const ukDay = parseToUkDatetime('2025-10-26');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
     const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
     expect(sameDayCorrect1).toBe(true);
@@ -313,11 +310,11 @@ describe('Time Service', () => {
   });
 
   it('isSameUkDay 27th', async () => {
-    const bookingDate = parseDateStringToUkDatetime(
+    const bookingDate = parseToUkDatetime(
       '2025-10-27T10:00:00',
       dateTimeStringFormat,
     );
-    const ukDay = parseDateStringToUkDatetime('2025-10-27');
+    const ukDay = parseToUkDatetime('2025-10-27');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
     const sameDayCorrect2 = isSameUkDay(bookingDate, ukDay);
     expect(sameDayCorrect1).toBe(true);
@@ -331,21 +328,21 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate preserves UK timezone - 26th 0', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-26');
+    const dateTime = parseToUkDatetime('2025-10-26');
     const result1 = addToUkDate(dateTime, 0, 'day');
     const isoString1 = result1.toISOString();
     expect(isoString1).toEqual('2025-10-25T23:00:00.000Z');
   });
 
   it('addToUkDate preserves UK timezone - 26th 1', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-26');
+    const dateTime = parseToUkDatetime('2025-10-26');
     const result1 = addToUkDate(dateTime, 1, 'day');
     const isoString1 = result1.toISOString();
     expect(isoString1).toEqual('2025-10-27T00:00:00.000Z');
   });
 
   it('addToUkDate preserves UK timezone - 27th 0', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-27');
+    const dateTime = parseToUkDatetime('2025-10-27');
     const startOfWeek = startOfUkWeek('2025-10-27');
 
     const result1 = addToUkDate(dateTime, 0, 'day');
@@ -359,7 +356,7 @@ describe('Time Service', () => {
   });
 
   it('addToUkDate preserves UK timezone - 27th 1', async () => {
-    const dateTime = parseDateStringToUkDatetime('2025-10-27');
+    const dateTime = parseToUkDatetime('2025-10-27');
     const startOfWeek = startOfUkWeek('2025-10-27');
 
     const result1 = addToUkDate(dateTime, 1, 'day');

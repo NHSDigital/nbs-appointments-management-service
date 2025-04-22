@@ -51,7 +51,7 @@ export const toTimeFormat = (
   input: string | TimeComponents,
 ): string | undefined => {
   if (typeof input === 'string') {
-    const date = parseDateStringToUkDatetime(input, dateTimeStringFormat);
+    const date = parseToUkDatetime(input, dateTimeStringFormat);
 
     const timeComponents: TimeComponents = {
       hour: date.hour(),
@@ -86,10 +86,45 @@ export const jsDateFormat = (date: Date, format = 'D MMMM YYYY') => {
 
 //#endregion
 
-//extract the string version of the ukDatetime out into a dayjs object with the correct timezone
-export const extractUkSessionDatetime = (datetime: string) => {
-  return parseDateStringToUkDatetime(datetime, dateTimeStringFormat);
+//#region Parser Methods
+
+export const parseToTimeComponents = (
+  time: string,
+): TimeComponents | undefined => {
+  const [hour, minute] = time.split(':');
+  const parsedHour = Number(hour);
+  const parsedMinute = Number(minute);
+
+  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
+    return undefined;
+  }
+
+  return {
+    hour: parsedHour,
+    minute: parsedMinute,
+  };
 };
+
+export const parseToUkDatetime = (
+  input: string | Date,
+  format = dateStringFormat,
+) => {
+  return dayjs.tz(input, format, ukTimezone);
+};
+
+export const parseDateComponentsToUkDatetime = ({
+  day,
+  month,
+  year,
+}: DateComponents) => {
+  if (!isValidDate(day, month, year)) {
+    return undefined;
+  }
+  const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
+  return parseToUkDatetime(inputString, 'DD-MM-YYYY');
+};
+
+//#endregion
 
 export const isValidDate = (
   day: string | number,
@@ -116,34 +151,6 @@ export const isValidDate = (
   return potentialDate.isValid();
 };
 
-export const parseDateComponentsToUkDatetime = ({
-  day,
-  month,
-  year,
-}: DateComponents) => {
-  if (!isValidDate(day, month, year)) {
-    return undefined;
-  }
-
-  const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
-
-  return parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
-};
-
-export const parseDateToUkDatetime = (
-  date: Date,
-  format = dateStringFormat,
-) => {
-  return dayjs.tz(date, format, ukTimezone);
-};
-
-export const parseDateStringToUkDatetime = (
-  dateString: string,
-  format = dateStringFormat,
-) => {
-  return dayjs.tz(dateString, format, ukTimezone);
-};
-
 export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
   const week = [];
 
@@ -155,35 +162,20 @@ export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
   return week;
 };
 
-export const toTimeComponents = (time: string): TimeComponents | undefined => {
-  const [hour, minute] = time.split(':');
-  const parsedHour = Number(hour);
-  const parsedMinute = Number(minute);
-
-  if (!Number.isInteger(parsedHour) || !Number.isInteger(parsedMinute)) {
-    return undefined;
-  }
-
-  return {
-    hour: parsedHour,
-    minute: parsedMinute,
-  };
-};
-
 export const isDayBeforeOrEqual = (first: string, second: string) => {
-  const ukFirstStartOfDay = parseDateStringToUkDatetime(first).startOf('day');
-  const ukSecondStartOfDay = parseDateStringToUkDatetime(second).startOf('day');
+  const ukFirstStartOfDay = parseToUkDatetime(first).startOf('day');
+  const ukSecondStartOfDay = parseToUkDatetime(second).startOf('day');
   return isBeforeOrEqual(ukFirstStartOfDay, ukSecondStartOfDay);
 };
 
 export const isDayAfterUkNow = (date: string) => {
-  const ukDate = parseDateStringToUkDatetime(date);
+  const ukDate = parseToUkDatetime(date);
   const ukNowStartOfDay = ukNow().startOf('day');
   return isAfter(ukDate, ukNowStartOfDay);
 };
 
 export const isDayWithinUkYear = (date: string) => {
-  const ukDate = parseDateStringToUkDatetime(date);
+  const ukDate = parseToUkDatetime(date);
   const ukNowStartOfDay = ukNow().startOf('day');
   const ukYearFromToday = addToUkDate(ukNowStartOfDay, 1, 'year');
   return isBeforeOrEqual(ukDate, ukYearFromToday);
@@ -278,12 +270,12 @@ export const addToUkDate = (
   );
 
   const stringifyDatetime = correctedDatetime.format(format);
-  return parseDateStringToUkDatetime(stringifyDatetime, format);
+  return parseToUkDatetime(stringifyDatetime, format);
 };
 
 export const startOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
   if (typeof ukDate === 'string') {
-    const ukDateTime = parseDateStringToUkDatetime(ukDate);
+    const ukDateTime = parseToUkDatetime(ukDate);
     return startOfUkWeek(ukDateTime);
   }
 
@@ -292,7 +284,7 @@ export const startOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
 
 export const endOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
   if (typeof ukDate === 'string') {
-    const ukDateTime = parseDateStringToUkDatetime(ukDate);
+    const ukDateTime = parseToUkDatetime(ukDate);
     return endOfUkWeek(ukDateTime);
   }
 

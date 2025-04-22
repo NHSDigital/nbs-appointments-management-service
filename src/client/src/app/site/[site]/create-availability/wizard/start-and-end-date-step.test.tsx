@@ -8,7 +8,7 @@ import {
   dateTimeStringFormat,
   DayJsType,
   ukNow,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   isDayAfterUkNow,
   isDayWithinUkYear,
 } from '@services/timeService';
@@ -53,7 +53,7 @@ describe('Start and End Date Step', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
+      parseToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
     );
   });
 

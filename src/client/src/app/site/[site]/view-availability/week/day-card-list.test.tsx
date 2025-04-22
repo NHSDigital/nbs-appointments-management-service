@@ -8,7 +8,7 @@ import {
   fetchClinicalServices,
   fetchPermissions,
 } from '@services/appointmentsService';
-import { parseDateStringToUkDatetime } from '@services/timeService';
+import { parseToUkDatetime } from '@services/timeService';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
@@ -38,8 +38,8 @@ describe('Day Card List', () => {
   it('renders', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
-      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
+      ukWeekStart: parseToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseToUkDatetime('2024-06-16'),
     });
     render(jsx);
   });
@@ -47,14 +47,14 @@ describe('Day Card List', () => {
   it('requests a summary for the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
-      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
+      ukWeekStart: parseToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseToUkDatetime('2024-06-16'),
     });
     render(jsx);
 
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      parseDateStringToUkDatetime('2024-06-10'),
-      parseDateStringToUkDatetime('2024-06-16'),
+      parseToUkDatetime('2024-06-10'),
+      parseToUkDatetime('2024-06-16'),
       mockSite.id,
     );
     expect(mockFetchPermissions).toHaveBeenCalled();
@@ -64,8 +64,8 @@ describe('Day Card List', () => {
   it('renders a card for each day in the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
-      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
+      ukWeekStart: parseToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseToUkDatetime('2024-06-16'),
     });
     render(jsx);
 

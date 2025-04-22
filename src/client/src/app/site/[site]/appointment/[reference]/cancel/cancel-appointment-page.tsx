@@ -13,8 +13,7 @@ import { Booking, ClinicalService } from '@types';
 import {
   dateTimeStringFormat,
   dateStringFormat,
-  parseDateStringToUkDatetime,
-  parseDateToUkDatetime,
+  parseToUkDatetime,
 } from '@services/timeService';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -51,9 +50,7 @@ const CancelAppointmentPage = ({
       await cancelAppointment(booking.reference, site);
     }
 
-    const returnDate = parseDateStringToUkDatetime(booking.from).format(
-      dateStringFormat,
-    );
+    const returnDate = parseToUkDatetime(booking.from).format(dateStringFormat);
 
     replace(
       `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
@@ -103,10 +100,7 @@ const mapSummaryData = (
 
   const items: SummaryListItem[] = [];
 
-  const bookingDate = parseDateStringToUkDatetime(
-    booking.from,
-    dateTimeStringFormat,
-  );
+  const bookingDate = parseToUkDatetime(booking.from, dateTimeStringFormat);
   const contactDetails =
     booking.contactDetails && booking.contactDetails.length > 0
       ? booking.contactDetails?.map(c => c.value)
@@ -123,7 +117,7 @@ const mapSummaryData = (
   items.push({ title: 'NHS number', value: booking.attendeeDetails.nhsNumber });
   items.push({
     title: 'Date of birth',
-    value: parseDateToUkDatetime(booking.attendeeDetails.dateOfBirth).format(
+    value: parseToUkDatetime(booking.attendeeDetails.dateOfBirth).format(
       'D MMMM YYYY',
     ),
   });

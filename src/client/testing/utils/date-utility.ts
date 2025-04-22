@@ -2,7 +2,7 @@ import {
   addToUkDate,
   dateStringFormat,
   endOfUkWeek,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   startOfUkWeek,
   ukNow,
 } from '@services/timeService';
@@ -26,4 +26,4 @@ export const daysFromToday = (
 ) => addToUkDate(ukNow(), numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>
-  `${startOfUkWeek(parseDateStringToUkDatetime(date)).format('D MMMM')} to ${endOfUkWeek(parseDateStringToUkDatetime(date)).format('D MMMM')}`;
+  `${startOfUkWeek(parseToUkDatetime(date)).format('D MMMM')} to ${endOfUkWeek(parseToUkDatetime(date)).format('D MMMM')}`;

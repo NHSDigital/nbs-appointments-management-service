@@ -21,7 +21,7 @@ import {
   isBefore,
   isBeforeOrEqual,
   isEqual,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
 } from './timeService';
 
 jest.mock('@services/appointmentsService');
@@ -49,7 +49,7 @@ describe('Availability Calculator Service', () => {
   });
 
   it('divideSessionIntoSlots 28th March', async () => {
-    const ukDate = parseDateStringToUkDatetime('2026-03-28');
+    const ukDate = parseToUkDatetime('2026-03-28');
 
     //6 hours long
     const from = buildUkSessionDatetime(ukDate, 8, 0);
@@ -64,7 +64,7 @@ describe('Availability Calculator Service', () => {
       until: '',
     });
 
-    const lastDateTime = parseDateStringToUkDatetime(
+    const lastDateTime = parseToUkDatetime(
       '2026-03-28 13:45:00',
       dateTimeStringFormat,
     );
@@ -77,7 +77,7 @@ describe('Availability Calculator Service', () => {
   });
 
   it('divideSessionIntoSlots 29th March', async () => {
-    const ukDate = parseDateStringToUkDatetime('2026-03-29');
+    const ukDate = parseToUkDatetime('2026-03-29');
 
     //6 hours long
     const from = buildUkSessionDatetime(ukDate, 8, 0);
@@ -92,7 +92,7 @@ describe('Availability Calculator Service', () => {
       until: '',
     });
 
-    const expectedLastDateTime = parseDateStringToUkDatetime(
+    const expectedLastDateTime = parseToUkDatetime(
       '2026-03-29 13:45:00',
       dateTimeStringFormat,
     );
@@ -119,7 +119,7 @@ describe('Availability Calculator Service', () => {
   });
 
   it('divideSessionIntoSlots 30th March', async () => {
-    const ukDate = parseDateStringToUkDatetime('2026-03-30');
+    const ukDate = parseToUkDatetime('2026-03-30');
 
     //6 hours long
     const from = buildUkSessionDatetime(ukDate, 8, 0);
@@ -134,7 +134,7 @@ describe('Availability Calculator Service', () => {
       until: '',
     });
 
-    const expectedLastDateTime = parseDateStringToUkDatetime(
+    const expectedLastDateTime = parseToUkDatetime(
       '2026-03-30 13:45:00',
       dateTimeStringFormat,
     );

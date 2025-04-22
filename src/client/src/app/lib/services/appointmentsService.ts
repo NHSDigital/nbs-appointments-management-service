@@ -33,7 +33,8 @@ import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
   dateStringFormat,
-  extractUkSessionDatetime,
+  dateTimeStringFormat,
+  parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
 
@@ -503,10 +504,14 @@ export const cancelSession = async (
   sessionSummary: SessionSummary,
   site: string,
 ) => {
-  const ukStartDatetime = extractUkSessionDatetime(
+  const ukStartDatetime = parseToUkDatetime(
     sessionSummary.ukStartDatetime,
+    dateTimeStringFormat,
   );
-  const ukEndDatetime = extractUkSessionDatetime(sessionSummary.ukEndDatetime);
+  const ukEndDatetime = parseToUkDatetime(
+    sessionSummary.ukEndDatetime,
+    dateTimeStringFormat,
+  );
   const payload: CancelSessionRequest = {
     site: site,
     date: ukStartDatetime.format(dateStringFormat),

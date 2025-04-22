@@ -1,7 +1,7 @@
 import {
   dateTimeStringFormat,
   dateStringFormat,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
 } from '@services/timeService';
 import {
   AccessibilityDefinition,
@@ -441,8 +441,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 7,
     endMonth: 11,
-    startDate: parseDateStringToUkDatetime('2024-12-01'),
-    endDate: parseDateStringToUkDatetime('2024-12-07'),
+    startDate: parseToUkDatetime('2024-12-01'),
+    endDate: parseToUkDatetime('2024-12-07'),
     bookedAppointments: [
       { service: 'COVID 75+', count: 10 },
       { service: 'FLU 18-64', count: 5 },
@@ -459,8 +459,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 15,
     endMonth: 11,
-    startDate: parseDateStringToUkDatetime('2024-12-08'),
-    endDate: parseDateStringToUkDatetime('2024-12-15'),
+    startDate: parseToUkDatetime('2024-12-08'),
+    endDate: parseToUkDatetime('2024-12-15'),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 1 },
@@ -477,8 +477,8 @@ const mockDetailedWeeks: Week[] = [
     endYear: 2025,
     end: 23,
     endMonth: 11,
-    startDate: parseDateStringToUkDatetime('2024-12-16'),
-    endDate: parseDateStringToUkDatetime('2024-12-23'),
+    startDate: parseToUkDatetime('2024-12-16'),
+    endDate: parseToUkDatetime('2024-12-23'),
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 10 },
@@ -492,7 +492,7 @@ const mockDetailedWeeks: Week[] = [
 
 const mockDaySummaries: DaySummary[] = [
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-02'),
+    ukDate: parseToUkDatetime('2024-12-02'),
     sessions: [
       {
         ukStartDatetime: '2024-11-02T09:00:00',
@@ -513,7 +513,7 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 118,
   },
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-04'),
+    ukDate: parseToUkDatetime('2024-12-04'),
     sessions: [
       {
         ukStartDatetime: '2024-11-04T09:00:00',
@@ -534,7 +534,7 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 185,
   },
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-05'),
+    ukDate: parseToUkDatetime('2024-12-05'),
     sessions: [
       {
         ukStartDatetime: '2024-11-05T09:00:00',
@@ -555,7 +555,7 @@ const mockDaySummaries: DaySummary[] = [
     remainingCapacity: 140,
   },
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-06'),
+    ukDate: parseToUkDatetime('2024-12-06'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -567,7 +567,7 @@ const mockDaySummaries: DaySummary[] = [
 
 const mockEmptyDays: DaySummary[] = [
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-02'),
+    ukDate: parseToUkDatetime('2024-12-02'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -576,7 +576,7 @@ const mockEmptyDays: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-04'),
+    ukDate: parseToUkDatetime('2024-12-04'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -585,7 +585,7 @@ const mockEmptyDays: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    ukDate: parseDateStringToUkDatetime('2024-12-05'),
+    ukDate: parseToUkDatetime('2024-12-05'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -595,8 +595,8 @@ const mockEmptyDays: DaySummary[] = [
   },
 ];
 
-const mockWeekAvailabilityStart = parseDateStringToUkDatetime('2024-12-02');
-const mockWeekAvailabilityEnd = parseDateStringToUkDatetime(
+const mockWeekAvailabilityStart = parseToUkDatetime('2024-12-02');
+const mockWeekAvailabilityEnd = parseToUkDatetime(
   '2024-12-08T23:59:59',
   dateTimeStringFormat,
 );

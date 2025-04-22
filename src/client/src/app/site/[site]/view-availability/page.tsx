@@ -3,7 +3,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewAvailabilityPage } from './view-availability-page';
 import {
   dateStringFormat,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
 
@@ -21,7 +21,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const site = await fetchSite(params.site);
 
   const searchMonth = searchParams?.date
-    ? parseDateStringToUkDatetime(searchParams?.date, dateStringFormat)
+    ? parseToUkDatetime(searchParams?.date, dateStringFormat)
     : ukNow();
 
   return (

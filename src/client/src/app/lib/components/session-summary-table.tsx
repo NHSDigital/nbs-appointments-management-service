@@ -3,8 +3,9 @@ import { ClinicalService, SessionSummary } from '@types';
 import Link from 'next/link';
 import { UrlObject } from 'url';
 import {
-  extractUkSessionDatetime,
+  dateTimeStringFormat,
   isAfter,
+  parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
 
@@ -49,8 +50,9 @@ export const getSessionSummaryRows = (
   },
 ): Cell[][] =>
   sessionSummaries.map((sessionSummary, sessionIndex) => {
-    const ukStartDatetime = extractUkSessionDatetime(
+    const ukStartDatetime = parseToUkDatetime(
       sessionSummary.ukStartDatetime,
+      dateTimeStringFormat,
     );
     return [
       <SessionTimesCell
@@ -92,10 +94,14 @@ export const SessionTimesCell = ({
 }: {
   sessionSummary: SessionSummary;
 }) => {
-  const ukStartDatetime = extractUkSessionDatetime(
+  const ukStartDatetime = parseToUkDatetime(
     sessionSummary.ukStartDatetime,
+    dateTimeStringFormat,
   );
-  const ukEndDatetime = extractUkSessionDatetime(sessionSummary.ukEndDatetime);
+  const ukEndDatetime = parseToUkDatetime(
+    sessionSummary.ukEndDatetime,
+    dateTimeStringFormat,
+  );
   return (
     <strong>{`${ukStartDatetime.format('HH:mm')} - ${ukEndDatetime.format('HH:mm')}`}</strong>
   );

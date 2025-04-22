@@ -5,10 +5,7 @@ import {
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
-import {
-  dateStringFormat,
-  parseDateStringToUkDatetime,
-} from '@services/timeService';
+import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 
 type PageProps = {
@@ -28,7 +25,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchClinicalServices(),
   ]);
 
-  const date = parseDateStringToUkDatetime(searchParams.date);
+  const date = parseToUkDatetime(searchParams.date);
 
   const updatedSession: AvailabilitySession = JSON.parse(
     atob(searchParams.updatedSession),

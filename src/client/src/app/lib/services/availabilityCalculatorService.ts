@@ -4,14 +4,13 @@ import {
   dateTimeStringFormat,
   DayJsType,
   dateStringFormat,
-  extractUkSessionDatetime,
   getWeek,
   isBefore,
   isBeforeOrEqual,
   isEqual,
   isSameUkDay,
-  parseDateStringToUkDatetime,
-  toTimeComponents,
+  parseToUkDatetime,
+  parseToTimeComponents,
 } from '@services/timeService';
 import {
   fetchDailyAvailability,
@@ -50,12 +49,12 @@ export const summariseWeek = async (
 
   const daySummaries: DaySummary[] = ukWeek.map(ukDay => {
     const availability = dailyAvailability.find(a =>
-      isEqual(parseDateStringToUkDatetime(a.date), ukDay),
+      isEqual(parseToUkDatetime(a.date), ukDay),
     );
 
     const bookings = dailyBookings.filter(booking => {
       //need to parse booking datetime back to UK date
-      const ukBookingDatetime = parseDateStringToUkDatetime(
+      const ukBookingDatetime = parseToUkDatetime(
         booking.from,
         dateTimeStringFormat,
       );
@@ -126,7 +125,7 @@ const summariseDay = (
     }
 
     const matchingSlot = slots.find(slot => {
-      const bookingUkDatetime = parseDateStringToUkDatetime(
+      const bookingUkDatetime = parseToUkDatetime(
         booking.from,
         dateTimeStringFormat,
       );
@@ -173,10 +172,10 @@ const buildDaySummary = (
   const sessionSummaries = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.session)
     .sort((a, b) => {
-      const aStart = extractUkSessionDatetime(a.ukStartDatetime);
-      const bStart = extractUkSessionDatetime(b.ukStartDatetime);
-      const aEnd = extractUkSessionDatetime(a.ukEndDatetime);
-      const bEnd = extractUkSessionDatetime(b.ukEndDatetime);
+      const aStart = parseToUkDatetime(a.ukStartDatetime, dateTimeStringFormat);
+      const bStart = parseToUkDatetime(b.ukStartDatetime, dateTimeStringFormat);
+      const aEnd = parseToUkDatetime(a.ukEndDatetime, dateTimeStringFormat);
+      const bEnd = parseToUkDatetime(b.ukEndDatetime, dateTimeStringFormat);
 
       if (isBefore(aStart, bStart)) {
         return -1;
@@ -254,8 +253,8 @@ const mapSessionsAndSlots = (
   sessions: AvailabilitySession[],
 ): SessionAndSlots[] =>
   sessions.map((session, index) => {
-    const start = toTimeComponents(session.from);
-    const end = toTimeComponents(session.until);
+    const start = parseToTimeComponents(session.from);
+    const end = parseToTimeComponents(session.until);
 
     const ukStartDatetime = buildUkSessionDatetime(
       ukDate,

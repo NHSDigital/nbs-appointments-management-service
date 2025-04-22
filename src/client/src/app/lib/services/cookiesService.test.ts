@@ -1,11 +1,7 @@
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import { cookies } from 'next/headers';
 import { getCookieConsent, setCookieConsent } from '@services/cookiesService';
-import {
-  DayJsType,
-  parseDateStringToUkDatetime,
-  ukNow,
-} from '@services/timeService';
+import { DayJsType, parseToUkDatetime, ukNow } from '@services/timeService';
 
 jest.mock('next/headers');
 const cookiesMock = cookies as jest.Mock<ReadonlyRequestCookies>;
@@ -80,9 +76,7 @@ describe('Cookies service', () => {
       set: setMock,
     });
 
-    mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2024-03-24T08:34:00'),
-    );
+    mockUkNow.mockReturnValue(parseToUkDatetime('2024-03-24T08:34:00'));
 
     await setCookieConsent(true);
 
@@ -90,7 +84,7 @@ describe('Cookies service', () => {
       'nhsuk-mya-cookie-consent',
       '%7B%22consented%22%3Atrue%2C%22version%22%3A5%7D',
       {
-        expires: parseDateStringToUkDatetime('2025-03-24T08:34:00').toDate(),
+        expires: parseToUkDatetime('2025-03-24T08:34:00').toDate(),
       },
     );
   });
@@ -102,9 +96,7 @@ describe('Cookies service', () => {
       set: setMock,
     });
 
-    mockUkNow.mockReturnValue(
-      parseDateStringToUkDatetime('2021-01-31T13:29:31'),
-    );
+    mockUkNow.mockReturnValue(parseToUkDatetime('2021-01-31T13:29:31'));
 
     await setCookieConsent(false);
 
@@ -112,7 +104,7 @@ describe('Cookies service', () => {
       'nhsuk-mya-cookie-consent',
       '%7B%22consented%22%3Afalse%2C%22version%22%3A5%7D',
       {
-        expires: parseDateStringToUkDatetime('2022-01-31T13:29:31').toDate(),
+        expires: parseToUkDatetime('2022-01-31T13:29:31').toDate(),
       },
     );
   });

@@ -13,8 +13,9 @@ import {
 import { Controller } from 'react-hook-form';
 import {
   compareTimes,
-  extractUkSessionDatetime,
-  toTimeComponents,
+  dateTimeStringFormat,
+  parseToUkDatetime,
+  parseToTimeComponents,
   toTimeFormat,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
@@ -36,11 +37,13 @@ const EditSessionTimeAndCapacityForm = ({
   existingSession,
   date,
 }: Props) => {
-  const existingUkStartTime = extractUkSessionDatetime(
+  const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
+    dateTimeStringFormat,
   ).format('HH:mm');
-  const existingUkEndTime = extractUkSessionDatetime(
+  const existingUkEndTime = parseToUkDatetime(
     existingSession.ukEndDatetime,
+    dateTimeStringFormat,
   ).format('HH:mm');
 
   const {
@@ -51,8 +54,8 @@ const EditSessionTimeAndCapacityForm = ({
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
-        startTime: toTimeComponents(existingUkStartTime),
-        endTime: toTimeComponents(existingUkEndTime),
+        startTime: parseToTimeComponents(existingUkStartTime),
+        endTime: parseToTimeComponents(existingUkEndTime),
         services: Object.keys(existingSession.bookings).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,

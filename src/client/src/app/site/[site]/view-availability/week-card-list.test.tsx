@@ -5,7 +5,7 @@ import { WeekCardList } from './week-card-list';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 import { fetchClinicalServices } from '@services/appointmentsService';
-import { DayJsType, parseDateStringToUkDatetime } from '@services/timeService';
+import { DayJsType, parseToUkDatetime } from '@services/timeService';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
@@ -24,31 +24,31 @@ const mockServices = clinicalServices;
 
 const mockWeeks: DayJsType[][] = [
   [
-    parseDateStringToUkDatetime('2024-06-10'),
-    parseDateStringToUkDatetime('2024-06-11'),
-    parseDateStringToUkDatetime('2024-06-12'),
-    parseDateStringToUkDatetime('2024-06-13'),
-    parseDateStringToUkDatetime('2024-06-14'),
-    parseDateStringToUkDatetime('2024-06-15'),
-    parseDateStringToUkDatetime('2024-06-16'),
+    parseToUkDatetime('2024-06-10'),
+    parseToUkDatetime('2024-06-11'),
+    parseToUkDatetime('2024-06-12'),
+    parseToUkDatetime('2024-06-13'),
+    parseToUkDatetime('2024-06-14'),
+    parseToUkDatetime('2024-06-15'),
+    parseToUkDatetime('2024-06-16'),
   ],
   [
-    parseDateStringToUkDatetime('2024-06-17'),
-    parseDateStringToUkDatetime('2024-06-18'),
-    parseDateStringToUkDatetime('2024-06-19'),
-    parseDateStringToUkDatetime('2024-06-20'),
-    parseDateStringToUkDatetime('2024-06-21'),
-    parseDateStringToUkDatetime('2024-06-22'),
-    parseDateStringToUkDatetime('2024-06-23'),
+    parseToUkDatetime('2024-06-17'),
+    parseToUkDatetime('2024-06-18'),
+    parseToUkDatetime('2024-06-19'),
+    parseToUkDatetime('2024-06-20'),
+    parseToUkDatetime('2024-06-21'),
+    parseToUkDatetime('2024-06-22'),
+    parseToUkDatetime('2024-06-23'),
   ],
   [
-    parseDateStringToUkDatetime('2024-06-24'),
-    parseDateStringToUkDatetime('2024-06-25'),
-    parseDateStringToUkDatetime('2024-06-26'),
-    parseDateStringToUkDatetime('2024-06-27'),
-    parseDateStringToUkDatetime('2024-06-28'),
-    parseDateStringToUkDatetime('2024-06-29'),
-    parseDateStringToUkDatetime('2024-06-30'),
+    parseToUkDatetime('2024-06-24'),
+    parseToUkDatetime('2024-06-25'),
+    parseToUkDatetime('2024-06-26'),
+    parseToUkDatetime('2024-06-27'),
+    parseToUkDatetime('2024-06-28'),
+    parseToUkDatetime('2024-06-29'),
+    parseToUkDatetime('2024-06-30'),
   ],
 ];
 
@@ -75,18 +75,18 @@ describe('Week Card List', () => {
 
     expect(mockSummariseWeek).toHaveBeenCalledTimes(3);
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      parseDateStringToUkDatetime('2024-06-10'),
-      parseDateStringToUkDatetime('2024-06-16'),
+      parseToUkDatetime('2024-06-10'),
+      parseToUkDatetime('2024-06-16'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      parseDateStringToUkDatetime('2024-06-17'),
-      parseDateStringToUkDatetime('2024-06-23'),
+      parseToUkDatetime('2024-06-17'),
+      parseToUkDatetime('2024-06-23'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      parseDateStringToUkDatetime('2024-06-24'),
-      parseDateStringToUkDatetime('2024-06-30'),
+      parseToUkDatetime('2024-06-24'),
+      parseToUkDatetime('2024-06-30'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockClinicalServices).toHaveBeenCalledTimes(1);

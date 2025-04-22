@@ -5,7 +5,7 @@ import { mockDaySummaries, mockEmptyDays } from '@testing/data';
 import {
   DayJsType,
   isDayAfterUkNow,
-  parseDateStringToUkDatetime,
+  parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
 import { clinicalServices } from '@types';
@@ -27,7 +27,7 @@ describe('Day Summary Card', () => {
     jest.resetAllMocks();
 
     mockIsDayAfterUkNow.mockReturnValue(true);
-    mockUkNow.mockReturnValue(parseDateStringToUkDatetime('2024-11-01'));
+    mockUkNow.mockReturnValue(parseToUkDatetime('2024-11-01'));
   });
 
   it('renders', () => {

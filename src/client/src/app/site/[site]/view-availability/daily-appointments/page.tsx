@@ -9,10 +9,7 @@ import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import {
-  addToUkDate,
-  parseDateStringToUkDatetime,
-} from '@services/timeService';
+import { addToUkDate, parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -28,7 +25,7 @@ type PageProps = {
 const Page = async ({ params, searchParams }: PageProps) => {
   await assertPermission(params.site, 'availability:query');
 
-  const date = parseDateStringToUkDatetime(searchParams.date);
+  const date = parseToUkDatetime(searchParams.date);
   const toDate = addToUkDate(date, 1, 'day');
 
   const fetchBookingsRequest: FetchBookingsRequest = {

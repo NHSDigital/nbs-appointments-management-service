@@ -2,7 +2,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
 import NhsPage from '@components/nhs-page';
-import { parseDateStringToUkDatetime } from '@services/timeService';
+import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -17,7 +17,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
-  const date = parseDateStringToUkDatetime(searchParams.date);
+  const date = parseToUkDatetime(searchParams.date);
   const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
 
   return (

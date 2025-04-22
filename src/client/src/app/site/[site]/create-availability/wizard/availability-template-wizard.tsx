@@ -18,10 +18,7 @@ import TimeAndCapacityStep from './time-and-capacity-step';
 import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
 import { ChangeEvent } from 'react';
-import {
-  dateStringFormat,
-  parseDateStringToUkDatetime,
-} from '@services/timeService';
+import { dateStringFormat, parseToUkDatetime } from '@services/timeService';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -59,7 +56,7 @@ const AvailabilityTemplateWizard = ({
   clinicalServices,
 }: Props) => {
   const startDate = date
-    ? parseDateStringToUkDatetime(date, dateStringFormat)
+    ? parseToUkDatetime(date, dateStringFormat)
     : undefined;
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {

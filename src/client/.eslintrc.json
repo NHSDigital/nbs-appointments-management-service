@@ -146,6 +146,16 @@
   },
   "overrides": [
     {
+      "files": ["**/*.js"],
+      "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "global-require": "off",
+        "import/no-dynamic-require": "off",
+        "no-console": "off"
+      }
+    },
+    {
       "files": ["src/app/lib/services/timeService.ts"],
       "rules": {
         "no-restricted-imports": "off"

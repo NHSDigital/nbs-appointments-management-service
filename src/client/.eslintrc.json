@@ -143,6 +143,31 @@
         "import/no-dynamic-require": "off",
         "no-console": "off"
       }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "dayjs",
+                "importNames": ["*"],
+                "message": "Cannot reference dayJs, import required functionality from \"@/timeService.ts\""
+              }
+            ],
+            "patterns": ["dayjs/*"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/lib/services/timeService.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
     }
   ]
 }
+

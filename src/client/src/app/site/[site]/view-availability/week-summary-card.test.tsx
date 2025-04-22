@@ -16,7 +16,7 @@ describe('Week Summary Card', () => {
   it('renders', () => {
     render(
       <WeekSummaryCard
-        weekSummary={mockWeekSummary}
+        ukWeekSummary={mockWeekSummary}
         clinicalServices={clinicalServices}
       />,
     );
@@ -29,7 +29,7 @@ describe('Week Summary Card', () => {
   it('renders a table with appointments by service', async () => {
     render(
       <WeekSummaryCard
-        weekSummary={mockWeekSummary}
+        ukWeekSummary={mockWeekSummary}
         clinicalServices={clinicalServices}
       />,
     );
@@ -55,7 +55,7 @@ describe('Week Summary Card', () => {
   it('renders an appointment counts summary', async () => {
     render(
       <WeekSummaryCard
-        weekSummary={mockWeekSummary}
+        ukWeekSummary={mockWeekSummary}
         clinicalServices={clinicalServices}
       />,
     );
@@ -68,7 +68,7 @@ describe('Week Summary Card', () => {
   it('renders a warning if there are cancelled appointments', () => {
     render(
       <WeekSummaryCard
-        weekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
+        ukWeekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
         clinicalServices={clinicalServices}
       />,
     );
@@ -83,7 +83,7 @@ describe('Week Summary Card', () => {
   it('renders a warning if there are orphaned appointments', () => {
     render(
       <WeekSummaryCard
-        weekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
+        ukWeekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
         clinicalServices={clinicalServices}
       />,
     );
@@ -98,7 +98,7 @@ describe('Week Summary Card', () => {
   it('renders a link to week view', async () => {
     render(
       <WeekSummaryCard
-        weekSummary={mockWeekSummary}
+        ukWeekSummary={mockWeekSummary}
         clinicalServices={clinicalServices}
       />,
     );

@@ -2,7 +2,7 @@ import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adap
 import { cookies } from 'next/headers';
 import dayjs from 'dayjs';
 import { getCookieConsent, setCookieConsent } from '@services/cookiesService';
-import { now } from '@services/timeService';
+import { ukNow } from '@services/timeService';
 
 jest.mock('next/headers');
 const cookiesMock = cookies as jest.Mock<ReadonlyRequestCookies>;
@@ -19,7 +19,7 @@ const cookieStoreMock: ReadonlyRequestCookies = {
 jest.mock('@services/timeService', () => ({
   now: jest.fn(),
 }));
-const mockNow = now as jest.Mock<dayjs.Dayjs>;
+const mockNow = ukNow as jest.Mock<dayjs.Dayjs>;
 
 jest.mock('@constants', () => ({
   LATEST_CONSENT_COOKIE_VERSION: 5,

@@ -1,9 +1,9 @@
 import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
-import dayjs from 'dayjs';
 import { Suspense } from 'react';
 import { getWeeksOfTheMonth } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
+import dayjs from 'dayjs';
 
 type Props = {
   site: Site;
@@ -28,11 +28,12 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
   return (
     <>
       <Pagination previous={previous} next={next} />
+      {/* TODO does the suspense key have to be UTC?? */}
       <Suspense
-        key={searchMonth.format('YYYY-MM-DDTHH:mm:ssZZ')}
+        key={searchMonth.format('YYYY-MM-DDTHH:mm:ss')}
         fallback={<Spinner />}
       >
-        <WeekCardList site={site} weeks={weeks} />
+        <WeekCardList site={site} ukWeeks={weeks} />
       </Suspense>
     </>
   );

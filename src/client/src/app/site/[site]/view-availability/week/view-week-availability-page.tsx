@@ -5,18 +5,18 @@ import { Suspense } from 'react';
 import { DayCardList } from './day-card-list';
 
 type Props = {
-  weekStart: dayjs.Dayjs;
-  weekEnd: dayjs.Dayjs;
+  ukWeekStart: dayjs.Dayjs;
+  ukWeekEnd: dayjs.Dayjs;
   site: Site;
 };
 
 export const ViewWeekAvailabilityPage = async ({
-  weekStart,
-  weekEnd,
+  ukWeekStart,
+  ukWeekEnd,
   site,
 }: Props) => {
-  const nextWeek = weekStart.add(1, 'week');
-  const previousWeek = weekStart.add(-1, 'week');
+  const nextUkWeek = ukWeekStart.add(1, 'week');
+  const previousUkWeek = ukWeekStart.add(-1, 'week');
 
   // Example: 2-8 December
   const getPaginationTextSameMonth = (
@@ -36,28 +36,35 @@ export const ViewWeekAvailabilityPage = async ({
 
   const next = {
     title:
-      nextWeek.month() > weekEnd.add(1, 'week').month()
-        ? getPaginationTextDifferentMonth(nextWeek, weekEnd.add(1, 'week'))
-        : getPaginationTextSameMonth(nextWeek, weekEnd.add(1, 'week')),
-    href: `week?date=${nextWeek.format('YYYY-MM-DD')}`,
+      nextUkWeek.month() > ukWeekEnd.add(1, 'week').month()
+        ? getPaginationTextDifferentMonth(nextUkWeek, ukWeekEnd.add(1, 'week'))
+        : getPaginationTextSameMonth(nextUkWeek, ukWeekEnd.add(1, 'week')),
+    href: `week?date=${nextUkWeek.format('YYYY-MM-DD')}`,
   };
 
   const previous = {
     title:
-      previousWeek.month() < weekStart.month()
-        ? getPaginationTextDifferentMonth(previousWeek, weekEnd.add(-1, 'week'))
-        : getPaginationTextSameMonth(previousWeek, weekEnd.add(-1, 'week')),
-    href: `week?date=${previousWeek.format('YYYY-MM-DD')}`,
+      previousUkWeek.month() < ukWeekStart.month()
+        ? getPaginationTextDifferentMonth(
+            previousUkWeek,
+            ukWeekEnd.add(-1, 'week'),
+          )
+        : getPaginationTextSameMonth(previousUkWeek, ukWeekEnd.add(-1, 'week')),
+    href: `week?date=${previousUkWeek.format('YYYY-MM-DD')}`,
   };
 
   return (
     <>
       <Pagination previous={previous} next={next} />
       <Suspense
-        key={weekStart.format('YYYY-MM-DDTHH:mm:ssZZ')}
+        key={ukWeekStart.format('YYYY-MM-DDTHH:mm:ssZZ')}
         fallback={<Spinner />}
       >
-        <DayCardList site={site} weekStart={weekStart} weekEnd={weekEnd} />
+        <DayCardList
+          site={site}
+          ukWeekStart={ukWeekStart}
+          ukWeekEnd={ukWeekEnd}
+        />
       </Suspense>
     </>
   );

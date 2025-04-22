@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import dayjs from 'dayjs';
-import { now } from '@services/timeService';
+import { dayStringFormat, ukNow } from '@services/timeService';
 import { ClinicalService } from '@types';
 
 jest.mock('@types', () => ({
@@ -19,7 +19,7 @@ const clinicalServices: ClinicalService[] = [
 jest.mock('@services/timeService', () => ({
   now: jest.fn(),
 }));
-const mockNow = now as jest.Mock<dayjs.Dayjs>;
+const mockUkNow = ukNow as jest.Mock<dayjs.Dayjs>;
 
 describe('Session summary table', () => {
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('Session summary table', () => {
   });
 
   it('renders', () => {
-    mockNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
 
     render(
       <SessionSummaryTable
@@ -40,7 +40,7 @@ describe('Session summary table', () => {
   });
 
   it('renders expected headers and rows', () => {
-    mockNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
 
     render(
       <SessionSummaryTable
@@ -65,14 +65,15 @@ describe('Session summary table', () => {
   });
 
   it('renders action column when showChangeSessionLink is provided', () => {
-    mockNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
 
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          date: mockWeekAvailability__Summary[0].date,
+          ukDate:
+            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
         }}
         clinicalServices={clinicalServices}
       />,
@@ -107,14 +108,15 @@ describe('Session summary table', () => {
   });
 
   it('only renders action column for sessions in the future', () => {
-    mockNow.mockReturnValue(dayjs('2024-06-10 09:34:00'));
+    mockUkNow.mockReturnValue(dayjs('2024-06-10 09:34:00'));
 
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          date: mockWeekAvailability__Summary[0].date,
+          ukDate:
+            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
         }}
         clinicalServices={clinicalServices}
       />,

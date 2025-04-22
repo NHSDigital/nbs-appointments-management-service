@@ -2,17 +2,18 @@ import { AppointmentCountsSummary } from '@components/appointment-counts-summary
 import { Card, Table } from '@components/nhsuk-frontend';
 import { ClinicalService, WeekSummary } from '@types';
 import Link from 'next/link';
+import { dayStringFormat } from '@services/timeService';
 
 type WeekSummaryCardProps = {
-  weekSummary: WeekSummary;
+  ukWeekSummary: WeekSummary;
   clinicalServices: ClinicalService[];
 };
 
 export const WeekSummaryCard = ({
-  weekSummary,
+  ukWeekSummary,
   clinicalServices,
 }: WeekSummaryCardProps) => {
-  const { startDate, endDate, daySummaries } = weekSummary;
+  const { startDate, endDate, daySummaries } = ukWeekSummary;
 
   const allBookingsInWeek = daySummaries.reduce(
     (acc, daySummary) => {
@@ -45,11 +46,11 @@ export const WeekSummaryCard = ({
         <div>No availability</div>
       )}
 
-      <AppointmentCountsSummary period={weekSummary} />
+      <AppointmentCountsSummary period={ukWeekSummary} />
       <br />
       <Link
         className="nhsuk-link"
-        href={`view-availability/week?date=${startDate.format('YYYY-MM-DD')}`}
+        href={`view-availability/week?date=${startDate.format(dayStringFormat)}`}
       >
         View week
       </Link>

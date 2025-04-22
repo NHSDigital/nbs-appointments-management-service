@@ -14,8 +14,8 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import {
   isSameDayOrBefore,
-  now,
-  parseDateComponents,
+  ukNow,
+  parseDateComponentsToUkDatetime,
 } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
@@ -106,17 +106,17 @@ const StartAndEndDateStep = ({
                 return `Enter a ${sessionDateDescriptor}`;
               }
 
-              const startDate = parseDateComponents(value);
+              const ukStartDate = parseDateComponentsToUkDatetime(value);
 
-              if (startDate === undefined) {
+              if (ukStartDate === undefined) {
                 return `Session ${sessionDateDescriptor} must be a valid date`;
               }
 
-              if (startDate.isBefore(now().add(1, 'day'), 'day')) {
+              if (ukStartDate.isBefore(ukNow().add(1, 'day'), 'day')) {
                 return `Session ${sessionDateDescriptor} must be in the future`;
               }
 
-              if (startDate.isAfter(now().add(1, 'year'), 'day')) {
+              if (ukStartDate.isAfter(ukNow().add(1, 'year'), 'day')) {
                 return `Session ${sessionDateDescriptor} must be within the next year`;
               }
             },
@@ -175,7 +175,7 @@ const StartAndEndDateStep = ({
                       field.onChange(
                         handlePositiveBoundedNumberInput(
                           e,
-                          now().add(1, 'year').year(),
+                          ukNow().add(1, 'year').year(),
                         ),
                       )
                     }
@@ -201,8 +201,8 @@ const StartAndEndDateStep = ({
                 return `Enter an end date`;
               }
 
-              const endDate = parseDateComponents(value);
-              const startDate = parseDateComponents(form.startDate);
+              const endDate = parseDateComponentsToUkDatetime(value);
+              const startDate = parseDateComponentsToUkDatetime(form.startDate);
 
               if (endDate === undefined || startDate === undefined) {
                 return 'Session end date must be a valid date';
@@ -212,7 +212,7 @@ const StartAndEndDateStep = ({
                 return 'Session end date must be after the start date';
               }
 
-              if (endDate.isAfter(now().add(1, 'year'), 'day')) {
+              if (endDate.isAfter(ukNow().add(1, 'year'), 'day')) {
                 return 'Session end date must be within the next year';
               }
             },
@@ -278,7 +278,7 @@ const StartAndEndDateStep = ({
                           field.onChange(
                             handlePositiveBoundedNumberInput(
                               e,
-                              now().add(1, 'year').year(),
+                              ukNow().add(1, 'year').year(),
                             ),
                           )
                         }

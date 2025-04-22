@@ -293,8 +293,8 @@ type DayAvailabilityDetails = {
 };
 
 type SessionSummary = {
-  start: dayjs.Dayjs;
-  end: dayjs.Dayjs;
+  ukStart: IsoTimezone;
+  ukEnd: IsoTimezone;
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
@@ -302,8 +302,13 @@ type SessionSummary = {
   slotLength: number;
 };
 
+type IsoTimezone = {
+  iso: string;
+  tz: string;
+};
+
 type DaySummary = {
-  date: dayjs.Dayjs;
+  ukDate: dayjs.Dayjs;
   sessions: SessionSummary[];
   maximumCapacity: number;
   bookedAppointments: number;
@@ -337,9 +342,9 @@ type ServiceBookingDetails = {
 
 type CancelSessionRequest = {
   site: string;
-  date: string;
-  from: string;
-  until: string;
+  ukDate: string;
+  ukFrom: string;
+  ukUntil: string;
   services: string[];
   slotLength: number;
   capacity: number;
@@ -397,6 +402,7 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  IsoTimezone,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

@@ -9,13 +9,13 @@ import {
 
 type Props = {
   site: Site;
-  weekStart: dayjs.Dayjs;
-  weekEnd: dayjs.Dayjs;
+  ukWeekStart: dayjs.Dayjs;
+  ukWeekEnd: dayjs.Dayjs;
 };
 
-export const DayCardList = async ({ site, weekStart, weekEnd }: Props) => {
+export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   const [weekSummary, permissions, clinicalServices] = await Promise.all([
-    summariseWeek(weekStart, weekEnd, site.id),
+    summariseWeek(ukWeekStart, ukWeekEnd, site.id),
     fetchPermissions(site.id),
     fetchClinicalServices(),
   ]);

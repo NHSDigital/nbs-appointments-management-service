@@ -30,7 +30,9 @@ const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
         },
       ]}
     >
-      {buildNumber}
+      <span aria-hidden style={{ display: 'none' }}>
+        {buildNumber}
+      </span>
     </Footer>
   );
 };

@@ -1,9 +1,9 @@
 import {
   addToUkDate,
   buildUkSessionDatetime,
-  dateTimeStringFormat,
+  dateTimeFormat,
   DayJsType,
-  dateStringFormat,
+  dateFormat,
   getWeek,
   isBefore,
   isBeforeOrEqual,
@@ -35,8 +35,8 @@ export const summariseWeek = async (
   const [dailyAvailability, dailyBookings] = await Promise.all([
     fetchDailyAvailability(
       siteId,
-      ukWeekStart.format(dateStringFormat),
-      ukWeekEnd.format(dateStringFormat),
+      ukWeekStart.format(dateFormat),
+      ukWeekEnd.format(dateFormat),
     ),
     fetchBookings({
       from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
@@ -54,10 +54,7 @@ export const summariseWeek = async (
 
     const bookings = dailyBookings.filter(booking => {
       //need to parse booking datetime back to UK date
-      const ukBookingDatetime = parseToUkDatetime(
-        booking.from,
-        dateTimeStringFormat,
-      );
+      const ukBookingDatetime = parseToUkDatetime(booking.from, dateTimeFormat);
       const result = isSameUkDay(ukBookingDatetime, ukDay);
       return result;
     });
@@ -125,10 +122,7 @@ const summariseDay = (
     }
 
     const matchingSlot = slots.find(slot => {
-      const bookingUkDatetime = parseToUkDatetime(
-        booking.from,
-        dateTimeStringFormat,
-      );
+      const bookingUkDatetime = parseToUkDatetime(booking.from, dateTimeFormat);
 
       return (
         slot.capacity > 0 &&
@@ -172,10 +166,10 @@ const buildDaySummary = (
   const sessionSummaries = sessionsAndSlots
     .map(sessionAndSlot => sessionAndSlot.session)
     .sort((a, b) => {
-      const aStart = parseToUkDatetime(a.ukStartDatetime, dateTimeStringFormat);
-      const bStart = parseToUkDatetime(b.ukStartDatetime, dateTimeStringFormat);
-      const aEnd = parseToUkDatetime(a.ukEndDatetime, dateTimeStringFormat);
-      const bEnd = parseToUkDatetime(b.ukEndDatetime, dateTimeStringFormat);
+      const aStart = parseToUkDatetime(a.ukStartDatetime, dateTimeFormat);
+      const bStart = parseToUkDatetime(b.ukStartDatetime, dateTimeFormat);
+      const aEnd = parseToUkDatetime(a.ukEndDatetime, dateTimeFormat);
+      const bEnd = parseToUkDatetime(b.ukEndDatetime, dateTimeFormat);
 
       if (isBefore(aStart, bStart)) {
         return -1;
@@ -226,7 +220,7 @@ export const divideSessionIntoSlots = (
     ukEndDatetime,
     session.slotLength * -1,
     'minute',
-    dateTimeStringFormat,
+    dateTimeFormat,
   );
   while (isBeforeOrEqual(currentSlot, bookEnd)) {
     slots.push({
@@ -241,7 +235,7 @@ export const divideSessionIntoSlots = (
       currentSlot,
       session.slotLength,
       'minute',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
   }
 
@@ -281,8 +275,8 @@ const mapSessionsAndSlots = (
     });
 
     const sessionSummary: SessionSummary = {
-      ukStartDatetime: ukStartDatetime.format(dateTimeStringFormat),
-      ukEndDatetime: ukEndDatetime.format(dateTimeStringFormat),
+      ukStartDatetime: ukStartDatetime.format(dateTimeFormat),
+      ukEndDatetime: ukEndDatetime.format(dateTimeFormat),
       maximumCapacity: slotsInSession.length * session.capacity,
       totalBookings: 0,
       bookings: bookingsByService,

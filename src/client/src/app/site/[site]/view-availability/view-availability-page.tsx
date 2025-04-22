@@ -2,9 +2,9 @@ import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import {
-  dateTimeStringFormat,
+  dateTimeFormat,
   DayJsType,
-  dateStringFormat,
+  dateFormat,
   getUkWeeksOfTheMonth,
 } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
@@ -20,11 +20,11 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
 
   const next = {
     title: nextMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${nextMonth.format(dateStringFormat)}`,
+    href: `view-availability?date=${nextMonth.format(dateFormat)}`,
   };
   const previous = {
     title: previousMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${previousMonth.format(dateStringFormat)}`,
+    href: `view-availability?date=${previousMonth.format(dateFormat)}`,
   };
 
   const ukWeeks = getUkWeeksOfTheMonth(searchMonth);
@@ -32,10 +32,7 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
   return (
     <>
       <Pagination previous={previous} next={next} />
-      <Suspense
-        key={searchMonth.format(dateTimeStringFormat)}
-        fallback={<Spinner />}
-      >
+      <Suspense key={searchMonth.format(dateTimeFormat)} fallback={<Spinner />}>
         <WeekCardList site={site} ukWeeks={ukWeeks} />
       </Suspense>
     </>

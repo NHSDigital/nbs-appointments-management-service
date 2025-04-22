@@ -6,8 +6,8 @@ import timezone from 'dayjs/plugin/timezone';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import updateLocale from 'dayjs/plugin/updateLocale';
 
-export const dateStringFormat = 'YYYY-MM-DD';
-export const dateTimeStringFormat = 'YYYY-MM-DDTHH:mm:ss';
+export const dateFormat = 'YYYY-MM-DD';
+export const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 dayjs.extend(customParseFormat);
 
@@ -51,7 +51,7 @@ export const toTimeFormat = (
   input: string | TimeComponents,
 ): string | undefined => {
   if (typeof input === 'string') {
-    const date = parseToUkDatetime(input, dateTimeStringFormat);
+    const date = parseToUkDatetime(input, dateTimeFormat);
 
     const timeComponents: TimeComponents = {
       hour: date.hour(),
@@ -107,7 +107,7 @@ export const parseToTimeComponents = (
 
 export const parseToUkDatetime = (
   input: string | Date,
-  format = dateStringFormat,
+  format = dateFormat,
 ) => {
   return dayjs.tz(input, format, ukTimezone);
 };
@@ -236,7 +236,7 @@ export const addToUkDate = (
   ukDatetime: dayjs.Dayjs,
   value: number,
   manipulateType: 'year' | 'day' | 'week' | 'hour' | 'minute',
-  format = dateStringFormat,
+  format = dateFormat,
 ): dayjs.Dayjs => {
   //CAN'T use dayJs.add method for this, as it DOES NOT work when the operation crosses a DST boundary.
   //(it preserves the original timezone rather than adjusting/re-evaluating)
@@ -265,7 +265,7 @@ export const addToUkDate = (
 
   //forced reevaluation of timezone using Date and Time info, to account for if the shift crossed a DST boundary
   const correctedDatetime = dayjs.tz(
-    shifted.format(dateTimeStringFormat),
+    shifted.format(dateTimeFormat),
     ukTimezone,
   );
 
@@ -299,8 +299,8 @@ export const buildUkSessionDatetime = (
 ): dayjs.Dayjs => {
   //have to stringify and parse to ensure the new created datetime has the UK timezone info correct
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-  const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeStringFormat);
-  return addToUkDate(newHour, minutes, 'minute', dateTimeStringFormat);
+  const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeFormat);
+  return addToUkDate(newHour, minutes, 'minute', dateTimeFormat);
 };
 
 export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {

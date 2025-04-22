@@ -13,7 +13,7 @@ import {
 import { Controller } from 'react-hook-form';
 import {
   compareTimes,
-  dateTimeStringFormat,
+  dateTimeFormat,
   parseToUkDatetime,
   parseToTimeComponents,
   toTimeFormat,
@@ -39,11 +39,11 @@ const EditSessionTimeAndCapacityForm = ({
 }: Props) => {
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
-    dateTimeStringFormat,
+    dateTimeFormat,
   ).format('HH:mm');
   const existingUkEndTime = parseToUkDatetime(
     existingSession.ukEndDatetime,
-    dateTimeStringFormat,
+    dateTimeFormat,
   ).format('HH:mm');
 
   const {

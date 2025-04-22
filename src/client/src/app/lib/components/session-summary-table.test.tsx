@@ -3,9 +3,9 @@ import { screen, within } from '@testing-library/react';
 import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
 import {
-  dateTimeStringFormat,
+  dateTimeFormat,
   DayJsType,
-  dateStringFormat,
+  dateFormat,
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
@@ -37,7 +37,7 @@ describe('Session summary table', () => {
 
   it('renders', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeFormat),
     );
 
     render(
@@ -52,7 +52,7 @@ describe('Session summary table', () => {
 
   it('renders expected headers and rows', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeFormat),
     );
 
     render(
@@ -79,7 +79,7 @@ describe('Session summary table', () => {
 
   it('renders action column when showChangeSessionLink is provided', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T08:34:00', dateTimeFormat),
     );
 
     render(
@@ -87,8 +87,7 @@ describe('Session summary table', () => {
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          ukDate:
-            mockWeekAvailability__Summary[0].ukDate.format(dateStringFormat),
+          ukDate: mockWeekAvailability__Summary[0].ukDate.format(dateFormat),
         }}
         clinicalServices={clinicalServices}
       />,
@@ -124,7 +123,7 @@ describe('Session summary table', () => {
 
   it('only renders action column for sessions in the future', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T09:34:00', dateTimeStringFormat),
+      parseToUkDatetime('2024-06-10T09:34:00', dateTimeFormat),
     );
 
     render(
@@ -132,8 +131,7 @@ describe('Session summary table', () => {
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
         showChangeSessionLink={{
           siteId: 'TEST01',
-          ukDate:
-            mockWeekAvailability__Summary[0].ukDate.format(dateStringFormat),
+          ukDate: mockWeekAvailability__Summary[0].ukDate.format(dateFormat),
         }}
         clinicalServices={clinicalServices}
       />,

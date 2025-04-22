@@ -1,6 +1,6 @@
 import {
   addToUkDate,
-  dateStringFormat,
+  dateFormat,
   endOfUkWeek,
   parseToUkDatetime,
   startOfUkWeek,
@@ -22,7 +22,7 @@ export const getDateInFuture = (
 
 export const daysFromToday = (
   numberOfDaysFromToday = 1,
-  requiredformat = dateStringFormat,
+  requiredformat = dateFormat,
 ) => addToUkDate(ukNow(), numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>

@@ -5,7 +5,7 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import { DefaultValues } from 'react-hook-form';
 import {
-  dateTimeStringFormat,
+  dateTimeFormat,
   DayJsType,
   ukNow,
   parseToUkDatetime,
@@ -53,7 +53,7 @@ describe('Start and End Date Step', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
+      parseToUkDatetime('2000-01-01T00:00:00', dateTimeFormat),
     );
   });
 

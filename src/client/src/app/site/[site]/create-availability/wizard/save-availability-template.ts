@@ -10,7 +10,7 @@ import {
   saveAvailability,
 } from '@services/appointmentsService';
 import {
-  dateStringFormat,
+  dateFormat,
   toTimeFormat,
   parseDateComponentsToUkDatetime,
 } from '@services/timeService';
@@ -34,8 +34,8 @@ async function saveAvailabilityTemplate(
   if (formData.sessionType === 'repeating') {
     const request: ApplyAvailabilityTemplateRequest = {
       site: site.id,
-      from: startUkDatetime.format(dateStringFormat),
-      until: endUkDatetime.format(dateStringFormat),
+      from: startUkDatetime.format(dateFormat),
+      until: endUkDatetime.format(dateFormat),
       template: {
         days: formData.days,
         sessions: [
@@ -55,7 +55,7 @@ async function saveAvailabilityTemplate(
   } else {
     const request: SetAvailabilityRequest = {
       site: site.id,
-      date: startUkDatetime.format(dateStringFormat),
+      date: startUkDatetime.format(dateFormat),
       sessions: [
         {
           from: toTimeFormat(formData.session.startTime) ?? '',

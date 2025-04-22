@@ -16,7 +16,7 @@ import {
 import { Booking, DailyAvailability } from '@types';
 import {
   buildUkSessionDatetime,
-  dateTimeStringFormat,
+  dateTimeFormat,
   isAfter,
   isBefore,
   isBeforeOrEqual,
@@ -66,7 +66,7 @@ describe('Availability Calculator Service', () => {
 
     const lastDateTime = parseToUkDatetime(
       '2026-03-28 13:45:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
 
     expect(result.length).toEqual(24);
@@ -94,7 +94,7 @@ describe('Availability Calculator Service', () => {
 
     const expectedLastDateTime = parseToUkDatetime(
       '2026-03-29 13:45:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
 
     const lastDateTime = result[23].from;
@@ -136,7 +136,7 @@ describe('Availability Calculator Service', () => {
 
     const expectedLastDateTime = parseToUkDatetime(
       '2026-03-30 13:45:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
 
     const lastDateTime = result[23].from;

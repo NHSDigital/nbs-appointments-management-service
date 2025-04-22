@@ -32,8 +32,8 @@ import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
-  dateStringFormat,
-  dateTimeStringFormat,
+  dateFormat,
+  dateTimeFormat,
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
@@ -163,7 +163,7 @@ export async function fetchPermissions(site: string) {
 
 export async function fetchAvailabilityCreatedEvents(site: string) {
   const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
-    `availability-created?site=${site}&from=${ukNow().format(dateStringFormat)}`,
+    `availability-created?site=${site}&from=${ukNow().format(dateFormat)}`,
     {
       next: { tags: ['availability-created'] },
     },
@@ -506,15 +506,15 @@ export const cancelSession = async (
 ) => {
   const ukStartDatetime = parseToUkDatetime(
     sessionSummary.ukStartDatetime,
-    dateTimeStringFormat,
+    dateTimeFormat,
   );
   const ukEndDatetime = parseToUkDatetime(
     sessionSummary.ukEndDatetime,
-    dateTimeStringFormat,
+    dateTimeFormat,
   );
   const payload: CancelSessionRequest = {
     site: site,
-    date: ukStartDatetime.format(dateStringFormat),
+    date: ukStartDatetime.format(dateFormat),
     from: ukStartDatetime.format('HH:mm'),
     until: ukEndDatetime.format('HH:mm'),
     services: Object.keys(sessionSummary.bookings),

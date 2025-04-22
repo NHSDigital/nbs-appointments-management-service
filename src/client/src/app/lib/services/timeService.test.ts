@@ -7,12 +7,12 @@ import {
   toTwoDigitFormat,
   getUkWeeksOfTheMonth,
   parseToUkDatetime,
-  dateStringFormat,
+  dateFormat,
   addToUkDate,
   startOfUkWeek,
   endOfUkWeek,
   isEqual,
-  dateTimeStringFormat,
+  dateTimeFormat,
   isSameUkDay,
   ukNow,
 } from '@services/timeService';
@@ -157,7 +157,7 @@ describe('Time Service', () => {
 
   it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
     const dstChangeDateTime = '2025-10-01';
-    const dateTime = parseToUkDatetime(dstChangeDateTime, dateStringFormat);
+    const dateTime = parseToUkDatetime(dstChangeDateTime, dateFormat);
     const weeks = getUkWeeksOfTheMonth(dateTime);
 
     expect(weeks).toHaveLength(5);
@@ -275,7 +275,7 @@ describe('Time Service', () => {
   it('isSameUkDay 25th', async () => {
     const bookingDate = parseToUkDatetime(
       '2025-10-25T10:00:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
     const ukDay = parseToUkDatetime('2025-10-25');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
@@ -293,7 +293,7 @@ describe('Time Service', () => {
   it('isSameUkDay 26th', async () => {
     const bookingDate = parseToUkDatetime(
       '2025-10-26T10:00:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
     const ukDay = parseToUkDatetime('2025-10-26');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
@@ -312,7 +312,7 @@ describe('Time Service', () => {
   it('isSameUkDay 27th', async () => {
     const bookingDate = parseToUkDatetime(
       '2025-10-27T10:00:00',
-      dateTimeStringFormat,
+      dateTimeFormat,
     );
     const ukDay = parseToUkDatetime('2025-10-27');
     const sameDayCorrect1 = isSameUkDay(ukDay, bookingDate);
@@ -377,9 +377,9 @@ describe('Time Service', () => {
   });
 
   it.each([
-    [addToUkDate(ukNow(), 1, 'day').format(dateStringFormat), true],
-    [addToUkDate(ukNow(), -1, 'day').format(dateStringFormat), false],
-    [addToUkDate(ukNow(), 0, 'day').format(dateStringFormat), false],
+    [addToUkDate(ukNow(), 1, 'day').format(dateFormat), true],
+    [addToUkDate(ukNow(), -1, 'day').format(dateFormat), false],
+    [addToUkDate(ukNow(), 0, 'day').format(dateFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {

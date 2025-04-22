@@ -16,7 +16,7 @@ import {
   ukNow,
   parseDateComponentsToUkDatetime,
   isDayAfterUkNow,
-  dateStringFormat,
+  dateFormat,
   isDayWithinUkYear,
   isDayBeforeOrEqual,
   addToUkDate,
@@ -117,7 +117,7 @@ const StartAndEndDateStep = ({
               }
 
               const dayAfterUkNow = isDayAfterUkNow(
-                ukStartDate.format(dateStringFormat),
+                ukStartDate.format(dateFormat),
               );
 
               if (!dayAfterUkNow) {
@@ -125,7 +125,7 @@ const StartAndEndDateStep = ({
               }
 
               const dayWithinUkYear = isDayWithinUkYear(
-                ukStartDate.format(dateStringFormat),
+                ukStartDate.format(dateFormat),
               );
 
               if (!dayWithinUkYear) {
@@ -221,8 +221,8 @@ const StartAndEndDateStep = ({
               }
 
               const startDateIsBeforeOrEqualEndDate = isDayBeforeOrEqual(
-                startDate.format(dateStringFormat),
-                endDate.format(dateStringFormat),
+                startDate.format(dateFormat),
+                endDate.format(dateFormat),
               );
 
               if (!startDateIsBeforeOrEqualEndDate) {
@@ -230,7 +230,7 @@ const StartAndEndDateStep = ({
               }
 
               const dayWithinUkYear = isDayWithinUkYear(
-                endDate.format(dateStringFormat),
+                endDate.format(dateFormat),
               );
 
               if (!dayWithinUkYear) {

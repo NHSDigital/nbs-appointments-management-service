@@ -275,6 +275,7 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
+  isEdit: boolean,
 ) => {
   const payload = {
     scope: `site:${site}`,
@@ -283,13 +284,18 @@ export const saveUserRoleAssignments = async (
     lastName,
     roles: roles,
   };
-
   const response = await appointmentsApi.post(
     `user/roles`,
     JSON.stringify(payload),
   );
-
   handleEmptyResponse(response);
+
+  const notificationType = 'ams-notification';
+  const notificationMessage = isEdit
+    ? `You have changed a user's role.`
+    : `You have added a new user to MYA The user will be sent information about how to login.`;
+  raiseNotification(notificationType, notificationMessage);
+
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };

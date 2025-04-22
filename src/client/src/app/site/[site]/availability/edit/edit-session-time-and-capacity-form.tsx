@@ -15,7 +15,6 @@ import {
   compareTimes,
   extractUkSessionDatetime,
   formatTimeString,
-  parseDateStringToUkDatetime,
   toTimeComponents,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';

@@ -1,8 +1,11 @@
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import { cookies } from 'next/headers';
-import dayjs from 'dayjs';
 import { getCookieConsent, setCookieConsent } from '@services/cookiesService';
-import { ukNow } from '@services/timeService';
+import {
+  DayJsType,
+  parseDateStringToUkDatetime,
+  ukNow,
+} from '@services/timeService';
 
 jest.mock('next/headers');
 const cookiesMock = cookies as jest.Mock<ReadonlyRequestCookies>;
@@ -16,10 +19,14 @@ const cookieStoreMock: ReadonlyRequestCookies = {
   delete: jest.fn(),
 };
 
-jest.mock('@services/timeService', () => ({
-  now: jest.fn(),
-}));
-const mockNow = ukNow as jest.Mock<dayjs.Dayjs>;
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    ukNow: jest.fn(),
+  };
+});
+const mockUkNow = ukNow as jest.Mock<DayJsType>;
 
 jest.mock('@constants', () => ({
   LATEST_CONSENT_COOKIE_VERSION: 5,
@@ -73,7 +80,9 @@ describe('Cookies service', () => {
       set: setMock,
     });
 
-    mockNow.mockReturnValue(dayjs('2024-03-24 08:34:00'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2024-03-24T08:34:00'),
+    );
 
     await setCookieConsent(true);
 
@@ -81,7 +90,7 @@ describe('Cookies service', () => {
       'nhsuk-mya-cookie-consent',
       '%7B%22consented%22%3Atrue%2C%22version%22%3A5%7D',
       {
-        expires: dayjs('2025-03-24 08:34:00').toDate(),
+        expires: parseDateStringToUkDatetime('2025-03-24T08:34:00').toDate(),
       },
     );
   });
@@ -93,7 +102,9 @@ describe('Cookies service', () => {
       set: setMock,
     });
 
-    mockNow.mockReturnValue(dayjs('2021-01-31 13:29:31'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2021-01-31T13:29:31'),
+    );
 
     await setCookieConsent(false);
 
@@ -101,7 +112,7 @@ describe('Cookies service', () => {
       'nhsuk-mya-cookie-consent',
       '%7B%22consented%22%3Afalse%2C%22version%22%3A5%7D',
       {
-        expires: dayjs('2022-01-31 13:29:31').toDate(),
+        expires: parseDateStringToUkDatetime('2022-01-31T13:29:31').toDate(),
       },
     );
   });

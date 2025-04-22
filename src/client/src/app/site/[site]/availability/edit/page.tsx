@@ -2,8 +2,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
 import NhsPage from '@components/nhs-page';
-import dayjs from 'dayjs';
-import { dayStringFormat } from '@services/timeService';
+import { parseDateStringToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -18,10 +17,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
-
-  //TODO refactor this!!
-  const date = dayjs(searchParams.date, dayStringFormat);
-
+  const date = parseDateStringToUkDatetime(searchParams.date);
   const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
 
   return (

@@ -15,7 +15,7 @@ import {
   WeekViewAvailabilityPage,
 } from '@testing-page-objects';
 import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
-import dayjs from 'dayjs';
+import { parseDateStringToUkDatetime } from '@services/timeService';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -254,7 +254,8 @@ test('Verify appointment not cancelled when not confirmed', async ({
   page,
 }) => {
   const requiredDate = '2025-08-05';
-  const formattedDate = dayjs(requiredDate).format('D MMMM');
+  const formattedDate =
+    parseDateStringToUkDatetime(requiredDate).format('D MMMM');
   const requiredWeekRange = weekHeaderText(requiredDate);
 
   await monthViewAvailabilityPage.navigateToRequiredMonth(
@@ -279,7 +280,8 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
   page,
 }) => {
   const requiredDate = daysFromToday(1, 'D MMMM');
-  const formattedDate = dayjs(requiredDate).format('DD MMMM');
+  const formattedDate =
+    parseDateStringToUkDatetime(requiredDate).format('DD MMMM');
   const requiredWeekRange = weekHeaderText(daysFromToday(1));
 
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);

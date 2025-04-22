@@ -4,10 +4,9 @@ import {
   fetchClinicalServices,
   fetchSite,
 } from '@services/appointmentsService';
-import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
-import { dayStringFormat } from '@services/timeService';
+import { parseDateStringToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -27,8 +26,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchClinicalServices(),
   ]);
 
-  //TODO refactor!!
-  const date = dayjs(searchParams.date, dayStringFormat);
+  const date = parseDateStringToUkDatetime(searchParams.date);
 
   if (searchParams.session === undefined || searchParams.date === undefined) {
     notFound();

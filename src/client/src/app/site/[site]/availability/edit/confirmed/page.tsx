@@ -5,8 +5,10 @@ import {
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
-import dayjs from 'dayjs';
-import { dayStringFormat } from '@services/timeService';
+import {
+  dayStringFormat,
+  parseDateStringToUkDatetime,
+} from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 
 type PageProps = {
@@ -25,8 +27,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchSite(params.site),
     fetchClinicalServices(),
   ]);
-  //TODO refactor!!
-  const date = dayjs(searchParams.date, dayStringFormat);
+
+  const date = parseDateStringToUkDatetime(searchParams.date);
 
   const updatedSession: AvailabilitySession = JSON.parse(
     atob(searchParams.updatedSession),

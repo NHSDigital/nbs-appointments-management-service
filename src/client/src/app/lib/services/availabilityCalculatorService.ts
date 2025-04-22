@@ -41,7 +41,6 @@ export const summariseWeek = async (
     ),
     fetchBookings({
       from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
-      //TODO do we need to do add day rather than endOf day (does this respect timezone?)
       to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       site: siteId,
     }),

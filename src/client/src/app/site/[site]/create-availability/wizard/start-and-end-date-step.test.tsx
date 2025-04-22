@@ -4,13 +4,17 @@ import StartAndEndDateStep from './start-and-end-date-step';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import { DefaultValues } from 'react-hook-form';
-import dayjs from 'dayjs';
+import {
+  dateTimeStringFormat,
+  parseDateStringToUkDatetime,
+} from '@services/timeService';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
     ...originalModule,
-    now: () => dayjs(new Date('2000-01-01T00:00:00Z')),
+    ukNow: () =>
+      parseDateStringToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
   };
 });
 

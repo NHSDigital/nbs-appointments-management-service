@@ -122,6 +122,17 @@
         }
       }
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "dayjs",
+            "message": "Cannot reference dayJs directly, import required functionality from \"lib/services/timeService.ts\""
+          }
+        ]
+      }
+    ],
     "no-shadow": "off",
     "no-underscore-dangle": [
       "error",
@@ -134,34 +145,6 @@
     "no-useless-constructor": "off"
   },
   "overrides": [
-    {
-      "files": ["**/*.js"],
-      "rules": {
-        "@typescript-eslint/explicit-module-boundary-types": "off",
-        "@typescript-eslint/no-var-requires": "off",
-        "global-require": "off",
-        "import/no-dynamic-require": "off",
-        "no-console": "off"
-      }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "no-restricted-imports": [
-          "error",
-          {
-            "paths": [
-              {
-                "name": "dayjs",
-                "importNames": ["*"],
-                "message": "Cannot reference dayJs, import required functionality from \"@/timeService.ts\""
-              }
-            ],
-            "patterns": ["dayjs/*"]
-          }
-        ]
-      }
-    },
     {
       "files": ["src/app/lib/services/timeService.ts"],
       "rules": {

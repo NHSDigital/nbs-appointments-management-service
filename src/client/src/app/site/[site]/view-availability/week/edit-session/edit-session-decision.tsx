@@ -1,4 +1,3 @@
-//TODO do we need to make this a server component due to datetime called code
 'use client';
 import {
   Button,

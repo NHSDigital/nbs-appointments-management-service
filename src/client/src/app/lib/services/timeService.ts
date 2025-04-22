@@ -113,6 +113,10 @@ export const toTwoDigitFormat = (
   return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };
 
+export const parseDateToUkDatetime = (date: Date, format = dayStringFormat) => {
+  return dayjs.tz(date, format, ukTimezone);
+};
+
 export const parseDateStringToUkDatetime = (
   dateString: string,
   format = dayStringFormat,

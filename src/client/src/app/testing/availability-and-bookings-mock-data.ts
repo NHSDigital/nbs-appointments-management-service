@@ -1,9 +1,18 @@
-import { dayStringFormat } from '@services/timeService';
+import {
+  dateTimeStringFormat,
+  dayStringFormat,
+  parseDateStringToUkDatetime,
+} from '@services/timeService';
 import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
-import dayjs from 'dayjs';
 
-const mondayThe10thOfJune2024 = dayjs('2024-06-10T00:00:00Z');
-const sundayThe16thOfJune2024 = dayjs('2024-06-16T00:00:00Z');
+const mondayThe10thOfJune2024 = parseDateStringToUkDatetime(
+  '2024-06-10T00:00:00',
+  dateTimeStringFormat,
+);
+const sundayThe16thOfJune2024 = parseDateStringToUkDatetime(
+  '2024-06-16T00:00:00',
+  dateTimeStringFormat,
+);
 
 /**
  * A mock week of availability as we'd expect it to be returned from the API.
@@ -244,7 +253,7 @@ const mockBookings: Booking[] = [
  */
 const mockWeekAvailability__Summary: DaySummary[] = [
   {
-    ukDate: dayjs('2024-06-10 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-10'),
     sessions: [
       {
         ukStartDatetime: '2024-06-10 09:00:00',
@@ -272,7 +281,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 124,
   },
   {
-    ukDate: dayjs('2024-06-11 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-11'),
     sessions: [
       {
         ukStartDatetime: '2024-06-11 09:00:00',
@@ -300,7 +309,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 69,
   },
   {
-    ukDate: dayjs('2024-06-12 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-12'),
     sessions: [
       {
         ukStartDatetime: '2024-06-12 08:00:00',
@@ -319,7 +328,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 96,
   },
   {
-    ukDate: dayjs('2024-06-13 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-13'),
     sessions: [
       {
         ukStartDatetime: '2024-06-13 10:00:00',
@@ -347,7 +356,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 114,
   },
   {
-    ukDate: dayjs('2024-06-14 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-14'),
     sessions: [
       {
         ukStartDatetime: '2024-06-14 09:00:00',
@@ -366,7 +375,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 72,
   },
   {
-    ukDate: dayjs('2024-06-15 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-15'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -375,7 +384,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    ukDate: dayjs('2024-06-16 00:00:00'),
+    ukDate: parseDateStringToUkDatetime('2024-06-16'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,

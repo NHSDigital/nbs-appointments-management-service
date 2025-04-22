@@ -1,20 +1,17 @@
 import {
+  addToUkDate,
   dayStringFormat,
   endOfUkWeek,
+  parseDateStringToUkDatetime,
   startOfUkWeek,
+  ukNow,
 } from '@services/timeService';
-import dayjs from 'dayjs';
-
-interface DateComponents {
-  day: string;
-  month: string;
-  year: string;
-}
+import { DateComponents } from '@types';
 
 export const getDateInFuture = (
   numberOfDaysFromToday: number,
 ): DateComponents => {
-  const futureDate = dayjs().add(numberOfDaysFromToday, 'day');
+  const futureDate = addToUkDate(ukNow(), numberOfDaysFromToday, 'day');
 
   return {
     day: futureDate.format('DD'),
@@ -26,7 +23,7 @@ export const getDateInFuture = (
 export const daysFromToday = (
   numberOfDaysFromToday = 1,
   requiredformat = dayStringFormat,
-) => dayjs().add(numberOfDaysFromToday, 'day').format(requiredformat);
+) => addToUkDate(ukNow(), numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>
-  `${startOfUkWeek(dayjs(date)).format('D MMMM')} to ${endOfUkWeek(dayjs(date)).format('D MMMM')}`;
+  `${startOfUkWeek(parseDateStringToUkDatetime(date)).format('D MMMM')} to ${endOfUkWeek(parseDateStringToUkDatetime(date)).format('D MMMM')}`;

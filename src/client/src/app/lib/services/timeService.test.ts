@@ -15,12 +15,12 @@ import {
   isEqual,
   dateTimeStringFormat,
   isSameUkDay,
+  ukNow,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
-import dayjs from 'dayjs';
 
 describe('Time Service', () => {
-  it.skip.each([
+  it.each([
     [1, 12, 2020, true],
     ['1', '12', '2020', true],
     ['01', '09', '2020', true], // leading zeros
@@ -379,10 +379,10 @@ describe('Time Service', () => {
     expect(result).toEqual('12:05');
   });
 
-  //TODO
   it.each([
-    [dayjs().add(1, 'day').format(dayStringFormat), true],
-    [dayjs().subtract(1, 'day').format(dayStringFormat), false],
+    [addToUkDate(ukNow(), 1, 'day').format(dayStringFormat), true],
+    [addToUkDate(ukNow(), -1, 'day').format(dayStringFormat), false],
+    [addToUkDate(ukNow(), 0, 'day').format(dayStringFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
-import dayjs from 'dayjs';
 import { ClinicalService, clinicalServices, WeekSummary } from '@types';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
@@ -9,6 +8,7 @@ import {
   fetchClinicalServices,
   fetchPermissions,
 } from '@services/appointmentsService';
+import { parseDateStringToUkDatetime } from '@services/timeService';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
@@ -38,8 +38,8 @@ describe('Day Card List', () => {
   it('renders', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
     });
     render(jsx);
   });
@@ -47,14 +47,14 @@ describe('Day Card List', () => {
   it('requests a summary for the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
     });
     render(jsx);
 
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      dayjs('2024-06-10T00:00:00.000Z'),
-      dayjs('2024-06-16T00:00:00.000Z'),
+      parseDateStringToUkDatetime('2024-06-10'),
+      parseDateStringToUkDatetime('2024-06-16'),
       mockSite.id,
     );
     expect(mockFetchPermissions).toHaveBeenCalled();
@@ -64,8 +64,8 @@ describe('Day Card List', () => {
   it('renders a card for each day in the week', async () => {
     const jsx = await DayCardList({
       site: mockSite,
-      ukWeekStart: dayjs('2024-06-10T00:00:00.000Z'),
-      ukWeekEnd: dayjs('2024-06-16T00:00:00.000Z'),
+      ukWeekStart: parseDateStringToUkDatetime('2024-06-10'),
+      ukWeekEnd: parseDateStringToUkDatetime('2024-06-16'),
     });
     render(jsx);
 

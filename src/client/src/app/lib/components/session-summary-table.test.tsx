@@ -2,8 +2,13 @@ import { mockWeekAvailability__Summary } from '@testing/availability-and-booking
 import { screen, within } from '@testing-library/react';
 import { SessionSummaryTable } from './session-summary-table';
 import render from '@testing/render';
-import dayjs from 'dayjs';
-import { dayStringFormat, ukNow } from '@services/timeService';
+import {
+  dateTimeStringFormat,
+  DayJsType,
+  dayStringFormat,
+  parseDateStringToUkDatetime,
+  ukNow,
+} from '@services/timeService';
 import { ClinicalService } from '@types';
 
 jest.mock('@types', () => ({
@@ -16,10 +21,14 @@ const clinicalServices: ClinicalService[] = [
   { label: 'COVID 75+', value: 'COVID:75+' },
 ];
 
-jest.mock('@services/timeService', () => ({
-  now: jest.fn(),
-}));
-const mockUkNow = ukNow as jest.Mock<dayjs.Dayjs>;
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    ukNow: jest.fn(),
+  };
+});
+const mockUkNow = ukNow as jest.Mock<DayJsType>;
 
 describe('Session summary table', () => {
   beforeEach(() => {
@@ -27,7 +36,9 @@ describe('Session summary table', () => {
   });
 
   it('renders', () => {
-    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+    );
 
     render(
       <SessionSummaryTable
@@ -40,7 +51,9 @@ describe('Session summary table', () => {
   });
 
   it('renders expected headers and rows', () => {
-    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+    );
 
     render(
       <SessionSummaryTable
@@ -65,7 +78,9 @@ describe('Session summary table', () => {
   });
 
   it('renders action column when showChangeSessionLink is provided', () => {
-    mockUkNow.mockReturnValue(dayjs('2024-06-10 08:34:00'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2024-06-10T08:34:00', dateTimeStringFormat),
+    );
 
     render(
       <SessionSummaryTable
@@ -108,7 +123,9 @@ describe('Session summary table', () => {
   });
 
   it('only renders action column for sessions in the future', () => {
-    mockUkNow.mockReturnValue(dayjs('2024-06-10 09:34:00'));
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2024-06-10T09:34:00', dateTimeStringFormat),
+    );
 
     render(
       <SessionSummaryTable

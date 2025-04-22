@@ -32,7 +32,6 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
   return (
     <>
       <Pagination previous={previous} next={next} />
-      {/* TODO does the suspense key have to be UTC?? */}
       <Suspense
         key={searchMonth.format(dateTimeStringFormat)}
         fallback={<Spinner />}

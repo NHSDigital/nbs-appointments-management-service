@@ -2,8 +2,12 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { DaySummaryCard } from './day-summary-card';
 import { mockDaySummaries, mockEmptyDays } from '@testing/data';
-import { isDayAfterUkNow, ukNow } from '@services/timeService';
-import dayjs from 'dayjs';
+import {
+  DayJsType,
+  isDayAfterUkNow,
+  parseDateStringToUkDatetime,
+  ukNow,
+} from '@services/timeService';
 import { clinicalServices } from '@types';
 
 jest.mock('@services/timeService', () => {
@@ -11,19 +15,19 @@ jest.mock('@services/timeService', () => {
   return {
     ...originalModule,
     isDayAfterUkNow: jest.fn(),
-    now: jest.fn(),
+    ukNow: jest.fn(),
   };
 });
 
 const mockIsDayAfterUkNow = isDayAfterUkNow as jest.Mock<boolean>;
-const mockUkNow = ukNow as jest.Mock<dayjs.Dayjs>;
+const mockUkNow = ukNow as jest.Mock<DayJsType>;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
     mockIsDayAfterUkNow.mockReturnValue(true);
-    mockUkNow.mockReturnValue(dayjs().year(2024).month(10).date(1));
+    mockUkNow.mockReturnValue(parseDateStringToUkDatetime('2024-11-01'));
   });
 
   it('renders', () => {

@@ -148,11 +148,10 @@ export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
   return dayjs.tz(date, ukTimezone).format(format);
 };
 
-//TODO rewrite??
-export const isInTheFuture = (date: string, format = dayStringFormat) => {
-  const inputDate = dayjs(date, format);
-  const today = dayjs().startOf('day');
-  return isAfter(inputDate, today);
+export const isDayAfterUkNow = (date: string) => {
+  const ukDate = parseDateStringToUkDatetime(date);
+  const ukNowStartOfDay = ukNow().startOf('day');
+  return isAfter(ukDate, ukNowStartOfDay);
 };
 
 //#region Equality Checks
@@ -222,6 +221,9 @@ export const addToUkDate = (
   manipulateType: 'day' | 'week' | 'hour' | 'minute',
   format = dayStringFormat,
 ): dayjs.Dayjs => {
+  //CAN'T use dayJs.add method for this, as it DOES NOT work when the operation crosses a DST boundary.
+  //(it preserves the original timezone rather than adjusting/re-evaluating)
+
   let shifted: dayjs.Dayjs = dayjs();
 
   switch (manipulateType) {
@@ -242,9 +244,12 @@ export const addToUkDate = (
   }
 
   //forced reevaluation of timezone using Date and Time info, to account for if the shift crossed a DST boundary
-  const corrected = dayjs.tz(shifted.format('YYYY-MM-DDTHH:mm:ss'), ukTimezone);
-  const stringifyDatetime = corrected.format(format);
+  const correctedDatetime = dayjs.tz(
+    shifted.format(dateTimeStringFormat),
+    ukTimezone,
+  );
 
+  const stringifyDatetime = correctedDatetime.format(format);
   return parseDateStringToUkDatetime(stringifyDatetime, format);
 };
 

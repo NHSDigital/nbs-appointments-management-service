@@ -2,7 +2,7 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { DaySummaryCard } from './day-summary-card';
 import { mockDaySummaries, mockEmptyDays } from '@testing/data';
-import { isInTheFuture, ukNow } from '@services/timeService';
+import { isDayAfterUkNow, ukNow } from '@services/timeService';
 import dayjs from 'dayjs';
 import { clinicalServices } from '@types';
 
@@ -10,19 +10,19 @@ jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
     ...originalModule,
-    isInTheFuture: jest.fn(),
+    isDayAfterUkNow: jest.fn(),
     now: jest.fn(),
   };
 });
 
-const mockIsInTheFuture = isInTheFuture as jest.Mock<boolean>;
+const mockIsDayAfterUkNow = isDayAfterUkNow as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<dayjs.Dayjs>;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockIsInTheFuture.mockReturnValue(true);
+    mockIsDayAfterUkNow.mockReturnValue(true);
     mockUkNow.mockReturnValue(dayjs().year(2024).month(10).date(1));
   });
 
@@ -109,7 +109,7 @@ describe('Day Summary Card', () => {
     });
 
     it('renders add session link if the date is in the future', () => {
-      mockIsInTheFuture.mockReturnValue(true);
+      mockIsDayAfterUkNow.mockReturnValue(true);
 
       render(
         <DaySummaryCard
@@ -126,7 +126,7 @@ describe('Day Summary Card', () => {
     });
 
     it('does not render add session link if the user lacks the permission', () => {
-      mockIsInTheFuture.mockReturnValue(true);
+      mockIsDayAfterUkNow.mockReturnValue(true);
 
       render(
         <DaySummaryCard
@@ -141,7 +141,7 @@ describe('Day Summary Card', () => {
     });
 
     it('does not render add session link if the date is in the past', () => {
-      mockIsInTheFuture.mockReturnValue(false);
+      mockIsDayAfterUkNow.mockReturnValue(false);
 
       render(
         <DaySummaryCard
@@ -312,7 +312,7 @@ describe('Day Summary Card', () => {
     });
 
     it('renders add session link if the date is in the future', () => {
-      mockIsInTheFuture.mockReturnValue(true);
+      mockIsDayAfterUkNow.mockReturnValue(true);
 
       render(
         <DaySummaryCard
@@ -329,7 +329,7 @@ describe('Day Summary Card', () => {
     });
 
     it('does not render add session link if the user lacks the permission', () => {
-      mockIsInTheFuture.mockReturnValue(true);
+      mockIsDayAfterUkNow.mockReturnValue(true);
 
       render(
         <DaySummaryCard
@@ -346,7 +346,7 @@ describe('Day Summary Card', () => {
     });
 
     it('does not render add session link if the date is in the past', () => {
-      mockIsInTheFuture.mockReturnValue(false);
+      mockIsDayAfterUkNow.mockReturnValue(false);
 
       render(
         <DaySummaryCard

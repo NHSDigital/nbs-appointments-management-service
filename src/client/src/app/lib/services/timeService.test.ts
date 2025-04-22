@@ -1,7 +1,7 @@
 import {
   formatUkDatetimeToTime,
   formatTimeString,
-  isInTheFuture,
+  isDayAfterUkNow,
   isValidUkDate,
   parseDateComponentsToUkDatetime,
   toTimeComponents,
@@ -379,13 +379,14 @@ describe('Time Service', () => {
     expect(result).toEqual('12:05');
   });
 
+  //TODO
   it.each([
     [dayjs().add(1, 'day').format(dayStringFormat), true],
     [dayjs().subtract(1, 'day').format(dayStringFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {
-      const result = isInTheFuture(dateToCheck);
+      const result = isDayAfterUkNow(dateToCheck);
 
       expect(result).toBe(expectedOutcome);
     },

@@ -4,7 +4,7 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { dayStringFormat, isInTheFuture } from '@services/timeService';
+import { dayStringFormat, isDayAfterUkNow } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
@@ -16,21 +16,23 @@ type DaySummaryCardProps = {
 };
 
 export const DaySummaryCard = ({
-                                 daySummary,
-                                 siteId,
-                                 canManageAvailability,
-                                 clinicalServices,
-                               }: DaySummaryCardProps) => {
+  daySummary,
+  siteId,
+  canManageAvailability,
+  clinicalServices,
+}: DaySummaryCardProps) => {
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
 
+  const dayIsAfterUkNow = isDayAfterUkNow(ukDate.format(dayStringFormat));
+
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
-      isInTheFuture(ukDate.format(dayStringFormat)) &&
-      canManageAvailability && {
-        text: 'Add availability to this day',
-        href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dayStringFormat)}`,
-      },
+      dayIsAfterUkNow &&
+        canManageAvailability && {
+          text: 'Add availability to this day',
+          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dayStringFormat)}`,
+        },
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
         href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1&tab=1`,
@@ -73,14 +75,14 @@ export const DaySummaryCard = ({
         showChangeSessionLink={
           canManageAvailability
             ? {
-              siteId,
-              ukDate: ukDate.format(dayStringFormat),
-            }
+                siteId,
+                ukDate: ukDate.format(dayStringFormat),
+              }
             : undefined
         }
       />
       <br />
-      {isInTheFuture(ukDate.format(dayStringFormat)) && canManageAvailability && (
+      {dayIsAfterUkNow && canManageAvailability && (
         <Link
           className="nhsuk-link"
           href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dayStringFormat)}`}

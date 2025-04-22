@@ -23,9 +23,6 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         You are currently not signed in. You must sign in to access this
         service.
       </p>
-      <p style={{ display: 'none' }}>
-        Auth: {process.env.AUTH_HOST} Base Url: {process.env.NBS_API_BASE_URL}
-      </p>
       <LogInButton
         redirectUrl={redirectUrl}
         provider={'nhs-mail'}

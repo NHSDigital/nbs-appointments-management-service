@@ -129,6 +129,8 @@ stages:
               npm run build
               mv .next/static .next/standalone/.next/static
             displayName: "Build Web App"
+            env:
+              BUILD_NUMBER: "$(Build.BuildNumber)"
           - task: ArchiveFiles@2
             displayName: Zip Web Client
             inputs:

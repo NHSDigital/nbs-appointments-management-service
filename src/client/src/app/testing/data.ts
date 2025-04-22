@@ -492,14 +492,8 @@ const mockDaySummaries: DaySummary[] = [
     ukDate: dayjs().year(2024).month(11).date(2),
     sessions: [
       {
-        ukStartDatetime: {
-          iso: dayjs.utc('2024-11-02 09:00', 'YYYY-MM-DD HH:mm').toISOString(),
-          tz: ukTimezone,
-        },
-        ukEndDatetime: {
-          iso: dayjs.utc('2024-11-02 17:00', 'YYYY-MM-DD HH:mm').toISOString(),
-          tz: ukTimezone,
-        },
+        ukStartDatetime: '2024-11-02 09:00',
+        ukEndDatetime: '2024-11-02 17:00',
         maximumCapacity: 123,
         totalBookings: 5,
         bookings: {
@@ -519,8 +513,8 @@ const mockDaySummaries: DaySummary[] = [
     ukDate: dayjs().year(2024).month(11).date(4),
     sessions: [
       {
-        startIso: dayjs().year(2024).month(11).date(4).hour(9).minute(0),
-        endIso: dayjs().year(2024).month(11).date(4).hour(17).minute(0),
+        ukStartDatetime: '2024-11-04 09:00',
+        ukEndDatetime: '2024-11-04 17:00',
         maximumCapacity: 200,
         totalBookings: 15,
         bookings: {
@@ -540,8 +534,8 @@ const mockDaySummaries: DaySummary[] = [
     ukDate: dayjs().year(2024).month(11).date(5),
     sessions: [
       {
-        startIso: dayjs().year(2024).month(11).date(5).hour(9).minute(0),
-        endIso: dayjs().year(2024).month(11).date(5).hour(17).minute(0),
+        ukStartDatetime: '2024-11-05 09:00',
+        ukEndDatetime: '2024-11-05 17:00',
         maximumCapacity: 200,
         totalBookings: 20,
         bookings: {

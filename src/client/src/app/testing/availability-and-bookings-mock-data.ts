@@ -247,8 +247,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ukDate: dayjs('2024-06-10 00:00:00'),
     sessions: [
       {
-        startIso: dayjs('2024-06-10 09:00:00'),
-        endIso: dayjs('2024-06-10 12:00:00'),
+        ukStartDatetime: '2024-06-10 09:00:00',
+        ukEndDatetime: '2024-06-10 12:00:00',
         maximumCapacity: 72,
         totalBookings: 2,
         bookings: { 'RSV:Adult': 2 },
@@ -256,8 +256,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         slotLength: 5,
       },
       {
-        startIso: dayjs('2024-06-10 13:00:00'),
-        endIso: dayjs('2024-06-10 17:30:00'),
+        ukStartDatetime: '2024-06-10 13:00:00',
+        ukEndDatetime: '2024-06-10 17:30:00',
         maximumCapacity: 54,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -275,8 +275,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ukDate: dayjs('2024-06-11 00:00:00'),
     sessions: [
       {
-        startIso: dayjs('2024-06-11 09:00:00'),
-        endIso: dayjs('2024-06-11 12:00:00'),
+        ukStartDatetime: '2024-06-11 09:00:00',
+        ukEndDatetime: '2024-06-11 12:00:00',
         maximumCapacity: 36,
         totalBookings: 3,
         bookings: { 'RSV:Adult': 2, 'FLU:18_64': 1 },
@@ -284,8 +284,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         slotLength: 10,
       },
       {
-        startIso: dayjs('2024-06-11 09:00:00'),
-        endIso: dayjs('2024-06-11 12:00:00'),
+        ukStartDatetime: '2024-06-11 09:00:00',
+        ukEndDatetime: '2024-06-11 12:00:00',
         maximumCapacity: 36,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -303,8 +303,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ukDate: dayjs('2024-06-12 00:00:00'),
     sessions: [
       {
-        startIso: dayjs('2024-06-12 08:00:00'),
-        endIso: dayjs('2024-06-12 12:00:00'),
+        ukStartDatetime: '2024-06-12 08:00:00',
+        ukEndDatetime: '2024-06-12 12:00:00',
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
@@ -322,8 +322,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ukDate: dayjs('2024-06-13 00:00:00'),
     sessions: [
       {
-        startIso: dayjs('2024-06-13 10:00:00'),
-        endIso: dayjs('2024-06-13 14:00:00'),
+        ukStartDatetime: '2024-06-13 10:00:00',
+        ukEndDatetime: '2024-06-13 14:00:00',
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -331,8 +331,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         slotLength: 5,
       },
       {
-        startIso: dayjs('2024-06-13 15:00:00'),
-        endIso: dayjs('2024-06-13 18:00:00'),
+        ukStartDatetime: '2024-06-13 15:00:00',
+        ukEndDatetime: '2024-06-13 18:00:00',
         maximumCapacity: 18,
         totalBookings: 0,
         bookings: { 'FLU:18_64': 0 },
@@ -350,8 +350,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     ukDate: dayjs('2024-06-14 00:00:00'),
     sessions: [
       {
-        startIso: dayjs('2024-06-14 09:00:00'),
-        endIso: dayjs('2024-06-14 13:00:00'),
+        ukStartDatetime: '2024-06-14 09:00:00',
+        ukEndDatetime: '2024-06-14 13:00:00',
         maximumCapacity: 72,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },

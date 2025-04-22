@@ -2,7 +2,7 @@ import {
   formatUkDatetimeToTime,
   formatTimeString,
   isDayAfterUkNow,
-  isValidUkDate,
+  isValidDate,
   parseDateComponentsToUkDatetime,
   toTimeComponents,
   toTwoDigitFormat,
@@ -42,8 +42,7 @@ describe('Time Service', () => {
       year: number | string,
       expectedResult: boolean,
     ) => {
-      const result = isValidUkDate(day, month, year);
-
+      const result = isValidDate(day, month, year);
       expect(result).toEqual(expectedResult);
     },
   );
@@ -73,7 +72,8 @@ describe('Time Service', () => {
     [31, 12, 2018, '2018-12-31T00:00:00.000Z'],
     [29, 2, 2020, '2020-02-29T00:00:00.000Z'],
     [28, 2, 2021, '2021-02-28T00:00:00.000Z'],
-    [16, 9, 2056, '2056-09-16T00:00:00.000Z'],
+    [16, 9, 2056, '2056-09-15T23:00:00.000Z'],
+    [25, 10, 2025, '2025-10-24T23:00:00.000Z'],
   ])(
     'can parse dates components: day %p, month %p, year %p should be: %p',
     (day: number, month: number, year: number, expectedResult: string) => {
@@ -306,6 +306,7 @@ describe('Time Service', () => {
     expect(sameDayCorrect2).toBe(true);
 
     //prove that when running these tests in a different TZ, these fail and therefore can't be used
+    //i.e TZ="Etc/GMT+12" npm test OR TZ="Pacific/Kiritimati" npm test
     const sameDayWrong1 = ukDay.isSame(bookingDate, 'day');
     const sameDayWrong2 = bookingDate.isSame(ukDay, 'day');
     expect(sameDayWrong1).toBe(true);

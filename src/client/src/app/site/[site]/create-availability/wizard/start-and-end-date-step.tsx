@@ -19,6 +19,7 @@ import {
   dayStringFormat,
   isDayWithinUkYear,
   isDayBeforeOrEqual,
+  addToUkDate,
 } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
@@ -186,7 +187,7 @@ const StartAndEndDateStep = ({
                       field.onChange(
                         handlePositiveBoundedNumberInput(
                           e,
-                          ukNow().add(1, 'year').year(),
+                          addToUkDate(ukNow(), 1, 'year').year(),
                         ),
                       )
                     }
@@ -298,7 +299,7 @@ const StartAndEndDateStep = ({
                           field.onChange(
                             handlePositiveBoundedNumberInput(
                               e,
-                              ukNow().add(1, 'year').year(),
+                              addToUkDate(ukNow(), 1, 'year').year(),
                             ),
                           )
                         }

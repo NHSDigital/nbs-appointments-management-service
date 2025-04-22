@@ -65,34 +65,46 @@ export default class CreateAvailabilityPage extends RootPage {
     await this.page.getByRole('radio', { name: sessionType }).click();
   }
 
-  async enterSingleDateSessionDate(day: string, month: string, year: string) {
+  async enterSingleDateSessionDate(
+    day: string | number,
+    month: string | number,
+    year: string | number,
+  ) {
     const sessionDateFormGroup = this.page
       .getByRole('group')
       .filter({ has: this.page.getByText('Session date') });
 
-    await sessionDateFormGroup.getByLabel('Day').fill(day);
-    await sessionDateFormGroup.getByLabel('Month').fill(month);
-    await sessionDateFormGroup.getByLabel('Year').fill(year);
+    await sessionDateFormGroup.getByLabel('Day').fill(`${day}`);
+    await sessionDateFormGroup.getByLabel('Month').fill(`${month}`);
+    await sessionDateFormGroup.getByLabel('Year').fill(`${year}`);
   }
 
-  async enterWeeklySessionStartDate(day: string, month: string, year: string) {
+  async enterWeeklySessionStartDate(
+    day: string | number,
+    month: string | number,
+    year: string | number,
+  ) {
     const startDateFormGroup = this.page
       .getByRole('group')
       .filter({ has: this.page.getByText('Start date') });
 
-    await startDateFormGroup.getByLabel('Day').fill(day);
-    await startDateFormGroup.getByLabel('Month').fill(month);
-    await startDateFormGroup.getByLabel('Year').fill(year);
+    await startDateFormGroup.getByLabel('Day').fill(`${day}`);
+    await startDateFormGroup.getByLabel('Month').fill(`${month}`);
+    await startDateFormGroup.getByLabel('Year').fill(`${year}`);
   }
 
-  async enterWeeklySessionEndDate(day: string, month: string, year: string) {
+  async enterWeeklySessionEndDate(
+    day: string | number,
+    month: string | number,
+    year: string | number,
+  ) {
     const endDateFormGroup = this.page
       .getByRole('group')
       .filter({ has: this.page.getByText('End date') });
 
-    await endDateFormGroup.getByLabel('Day').fill(day);
-    await endDateFormGroup.getByLabel('Month').fill(month);
-    await endDateFormGroup.getByLabel('Year').fill(year);
+    await endDateFormGroup.getByLabel('Day').fill(`${day}`);
+    await endDateFormGroup.getByLabel('Month').fill(`${month}`);
+    await endDateFormGroup.getByLabel('Year').fill(`${year}`);
   }
 
   async enterStartTime(hour: string, minute: string) {

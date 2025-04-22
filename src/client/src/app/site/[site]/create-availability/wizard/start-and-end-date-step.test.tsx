@@ -6,17 +6,25 @@ import MockForm from '@testing/mockForm';
 import { DefaultValues } from 'react-hook-form';
 import {
   dateTimeStringFormat,
+  DayJsType,
+  ukNow,
   parseDateStringToUkDatetime,
+  isDayAfterUkNow,
+  isDayWithinUkYear,
 } from '@services/timeService';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
     ...originalModule,
-    ukNow: () =>
-      parseDateStringToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
+    ukNow: jest.fn(),
+    isDayAfterUkNow: jest.fn(),
+    isDayWithinUkYear: jest.fn(),
   };
 });
+const mockUkNow = ukNow as jest.Mock<DayJsType>;
+const mockIsDayAfterUkNow = isDayAfterUkNow as jest.Mock<boolean>;
+const mockIsDayWithinUkYear = isDayWithinUkYear as jest.Mock<boolean>;
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -42,6 +50,15 @@ const defaultValues: DefaultValues<CreateAvailabilityFormValues> = {
 };
 
 describe('Start and End Date Step', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    mockUkNow.mockReturnValue(
+      parseDateStringToUkDatetime('2000-01-01T00:00:00', dateTimeStringFormat),
+    );
+  });
+
+  afterEach(() => jest.resetAllMocks());
+
   it('renders', async () => {
     render(
       <MockForm<CreateAvailabilityFormValues>
@@ -71,6 +88,15 @@ describe('Start and End Date Step', () => {
   });
 
   it('permits data entry', async () => {
+    mockIsDayAfterUkNow.mockImplementation(arg => {
+      if (arg === '2000-02-01' || arg === '2000-08-07') {
+        return true;
+      }
+      return false;
+    });
+
+    mockIsDayWithinUkYear.mockReturnValue(true);
+
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}
@@ -211,6 +237,10 @@ describe('Start and End Date Step', () => {
   );
 
   it('does not permit start date to be set more than 1 year in the future', async () => {
+    mockIsDayAfterUkNow.mockImplementation(arg =>
+      arg === '2001-01-02' ? true : false,
+    );
+
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}
@@ -245,6 +275,10 @@ describe('Start and End Date Step', () => {
   });
 
   it('does not permit end date to be set more than 1 year in the future', async () => {
+    mockIsDayAfterUkNow.mockImplementation(arg =>
+      arg === '2020-06-06' ? true : false,
+    );
+
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
         submitHandler={jest.fn()}

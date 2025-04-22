@@ -279,9 +279,11 @@ test('Verify appointment not cancelled when not confirmed', async ({
 test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
   page,
 }) => {
-  const requiredDate = daysFromToday(1, 'D MMMM');
-  const formattedDate =
+  const requiredDate = daysFromToday(1);
+  const formattedDate1 =
     parseDateStringToUkDatetime(requiredDate).format('DD MMMM');
+  const formattedDate2 =
+    parseDateStringToUkDatetime(requiredDate).format('D MMMM');
   const requiredWeekRange = weekHeaderText(daysFromToday(1));
 
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
@@ -289,8 +291,8 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-  await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
-  await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await weekViewAvailabilityPage.verifyWeekViewDisplayed(formattedDate2);
+  await weekViewAvailabilityPage.addAvailability(formattedDate2);
 
   await page.waitForURL('**/site/**/create-availability/wizard?date=**');
 
@@ -301,7 +303,7 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
 
   await weekViewAvailabilityPage.verifySessionAdded();
-  await weekViewAvailabilityPage.openChangeAvailabilityPage(requiredDate);
+  await weekViewAvailabilityPage.openChangeAvailabilityPage(formattedDate2);
 
   await page.waitForURL(
     '**/site/**/view-availability/week/edit-session?date=**',
@@ -315,7 +317,7 @@ test('Verify availibility with no bookings is cancelled and manual appointments 
 
   await page.waitForURL('**/site/**/availability/cancel/confirmed?session=**');
 
-  await cancelSessionDetailsPage.verifySessionCancelled(formattedDate);
+  await cancelSessionDetailsPage.verifySessionCancelled(formattedDate1);
   await cancelSessionDetailsPage.clickCancelAppointment();
 
   await page.waitForURL(

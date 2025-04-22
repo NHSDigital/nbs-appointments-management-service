@@ -11,6 +11,7 @@ import {
 import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import {
+  dateTimeStringFormat,
   dayStringFormat,
   parseDateStringToUkDatetime,
   parseDateToUkDatetime,
@@ -102,7 +103,10 @@ const mapSummaryData = (
 
   const items: SummaryListItem[] = [];
 
-  const bookingDate = parseDateStringToUkDatetime(booking.from);
+  const bookingDate = parseDateStringToUkDatetime(
+    booking.from,
+    dateTimeStringFormat,
+  );
   const contactDetails =
     booking.contactDetails && booking.contactDetails.length > 0
       ? booking.contactDetails?.map(c => c.value)

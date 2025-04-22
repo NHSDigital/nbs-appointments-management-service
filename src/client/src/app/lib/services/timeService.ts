@@ -33,7 +33,7 @@ export const ukNow = () => dayjs.tz(utcNow(), ukTimezone);
 
 export type DayJsType = dayjs.Dayjs;
 
-export const isValidUkDate = (
+export const isValidDate = (
   day: string | number,
   month: string | number,
   year: string | number,
@@ -51,7 +51,9 @@ export const isValidUkDate = (
   }
 
   const inputString = `${toTwoDigitFormat(parsedDay)}-${toTwoDigitFormat(parsedMonth)}-${parsedYear}`;
-  const potentialDate = parseDateStringToUkDatetime(inputString, 'DD-MM-YYYY');
+
+  //have to verify using strict UTC rules
+  const potentialDate = dayjs.utc(inputString, 'DD-MM-YYYY', true);
 
   return potentialDate.isValid();
 };
@@ -61,7 +63,7 @@ export const parseDateComponentsToUkDatetime = ({
   month,
   year,
 }: DateComponents) => {
-  if (!isValidUkDate(day, month, year)) {
+  if (!isValidDate(day, month, year)) {
     return undefined;
   }
 

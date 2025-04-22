@@ -1,16 +1,16 @@
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Site } from '@types';
-import dayjs from 'dayjs';
 import { DaySummaryCard } from './day-summary-card';
 import {
   fetchClinicalServices,
   fetchPermissions,
 } from '@services/appointmentsService';
+import { DayJsType } from '@services/timeService';
 
 type Props = {
   site: Site;
-  ukWeekStart: dayjs.Dayjs;
-  ukWeekEnd: dayjs.Dayjs;
+  ukWeekStart: DayJsType;
+  ukWeekEnd: DayJsType;
 };
 
 export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {

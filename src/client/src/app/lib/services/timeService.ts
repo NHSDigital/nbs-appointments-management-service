@@ -31,6 +31,8 @@ export const ukTimezone = 'Europe/London';
 const utcNow = () => dayjs.utc();
 export const ukNow = () => dayjs.tz(utcNow(), ukTimezone);
 
+export type DayJsType = dayjs.Dayjs;
+
 export const isValidUkDate = (
   day: string | number,
   month: string | number,

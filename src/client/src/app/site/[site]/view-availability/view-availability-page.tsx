@@ -3,15 +3,15 @@ import { Site } from '@types';
 import { Suspense } from 'react';
 import {
   dateTimeStringFormat,
+  DayJsType,
   dayStringFormat,
   getUkWeeksOfTheMonth,
 } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
-import dayjs from 'dayjs';
 
 type Props = {
   site: Site;
-  searchMonth: dayjs.Dayjs;
+  searchMonth: DayJsType;
 };
 
 export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {

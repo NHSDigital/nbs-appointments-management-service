@@ -1,13 +1,12 @@
 import { Pagination, Spinner } from '@components/nhsuk-frontend';
-import dayjs from 'dayjs';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import { DayCardList } from './day-card-list';
-import { addToUkDate, dayStringFormat } from '@services/timeService';
+import { addToUkDate, DayJsType, dayStringFormat } from '@services/timeService';
 
 type Props = {
-  ukWeekStart: dayjs.Dayjs;
-  ukWeekEnd: dayjs.Dayjs;
+  ukWeekStart: DayJsType;
+  ukWeekEnd: DayJsType;
   site: Site;
 };
 
@@ -21,16 +20,16 @@ export const ViewWeekAvailabilityPage = async ({
 
   // Example: 2-8 December
   const getPaginationTextSameMonth = (
-    firstDate: dayjs.Dayjs,
-    secondDate: dayjs.Dayjs,
+    firstDate: DayJsType,
+    secondDate: DayJsType,
   ): string => {
     return `${firstDate.format('D')}-${secondDate.format('D MMMM YYYY')}`;
   };
 
   // Example: 25 November-1 December
   const getPaginationTextDifferentMonth = (
-    firstDate: dayjs.Dayjs,
-    secondDate: dayjs.Dayjs,
+    firstDate: DayJsType,
+    secondDate: DayJsType,
   ): string => {
     return `${firstDate.format('D MMMM')}-${secondDate.format('D MMMM YYYY')}`;
   };

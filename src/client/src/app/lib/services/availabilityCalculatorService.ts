@@ -2,6 +2,7 @@ import {
   addToUkDate,
   buildUkSessionDatetime,
   dateTimeStringFormat,
+  DayJsType,
   dayStringFormat,
   extractUkSessionDatetime,
   getWeek,
@@ -16,7 +17,6 @@ import {
   fetchDailyAvailability,
   fetchBookings,
 } from '@services/appointmentsService';
-import dayjs from 'dayjs';
 import {
   AvailabilitySession,
   AvailabilitySlot,
@@ -29,8 +29,8 @@ import {
 } from '@types';
 
 export const summariseWeek = async (
-  ukWeekStart: dayjs.Dayjs,
-  ukWeekEnd: dayjs.Dayjs,
+  ukWeekStart: DayJsType,
+  ukWeekEnd: DayJsType,
   siteId: string,
 ): Promise<WeekSummary> => {
   const [dailyAvailability, dailyBookings] = await Promise.all([
@@ -99,7 +99,7 @@ export const summariseWeek = async (
 };
 
 const summariseDay = (
-  ukDate: dayjs.Dayjs,
+  ukDate: DayJsType,
   bookings: Booking[],
   availability?: DailyAvailability,
 ): DaySummary => {
@@ -166,7 +166,7 @@ const summariseDay = (
 };
 
 const buildDaySummary = (
-  ukDate: dayjs.Dayjs,
+  ukDate: DayJsType,
   sessionsAndSlots: SessionAndSlots[],
   cancelledAppointments: number,
   orphanedAppointments: number,
@@ -217,8 +217,8 @@ const buildDaySummary = (
 
 export const divideSessionIntoSlots = (
   sessionIndex: number,
-  ukStartDatetime: dayjs.Dayjs,
-  ukEndDatetime: dayjs.Dayjs,
+  ukStartDatetime: DayJsType,
+  ukEndDatetime: DayJsType,
   session: AvailabilitySession,
 ): AvailabilitySlot[] => {
   const slots: AvailabilitySlot[] = [];
@@ -251,7 +251,7 @@ export const divideSessionIntoSlots = (
 };
 
 const mapSessionsAndSlots = (
-  ukDate: dayjs.Dayjs,
+  ukDate: DayJsType,
   sessions: AvailabilitySession[],
 ): SessionAndSlots[] =>
   sessions.map((session, index) => {

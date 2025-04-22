@@ -20,7 +20,6 @@ import SelectServicesStep from './select-services-step';
 import { ChangeEvent } from 'react';
 import dayjs from 'dayjs';
 import { dayStringFormat } from '@services/timeService';
-import { fetchClinicalServices } from '@services/appointmentsService';
 
 export type CreateAvailabilityFormValues = {
   startDate: DateComponents;
@@ -53,10 +52,11 @@ export const handlePositiveBoundedNumberInput = (
 };
 
 const AvailabilityTemplateWizard = ({
-                                      site,
-                                      date,
-                                      clinicalServices,
-                                    }: Props) => {
+  site,
+  date,
+  clinicalServices,
+}: Props) => {
+  //TODO refactor
   const startDate = dayjs(date, dayStringFormat);
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
@@ -68,10 +68,10 @@ const AvailabilityTemplateWizard = ({
       },
       startDate: date
         ? {
-          year: startDate.year(),
-          month: startDate.month() + 1,
-          day: startDate.date(),
-        }
+            year: startDate.year(),
+            month: startDate.month() + 1,
+            day: startDate.date(),
+          }
         : undefined,
     },
   });

@@ -148,10 +148,23 @@ export const dateToString = (date: Date, format = 'D MMMM YYYY') => {
   return dayjs.tz(date, ukTimezone).format(format);
 };
 
+export const isDayBeforeOrEqual = (first: string, second: string) => {
+  const ukFirstStartOfDay = parseDateStringToUkDatetime(first).startOf('day');
+  const ukSecondStartOfDay = parseDateStringToUkDatetime(second).startOf('day');
+  return isBeforeOrEqual(ukFirstStartOfDay, ukSecondStartOfDay);
+};
+
 export const isDayAfterUkNow = (date: string) => {
   const ukDate = parseDateStringToUkDatetime(date);
   const ukNowStartOfDay = ukNow().startOf('day');
   return isAfter(ukDate, ukNowStartOfDay);
+};
+
+export const isDayWithinUkYear = (date: string) => {
+  const ukDate = parseDateStringToUkDatetime(date);
+  const ukNowStartOfDay = ukNow().startOf('day');
+  const ukYearFromToday = addToUkDate(ukNowStartOfDay, 1, 'year');
+  return isBeforeOrEqual(ukDate, ukYearFromToday);
 };
 
 //#region Equality Checks
@@ -159,23 +172,14 @@ export const isDayAfterUkNow = (date: string) => {
 // dayJs seems to have an issue with equality checks (especially if node server is in a different timezone) for datetime objects in across timezones, even if they ARE the same
 // see: https://github.com/iamkun/dayjs/issues/1189
 
-export const isBeforeOrEqual = (
-  first: dayjs.Dayjs,
-  second: dayjs.Dayjs,
-  unit?: dayjs.OpUnitType,
-) => dayjs.utc(first).isSameOrBefore(dayjs.utc(second), unit);
+export const isBeforeOrEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isSameOrBefore(dayjs.utc(second));
 
-export const isBefore = (
-  first: dayjs.Dayjs,
-  second: dayjs.Dayjs,
-  unit?: dayjs.OpUnitType,
-) => dayjs.utc(first).isBefore(dayjs.utc(second), unit);
+export const isBefore = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isBefore(dayjs.utc(second));
 
-export const isAfter = (
-  first: dayjs.Dayjs,
-  second: dayjs.Dayjs,
-  unit?: dayjs.OpUnitType,
-) => dayjs.utc(first).isAfter(dayjs.utc(second), unit);
+export const isAfter = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isAfter(dayjs.utc(second));
 
 export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
   return dayjs.utc(first).isSame(dayjs.utc(second));
@@ -217,8 +221,7 @@ export const compareTimes = (
 export const addToUkDate = (
   ukDatetime: dayjs.Dayjs,
   value: number,
-  // manipulateType: dayjs.ManipulateType,
-  manipulateType: 'day' | 'week' | 'hour' | 'minute',
+  manipulateType: 'year' | 'day' | 'week' | 'hour' | 'minute',
   format = dayStringFormat,
 ): dayjs.Dayjs => {
   //CAN'T use dayJs.add method for this, as it DOES NOT work when the operation crosses a DST boundary.
@@ -227,6 +230,9 @@ export const addToUkDate = (
   let shifted: dayjs.Dayjs = dayjs();
 
   switch (manipulateType) {
+    case 'year':
+      shifted = ukDatetime.year(ukDatetime.year() + value);
+      break;
     case 'day':
       shifted = ukDatetime.date(ukDatetime.date() + value);
       break;

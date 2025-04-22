@@ -10,6 +10,7 @@ export default class CreateAvailabilityPage extends RootPage {
   readonly saveSessionButton: Locator;
   readonly sessionSuccessMsg: Locator;
   readonly selectDateErrorMsg: Locator;
+  readonly sessionStartDateErrorMsg: Locator;
   readonly sessionEndDateErrorMsg: Locator;
   readonly sessionDateErrorMsg: Locator;
 
@@ -45,6 +46,10 @@ export default class CreateAvailabilityPage extends RootPage {
 
     this.sessionSuccessMsg = page.getByText(
       'You have successfully created availability for the current site.',
+    );
+
+    this.sessionStartDateErrorMsg = page.getByText(
+      'Session start date must be within the next year',
     );
 
     this.sessionEndDateErrorMsg = page.getByText(

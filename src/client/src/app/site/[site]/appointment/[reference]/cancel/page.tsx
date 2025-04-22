@@ -9,7 +9,7 @@ import CancelAppointmentPage from './cancel-appointment-page';
 import { notFound } from 'next/navigation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import {
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
 } from '@services/timeService';
 
@@ -34,7 +34,7 @@ const Page = async ({ params }: PageProps) => {
   }
 
   const returnDate = parseDateStringToUkDatetime(booking.from).format(
-    dayStringFormat,
+    dateStringFormat,
   );
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

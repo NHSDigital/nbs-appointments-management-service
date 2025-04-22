@@ -8,7 +8,7 @@ import {
   toTwoDigitFormat,
   getUkWeeksOfTheMonth,
   parseDateStringToUkDatetime,
-  dayStringFormat,
+  dateStringFormat,
   addToUkDate,
   startOfUkWeek,
   endOfUkWeek,
@@ -160,7 +160,7 @@ describe('Time Service', () => {
     const dstChangeDateTime = '2025-10-01';
     const dateTime = parseDateStringToUkDatetime(
       dstChangeDateTime,
-      dayStringFormat,
+      dateStringFormat,
     );
     const weeks = getUkWeeksOfTheMonth(dateTime);
 
@@ -381,9 +381,9 @@ describe('Time Service', () => {
   });
 
   it.each([
-    [addToUkDate(ukNow(), 1, 'day').format(dayStringFormat), true],
-    [addToUkDate(ukNow(), -1, 'day').format(dayStringFormat), false],
-    [addToUkDate(ukNow(), 0, 'day').format(dayStringFormat), false],
+    [addToUkDate(ukNow(), 1, 'day').format(dateStringFormat), true],
+    [addToUkDate(ukNow(), -1, 'day').format(dateStringFormat), false],
+    [addToUkDate(ukNow(), 0, 'day').format(dateStringFormat), false],
   ])(
     'check if date is in the future',
     (dateToCheck: string, expectedOutcome: boolean) => {

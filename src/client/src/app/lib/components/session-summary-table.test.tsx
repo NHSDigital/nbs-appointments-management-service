@@ -5,7 +5,7 @@ import render from '@testing/render';
 import {
   dateTimeStringFormat,
   DayJsType,
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
   ukNow,
 } from '@services/timeService';
@@ -88,7 +88,7 @@ describe('Session summary table', () => {
         showChangeSessionLink={{
           siteId: 'TEST01',
           ukDate:
-            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
+            mockWeekAvailability__Summary[0].ukDate.format(dateStringFormat),
         }}
         clinicalServices={clinicalServices}
       />,
@@ -133,7 +133,7 @@ describe('Session summary table', () => {
         showChangeSessionLink={{
           siteId: 'TEST01',
           ukDate:
-            mockWeekAvailability__Summary[0].ukDate.format(dayStringFormat),
+            mockWeekAvailability__Summary[0].ukDate.format(dateStringFormat),
         }}
         clinicalServices={clinicalServices}
       />,

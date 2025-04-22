@@ -1,6 +1,6 @@
 import {
   dateTimeStringFormat,
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
 } from '@services/timeService';
 import {
@@ -603,7 +603,7 @@ const mockWeekAvailabilityEnd = parseDateStringToUkDatetime(
 
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mockWeekAvailabilityStart.format(dayStringFormat),
+    date: mockWeekAvailabilityStart.format(dateStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -622,7 +622,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mockWeekAvailabilityEnd.format(dayStringFormat),
+    date: mockWeekAvailabilityEnd.format(dateStringFormat),
     sessions: [
       {
         capacity: 2,

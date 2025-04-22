@@ -1,6 +1,6 @@
 import {
   dateTimeStringFormat,
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
 } from '@services/timeService';
 import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
@@ -21,7 +21,7 @@ const sundayThe16thOfJune2024 = parseDateStringToUkDatetime(
  */
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mondayThe10thOfJune2024.format(dayStringFormat),
+    date: mondayThe10thOfJune2024.format(dateStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -40,7 +40,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(1, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(1, 'days').format(dateStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -59,7 +59,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(2, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(2, 'days').format(dateStringFormat),
     sessions: [
       {
         capacity: 4,
@@ -71,7 +71,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(3, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(3, 'days').format(dateStringFormat),
     sessions: [
       {
         capacity: 2,
@@ -90,7 +90,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(4, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(4, 'days').format(dateStringFormat),
     sessions: [
       {
         capacity: 3,
@@ -102,11 +102,11 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(5, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(5, 'days').format(dateStringFormat),
     sessions: [],
   },
   {
-    date: mondayThe10thOfJune2024.add(6, 'days').format(dayStringFormat),
+    date: mondayThe10thOfJune2024.add(6, 'days').format(dateStringFormat),
     sessions: [],
   },
 ];

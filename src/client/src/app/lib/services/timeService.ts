@@ -6,7 +6,7 @@ import timezone from 'dayjs/plugin/timezone';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import updateLocale from 'dayjs/plugin/updateLocale';
 
-export const dayStringFormat = 'YYYY-MM-DD';
+export const dateStringFormat = 'YYYY-MM-DD';
 export const dateTimeStringFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 dayjs.extend(customParseFormat);
@@ -115,13 +115,16 @@ export const toTwoDigitFormat = (
   return stringInput.length === 1 ? `0${stringInput}` : stringInput;
 };
 
-export const parseDateToUkDatetime = (date: Date, format = dayStringFormat) => {
+export const parseDateToUkDatetime = (
+  date: Date,
+  format = dateStringFormat,
+) => {
   return dayjs.tz(date, format, ukTimezone);
 };
 
 export const parseDateStringToUkDatetime = (
   dateString: string,
-  format = dayStringFormat,
+  format = dateStringFormat,
 ) => {
   return dayjs.tz(dateString, format, ukTimezone);
 };
@@ -230,7 +233,7 @@ export const addToUkDate = (
   ukDatetime: dayjs.Dayjs,
   value: number,
   manipulateType: 'year' | 'day' | 'week' | 'hour' | 'minute',
-  format = dayStringFormat,
+  format = dateStringFormat,
 ): dayjs.Dayjs => {
   //CAN'T use dayJs.add method for this, as it DOES NOT work when the operation crosses a DST boundary.
   //(it preserves the original timezone rather than adjusting/re-evaluating)
@@ -302,11 +305,9 @@ export const extractUkSessionDatetime = (datetime: string) => {
   return parseDateStringToUkDatetime(datetime, dateTimeStringFormat);
 };
 
-export const getUkWeeksOfTheMonth = (
-  ukDateInMonth: dayjs.Dayjs,
-): dayjs.Dayjs[][] => {
-  const startOfFirstWeekInMonth = startOfUkWeek(ukDateInMonth.startOf('month'));
-  const endOfLastWeekInMonth = endOfUkWeek(ukDateInMonth.endOf('month'));
+export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {
+  const startOfFirstWeekInMonth = startOfUkWeek(ukDate.startOf('month'));
+  const endOfLastWeekInMonth = endOfUkWeek(ukDate.endOf('month'));
 
   const dates: dayjs.Dayjs[][] = [];
   let currentWeek: dayjs.Dayjs[] = [];

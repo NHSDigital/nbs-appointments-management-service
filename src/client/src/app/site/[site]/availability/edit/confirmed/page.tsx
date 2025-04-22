@@ -6,7 +6,7 @@ import {
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import {
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
 } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';

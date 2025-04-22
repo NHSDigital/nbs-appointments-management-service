@@ -4,7 +4,7 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { dayStringFormat, isDayAfterUkNow } from '@services/timeService';
+import { dateStringFormat, isDayAfterUkNow } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
@@ -24,22 +24,22 @@ export const DaySummaryCard = ({
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
 
-  const dayIsAfterUkNow = isDayAfterUkNow(ukDate.format(dayStringFormat));
+  const dayIsAfterUkNow = isDayAfterUkNow(ukDate.format(dateStringFormat));
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
       dayIsAfterUkNow &&
         canManageAvailability && {
           text: 'Add availability to this day',
-          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dayStringFormat)}`,
+          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateStringFormat)}`,
         },
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
-        href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1&tab=1`,
+        href: `daily-appointments?date=${ukDate.format(dateStringFormat)}&page=1&tab=1`,
       },
       orphanedAppointments > 0 && {
         text: 'View manual cancellations',
-        href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1&tab=2`,
+        href: `daily-appointments?date=${ukDate.format(dateStringFormat)}&page=1&tab=2`,
       },
     ].filter(p => p !== false);
 
@@ -55,15 +55,15 @@ export const DaySummaryCard = ({
   const actionLinks: ActionLink[] = [
     {
       text: 'View daily appointments',
-      href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1`,
+      href: `daily-appointments?date=${ukDate.format(dateStringFormat)}&page=1`,
     },
     cancelledAppointments > 0 && {
       text: 'View cancelled appointments',
-      href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1&tab=1`,
+      href: `daily-appointments?date=${ukDate.format(dateStringFormat)}&page=1&tab=1`,
     },
     orphanedAppointments > 0 && {
       text: 'View manual cancellations',
-      href: `daily-appointments?date=${ukDate.format(dayStringFormat)}&page=1&tab=2`,
+      href: `daily-appointments?date=${ukDate.format(dateStringFormat)}&page=1&tab=2`,
     },
   ].filter(p => p !== false);
 
@@ -76,7 +76,7 @@ export const DaySummaryCard = ({
           canManageAvailability
             ? {
                 siteId,
-                ukDate: ukDate.format(dayStringFormat),
+                ukDate: ukDate.format(dateStringFormat),
               }
             : undefined
         }
@@ -85,7 +85,7 @@ export const DaySummaryCard = ({
       {dayIsAfterUkNow && canManageAvailability && (
         <Link
           className="nhsuk-link"
-          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dayStringFormat)}`}
+          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateStringFormat)}`}
         >
           Add Session
         </Link>

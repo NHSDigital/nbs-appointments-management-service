@@ -12,7 +12,7 @@ import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import {
   dateTimeStringFormat,
-  dayStringFormat,
+  dateStringFormat,
   parseDateStringToUkDatetime,
   parseDateToUkDatetime,
 } from '@services/timeService';
@@ -52,7 +52,7 @@ const CancelAppointmentPage = ({
     }
 
     const returnDate = parseDateStringToUkDatetime(booking.from).format(
-      dayStringFormat,
+      dateStringFormat,
     );
 
     replace(

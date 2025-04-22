@@ -1,0 +1,326 @@
+parameters:
+  - name: myaPipelineBuildId
+    displayName: "The Build Id of the most recent pipeline to have been deployed to the environment the disaster recovery should be ran for."
+    type: string
+  - name: env
+    displayName: "The environment the disaster recovery should be ran for."
+    type: string
+    default: "stag"
+    values: ["stag"]
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  - group: nbs-mya-${{parameters.env}}
+  - name: env
+    value: ${{parameters.env}}
+  - name: uksResourceGroup
+    value: "nbs-mya-rg-$(env)-uks"
+  - name: ukwResourceGroup
+    value: "nbs-mya-rg-$(env)-ukw"
+  - name: serviceConnection
+    value: "nbs-mya-rg-$(env)"
+  - name: frontdoorProfileName
+    value: "nbs-mya-fd-$(env)-uks"
+  - name: frontdoorRuleSetNameUkw
+    value: "MyaOverrideRuleSetUKW"
+  - name: apiOriginGroupNameUkw
+    value: "mya-http-api-ukw"
+  - name: webOriginGroupNameUkw
+    value: "mya-web-ukw"
+  - name: frontdoorRuleSetNameUks
+    value: "MyaOverrideRuleSet"
+  - name: apiOriginGroupNameUks
+    value: "mya-http-api"
+  - name: webOriginGroupNameUks
+    value: "mya-web"
+
+stages:
+  - stage: "FailoverMyaToUkWest"
+    displayName: "Failover to the UK West region"
+    jobs:
+      - job: FailOverToUkw
+        displayName: "Create resources in UK West, shut down UK South, and failover persistence/configuration"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Stop UKS App Services"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/stop-app-services.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+
+          - task: AzureCLI@2
+            displayName: "Failover Cosmos DB to UK West"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/failover-cosmosdb.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion ukwest -readRegion uksouth"
+
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-cosmos-connection-string.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
+
+          - task: AzureCLI@2
+            displayName: "Get App Config replica connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
+
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
+
+          - task: AzureCLI@2
+            displayName: "Apply Terraform in UK West"
+            name: ApplyTerraformTask
+            inputs:
+              scriptType: pscore
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              azureSubscription: $(serviceConnection)
+              inlineScript: |
+                $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                $env:ARM_TENANT_ID=$env:tenantId
+                $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
+                terraform init
+                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+
+          - task: AzureCLI@2
+            displayName: "Apply Feature Toggles"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/import-flags-to-replica.ps1"
+              arguments: '-environment "$(env)" -sourceFile "$(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"'
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_web"
+              targetPath: "$(Pipeline.Workspace)/drop_web"
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download API artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_api"
+              targetPath: "$(Pipeline.Workspace)/drop_api"
+
+          - task: AzureWebApp@1
+            displayName: "Deploy Web App"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              appType: "webAppLinux"
+              appName: "nbs-mya-app-$(env)-ukw"
+              package: "$(Pipeline.Workspace)/drop_web/next.zip"
+              deploymentMethod: "auto"
+              startUpCommand: "node standalone/server.js"
+
+          - task: AzureFunctionApp@2
+            displayName: "Deploy HTTP function app"
+            inputs:
+              connectedServiceNameARM: $(serviceConnection)
+              appType: "functionApp"
+              appName: "nbs-mya-func-$(env)-ukw"
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+
+          - task: AzureFunctionApp@2
+            displayName: "Deploy High Load function app"
+            inputs:
+              connectedServiceNameARM: $(serviceConnection)
+              appType: "functionApp"
+              appName: "nbs-mya-hlfunc-$(env)-ukw"
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+
+          - task: AzureFunctionApp@2
+            displayName: "Deploy Service Bus function app"
+            inputs:
+              connectedServiceNameARM: $(serviceConnection)
+              appType: "functionApp"
+              appName: "nbs-mya-sbfunc-$(env)-ukw"
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+
+          - task: AzureFunctionApp@2
+            displayName: "Deploy Timer Functions function app"
+            inputs:
+              connectedServiceNameARM: $(serviceConnection)
+              appType: "functionApp"
+              appName: "nbs-mya-timerfunc-$(env)-ukw"
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+
+          - task: AzureCLI@2
+            displayName: "Create Frontdoor UK West origin groups"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-origin-groups.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
+          - task: AzureCLI@2
+            displayName: "Create Frontdoor origins for routing traffic to UK West resources"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-origins.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -profileName $(frontdoorProfileName)"
+
+          - task: AzureCLI@2
+            displayName: "Create Frontdoor route override rule for UK West"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/create-fd-rule.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
+          - task: AzureCLI@2
+            displayName: "Update Frontdoor routes to use UK West origin groups"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUkw) -apiOriginGroupName $(apiOriginGroupNameUkw) -webOriginGroupName $(webOriginGroupNameUkw)"
+
+      - job: ConfirmFailBackToUkSouth
+        dependsOn: FailOverToUkw
+        displayName: "Confirm failback to UK South"
+        pool: server
+        steps:
+          - task: ManualValidation@1
+            displayName: "Confirm failback to UK South"
+            inputs:
+              notifyUsers: ""
+              instructions: "Approve this step once you are ready to failback to UK South. This will destroy the UK West resources and restart the UK South resources."
+
+  - stage: "FailoverMyaToUkSouth"
+    displayName: "Failback to the UK South region"
+    jobs:
+      - job: FailOverToUksSimulation
+        displayName: "Restart UK South resources, destroy UK West resources, and failback persistence/configuration"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Start UK South App Services"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/start-app-services.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+
+          - task: AzureCLI@2
+            displayName: "Failback Cosmos DB to UK South"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/failover-cosmosdb.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -writeRegion uksouth -readRegion ukwest"
+
+          - task: AzureCLI@2
+            displayName: "Update Frontdoor routes to use UK South origin groups"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
+
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-cosmos-connection-string.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) "
+
+          - task: AzureCLI@2
+            displayName: "Get App Config replica connection string"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
+
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
+
+          - task: AzureCLI@2
+            displayName: "Destroy UK West resources"
+            name: ApplyTerraformTask
+            inputs:
+              scriptType: pscore
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              azureSubscription: $(serviceConnection)
+              inlineScript: |
+                $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                $env:ARM_TENANT_ID=$env:tenantId
+                $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
+                terraform init
+                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+
+          - task: AzureCLI@2
+            displayName: "Delete Frontdoor route override rule for UK West"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/delete-fd-rule.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"
+
+          - task: AzureCLI@2
+            displayName: "Delete Frontdoor origin groups for UK West"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/delete-fd-origin-groups.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName)"

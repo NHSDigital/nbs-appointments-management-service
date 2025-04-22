@@ -1,6 +1,7 @@
 resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
+  count                      = var.create_cosmos_db ? 1 : 0
   name                       = "${var.application}-cdb-${var.environment}-${var.loc}"
-  location                   = data.azurerm_resource_group.nbs_mya_resource_group.location
+  location                   = var.location
   resource_group_name        = data.azurerm_resource_group.nbs_mya_resource_group.name
   offer_type                 = "Standard"
   kind                       = "GlobalDocumentDB"
@@ -30,16 +31,18 @@ resource "azurerm_cosmosdb_account" "nbs_mya_cosmos_db" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "nbs_appts_database" {
+  count               = var.create_cosmos_db ? 1 : 0
   name                = "appts"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
+  account_name        = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
+  count                  = var.create_cosmos_db ? 1 : 0
   name                   = "booking_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name
   partition_key_paths    = ["/site"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
@@ -100,10 +103,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
+  count                  = var.create_cosmos_db ? 1 : 0
   name                   = "core_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name
   partition_key_paths    = ["/docType"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
@@ -116,10 +120,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_core_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
+  count                  = var.create_cosmos_db ? 1 : 0
   name                   = "index_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name
   partition_key_paths    = ["/docType"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 
@@ -132,10 +137,11 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_index_container" {
 }
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_container" {
+  count                  = var.create_cosmos_db ? 1 : 0
   name                   = "audit_data"
   resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
-  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db.name
-  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database.name
+  account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
+  database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name
   partition_key_paths    = ["/user"]
   analytical_storage_ttl = var.cosmos_synapse_enabled ? -1 : 0
 

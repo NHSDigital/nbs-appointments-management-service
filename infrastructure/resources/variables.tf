@@ -14,12 +14,10 @@ variable "environment" {
 
 variable "location" {
   type    = string
-  default = "uksouth"
 }
 
 variable "loc" {
   type    = string
-  default = "uks"
 }
 
 variable "nhs_host_url" {
@@ -246,6 +244,31 @@ variable "create_frontdoor" {
   type = bool
 }
 
+variable "create_cosmos_db" {
+  type = bool
+}
+
+variable "create_app_config" {
+  type = bool
+}
+
 variable "build_number" {
   type = string
+}
+
+variable "cosmos_endpoint" {
+  type = string
+  default = ""
+}
+
+variable "cosmos_token" {
+  type      = string
+  default = ""
+  sensitive = true
+}
+
+variable "app_config_connection" {
+  type = string
+  default = ""
+  sensitive = true
 }

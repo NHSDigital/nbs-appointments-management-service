@@ -27,6 +27,8 @@ provider "azurerm" {
 
 module "mya_application_dev" {
   environment                                    = "dev"
+  location                                       = "uksouth"
+  loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
@@ -59,6 +61,8 @@ module "mya_application_dev" {
   create_app_slot                                = false
   create_autoscale_settings                      = false
   create_frontdoor                               = false
+  create_cosmos_db                               = true
+  create_app_config                              = true
   web_app_service_sku                            = "B1"
   web_app_service_plan_default_worker_count      = 1
   app_service_plan_zone_redundancy_enabled       = false

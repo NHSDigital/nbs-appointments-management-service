@@ -35,7 +35,7 @@ namespace Nhs.Appointments.Api.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "clinical-services")]
             HttpRequest req)
         {
-            return !await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport)
+            return !await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices)
                 ? ProblemResponse(HttpStatusCode.NotImplemented, null)
                 : await base.RunAsync(req);
         }

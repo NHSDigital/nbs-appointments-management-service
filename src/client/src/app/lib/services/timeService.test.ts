@@ -1,6 +1,6 @@
 import {
   toTimeFormat,
-  isDayAfterUkNow,
+  isFutureCalendarDateUk,
   isValidDate,
   parseDateComponentsToUkDatetime,
   parseToTimeComponents,
@@ -15,6 +15,7 @@ import {
   dateTimeFormat,
   isSameUkDay,
   ukNow,
+  DayJsType,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 
@@ -377,13 +378,13 @@ describe('Time Service', () => {
   });
 
   it.each([
-    [addToUkDate(ukNow(), 1, 'day').format(dateFormat), true],
-    [addToUkDate(ukNow(), -1, 'day').format(dateFormat), false],
-    [addToUkDate(ukNow(), 0, 'day').format(dateFormat), false],
+    [addToUkDate(ukNow(), 1, 'day'), true],
+    [addToUkDate(ukNow(), -1, 'day'), false],
+    [addToUkDate(ukNow(), 0, 'day'), false],
   ])(
     'check if date is in the future',
-    (dateToCheck: string, expectedOutcome: boolean) => {
-      const result = isDayAfterUkNow(dateToCheck);
+    (dateToCheck: DayJsType, expectedOutcome: boolean) => {
+      const result = isFutureCalendarDateUk(dateToCheck);
 
       expect(result).toBe(expectedOutcome);
     },

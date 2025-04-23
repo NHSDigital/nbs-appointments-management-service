@@ -4,7 +4,7 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { dateFormat, isDayAfterUkNow } from '@services/timeService';
+import { dateFormat, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
@@ -24,11 +24,11 @@ export const DaySummaryCard = ({
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
 
-  const dayIsAfterUkNow = isDayAfterUkNow(ukDate.format(dateFormat));
+  const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
-      dayIsAfterUkNow &&
+      isFutureCalendarDate &&
         canManageAvailability && {
           text: 'Add availability to this day',
           href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`,
@@ -82,7 +82,7 @@ export const DaySummaryCard = ({
         }
       />
       <br />
-      {dayIsAfterUkNow && canManageAvailability && (
+      {isFutureCalendarDate && canManageAvailability && (
         <Link
           className="nhsuk-link"
           href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`}

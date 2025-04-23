@@ -15,10 +15,9 @@ import { InjectedWizardProps } from '@components/wizard';
 import {
   ukNow,
   parseDateComponentsToUkDatetime,
-  isDayAfterUkNow,
-  dateFormat,
-  isDayWithinUkYear,
-  isDayBeforeOrEqual,
+  isFutureCalendarDateUk,
+  isAfterCalendarDateUk,
+  isWithinNextCalendarYearUk,
   addToUkDate,
 } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
@@ -116,19 +115,15 @@ const StartAndEndDateStep = ({
                 return `Session ${sessionDateDescriptor} must be a valid date`;
               }
 
-              const dayAfterUkNow = isDayAfterUkNow(
-                ukStartDate.format(dateFormat),
-              );
+              const isFutureCalendarDate = isFutureCalendarDateUk(ukStartDate);
 
-              if (!dayAfterUkNow) {
+              if (!isFutureCalendarDate) {
                 return `Session ${sessionDateDescriptor} must be in the future`;
               }
 
-              const dayWithinUkYear = isDayWithinUkYear(
-                ukStartDate.format(dateFormat),
-              );
+              const isWithinNextYear = isWithinNextCalendarYearUk(ukStartDate);
 
-              if (!dayWithinUkYear) {
+              if (!isWithinNextYear) {
                 return `Session ${sessionDateDescriptor} must be within the next year`;
               }
             },
@@ -220,20 +215,15 @@ const StartAndEndDateStep = ({
                 return 'Session end date must be a valid date';
               }
 
-              const startDateIsBeforeOrEqualEndDate = isDayBeforeOrEqual(
-                startDate.format(dateFormat),
-                endDate.format(dateFormat),
-              );
+              const isStartAfterEnd = isAfterCalendarDateUk(startDate, endDate);
 
-              if (!startDateIsBeforeOrEqualEndDate) {
+              if (isStartAfterEnd) {
                 return 'Session end date must be after the start date';
               }
 
-              const dayWithinUkYear = isDayWithinUkYear(
-                endDate.format(dateFormat),
-              );
+              const isWithinNextYear = isWithinNextCalendarYearUk(endDate);
 
-              if (!dayWithinUkYear) {
+              if (!isWithinNextYear) {
                 return 'Session end date must be within the next year';
               }
             },

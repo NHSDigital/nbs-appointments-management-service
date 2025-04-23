@@ -9,8 +9,8 @@ import {
   DayJsType,
   ukNow,
   parseToUkDatetime,
-  isDayAfterUkNow,
-  isDayWithinUkYear,
+  isFutureCalendarDateUk,
+  isWithinNextCalendarYearUk,
 } from '@services/timeService';
 
 jest.mock('@services/timeService', () => {
@@ -18,13 +18,14 @@ jest.mock('@services/timeService', () => {
   return {
     ...originalModule,
     ukNow: jest.fn(),
-    isDayAfterUkNow: jest.fn(),
-    isDayWithinUkYear: jest.fn(),
+    isFutureCalendarDateUk: jest.fn(),
+    isWithinNextCalendarYearUk: jest.fn(),
   };
 });
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
-const mockIsDayAfterUkNow = isDayAfterUkNow as jest.Mock<boolean>;
-const mockIsDayWithinUkYear = isDayWithinUkYear as jest.Mock<boolean>;
+const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
+const mockIsWithinNextCalendarYearUk =
+  isWithinNextCalendarYearUk as jest.Mock<boolean>;
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -88,14 +89,8 @@ describe('Start and End Date Step', () => {
   });
 
   it('permits data entry', async () => {
-    mockIsDayAfterUkNow.mockImplementation(arg => {
-      if (arg === '2000-02-01' || arg === '2000-08-07') {
-        return true;
-      }
-      return false;
-    });
-
-    mockIsDayWithinUkYear.mockReturnValue(true);
+    mockIsFutureCalendarDateUk.mockReturnValue(true);
+    mockIsWithinNextCalendarYearUk.mockReturnValue(true);
 
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
@@ -237,9 +232,7 @@ describe('Start and End Date Step', () => {
   );
 
   it('does not permit start date to be set more than 1 year in the future', async () => {
-    mockIsDayAfterUkNow.mockImplementation(arg =>
-      arg === '2001-01-02' ? true : false,
-    );
+    mockIsFutureCalendarDateUk.mockReturnValue(true);
 
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>
@@ -275,9 +268,7 @@ describe('Start and End Date Step', () => {
   });
 
   it('does not permit end date to be set more than 1 year in the future', async () => {
-    mockIsDayAfterUkNow.mockImplementation(arg =>
-      arg === '2020-06-06' ? true : false,
-    );
+    mockIsFutureCalendarDateUk.mockReturnValue(true);
 
     const { user } = render(
       <MockForm<CreateAvailabilityFormValues>

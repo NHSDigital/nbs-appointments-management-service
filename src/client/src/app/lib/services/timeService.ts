@@ -126,6 +126,87 @@ export const parseDateComponentsToUkDatetime = ({
 
 //#endregion
 
+//#region Operator Methods
+
+// All datetime strict equality checks need converting to UTC time first, then comparing.
+// dayJs seems to have an issue with equality checks (especially if the node server is in a different timezone) for datetime objects across timezones, even if they ARE the same
+// see: https://github.com/iamkun/dayjs/issues/1189
+export const isBeforeOrEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isSameOrBefore(dayjs.utc(second));
+
+export const isBefore = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isBefore(dayjs.utc(second));
+
+export const isAfter = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
+  dayjs.utc(first).isAfter(dayjs.utc(second));
+
+export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
+  return dayjs.utc(first).isSame(dayjs.utc(second));
+};
+
+export const isAfterCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isAfter(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
+export const isBeforeOrEqualCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isBeforeOrEqual(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
+export const isFutureCalendarDateUk = (ukDatetime: dayjs.Dayjs) => {
+  return isAfterCalendarDateUk(ukDatetime, ukNow());
+};
+
+export const isWithinNextCalendarYearUk = (ukDatetime: dayjs.Dayjs) => {
+  return isBeforeOrEqualCalendarDateUk(
+    ukDatetime,
+    addToUkDate(ukNow(), 1, 'year'),
+  );
+};
+
+export const compareTimes = (
+  first: TimeComponents,
+  second: TimeComponents,
+): 'earlier' | 'equal' | 'later' => {
+  const minutesInFirstTime = Number(first.hour) * 60 + Number(first.minute);
+  const minutesInSecondTime = Number(second.hour) * 60 + Number(second.minute);
+
+  if (minutesInFirstTime < minutesInSecondTime) {
+    return 'earlier';
+  }
+  if (minutesInFirstTime > minutesInSecondTime) {
+    return 'later';
+  }
+  return 'equal';
+};
+
+//#endregion
+
+//when checking whether two datetimes occur on the same UK date
+export const isSameUkDay = (
+  first: dayjs.Dayjs,
+  second: dayjs.Dayjs,
+): boolean => {
+  //dayJs 'isSame' DOES NOT WORK HERE!! this is due to a timezone asymmetry issue (even when both converted to same tz)
+  //i.e a.isSame(b, 'day') !== b.isSame(a, 'day') in some cases!
+
+  //they must first each be converted to Uk timezone, then day format compared.
+  const firstUk = dayjs.tz(first, ukTimezone);
+  const secondUk = dayjs.tz(second, ukTimezone);
+  return firstUk.format('YYYY-MM-DD') === secondUk.format('YYYY-MM-DD');
+};
+
 export const isValidDate = (
   day: string | number,
   month: string | number,
@@ -151,6 +232,31 @@ export const isValidDate = (
   return potentialDate.isValid();
 };
 
+export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {
+  const startOfFirstWeekInMonth = startOfUkWeek(ukDate.startOf('month'));
+  const endOfLastWeekInMonth = endOfUkWeek(ukDate.endOf('month'));
+
+  const dates: dayjs.Dayjs[][] = [];
+  let currentWeek: dayjs.Dayjs[] = [];
+  let currentDate = startOfFirstWeekInMonth;
+
+  while (isBeforeOrEqual(currentDate, endOfLastWeekInMonth)) {
+    currentWeek.push(currentDate);
+    if (currentWeek.length === 7) {
+      dates.push(currentWeek);
+      currentWeek = [];
+    }
+
+    currentDate = addToUkDate(currentDate, 1, 'day');
+  }
+
+  if (currentWeek.length > 0) {
+    dates.push(currentWeek);
+  }
+
+  return dates;
+};
+
 export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
   const week = [];
 
@@ -160,74 +266,6 @@ export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
   }
 
   return week;
-};
-
-export const isDayBeforeOrEqual = (first: string, second: string) => {
-  const ukFirstStartOfDay = parseToUkDatetime(first).startOf('day');
-  const ukSecondStartOfDay = parseToUkDatetime(second).startOf('day');
-  return isBeforeOrEqual(ukFirstStartOfDay, ukSecondStartOfDay);
-};
-
-export const isDayAfterUkNow = (date: string) => {
-  const ukDate = parseToUkDatetime(date);
-  const ukNowStartOfDay = ukNow().startOf('day');
-  return isAfter(ukDate, ukNowStartOfDay);
-};
-
-export const isDayWithinUkYear = (date: string) => {
-  const ukDate = parseToUkDatetime(date);
-  const ukNowStartOfDay = ukNow().startOf('day');
-  const ukYearFromToday = addToUkDate(ukNowStartOfDay, 1, 'year');
-  return isBeforeOrEqual(ukDate, ukYearFromToday);
-};
-
-//#region Equality Checks
-// All datetime equality checks need converting to UTC time first, then comparing.
-// dayJs seems to have an issue with equality checks (especially if node server is in a different timezone) for datetime objects in across timezones, even if they ARE the same
-// see: https://github.com/iamkun/dayjs/issues/1189
-
-export const isBeforeOrEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
-  dayjs.utc(first).isSameOrBefore(dayjs.utc(second));
-
-export const isBefore = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
-  dayjs.utc(first).isBefore(dayjs.utc(second));
-
-export const isAfter = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
-  dayjs.utc(first).isAfter(dayjs.utc(second));
-
-export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
-  return dayjs.utc(first).isSame(dayjs.utc(second));
-};
-//#endregion
-
-//when checking whether two datetimes occur on the same UK date
-export const isSameUkDay = (
-  first: dayjs.Dayjs,
-  second: dayjs.Dayjs,
-): boolean => {
-  //dayJs 'isSame' DOES NOT WORK HERE!! this is due to a timezone asymmetry issue (even when both converted to same tz)
-  //i.e a.isSame(b, 'day') !== b.isSame(a, 'day') in some cases!
-
-  //they must first each be converted to Uk timezone, then day format compared.
-  const firstUk = dayjs.tz(first, ukTimezone);
-  const secondUk = dayjs.tz(second, ukTimezone);
-  return firstUk.format('YYYY-MM-DD') === secondUk.format('YYYY-MM-DD');
-};
-
-export const compareTimes = (
-  first: TimeComponents,
-  second: TimeComponents,
-): 'earlier' | 'equal' | 'later' => {
-  const minutesInFirstTime = Number(first.hour) * 60 + Number(first.minute);
-  const minutesInSecondTime = Number(second.hour) * 60 + Number(second.minute);
-
-  if (minutesInFirstTime < minutesInSecondTime) {
-    return 'earlier';
-  }
-  if (minutesInFirstTime > minutesInSecondTime) {
-    return 'later';
-  }
-  return 'equal';
 };
 
 //create new date from an operation on a provided UK date.
@@ -301,29 +339,4 @@ export const buildUkSessionDatetime = (
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
   const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeFormat);
   return addToUkDate(newHour, minutes, 'minute', dateTimeFormat);
-};
-
-export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {
-  const startOfFirstWeekInMonth = startOfUkWeek(ukDate.startOf('month'));
-  const endOfLastWeekInMonth = endOfUkWeek(ukDate.endOf('month'));
-
-  const dates: dayjs.Dayjs[][] = [];
-  let currentWeek: dayjs.Dayjs[] = [];
-  let currentDate = startOfFirstWeekInMonth;
-
-  while (isBeforeOrEqual(currentDate, endOfLastWeekInMonth)) {
-    currentWeek.push(currentDate);
-    if (currentWeek.length === 7) {
-      dates.push(currentWeek);
-      currentWeek = [];
-    }
-
-    currentDate = addToUkDate(currentDate, 1, 'day');
-  }
-
-  if (currentWeek.length > 0) {
-    dates.push(currentWeek);
-  }
-
-  return dates;
 };

@@ -38,7 +38,7 @@ describe('Availability Calculator Service', () => {
     fetchBookingsMock.mockReturnValue(Promise.resolve(mockBookings));
   });
 
-  it.skip('summarises a week of availability with bookings', async () => {
+  it('summarises a week of availability with bookings', async () => {
     const weekSummary = await summariseWeek(
       mondayThe10thOfJune2024,
       sundayThe16thOfJune2024,

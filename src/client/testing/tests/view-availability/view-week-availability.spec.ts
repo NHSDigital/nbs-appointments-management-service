@@ -709,7 +709,7 @@ const weekTestCases: WeekViewTestCase[] = [
               await changeButton.click();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+                `**/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
               );
 
               expect(changeAvailabilityPage.changeHeader).toHaveText(
@@ -790,7 +790,7 @@ const weekTestCases: WeekViewTestCase[] = [
               await changeButton.click();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+                `**/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
               );
 
               expect(changeAvailabilityPage.changeHeader).toHaveText(
@@ -803,7 +803,7 @@ const weekTestCases: WeekViewTestCase[] = [
               await changeAvailabilityPage.saveChanges();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/availability/edit?session**`,
+                `**/site/${site.id}/availability/edit?session**`,
               );
 
               await expect(addSessionPage.addSessionHeader).toHaveText(
@@ -850,7 +850,7 @@ const weekTestCases: WeekViewTestCase[] = [
               await changeButton.click();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
+                `**/site/${site.id}/view-availability/week/edit-session?date=${daySession.day}&session**`,
               );
 
               expect(changeAvailabilityPage.changeHeader).toHaveText(
@@ -861,7 +861,7 @@ const weekTestCases: WeekViewTestCase[] = [
               await changeAvailabilityPage.saveChanges();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/availability/cancel?session**`,
+                `**/site/${site.id}/availability/cancel?session**`,
               );
 
               await expect(cancelSessionPage.cancelSessionHeader).toHaveText(
@@ -941,10 +941,10 @@ const weekTestCases: WeekViewTestCase[] = [
               await viewDailyAppointmentsButton.click();
 
               await page.waitForURL(
-                `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
+                `**/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
               );
 
-              dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
+              await dailyAppointmentDetailsPage.verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(
                 daySession.viewDailyAppointments,
               );
 
@@ -974,7 +974,7 @@ const weekTestCases: WeekViewTestCase[] = [
                 await cancelLink.click();
 
                 await page.waitForURL(
-                  `manage-your-appointments/site/${site.id}/appointment/**/cancel`,
+                  `**/site/${site.id}/appointment/**/cancel`,
                 );
 
                 await cancelAppointmentDetailsPage.verifyAppointmentDetailsDisplayed(
@@ -985,7 +985,7 @@ const weekTestCases: WeekViewTestCase[] = [
                 await cancelAppointmentDetailsPage.backButton.click();
 
                 await page.waitForURL(
-                  `manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
+                  `**/site/${site.id}/view-availability/daily-appointments?date=${daySession.day}&page=1`,
                 );
               }
             });

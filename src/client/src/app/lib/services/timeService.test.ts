@@ -235,7 +235,7 @@ describe('Time Service', () => {
     expect(isoString1).toBe(isoString2);
   });
 
-  it('addToUkDatetime crossing DST - Clocks Back 1', async () => {
+  it('addToUkDatetime crossing DST - Clocks Forward 1', async () => {
     const dateTime = parseToUkDatetime('2026-03-29');
     expect(dateTime.toISOString()).toEqual('2026-03-29T00:00:00.000Z');
 
@@ -243,7 +243,7 @@ describe('Time Service', () => {
     expect(result1.toISOString()).toEqual('2026-03-29T23:00:00.000Z');
   });
 
-  it('addToUkDatetime crossing DST - Clocks Back 2', async () => {
+  it('addToUkDatetime crossing DST - Clocks Forward 2', async () => {
     const dateTime = parseToUkDatetime('2026-03-30');
     expect(dateTime.toISOString()).toEqual('2026-03-29T23:00:00.000Z');
 
@@ -251,7 +251,7 @@ describe('Time Service', () => {
     expect(result1.toISOString()).toEqual('2026-03-29T00:00:00.000Z');
   });
 
-  it('addToUkDatetime crossing DST - Clocks Forward 1', async () => {
+  it('addToUkDatetime crossing DST - Clocks Back 1', async () => {
     const dateTime = parseToUkDatetime('2025-10-26');
     expect(dateTime.toISOString()).toEqual('2025-10-25T23:00:00.000Z');
 
@@ -259,7 +259,7 @@ describe('Time Service', () => {
     expect(result1.toISOString()).toEqual('2025-10-27T00:00:00.000Z');
   });
 
-  it('addToUkDatetime crossing DST - Clocks Forward 2', async () => {
+  it('addToUkDatetime crossing DST - Clocks Back 2', async () => {
     const dateTime = parseToUkDatetime('2025-10-27');
     expect(dateTime.toISOString()).toEqual('2025-10-27T00:00:00.000Z');
 

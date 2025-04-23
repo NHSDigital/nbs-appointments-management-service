@@ -204,7 +204,7 @@ export const isOnTheSameUkDay = (
   //they must first each be converted to Uk timezone, then day format compared.
   const firstUk = dayjs.tz(first, ukTimezone);
   const secondUk = dayjs.tz(second, ukTimezone);
-  return firstUk.format('YYYY-MM-DD') === secondUk.format('YYYY-MM-DD');
+  return firstUk.format(dateFormat) === secondUk.format(dateFormat);
 };
 
 export const isValidDate = (

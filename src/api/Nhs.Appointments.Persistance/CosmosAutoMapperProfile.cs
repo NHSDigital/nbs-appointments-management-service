@@ -34,5 +34,9 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
 
         CreateMap<DailyAvailabilityDocument, DailyAvailability>();
+
+        CreateMap<ClinicalServiceTypeDocument, ClinicalServiceType>()
+            .ForMember(x => x.Label, opt => opt.MapFrom(x => x.Label))
+            .ForMember(x => x.Value, opt => opt.MapFrom(x => x.Id));
     }
 }

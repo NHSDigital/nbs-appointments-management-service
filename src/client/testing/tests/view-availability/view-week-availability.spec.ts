@@ -659,6 +659,12 @@ const weekTestCases: WeekViewTestCase[] = [
               await page.goto(
                 `manage-your-appointments/site/${site.id}/view-availability/week?date=${week.week}`,
               );
+              await page.waitForURL(
+                `**/site/${site.id}/view-availability/week?date=${week.week}`,
+              );
+              await page.waitForSelector('.nhsuk-loader', {
+                state: 'detached',
+              });
             });
 
             test(`View week page data is arranged in the day cards as expected`, async () => {
@@ -680,6 +686,12 @@ const weekTestCases: WeekViewTestCase[] = [
               await page.goto(
                 `manage-your-appointments/site/${site.id}/view-availability/week?date=${daySession.week}`,
               );
+              await page.waitForURL(
+                `**/site/${site.id}/view-availability/week?date=${daySession.week}`,
+              );
+              await page.waitForSelector('.nhsuk-loader', {
+                state: 'detached',
+              });
             });
 
             test('Change session has the correct information on the edit session decision page', async ({

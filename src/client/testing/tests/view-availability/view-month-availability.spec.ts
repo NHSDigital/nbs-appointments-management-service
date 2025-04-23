@@ -35,6 +35,12 @@ let site: Site;
           await page.goto(
             `manage-your-appointments/site/${site.id}/view-availability?date=2025-10-20`,
           );
+          await page.waitForURL(
+            `**/site/${site.id}/view-availability?date=2025-10-20`,
+          );
+          await page.waitForSelector('.nhsuk-loader', {
+            state: 'detached',
+          });
 
           await viewMonthAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
             'September 2025',
@@ -92,6 +98,12 @@ let site: Site;
           await page.goto(
             `manage-your-appointments/site/${site.id}/view-availability?date=2026-03-01`,
           );
+          await page.waitForURL(
+            `**/site/${site.id}/view-availability?date=2026-03-01`,
+          );
+          await page.waitForSelector('.nhsuk-loader', {
+            state: 'detached',
+          });
 
           await viewMonthAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
             'February 2026',

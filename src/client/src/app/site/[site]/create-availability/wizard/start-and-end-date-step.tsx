@@ -18,7 +18,7 @@ import {
   isFutureCalendarDateUk,
   isAfterCalendarDateUk,
   isWithinNextCalendarYearUk,
-  addToUkDate,
+  addToUkDatetime,
 } from '@services/timeService';
 import NhsHeading from '@components/nhs-heading';
 
@@ -182,7 +182,7 @@ const StartAndEndDateStep = ({
                       field.onChange(
                         handlePositiveBoundedNumberInput(
                           e,
-                          addToUkDate(ukNow(), 1, 'year').year(),
+                          addToUkDatetime(ukNow(), 1, 'year').year(),
                         ),
                       )
                     }
@@ -289,7 +289,7 @@ const StartAndEndDateStep = ({
                           field.onChange(
                             handlePositiveBoundedNumberInput(
                               e,
-                              addToUkDate(ukNow(), 1, 'year').year(),
+                              addToUkDatetime(ukNow(), 1, 'year').year(),
                             ),
                           )
                         }

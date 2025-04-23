@@ -15,7 +15,7 @@ import {
 } from '@services/appointmentsService';
 import { Booking, DailyAvailability } from '@types';
 import {
-  buildUkSessionDatetime,
+  addHoursAndMinutesToUkDatetime,
   dateTimeFormat,
   isAfter,
   isBefore,
@@ -52,8 +52,8 @@ describe('Availability Calculator Service', () => {
     const ukDate = parseToUkDatetime('2026-03-28');
 
     //6 hours long
-    const from = buildUkSessionDatetime(ukDate, 8, 0);
-    const to = buildUkSessionDatetime(ukDate, 14, 0);
+    const from = addHoursAndMinutesToUkDatetime(ukDate, 8, 0);
+    const to = addHoursAndMinutesToUkDatetime(ukDate, 14, 0);
 
     //4 slots per hour
     const result = divideSessionIntoSlots(0, from, to, {
@@ -80,8 +80,8 @@ describe('Availability Calculator Service', () => {
     const ukDate = parseToUkDatetime('2026-03-29');
 
     //6 hours long
-    const from = buildUkSessionDatetime(ukDate, 8, 0);
-    const to = buildUkSessionDatetime(ukDate, 14, 0);
+    const from = addHoursAndMinutesToUkDatetime(ukDate, 8, 0);
+    const to = addHoursAndMinutesToUkDatetime(ukDate, 14, 0);
 
     //4 slots per hour
     const result = divideSessionIntoSlots(0, from, to, {
@@ -105,11 +105,10 @@ describe('Availability Calculator Service', () => {
 
     //https://github.com/iamkun/dayjs/issues/1189
 
-    //the isSame check fails when test ran in a different TZ,
-    //but passes when ran in UK/UTC timezone
-    //proving that daysJs isSame check doesnt produce the same results when server in different TZ
+    //prove that when running these tests in a different TZ, the isSame check fails and therefore can't be used
+    //i.e to see, run: TZ="Pacific/Kiritimati" npm test
     expect(lastDateTime.isSame(expectedLastDateTime)).toBe(true);
-    //proves we NEED an isEqual check that uses utc comparison...
+    //proves we NEED a new isEqual check that uses utc comparison...
     expect(isEqual(lastDateTime, expectedLastDateTime)).toBe(true);
 
     expect(isBeforeOrEqual(expectedLastDateTime, lastDateTime)).toBe(true);
@@ -122,8 +121,8 @@ describe('Availability Calculator Service', () => {
     const ukDate = parseToUkDatetime('2026-03-30');
 
     //6 hours long
-    const from = buildUkSessionDatetime(ukDate, 8, 0);
-    const to = buildUkSessionDatetime(ukDate, 14, 0);
+    const from = addHoursAndMinutesToUkDatetime(ukDate, 8, 0);
+    const to = addHoursAndMinutesToUkDatetime(ukDate, 14, 0);
 
     //4 slots per hour
     const result = divideSessionIntoSlots(0, from, to, {

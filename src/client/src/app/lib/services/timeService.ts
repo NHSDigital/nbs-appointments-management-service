@@ -171,7 +171,7 @@ export const isFutureCalendarDateUk = (ukDatetime: dayjs.Dayjs) => {
 export const isWithinNextCalendarYearUk = (ukDatetime: dayjs.Dayjs) => {
   return isBeforeOrEqualCalendarDateUk(
     ukDatetime,
-    addToUkDate(ukNow(), 1, 'year'),
+    addToUkDatetime(ukNow(), 1, 'year'),
   );
 };
 
@@ -193,8 +193,8 @@ export const compareTimes = (
 
 //#endregion
 
-//when checking whether two datetimes occur on the same UK date
-export const isSameUkDay = (
+//when checking whether two datetimes occur on the same UK day
+export const isOnTheSameUkDay = (
   first: dayjs.Dayjs,
   second: dayjs.Dayjs,
 ): boolean => {
@@ -247,7 +247,7 @@ export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {
       currentWeek = [];
     }
 
-    currentDate = addToUkDate(currentDate, 1, 'day');
+    currentDate = addToUkDatetime(currentDate, 1, 'day');
   }
 
   if (currentWeek.length > 0) {
@@ -262,7 +262,7 @@ export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
 
   const weekStart = startOfUkWeek(dateInWeek);
   for (let i = 0; i < 7; i++) {
-    week.push(addToUkDate(weekStart, i, 'day'));
+    week.push(addToUkDatetime(weekStart, i, 'day'));
   }
 
   return week;
@@ -270,14 +270,17 @@ export const getWeek = (dateInWeek: dayjs.Dayjs): dayjs.Dayjs[] => {
 
 //create new date from an operation on a provided UK date.
 //new datetime should have the correct timezone and offset.
-export const addToUkDate = (
+export const addToUkDatetime = (
   ukDatetime: dayjs.Dayjs,
   value: number,
   manipulateType: 'year' | 'day' | 'week' | 'hour' | 'minute',
   format = dateFormat,
 ): dayjs.Dayjs => {
-  //CAN'T use dayJs.add method for this, as it DOES NOT work when the operation crosses a DST boundary.
+  //we CAN'T just use dayJs.add method for this alone, as it DOES NOT work when the operation crosses a DST boundary.
   //(it preserves the original timezone rather than adjusting/re-evaluating)
+
+  //the below code DOES NOT pass jest tests when ran in TZ="Pacific/Kiritimati"
+  //const shifted = ukDatetime.add(value, manipulateType);
 
   let shifted: dayjs.Dayjs = dayjs();
 
@@ -330,13 +333,13 @@ export const endOfUkWeek = (ukDate: string | dayjs.Dayjs): dayjs.Dayjs => {
 };
 
 //build a dayjs with the correct timezone info for the provided day and session start hours and minutes
-export const buildUkSessionDatetime = (
-  ukDay: dayjs.Dayjs,
+export const addHoursAndMinutesToUkDatetime = (
+  ukDatetime: dayjs.Dayjs,
   hours: number,
   minutes: number,
 ): dayjs.Dayjs => {
   //have to stringify and parse to ensure the new created datetime has the UK timezone info correct
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
-  const newHour = addToUkDate(ukDay, hours, 'hour', dateTimeFormat);
-  return addToUkDate(newHour, minutes, 'minute', dateTimeFormat);
+  const newHour = addToUkDatetime(ukDatetime, hours, 'hour', dateTimeFormat);
+  return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
 };

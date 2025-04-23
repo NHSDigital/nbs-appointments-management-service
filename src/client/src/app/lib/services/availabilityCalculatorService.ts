@@ -1,6 +1,6 @@
 import {
-  addToUkDate,
-  buildUkSessionDatetime,
+  addToUkDatetime,
+  addHoursAndMinutesToUkDatetime,
   dateTimeFormat,
   DayJsType,
   dateFormat,
@@ -8,7 +8,7 @@ import {
   isBefore,
   isBeforeOrEqual,
   isEqual,
-  isSameUkDay,
+  isOnTheSameUkDay,
   parseToUkDatetime,
   parseToTimeComponents,
 } from '@services/timeService';
@@ -47,19 +47,19 @@ export const summariseWeek = async (
 
   const ukWeek = getWeek(ukWeekStart);
 
-  const daySummaries: DaySummary[] = ukWeek.map(ukDay => {
+  const daySummaries: DaySummary[] = ukWeek.map(ukDate => {
     const availability = dailyAvailability.find(a =>
-      isEqual(parseToUkDatetime(a.date), ukDay),
+      isEqual(parseToUkDatetime(a.date), ukDate),
     );
 
     const bookings = dailyBookings.filter(booking => {
       //need to parse booking datetime back to UK date
       const ukBookingDatetime = parseToUkDatetime(booking.from, dateTimeFormat);
-      const result = isSameUkDay(ukBookingDatetime, ukDay);
+      const result = isOnTheSameUkDay(ukBookingDatetime, ukDate);
       return result;
     });
 
-    return summariseDay(ukDay, bookings, availability);
+    return summariseDay(ukDate, bookings, availability);
   });
 
   const weekSummary = daySummaries.reduce(
@@ -216,7 +216,7 @@ export const divideSessionIntoSlots = (
   const slots: AvailabilitySlot[] = [];
 
   let currentSlot = ukStartDatetime.clone();
-  const bookEnd = addToUkDate(
+  const bookEnd = addToUkDatetime(
     ukEndDatetime,
     session.slotLength * -1,
     'minute',
@@ -231,7 +231,7 @@ export const divideSessionIntoSlots = (
       capacity: session.capacity,
     });
 
-    currentSlot = addToUkDate(
+    currentSlot = addToUkDatetime(
       currentSlot,
       session.slotLength,
       'minute',
@@ -250,13 +250,13 @@ const mapSessionsAndSlots = (
     const start = parseToTimeComponents(session.from);
     const end = parseToTimeComponents(session.until);
 
-    const ukStartDatetime = buildUkSessionDatetime(
+    const ukStartDatetime = addHoursAndMinutesToUkDatetime(
       ukDate,
       Number(start?.hour),
       Number(start?.minute),
     );
 
-    const ukEndDatetime = buildUkSessionDatetime(
+    const ukEndDatetime = addHoursAndMinutesToUkDatetime(
       ukDate,
       Number(end?.hour),
       Number(end?.minute),

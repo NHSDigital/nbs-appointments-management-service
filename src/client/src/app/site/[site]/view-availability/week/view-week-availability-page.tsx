@@ -2,7 +2,7 @@ import { Pagination, Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import { DayCardList } from './day-card-list';
-import { addToUkDate, DayJsType, dateFormat } from '@services/timeService';
+import { addToUkDatetime, DayJsType, dateFormat } from '@services/timeService';
 
 type Props = {
   ukWeekStart: DayJsType;
@@ -15,8 +15,8 @@ export const ViewWeekAvailabilityPage = async ({
   ukWeekEnd,
   site,
 }: Props) => {
-  const nextUkWeek = addToUkDate(ukWeekStart, 1, 'week');
-  const previousUkWeek = addToUkDate(ukWeekStart, -1, 'week');
+  const nextUkWeek = addToUkDatetime(ukWeekStart, 1, 'week');
+  const previousUkWeek = addToUkDatetime(ukWeekStart, -1, 'week');
 
   // Example: 2-8 December
   const getPaginationTextSameMonth = (
@@ -34,8 +34,8 @@ export const ViewWeekAvailabilityPage = async ({
     return `${firstDate.format('D MMMM')}-${secondDate.format('D MMMM YYYY')}`;
   };
 
-  const oneWeekAfterWeekEnd = addToUkDate(ukWeekEnd, 1, 'week');
-  const oneWeekBeforeWeekEnd = addToUkDate(ukWeekEnd, -1, 'week');
+  const oneWeekAfterWeekEnd = addToUkDatetime(ukWeekEnd, 1, 'week');
+  const oneWeekBeforeWeekEnd = addToUkDatetime(ukWeekEnd, -1, 'week');
 
   const next = {
     title:

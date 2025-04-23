@@ -11,6 +11,6 @@ public class ClinicalServiceStore(ITypedDocumentCosmosStore<ClinicalServiceDocum
     {
         var clinicalServiceDocument = await documentStore.GetByIdAsync<ClinicalServiceDocument>(GlobalClinicalServicesDocumentId);
 
-        return clinicalServiceDocument.Services.Select(mapper.Map<Core.ClinicalServiceType>).ToList();
+        return clinicalServiceDocument.Services.Select(mapper.Map<ClinicalServiceType>).ToList();
     }
 }

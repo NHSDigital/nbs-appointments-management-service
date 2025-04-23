@@ -7,15 +7,6 @@
     "TestFeatureEnabled": true,
     "multiple-services": true,
     "RSV-Adult": true,
-    "TestA-Child": false,
-    "TestA-Adult": false,
-    "TestA-Elder": false,
-    "TestB-Child": false,
-    "TestB-Adult": false,
-    "TestB-Elder": false,
-    "TestATestB-Child": false,
-    "TestATestB-Adult": false,
-    "TestATestB-Elder": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

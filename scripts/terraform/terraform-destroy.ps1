@@ -10,11 +10,9 @@ param (
         [string][Parameter]$appConfigConnectionString
 )
 
-## Provided by addSpnToEnvironment attribute
 $env:ARM_CLIENT_ID=$env:servicePrincipalId
 $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
 $env:ARM_TENANT_ID=$env:tenantId
-
 $env:ARM_SUBSCRIPTION_ID=$azureSubscriptionId
 
 Set-Location $terraformEnvironmentFolderPath

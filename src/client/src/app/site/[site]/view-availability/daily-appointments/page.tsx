@@ -9,7 +9,7 @@ import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { addToUkDatetime, parseToUkDatetime } from '@services/timeService';
+import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -25,12 +25,12 @@ type PageProps = {
 const Page = async ({ params, searchParams }: PageProps) => {
   await assertPermission(params.site, 'availability:query');
 
-  const date = parseToUkDatetime(searchParams.date);
-  const toDate = addToUkDatetime(date, 1, 'day');
+  const fromDate = parseToUkDatetime(searchParams.date);
+  const toDate = fromDate.endOf('day');
 
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: date.format('YYYY-MM-DDTHH:mm:ssZ'),
-    to: toDate.format('YYYY-MM-DDTHH:mm:ssZ'),
+    from: fromDate.format(dateTimeFormat),
+    to: toDate.format(dateTimeFormat),
     site: params.site,
   };
 
@@ -64,7 +64,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={date.format('dddd D MMMM')}
+      title={fromDate.format('dddd D MMMM')}
       caption={site.name}
       backLink={backLink}
       originPage="view-availability-daily-appointments"

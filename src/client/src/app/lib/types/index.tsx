@@ -96,7 +96,7 @@ type AvailabilityTemplate = {
   sessions: AvailabilitySession[];
 };
 
-export type BookingStatus = 'Unknown' | 'Booked' | 'Cancelled' | 'Provisional';
+export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
 
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 

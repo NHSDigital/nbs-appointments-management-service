@@ -40,8 +40,8 @@ export const summariseWeek = async (
     ),
     fetchBookings(
       {
-        from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
-        to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        from: ukWeekStart.format(dateTimeFormat),
+        to: ukWeekEnd.endOf('day').format(dateTimeFormat),
         site: siteId,
       },
       ['Booked', 'Cancelled'],

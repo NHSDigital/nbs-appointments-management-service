@@ -10,8 +10,6 @@ import {
   UserProfile,
   SetAvailabilityRequest,
   AvailabilityCreatedEvent,
-  FetchAvailabilityRequest,
-  AvailabilityResponse,
   FetchBookingsRequest,
   Booking,
   DailyAvailability,

@@ -401,18 +401,6 @@ export const setSiteInformationForCitizen = async (
   revalidatePath(`/site/${site}/details`);
 };
 
-export const fetchAvailability = async (payload: FetchAvailabilityRequest) => {
-  const response = await appointmentsApi.post<AvailabilityResponse[]>(
-    'availability/query',
-    JSON.stringify(payload),
-    {
-      next: { tags: ['fetchAvailability'] },
-    },
-  );
-
-  return handleBodyResponse(response);
-};
-
 export const fetchBookings = async (payload: FetchBookingsRequest) => {
   const response = await appointmentsApi.post<Booking[]>(
     'booking/query',

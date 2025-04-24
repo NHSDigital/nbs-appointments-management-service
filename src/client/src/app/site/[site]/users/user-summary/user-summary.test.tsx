@@ -30,22 +30,22 @@ describe('User Summary Page', () => {
         user: isOkta ? 'test@okta.net' : 'test@nhs.net',
         firstName: firstName,
         lastName: lastName,
-        roles: ['Admin', 'Viewer'],
+        roles: ['role-1', 'role-2'],
         isEdit: false,
       }),
     );
 
     render(<UserSummary roles={mockRoles} />);
 
-    const ddElement = screen.getByLabelText('Name-description');
+    const ddElement = screen.queryByLabelText('Name-description');
 
     isOkta
       ? expect(ddElement).toHaveTextContent(firstName + ' ' + lastName)
-      : expect(ddElement).toHaveTextContent('');
+      : expect(ddElement).not.toBeInTheDocument();
   });
 
   it.each([
-    [true, true, true, false, true],
+    [true, true, false, false, true],
     [true, false, false, false, true],
     [false, true, true, true, true],
     [false, false, false, true, true],
@@ -66,7 +66,7 @@ describe('User Summary Page', () => {
           user: isOkta ? 'test@okta.net' : 'test@nhs.net',
           firstName: 'firstName',
           lastName: 'lastName',
-          roles: ['Admin', 'Viewer'],
+          roles: ['role-1', 'role-2'],
           isEdit: isEdit,
         }),
       );
@@ -111,7 +111,7 @@ describe('User Summary Page', () => {
           user: isOkta ? 'test@okta.net' : 'test@nhs.net',
           firstName: 'firstName',
           lastName: 'lastName',
-          roles: ['Admin', 'Viewer'],
+          roles: ['role-1', 'role-2'],
           isEdit: isEdit,
         }),
       );
@@ -123,6 +123,26 @@ describe('User Summary Page', () => {
       expect(submitionNote).toHaveTextContent(expectedMessage);
     },
   );
+
+  it('renders expected roles', async () => {
+    sessionStorage.setItem(
+      'userFormData',
+      JSON.stringify({
+        site: '123',
+        user: 'test@nhs.net',
+        firstName: '',
+        lastName: '',
+        roles: ['role-1', 'role-2'],
+        isEdit: false,
+      }),
+    );
+
+    render(<UserSummary roles={mockRoles} />);
+
+    const roleElement = screen.getByLabelText('Roles-description');
+
+    expect(roleElement).toHaveTextContent('Beta Role, Charlie Role');
+  });
 
   it('redirects if sessionStorage is empty', async () => {
     render(<UserSummary roles={mockRoles} />);

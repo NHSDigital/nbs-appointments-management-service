@@ -36,7 +36,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const [site, bookings] = await Promise.all([
     fetchSite(params.site),
-    fetchBookings(fetchBookingsRequest),
+    fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled']),
   ]);
 
   const scheduledBookings = bookings.filter(

@@ -96,6 +96,8 @@ type AvailabilityTemplate = {
   sessions: AvailabilitySession[];
 };
 
+export type BookingStatus = 'Unknown' | 'Booked' | 'Cancelled' | 'Provisional';
+
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
@@ -247,7 +249,7 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  status: BookingStatus;
   availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];

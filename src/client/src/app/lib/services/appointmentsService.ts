@@ -10,6 +10,8 @@ import {
   UserProfile,
   SetAvailabilityRequest,
   AvailabilityCreatedEvent,
+  FetchAvailabilityRequest,
+  AvailabilityResponse,
   FetchBookingsRequest,
   Booking,
   DailyAvailability,
@@ -24,6 +26,7 @@ import {
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
   clinicalServices,
+  BookingStatus,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -399,13 +402,18 @@ export const setSiteInformationForCitizen = async (
   revalidatePath(`/site/${site}/details`);
 };
 
-export const fetchBookings = async (payload: FetchBookingsRequest) => {
+export const fetchBookings = async (
+  payload: FetchBookingsRequest,
+  statuses: BookingStatus[],
+) => {
   const response = await appointmentsApi.post<Booking[]>(
     'booking/query',
     JSON.stringify(payload),
   );
 
-  return handleBodyResponse(response);
+  const boookings = handleBodyResponse(response);
+
+  return boookings.filter(b => statuses.includes(b.status));
 };
 
 export const fetchDailyAvailability = async (

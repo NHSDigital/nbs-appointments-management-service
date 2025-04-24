@@ -38,11 +38,14 @@ export const summariseWeek = async (
       ukWeekStart.format(dateFormat),
       ukWeekEnd.format(dateFormat),
     ),
-    fetchBookings({
-      from: ukWeekStart.format(dateTimeFormat),
-      to: ukWeekEnd.endOf('day').format(dateTimeFormat),
-      site: siteId,
-    }),
+    fetchBookings(
+      {
+        from: ukWeekStart.format('YYYY-MM-DD HH:mm:ss'),
+        to: ukWeekEnd.endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        site: siteId,
+      },
+      ['Booked', 'Cancelled'],
+    ),
   ]);
 
   const ukWeek = getWeek(ukWeekStart);
@@ -56,7 +59,7 @@ export const summariseWeek = async (
       //need to parse booking datetime back to UK date
       const ukBookingDatetime = parseToUkDatetime(booking.from, dateTimeFormat);
       const result = isOnTheSameUkDay(ukBookingDatetime, ukDate);
-      return result && booking.status !== 'Provisional';
+      return result;
     });
 
     return summariseDay(ukDate, bookings, availability);

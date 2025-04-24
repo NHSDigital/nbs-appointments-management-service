@@ -219,24 +219,6 @@ const mockBooking6: Booking = {
   reminderSet: false,
 };
 
-const mockBooking7: Booking = {
-  reference: 'mock-booking-7',
-  from: '2024-06-11T09:20:00',
-  duration: 10,
-  service: 'RSV:Adult',
-  site: 'TEST01',
-  attendeeDetails: {
-    nhsNumber: '9999999993',
-    firstName: 'Bertha',
-    lastName: 'Mildrew',
-    dateOfBirth: new Date(1973, 2, 3),
-  },
-  created: '2024-08-29T03:21:08.0477062',
-  status: 'Provisional',
-  availabilityStatus: 'Supported',
-  reminderSet: false,
-};
-
 const mockBookings: Booking[] = [
   mockBooking1,
   mockBooking2,
@@ -244,7 +226,6 @@ const mockBookings: Booking[] = [
   mockBooking4,
   mockBooking5,
   mockBooking6,
-  mockBooking7,
 ];
 
 /**

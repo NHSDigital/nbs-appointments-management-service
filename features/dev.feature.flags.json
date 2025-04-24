@@ -1,11 +1,10 @@
 {
   "FeatureManagement": {
     "OktaEnabled": true,
-    "MultiServiceAvailabilityCalculations": false,
     "TestFeatureEnabled": true,
     "JointBookings": true,
     "BulkImport": true,
-    "multiple-services": true,
+    "MultipleServices": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

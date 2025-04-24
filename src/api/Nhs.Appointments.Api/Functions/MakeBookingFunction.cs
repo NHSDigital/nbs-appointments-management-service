@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -70,7 +70,7 @@ public class MakeBookingFunction(
             return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
         }
 
-        var bookingResult = await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations)
+        var bookingResult = await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices)
             ? await availabilityService.MakeBooking(requestedBooking)
             : await bookingService.MakeBooking(requestedBooking);
 

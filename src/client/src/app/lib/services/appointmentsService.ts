@@ -100,7 +100,7 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
 };
 
 export const fetchClinicalServices = async () => {
-  const canUseMultipleServices = await fetchFeatureFlag('multiple-services');
+  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
 
   if (canUseMultipleServices.enabled) {
     const response = await appointmentsApi.get<ClinicalService[]>(

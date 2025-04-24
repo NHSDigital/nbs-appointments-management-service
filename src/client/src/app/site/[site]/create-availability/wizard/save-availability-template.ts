@@ -9,17 +9,23 @@ import {
   applyAvailabilityTemplate,
   saveAvailability,
 } from '@services/appointmentsService';
-import { formatTimeString, parseDateComponents } from '@services/timeService';
+import {
+  dateFormat,
+  toTimeFormat,
+  parseDateComponentsToUkDatetime,
+} from '@services/timeService';
 
 async function saveAvailabilityTemplate(
   formData: CreateAvailabilityFormValues,
   site: Site,
 ) {
-  const startDate = parseDateComponents(formData.startDate);
-  const endDate = parseDateComponents(formData.endDate ?? formData.startDate);
+  const startUkDatetime = parseDateComponentsToUkDatetime(formData.startDate);
+  const endUkDatetime = parseDateComponentsToUkDatetime(
+    formData.endDate ?? formData.startDate,
+  );
 
   // TODO: slimline this numbers -> dayjs conversion to be less hacky and avoid checks like this
-  if (startDate === undefined || endDate === undefined) {
+  if (startUkDatetime === undefined || endUkDatetime === undefined) {
     throw new Error(
       'Could not parse dates - this should have been caught in form validation.',
     );
@@ -28,14 +34,14 @@ async function saveAvailabilityTemplate(
   if (formData.sessionType === 'repeating') {
     const request: ApplyAvailabilityTemplateRequest = {
       site: site.id,
-      from: startDate.format('YYYY-MM-DD'),
-      until: endDate.format('YYYY-MM-DD'),
+      from: startUkDatetime.format(dateFormat),
+      until: endUkDatetime.format(dateFormat),
       template: {
         days: formData.days,
         sessions: [
           {
-            from: formatTimeString(formData.session.startTime) ?? '',
-            until: formatTimeString(formData.session.endTime) ?? '',
+            from: toTimeFormat(formData.session.startTime) ?? '',
+            until: toTimeFormat(formData.session.endTime) ?? '',
             slotLength: formData.session.slotLength,
             capacity: formData.session.capacity,
             services: formData.session.services,
@@ -49,11 +55,11 @@ async function saveAvailabilityTemplate(
   } else {
     const request: SetAvailabilityRequest = {
       site: site.id,
-      date: startDate.format('YYYY-MM-DD'),
+      date: startUkDatetime.format(dateFormat),
       sessions: [
         {
-          from: formatTimeString(formData.session.startTime) ?? '',
-          until: formatTimeString(formData.session.endTime) ?? '',
+          from: toTimeFormat(formData.session.startTime) ?? '',
+          until: toTimeFormat(formData.session.endTime) ?? '',
           slotLength: formData.session.slotLength,
           capacity: formData.session.capacity,
           services: formData.session.services,

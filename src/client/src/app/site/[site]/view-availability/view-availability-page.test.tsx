@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { ViewAvailabilityPage } from './view-availability-page';
 import { mockSite } from '@testing/data';
-import dayjs from 'dayjs';
+import { parseToUkDatetime } from '@services/timeService';
 
 jest.mock('./week-card-list', () => {
   const MockWeekCardList = () => {
@@ -16,7 +16,7 @@ describe('View Availability Page', () => {
   it('renders', async () => {
     const jsx = await ViewAvailabilityPage({
       site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
+      searchMonth: parseToUkDatetime('2024-12-01'),
     });
     render(jsx);
   });
@@ -24,7 +24,7 @@ describe('View Availability Page', () => {
   it('renders pagination options with the correct values', async () => {
     const jsx = await ViewAvailabilityPage({
       site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
+      searchMonth: parseToUkDatetime('2024-12-01'),
     });
     render(jsx);
 
@@ -39,7 +39,7 @@ describe('View Availability Page', () => {
   it('renders a list of week cards', async () => {
     const jsx = await ViewAvailabilityPage({
       site: mockSite,
-      searchMonth: dayjs().year(2024).month(11),
+      searchMonth: parseToUkDatetime('2024-12-01'),
     });
     render(jsx);
 

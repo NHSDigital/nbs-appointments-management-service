@@ -9,7 +9,10 @@ import {
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
-import { formatTimeString, parseDateComponents } from '@services/timeService';
+import {
+  toTimeFormat,
+  parseDateComponentsToUkDatetime,
+} from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { calculateCapacity } from './capacity-calculation';
@@ -46,7 +49,7 @@ const SummaryStep = ({
       ? [
           {
             title: 'Date',
-            value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')}`,
+            value: `${parseDateComponentsToUkDatetime(startDate)?.format('D MMMM YYYY')}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
@@ -57,7 +60,7 @@ const SummaryStep = ({
           },
           {
             title: 'Time',
-            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            value: `${toTimeFormat(session.startTime)} - ${toTimeFormat(session.endTime)}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
@@ -104,7 +107,7 @@ const SummaryStep = ({
       : [
           {
             title: 'Dates',
-            value: `${parseDateComponents(startDate)?.format('D MMMM YYYY')} - ${parseDateComponents(endDate)?.format('D MMMM YYYY')}`,
+            value: `${parseDateComponentsToUkDatetime(startDate)?.format('D MMMM YYYY')} - ${parseDateComponentsToUkDatetime(endDate)?.format('D MMMM YYYY')}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',
@@ -126,7 +129,7 @@ const SummaryStep = ({
           },
           {
             title: 'Time',
-            value: `${formatTimeString(session.startTime)} - ${formatTimeString(session.endTime)}`,
+            value: `${toTimeFormat(session.startTime)} - ${toTimeFormat(session.endTime)}`,
             action: {
               renderingStrategy: 'client',
               text: 'Change',

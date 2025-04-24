@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { DayJsType } from '@services/timeService';
 import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
@@ -123,7 +123,7 @@ type AvailabilitySession = {
 
 type AvailabilitySlot = {
   sessionIndex: number;
-  from: dayjs.Dayjs;
+  from: DayJsType;
   length: number;
   services: string[];
   capacity: number;
@@ -231,8 +231,8 @@ type Week = {
   totalAppointments?: number;
   booked?: number;
   bookedAppointments: BookedAppointments[];
-  startDate: dayjs.Dayjs;
-  endDate: dayjs.Dayjs;
+  startDate: DayJsType;
+  endDate: DayJsType;
 };
 
 type FetchBookingsRequest = {
@@ -293,8 +293,8 @@ type DayAvailabilityDetails = {
 };
 
 type SessionSummary = {
-  start: dayjs.Dayjs;
-  end: dayjs.Dayjs;
+  ukStartDatetime: string;
+  ukEndDatetime: string;
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
@@ -303,7 +303,7 @@ type SessionSummary = {
 };
 
 type DaySummary = {
-  date: dayjs.Dayjs;
+  ukDate: DayJsType;
   sessions: SessionSummary[];
   maximumCapacity: number;
   bookedAppointments: number;
@@ -313,8 +313,8 @@ type DaySummary = {
 };
 
 type WeekSummary = {
-  startDate: dayjs.Dayjs;
-  endDate: dayjs.Dayjs;
+  startDate: DayJsType;
+  endDate: DayJsType;
   daySummaries: DaySummary[];
   maximumCapacity: number;
   bookedAppointments: number;

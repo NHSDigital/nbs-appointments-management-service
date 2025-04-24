@@ -4,7 +4,7 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { isInTheFuture } from '@services/timeService';
+import { dateFormat, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
@@ -21,28 +21,30 @@ export const DaySummaryCard = ({
   canManageAvailability,
   clinicalServices,
 }: DaySummaryCardProps) => {
-  const { date, sessions, cancelledAppointments, orphanedAppointments } =
+  const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
+
+  const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
-      isInTheFuture(date.format('YYYY-MM-DD')) &&
+      isFutureCalendarDate &&
         canManageAvailability && {
           text: 'Add availability to this day',
-          href: `/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`,
+          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`,
         },
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
-        href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=1`,
+        href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=1`,
       },
       orphanedAppointments > 0 && {
         text: 'View manual cancellations',
-        href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=2`,
+        href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=2`,
       },
     ].filter(p => p !== false);
 
     return (
-      <Card title={date.format('dddd D MMMM')}>
+      <Card title={ukDate.format('dddd D MMMM')}>
         <div>No availability</div>
         <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
@@ -53,20 +55,20 @@ export const DaySummaryCard = ({
   const actionLinks: ActionLink[] = [
     {
       text: 'View daily appointments',
-      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1`,
+      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1`,
     },
     cancelledAppointments > 0 && {
       text: 'View cancelled appointments',
-      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=1`,
+      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=1`,
     },
     orphanedAppointments > 0 && {
       text: 'View manual cancellations',
-      href: `daily-appointments?date=${date.format('YYYY-MM-DD')}&page=1&tab=2`,
+      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=2`,
     },
   ].filter(p => p !== false);
 
   return (
-    <Card title={date.format('dddd D MMMM')}>
+    <Card title={ukDate.format('dddd D MMMM')}>
       <SessionSummaryTable
         sessionSummaries={sessions}
         clinicalServices={clinicalServices}
@@ -74,16 +76,16 @@ export const DaySummaryCard = ({
           canManageAvailability
             ? {
                 siteId,
-                date,
+                ukDate: ukDate.format(dateFormat),
               }
             : undefined
         }
       />
       <br />
-      {isInTheFuture(date.format('YYYY-MM-DD')) && canManageAvailability && (
+      {isFutureCalendarDate && canManageAvailability && (
         <Link
           className="nhsuk-link"
-          href={`/site/${siteId}/create-availability/wizard?date=${date.format('YYYY-MM-DD')}`}
+          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`}
         >
           Add Session
         </Link>

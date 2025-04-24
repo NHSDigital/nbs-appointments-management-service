@@ -4,7 +4,6 @@ import { RoleAssignment } from '@types';
 import { useRouter } from 'next/navigation';
 import { mockAssignments, mockRoles } from '@testing/data';
 import render from '@testing/render';
-import * as appointmentsService from '@services/appointmentsService';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -12,10 +11,6 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('@services/appointmentsService');
-const mockSaveUserRoleAssignments = jest.spyOn(
-  appointmentsService,
-  'saveUserRoleAssignments',
-);
 
 jest.spyOn(window.sessionStorage.__proto__, 'setItem');
 window.sessionStorage.setItem = jest.fn();

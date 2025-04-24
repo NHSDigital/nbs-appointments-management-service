@@ -1,14 +1,23 @@
 import {
-  formatDateTimeToTime,
-  formatTimeString,
-  isInTheFuture,
+  toTimeFormat,
+  isFutureCalendarDateUk,
   isValidDate,
-  parseDateComponents,
-  toTimeComponents,
+  parseDateComponentsToUkDatetime,
+  parseToTimeComponents,
   toTwoDigitFormat,
+  getUkWeeksOfTheMonth,
+  parseToUkDatetime,
+  dateFormat,
+  addToUkDatetime,
+  startOfUkWeek,
+  endOfUkWeek,
+  isEqual,
+  dateTimeFormat,
+  isOnTheSameUkDay,
+  ukNow,
+  DayJsType,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
-import dayjs from 'dayjs';
 
 describe('Time Service', () => {
   it.each([
@@ -34,7 +43,6 @@ describe('Time Service', () => {
       expectedResult: boolean,
     ) => {
       const result = isValidDate(day, month, year);
-
       expect(result).toEqual(expectedResult);
     },
   );
@@ -64,11 +72,12 @@ describe('Time Service', () => {
     [31, 12, 2018, '2018-12-31T00:00:00.000Z'],
     [29, 2, 2020, '2020-02-29T00:00:00.000Z'],
     [28, 2, 2021, '2021-02-28T00:00:00.000Z'],
-    [16, 9, 2056, '2056-09-16T00:00:00.000Z'],
+    [16, 9, 2056, '2056-09-15T23:00:00.000Z'],
+    [25, 10, 2025, '2025-10-24T23:00:00.000Z'],
   ])(
     'can parse dates components: day %p, month %p, year %p should be: %p',
     (day: number, month: number, year: number, expectedResult: string) => {
-      const parsedDate = parseDateComponents({
+      const parsedDate = parseDateComponentsToUkDatetime({
         day,
         month,
         year,
@@ -93,7 +102,7 @@ describe('Time Service', () => {
   ])(
     'can format time components: hour %p, minute %p should be: %p',
     (hour: number, minute: number, expectedResult: string | undefined) => {
-      const formattedTime = formatTimeString({
+      const formattedTime = toTimeFormat({
         hour,
         minute,
       });
@@ -109,26 +118,321 @@ describe('Time Service', () => {
   ])(
     'parses a time string to time components',
     (time: string, expectedResult: TimeComponents | undefined) => {
-      const result = toTimeComponents(time);
+      const result = parseToTimeComponents(time);
 
       expect(result).toEqual(expectedResult);
     },
   );
 
-  it('formats dateTime to time', async () => {
+  it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
+    const dstChangeDateTime = '2025-10-01';
+    const dateTime = parseToUkDatetime(dstChangeDateTime, dateFormat);
+    const weeks = getUkWeeksOfTheMonth(dateTime);
+
+    expect(weeks).toHaveLength(5);
+
+    //grab time change week
+    const dstChange1 = weeks[3];
+
+    //bst date should be 1 hour behind UTC
+    expect(dstChange1[6].toISOString()).toBe('2025-10-25T23:00:00.000Z');
+
+    //grab time change after week
+    const dstChange2 = weeks[4];
+
+    //utc should be level after change
+    expect(dstChange2[0].toISOString()).toBe('2025-10-27T00:00:00.000Z');
+  });
+
+  it('formats winter dateTime to time', async () => {
     const dateTime = '2024-12-12T12:05:00';
-    const result = formatDateTimeToTime(dateTime);
+    const result = toTimeFormat(dateTime);
+
+    expect(result).toEqual('12:05');
+  });
+
+  describe('startOfUkWeek', () => {
+    it('calculates summertime date correctly', async () => {
+      const dateTime = '2025-10-20';
+      const result = startOfUkWeek(dateTime);
+
+      const iso = result.toISOString();
+      //check it is 1hour behind due to UTC (BST)
+      expect(iso).toBe('2025-10-19T23:00:00.000Z');
+
+      const offset = result.format('Z');
+      expect(offset).toBe('+01:00');
+
+      //check it returns BST hour and mins
+      const time = result.format('HH:mm');
+      expect(time).toBe('00:00');
+    });
+
+    it('calculates wintertime date correctly', async () => {
+      const dateTime = '2025-02-04';
+      const result = startOfUkWeek(dateTime);
+
+      const iso = result.toISOString();
+      //check it is same as UTC (no-BST)
+      expect(iso).toBe('2025-02-03T00:00:00.000Z');
+
+      const offset = result.format('Z');
+      expect(offset).toBe('+00:00');
+
+      //check it returns UTC hour and mins
+      const time = result.format('HH:mm');
+      expect(time).toBe('00:00');
+    });
+
+    it('calculates 20th October 2025 date correctly', async () => {
+      const dateTime = parseToUkDatetime('2025-10-20');
+      const startOfWeek = startOfUkWeek('2025-10-20');
+
+      const isoString1 = dateTime.toISOString();
+      const isoString2 = startOfWeek.toISOString();
+
+      expect(isoString1).toBe(isoString2);
+    });
+
+    it('calculates 27th October 2025 date correctly', async () => {
+      const dateTime = parseToUkDatetime('2025-10-27');
+      const startOfWeek = startOfUkWeek('2025-10-27');
+
+      const isoString1 = dateTime.toISOString();
+      const isoString2 = startOfWeek.toISOString();
+
+      expect(isoString1).toBe(isoString2);
+    });
+  });
+
+  describe('endOfUkWeek', () => {
+    it('calculates summertime date correctly', async () => {
+      const dateTime = '2025-07-18';
+      const result = endOfUkWeek(dateTime);
+
+      const iso = result.toISOString();
+      //check it is 1hour behind due to UTC (BST)
+      expect(iso).toBe('2025-07-20T22:59:59.999Z');
+
+      const offset = result.format('Z');
+      expect(offset).toBe('+01:00');
+
+      //check it returns BST hour and mins
+      const time = result.format('HH:mm');
+      expect(time).toBe('23:59');
+    });
+
+    it('calculates wintertime date correctly', async () => {
+      const dateTime = '2025-02-04';
+      const result = endOfUkWeek(dateTime);
+
+      const iso = result.toISOString();
+      //check it is same as UTC (no-BST)
+      expect(iso).toBe('2025-02-09T23:59:59.999Z');
+
+      const offset = result.format('Z');
+      expect(offset).toBe('+00:00');
+
+      //check it returns UTC hour and mins
+      const time = result.format('HH:mm');
+      expect(time).toBe('23:59');
+    });
+
+    it('calculates 20th October 2025 date correctly', async () => {
+      const dateTime = parseToUkDatetime('2025-10-26').endOf('day');
+      const endOfWeek = endOfUkWeek('2025-10-20');
+
+      const isoString1 = dateTime.toISOString();
+      const isoString2 = endOfWeek.toISOString();
+
+      expect(isoString1).toBe(isoString2);
+    });
+
+    it('calculates 27th October 2025 date correctly', async () => {
+      const dateTime = parseToUkDatetime('2025-11-02').endOf('day');
+      const endOfWeek = endOfUkWeek('2025-10-27');
+
+      const isoString1 = dateTime.toISOString();
+      const isoString2 = endOfWeek.toISOString();
+
+      expect(isoString1).toBe(isoString2);
+    });
+  });
+
+  describe('addToUkDatetime', () => {
+    it('preserves UK timezone - 26th add 0 days', async () => {
+      const dateTime = parseToUkDatetime('2025-10-26');
+      const result1 = addToUkDatetime(dateTime, 0, 'day');
+      const isoString1 = result1.toISOString();
+      expect(isoString1).toEqual('2025-10-25T23:00:00.000Z');
+    });
+
+    it('preserves UK timezone - 26th add 1 day', async () => {
+      const dateTime = parseToUkDatetime('2025-10-26');
+      const result1 = addToUkDatetime(dateTime, 1, 'day');
+      const isoString1 = result1.toISOString();
+      expect(isoString1).toEqual('2025-10-27T00:00:00.000Z');
+    });
+
+    it('preserves UK timezone - 27th add 0 days', async () => {
+      const dateTime = parseToUkDatetime('2025-10-27');
+      const startOfWeek = startOfUkWeek('2025-10-27');
+
+      const result1 = addToUkDatetime(dateTime, 0, 'day');
+      const result2 = addToUkDatetime(startOfWeek, 0, 'day');
+
+      const isoString1 = result1.toISOString();
+      const isoString2 = result2.toISOString();
+
+      expect(isoString1).toEqual('2025-10-27T00:00:00.000Z');
+      expect(isoString2).toEqual('2025-10-27T00:00:00.000Z');
+    });
+
+    it('preserves UK timezone - 27th add 1 day', async () => {
+      const dateTime = parseToUkDatetime('2025-10-27');
+      const startOfWeek = startOfUkWeek('2025-10-27');
+
+      const result1 = addToUkDatetime(dateTime, 1, 'day');
+      const result2 = addToUkDatetime(startOfWeek, 1, 'day');
+
+      const isoString1 = result1.toISOString();
+      const isoString2 = result2.toISOString();
+
+      expect(isoString1).toEqual('2025-10-28T00:00:00.000Z');
+      expect(isoString2).toEqual('2025-10-28T00:00:00.000Z');
+    });
+
+    it('crossing DST - Clocks Forward 1', async () => {
+      const dateTime = parseToUkDatetime('2026-03-29');
+      expect(dateTime.toISOString()).toEqual('2026-03-29T00:00:00.000Z');
+
+      const result1 = addToUkDatetime(dateTime, 1, 'day');
+      expect(result1.toISOString()).toEqual('2026-03-29T23:00:00.000Z');
+    });
+
+    it('crossing DST - Clocks Forward 2', async () => {
+      const dateTime = parseToUkDatetime('2026-03-30');
+      expect(dateTime.toISOString()).toEqual('2026-03-29T23:00:00.000Z');
+
+      const result1 = addToUkDatetime(dateTime, -1, 'day');
+      expect(result1.toISOString()).toEqual('2026-03-29T00:00:00.000Z');
+    });
+
+    it('crossing DST - Clocks Back 1', async () => {
+      const dateTime = parseToUkDatetime('2025-10-26');
+      expect(dateTime.toISOString()).toEqual('2025-10-25T23:00:00.000Z');
+
+      const result1 = addToUkDatetime(dateTime, 1, 'day');
+      expect(result1.toISOString()).toEqual('2025-10-27T00:00:00.000Z');
+    });
+
+    it('crossing DST - Clocks Back 2', async () => {
+      const dateTime = parseToUkDatetime('2025-10-27');
+      expect(dateTime.toISOString()).toEqual('2025-10-27T00:00:00.000Z');
+
+      const result1 = addToUkDatetime(dateTime, -1, 'day');
+      expect(result1.toISOString()).toEqual('2025-10-25T23:00:00.000Z');
+    });
+
+    it('preserves UK timezone 1', async () => {
+      const dateTime = parseToUkDatetime('2025-10-20');
+      const startOfWeek = startOfUkWeek('2025-10-20');
+
+      const result1 = addToUkDatetime(dateTime, 0, 'day');
+      const result2 = addToUkDatetime(startOfWeek, 0, 'day');
+
+      expect(isEqual(result1, result2)).toBe(true);
+
+      expect(result1.toISOString()).toEqual('2025-10-19T23:00:00.000Z');
+      expect(result2.toISOString()).toEqual('2025-10-19T23:00:00.000Z');
+    });
+
+    it('preserves UK timezone 2', async () => {
+      const dateTime = parseToUkDatetime('2025-10-20');
+      const startOfWeek = startOfUkWeek('2025-10-20');
+
+      const result1 = addToUkDatetime(dateTime, 1, 'day');
+      const result2 = addToUkDatetime(startOfWeek, 1, 'day');
+
+      expect(isEqual(result1, result2)).toBe(true);
+
+      expect(result1.toISOString()).toEqual('2025-10-20T23:00:00.000Z');
+      expect(result2.toISOString()).toEqual('2025-10-20T23:00:00.000Z');
+    });
+  });
+
+  describe('isOnTheSameUkDay', () => {
+    it('calculates 25th correctly', async () => {
+      const bookingDate = parseToUkDatetime(
+        '2025-10-25T10:00:00',
+        dateTimeFormat,
+      );
+      const ukDate = parseToUkDatetime('2025-10-25');
+      const sameDayCorrect1 = isOnTheSameUkDay(ukDate, bookingDate);
+      const sameDayCorrect2 = isOnTheSameUkDay(bookingDate, ukDate);
+      expect(sameDayCorrect1).toBe(true);
+      expect(sameDayCorrect2).toBe(true);
+
+      //these pass when not crossing a DST, showing that the isSame check works in SOME cases
+      const sameDayWrong1 = ukDate.isSame(bookingDate, 'day');
+      const sameDayWrong2 = bookingDate.isSame(ukDate, 'day');
+      expect(sameDayWrong1).toBe(true);
+      expect(sameDayWrong2).toBe(true);
+    });
+
+    it('calculates 26th correctly', async () => {
+      const bookingDate = parseToUkDatetime(
+        '2025-10-26T10:00:00',
+        dateTimeFormat,
+      );
+      const ukDate = parseToUkDatetime('2025-10-26');
+      const sameDayCorrect1 = isOnTheSameUkDay(ukDate, bookingDate);
+      const sameDayCorrect2 = isOnTheSameUkDay(bookingDate, ukDate);
+      expect(sameDayCorrect1).toBe(true);
+      expect(sameDayCorrect2).toBe(true);
+
+      //prove that when running these tests in a different TZ,the isSame check fails and therefore can't be used
+      //i.e to see, run: TZ="Etc/GMT+12" npm test
+      const sameDayWrong1 = ukDate.isSame(bookingDate, 'day');
+      const sameDayWrong2 = bookingDate.isSame(ukDate, 'day');
+      expect(sameDayWrong1).toBe(true);
+      expect(sameDayWrong2).toBe(true);
+    });
+
+    it('calculates 27th correctly', async () => {
+      const bookingDate = parseToUkDatetime(
+        '2025-10-27T10:00:00',
+        dateTimeFormat,
+      );
+      const ukDate = parseToUkDatetime('2025-10-27');
+      const sameDayCorrect1 = isOnTheSameUkDay(ukDate, bookingDate);
+      const sameDayCorrect2 = isOnTheSameUkDay(bookingDate, ukDate);
+      expect(sameDayCorrect1).toBe(true);
+      expect(sameDayCorrect2).toBe(true);
+
+      //these pass when not crossing a DST, showing that the isSame check works in SOME cases
+      const sameDayWrong1 = ukDate.isSame(bookingDate, 'day');
+      const sameDayWrong2 = bookingDate.isSame(ukDate, 'day');
+      expect(sameDayWrong1).toBe(true);
+      expect(sameDayWrong2).toBe(true);
+    });
+  });
+
+  it('formats summer dateTime to time', async () => {
+    const dateTime = '2025-07-07T12:05:00';
+    const result = toTimeFormat(dateTime);
 
     expect(result).toEqual('12:05');
   });
 
   it.each([
-    [dayjs().add(1, 'day').format('YYYY-MM-DD'), true],
-    [dayjs().subtract(1, 'day').format('YYYY-MM-DD'), false],
+    [addToUkDatetime(ukNow(), 1, 'day'), true],
+    [addToUkDatetime(ukNow(), -1, 'day'), false],
+    [addToUkDatetime(ukNow(), 0, 'day'), false],
   ])(
     'check if date is in the future',
-    (dateToCheck: string, expectedOutcome: boolean) => {
-      const result = isInTheFuture(dateToCheck);
+    (dateToCheck: DayJsType, expectedOutcome: boolean) => {
+      const result = isFutureCalendarDateUk(dateToCheck);
 
       expect(result).toBe(expectedOutcome);
     },

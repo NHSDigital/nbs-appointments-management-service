@@ -14,7 +14,7 @@ import {
 } from './availability-template-wizard';
 import { Controller, useFormContext } from 'react-hook-form';
 import CapacityCalculation from './capacity-calculation';
-import { formatTimeString } from '@services/timeService';
+import { toTimeFormat } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 
@@ -140,7 +140,7 @@ const TimeAndCapacityStep = ({
           control={control}
           rules={{
             validate: value => {
-              if (formatTimeString(value) === undefined) {
+              if (toTimeFormat(value) === undefined) {
                 return 'Enter a valid start time';
               }
             },
@@ -215,8 +215,8 @@ const TimeAndCapacityStep = ({
           control={control}
           rules={{
             validate: (value, form) => {
-              const endTime = formatTimeString(value);
-              const startTime = formatTimeString(form.session.startTime);
+              const endTime = toTimeFormat(value);
+              const startTime = toTimeFormat(form.session.startTime);
               if (endTime === undefined || startTime === undefined) {
                 return 'Enter a valid end time';
               }

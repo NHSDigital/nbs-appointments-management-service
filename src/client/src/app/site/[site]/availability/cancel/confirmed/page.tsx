@@ -4,10 +4,10 @@ import {
   fetchClinicalServices,
   fetchSite,
 } from '@services/appointmentsService';
-import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import CancellationConfirmed from './cancellation-confirmed';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -39,7 +39,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsPage
-      title={`Cancelled session for ${dayjs(searchParams.date).format('DD MMMM YYYY')}`}
+      title={`Cancelled session for ${parseToUkDatetime(searchParams.date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"
       backLink={backLink}

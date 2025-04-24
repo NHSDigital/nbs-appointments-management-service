@@ -1,11 +1,11 @@
 import { render } from '@testing-library/react';
 import { mockSite } from '@testing/data';
-import dayjs from 'dayjs';
 import { ClinicalService, clinicalServices, WeekSummary } from '@types';
 import { WeekCardList } from './week-card-list';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 import { fetchClinicalServices } from '@services/appointmentsService';
+import { DayJsType, parseToUkDatetime } from '@services/timeService';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
@@ -22,33 +22,33 @@ const mockClinicalServices = fetchClinicalServices as jest.Mock<
 
 const mockServices = clinicalServices;
 
-const mockWeeks: dayjs.Dayjs[][] = [
+const mockWeeks: DayJsType[][] = [
   [
-    dayjs('2024-06-10T00:00:00.000Z'),
-    dayjs('2024-06-11T00:00:00.000Z'),
-    dayjs('2024-06-12T00:00:00.000Z'),
-    dayjs('2024-06-13T00:00:00.000Z'),
-    dayjs('2024-06-14T00:00:00.000Z'),
-    dayjs('2024-06-15T00:00:00.000Z'),
-    dayjs('2024-06-16T00:00:00.000Z'),
+    parseToUkDatetime('2024-06-10'),
+    parseToUkDatetime('2024-06-11'),
+    parseToUkDatetime('2024-06-12'),
+    parseToUkDatetime('2024-06-13'),
+    parseToUkDatetime('2024-06-14'),
+    parseToUkDatetime('2024-06-15'),
+    parseToUkDatetime('2024-06-16'),
   ],
   [
-    dayjs('2024-06-17T00:00:00.000Z'),
-    dayjs('2024-06-18T00:00:00.000Z'),
-    dayjs('2024-06-19T00:00:00.000Z'),
-    dayjs('2024-06-20T00:00:00.000Z'),
-    dayjs('2024-06-21T00:00:00.000Z'),
-    dayjs('2024-06-22T00:00:00.000Z'),
-    dayjs('2024-06-23T00:00:00.000Z'),
+    parseToUkDatetime('2024-06-17'),
+    parseToUkDatetime('2024-06-18'),
+    parseToUkDatetime('2024-06-19'),
+    parseToUkDatetime('2024-06-20'),
+    parseToUkDatetime('2024-06-21'),
+    parseToUkDatetime('2024-06-22'),
+    parseToUkDatetime('2024-06-23'),
   ],
   [
-    dayjs('2024-06-24T00:00:00.000Z'),
-    dayjs('2024-06-25T00:00:00.000Z'),
-    dayjs('2024-06-26T00:00:00.000Z'),
-    dayjs('2024-06-27T00:00:00.000Z'),
-    dayjs('2024-06-28T00:00:00.000Z'),
-    dayjs('2024-06-29T00:00:00.000Z'),
-    dayjs('2024-06-30T00:00:00.000Z'),
+    parseToUkDatetime('2024-06-24'),
+    parseToUkDatetime('2024-06-25'),
+    parseToUkDatetime('2024-06-26'),
+    parseToUkDatetime('2024-06-27'),
+    parseToUkDatetime('2024-06-28'),
+    parseToUkDatetime('2024-06-29'),
+    parseToUkDatetime('2024-06-30'),
   ],
 ];
 
@@ -61,7 +61,7 @@ describe('Week Card List', () => {
   it('renders', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      weeks: mockWeeks,
+      ukWeeks: mockWeeks,
     });
     render(jsx);
   });
@@ -69,24 +69,24 @@ describe('Week Card List', () => {
   it('requests a summary for each week', async () => {
     const jsx = await WeekCardList({
       site: mockSite,
-      weeks: mockWeeks,
+      ukWeeks: mockWeeks,
     });
     render(jsx);
 
     expect(mockSummariseWeek).toHaveBeenCalledTimes(3);
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      dayjs('2024-06-10T00:00:00.000Z'),
-      dayjs('2024-06-16T00:00:00.000Z'),
+      parseToUkDatetime('2024-06-10'),
+      parseToUkDatetime('2024-06-16'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      dayjs('2024-06-17T00:00:00.000Z'),
-      dayjs('2024-06-23T00:00:00.000Z'),
+      parseToUkDatetime('2024-06-17'),
+      parseToUkDatetime('2024-06-23'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockSummariseWeek).toHaveBeenCalledWith(
-      dayjs('2024-06-24T00:00:00.000Z'),
-      dayjs('2024-06-30T00:00:00.000Z'),
+      parseToUkDatetime('2024-06-24'),
+      parseToUkDatetime('2024-06-30'),
       '34e990af-5dc9-43a6-8895-b9123216d699',
     );
     expect(mockClinicalServices).toHaveBeenCalledTimes(1);

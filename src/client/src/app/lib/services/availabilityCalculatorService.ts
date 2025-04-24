@@ -56,7 +56,7 @@ export const summariseWeek = async (
       //need to parse booking datetime back to UK date
       const ukBookingDatetime = parseToUkDatetime(booking.from, dateTimeFormat);
       const result = isOnTheSameUkDay(ukBookingDatetime, ukDate);
-      return result;
+      return result && booking.status !== 'Provisional';
     });
 
     return summariseDay(ukDate, bookings, availability);

@@ -42,7 +42,7 @@ describe('Week Summary Card', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: 'RSV (Adult) 4',
+        name: 'RSV (Adult) 3',
       }),
     ).toBeInTheDocument();
     expect(
@@ -61,8 +61,8 @@ describe('Week Summary Card', () => {
     );
 
     expect(screen.getByText('Total appointments: 480')).toBeInTheDocument();
-    expect(screen.getByText('Booked: 6')).toBeInTheDocument();
-    expect(screen.getByText('Unbooked: 475')).toBeInTheDocument();
+    expect(screen.getByText('Booked: 5')).toBeInTheDocument();
+    expect(screen.getByText('Unbooked: 476')).toBeInTheDocument();
   });
 
   it('renders a warning if there are cancelled appointments', () => {

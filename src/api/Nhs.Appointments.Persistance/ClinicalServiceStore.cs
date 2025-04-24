@@ -7,10 +7,10 @@ namespace Nhs.Appointments.Persistance;
 public class ClinicalServiceStore(ITypedDocumentCosmosStore<ClinicalServiceDocument> documentStore, IMapper mapper) : IClinicalServiceStore
 {
     private const string GlobalClinicalServicesDocumentId = "clinical_services";
-    public async Task<IReadOnlyCollection<ClinicalServiceType>> Get()
+    public async Task<IEnumerable<ClinicalServiceType>> Get()
     {
         var clinicalServiceDocument = await documentStore.GetByIdAsync<ClinicalServiceDocument>(GlobalClinicalServicesDocumentId);
 
-        return clinicalServiceDocument.Services.Select(mapper.Map<ClinicalServiceType>).ToList();
+        return clinicalServiceDocument.Services.Select(mapper.Map<ClinicalServiceType>);
     }
 }

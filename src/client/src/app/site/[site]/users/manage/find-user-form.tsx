@@ -84,7 +84,7 @@ const FindUserForm = ({
     <>
       <h2>Add a user</h2>
       <>
-        Email address must be @nhs.net or on the list of{' '}
+        Email address must be nhs.net or on the list of{' '}
         <a href="https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/care-identity-email-domain-allow-list">
           Authorised email domains.
         </a>{' '}

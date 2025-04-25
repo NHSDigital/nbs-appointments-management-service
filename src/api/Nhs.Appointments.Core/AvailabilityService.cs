@@ -19,23 +19,24 @@ public class AvailabilityService(
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
-    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateOnly day)
+    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to, string service)
     {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
-
-        var bookings = (await bookingsService.GetBookings(dayStart, dayEnd, site))
+        var bookings = (await bookingsService.GetBookings(from, to, site, service))
             .Where(b => _liveStatuses.Contains(b.Status))
+            .Where(b => !IsExpiredProvisional(b))
             .OrderBy(b => b.Created)
             .ToList();
 
         return bookings;
     }
+    
+    private bool IsExpiredProvisional(Booking b) =>
+        b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
 
-    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly day)
+    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to, string service)
     {
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day))
+            (await availabilityStore.GetSessions(site, from, to, service))
             .ToList();
 
         var slots = sessionsOnThatDay
@@ -75,7 +76,6 @@ public class AvailabilityService(
             {
                 await bookingsService.RecalculateAppointmentStatuses(site, date);
             }
-
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
@@ -165,12 +165,12 @@ public class AvailabilityService(
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
 
-    public async Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day)
+    public async Task<AvailabilityState> GetAvailabilityState(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
     {
         var availabilityState = new AvailabilityState();
 
-        var orderedLiveBookings = await GetOrderedLiveBookings(site, day);
-        var slots = await GetSlots(site, day);
+        var orderedLiveBookings = await GetOrderedLiveBookings(site, from, to, service);
+        var slots = await GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
 
         foreach (var booking in orderedLiveBookings)
         {
@@ -179,7 +179,7 @@ public class AvailabilityService(
 
             if (bookingIsSupportedByAvailability)
             {
-                if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
+                if (processRecalculations && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
                 {
                     availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
                         AvailabilityUpdateAction.SetToSupported));
@@ -190,14 +190,14 @@ public class AvailabilityService(
                 continue;
             }
 
-            if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+            if (processRecalculations && booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                 booking.Status is not AppointmentStatus.Provisional)
             {
                 availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
                     AvailabilityUpdateAction.SetToOrphaned));
             }
 
-            if (booking.Status is AppointmentStatus.Provisional)
+            if (processRecalculations && booking.Status is AppointmentStatus.Provisional)
             {
                 availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
                     AvailabilityUpdateAction.ProvisionalToDelete));
@@ -211,7 +211,10 @@ public class AvailabilityService(
 
     public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
     {
-        var availabilityState = await GetAvailabilityState(site, day);
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+        
+        var availabilityState = await GetAvailabilityState(site, dayStart, dayEnd, "*");
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
@@ -272,8 +275,10 @@ public class AvailabilityService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            var slots = (await GetAvailabilityState(booking.Site,
-                DateOnly.FromDateTime(booking.From.Date))).AvailableSlots;
+            var from = booking.From;
+            var to = booking.From.AddMinutes(booking.Duration);
+            
+            var slots = (await GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

@@ -82,50 +82,33 @@ const FindUserForm = ({
   };
 
   return (
-    <>
-      <h2>Add a user</h2>
-      <>
-        Email address must be nhs.net or on the list of{' '}
-        <a href="https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/care-identity-email-domain-allow-list">
-          Authorised email domains.
-        </a>{' '}
-        Read the{' '}
-        <a href="https://digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance/log-in-and-select-site">
-          user guidance on logging in without an NHS.net account
-        </a>{' '}
-        or you can apply for their{' '}
-        <a href="https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/request-an-addition-to-the-email-domain-allow-list">
-          email domain
-        </a>
-      </>
-      <form onSubmit={handleSubmit(submitForm)}>
-        <br />
-        <FormGroup
-          error={
-            errors.email
-              ? 'Email address must be nhs.net or an authorised email domain'
-              : undefined
-          }
-        >
-          <TextInput
-            id="email"
-            label="Enter email address"
-            {...register('email')}
-          ></TextInput>
-        </FormGroup>
+    <form onSubmit={handleSubmit(submitForm)}>
+      <br />
+      <FormGroup
+        error={
+          errors.email
+            ? 'Email address must be nhs.net or an authorised email domain'
+            : undefined
+        }
+      >
+        <TextInput
+          id="email"
+          label="Enter email address"
+          {...register('email')}
+        ></TextInput>
+      </FormGroup>
 
-        {isSubmitting || isSubmitSuccessful ? (
-          <SmallSpinnerWithText text="Searching for user..." />
-        ) : (
-          <ButtonGroup>
-            <Button type="submit">Continue</Button>
-            <Button styleType="secondary" onClick={cancel}>
-              Cancel
-            </Button>
-          </ButtonGroup>
-        )}
-      </form>
-    </>
+      {isSubmitting || isSubmitSuccessful ? (
+        <SmallSpinnerWithText text="Searching for user..." />
+      ) : (
+        <ButtonGroup>
+          <Button type="submit">Continue</Button>
+          <Button styleType="secondary" onClick={cancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
+    </form>
   );
 };
 

@@ -6,7 +6,7 @@ namespace Nhs.Appointments.Core;
 
 public interface IBookingsService
 {
-    Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
+    Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site, string service);
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
@@ -26,15 +26,15 @@ public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
-        IAvailabilityCalculator availabilityCalculator,
         IAvailabilityStore availabilityStore,
+        IAvailabilityService availabilityService,
         IBookingEventFactory eventFactory,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 {
-    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site, string service)
     {
-        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site, service);
         return bookings
             .OrderBy(b => b.From)
             .ThenBy(b => b.AttendeeDetails.LastName);
@@ -64,8 +64,10 @@ public class BookingsService(
     {
         using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
         {
-            var slots = await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
-                DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)));
+            var from = booking.From;
+            var to = booking.From.AddMinutes(booking.Duration);
+            
+            var slots = (await availabilityService.GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
@@ -180,15 +182,16 @@ public class BookingsService(
 
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
     {
+        var service = "*";
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var bookings = (await GetBookings(dayStart, dayEnd, site))
+        var bookings = (await GetBookings(dayStart, dayEnd, site, service))
             .Where(b => b.Status is not AppointmentStatus.Cancelled)
             .OrderBy(b => b.Created);
 
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day))
+            (await availabilityStore.GetSessions(site, day, day, service))
             .ToList();
 
         var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();

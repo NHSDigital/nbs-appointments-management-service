@@ -17,11 +17,16 @@ public class BookingCosmosDocumentStore(
 {
     private const int PointReadLimit = 3;    
            
-    public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
+    public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site, string service = "*")
     {
         using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
         {
-            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
+            if (service == "*")
+            {
+                return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
+            }
+
+            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.Service == service && b.From >= from && b.From <= to);
         }
     }
 

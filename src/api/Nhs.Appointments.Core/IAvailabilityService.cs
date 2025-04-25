@@ -9,9 +9,8 @@ public interface IAvailabilityService
     Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
     Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
-    Task<AvailabilityState> GetAvailabilityState(string site, DateOnly day);
+    Task<AvailabilityState> GetAvailabilityState(string site, DateTime from, DateTime to, string service, bool processRecalculations);
     Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day);
-    SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
 }

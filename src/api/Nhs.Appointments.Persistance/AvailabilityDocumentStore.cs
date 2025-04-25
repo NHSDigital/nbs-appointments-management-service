@@ -8,13 +8,22 @@ namespace Nhs.Appointments.Persistance;
 
 public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder) : IAvailabilityStore
 {
-    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
+    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to, string service = "*")
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
         using (metricsRecorder.BeginScope("GetSessions"))
         {
-            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+            IEnumerable<DailyAvailabilityDocument> documents;
+            
+            if (service == "*")
+            {
+                documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+            }
+            else
+            {
+                documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Sessions.Any(x=>x.Services.Contains(service)) && b.Date >= from && b.Date <= to);
+            }
             foreach (var day in documents)
             {
                 results.AddRange(day.Sessions.Select(

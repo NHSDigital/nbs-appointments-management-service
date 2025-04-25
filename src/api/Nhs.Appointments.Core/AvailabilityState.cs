@@ -3,7 +3,7 @@
 public class AvailabilityState
 {
     public List<SessionInstance> AvailableSlots = [];
-    public List<AvailabilityUpdate> Recalculations = [];
+    public readonly List<AvailabilityUpdate> Recalculations = [];
     public List<Booking> Bookings = [];
 }
 

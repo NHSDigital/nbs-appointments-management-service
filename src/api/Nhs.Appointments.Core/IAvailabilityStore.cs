@@ -2,7 +2,7 @@ namespace Nhs.Appointments.Core;
 
 public interface IAvailabilityStore
 {
-    Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly notBefore, DateOnly notAfter);
+    Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to, string service);
    Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions, ApplyAvailabilityMode mode,
         Session sessionToEdit = null);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);

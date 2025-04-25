@@ -16,20 +16,33 @@ type ServiceOverview = {
 
 export default class MonthViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
+  readonly previousButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.nextButton = page.getByRole('link', {
       name: 'Next',
     });
-
-    this.nextButton = page.getByRole('link', {
-      name: 'Next',
+    this.previousButton = page.getByRole('link', {
+      name: 'Previous',
     });
   }
 
   async verifyViewNextMonthButtonDisplayed() {
     await expect(this.nextButton).toBeEnabled();
+  }
+
+  async verifyViewNextAndPreviousMonthButtonsAreDisplayed(
+    previousMonthText: string,
+    nextMonthText: string,
+  ) {
+    await expect(this.previousButton).toBeVisible();
+    await expect(this.previousButton).toBeEnabled();
+    await expect(this.previousButton).toContainText(previousMonthText);
+
+    await expect(this.nextButton).toBeVisible();
+    await expect(this.nextButton).toBeEnabled();
+    await expect(this.nextButton).toContainText(nextMonthText);
   }
 
   async verifyAllWeekCardInformationDisplayedCorrectly(

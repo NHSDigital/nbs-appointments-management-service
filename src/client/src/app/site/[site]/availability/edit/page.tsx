@@ -2,7 +2,7 @@ import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
 import NhsPage from '@components/nhs-page';
-import dayjs from 'dayjs';
+import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -17,8 +17,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(params.site, 'availability:setup');
   const site = await fetchSite(params.site);
-  const date = dayjs(searchParams.date, 'YYYY-MM-DD');
-
+  const date = parseToUkDatetime(searchParams.date);
   const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
 
   return (
@@ -36,8 +35,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={searchParams.date}
         site={site}
         existingSession={sessionSummary}
-        existingSessionStart={dayjs(sessionSummary.start).format('HH:mm')}
-        existingSessionEnd={dayjs(sessionSummary.end).format('HH:mm')}
       />
     </NhsPage>
   );

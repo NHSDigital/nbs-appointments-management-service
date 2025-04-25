@@ -6,10 +6,10 @@ import {
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
-import dayjs from 'dayjs';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   searchParams: {
@@ -25,16 +25,18 @@ type PageProps = {
 const Page = async ({ params, searchParams }: PageProps) => {
   await assertPermission(params.site, 'availability:query');
 
-  const date = dayjs(searchParams.date);
+  const fromDate = parseToUkDatetime(searchParams.date);
+  const toDate = fromDate.endOf('day');
+
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: date.hour(0).minute(0).second(0).format('YYYY-MM-DDTHH:mm:ssZ'),
-    to: date.hour(23).minute(59).second(59).format('YYYY-MM-DDTHH:mm:ssZ'),
+    from: fromDate.format(dateTimeFormat),
+    to: toDate.format(dateTimeFormat),
     site: params.site,
   };
 
   const [site, bookings] = await Promise.all([
     fetchSite(params.site),
-    fetchBookings(fetchBookingsRequest),
+    fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled']),
   ]);
 
   const scheduledBookings = bookings.filter(
@@ -62,7 +64,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={date.format('dddd D MMMM')}
+      title={fromDate.format('dddd D MMMM')}
       caption={site.name}
       backLink={backLink}
       originPage="view-availability-daily-appointments"

@@ -1,8 +1,18 @@
+import {
+  dateTimeFormat,
+  dateFormat,
+  parseToUkDatetime,
+} from '@services/timeService';
 import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
-import dayjs from 'dayjs';
 
-const mondayThe10thOfJune2024 = dayjs('2024-06-10T00:00:00Z');
-const sundayThe16thOfJune2024 = dayjs('2024-06-16T00:00:00Z');
+const mondayThe10thOfJune2024 = parseToUkDatetime(
+  '2024-06-10T00:00:00',
+  dateTimeFormat,
+);
+const sundayThe16thOfJune2024 = parseToUkDatetime(
+  '2024-06-16T00:00:00',
+  dateTimeFormat,
+);
 
 /**
  * A mock week of availability as we'd expect it to be returned from the API.
@@ -11,7 +21,7 @@ const sundayThe16thOfJune2024 = dayjs('2024-06-16T00:00:00Z');
  */
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mondayThe10thOfJune2024.format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.format(dateFormat),
     sessions: [
       {
         capacity: 2,
@@ -30,7 +40,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(1, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(1, 'days').format(dateFormat),
     sessions: [
       {
         capacity: 2,
@@ -49,7 +59,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(2, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(2, 'days').format(dateFormat),
     sessions: [
       {
         capacity: 4,
@@ -61,7 +71,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(3, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(3, 'days').format(dateFormat),
     sessions: [
       {
         capacity: 2,
@@ -80,7 +90,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(4, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(4, 'days').format(dateFormat),
     sessions: [
       {
         capacity: 3,
@@ -92,11 +102,11 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(5, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(5, 'days').format(dateFormat),
     sessions: [],
   },
   {
-    date: mondayThe10thOfJune2024.add(6, 'days').format('YYYY-MM-DD'),
+    date: mondayThe10thOfJune2024.add(6, 'days').format(dateFormat),
     sessions: [],
   },
 ];
@@ -209,24 +219,6 @@ const mockBooking6: Booking = {
   reminderSet: false,
 };
 
-const mockBooking7: Booking = {
-  reference: 'mock-booking-7',
-  from: '2024-06-11T09:20:00',
-  duration: 10,
-  service: 'RSV:Adult',
-  site: 'TEST01',
-  attendeeDetails: {
-    nhsNumber: '9999999993',
-    firstName: 'Bertha',
-    lastName: 'Mildrew',
-    dateOfBirth: new Date(1973, 2, 3),
-  },
-  created: '2024-08-29T03:21:08.0477062',
-  status: 'Provisional',
-  availabilityStatus: 'Supported',
-  reminderSet: false,
-};
-
 const mockBookings: Booking[] = [
   mockBooking1,
   mockBooking2,
@@ -234,7 +226,6 @@ const mockBookings: Booking[] = [
   mockBooking4,
   mockBooking5,
   mockBooking6,
-  mockBooking7,
 ];
 
 /**
@@ -243,11 +234,11 @@ const mockBookings: Booking[] = [
  */
 const mockWeekAvailability__Summary: DaySummary[] = [
   {
-    date: dayjs('2024-06-10 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-10'),
     sessions: [
       {
-        start: dayjs('2024-06-10 09:00:00'),
-        end: dayjs('2024-06-10 12:00:00'),
+        ukStartDatetime: '2024-06-10T09:00:00',
+        ukEndDatetime: '2024-06-10T12:00:00',
         maximumCapacity: 72,
         totalBookings: 2,
         bookings: { 'RSV:Adult': 2 },
@@ -255,8 +246,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         slotLength: 5,
       },
       {
-        start: dayjs('2024-06-10 13:00:00'),
-        end: dayjs('2024-06-10 17:30:00'),
+        ukStartDatetime: '2024-06-10T13:00:00',
+        ukEndDatetime: '2024-06-10T17:30:00',
         maximumCapacity: 54,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -271,20 +262,20 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 124,
   },
   {
-    date: dayjs('2024-06-11 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-11'),
     sessions: [
       {
-        start: dayjs('2024-06-11 09:00:00'),
-        end: dayjs('2024-06-11 12:00:00'),
+        ukStartDatetime: '2024-06-11T09:00:00',
+        ukEndDatetime: '2024-06-11T12:00:00',
         maximumCapacity: 36,
-        totalBookings: 3,
-        bookings: { 'RSV:Adult': 2, 'FLU:18_64': 1 },
+        totalBookings: 2,
+        bookings: { 'RSV:Adult': 1, 'FLU:18_64': 1 },
         capacity: 2,
         slotLength: 10,
       },
       {
-        start: dayjs('2024-06-11 09:00:00'),
-        end: dayjs('2024-06-11 12:00:00'),
+        ukStartDatetime: '2024-06-11T09:00:00',
+        ukEndDatetime: '2024-06-11T12:00:00',
         maximumCapacity: 36,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -293,17 +284,17 @@ const mockWeekAvailability__Summary: DaySummary[] = [
       },
     ],
     maximumCapacity: 72,
-    bookedAppointments: 3,
+    bookedAppointments: 2,
     cancelledAppointments: 1,
     orphanedAppointments: 0,
-    remainingCapacity: 69,
+    remainingCapacity: 70,
   },
   {
-    date: dayjs('2024-06-12 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-12'),
     sessions: [
       {
-        start: dayjs('2024-06-12 08:00:00'),
-        end: dayjs('2024-06-12 12:00:00'),
+        ukStartDatetime: '2024-06-12T08:00:00',
+        ukEndDatetime: '2024-06-12T12:00:00',
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
@@ -318,11 +309,11 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 96,
   },
   {
-    date: dayjs('2024-06-13 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-13'),
     sessions: [
       {
-        start: dayjs('2024-06-13 10:00:00'),
-        end: dayjs('2024-06-13 14:00:00'),
+        ukStartDatetime: '2024-06-13T10:00:00',
+        ukEndDatetime: '2024-06-13T14:00:00',
         maximumCapacity: 96,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0 },
@@ -330,8 +321,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         slotLength: 5,
       },
       {
-        start: dayjs('2024-06-13 15:00:00'),
-        end: dayjs('2024-06-13 18:00:00'),
+        ukStartDatetime: '2024-06-13T15:00:00',
+        ukEndDatetime: '2024-06-13T18:00:00',
         maximumCapacity: 18,
         totalBookings: 0,
         bookings: { 'FLU:18_64': 0 },
@@ -346,11 +337,11 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 114,
   },
   {
-    date: dayjs('2024-06-14 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-14'),
     sessions: [
       {
-        start: dayjs('2024-06-14 09:00:00'),
-        end: dayjs('2024-06-14 13:00:00'),
+        ukStartDatetime: '2024-06-14T09:00:00',
+        ukEndDatetime: '2024-06-14T13:00:00',
         maximumCapacity: 72,
         totalBookings: 0,
         bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
@@ -365,7 +356,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 72,
   },
   {
-    date: dayjs('2024-06-15 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-15'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -374,7 +365,7 @@ const mockWeekAvailability__Summary: DaySummary[] = [
     remainingCapacity: 0,
   },
   {
-    date: dayjs('2024-06-16 00:00:00'),
+    ukDate: parseToUkDatetime('2024-06-16'),
     sessions: [],
     maximumCapacity: 0,
     bookedAppointments: 0,
@@ -389,10 +380,10 @@ const mockWeekSummary: WeekSummary = {
   endDate: sundayThe16thOfJune2024,
   daySummaries: mockWeekAvailability__Summary,
   maximumCapacity: 480,
-  bookedAppointments: 5,
+  bookedAppointments: 4,
   cancelledAppointments: 1,
   orphanedAppointments: 1,
-  remainingCapacity: 475,
+  remainingCapacity: 476,
 };
 
 export {

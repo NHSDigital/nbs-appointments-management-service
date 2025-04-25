@@ -1,17 +1,17 @@
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { Site } from '@types';
-import dayjs from 'dayjs';
 import { WeekSummaryCard } from './week-summary-card';
 import { fetchClinicalServices } from '@services/appointmentsService';
+import { DayJsType } from '@services/timeService';
 
 type Props = {
   site: Site;
-  weeks: dayjs.Dayjs[][];
+  ukWeeks: DayJsType[][];
 };
 
-export const WeekCardList = async ({ site, weeks }: Props) => {
-  const weekSummaries = await Promise.all(
-    weeks.map(async week => {
+export const WeekCardList = async ({ site, ukWeeks }: Props) => {
+  const ukWeekSummaries = await Promise.all(
+    ukWeeks.map(async week => {
       return summariseWeek(week[0], week[6], site.id);
     }),
   );
@@ -20,11 +20,11 @@ export const WeekCardList = async ({ site, weeks }: Props) => {
 
   return (
     <ol className="card-list">
-      {weekSummaries.map((week, weekIndex) => {
+      {ukWeekSummaries.map((week, weekIndex) => {
         return (
           <li key={`week-summary-${weekIndex}`}>
             <WeekSummaryCard
-              weekSummary={week}
+              ukWeekSummary={week}
               clinicalServices={clinicalServices}
             />
           </li>

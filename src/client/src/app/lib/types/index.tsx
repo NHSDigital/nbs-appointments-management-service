@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { DayJsType } from '@services/timeService';
 import MyaError, { UnauthorizedError, ErrorType } from './mya-error';
 
 type ApiErrorResponse = {
@@ -96,6 +96,8 @@ type AvailabilityTemplate = {
   sessions: AvailabilitySession[];
 };
 
+export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
@@ -123,7 +125,7 @@ type AvailabilitySession = {
 
 type AvailabilitySlot = {
   sessionIndex: number;
-  from: dayjs.Dayjs;
+  from: DayJsType;
   length: number;
   services: string[];
   capacity: number;
@@ -231,8 +233,8 @@ type Week = {
   totalAppointments?: number;
   booked?: number;
   bookedAppointments: BookedAppointments[];
-  startDate: dayjs.Dayjs;
-  endDate: dayjs.Dayjs;
+  startDate: DayJsType;
+  endDate: DayJsType;
 };
 
 type FetchBookingsRequest = {
@@ -247,7 +249,7 @@ type Booking = {
   duration: number;
   service: string;
   site: string;
-  status: 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+  status: BookingStatus;
   availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
@@ -293,8 +295,8 @@ type DayAvailabilityDetails = {
 };
 
 type SessionSummary = {
-  start: dayjs.Dayjs;
-  end: dayjs.Dayjs;
+  ukStartDatetime: string;
+  ukEndDatetime: string;
   maximumCapacity: number;
   totalBookings: number;
   bookings: Record<string, number>;
@@ -303,7 +305,7 @@ type SessionSummary = {
 };
 
 type DaySummary = {
-  date: dayjs.Dayjs;
+  ukDate: DayJsType;
   sessions: SessionSummary[];
   maximumCapacity: number;
   bookedAppointments: number;
@@ -313,8 +315,8 @@ type DaySummary = {
 };
 
 type WeekSummary = {
-  startDate: dayjs.Dayjs;
-  endDate: dayjs.Dayjs;
+  startDate: DayJsType;
+  endDate: DayJsType;
   daySummaries: DaySummary[];
   maximumCapacity: number;
   bookedAppointments: number;

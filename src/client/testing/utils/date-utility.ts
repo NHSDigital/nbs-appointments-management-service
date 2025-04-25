@@ -1,17 +1,17 @@
-import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-dayjs.extend(isoWeek);
-
-interface DateComponents {
-  day: string;
-  month: string;
-  year: string;
-}
+import {
+  addToUkDatetime,
+  dateFormat,
+  endOfUkWeek,
+  parseToUkDatetime,
+  startOfUkWeek,
+  ukNow,
+} from '@services/timeService';
+import { DateComponents } from '@types';
 
 export const getDateInFuture = (
   numberOfDaysFromToday: number,
 ): DateComponents => {
-  const futureDate = dayjs().add(numberOfDaysFromToday, 'day');
+  const futureDate = addToUkDatetime(ukNow(), numberOfDaysFromToday, 'day');
 
   return {
     day: futureDate.format('DD'),
@@ -22,8 +22,9 @@ export const getDateInFuture = (
 
 export const daysFromToday = (
   numberOfDaysFromToday = 1,
-  requiredformat = 'YYYY-MM-DD',
-) => dayjs().add(numberOfDaysFromToday, 'day').format(requiredformat);
+  requiredformat = dateFormat,
+) =>
+  addToUkDatetime(ukNow(), numberOfDaysFromToday, 'day').format(requiredformat);
 
 export const weekHeaderText = (date: string) =>
-  `${dayjs(date).startOf('isoWeek').format('D MMMM')} to ${dayjs(date).endOf('isoWeek').format('D MMMM')}`;
+  `${startOfUkWeek(parseToUkDatetime(date)).format('D MMMM')} to ${endOfUkWeek(parseToUkDatetime(date)).format('D MMMM')}`;

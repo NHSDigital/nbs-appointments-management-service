@@ -9,10 +9,14 @@ import {
   LinkActionProps,
   OnClickActionProps,
 } from '@components/nhsuk-frontend';
+import { Role } from '@types';
+import { sortRolesByName } from '@sorting';
 
-const UserSummary = () => {
+const UserSummary = ({ roles }: { roles: Role[] }) => {
   const { push } = useRouter();
   const [formData, setFormData] = useState<UserDetails | null>(null);
+
+  const sortedRoles = roles.toSorted(sortRolesByName);
 
   type UserDetails = {
     site: string;
@@ -66,12 +70,15 @@ const UserSummary = () => {
     };
   };
 
-  const userDetails: SummaryListItem[] = [
+  const oktaCreateSummary: SummaryListItem[] = [
     {
       title: 'Name',
-      value: isNhsUser ? '' : `${formData?.firstName} ${formData?.lastName}`,
+      value: `${formData?.firstName} ${formData?.lastName}`,
       action: changeAction(userDetailsPagePath, isNhsUser),
     },
+  ];
+
+  const userDetails: SummaryListItem[] = [
     {
       title: 'Email address',
       value: formData?.user,
@@ -79,7 +86,10 @@ const UserSummary = () => {
     },
     {
       title: 'Roles',
-      value: formData?.roles.join(', '),
+      value: sortedRoles
+        .filter(sr => formData?.roles.includes(sr.id))
+        .map(x => x.displayName)
+        .join(', '),
       action: changeAction(userDetailsPagePath, false),
     },
   ];
@@ -100,7 +110,14 @@ const UserSummary = () => {
 
   return (
     <div>
-      {userDetails && <SummaryList items={userDetails}></SummaryList>}
+      {userDetails && (
+        <SummaryList
+          items={[
+            ...(formData?.isEdit || isNhsUser ? [] : oktaCreateSummary),
+            ...userDetails,
+          ]}
+        ></SummaryList>
+      )}
 
       <p aria-label="submition-note">{getSubmissionNote()}</p>
 

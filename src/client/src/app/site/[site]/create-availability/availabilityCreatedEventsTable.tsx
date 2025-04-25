@@ -1,5 +1,5 @@
 import { Table } from '@components/nhsuk-frontend';
-import { parseDateString } from '@services/timeService';
+import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilityCreatedEvent, ClinicalService } from '@types';
 import {
   fetchAvailabilityCreatedEvents,
@@ -36,7 +36,7 @@ const mapTableData = (
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {
       return [
-        `${parseDateString(availability.from).format('D MMM YYYY')} - ${parseDateString(availability.to ?? '').format('D MMM YYYY')}`,
+        `${parseToUkDatetime(availability.from).format('D MMM YYYY')} - ${parseToUkDatetime(availability.to ?? '').format('D MMM YYYY')}`,
         availability.template.days.length === 7
           ? 'All'
           : availability.template.days.map(d => d.substring(0, 3)).join(', '),
@@ -47,8 +47,8 @@ const mapTableData = (
       ];
     }
     return [
-      parseDateString(availability.from).format('D MMM YYYY'),
-      parseDateString(availability.from).format('ddd'),
+      parseToUkDatetime(availability.from).format('D MMM YYYY'),
+      parseToUkDatetime(availability.from).format('ddd'),
       availability.sessions
         ? availability.sessions[0].services.map(service =>
             serviceValueToLabel(service, clinicalServices),

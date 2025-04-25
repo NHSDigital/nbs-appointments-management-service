@@ -10,7 +10,11 @@ import {
 } from '@components/nhsuk-frontend';
 import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
-import dayjs from 'dayjs';
+import {
+  dateTimeFormat,
+  dateFormat,
+  parseToUkDatetime,
+} from '@services/timeService';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -46,7 +50,7 @@ const CancelAppointmentPage = ({
       await cancelAppointment(booking.reference, site);
     }
 
-    const returnDate = dayjs(booking.from).format('YYYY-MM-DD');
+    const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
 
     replace(
       `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
@@ -96,7 +100,7 @@ const mapSummaryData = (
 
   const items: SummaryListItem[] = [];
 
-  const bookingDate = dayjs(booking.from);
+  const bookingDate = parseToUkDatetime(booking.from, dateTimeFormat);
   const contactDetails =
     booking.contactDetails && booking.contactDetails.length > 0
       ? booking.contactDetails?.map(c => c.value)
@@ -113,7 +117,9 @@ const mapSummaryData = (
   items.push({ title: 'NHS number', value: booking.attendeeDetails.nhsNumber });
   items.push({
     title: 'Date of birth',
-    value: dayjs(booking.attendeeDetails.dateOfBirth).format('D MMMM YYYY'),
+    value: parseToUkDatetime(booking.attendeeDetails.dateOfBirth).format(
+      'D MMMM YYYY',
+    ),
   });
   items.push({ title: 'Contact information', value: contactDetails });
   items.push({

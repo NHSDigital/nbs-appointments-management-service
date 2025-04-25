@@ -27,6 +27,7 @@ const allowedEmailDomains = [
   'northerntrust.hscni.net',
   'redcross.org.uk',
   'superdrug.com',
+  'okta.net',
 ];
 
 const FindUserForm = ({
@@ -102,7 +103,7 @@ const FindUserForm = ({
         <FormGroup
           error={
             errors.email
-              ? 'Email address must be @nhs.net or an authorised email domain'
+              ? 'Email address must be nhs.net or an authorised email domain'
               : undefined
           }
         >

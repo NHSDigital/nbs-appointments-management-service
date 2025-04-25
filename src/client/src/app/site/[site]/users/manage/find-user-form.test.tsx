@@ -23,7 +23,9 @@ describe('FindUserForm', () => {
     await user.click(searchButton);
 
     expect(
-      await screen.findByText('You have not entered a valid NHS email address'),
+      await screen.findByText(
+        'Email address must be nhs.net or an authorised email domain',
+      ),
     ).toBeVisible();
   });
 
@@ -39,7 +41,9 @@ describe('FindUserForm', () => {
     await user.click(searchButton);
 
     expect(
-      await screen.findByText('You have not entered a valid NHS email address'),
+      await screen.findByText(
+        'Email address must be nhs.net or an authorised email domain',
+      ),
     ).toBeVisible();
   });
 
@@ -56,7 +60,7 @@ describe('FindUserForm', () => {
 
     expect(
       await screen.queryByText(
-        'You have not entered a valid nhs email address',
+        'Email address must be nhs.net or an authorised email domain',
       ),
     ).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith(
@@ -86,7 +90,7 @@ describe('FindUserForm', () => {
 
     expect(
       await screen.queryByText(
-        'You have not entered a valid nhs email address',
+        'Email address must be nhs.net or an authorised email domain',
       ),
     ).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith(
@@ -107,7 +111,7 @@ describe('FindUserForm', () => {
 
     expect(
       await screen.queryByText(
-        'You have not entered a valid nhs email address',
+        'Email address must be nhs.net or an authorised email domain',
       ),
     ).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith(
@@ -132,7 +136,7 @@ describe('FindUserForm', () => {
 
     expect(
       await screen.queryByText(
-        'You have not entered a valid nhs email address',
+        'Email address must be nhs.net or an authorised email domain',
       ),
     ).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith(

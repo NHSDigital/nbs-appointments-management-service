@@ -219,24 +219,6 @@ const mockBooking6: Booking = {
   reminderSet: false,
 };
 
-const mockBooking7: Booking = {
-  reference: 'mock-booking-7',
-  from: '2024-06-11T09:20:00',
-  duration: 10,
-  service: 'RSV:Adult',
-  site: 'TEST01',
-  attendeeDetails: {
-    nhsNumber: '9999999993',
-    firstName: 'Bertha',
-    lastName: 'Mildrew',
-    dateOfBirth: new Date(1973, 2, 3),
-  },
-  created: '2024-08-29T03:21:08.0477062',
-  status: 'Provisional',
-  availabilityStatus: 'Supported',
-  reminderSet: false,
-};
-
 const mockBookings: Booking[] = [
   mockBooking1,
   mockBooking2,
@@ -244,7 +226,6 @@ const mockBookings: Booking[] = [
   mockBooking4,
   mockBooking5,
   mockBooking6,
-  mockBooking7,
 ];
 
 /**
@@ -287,8 +268,8 @@ const mockWeekAvailability__Summary: DaySummary[] = [
         ukStartDatetime: '2024-06-11T09:00:00',
         ukEndDatetime: '2024-06-11T12:00:00',
         maximumCapacity: 36,
-        totalBookings: 3,
-        bookings: { 'RSV:Adult': 2, 'FLU:18_64': 1 },
+        totalBookings: 2,
+        bookings: { 'RSV:Adult': 1, 'FLU:18_64': 1 },
         capacity: 2,
         slotLength: 10,
       },
@@ -303,10 +284,10 @@ const mockWeekAvailability__Summary: DaySummary[] = [
       },
     ],
     maximumCapacity: 72,
-    bookedAppointments: 3,
+    bookedAppointments: 2,
     cancelledAppointments: 1,
     orphanedAppointments: 0,
-    remainingCapacity: 69,
+    remainingCapacity: 70,
   },
   {
     ukDate: parseToUkDatetime('2024-06-12'),
@@ -399,10 +380,10 @@ const mockWeekSummary: WeekSummary = {
   endDate: sundayThe16thOfJune2024,
   daySummaries: mockWeekAvailability__Summary,
   maximumCapacity: 480,
-  bookedAppointments: 5,
+  bookedAppointments: 4,
   cancelledAppointments: 1,
   orphanedAppointments: 1,
-  remainingCapacity: 475,
+  remainingCapacity: 476,
 };
 
 export {

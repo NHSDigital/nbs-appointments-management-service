@@ -1,11 +1,10 @@
 {
   "FeatureManagement": {
     "OktaEnabled": true,
-    "MultiServiceAvailabilityCalculations": false,
+    "MultipleServicesEnabled": false,
     "TestFeatureEnabled": true,
     "JointBookings": true,
     "BulkImport": true,
-    "multiple-services": true,
     "RSV-Adult": true,
     "TestA-Child": true,
     "TestA-Adult": true,
@@ -54,7 +53,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -85,7 +84,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }

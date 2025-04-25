@@ -3,7 +3,7 @@ namespace Nhs.Appointments.Core.Features;
 public static class Flags
 {
     public const string BulkImport = "BulkImport";
-    public const string MultiServiceAvailabilityCalculations = "MultiServiceAvailabilityCalculations";
+    public const string MultipleServicesEnabled = "MultipleServicesEnabled";
     public const string OktaEnabled = "OktaEnabled";
     public const string JointBookings = "JointBookings";
 

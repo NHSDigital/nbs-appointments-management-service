@@ -3,7 +3,7 @@ using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
 
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", true)]
+[MockedFeatureToggle("MultipleServicesEnabled", true)]
 public class AvailabilityCalculationsBase : FeatureToggledTests
 {
     protected readonly AvailabilityService _sut;

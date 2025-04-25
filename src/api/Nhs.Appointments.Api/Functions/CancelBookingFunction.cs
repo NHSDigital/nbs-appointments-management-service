@@ -56,7 +56,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations)
+        var result = await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled)
             ? await availabilityService.CancelBooking(request.bookingReference, request.site)
             : await bookingService.CancelBooking(request.bookingReference, request.site);
 

@@ -57,7 +57,7 @@ public class CancelSessionFunction(
             request.SlotLength,
             request.Capacity);
 
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
         {
             await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
         }

@@ -14,7 +14,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
+[MockedFeatureToggle("MultipleServicesEnabled", false)]
 public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
@@ -134,7 +134,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     }
 
     [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
+    public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
     {
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
@@ -159,9 +159,9 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     }
 
     [Fact]
-    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
+    public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
     {
-        Toggle("MultiServiceAvailabilityCalculations", true);
+        Toggle("MultipleServicesEnabled", true);
 
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));

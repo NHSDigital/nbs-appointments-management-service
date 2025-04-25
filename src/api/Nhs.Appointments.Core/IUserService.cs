@@ -9,4 +9,5 @@ public interface IUserService
     Task<IEnumerable<User>> GetUsersAsync(string site);
     Task<OperationResult> RemoveUserAsync(string userId, string site);
     Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    Task<UserIdentityStatus> GetUserIdentityStatusAsync(string userId);
 }

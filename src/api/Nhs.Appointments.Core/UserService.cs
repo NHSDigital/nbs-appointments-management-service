@@ -1,9 +1,16 @@
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Okta;
 
 namespace Nhs.Appointments.Core;
 
-public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageBus bus) : IUserService
+public class UserService(
+    IUserStore userStore,
+    IRolesStore rolesStore,
+    IMessageBus bus,
+    IOktaUserDirectory oktaStore,
+    IEmailWhitelistStore whiteListStore)
+    : IUserService
 {
     public Task<User> GetUserAsync(string userId)
     {
@@ -89,6 +96,36 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
 
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
         => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
+
+    public async Task<UserIdentityStatus> GetUserIdentityStatusAsync(string userId)
+    {
+        var whitelistedEmails = await whiteListStore.GetWhitelistedEmails();
+        var userProfile = await userStore.GetOrDefaultAsync(userId);
+
+        var identityProvider = userId.ToLower().EndsWith("@nhs.net") ? IdentityProvider.NhsMail : IdentityProvider.Okta;
+
+        if (identityProvider == IdentityProvider.NhsMail)
+        {
+            return new UserIdentityStatus
+            {
+                IdentityProvider = IdentityProvider.NhsMail,
+                ExtantInMya = userProfile != null,
+                // We currently assume all @nhs.net email addresses are valid
+                ExtantInIdentityProvider = true,
+                MeetsWhitelistRequirements = whitelistedEmails.Any(userId.EndsWith)
+            };
+        }
+
+        var userExistsInOkta = await oktaStore.GetUserAsync(userId);
+
+        return new UserIdentityStatus
+        {
+            IdentityProvider = IdentityProvider.Okta,
+            ExtantInMya = userProfile != null,
+            ExtantInIdentityProvider = userExistsInOkta != null,
+            MeetsWhitelistRequirements = whitelistedEmails.Any(userId.EndsWith)
+        };
+    }
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

@@ -40,8 +40,6 @@ public class GetUserRoleAssignmentsFunctionTests
                 Id = "test1@test.com",
                 RoleAssignments =
                     [new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }],
-                FirstName = "first1",
-                LastName = "last1"
             },
             new()
             {
@@ -51,8 +49,6 @@ public class GetUserRoleAssignmentsFunctionTests
                     new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
                     new RoleAssignment { Role = "Role1", Scope = "site:308d515c-2002-450e-b248-4ba36f6667bb" }
                 ],
-                FirstName = "first2",
-                LastName = "last2"
             }
         };
         var expectedResult = new User[]
@@ -64,8 +60,6 @@ public class GetUserRoleAssignmentsFunctionTests
                 [
                     new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }
                 ],
-                FirstName = "first1",
-                LastName = "last1"
             },
             new()
             {
@@ -74,8 +68,6 @@ public class GetUserRoleAssignmentsFunctionTests
                 [
                     new RoleAssignment { Role = "Role1", Scope = "site:2de5bb57-060f-4cb5-b14d-16587d0c2e8f" }
                 ],
-                FirstName = "first2",
-                LastName = "last2"
             }
         };
         _userService.Setup(x => x.GetUsersAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(users);

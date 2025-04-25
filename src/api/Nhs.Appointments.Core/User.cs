@@ -12,12 +12,6 @@ public class User
 
     [JsonProperty("latestAcceptedEulaVersion")]
     public DateOnly? LatestAcceptedEulaVersion { get; set; }
-
-    [JsonProperty("firstName")]
-    public string FirstName { get; set; }
-
-    [JsonProperty("lastName")]
-    public string LastName { get; set; }
 }
 
 public class RoleAssignment

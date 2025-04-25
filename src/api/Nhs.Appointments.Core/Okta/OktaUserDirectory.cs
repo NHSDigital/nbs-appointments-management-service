@@ -2,8 +2,8 @@ using Microsoft.Extensions.Logging;
 using Okta.Sdk.Api;
 using Okta.Sdk.Model;
 
+namespace Nhs.Appointments.Core.Okta;
 
-namespace Nhs.Appointments.UserManagement.Okta;
 public class OktaUserDirectory : IOktaUserDirectory
 {
     private readonly UserApi _userApi;

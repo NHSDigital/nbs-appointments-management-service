@@ -2,11 +2,10 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core;
 using Okta.Sdk.Api;
 using Okta.Sdk.Client;
 
-namespace Nhs.Appointments.UserManagement.Okta;
+namespace Nhs.Appointments.Core.Okta;
 
 public static class ServiceProviderExtensions
 {

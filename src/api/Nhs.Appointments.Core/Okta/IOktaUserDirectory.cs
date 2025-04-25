@@ -1,6 +1,5 @@
-using Okta.Sdk.Model;
+namespace Nhs.Appointments.Core.Okta;
 
-namespace Nhs.Appointments.UserManagement.Okta;
 public interface IOktaUserDirectory
 {
     Task<OktaUserResponse?> GetUserAsync(string user);

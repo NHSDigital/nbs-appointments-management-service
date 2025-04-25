@@ -1,6 +1,4 @@
-using Nhs.Appointments.Core;
-
-namespace Nhs.Appointments.UserManagement.Okta;
+namespace Nhs.Appointments.Core.Okta;
 
 public class OktaService(IOktaUserDirectory oktaUserDirectory) : IOktaService
 {
@@ -15,7 +13,7 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory) : IOktaService
 
             if (oktaUser.IsProvisioned && isOlderThanOneDay)
             {
-                success = await oktaUserDirectory.ReactivateUserAsync(userEmail); ;
+                success = await oktaUserDirectory.ReactivateUserAsync(userEmail);
             }
             else if (oktaUser.IsActive)
             {

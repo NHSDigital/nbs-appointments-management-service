@@ -21,6 +21,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
 		<PackageReference Include="Polly" Version="8.5.2" />
+        <PackageReference Include="Okta.Sdk" Version="9.0.4"/>
 	</ItemGroup>
 
 	<ItemGroup>

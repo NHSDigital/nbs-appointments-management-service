@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Nhs.Appointments.Core.Okta;
 
 namespace Nhs.Appointments.UserManagement.Okta.UnitTests;
 

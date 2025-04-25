@@ -1,4 +1,5 @@
-namespace Nhs.Appointments.UserManagement.Okta;
+namespace Nhs.Appointments.Core.Okta;
+
 public class OktaUserResponse
 {
     public bool IsProvisioned { get; set; }

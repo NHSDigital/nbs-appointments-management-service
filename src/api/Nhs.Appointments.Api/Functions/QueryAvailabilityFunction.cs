@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction(
-    IAvailabilityCalculator availabilityCalculator,
+    IAvailabilityService availabilityService,
     IValidator<QueryAvailabilityRequest> validator,
     IAvailabilityGrouperFactory availabilityGrouperFactory,
     IUserContextProvider userContextProvider,
@@ -74,7 +74,10 @@ public class QueryAvailabilityFunction(
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until, int consecutive)
     {
-        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = until.ToDateTime(new TimeOnly(23, 59));
+        
+        var slots = (await availabilityService.GetAvailabilityState(site, dayStart, dayEnd, service, false)).AvailableSlots;
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {

@@ -12,12 +12,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
 {
     private  HttpResponseMessage _response;
-    
-    [Given(@"There are no role assignments for user '.+'")]
-    public Task NoRoleAssignments()
-    {
-        return Task.CompletedTask;
-    }
 
     [When(@"I assign the following roles to user '(.+)'")]
     public async Task AssignRole(string user, Gherkin.Ast.DataTable dataTable)

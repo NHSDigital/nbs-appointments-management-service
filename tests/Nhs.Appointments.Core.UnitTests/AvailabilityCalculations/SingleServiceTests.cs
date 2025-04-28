@@ -68,10 +68,13 @@ public class SingleServiceTests : AvailabilityCalculationsBase
     [Fact]
     public async Task DeletesProvisionalAppointments()
     {
+        var utcNow = DateTime.UtcNow;
+        base._timeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Green", avStatus: "Supported", status: "Booked", creationOrder: 1),
-            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2)
+            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-3))
         };
 
         var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
@@ -88,6 +91,35 @@ public class SingleServiceTests : AvailabilityCalculationsBase
         resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
     }
 
+    [Fact]
+    public async Task ExpiredProvisionalAppointments_NotDeleted()
+    {
+        var utcNow = DateTime.UtcNow;
+        base._timeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Green", avStatus: "Supported", status: "Booked", creationOrder: 1),
+            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-8))
+        };
+
+        var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
+
+        resultingAvailabilityState.Recalculations.Should().Contain(s =>
+            s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
+        
+        //if a provisional booking has expired, we don't need to include it in our availability state
+        //it will eventually be deleted up by the expired process
+        resultingAvailabilityState.Recalculations.Should().NotContain(s =>
+            s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
+        resultingAvailabilityState.Bookings.Should().BeEmpty();
+        resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
+    }
+    
     [Fact]
     public async Task PrioritisesAppointmentsByCreatedDate()
     {

@@ -101,30 +101,33 @@ public class UserService(
     {
         var whitelistedEmails = await whiteListStore.GetWhitelistedEmails();
         var userProfile = await userStore.GetOrDefaultAsync(userId);
-
         var identityProvider = userId.ToLower().EndsWith("@nhs.net") ? IdentityProvider.NhsMail : IdentityProvider.Okta;
-
-        if (identityProvider == IdentityProvider.NhsMail)
-        {
-            return new UserIdentityStatus
-            {
-                IdentityProvider = IdentityProvider.NhsMail,
-                ExtantInMya = userProfile != null,
-                // We currently assume all @nhs.net email addresses are valid
-                ExtantInIdentityProvider = true,
-                MeetsWhitelistRequirements = whitelistedEmails.Any(userId.EndsWith)
-            };
-        }
-
-        var userExistsInOkta = await oktaStore.GetUserAsync(userId);
 
         return new UserIdentityStatus
         {
-            IdentityProvider = IdentityProvider.Okta,
+            IdentityProvider = identityProvider,
             ExtantInMya = userProfile != null,
-            ExtantInIdentityProvider = userExistsInOkta != null,
-            MeetsWhitelistRequirements = whitelistedEmails.Any(userId.EndsWith)
+            ExtantInIdentityProvider = await CheckIfUserExistsInIdentityServer(userId, identityProvider),
+            MeetsWhitelistRequirements = whitelistedEmails.Any(userId.ToLower().EndsWith)
         };
+    }
+
+    private async Task<bool> CheckIfUserExistsInIdentityServer(string userId, IdentityProvider identityProvider)
+    {
+        switch (identityProvider)
+        {
+            case IdentityProvider.NhsMail:
+                // We currently assume all @nhs.net email addresses are valid
+                return true;
+            case IdentityProvider.Okta:
+                {
+                    var userExistsInOkta = await oktaStore.GetUserAsync(userId);
+                    return userExistsInOkta != null;
+                }
+            case IdentityProvider.Unknown:
+            default:
+                return false;
+        }
     }
 }
 

@@ -1,6 +1,9 @@
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+
+#pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 
 namespace Nhs.Appointments.Core.UnitTests
 {
@@ -14,6 +17,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IAvailabilityService> _availabilityService = new();
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
+        private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
         public BookingsServiceTests()
         {
@@ -21,9 +25,11 @@ namespace Nhs.Appointments.Core.UnitTests
                 _bookingsDocumentStore.Object,
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
-                _availabilityCalculator.Object,
                 _availabilityStore.Object,
+                _availabilityCalculator.Object,
+                _availabilityService.Object,
                 new EventFactory(),
+                _featureToggleHelper.Object,
                 _messageBus.Object,
                 TimeProvider.System);
         }
@@ -43,9 +49,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object,
-                leaseManager, _availabilityCalculator.Object, _availabilityStore.Object,
-                new EventFactory(),
-                _messageBus.Object, TimeProvider.System);
+                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, _availabilityService.Object,
+                new EventFactory(), _featureToggleHelper.Object, _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             await Task.Delay(100);
@@ -332,10 +337,10 @@ namespace Nhs.Appointments.Core.UnitTests
             };
 
             _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
+                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site, It.IsAny<string>()))
                 .ReturnsAsync(bookings);
 
-            var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site);
+            var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site, It.IsAny<string>());
 
             Assert.Multiple(
                 () => Assert.True(response.ToArray()[0].Reference == "4"),
@@ -352,8 +357,10 @@ namespace Nhs.Appointments.Core.UnitTests
             private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
             private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
             private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+            private readonly Mock<IAvailabilityService> _availabilityService = new();
             private readonly Mock<IMessageBus> _messageBus = new();
             private readonly Mock<TimeProvider> _timeProvider = new();
+            private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
             private const string MockSite = "some-site";
 
@@ -367,9 +374,11 @@ namespace Nhs.Appointments.Core.UnitTests
                     _bookingsDocumentStore.Object,
                     _referenceNumberProvider.Object,
                     _siteLeaseManager.Object,
-                    availabilityCalculator,
                     _availabilityStore.Object,
+                    availabilityCalculator,
+                    _availabilityService.Object,
                     new EventFactory(),
+                    _featureToggleHelper.Object,
                     _messageBus.Object,
                     TimeProvider.System);
             }
@@ -418,7 +427,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -433,17 +442,18 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>()))
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<string>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
                 _availabilityStore.Verify(a =>
-                    a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
+                    a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1), It.IsAny<string>()));
 
                 var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
-                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
+                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite, It.IsAny<string>()));
 
                 _bookingsDocumentStore.Verify(
                     x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
@@ -479,7 +489,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -494,7 +504,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>()))
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<string>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -536,7 +547,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -551,7 +562,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>()))
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<string>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -594,7 +606,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -609,7 +621,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>()))
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<string>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -655,7 +668,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -670,7 +683,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>()))
+                        It.IsAny<DateOnly>(),
+                        It.IsAny<string>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingsService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));

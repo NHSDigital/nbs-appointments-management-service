@@ -211,7 +211,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync(userId);
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", userId);
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.NhsMail);
             identityStatus.ExtantInMya.Should().BeFalse();
@@ -224,13 +224,19 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task GetUserIdentityStatus_NhsUser_WhenUserDoesExistInMya()
         {
             _userStore
-                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User());
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-site" }
+                    ]
+                });
 
             var whiteListedEmails = new List<string> { "@nhs.net" };
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync("some.user@nhs.net");
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.NhsMail);
             identityStatus.ExtantInMya.Should().BeTrue();
@@ -254,7 +260,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync(userId);
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", userId);
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
             identityStatus.ExtantInMya.Should().BeFalse();
@@ -266,8 +272,13 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task GetUserIdentityStatus_Okta_User_WhenUserDoesExistInMya_AndDoesNotExistInOkta()
         {
             _userStore
-                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>()))
-                .ReturnsAsync(new User());
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-site" }
+                    ]
+                });
             _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
                 .ReturnsAsync((OktaUserResponse)null);
 
@@ -275,7 +286,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync("some.user@not-nhs.net");
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
             identityStatus.ExtantInMya.Should().BeTrue();
@@ -296,7 +307,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync("some.user@not-nhs.net");
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
             identityStatus.ExtantInMya.Should().BeFalse();
@@ -308,8 +319,13 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task GetUserIdentityStatus_Okta_User_WhenUserDoesExistInMya_AndDoesExistInOkta()
         {
             _userStore
-                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>()))
-                .ReturnsAsync(new User());
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-site" }
+                    ]
+                });
             _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
                 .ReturnsAsync(new OktaUserResponse());
 
@@ -317,7 +333,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync("some.user@not-nhs.net");
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
             identityStatus.ExtantInMya.Should().BeTrue();
@@ -329,8 +345,13 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task GetUserIdentityStatus_Okta_User_WhitelistRequirementsNotMet()
         {
             _userStore
-                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>()))
-                .ReturnsAsync(new User());
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-site" }
+                    ]
+                });
             _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
                 .ReturnsAsync(new OktaUserResponse());
 
@@ -338,12 +359,38 @@ namespace Nhs.Appointments.Core.UnitTests
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 
-            var identityStatus = await _sut.GetUserIdentityStatusAsync("some.user@not-a-valid-domain.net");
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-a-valid-domain.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
             identityStatus.ExtantInMya.Should().BeTrue();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task GetUserIdentityStatus_WhenUserDoesExistInMyaButNotInGivenSite()
+        {
+            _userStore
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-OTHER-site" }
+                    ]
+                });
+            _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new OktaUserResponse());
+
+            var whiteListedEmails = new List<string> { "@not-nhs.net", "not-nhs-either.net" };
+            _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
+                .ReturnsAsync(whiteListedEmails);
+
+            var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
+
+            identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
+            identityStatus.ExtantInMya.Should().BeFalse();
+            identityStatus.ExtantInIdentityProvider.Should().BeTrue();
+            identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
     }
 }

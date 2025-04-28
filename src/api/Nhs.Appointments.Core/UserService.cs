@@ -97,19 +97,31 @@ public class UserService(
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
         => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
 
-    public async Task<UserIdentityStatus> GetUserIdentityStatusAsync(string userId)
+    public async Task<UserIdentityStatus> GetUserIdentityStatusAsync(string siteId, string userId)
     {
         var whitelistedEmails = await whiteListStore.GetWhitelistedEmails();
-        var userProfile = await userStore.GetOrDefaultAsync(userId);
         var identityProvider = userId.ToLower().EndsWith("@nhs.net") ? IdentityProvider.NhsMail : IdentityProvider.Okta;
 
         return new UserIdentityStatus
         {
             IdentityProvider = identityProvider,
-            ExtantInMya = userProfile != null,
+            ExtantInMya = await CheckIfUserExistsAtSite(siteId, userId),
             ExtantInIdentityProvider = await CheckIfUserExistsInIdentityServer(userId, identityProvider),
             MeetsWhitelistRequirements = whitelistedEmails.Any(userId.ToLower().EndsWith)
         };
+    }
+
+    private async Task<bool> CheckIfUserExistsAtSite(string siteId, string userId)
+    {
+        var userProfile = await userStore.GetOrDefaultAsync(userId);
+
+        if (userProfile is null)
+        {
+            return false;
+        }
+
+        return userProfile.RoleAssignments.Any(roleAssignment =>
+            roleAssignment.Scope == "global" || roleAssignment.Scope == $"site:{siteId}");
     }
 
     private async Task<bool> CheckIfUserExistsInIdentityServer(string userId, IdentityProvider identityProvider)

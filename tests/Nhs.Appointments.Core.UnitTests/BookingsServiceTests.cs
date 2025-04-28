@@ -14,20 +14,22 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
         private readonly Mock<IAvailabilityStore> _availabilityStore = new();
-        private readonly Mock<IAvailabilityService> _availabilityService = new();
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
         private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
         public BookingsServiceTests()
         {
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            
             _bookingsService = new BookingsService(
                 _bookingsDocumentStore.Object,
+                bookingQueryService,
                 _referenceNumberProvider.Object,
                 _siteLeaseManager.Object,
                 _availabilityStore.Object,
                 _availabilityCalculator.Object,
-                _availabilityService.Object,
+                new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
                 new EventFactory(),
                 _featureToggleHelper.Object,
                 _messageBus.Object,
@@ -47,9 +49,11 @@ namespace Nhs.Appointments.Core.UnitTests
             _availabilityCalculator.Setup(x => x.CalculateAvailability("TEST", "TSERV", expectedFrom, expectedUntil)).ReturnsAsync(availability);
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            
             var leaseManager = new FakeLeaseManager();
-            var bookingService = new BookingsService(_bookingsDocumentStore.Object, _referenceNumberProvider.Object,
-                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, _availabilityService.Object,
+            var bookingService = new BookingsService(_bookingsDocumentStore.Object, bookingQueryService, _referenceNumberProvider.Object,
+                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
                 new EventFactory(), _featureToggleHelper.Object, _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -297,59 +301,6 @@ namespace Nhs.Appointments.Core.UnitTests
             result.Should().Be(BookingCancellationResult.NotFound);
         }
 
-        [Fact]
-        public async Task GetBookings_ReturnsOrderedBookingsForSite()
-        {
-            var site = "some-site";
-            IEnumerable<Booking> bookings = new List<Booking> {
-                new Booking{ 
-                    From = new DateTime(2025, 01, 01, 16, 0, 0), 
-                    Reference = "1", 
-                    AttendeeDetails = new AttendeeDetails{ 
-                        FirstName = "Daniel", 
-                        LastName = "Dixon"
-                    }, 
-                },
-                new Booking{
-                    From = new DateTime(2025, 01, 01, 14, 0, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails{
-                        FirstName = "Alexander",
-                        LastName = "Cooper"
-                    },
-                },
-                new Booking{
-                    From = new DateTime(2025, 01, 01, 14, 0, 0), 
-                    Reference = "3", 
-                    AttendeeDetails = new AttendeeDetails{ 
-                        FirstName = "Alexander", 
-                        LastName = "Brown"
-                    }, 
-                },
-                new Booking{ 
-                    From = new DateTime(2025, 01, 01, 10, 0, 0), 
-                    Reference = "4", 
-                    AttendeeDetails = new AttendeeDetails{ 
-                        FirstName = "Bob", 
-                        LastName = "Dawson"
-                    }, 
-                }
-            };
-
-            _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site, It.IsAny<string>()))
-                .ReturnsAsync(bookings);
-
-            var response = await _bookingsService.GetBookings(new DateTime(), new DateTime(), site, It.IsAny<string>());
-
-            Assert.Multiple(
-                () => Assert.True(response.ToArray()[0].Reference == "4"),
-                () => Assert.True(response.ToArray()[1].Reference == "3"),
-                () => Assert.True(response.ToArray()[2].Reference == "2"),
-                () => Assert.True(response.ToArray()[3].Reference == "1")
-            );
-        }
-
         public class RecalculateAppointmentStatusesTests
         {
             private readonly BookingsService _bookingsService;
@@ -370,13 +321,16 @@ namespace Nhs.Appointments.Core.UnitTests
                     _bookingsDocumentStore.Object,
                     _timeProvider.Object);
 
+                var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+
                 _bookingsService = new BookingsService(
                     _bookingsDocumentStore.Object,
+                    bookingQueryService,
                     _referenceNumberProvider.Object,
                     _siteLeaseManager.Object,
                     _availabilityStore.Object,
                     availabilityCalculator,
-                    _availabilityService.Object,
+                    new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
                     new EventFactory(),
                     _featureToggleHelper.Object,
                     _messageBus.Object,

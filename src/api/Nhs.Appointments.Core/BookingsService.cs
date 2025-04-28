@@ -1,4 +1,5 @@
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -27,8 +28,10 @@ public class BookingsService(
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityStore availabilityStore,
+        IAvailabilityCalculator availabilityCalculator,
         IAvailabilityService availabilityService,
         IBookingEventFactory eventFactory,
+        IFeatureToggleHelper featureToggleHelper,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 {
@@ -67,7 +70,19 @@ public class BookingsService(
             var from = booking.From;
             var to = booking.From.AddMinutes(booking.Duration);
             
-            var slots = (await availabilityService.GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+            List<SessionInstance> slots;
+            
+            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+            {
+                slots = (await availabilityService.GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+            }
+            else
+            {
+                #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+                slots = (await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)))).ToList();
+                #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+            }
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

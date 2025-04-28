@@ -55,14 +55,15 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
     protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
     {
         _bookingsService
-            .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+            .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
             .ReturnsAsync(bookings);
 
         _availabilityStore
             .Setup(x => x.GetSessions(
                 It.Is<string>(s => s == MockSite),
                 It.IsAny<DateOnly>(),
-                It.IsAny<DateOnly>()))
+                It.IsAny<DateOnly>(),
+                It.IsAny<string>()))
             .ReturnsAsync(sessions);
     }
 }

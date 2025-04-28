@@ -86,6 +86,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingsService, BookingsService>()
             .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
+            .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityService, AvailabilityService>()
             .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()

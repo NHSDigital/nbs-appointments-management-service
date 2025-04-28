@@ -7,9 +7,6 @@ namespace Nhs.Appointments.Core;
 
 public interface IBookingsService
 {
-    Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site, string service);
-    Task<Booking> GetBookingByReference(string bookingReference);
-    Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
@@ -25,39 +22,17 @@ public interface IBookingsService
 
 public class BookingsService(
         IBookingsDocumentStore bookingDocumentStore,
+        IBookingQueryService bookingQueryService,
         IReferenceNumberProvider referenceNumberProvider,
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityStore availabilityStore,
         IAvailabilityCalculator availabilityCalculator,
-        IAvailabilityService availabilityService,
+        IAvailabilityStateService availabilityStateService,
         IBookingEventFactory eventFactory,
         IFeatureToggleHelper featureToggleHelper,
         IMessageBus bus,
         TimeProvider time) : IBookingsService
 {
-    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site, string service)
-    {
-        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site, service);
-        return bookings
-            .OrderBy(b => b.From)
-            .ThenBy(b => b.AttendeeDetails.LastName);
-    }
-
-    protected Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
-    {
-        return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
-    }
-
-    public Task<Booking> GetBookingByReference(string bookingReference)
-    {
-        return bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
-    }
-    
-    public Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
-    {
-        return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
-    }
-
     public Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
         bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
 
@@ -74,7 +49,7 @@ public class BookingsService(
             
             if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
             {
-                slots = (await availabilityService.GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+                slots = (await availabilityStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
             }
             else
             {
@@ -180,7 +155,7 @@ public class BookingsService(
         var windowStart = time.GetLocalNow().DateTime;
         var windowEnd = windowStart.AddDays(3);
 
-        var bookings = await GetBookings(windowStart, windowEnd);
+        var bookings = await bookingQueryService.GetBookings(windowStart, windowEnd);
         foreach (var booking in bookings.Where(b => !b.ReminderSent && b.Created < windowStart.AddDays(-1)))
         {
             var reminders = eventFactory.BuildBookingEvents<BookingReminder>(booking);
@@ -201,7 +176,7 @@ public class BookingsService(
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var bookings = (await GetBookings(dayStart, dayEnd, site, service))
+        var bookings = (await bookingQueryService.GetBookings(dayStart, dayEnd, site, service))
             .Where(b => b.Status is not AppointmentStatus.Cancelled)
             .OrderBy(b => b.Created);
 

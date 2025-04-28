@@ -7,6 +7,7 @@ namespace Nhs.Appointments.Core;
 
 public class AvailabilityService(
     IAvailabilityStore availabilityStore,
+    IAvailabilityStateService availabilityStateService,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
     IBookingsService bookingsService,
     ISiteLeaseManager siteLeaseManager,
@@ -17,35 +18,6 @@ public class AvailabilityService(
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper) : IAvailabilityService
 {
-    private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
-
-    internal async Task<List<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to, string service)
-    {
-        var bookings = (await bookingsService.GetBookings(from, to, site, service))
-            .Where(b => _liveStatuses.Contains(b.Status))
-            .Where(b => !IsExpiredProvisional(b))
-            .OrderBy(b => b.Created)
-            .ToList();
-
-        return bookings;
-    }
-    
-    private bool IsExpiredProvisional(Booking b) =>
-        b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
-
-    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to, string service)
-    {
-        var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, from, to, service))
-            .ToList();
-
-        var slots = sessionsOnThatDay
-            .SelectMany(session => session.ToSlots())
-            .ToList();
-
-        return slots;
-    }
-
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
         if (string.IsNullOrEmpty(site))
@@ -154,67 +126,13 @@ public class AvailabilityService(
             cursor = cursor.AddDays(1);
         }
     }
-
-    public SessionInstance ChooseHighestPrioritySlot(List<SessionInstance> slots, Booking booking) =>
-        slots.Where(
-                sl => sl.Capacity > 0
-                      && sl.From == booking.From
-                      && (int)sl.Duration.TotalMinutes == booking.Duration
-                      && sl.Services.Contains(booking.Service))
-            .OrderBy(slot => slot.Services.Length)
-            .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
-            .FirstOrDefault();
-
-    public async Task<AvailabilityState> GetAvailabilityState(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
-    {
-        var availabilityState = new AvailabilityState();
-
-        var orderedLiveBookings = await GetOrderedLiveBookings(site, from, to, service);
-        var slots = await GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
-
-        foreach (var booking in orderedLiveBookings)
-        {
-            var targetSlot = ChooseHighestPrioritySlot(slots, booking);
-            var bookingIsSupportedByAvailability = targetSlot is not null;
-
-            if (bookingIsSupportedByAvailability)
-            {
-                if (processRecalculations && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
-                {
-                    availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                        AvailabilityUpdateAction.SetToSupported));
-                }
-
-                targetSlot.Capacity--;
-                availabilityState.Bookings.Add(booking);
-                continue;
-            }
-
-            if (processRecalculations && booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-                booking.Status is not AppointmentStatus.Provisional)
-            {
-                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                    AvailabilityUpdateAction.SetToOrphaned));
-            }
-
-            if (processRecalculations && booking.Status is AppointmentStatus.Provisional)
-            {
-                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
-                    AvailabilityUpdateAction.ProvisionalToDelete));
-            }
-        }
-
-        availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
-
-        return availabilityState;
-    }
-
+    
     public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
         
-        var availabilityState = await GetAvailabilityState(site, dayStart, dayEnd, "*");
+        var availabilityState = await availabilityStateService.Build(site, dayStart, dayEnd, "*");
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
@@ -278,7 +196,7 @@ public class AvailabilityService(
             var from = booking.From;
             var to = booking.From.AddMinutes(booking.Duration);
             
-            var slots = (await GetAvailabilityState(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+            var slots = (await availabilityStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

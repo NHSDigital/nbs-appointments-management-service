@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
+﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityStateService;
 
-public class MultiServiceTests : AvailabilityCalculationsBase
+public class MultiServiceTests : AvailabilityStateServiceTestBase
 {
     [Fact]
     public async Task MultipleServicesByCreatedDate()
@@ -26,7 +26,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
+        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -61,7 +61,7 @@ public class MultiServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
+        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
 
         // Bookings 1 and 2 can be booked
         resultingAvailabilityState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)

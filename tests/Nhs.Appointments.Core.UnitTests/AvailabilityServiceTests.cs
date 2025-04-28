@@ -10,18 +10,19 @@ public class AvailabilityServiceTests : FeatureToggledTests
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IBookingsService> _bookingsService = new();
+    private readonly Mock<IBookingQueryService> _bookingQueryService = new();
     private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
     private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
     private readonly Mock<IBookingEventFactory> _eventFactory = new();
     private readonly Mock<IMessageBus> _messageBus = new();
-    private readonly Mock<TimeProvider> _time = new();
+    private readonly Mock<TimeProvider> _timeProvider = new();
 
     public AvailabilityServiceTests() : base(typeof(AvailabilityServiceTests)) =>
-        _sut = new AvailabilityService(_availabilityStore.Object,
+        _sut = new AvailabilityService(_availabilityStore.Object, new Core.AvailabilityStateService(_availabilityStore.Object, _bookingQueryService.Object),
             _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
             _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-            _time.Object, _featureToggleHelper.Object);
+            _timeProvider.Object, _featureToggleHelper.Object);
 
     [Theory]
     [InlineData("")]

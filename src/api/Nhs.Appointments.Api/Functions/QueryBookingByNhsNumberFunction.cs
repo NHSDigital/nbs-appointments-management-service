@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryBookingByNhsNumberFunction(
-    IBookingsService bookingsService,
+    IBookingQueryService bookingQueryService,
     IValidator<QueryBookingByNhsNumberRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingByNhsNumberFunction> logger,
@@ -48,7 +48,7 @@ public class QueryBookingByNhsNumberFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingByNhsNumberRequest request,
         ILogger logger)
     {
-        var booking = await bookingsService.GetBookingByNhsNumber(request.nhsNumber);
+        var booking = await bookingQueryService.GetBookingByNhsNumber(request.nhsNumber);
         return Success(booking);
     }
 

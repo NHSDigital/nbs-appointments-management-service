@@ -14,7 +14,7 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class ConfirmProvisionalBookingFunctionTests
 {
-    private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IBookingWriteService> _bookingService = new();
     private readonly Mock<ILogger<ConfirmProvisionalBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();

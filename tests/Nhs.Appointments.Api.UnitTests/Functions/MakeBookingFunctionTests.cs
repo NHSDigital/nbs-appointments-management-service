@@ -18,8 +18,8 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
-    private readonly Mock<IBookingsService> _bookingService = new();
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<IBookingWriteService> _bookingService = new();
+    private readonly Mock<IAvailabilityWriteService> _availabilityService = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();

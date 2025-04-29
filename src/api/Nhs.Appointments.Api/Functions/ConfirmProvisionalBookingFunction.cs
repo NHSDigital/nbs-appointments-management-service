@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Functions;
 
 public class ConfirmProvisionalBookingFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     IValidator<ConfirmBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ConfirmProvisionalBookingFunction> logger,
@@ -65,12 +65,12 @@ public class ConfirmProvisionalBookingFunction(
         // If Joint Bookings disabled ignore the child bookings param
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings) && bookingRequest.relatedBookings.Any()) 
         {
-            result = await bookingService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
+            result = await bookingWriteService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }));
         } 
         else
         {
-            result = await bookingService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
+            result = await bookingWriteService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
             bookingRequest.bookingToReschedule);
         }

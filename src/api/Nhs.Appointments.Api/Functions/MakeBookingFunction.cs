@@ -18,9 +18,9 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class MakeBookingFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     ISiteService siteService,
-    IAvailabilityService availabilityService,
+    IAvailabilityWriteService availabilityWriteService,
     IValidator<MakeBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<MakeBookingFunction> logger,
@@ -71,8 +71,8 @@ public class MakeBookingFunction(
         }
 
         var bookingResult = await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled)
-            ? await availabilityService.MakeBooking(requestedBooking)
-            : await bookingService.MakeBooking(requestedBooking);
+            ? await availabilityWriteService.MakeBooking(requestedBooking)
+            : await bookingWriteService.MakeBooking(requestedBooking);
 
         if (bookingResult.Success == false)
         {

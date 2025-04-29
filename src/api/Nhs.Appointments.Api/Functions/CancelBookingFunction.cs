@@ -20,8 +20,8 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class CancelBookingFunction(
-    IBookingsService bookingService,
-    IAvailabilityService availabilityService,
+    IBookingWriteService bookingWriteService,
+    IAvailabilityWriteService availabilityWriteService,
     IValidator<CancelBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelBookingFunction> logger,
@@ -57,8 +57,8 @@ public class CancelBookingFunction(
         ILogger logger)
     {
         var result = await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled)
-            ? await availabilityService.CancelBooking(request.bookingReference, request.site)
-            : await bookingService.CancelBooking(request.bookingReference, request.site);
+            ? await availabilityWriteService.CancelBooking(request.bookingReference, request.site)
+            : await bookingWriteService.CancelBooking(request.bookingReference, request.site);
 
         switch (result)
         {

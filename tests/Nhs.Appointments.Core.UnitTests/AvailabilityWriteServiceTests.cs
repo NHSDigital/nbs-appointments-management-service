@@ -4,12 +4,12 @@ using Nhs.Appointments.Core.Messaging;
 namespace Nhs.Appointments.Core.UnitTests;
 
 [MockedFeatureToggle("MultipleServicesEnabled", false)]
-public class AvailabilityServiceTests : FeatureToggledTests
+public class AvailabilityWriteServiceTests : FeatureToggledTests
 {
-    private readonly AvailabilityService _sut;
+    private readonly AvailabilityWriteService _sut;
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
-    private readonly Mock<IBookingsService> _bookingsService = new();
+    private readonly Mock<IBookingWriteService> _bookingsService = new();
     private readonly Mock<IBookingQueryService> _bookingQueryService = new();
     private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
@@ -18,8 +18,8 @@ public class AvailabilityServiceTests : FeatureToggledTests
     private readonly Mock<IMessageBus> _messageBus = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
 
-    public AvailabilityServiceTests() : base(typeof(AvailabilityServiceTests)) =>
-        _sut = new AvailabilityService(_availabilityStore.Object, new Core.AllocationStateService(_availabilityStore.Object, _bookingQueryService.Object),
+    public AvailabilityWriteServiceTests() : base(typeof(AvailabilityWriteServiceTests)) =>
+        _sut = new AvailabilityWriteService(_availabilityStore.Object, new Core.AllocationStateService(_availabilityStore.Object, _bookingQueryService.Object),
             _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
             _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
             _timeProvider.Object, _featureToggleHelper.Object);
@@ -358,148 +358,6 @@ public class AvailabilityServiceTests : FeatureToggledTests
         };
         await setAvailability.Should()
             .ThrowAsync<ArgumentException>("When editing a session a session to edit must be supplied.");
-    }
-
-    [Fact]
-    public async Task GetAvailabilityCreatedEvents_OrdersEventsByFromThenByTo()
-    {
-        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
-        {
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2025, 4, 3)),
-            },
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
-                To = DateOnly.FromDateTime(new DateTime(2024, 10, 20)),
-            },
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
-                To = DateOnly.FromDateTime(new DateTime(2024, 10, 15)),
-            }
-        };
-
-        _availabilityCreatedEventStore.Setup(x => x.GetAvailabilityCreatedEvents(It.IsAny<string>()))
-            .ReturnsAsync(availabilityCreatedEvents);
-
-        var fromDate = DateOnly.FromDateTime(DateTime.MinValue);
-        var result = (await _sut.GetAvailabilityCreatedEventsAsync("some-site", fromDate)).ToList();
-
-        result.Should().HaveCount(3);
-
-        result[0].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
-        result[0].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 15)));
-
-        result[1].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
-        result[1].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 20)));
-
-        result[2].From.Should().Be(DateOnly.FromDateTime(new DateTime(2025, 4, 3)));
-        result[2].To.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task GetAvailabilityCreatedEvents_FiltersEventsAfterDate()
-    {
-        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
-        {
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2025, 4, 3)),
-            },
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
-                To = DateOnly.FromDateTime(new DateTime(2024, 10, 20)),
-            },
-            new()
-            {
-                Created = DateTime.UtcNow,
-                By = "some.user@nhs.net",
-                Site = "some-site",
-                From = DateOnly.FromDateTime(new DateTime(2024, 10, 10)),
-                To = DateOnly.FromDateTime(new DateTime(2024, 10, 15)),
-            }
-        };
-
-        _availabilityCreatedEventStore.Setup(x => x.GetAvailabilityCreatedEvents(It.IsAny<string>()))
-            .ReturnsAsync(availabilityCreatedEvents);
-
-        var fromDate = DateOnly.FromDateTime(new DateTime(2024, 10, 17));
-        var result = (await _sut.GetAvailabilityCreatedEventsAsync("some-site", fromDate)).ToList();
-
-        result.Should().HaveCount(2);
-
-        result[0].From.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 10)));
-        result[0].To.Should().Be(DateOnly.FromDateTime(new DateTime(2024, 10, 20)));
-
-        result[1].From.Should().Be(DateOnly.FromDateTime(new DateTime(2025, 4, 3)));
-        result[1].To.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task GetDailyAvailabiltiy_ReturnsAvailabilityWithinDateRange()
-    {
-        var fromDate = DateOnly.FromDateTime(new DateTime(2024, 12, 1));
-        var toDate = DateOnly.FromDateTime(new DateTime(2024, 12, 8));
-
-        var availability = new List<DailyAvailability>
-        {
-            new()
-            {
-                Date = DateOnly.FromDateTime(new DateTime(2024, 12, 1)),
-                Sessions =
-                [
-                    new()
-                    {
-                        From = TimeOnly.FromTimeSpan(TimeSpan.FromHours(11)),
-                        Until = TimeOnly.FromTimeSpan(TimeSpan.FromHours(16)),
-                        Capacity = 2,
-                        SlotLength = 5,
-                        Services = ["RSV:Adult"]
-                    }
-                ]
-            },
-            new()
-            {
-                Date = DateOnly.FromDateTime(new DateTime(2024, 12, 4)),
-                Sessions =
-                [
-                    new()
-                    {
-                        From = TimeOnly.FromTimeSpan(TimeSpan.FromHours(11)),
-                        Until = TimeOnly.FromTimeSpan(TimeSpan.FromHours(16)),
-                        Capacity = 2,
-                        SlotLength = 5,
-                        Services = ["RSV:Adult"]
-                    }
-                ]
-            }
-        };
-
-        _availabilityStore.Setup(x => x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
-            .ReturnsAsync(availability);
-
-        var result = await _sut.GetDailyAvailability("TEST01", fromDate, toDate);
-
-        result.Any().Should().BeTrue();
-        result.Count().Should().Be(2);
     }
 
     [Fact]

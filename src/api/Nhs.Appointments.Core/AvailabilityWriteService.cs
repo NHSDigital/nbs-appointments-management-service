@@ -5,18 +5,18 @@ using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
-public class AvailabilityService(
+public class AvailabilityWriteService(
     IAvailabilityStore availabilityStore,
     IAllocationStateService allocationStateService,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
-    IBookingsService bookingsService,
+    IBookingWriteService bookingWriteService,
     ISiteLeaseManager siteLeaseManager,
     IBookingsDocumentStore bookingDocumentStore,
     IReferenceNumberProvider referenceNumberProvider,
     IBookingEventFactory eventFactory,
     IMessageBus bus,
     TimeProvider time,
-    IFeatureToggleHelper featureToggleHelper) : IAvailabilityService
+    IFeatureToggleHelper featureToggleHelper) : IAvailabilityWriteService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
@@ -46,7 +46,7 @@ public class AvailabilityService(
             }
             else
             {
-                await bookingsService.RecalculateAppointmentStatuses(site, date);
+                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
             }
         }
 
@@ -64,20 +64,10 @@ public class AvailabilityService(
         }
         else
         {
-            await bookingsService.RecalculateAppointmentStatuses(site, date);
+            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
         }
 
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
-    }
-
-    public async Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from)
-    {
-        var events = await availabilityCreatedEventStore.GetAvailabilityCreatedEvents(site);
-
-        return events
-            .Where(acEvent => (acEvent.To ?? acEvent.From) >= from)
-            .OrderBy(e => e.From)
-            .ThenBy(e => e.To);
     }
 
     public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
@@ -95,11 +85,6 @@ public class AvailabilityService(
         }
 
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
-    }
-
-    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
-    {
-        return await availabilityStore.GetDailyAvailability(site, from, to);
     }
 
     public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)
@@ -141,16 +126,16 @@ public class AvailabilityService(
             switch (update.Action)
             {
                 case AvailabilityUpdateAction.ProvisionalToDelete:
-                    await bookingsService.DeleteBooking(update.Booking.Reference, update.Booking.Site);
+                    await bookingWriteService.DeleteBooking(update.Booking.Reference, update.Booking.Site);
                     break;
 
                 case AvailabilityUpdateAction.SetToOrphaned:
-                    await bookingsService.UpdateAvailabilityStatus(update.Booking.Reference,
+                    await bookingWriteService.UpdateAvailabilityStatus(update.Booking.Reference,
                         AvailabilityStatus.Orphaned);
                     break;
 
                 case AvailabilityUpdateAction.SetToSupported:
-                    await bookingsService.UpdateAvailabilityStatus(update.Booking.Reference,
+                    await bookingWriteService.UpdateAvailabilityStatus(update.Booking.Reference,
                         AvailabilityStatus.Supported);
                     break;
 

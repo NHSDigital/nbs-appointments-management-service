@@ -10,7 +10,6 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IBookingWriteService> _bookingsService = new();
-    private readonly Mock<IBookingQueryService> _bookingQueryService = new();
     private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
     private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
@@ -18,11 +17,16 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
     private readonly Mock<IMessageBus> _messageBus = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
 
-    public AvailabilityWriteServiceTests() : base(typeof(AvailabilityWriteServiceTests)) =>
-        _sut = new AvailabilityWriteService(_availabilityStore.Object, new Core.AllocationStateService(_availabilityStore.Object, _bookingQueryService.Object),
+    public AvailabilityWriteServiceTests() : base(typeof(AvailabilityWriteServiceTests))
+    {
+        var availabilityQueryService = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        
+        _sut = new AvailabilityWriteService(_availabilityStore.Object, new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
             _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
             _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
             _timeProvider.Object, _featureToggleHelper.Object);
+    }
 
     [Theory]
     [InlineData("")]

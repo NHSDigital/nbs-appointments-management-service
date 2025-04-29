@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityStateService;
+﻿namespace Nhs.Appointments.Core.UnitTests.AllocationStateService;
 
-public class SingleServiceTests : AvailabilityStateServiceTestBase
+public class SingleServiceTests : AllocationStateServiceTestBase
 {
     [Fact]
     public async Task MakesNoChangesIfAllAppointmentsAreStillValid()

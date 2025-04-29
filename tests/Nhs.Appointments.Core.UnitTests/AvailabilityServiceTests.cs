@@ -19,7 +19,7 @@ public class AvailabilityServiceTests : FeatureToggledTests
     private readonly Mock<TimeProvider> _timeProvider = new();
 
     public AvailabilityServiceTests() : base(typeof(AvailabilityServiceTests)) =>
-        _sut = new AvailabilityService(_availabilityStore.Object, new Core.AvailabilityStateService(_availabilityStore.Object, _bookingQueryService.Object),
+        _sut = new AvailabilityService(_availabilityStore.Object, new Core.AllocationStateService(_availabilityStore.Object, _bookingQueryService.Object),
             _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
             _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
             _timeProvider.Object, _featureToggleHelper.Object);

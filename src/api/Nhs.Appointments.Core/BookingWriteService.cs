@@ -8,142 +8,83 @@ namespace Nhs.Appointments.Core;
 public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
+
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
+
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
+
     Task SendBookingReminders();
-    Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences, IEnumerable<ContactItem> contactDetails);
-    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+
+    Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,
+        IEnumerable<ContactItem> contactDetails);
+
+    Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
+
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
-    Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
-    Task DeleteBooking(string reference, string site);
 }
 
 public class BookingWriteService(
-        IBookingsDocumentStore bookingDocumentStore,
-        IBookingQueryService bookingQueryService,
-        IReferenceNumberProvider referenceNumberProvider,
-        ISiteLeaseManager siteLeaseManager,
-        IAvailabilityStore availabilityStore,
-        IAvailabilityCalculator availabilityCalculator,
-        IAllocationStateService allocationStateService,
-        IBookingEventFactory eventFactory,
-        IFeatureToggleHelper featureToggleHelper,
-        IMessageBus bus,
-        TimeProvider time) : IBookingWriteService
+    IBookingsDocumentStore bookingDocumentStore,
+    IBookingQueryService bookingQueryService,
+    IReferenceNumberProvider referenceNumberProvider,
+    ISiteLeaseManager siteLeaseManager,
+    IAvailabilityStore availabilityStore,
+    IAvailabilityCalculator availabilityCalculator,
+    IAllocationStateService allocationStateService,
+    IBookingEventFactory eventFactory,
+    IMessageBus bus,
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper) : IBookingWriteService
 {
-    public Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
-        bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
-
-    public Task DeleteBooking(string reference, string site) => bookingDocumentStore.DeleteBooking(reference, site);
-
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {
-        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
         {
-            var from = booking.From;
-            var to = booking.From.AddMinutes(booking.Duration);
-            
-            List<SessionInstance> slots;
-            
-            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
-            {
-                slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
-            }
-            else
-            {
-                #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
-                slots = (await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
-                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1)))).ToList();
-                #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
-            }
-
-            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
-
-            if (canBook)
-            {
-                booking.Created = time.GetUtcNow();                
-                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
-                booking.ReminderSent = false;
-                booking.AvailabilityStatus = AvailabilityStatus.Supported;
-                await bookingDocumentStore.InsertAsync(booking);
-
-                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
-                {
-                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
-                    await bus.Send(bookingMadeEvents);
-                }
-
-                return (true, booking.Reference);
-            }
-
-            return (false, string.Empty);
+            return await MakeBooking_MultipleServices(booking);
         }
+
+        return await MakeBooking_SingleService(booking);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site)
     {
-        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
-
-        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
         {
-            return BookingCancellationResult.NotFound;
+            return await CancelBooking_MultipleServices(bookingReference, site);
         }
 
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown);
-
-        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
-
-        if (booking.ContactDetails != null)
-        {
-            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
-            await bus.Send(bookingCancelledEvents);
-        }
-
-        return BookingCancellationResult.Success;
+        return await CancelBooking_SingleService(bookingReference, bookingReference);
     }
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences, IEnumerable<ContactItem> contactDetails) 
-    {
 
+
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,
+        IEnumerable<ContactItem> contactDetails)
+    {
         var result = await bookingDocumentStore.ConfirmProvisionals(bookingReferences, contactDetails);
 
-        foreach (var booking in bookingReferences) 
+        foreach (var booking in bookingReferences)
         {
             await SendConfirmNotification(booking, result, false);
         }
 
         return result;
     }
-    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+
+    public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result = await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+        var result =
+            await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
         await SendConfirmNotification(bookingReference, result, isRescheduleOperation);
 
         return result;
-    }
-
-    private async Task SendConfirmNotification(string bookingReference, BookingConfirmationResult result, bool isRescheduleOperation) 
-    {
-        if (result == BookingConfirmationResult.Success)
-        {
-            var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
-
-            if (isRescheduleOperation)
-            {
-                var bookingRescheduledEvents = eventFactory.BuildBookingEvents<BookingRescheduled>(booking);
-                await bus.Send(bookingRescheduledEvents);
-            }
-            else
-            {
-                var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
-                await bus.Send(bookingMadeEvents);
-            }
-        }
     }
 
     public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
@@ -172,6 +113,133 @@ public class BookingWriteService(
 
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
     {
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+        {
+            await RecalculateAppointmentStatuses_MultipleServices(site, day);
+        }
+
+        await RecalculateAppointmentStatuses_SingleService(site, day);
+    }
+
+    private async Task<(bool Success, string Reference)> MakeBooking_SingleService(Booking booking)
+    {
+        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        {
+#pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+            var slots = (await availabilityCalculator.CalculateAvailability(booking.Site, booking.Service,
+                    DateOnly.FromDateTime(booking.From.Date), DateOnly.FromDateTime(booking.From.Date.AddDays(1))))
+                .ToList();
+#pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+
+            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+
+            if (canBook)
+            {
+                booking.Created = time.GetUtcNow();
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
+                await bookingDocumentStore.InsertAsync(booking);
+
+                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
+                {
+                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                    await bus.Send(bookingMadeEvents);
+                }
+
+                return (true, booking.Reference);
+            }
+
+            return (false, string.Empty);
+        }
+    }
+
+    private async Task<(bool Success, string Reference)> MakeBooking_MultipleServices(Booking booking)
+    {
+        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        {
+            var from = booking.From;
+            var to = booking.From.AddMinutes(booking.Duration);
+
+            var slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false))
+                .AvailableSlots;
+
+            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+
+            if (canBook)
+            {
+                booking.Created = time.GetUtcNow();
+                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+                booking.ReminderSent = false;
+                booking.AvailabilityStatus = AvailabilityStatus.Supported;
+                await bookingDocumentStore.InsertAsync(booking);
+
+                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
+                {
+                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                    await bus.Send(bookingMadeEvents);
+                }
+
+                return (true, booking.Reference);
+            }
+
+            return (false, string.Empty);
+        }
+    }
+
+    private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
+        bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
+
+    private Task DeleteBooking(string reference, string site) => bookingDocumentStore.DeleteBooking(reference, site);
+
+    private async Task<BookingCancellationResult> CancelBooking_SingleService(string bookingReference, string siteId)
+    {
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
+        {
+            return BookingCancellationResult.NotFound;
+        }
+
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
+
+        await RecalculateAppointmentStatuses_SingleService(booking.Site, DateOnly.FromDateTime(booking.From));
+
+        if (booking.ContactDetails != null)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
+
+        return BookingCancellationResult.Success;
+    }
+
+    private async Task<BookingCancellationResult> CancelBooking_MultipleServices(string bookingReference, string siteId)
+    {
+        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
+        {
+            return BookingCancellationResult.NotFound;
+        }
+
+        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown);
+
+        await RecalculateAppointmentStatuses_MultipleServices(booking.Site, DateOnly.FromDateTime(booking.From));
+
+        if (booking.ContactDetails != null)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
+
+        return BookingCancellationResult.Success;
+    }
+
+    private async Task RecalculateAppointmentStatuses_SingleService(string site, DateOnly day)
+    {
         var service = "*";
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
@@ -187,11 +255,13 @@ public class BookingWriteService(
         var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
 
         using var leaseContent = siteLeaseManager.Acquire(site);
-        
+
         foreach (var booking in bookings)
-        {            
+        {
             var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
-                sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration && sl.Services.Contains(booking.Service));
+                                                        sl.From == booking.From &&
+                                                        (int)sl.Duration.TotalMinutes == booking.Duration &&
+                                                        sl.Services.Contains(booking.Service));
 
             if (targetSlot != null)
             {
@@ -200,6 +270,7 @@ public class BookingWriteService(
                     await bookingDocumentStore.UpdateAvailabilityStatus(booking.Reference,
                         AvailabilityStatus.Supported);
                 }
+
                 targetSlot.Capacity--;
                 continue;
             }
@@ -214,6 +285,60 @@ public class BookingWriteService(
             if (booking.Status is AppointmentStatus.Provisional)
             {
                 await bookingDocumentStore.DeleteBooking(booking.Reference, booking.Site);
+            }
+        }
+    }
+
+    private async Task RecalculateAppointmentStatuses_MultipleServices(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+
+        var recalculations = (await allocationStateService.Build(site, dayStart, dayEnd, "*")).Recalculations;
+
+        using var leaseContent = siteLeaseManager.Acquire(site);
+
+        foreach (var update in recalculations)
+        {
+            switch (update.Action)
+            {
+                case AvailabilityUpdateAction.ProvisionalToDelete:
+                    await DeleteBooking(update.Booking.Reference, update.Booking.Site);
+                    break;
+
+                case AvailabilityUpdateAction.SetToOrphaned:
+                    await UpdateAvailabilityStatus(update.Booking.Reference,
+                        AvailabilityStatus.Orphaned);
+                    break;
+
+                case AvailabilityUpdateAction.SetToSupported:
+                    await UpdateAvailabilityStatus(update.Booking.Reference,
+                        AvailabilityStatus.Supported);
+                    break;
+
+                case AvailabilityUpdateAction.Default:
+                default:
+                    break;
+            }
+        }
+    }
+
+    private async Task SendConfirmNotification(string bookingReference, BookingConfirmationResult result,
+        bool isRescheduleOperation)
+    {
+        if (result == BookingConfirmationResult.Success)
+        {
+            var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+
+            if (isRescheduleOperation)
+            {
+                var bookingRescheduledEvents = eventFactory.BuildBookingEvents<BookingRescheduled>(booking);
+                await bus.Send(bookingRescheduledEvents);
+            }
+            else
+            {
+                var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+                await bus.Send(bookingMadeEvents);
             }
         }
     }

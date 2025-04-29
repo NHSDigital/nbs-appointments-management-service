@@ -9,23 +9,11 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
     private readonly AvailabilityWriteService _sut;
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
-    private readonly Mock<IBookingWriteService> _bookingsService = new();
-    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
-    private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
-    private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
-    private readonly Mock<IBookingEventFactory> _eventFactory = new();
-    private readonly Mock<IMessageBus> _messageBus = new();
-    private readonly Mock<TimeProvider> _timeProvider = new();
+    private readonly Mock<IBookingWriteService> _bookingsWriteService = new();
 
     public AvailabilityWriteServiceTests() : base(typeof(AvailabilityWriteServiceTests))
     {
-        var availabilityQueryService = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
-        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
-        
-        _sut = new AvailabilityWriteService(_availabilityStore.Object, new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
-            _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
-            _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-            _timeProvider.Object, _featureToggleHelper.Object);
+        _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object, _bookingsWriteService.Object);
     }
 
     [Theory]
@@ -209,9 +197,9 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
 
         await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)), Times.Once);
-        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)), Times.Once);
-        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)), Times.Once);
     }
 
     [Fact]
@@ -261,7 +249,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)), Times.Once);
     }
 
     [Theory]

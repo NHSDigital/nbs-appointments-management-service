@@ -1,22 +1,9 @@
-using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Messaging;
-using Nhs.Appointments.Core.Messaging.Events;
-
 namespace Nhs.Appointments.Core;
 
 public class AvailabilityWriteService(
     IAvailabilityStore availabilityStore,
-    IAllocationStateService allocationStateService,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
-    IBookingWriteService bookingWriteService,
-    ISiteLeaseManager siteLeaseManager,
-    IBookingsDocumentStore bookingDocumentStore,
-    IReferenceNumberProvider referenceNumberProvider,
-    IBookingEventFactory eventFactory,
-    IMessageBus bus,
-    TimeProvider time,
-    IFeatureToggleHelper featureToggleHelper) : IAvailabilityWriteService
+    IBookingWriteService bookingWriteService) : IAvailabilityWriteService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
@@ -39,15 +26,7 @@ public class AvailabilityWriteService(
         foreach (var date in dates)
         {
             await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
-
-            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-            {
-                await RecalculateAppointmentStatuses(site, date);
-            }
-            else
-            {
-                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-            }
+            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
@@ -57,16 +36,7 @@ public class AvailabilityWriteService(
         ApplyAvailabilityMode mode, string user, Session sessionToEdit = null)
     {
         await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-        {
-            await RecalculateAppointmentStatuses(site, date);
-        }
-        else
-        {
-            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-        }
-
+        await bookingWriteService.RecalculateAppointmentStatuses(site, date);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
@@ -109,95 +79,6 @@ public class AvailabilityWriteService(
             if (weekdays.Contains(cursor.DayOfWeek))
                 yield return cursor;
             cursor = cursor.AddDays(1);
-        }
-    }
-    
-    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
-    {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
-        
-        var allocationState = await allocationStateService.Build(site, dayStart, dayEnd, "*");
-
-        using var leaseContent = siteLeaseManager.Acquire(site);
-
-        foreach (var update in allocationState.Recalculations)
-        {
-            switch (update.Action)
-            {
-                case AvailabilityUpdateAction.ProvisionalToDelete:
-                    await bookingWriteService.DeleteBooking(update.Booking.Reference, update.Booking.Site);
-                    break;
-
-                case AvailabilityUpdateAction.SetToOrphaned:
-                    await bookingWriteService.UpdateAvailabilityStatus(update.Booking.Reference,
-                        AvailabilityStatus.Orphaned);
-                    break;
-
-                case AvailabilityUpdateAction.SetToSupported:
-                    await bookingWriteService.UpdateAvailabilityStatus(update.Booking.Reference,
-                        AvailabilityStatus.Supported);
-                    break;
-
-                case AvailabilityUpdateAction.Default:
-                default:
-                    break;
-            }
-        }
-    }
-
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
-    {
-        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
-
-        if (booking is null || (!string.IsNullOrEmpty(siteId) && siteId != booking.Site))
-        {
-            return BookingCancellationResult.NotFound;
-        }
-
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown);
-
-        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
-
-        if (booking.ContactDetails != null)
-        {
-            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
-            await bus.Send(bookingCancelledEvents);
-        }
-
-        return BookingCancellationResult.Success;
-    }
-
-    public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
-    {
-        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
-        {
-            var from = booking.From;
-            var to = booking.From.AddMinutes(booking.Duration);
-            
-            var slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
-
-            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
-
-            if (canBook)
-            {
-                booking.Created = time.GetUtcNow();
-                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
-                booking.ReminderSent = false;
-                booking.AvailabilityStatus = AvailabilityStatus.Supported;
-                await bookingDocumentStore.InsertAsync(booking);
-
-                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
-                {
-                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
-                    await bus.Send(bookingMadeEvents);
-                }
-
-                return (true, booking.Reference);
-            }
-
-            return (false, string.Empty);
         }
     }
 }

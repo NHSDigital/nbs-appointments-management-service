@@ -16,8 +16,8 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class CancelSessionFunction(
-    IAvailabilityService availabilityService,
-    IBookingsService bookingService,
+    IAvailabilityWriteService availabilityWriteService,
+    IBookingWriteService bookingWriteService,
     IValidator<CancelSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelSessionFunction> logger,
@@ -48,7 +48,7 @@ public class CancelSessionFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger
 )
     {
-        await availabilityService.CancelSession(
+        await availabilityWriteService.CancelSession(
             request.Site,
             request.Date,
             request.From,
@@ -59,11 +59,11 @@ public class CancelSessionFunction(
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
-            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
+            await availabilityWriteService.RecalculateAppointmentStatuses(request.Site, request.Date);
         }
         else
         {
-            await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
+            await bookingWriteService.RecalculateAppointmentStatuses(request.Site, request.Date);
         }
 
         return Success(new EmptyResponse());

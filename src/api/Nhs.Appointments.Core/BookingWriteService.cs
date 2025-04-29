@@ -5,7 +5,7 @@ using Nhs.Appointments.Core.Messaging.Events;
 
 namespace Nhs.Appointments.Core;
 
-public interface IBookingsService
+public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
     Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
@@ -20,7 +20,7 @@ public interface IBookingsService
     Task DeleteBooking(string reference, string site);
 }
 
-public class BookingsService(
+public class BookingWriteService(
         IBookingsDocumentStore bookingDocumentStore,
         IBookingQueryService bookingQueryService,
         IReferenceNumberProvider referenceNumberProvider,
@@ -31,7 +31,7 @@ public class BookingsService(
         IBookingEventFactory eventFactory,
         IFeatureToggleHelper featureToggleHelper,
         IMessageBus bus,
-        TimeProvider time) : IBookingsService
+        TimeProvider time) : IBookingWriteService
 {
     public Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
         bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);

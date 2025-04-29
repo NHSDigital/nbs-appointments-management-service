@@ -15,7 +15,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
 {
     public class GetDailyAvailabilityFunctionTests
     {
-        private readonly Mock<IAvailabilityService> _mockAvailabilityService = new();
+        private readonly Mock<IAvailabilityQueryService> _mockAvailabilityQueryService = new();
         private readonly Mock<ILogger<GetDailyAvailabilityFunction>> _mockLogger = new();
         private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
         private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
@@ -26,7 +26,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
         public GetDailyAvailabilityFunctionTests()
         {
             _sut = new GetDailyAvailabilityFunction(
-                _mockAvailabilityService.Object,
+                _mockAvailabilityQueryService.Object,
                 _mockValidator.Object,
                 _mockUserContextProvider.Object,
                 _mockLogger.Object,
@@ -77,7 +77,7 @@ namespace Nhs.Appointments.Api.Tests.Functions
                 }
             };
 
-            _mockAvailabilityService.Setup(x =>
+            _mockAvailabilityQueryService.Setup(x =>
                     x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
                 .ReturnsAsync(availability);
 

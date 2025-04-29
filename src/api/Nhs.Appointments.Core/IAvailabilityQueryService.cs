@@ -1,0 +1,7 @@
+namespace Nhs.Appointments.Core;
+
+public interface IAvailabilityQueryService
+{
+    Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
+    Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
+}

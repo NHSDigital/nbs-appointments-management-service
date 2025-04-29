@@ -1,15 +1,15 @@
 namespace Nhs.Appointments.Core;
 
 public class AllocationStateService(
-    IAvailabilityStore availabilityStore,
+    IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IAllocationStateService
 {
     public async Task<AllocationState> Build(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
     {
-        var availabilityState = new AllocationState();
+        var allocationState = new AllocationState();
 
         var orderedLiveBookings = await bookingQueryService.GetOrderedLiveBookings(site, from, to, service);
-        var slots = await GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
+        var slots = await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
 
         foreach (var booking in orderedLiveBookings)
         {
@@ -20,45 +20,32 @@ public class AllocationStateService(
             {
                 if (processRecalculations && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
                 {
-                    availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
+                    allocationState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                         AvailabilityUpdateAction.SetToSupported));
                 }
 
                 targetSlot.Capacity--;
-                availabilityState.Bookings.Add(booking);
+                allocationState.Bookings.Add(booking);
                 continue;
             }
 
             if (processRecalculations && booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                 booking.Status is not AppointmentStatus.Provisional)
             {
-                availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
+                allocationState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                     AvailabilityUpdateAction.SetToOrphaned));
             }
 
             if (processRecalculations && booking.Status is AppointmentStatus.Provisional)
             {
-                availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
+                allocationState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                     AvailabilityUpdateAction.ProvisionalToDelete));
             }
         }
 
-        availabilityState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
+        allocationState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
 
-        return availabilityState;
-    }
-
-    private async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to, string service)
-    {
-        var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, from, to, service))
-            .ToList();
-
-        var slots = sessionsOnThatDay
-            .SelectMany(session => session.ToSlots())
-            .ToList();
-
-        return slots;
+        return allocationState;
     }
 
     /// <summary>

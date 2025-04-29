@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<TriggerBookingRemindersFunction> logger,
@@ -43,7 +43,7 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(
         EmptyRequest request, ILogger logger)
     {
-        var removedIds = await bookingService.RemoveUnconfirmedProvisionalBookings();
+        var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings();
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));
     }
 

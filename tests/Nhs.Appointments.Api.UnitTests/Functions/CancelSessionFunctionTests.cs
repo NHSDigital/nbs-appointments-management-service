@@ -33,8 +33,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object);
+            _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelSessionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -66,46 +65,52 @@ public class CancelSessionFunctionTests : FeatureToggledTests
             cancelSessionRequest.Date), Times.Once());
     }
 
-    [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
-    {
-        var cancelSessionRequest = new CancelSessionRequest(
-            "TEST01",
-            new DateOnly(2025, 1, 10),
-            "09:00",
-            "12:00",
-            ["RSV:Adult"], 5, 2);
-
-        var request = BuildRequest(cancelSessionRequest);
-
-        _ = await _sut.RunAsync(request) as ContentResult;
-
-        _bookingService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
-        _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
-    }
-
+     [Fact]
+     public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
+     {
+         //TODO to fix and add back in with correct mocking
+         throw new NotImplementedException();
+         
+         // var cancelSessionRequest = new CancelSessionRequest(
+         //     "TEST01",
+         //     new DateOnly(2025, 1, 10),
+         //     "09:00",
+         //     "12:00",
+         //     ["RSV:Adult"], 5, 2);
+         //
+         // var request = BuildRequest(cancelSessionRequest);
+         //
+         // _ = await _sut.RunAsync(request) as ContentResult;
+         //
+         // _bookingService.Verify(
+         //     x => x.RecalculateAppointmentStatuses_SingleService(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+         // _bookingService.Verify(
+         //     x => x.RecalculateAppointmentStatuses_MultipleServices(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+     }
+    
     [Fact]
     public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
     {
-        Toggle("MultipleServicesEnabled", true);
-
-        var cancelSessionRequest = new CancelSessionRequest(
-            "TEST01",
-            new DateOnly(2025, 1, 10),
-            "09:00",
-            "12:00",
-            ["RSV:Adult"], 5, 2);
-
-        var request = BuildRequest(cancelSessionRequest);
-
-        _ = await _sut.RunAsync(request) as ContentResult;
-
-        _bookingService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
-        _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+        //TODO to fix and add back in with correct mocking
+        throw new NotImplementedException();
+        
+        // Toggle("MultipleServicesEnabled", true);
+        //
+        // var cancelSessionRequest = new CancelSessionRequest(
+        //     "TEST01",
+        //     new DateOnly(2025, 1, 10),
+        //     "09:00",
+        //     "12:00",
+        //     ["RSV:Adult"], 5, 2);
+        //
+        // var request = BuildRequest(cancelSessionRequest);
+        //
+        // _ = await _sut.RunAsync(request) as ContentResult;
+        //
+        // _bookingService.Verify(
+        //     x => x.RecalculateAppointmentStatuses_SingleService(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+        // _bookingService.Verify(
+        //     x => x.RecalculateAppointmentStatuses_MultipleServices(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
     }
 
     private static HttpRequest BuildRequest(CancelSessionRequest requestBody)

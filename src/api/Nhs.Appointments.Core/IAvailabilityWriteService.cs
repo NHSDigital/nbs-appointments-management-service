@@ -7,7 +7,4 @@ public interface IAvailabilityWriteService
     Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
         string user, Session sessionToEdit = null);
     Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
-    Task RecalculateAppointmentStatuses(string site, DateOnly day);
-    Task<(bool Success, string Reference)> MakeBooking(Booking booking);
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
 }

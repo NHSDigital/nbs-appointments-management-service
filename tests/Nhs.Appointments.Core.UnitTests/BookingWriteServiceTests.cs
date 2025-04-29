@@ -31,11 +31,11 @@ namespace Nhs.Appointments.Core.UnitTests
                 _siteLeaseManager.Object,
                 _availabilityStore.Object,
                 _availabilityCalculator.Object,
-                new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
+                new AllocationStateService(availabilityQueryService, bookingQueryService),
                 new EventFactory(),
-                _featureToggleHelper.Object,
                 _messageBus.Object,
-                TimeProvider.System);
+                TimeProvider.System,
+                _featureToggleHelper.Object);
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService, _referenceNumberProvider.Object,
                 leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
-                new EventFactory(), _featureToggleHelper.Object, _messageBus.Object, TimeProvider.System);
+                new EventFactory(), _messageBus.Object, TimeProvider.System, _featureToggleHelper.Object);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             await Task.Delay(100);
@@ -334,11 +334,11 @@ namespace Nhs.Appointments.Core.UnitTests
                     _siteLeaseManager.Object,
                     _availabilityStore.Object,
                     availabilityCalculator,
-                    new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
+                    new AllocationStateService(availabilityQueryService, bookingQueryService),
                     new EventFactory(),
-                    _featureToggleHelper.Object,
                     _messageBus.Object,
-                    TimeProvider.System);
+                    TimeProvider.System,
+                    _featureToggleHelper.Object);
             }
 
             [Fact]

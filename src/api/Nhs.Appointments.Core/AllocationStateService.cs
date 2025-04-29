@@ -1,12 +1,12 @@
 namespace Nhs.Appointments.Core;
 
-public class AvailabilityStateService(
+public class AllocationStateService(
     IAvailabilityStore availabilityStore,
-    IBookingQueryService bookingQueryService) : IAvailabilityStateService
+    IBookingQueryService bookingQueryService) : IAllocationStateService
 {
-    public async Task<AvailabilityState> Build(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
+    public async Task<AllocationState> Build(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
     {
-        var availabilityState = new AvailabilityState();
+        var availabilityState = new AllocationState();
 
         var orderedLiveBookings = await bookingQueryService.GetOrderedLiveBookings(site, from, to, service);
         var slots = await GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
@@ -20,7 +20,7 @@ public class AvailabilityStateService(
             {
                 if (processRecalculations && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
                 {
-                    availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                    availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                         AvailabilityUpdateAction.SetToSupported));
                 }
 
@@ -32,13 +32,13 @@ public class AvailabilityStateService(
             if (processRecalculations && booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                 booking.Status is not AppointmentStatus.Provisional)
             {
-                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                     AvailabilityUpdateAction.SetToOrphaned));
             }
 
             if (processRecalculations && booking.Status is AppointmentStatus.Provisional)
             {
-                availabilityState.Recalculations.Add(new AvailabilityUpdate(booking,
+                availabilityState.Recalculations.Add(new BookingAvailabilityUpdate(booking,
                     AvailabilityUpdateAction.ProvisionalToDelete));
             }
         }

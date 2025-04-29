@@ -19,7 +19,7 @@ public class QueryAvailabilityFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
-    private readonly Mock<IAvailabilityStateService> _availabilityStateService = new();
+    private readonly Mock<IAllocationStateService> _availabilityStateService = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<ILogger<QueryAvailabilityFunction>> _logger = new();

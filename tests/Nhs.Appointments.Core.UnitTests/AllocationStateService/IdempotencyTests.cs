@@ -1,7 +1,7 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityStateService;
+﻿namespace Nhs.Appointments.Core.UnitTests.AllocationStateService;
 
 // See https://app.mural.co/t/nhsdigital8118/m/nhsdigital8118/1741252759332/f2fa27aa39fa459db285e5c6c8081e9bb7446d22
-public class IdempotencyTests : AvailabilityStateServiceTestBase
+public class IdempotencyTests : AllocationStateServiceTestBase
 {
     [Fact]
     public async Task MultiplePassesProduceTheSameResult()

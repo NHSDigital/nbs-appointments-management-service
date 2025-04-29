@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityStateService;
+﻿namespace Nhs.Appointments.Core.UnitTests.AllocationStateService;
 
-public class MultiServiceTests : AvailabilityStateServiceTestBase
+public class MultiServiceTests : AllocationStateServiceTestBase
 {
     [Fact]
     public async Task MultipleServicesByCreatedDate()

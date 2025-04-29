@@ -14,6 +14,7 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
         private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
         private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         private readonly Mock<IMessageBus> _messageBus = new();
         private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
@@ -21,6 +22,7 @@ namespace Nhs.Appointments.Core.UnitTests
         public BookingWriteServiceTests()
         {
             var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
             
             _bookingWriteService = new BookingWriteService(
                 _bookingsDocumentStore.Object,
@@ -29,7 +31,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _siteLeaseManager.Object,
                 _availabilityStore.Object,
                 _availabilityCalculator.Object,
-                new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
+                new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
                 new EventFactory(),
                 _featureToggleHelper.Object,
                 _messageBus.Object,
@@ -50,10 +52,11 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
             var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
             
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService, _referenceNumberProvider.Object,
-                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
+                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
                 new EventFactory(), _featureToggleHelper.Object, _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -308,7 +311,7 @@ namespace Nhs.Appointments.Core.UnitTests
             private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
             private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
             private readonly Mock<IAvailabilityStore> _availabilityStore = new();
-            private readonly Mock<IAvailabilityWriteService> _availabilityService = new();
+            private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
             private readonly Mock<IMessageBus> _messageBus = new();
             private readonly Mock<TimeProvider> _timeProvider = new();
             private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
@@ -322,6 +325,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     _timeProvider.Object);
 
                 var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+                var availabilityQueryService = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
 
                 _bookingWriteService = new BookingWriteService(
                     _bookingsDocumentStore.Object,
@@ -330,7 +334,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     _siteLeaseManager.Object,
                     _availabilityStore.Object,
                     availabilityCalculator,
-                    new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
+                    new Core.AllocationStateService(availabilityQueryService, bookingQueryService),
                     new EventFactory(),
                     _featureToggleHelper.Object,
                     _messageBus.Object,

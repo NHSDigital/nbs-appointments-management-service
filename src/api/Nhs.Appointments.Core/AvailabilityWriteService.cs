@@ -117,11 +117,11 @@ public class AvailabilityWriteService(
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
         
-        var availabilityState = await allocationStateService.Build(site, dayStart, dayEnd, "*");
+        var allocationState = await allocationStateService.Build(site, dayStart, dayEnd, "*");
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
-        foreach (var update in availabilityState.Recalculations)
+        foreach (var update in allocationState.Recalculations)
         {
             switch (update.Action)
             {

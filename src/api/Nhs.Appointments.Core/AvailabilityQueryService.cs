@@ -1,8 +1,3 @@
-using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Messaging;
-using Nhs.Appointments.Core.Messaging.Events;
-
 namespace Nhs.Appointments.Core;
 
 public class AvailabilityQueryService(
@@ -22,5 +17,18 @@ public class AvailabilityQueryService(
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         return await availabilityStore.GetDailyAvailability(site, from, to);
+    }
+    
+    public async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to, string service)
+    {
+        var sessionsOnThatDay =
+            (await availabilityStore.GetSessions(site, from, to, service))
+            .ToList();
+
+        var slots = sessionsOnThatDay
+            .SelectMany(session => session.ToSlots())
+            .ToList();
+
+        return slots;
     }
 }

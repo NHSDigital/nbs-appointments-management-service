@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationStateService;
+﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
 
 public class SingleServiceTests : AllocationStateServiceTestBase
 {
@@ -16,11 +16,11 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
 
-        resultingAvailabilityState.Recalculations.Should().BeEmpty();
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        resultingAllocationState.Recalculations.Should().BeEmpty();
+        resultingAllocationState.Bookings.Should().BeEquivalentTo(bookings);
+        resultingAllocationState.AvailableSlots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -37,11 +37,11 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
 
-        resultingAvailabilityState.Recalculations.Should().HaveCount(3);
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        resultingAllocationState.Recalculations.Should().HaveCount(3);
+        resultingAllocationState.Bookings.Should().BeEquivalentTo(bookings);
+        resultingAllocationState.AvailableSlots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -57,12 +57,12 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
 
-        resultingAvailabilityState.Recalculations.Should().ContainSingle(s =>
+        resultingAllocationState.Recalculations.Should().ContainSingle(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
-        resultingAvailabilityState.Bookings.Should().HaveCount(1);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        resultingAllocationState.Bookings.Should().HaveCount(1);
+        resultingAllocationState.AvailableSlots.Should().HaveCount(17);
     }
 
     [Fact]
@@ -81,14 +81,14 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
 
-        resultingAvailabilityState.Recalculations.Should().Contain(s =>
+        resultingAllocationState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
-        resultingAvailabilityState.Recalculations.Should().Contain(s =>
+        resultingAllocationState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
-        resultingAvailabilityState.Bookings.Should().BeEmpty();
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
+        resultingAllocationState.Bookings.Should().BeEmpty();
+        resultingAllocationState.AvailableSlots.Should().HaveCount(12);
     }
 
     [Fact]
@@ -107,17 +107,17 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
 
-        resultingAvailabilityState.Recalculations.Should().Contain(s =>
+        resultingAllocationState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
         
         //if a provisional booking has expired, we don't need to include it in our availability state
         //it will eventually be deleted up by the expired process
-        resultingAvailabilityState.Recalculations.Should().NotContain(s =>
+        resultingAllocationState.Recalculations.Should().NotContain(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
-        resultingAvailabilityState.Bookings.Should().BeEmpty();
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
+        resultingAllocationState.Bookings.Should().BeEmpty();
+        resultingAllocationState.AvailableSlots.Should().HaveCount(12);
     }
     
     [Fact]
@@ -134,11 +134,11 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
 
-        resultingAvailabilityState.Bookings.Should().ContainSingle(b => b.Reference == "2");
-        resultingAvailabilityState.Recalculations.Should().ContainSingle(r =>
+        resultingAllocationState.Bookings.Should().ContainSingle(b => b.Reference == "2");
+        resultingAllocationState.Recalculations.Should().ContainSingle(r =>
             r.Booking.Reference == "2" && r.Action == AvailabilityUpdateAction.SetToSupported);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        resultingAllocationState.AvailableSlots.Should().HaveCount(17);
     }
 }

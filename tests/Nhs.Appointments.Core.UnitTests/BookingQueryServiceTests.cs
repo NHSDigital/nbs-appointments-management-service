@@ -55,4 +55,11 @@ public class BookingQueryServiceTests
             () => Assert.True(response.ToArray()[3].Reference == "1")
         );
     }
+
+    [Fact]
+    public Task GetOrderedLiveBookings()
+    {
+        //TODO
+        throw new NotImplementedException();
+    }
 }

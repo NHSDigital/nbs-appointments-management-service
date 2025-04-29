@@ -29,7 +29,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _siteLeaseManager.Object,
                 _availabilityStore.Object,
                 _availabilityCalculator.Object,
-                new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
+                new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
                 new EventFactory(),
                 _featureToggleHelper.Object,
                 _messageBus.Object,
@@ -53,7 +53,7 @@ namespace Nhs.Appointments.Core.UnitTests
             
             var leaseManager = new FakeLeaseManager();
             var bookingService = new BookingsService(_bookingsDocumentStore.Object, bookingQueryService, _referenceNumberProvider.Object,
-                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
+                leaseManager, _availabilityStore.Object, _availabilityCalculator.Object, new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
                 new EventFactory(), _featureToggleHelper.Object, _messageBus.Object, TimeProvider.System);
             
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -330,7 +330,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     _siteLeaseManager.Object,
                     _availabilityStore.Object,
                     availabilityCalculator,
-                    new Core.AvailabilityStateService(_availabilityStore.Object, bookingQueryService),
+                    new Core.AllocationStateService(_availabilityStore.Object, bookingQueryService),
                     new EventFactory(),
                     _featureToggleHelper.Object,
                     _messageBus.Object,

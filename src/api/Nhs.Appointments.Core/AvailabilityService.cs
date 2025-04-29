@@ -7,7 +7,7 @@ namespace Nhs.Appointments.Core;
 
 public class AvailabilityService(
     IAvailabilityStore availabilityStore,
-    IAvailabilityStateService availabilityStateService,
+    IAllocationStateService allocationStateService,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
     IBookingsService bookingsService,
     ISiteLeaseManager siteLeaseManager,
@@ -127,12 +127,12 @@ public class AvailabilityService(
         }
     }
     
-    public async Task<AvailabilityState> RecalculateAppointmentStatuses(string site, DateOnly day)
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
         
-        var availabilityState = await availabilityStateService.Build(site, dayStart, dayEnd, "*");
+        var availabilityState = await allocationStateService.Build(site, dayStart, dayEnd, "*");
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 
@@ -159,11 +159,6 @@ public class AvailabilityService(
                     break;
             }
         }
-
-        return new AvailabilityState
-        {
-            AvailableSlots = availabilityState.AvailableSlots, Bookings = availabilityState.Bookings
-        };
     }
 
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string siteId)
@@ -196,7 +191,7 @@ public class AvailabilityService(
             var from = booking.From;
             var to = booking.From.AddMinutes(booking.Duration);
             
-            var slots = (await availabilityStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+            var slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
 
             var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 

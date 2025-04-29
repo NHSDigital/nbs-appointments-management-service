@@ -27,7 +27,7 @@ public class BookingsService(
         ISiteLeaseManager siteLeaseManager,
         IAvailabilityStore availabilityStore,
         IAvailabilityCalculator availabilityCalculator,
-        IAvailabilityStateService availabilityStateService,
+        IAllocationStateService allocationStateService,
         IBookingEventFactory eventFactory,
         IFeatureToggleHelper featureToggleHelper,
         IMessageBus bus,
@@ -49,7 +49,7 @@ public class BookingsService(
             
             if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
             {
-                slots = (await availabilityStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
+                slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false)).AvailableSlots;
             }
             else
             {

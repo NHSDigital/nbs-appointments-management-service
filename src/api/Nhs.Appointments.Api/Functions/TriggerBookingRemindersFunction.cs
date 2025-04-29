@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class TriggerBookingRemindersFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<TriggerBookingRemindersFunction> logger,
@@ -42,7 +42,7 @@ public class TriggerBookingRemindersFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EmptyRequest request, ILogger logger)
     {
-        await bookingService.SendBookingReminders();
+        await bookingWriteService.SendBookingReminders();
         return Success(new EmptyResponse());
     }
 

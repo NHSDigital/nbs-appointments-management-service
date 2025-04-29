@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetAvailabilityCreatedEventsFunction(
-    IAvailabilityService availabilityService,
+    IAvailabilityQueryService availabilityQueryService,
     IValidator<GetAvailabilityCreatedEventsRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetAvailabilityCreatedEventsFunction> logger,
@@ -49,7 +49,7 @@ public class GetAvailabilityCreatedEventsFunction(
         GetAvailabilityCreatedEventsRequest request, ILogger logger)
     {
         var availabilityCreatedEvents =
-            await availabilityService.GetAvailabilityCreatedEventsAsync(request.Site, request.FromDate);
+            await availabilityQueryService.GetAvailabilityCreatedEventsAsync(request.Site, request.FromDate);
 
         return Success(availabilityCreatedEvents);
     }

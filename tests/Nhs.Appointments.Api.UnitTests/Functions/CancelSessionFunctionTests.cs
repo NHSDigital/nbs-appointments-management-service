@@ -17,8 +17,8 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 [MockedFeatureToggle("MultipleServicesEnabled", false)]
 public class CancelSessionFunctionTests : FeatureToggledTests
 {
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
-    private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IAvailabilityWriteService> _availabilityService = new();
+    private readonly Mock<IBookingWriteService> _bookingService = new();
     private readonly Mock<ILogger<CancelSessionFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 

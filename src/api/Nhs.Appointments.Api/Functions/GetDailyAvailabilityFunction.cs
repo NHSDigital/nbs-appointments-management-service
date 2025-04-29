@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetDailyAvailabilityFunction(
-    IAvailabilityService availabilityService,
+    IAvailabilityQueryService availabilityQueryService,
     IValidator<GetDailyAvailabilityRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetDailyAvailabilityFunction> logger,
@@ -51,7 +51,7 @@ public class GetDailyAvailabilityFunction(
         GetDailyAvailabilityRequest request, ILogger logger)
     {
         var availability =
-            await availabilityService.GetDailyAvailability(request.Site, request.FromDate, request.UntilDate);
+            await availabilityQueryService.GetDailyAvailability(request.Site, request.FromDate, request.UntilDate);
 
         return Success(availability);
     }

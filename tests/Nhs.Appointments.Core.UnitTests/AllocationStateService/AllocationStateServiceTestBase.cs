@@ -1,16 +1,16 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityStateService;
+﻿namespace Nhs.Appointments.Core.UnitTests.AllocationStateService;
 
-public class AvailabilityStateServiceTestBase
+public class AllocationStateServiceTestBase
 {
-    protected Core.AvailabilityStateService _sut;
+    protected Core.AllocationStateService _sut;
     protected readonly Mock<TimeProvider> _timeProvider = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
     
     protected const string MockSite = "some-site";
 
-    protected AvailabilityStateServiceTestBase() => _sut =
-        new Core.AvailabilityStateService(_availabilityStore.Object, new BookingQueryService(_bookingsDocumentStore.Object, _timeProvider.Object));
+    protected AllocationStateServiceTestBase() => _sut =
+        new Core.AllocationStateService(_availabilityStore.Object, new BookingQueryService(_bookingsDocumentStore.Object, _timeProvider.Object));
 
     private DateTime TestDateAt(string time)
     {

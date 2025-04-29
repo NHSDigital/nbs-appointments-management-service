@@ -89,7 +89,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityService, AvailabilityService>()
-            .AddTransient<IAvailabilityStateService, AvailabilityStateService>()
+            .AddTransient<IAllocationStateService, AllocationStateService>()
             .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()

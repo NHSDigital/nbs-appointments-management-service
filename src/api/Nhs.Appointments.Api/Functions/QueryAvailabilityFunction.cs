@@ -23,7 +23,7 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction(
     IAvailabilityCalculator availabilityCalculator,
-    IAvailabilityStateService availabilityStateService,
+    IAllocationStateService allocationStateService,
     IValidator<QueryAvailabilityRequest> validator,
     IAvailabilityGrouperFactory availabilityGrouperFactory,
     IUserContextProvider userContextProvider,
@@ -82,7 +82,7 @@ public class QueryAvailabilityFunction(
         
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
         {
-            slots = (await availabilityStateService.Build(site, dayStart, dayEnd, service, false)).AvailableSlots;
+            slots = (await allocationStateService.Build(site, dayStart, dayEnd, service, false)).AvailableSlots;
         }
         else
         {

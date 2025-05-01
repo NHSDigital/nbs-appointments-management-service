@@ -1,25 +1,29 @@
 import NhsPage from '@components/nhs-page';
+import RemoveUserPage from './remove-user-page';
 import {
   assertPermission,
   fetchSite,
   fetchUserProfile,
   fetchUsers,
 } from '@services/appointmentsService';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { notAuthorized } from '@services/authService';
-import RemoveUserPage from './remove-user-page';
 
 export type UserPageProps = {
   params: {
     site: string;
-    user: string;
+  };
+  searchParams?: {
+    user?: string;
   };
 };
 
-const Page = async ({ params }: UserPageProps) => {
-  await assertPermission(params.site, 'users:manage');
+const Page = async ({ params, searchParams }: UserPageProps) => {
+  if (searchParams?.user === undefined) {
+    redirect(`/site/${params.site}/users`);
+  }
 
-  const email = decodeURIComponent(params.user).toLowerCase();
+  await assertPermission(params.site, 'users:manage');
 
   const [site, users, userProfile] = await Promise.all([
     fetchSite(params.site),
@@ -27,11 +31,14 @@ const Page = async ({ params }: UserPageProps) => {
     fetchUserProfile(),
   ]);
 
-  if (users === undefined || !users.some(u => u.id === email)) {
+  if (
+    users === undefined ||
+    !users.some(u => u.id === searchParams?.user?.toLowerCase())
+  ) {
     notFound();
   }
 
-  if (userProfile.emailAddress === email) {
+  if (userProfile.emailAddress === searchParams?.user.toLowerCase()) {
     notAuthorized();
   }
 
@@ -44,7 +51,7 @@ const Page = async ({ params }: UserPageProps) => {
       ]}
       originPage="users-remove"
     >
-      <RemoveUserPage user={params.user} site={site} />
+      <RemoveUserPage user={searchParams?.user} site={site} />
     </NhsPage>
   );
 };

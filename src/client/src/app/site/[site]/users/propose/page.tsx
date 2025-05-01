@@ -3,35 +3,30 @@ import {
   assertPermission,
   fetchSite,
   fetchUserProfile,
-  fetchRoles,
-  fetchUsers,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { notAuthorized } from '@services/authService';
-import SetUserRolesWizard from '../[user]/wizard/set-user-roles-wizard';
+import ProposeNewUserForm from './propose-new-user-form';
 
 export type UserPageProps = {
   params: {
     site: string;
-    user: string;
   };
-  searchParams: {
-    nameRequired?: string;
+  searchParams?: {
+    user?: string;
   };
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   await assertPermission(params.site, 'users:manage');
 
-  const email = decodeURIComponent(params.user).toLowerCase();
-
-  const [site, userProfile, roleOptions] = await Promise.all([
+  const [site, userProfile] = await Promise.all([
     fetchSite(params.site),
     fetchUserProfile(),
-    fetchRoles(),
-    fetchUsers(params.site),
+    fetchFeatureFlag('OktaEnabled'),
   ]);
 
-  if (userProfile.emailAddress === email) {
+  if (userProfile.emailAddress === searchParams?.user) {
     notAuthorized();
   }
 
@@ -45,12 +40,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
       ]}
       originPage="users-manage"
     >
-      <SetUserRolesWizard
-        site={site}
-        roleOptions={roleOptions}
-        email={email}
-        nameRequired={searchParams.nameRequired === 'true'}
-      />
+      <ProposeNewUserForm site={params.site} />
     </NhsPage>
   );
 };

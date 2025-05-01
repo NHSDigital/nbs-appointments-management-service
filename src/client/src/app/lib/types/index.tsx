@@ -98,6 +98,13 @@ type AvailabilityTemplate = {
 
 export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
 
+type UserIdentityStatus = {
+  identityProvider: 'NhsMail' | 'Okta';
+  extantInIdentityProvider: boolean;
+  extantInMya: boolean;
+  meetsWhitelistRequirements: boolean;
+};
+
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
@@ -392,6 +399,7 @@ export type {
   Site,
   TimeComponents,
   User,
+  UserIdentityStatus,
   UserProfile,
   Week,
   WeekSummary,

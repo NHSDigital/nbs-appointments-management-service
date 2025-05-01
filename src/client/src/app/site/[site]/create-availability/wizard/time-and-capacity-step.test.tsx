@@ -35,6 +35,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -71,6 +72,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -137,6 +139,7 @@ describe('Time and Capacity Step', () => {
             goToNextStep={mockGoToNextStep}
             goToLastStep={mockGoToLastStep}
             goToPreviousStep={mockGoToPreviousStep}
+            returnRouteUponCancellation="/"
           />
         </MockForm>,
       );
@@ -204,6 +207,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -229,6 +233,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -269,6 +274,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -310,6 +316,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -353,6 +360,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -397,6 +405,7 @@ describe('Time and Capacity Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -443,6 +452,7 @@ describe('Time and Capacity Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           goToPreviousStepOverride={goToPreviousStepOverride}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

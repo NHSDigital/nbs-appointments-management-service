@@ -15,7 +15,7 @@ export interface InjectedWizardProps {
   goToNextStep(): void;
   goToPreviousStep(): void;
   goToLastStep(): void;
-  returnRouteUponCancellation?: string;
+  returnRouteUponCancellation: string;
 }
 
 interface Props {

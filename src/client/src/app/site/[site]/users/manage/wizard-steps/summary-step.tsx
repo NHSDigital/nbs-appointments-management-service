@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { Role, Site } from '@types';
 
 type SummaryStepProps = {
-  nameRequired: boolean;
   site: Site;
   roleOptions: Role[];
 };
@@ -24,15 +23,15 @@ const SummaryStep = ({
   setCurrentStep,
   goToPreviousStep,
   site,
-  nameRequired,
   roleOptions,
 }: InjectedWizardProps & SummaryStepProps) => {
   const router = useRouter();
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
+    watch,
   } = useFormContext<SetUserRolesFormValues>();
-
+  const userIdentityStatus = watch('userIdentityStatus');
   const { email, roleIds, firstName, lastName } = getValues();
 
   const rolesSummary = roleOptions
@@ -41,19 +40,24 @@ const SummaryStep = ({
     .map(x => x.displayName)
     .join(', ');
 
-  const nameSummary: SummaryListItem[] = [
-    {
-      title: 'Name',
-      value: `${firstName} ${lastName}`,
-      action: {
-        renderingStrategy: 'client',
-        text: 'Change',
-        onClick: () => {
-          setCurrentStep(2);
+  const isCreatingNewOktaUser =
+    userIdentityStatus?.identityProvider === 'Okta' &&
+    userIdentityStatus?.extantInIdentityProvider === false;
+  const nameSummary: SummaryListItem[] = isCreatingNewOktaUser
+    ? [
+        {
+          title: 'Name',
+          value: `${firstName} ${lastName}`,
+          action: {
+            renderingStrategy: 'client',
+            text: 'Change',
+            onClick: () => {
+              setCurrentStep(2);
+            },
+          },
         },
-      },
-    },
-  ];
+      ]
+    : [];
 
   const userDetails: SummaryListItem[] = [
     {
@@ -80,10 +84,7 @@ const SummaryStep = ({
     },
   ];
 
-  const summaryItems: SummaryListItem[] = [
-    ...(nameRequired ? nameSummary : []),
-    ...userDetails,
-  ];
+  const summaryItems: SummaryListItem[] = [...nameSummary, ...userDetails];
 
   return (
     <>

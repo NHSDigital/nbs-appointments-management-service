@@ -80,7 +80,7 @@ const AddRoleAssignmentsButton = () => (
 
 const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
   <div>
-    <Link href={`users/user=${user}/manage`} className="nhsuk-link">
+    <Link href={`users/manage?user=${user}`} className="nhsuk-link">
       Edit
     </Link>
   </div>
@@ -88,7 +88,7 @@ const EditRoleAssignmentsButton = ({ user }: { user: string }) => (
 
 const RemoveUserButton = ({ user }: { user: string }) => (
   <div>
-    <Link href={`users/${user}/remove`} className="nhsuk-link">
+    <Link href={`users/remove?user=${user}`} className="nhsuk-link">
       Remove from this site
     </Link>
   </div>

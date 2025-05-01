@@ -20,7 +20,6 @@ type EmailStepProps = {
 
 const NamesStep = ({
   goToNextStep,
-  goToLastStep,
   setCurrentStep,
   returnRouteUponCancellation,
   goToPreviousStep,
@@ -29,7 +28,7 @@ const NamesStep = ({
   const router = useRouter();
   const { formState, trigger, register, watch, setError, setValue } =
     useFormContext<SetUserRolesFormValues>();
-  const { errors, isValid: allStepsAreValid } = formState;
+  const { errors } = formState;
 
   const emailWatch = watch('email');
 
@@ -40,6 +39,7 @@ const NamesStep = ({
     }
 
     const proposedUser = await proposeNewUser(site.id, emailWatch);
+    setValue('userIdentityStatus', proposedUser);
 
     if (proposedUser.extantInMya) {
       const currentRoles =

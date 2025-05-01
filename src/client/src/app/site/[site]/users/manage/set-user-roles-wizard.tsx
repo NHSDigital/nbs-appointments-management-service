@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { Site, Role, UserIdentityStatus } from '@types';
+import { Site, Role, UserIdentityStatus, UserProfile } from '@types';
 import { saveUserRoleAssignments } from '@services/appointmentsService';
 import SummaryStep from './wizard-steps/summary-step';
 import { useRouter } from 'next/navigation';
@@ -17,6 +17,7 @@ export type SetUserRolesFormValues = {
   roleIds: string[];
   firstName: string;
   lastName: string;
+  userIdentityStatus?: UserIdentityStatus;
 };
 
 const schema = yup
@@ -36,25 +37,23 @@ const schema = yup
 type Props = {
   site: Site;
   roleOptions: Role[];
-  email: string;
-  nameRequired: boolean;
+  sessionUser: UserProfile;
 };
 
-const SetUserRolesWizard = ({
-  site,
-  email,
-  nameRequired,
-  roleOptions,
-}: Props) => {
+const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
   const methods = useForm<SetUserRolesFormValues>({
     resolver: yupResolver(schema),
   });
   const router = useRouter();
 
+  const userIdentityStatus = methods.watch('userIdentityStatus');
+  const isCreatingNewOktaUser =
+    userIdentityStatus?.identityProvider === 'Okta' &&
+    userIdentityStatus?.extantInIdentityProvider === false;
   const submitForm: SubmitHandler<SetUserRolesFormValues> = async form => {
     await saveUserRoleAssignments(
       site.id,
-      email,
+      form.email,
       form.firstName,
       form.lastName,
       form.roleIds,
@@ -77,7 +76,7 @@ const SetUserRolesWizard = ({
           <WizardStep>
             {stepProps => <EmailStep {...stepProps} site={site} />}
           </WizardStep>
-          {nameRequired && (
+          {isCreatingNewOktaUser && (
             <WizardStep>{stepProps => <NamesStep {...stepProps} />}</WizardStep>
           )}
           <WizardStep>
@@ -89,7 +88,6 @@ const SetUserRolesWizard = ({
             {stepProps => (
               <SummaryStep
                 {...stepProps}
-                nameRequired={nameRequired}
                 site={site}
                 roleOptions={roleOptions}
               />

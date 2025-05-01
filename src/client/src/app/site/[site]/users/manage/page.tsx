@@ -11,17 +11,16 @@ import SetUserRolesWizard from './set-user-roles-wizard';
 export type UserPageProps = {
   params: {
     site: string;
-    user: string;
   };
   searchParams: {
-    nameRequired?: string;
+    user?: string;
   };
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   await assertPermission(params.site, 'users:manage');
 
-  const email = decodeURIComponent(params.user).toLowerCase();
+  const email = searchParams.user?.toLowerCase();
 
   const [site, userProfile, roleOptions] = await Promise.all([
     fetchSite(params.site),
@@ -46,8 +45,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
       <SetUserRolesWizard
         site={site}
         roleOptions={roleOptions}
-        email={email}
-        nameRequired={searchParams.nameRequired === 'true'}
+        sessionUser={userProfile}
       />
     </NhsPage>
   );

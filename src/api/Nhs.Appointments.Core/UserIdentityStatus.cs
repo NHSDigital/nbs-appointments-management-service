@@ -9,7 +9,7 @@ public class UserIdentityStatus
     [JsonProperty("extantInIdentityProvider")]
     public required bool ExtantInIdentityProvider { get; set; }
 
-    [JsonProperty("identityProvider")] public IdentityProvider IdentityProvider { get; set; }
+    [JsonProperty("identityProvider")] public required IdentityProvider IdentityProvider { get; set; }
 
     [JsonProperty("meetsWhitelistRequirements")]
     public required bool MeetsWhitelistRequirements { get; set; }

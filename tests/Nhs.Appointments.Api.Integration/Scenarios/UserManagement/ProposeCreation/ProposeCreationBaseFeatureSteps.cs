@@ -12,6 +12,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
         new() { Scope = $"site:{GetSiteId()}", Role = "canned:site-details-manager" };
 
     [Given(@"user '(.+)' exists in MYA")]
+    [And(@"user '(.+)' exists in MYA")]
     public async Task EnsureUserExists(string userEmail)
     {
         var userDocument = new UserDocument
@@ -23,6 +24,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
     }
 
     [Given(@"user '(.+)' does not exist in MYA")]
+    [And(@"user '(.+)' does not exist in MYA")]
     public async Task EnsureUserDoesNotExist(string userEmail)
     {
         try

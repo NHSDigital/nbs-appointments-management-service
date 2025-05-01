@@ -72,7 +72,7 @@ export const UsersPage = ({
 
 const AddRoleAssignmentsButton = () => (
   <div style={{ fontSize: 'large' }}>
-    <Link href={`users/propose`} className="nhsuk-link">
+    <Link href={`users/manage`} className="nhsuk-link">
       <Button type="button">Add user</Button>
     </Link>
   </div>

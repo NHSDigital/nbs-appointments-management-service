@@ -1,13 +1,16 @@
 'use client';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { Site, Role } from '@types';
+import { Site, Role, UserIdentityStatus } from '@types';
 import { saveUserRoleAssignments } from '@services/appointmentsService';
-import SummaryStep from './summary-step';
+import SummaryStep from './wizard-steps/summary-step';
 import { useRouter } from 'next/navigation';
-import NamesStep from './names-step';
-import SetRolesStep from './set-roles-step';
+import NamesStep from './wizard-steps/names-step';
+import SetRolesStep from './wizard-steps/set-roles-step';
+import EmailStep from './wizard-steps/email-step';
 
 export type SetUserRolesFormValues = {
   email: string;
@@ -15,6 +18,20 @@ export type SetUserRolesFormValues = {
   firstName: string;
   lastName: string;
 };
+
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      .required()
+      .trim()
+      .lowercase()
+      .email('Enter a valid email address'),
+    roleIds: yup.array().required(),
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+  })
+  .required();
 
 type Props = {
   site: Site;
@@ -30,18 +47,11 @@ const SetUserRolesWizard = ({
   roleOptions,
 }: Props) => {
   const methods = useForm<SetUserRolesFormValues>({
-    defaultValues: {
-      email,
-      roleIds: [],
-      firstName: undefined,
-      lastName: undefined,
-    },
+    resolver: yupResolver(schema),
   });
   const router = useRouter();
 
-  const submitForm: SubmitHandler<SetUserRolesFormValues> = async (
-    form: SetUserRolesFormValues,
-  ) => {
+  const submitForm: SubmitHandler<SetUserRolesFormValues> = async form => {
     await saveUserRoleAssignments(
       site.id,
       email,
@@ -64,6 +74,9 @@ const SetUserRolesWizard = ({
             methods.handleSubmit(submitForm);
           }}
         >
+          <WizardStep>
+            {stepProps => <EmailStep {...stepProps} site={site} />}
+          </WizardStep>
           {nameRequired && (
             <WizardStep>{stepProps => <NamesStep {...stepProps} />}</WizardStep>
           )}

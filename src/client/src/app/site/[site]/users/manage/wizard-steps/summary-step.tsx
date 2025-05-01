@@ -9,7 +9,7 @@ import {
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useFormContext } from 'react-hook-form';
-import { SetUserRolesFormValues } from './set-user-roles-wizard';
+import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 import { Role, Site } from '@types';

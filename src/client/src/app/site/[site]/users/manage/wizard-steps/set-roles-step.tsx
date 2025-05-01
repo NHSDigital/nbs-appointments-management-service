@@ -11,7 +11,7 @@ import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 import { Role } from '@types';
-import { SetUserRolesFormValues } from './set-user-roles-wizard';
+import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 
@@ -52,6 +52,7 @@ const DaysOfWeekStep = ({
         text="Go back"
       />
       <NhsHeading title="Additional details" />
+
       <h2>Email</h2>
       <p>{getValues('email')}</p>
 

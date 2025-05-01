@@ -4,10 +4,9 @@ import {
   fetchSite,
   fetchUserProfile,
   fetchRoles,
-  fetchUsers,
 } from '@services/appointmentsService';
 import { notAuthorized } from '@services/authService';
-import SetUserRolesWizard from '../[user]/wizard/set-user-roles-wizard';
+import SetUserRolesWizard from './set-user-roles-wizard';
 
 export type UserPageProps = {
   params: {
@@ -28,7 +27,6 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
     fetchSite(params.site),
     fetchUserProfile(),
     fetchRoles(),
-    fetchUsers(params.site),
   ]);
 
   if (userProfile.emailAddress === email) {

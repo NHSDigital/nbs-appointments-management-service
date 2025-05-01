@@ -50,6 +50,7 @@ const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
   const isCreatingNewOktaUser =
     userIdentityStatus?.identityProvider === 'Okta' &&
     userIdentityStatus?.extantInIdentityProvider === false;
+
   const submitForm: SubmitHandler<SetUserRolesFormValues> = async form => {
     await saveUserRoleAssignments(
       site.id,
@@ -74,7 +75,9 @@ const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
           }}
         >
           <WizardStep>
-            {stepProps => <EmailStep {...stepProps} site={site} />}
+            {stepProps => (
+              <EmailStep {...stepProps} site={site} sessionUser={sessionUser} />
+            )}
           </WizardStep>
           {isCreatingNewOktaUser && (
             <WizardStep>{stepProps => <NamesStep {...stepProps} />}</WizardStep>

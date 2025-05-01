@@ -12,10 +12,11 @@ import NhsHeading from '@components/nhs-heading';
 import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
-import { Site } from '@types';
+import { Site, UserProfile } from '@types';
 
 type EmailStepProps = {
   site: Site;
+  sessionUser: UserProfile;
 };
 
 const NamesStep = ({
@@ -24,6 +25,7 @@ const NamesStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
   site,
+  sessionUser,
 }: InjectedWizardProps & EmailStepProps) => {
   const router = useRouter();
   const { formState, trigger, register, watch, setError, setValue } =
@@ -38,6 +40,11 @@ const NamesStep = ({
       return;
     }
 
+    if (sessionUser.emailAddress === emailWatch) {
+      setError('email', { message: 'You may not edit your own roles' });
+      return;
+    }
+
     const proposedUser = await proposeNewUser(site.id, emailWatch);
     setValue('userIdentityStatus', proposedUser);
 
@@ -47,7 +54,7 @@ const NamesStep = ({
           .find(user => user.id === emailWatch)
           ?.roleAssignments.map(roleAssignment => roleAssignment.role) ?? [];
       setValue('roleIds', currentRoles);
-      setCurrentStep(3);
+      setCurrentStep(2);
 
       return;
     }

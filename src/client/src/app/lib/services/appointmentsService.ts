@@ -25,6 +25,7 @@ import {
   FeatureFlag,
   clinicalServices,
   BookingStatus,
+  UserIdentityStatus,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -77,6 +78,20 @@ export const assertEulaAcceptance = async (
     }
   }
 };
+
+export async function proposeNewUser(siteId: string, userId: string) {
+  const payload = {
+    siteId,
+    userId,
+  };
+
+  const response = await appointmentsApi.post<UserIdentityStatus>(
+    `user/propose-potential`,
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
+}
 
 export async function fetchUsers(site: string) {
   const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
@@ -275,7 +290,7 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
-  isEdit: boolean,
+  // isEdit: boolean,
 ) => {
   const payload = {
     scope: `site:${site}`,
@@ -290,11 +305,11 @@ export const saveUserRoleAssignments = async (
   );
   handleEmptyResponse(response);
 
-  const notificationType = 'ams-notification';
-  const notificationMessage = isEdit
-    ? `You have changed a user's role.`
-    : `You have added a new user to MYA The user will be sent information about how to login.`;
-  raiseNotification(notificationType, notificationMessage);
+  // const notificationType = 'ams-notification';
+  // const notificationMessage = isEdit
+  //   ? `You have changed a user's role.`
+  //   : `You have added a new user to MYA The user will be sent information about how to login.`;
+  // raiseNotification(notificationType, notificationMessage);
 
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);

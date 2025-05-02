@@ -1,192 +1,182 @@
-// import { screen } from '@testing-library/react';
-// import UserDetailsForm from './user-details-form';
-// import { RoleAssignment } from '@types';
-// import { useRouter } from 'next/navigation';
-// import { mockAssignments, mockRoles } from '@testing/data';
-// import render from '@testing/render';
+import { screen } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
+import render from '@testing/render';
+import MockForm from '@testing/mockForm';
+import {
+  setUserRolesFormSchema,
+  SetUserRolesFormValues,
+} from '../set-user-roles-wizard';
+import { mockRoles } from '@testing/data';
+import { InjectedWizardProps } from '@components/wizard';
+import SetRolesStep, { RolesStepProps } from './set-roles-step';
 
-// jest.mock('next/navigation');
-// const mockUseRouter = useRouter as jest.Mock;
-// const mockReplace = jest.fn();
-// const mockPush = jest.fn();
+jest.mock('next/navigation');
+const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
 
-// jest.mock('@services/appointmentsService');
+const mockGoToNextStep = jest.fn();
+const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
+const mockSetCurrentStep = jest.fn();
 
-// jest.spyOn(window.sessionStorage.__proto__, 'setItem');
-// window.sessionStorage.setItem = jest.fn();
+const defaultProps: InjectedWizardProps & RolesStepProps = {
+  stepNumber: 1,
+  currentStep: 1,
+  isActive: true,
+  setCurrentStep: mockSetCurrentStep,
+  goToNextStep: mockGoToNextStep,
+  goToLastStep: mockGoToLastStep,
+  goToPreviousStep: mockGoToPreviousStep,
+  returnRouteUponCancellation: '/',
+  roleOptions: mockRoles,
+};
 
-// describe('Assign Roles Form', () => {
-//   beforeEach(() => {
-//     mockUseRouter.mockReturnValue({
-//       replace: mockReplace,
-//       push: mockPush,
-//     });
-//   });
+const formState: SetUserRolesFormValues = {
+  email: 'new.user@nhs.net',
+  firstName: '',
+  lastName: '',
+  roleIds: ['role-1', 'role-2'],
+  userIdentityStatus: {
+    identityProvider: 'NhsMail',
+    extantInIdentityProvider: true,
+    extantInMya: false,
+    meetsWhitelistRequirements: true,
+  },
+};
 
-//   it.skip('displays a check box for each available role', () => {
-//     render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@nhs.net"
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
+describe('Assign Roles Form', () => {
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
+  });
 
-//     expect(screen.getByRole('checkbox', { name: 'Alpha Role' })).toBeVisible();
-//     expect(screen.getByRole('checkbox', { name: 'Beta Role' })).toBeVisible();
-//     expect(
-//       screen.getByRole('checkbox', { name: 'Charlie Role' }),
-//     ).toBeVisible();
-//   });
+  it('renders', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('displays checkboxes for all available roles in ascending alphabetical order', () => {
-//     render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@nhs.net"
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
-//     const checkboxes = screen.getAllByRole('checkbox');
-//     expect(checkboxes.length).toBe(3);
-//     expect(checkboxes[0].getAttribute('label')).toEqual('Alpha Role');
-//     expect(checkboxes[1].getAttribute('label')).toEqual('Beta Role');
-//     expect(checkboxes[2].getAttribute('label')).toEqual('Charlie Role');
-//   });
+    expect(
+      screen.getByRole('heading', { name: 'Additional details' }),
+    ).toBeInTheDocument();
+  });
 
-//   it('checks the correct options', () => {
-//     render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@nhs.net"
-//         assignments={mockAssignments}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
+  it('displays a check box for each available role', () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     expect(screen.getByRole('checkbox', { name: 'Beta Role' })).toBeChecked();
-//     expect(
-//       screen.getByRole('checkbox', { name: 'Charlie Role' }),
-//     ).not.toBeChecked();
-//     expect(screen.getByRole('checkbox', { name: 'Alpha Role' })).toBeChecked();
-//   });
-//   it('display a validation error when attempting to submit the form with no roles selected', async () => {
-//     const { user } = render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@nhs.net"
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
-//     const submitButton = screen.getByRole('button', {
-//       name: 'Continue',
-//     });
-//     await user.click(submitButton);
+    expect(screen.getByRole('checkbox', { name: 'Alpha Role' })).toBeVisible();
+    expect(screen.getByRole('checkbox', { name: 'Beta Role' })).toBeVisible();
+    expect(
+      screen.getByRole('checkbox', { name: 'Charlie Role' }),
+    ).toBeVisible();
+  });
 
-//     expect(
-//       screen.getByText('You have not selected any roles for this user'),
-//     ).toBeVisible();
-//   });
+  it('displays checkboxes for all available roles in ascending alphabetical order', () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('returns the user to the users list when they cancel', async () => {
-//     const { user } = render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@nhs.net"
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
-//     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-//     await user.click(cancelButton);
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes.length).toBe(3);
+    expect(checkboxes[0].getAttribute('label')).toEqual('Alpha Role');
+    expect(checkboxes[1].getAttribute('label')).toEqual('Beta Role');
+    expect(checkboxes[2].getAttribute('label')).toEqual('Charlie Role');
+  });
 
-//     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
-//   });
+  it('checks the correct options', () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('calls user summary page', async () => {
-//     const { user } = render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user="test@okta.net"
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
-//     const checkBox = screen.getByRole('checkbox', { name: 'Beta Role' });
-//     await user.click(checkBox);
-//     const continueButton = screen.getByRole('button', { name: 'Continue' });
-//     await user.click(continueButton);
+    expect(screen.getByRole('checkbox', { name: 'Beta Role' })).toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'Charlie Role' }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'Alpha Role' }),
+    ).not.toBeChecked();
+  });
 
-//     expect(sessionStorage.setItem).toHaveBeenCalledWith(
-//       'userFormData',
-//       JSON.stringify({
-//         site: 'TEST',
-//         user: 'test@okta.net',
-//         roles: ['role-1'],
-//         firstName: 'firstName',
-//         lastName: 'lastName',
-//         isEdit: false,
-//       }),
-//     );
-//     expect(mockPush).toHaveBeenCalledWith('/site/TEST/users/user-summary');
-//   });
+  it('display a validation error when attempting to submit the form with no roles selected', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ ...formState, roleIds: [] }}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('displays the email address of the user', async () => {
-//     const user = 'test@okta.net';
-//     render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user={user}
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Continue',
+      }),
+    );
 
-//     const email = screen.getByRole('heading', { name: 'Email' });
+    expect(
+      screen.getByText('You have not selected any roles for this user'),
+    ).toBeVisible();
+  });
 
-//     expect(email).toBeVisible();
-//     expect(screen.getByText(user)).toBeVisible();
-//   });
+  it('navigates to the cancellation route when cancel is clicked', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ ...formState, roleIds: [] }}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep
+          {...defaultProps}
+          returnRouteUponCancellation="/route-to-cancel-back-to"
+        />
+      </MockForm>,
+    );
 
-//   it('email is not case sensitive', async () => {
-//     const user = 'TEST@NHS.NET';
-//     render(
-//       <UserDetailsForm
-//         site="TEST"
-//         user={user}
-//         assignments={[] as RoleAssignment[]}
-//         roles={mockRoles}
-//         firstName="firstName"
-//         lastName="lastName"
-//         isEdit={false}
-//       />,
-//     );
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockPush).toHaveBeenCalledWith('/route-to-cancel-back-to');
+  });
 
-//     expect(screen.getByText('Email')).toBeVisible();
-//     expect(screen.getByText(user)).toBeVisible();
-//   });
-// });
+  it('displays the email address of the user', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{ ...formState, roleIds: [] }}
+        schema={setUserRolesFormSchema}
+      >
+        <SetRolesStep {...defaultProps} />
+      </MockForm>,
+    );
+
+    const email = screen.getByRole('heading', { name: 'Email' });
+
+    expect(email).toBeVisible();
+    expect(screen.getByText('new.user@nhs.net')).toBeVisible();
+  });
+});

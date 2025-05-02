@@ -15,7 +15,7 @@ import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 
-type RolesStepProps = {
+export type RolesStepProps = {
   roleOptions: Role[];
 };
 

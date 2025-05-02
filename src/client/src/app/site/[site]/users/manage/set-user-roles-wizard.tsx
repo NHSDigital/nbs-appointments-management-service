@@ -47,7 +47,10 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
         .trim()
         .lowercase()
         .email('Enter a valid email address'),
-      roleIds: yup.array().required(),
+      roleIds: yup
+        .array()
+        .required()
+        .min(1, 'You have not selected any roles for this user'),
       firstName: yup
         .string()
         .when(

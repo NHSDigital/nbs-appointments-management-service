@@ -21,8 +21,8 @@ import EmailStep from './wizard-steps/email-step';
 export type SetUserRolesFormValues = {
   email: string;
   roleIds: string[];
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   userIdentityStatus: UserIdentityStatus;
 };
 
@@ -48,8 +48,46 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
         .lowercase()
         .email('Enter a valid email address'),
       roleIds: yup.array().required(),
-      firstName: yup.string().required(),
-      lastName: yup.string().required(),
+      firstName: yup
+        .string()
+        .when(
+          [
+            'userIdentityStatus.identityProvider',
+            'userIdentityStatus.extantInIdentityProvider',
+          ],
+          {
+            is: (
+              identityProvider: IdentityProvider,
+              extantInIdentityProvider: boolean,
+            ) =>
+              identityProvider === 'Okta' && extantInIdentityProvider === true,
+            then: schema =>
+              schema
+                .required('Enter a first name')
+                .max(50, 'First name cannot exceed 50 characters'),
+            otherwise: schema => schema.notRequired(),
+          },
+        ),
+      lastName: yup
+        .string()
+        .when(
+          [
+            'userIdentityStatus.identityProvider',
+            'userIdentityStatus.extantInIdentityProvider',
+          ],
+          {
+            is: (
+              identityProvider: IdentityProvider,
+              extantInIdentityProvider: boolean,
+            ) =>
+              identityProvider === 'Okta' && extantInIdentityProvider === true,
+            then: schema =>
+              schema
+                .required('Enter a last name')
+                .max(50, 'Last name cannot exceed 50 characters'),
+            otherwise: schema => schema.notRequired(),
+          },
+        ),
       userIdentityStatus: userIdentityStatusSchema,
     })
     .required();
@@ -75,8 +113,8 @@ const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
     await saveUserRoleAssignments(
       site.id,
       form.email,
-      form.firstName,
-      form.lastName,
+      form.firstName ?? '',
+      form.lastName ?? '',
       form.roleIds,
     );
 
@@ -109,11 +147,7 @@ const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
           </WizardStep>
           <WizardStep>
             {stepProps => (
-              <SummaryStep
-                {...stepProps}
-                site={site}
-                roleOptions={roleOptions}
-              />
+              <SummaryStep {...stepProps} roleOptions={roleOptions} />
             )}
           </WizardStep>
         </Wizard>

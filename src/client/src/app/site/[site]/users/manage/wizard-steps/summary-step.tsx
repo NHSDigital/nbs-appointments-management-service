@@ -11,21 +11,17 @@ import { InjectedWizardProps } from '@components/wizard';
 import { useFormContext } from 'react-hook-form';
 import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
-import { useRouter } from 'next/navigation';
-import { Role, Site } from '@types';
+import { Role } from '@types';
 
-type SummaryStepProps = {
-  site: Site;
+export type SummaryStepProps = {
   roleOptions: Role[];
 };
 
 const SummaryStep = ({
   setCurrentStep,
   goToPreviousStep,
-  site,
   roleOptions,
 }: InjectedWizardProps & SummaryStepProps) => {
-  const router = useRouter();
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
@@ -43,6 +39,7 @@ const SummaryStep = ({
   const isCreatingNewOktaUser =
     userIdentityStatus?.identityProvider === 'Okta' &&
     userIdentityStatus?.extantInIdentityProvider === false;
+
   const nameSummary: SummaryListItem[] = isCreatingNewOktaUser
     ? [
         {
@@ -67,7 +64,7 @@ const SummaryStep = ({
         renderingStrategy: 'client',
         text: 'Change',
         onClick: () => {
-          router.push(`/site/${site.id}/users/propose`);
+          setCurrentStep(1);
         },
       },
     },
@@ -78,7 +75,7 @@ const SummaryStep = ({
         renderingStrategy: 'client',
         text: 'Change',
         onClick: () => {
-          setCurrentStep(1);
+          setCurrentStep(3);
         },
       },
     },
@@ -96,7 +93,7 @@ const SummaryStep = ({
       <NhsHeading title={'Check user details'} />
       <SummaryList items={summaryItems}></SummaryList>
 
-      <p>{`${email} will be sent information about how to login.`}</p>
+      <p>{`${isCreatingNewOktaUser ? `${firstName} ${lastName}` : email} will be sent information about how to log in.`}</p>
 
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />

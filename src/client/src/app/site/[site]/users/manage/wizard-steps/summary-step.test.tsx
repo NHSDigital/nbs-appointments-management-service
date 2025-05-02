@@ -1,154 +1,218 @@
-// import { render, screen, waitFor } from '@testing-library/react';
-// import UserSummary from './user-summary';
-// import { useRouter } from 'next/navigation';
-// import { mockRoles } from '@testing/data';
+import { screen } from '@testing-library/react';
+import render from '@testing/render';
+import MockForm from '@testing/mockForm';
+import {
+  setUserRolesFormSchema,
+  SetUserRolesFormValues,
+} from '../set-user-roles-wizard';
+import { mockRoles } from '@testing/data';
+import { InjectedWizardProps } from '@components/wizard';
+import SummaryStep, { SummaryStepProps } from './summary-step';
+import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
-// // Mock next/navigation
-// jest.mock('next/navigation', () => ({
-//   useRouter: jest.fn(),
-// }));
+const mockGoToNextStep = jest.fn();
+const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
+const mockSetCurrentStep = jest.fn();
 
-// describe('Summary Step Test', () => {
-//   const mockPush = jest.fn();
+const defaultProps: InjectedWizardProps & SummaryStepProps = {
+  stepNumber: 1,
+  currentStep: 1,
+  isActive: true,
+  setCurrentStep: mockSetCurrentStep,
+  goToNextStep: mockGoToNextStep,
+  goToLastStep: mockGoToLastStep,
+  goToPreviousStep: mockGoToPreviousStep,
+  returnRouteUponCancellation: '/',
+  roleOptions: mockRoles,
+};
 
-//   beforeEach(() => {
-//     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
-//     // // Clear previous mocks or session data
-//     sessionStorage.clear();
-//     jest.clearAllMocks();
-//   });
+const formState: SetUserRolesFormValues = {
+  email: 'new.user@nhs.net',
+  firstName: '',
+  lastName: '',
+  roleIds: ['role-1', 'role-2'],
+  userIdentityStatus: {
+    identityProvider: 'NhsMail',
+    extantInIdentityProvider: true,
+    extantInMya: false,
+    meetsWhitelistRequirements: true,
+  },
+};
 
-//   it.each([[true], [false]])('renders', async (isOkta: boolean) => {
-//     // Setup sessionStorage mock
-//     const firstName = isOkta ? 'firstName' : '';
-//     const lastName = isOkta ? 'lastName' : '';
+describe('Summary Step', () => {
+  it('renders', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     sessionStorage.setItem(
-//       'userFormData',
-//       JSON.stringify({
-//         site: '123',
-//         user: isOkta ? 'test@okta.net' : 'test@nhs.net',
-//         firstName: firstName,
-//         lastName: lastName,
-//         roles: ['role-1', 'role-2'],
-//         isEdit: false,
-//       }),
-//     );
+    expect(
+      screen.getByRole('heading', { name: 'Check user details' }),
+    ).toBeInTheDocument();
+  });
 
-//     render(<UserSummary roles={mockRoles} />);
+  it('summarises the user to be created', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     const ddElement = screen.queryByLabelText('Name-description');
+    verifySummaryListItem('Email address', 'new.user@nhs.net');
+    verifySummaryListItem('Roles', 'Beta Role, Charlie Role');
 
-//     isOkta
-//       ? expect(ddElement).toHaveTextContent(firstName + ' ' + lastName)
-//       : expect(ddElement).not.toBeInTheDocument();
-//   });
+    expect(
+      screen.queryByRole('term', { name: 'Name' }),
+    ).not.toBeInTheDocument();
+  });
 
-//   it.each([
-//     [true, true, false, false, true],
-//     [true, false, false, false, true],
-//     [false, true, true, true, true],
-//     [false, false, false, true, true],
-//   ])(
-//     'renders change buttons correctly',
-//     async (
-//       isEdit: boolean,
-//       isOkta: boolean,
-//       changeNameAvailable: boolean,
-//       changeEmailAvailable: boolean,
-//       changeRolesAvailable: boolean,
-//     ) => {
-//       // Setup sessionStorage mock
-//       sessionStorage.setItem(
-//         'userFormData',
-//         JSON.stringify({
-//           site: '123',
-//           user: isOkta ? 'test@okta.net' : 'test@nhs.net',
-//           firstName: 'firstName',
-//           lastName: 'lastName',
-//           roles: ['role-1', 'role-2'],
-//           isEdit: isEdit,
-//         }),
-//       );
+  it('displays name if a new okta used is being created', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'Okta',
+            extantInIdentityProvider: false,
+            extantInMya: false,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//       render(<UserSummary roles={mockRoles} />);
+    verifySummaryListItem('Name', 'Elizabeth Kensington-Jones');
+  });
 
-//       const nameChangeBtn = screen.queryByLabelText('Name-description-action');
-//       const emailChangeBtn = screen.queryByLabelText(
-//         'Email address-description-action',
-//       );
-//       const rolesChangeBtn = screen.queryByLabelText(
-//         'Roles-description-action',
-//       );
+  it('hides the name summary for Nhs Mail users', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'NhsMail',
+            extantInIdentityProvider: false,
+            extantInMya: false,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//       changeNameAvailable
-//         ? expect(nameChangeBtn).toBeInTheDocument()
-//         : expect(nameChangeBtn).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('term', { name: 'Name' }),
+    ).not.toBeInTheDocument();
+  });
 
-//       changeEmailAvailable
-//         ? expect(emailChangeBtn).toBeInTheDocument()
-//         : expect(emailChangeBtn).not.toBeInTheDocument();
+  it('hides the name summary for Oktas users who already exist', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'Okta',
+            extantInIdentityProvider: true,
+            extantInMya: false,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//       changeRolesAvailable
-//         ? expect(rolesChangeBtn).toBeInTheDocument()
-//         : expect(rolesChangeBtn).not.toBeInTheDocument();
-//     },
-//   );
+    expect(
+      screen.queryByRole('term', { name: 'Name' }),
+    ).not.toBeInTheDocument();
+  });
 
-//   it.each([
-//     [true, true, ''],
-//     [true, false, ''],
-//     [false, true, ' will be sent information about how to login.'],
-//     [false, false, ' will be sent information about how to login.'],
-//   ])(
-//     'renders submit message correctly',
-//     async (isEdit: boolean, isOkta: boolean, expectedMessage: string) => {
-//       // Setup sessionStorage mock
-//       sessionStorage.setItem(
-//         'userFormData',
-//         JSON.stringify({
-//           site: '123',
-//           user: isOkta ? 'test@okta.net' : 'test@nhs.net',
-//           firstName: 'firstName',
-//           lastName: 'lastName',
-//           roles: ['role-1', 'role-2'],
-//           isEdit: isEdit,
-//         }),
-//       );
+  it('displays an email advice message', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//       render(<UserSummary roles={mockRoles} />);
+    expect(
+      screen.getByText(
+        'new.user@nhs.net will be sent information about how to log in.',
+      ),
+    ).toBeInTheDocument();
+  });
 
-//       const submitionNote = screen.getByLabelText('submition-note');
+  it('displays a different advice message for Okta users', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'Okta',
+            extantInIdentityProvider: false,
+            extantInMya: false,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//       expect(submitionNote).toHaveTextContent(expectedMessage);
-//     },
-//   );
+    expect(
+      screen.getByText(
+        'Elizabeth Kensington-Jones will be sent information about how to log in.',
+      ),
+    ).toBeInTheDocument();
+  });
 
-//   it('renders expected roles', async () => {
-//     sessionStorage.setItem(
-//       'userFormData',
-//       JSON.stringify({
-//         site: '123',
-//         user: 'test@nhs.net',
-//         firstName: '',
-//         lastName: '',
-//         roles: ['role-1', 'role-2'],
-//         isEdit: false,
-//       }),
-//     );
+  it('displays a Confirm button which submits the form', async () => {
+    const mockOnSubmit = jest.fn();
 
-//     render(<UserSummary roles={mockRoles} />);
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={mockOnSubmit}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     const roleElement = screen.getByLabelText('Roles-description');
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
 
-//     expect(roleElement).toHaveTextContent('Beta Role, Charlie Role');
-//   });
-
-//   it('redirects if sessionStorage is empty', async () => {
-//     render(<UserSummary roles={mockRoles} />);
-
-//     await waitFor(() => {
-//       expect(mockPush).toHaveBeenCalledWith('/');
-//     });
-//   });
-// });
+    expect(mockOnSubmit).toHaveBeenCalledWith(formState);
+  });
+});

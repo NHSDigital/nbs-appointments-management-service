@@ -63,7 +63,7 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
               identityProvider: IdentityProvider,
               extantInIdentityProvider: boolean,
             ) =>
-              identityProvider === 'Okta' && extantInIdentityProvider === true,
+              identityProvider === 'Okta' && extantInIdentityProvider === false,
             then: schema =>
               schema
                 .required('Enter a first name')
@@ -83,7 +83,7 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
               identityProvider: IdentityProvider,
               extantInIdentityProvider: boolean,
             ) =>
-              identityProvider === 'Okta' && extantInIdentityProvider === true,
+              identityProvider === 'Okta' && extantInIdentityProvider === false,
             then: schema =>
               schema
                 .required('Enter a last name')

@@ -21,7 +21,6 @@ export type RolesStepProps = {
 
 const SetRolesStep = ({
   goToNextStep,
-  goToLastStep,
   returnRouteUponCancellation,
   goToPreviousStep,
   roleOptions,
@@ -30,7 +29,7 @@ const SetRolesStep = ({
 
   const { register, formState, trigger, getValues } =
     useFormContext<SetUserRolesFormValues>();
-  const { errors, isValid: allStepsAreValid } = formState;
+  const { errors } = formState;
 
   const onContinue = async () => {
     const formIsValid = await trigger(['roleIds']);
@@ -38,11 +37,7 @@ const SetRolesStep = ({
       return;
     }
 
-    if (allStepsAreValid) {
-      goToLastStep();
-    } else {
-      goToNextStep();
-    }
+    goToNextStep();
   };
 
   return (

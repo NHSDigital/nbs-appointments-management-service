@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation';
 
 const NamesStep = ({
   goToNextStep,
-  goToLastStep,
   returnRouteUponCancellation,
   goToPreviousStep,
 }: InjectedWizardProps) => {
@@ -22,16 +21,11 @@ const NamesStep = ({
 
   const { formState, trigger, register } =
     useFormContext<SetUserRolesFormValues>();
-  const { errors, isValid: allStepsAreValid } = formState;
+  const { errors } = formState;
 
   const onContinue = async () => {
     const formIsValid = await trigger(['firstName', 'lastName']);
     if (!formIsValid) {
-      return;
-    }
-
-    if (allStepsAreValid) {
-      goToLastStep();
       return;
     }
 

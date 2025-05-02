@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react';
 import render from '@testing/render';
+import { useRouter } from 'next/navigation';
 import MockForm from '@testing/mockForm';
 import {
   setUserRolesFormSchema,
@@ -9,6 +10,10 @@ import { mockRoles } from '@testing/data';
 import { InjectedWizardProps } from '@components/wizard';
 import SummaryStep, { SummaryStepProps } from './summary-step';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+
+jest.mock('next/navigation');
+const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -41,6 +46,12 @@ const formState: SetUserRolesFormValues = {
 };
 
 describe('Summary Step', () => {
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
+  });
+
   it('renders', async () => {
     render(
       <MockForm<SetUserRolesFormValues>
@@ -214,5 +225,23 @@ describe('Summary Step', () => {
     await user.click(screen.getByRole('button', { name: 'Confirm' }));
 
     expect(mockOnSubmit).toHaveBeenCalledWith(formState);
+  });
+
+  it('navigates to the cancellation route when cancel is clicked', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep
+          {...defaultProps}
+          returnRouteUponCancellation="/route-to-cancel-back-to"
+        />
+      </MockForm>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockPush).toHaveBeenCalledWith('/route-to-cancel-back-to');
   });
 });

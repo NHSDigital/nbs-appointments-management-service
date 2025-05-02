@@ -3,6 +3,7 @@ import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
+  ButtonGroup,
   SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
@@ -12,6 +13,7 @@ import { useFormContext } from 'react-hook-form';
 import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
 import { Role } from '@types';
+import { useRouter } from 'next/navigation';
 
 export type SummaryStepProps = {
   roleOptions: Role[];
@@ -21,7 +23,9 @@ const SummaryStep = ({
   setCurrentStep,
   goToPreviousStep,
   roleOptions,
+  returnRouteUponCancellation,
 }: InjectedWizardProps & SummaryStepProps) => {
+  const router = useRouter();
   const {
     getValues,
     formState: { isSubmitting, isSubmitSuccessful },
@@ -98,7 +102,18 @@ const SummaryStep = ({
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
-        <Button type="submit">Confirm</Button>
+        <ButtonGroup>
+          <Button type="submit">Confirm</Button>
+          <Button
+            type="button"
+            styleType="secondary"
+            onClick={async () => {
+              router.push(returnRouteUponCancellation);
+            }}
+          >
+            Cancel
+          </Button>
+        </ButtonGroup>
       )}
     </>
   );

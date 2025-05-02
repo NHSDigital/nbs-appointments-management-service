@@ -33,15 +33,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   }
 
   return (
-    <NhsPage
-      title=""
-      breadcrumbs={[
-        { name: 'Home', href: '/sites' },
-        { name: site.name, href: `/site/${params.site}` },
-        { name: 'Users', href: `/site/${params.site}/users` },
-      ]}
-      originPage="users-manage"
-    >
+    <NhsPage title="" originPage="users-manage">
       <SetUserRolesWizard
         site={site}
         roleOptions={roleOptions}

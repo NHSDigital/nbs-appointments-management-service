@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { WizardStepProps } from './wizard-step';
+import { useRouter } from 'next/navigation';
 
 export interface InjectedWizardProps {
   stepNumber: number;
@@ -34,6 +35,7 @@ const Wizard = ({
   returnRouteUponCancellation,
   onCompleteFinalStep,
 }: Props) => {
+  const router = useRouter();
   const [activeStep, setActiveStepState] = useState(initialStep);
 
   const filteredChildren = Children.toArray(
@@ -44,6 +46,11 @@ const Wizard = ({
   const setActiveStep = async (incomingStep: number) => {
     if (incomingStep > lastStep) {
       onCompleteFinalStep();
+      return;
+    }
+
+    if (incomingStep < 1) {
+      router.push(returnRouteUponCancellation);
       return;
     }
 

@@ -9,7 +9,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
-import { SetUserRolesFormValues } from '../set-user-roles-wizard';
+import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
 import { Site, UserProfile } from '@types';

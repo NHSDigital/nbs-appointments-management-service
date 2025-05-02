@@ -1,99 +1,19 @@
 'use client';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import {
-  Site,
-  Role,
-  UserIdentityStatus,
-  UserProfile,
-  IdentityProvider,
-} from '@types';
+import { Site, Role, UserProfile } from '@types';
 import { saveUserRoleAssignments } from '@services/appointmentsService';
 import SummaryStep from './wizard-steps/summary-step';
 import { useRouter } from 'next/navigation';
 import NamesStep from './wizard-steps/names-step';
 import SetRolesStep from './wizard-steps/set-roles-step';
 import EmailStep from './wizard-steps/email-step';
-
-export type SetUserRolesFormValues = {
-  email: string;
-  roleIds: string[];
-  firstName?: string;
-  lastName?: string;
-  userIdentityStatus: UserIdentityStatus;
-};
-
-const userIdentityStatusSchema: yup.ObjectSchema<UserIdentityStatus> = yup
-  .object({
-    identityProvider: yup
-      .mixed<IdentityProvider>()
-      .oneOf(['Okta', 'NhsMail'])
-      .required(),
-    extantInIdentityProvider: yup.boolean().required(),
-    extantInMya: yup.boolean().required(),
-    meetsWhitelistRequirements: yup.boolean().required(),
-  })
-  .required();
-
-export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
-  yup
-    .object({
-      email: yup
-        .string()
-        .required('Enter a valid email address')
-        .trim()
-        .lowercase()
-        .email('Enter a valid email address'),
-      roleIds: yup
-        .array()
-        .required()
-        .min(1, 'You have not selected any roles for this user'),
-      firstName: yup
-        .string()
-        .when(
-          [
-            'userIdentityStatus.identityProvider',
-            'userIdentityStatus.extantInIdentityProvider',
-          ],
-          {
-            is: (
-              identityProvider: IdentityProvider,
-              extantInIdentityProvider: boolean,
-            ) =>
-              identityProvider === 'Okta' && extantInIdentityProvider === false,
-            then: schema =>
-              schema
-                .required('Enter a first name')
-                .max(50, 'First name cannot exceed 50 characters'),
-            otherwise: schema => schema.notRequired(),
-          },
-        ),
-      lastName: yup
-        .string()
-        .when(
-          [
-            'userIdentityStatus.identityProvider',
-            'userIdentityStatus.extantInIdentityProvider',
-          ],
-          {
-            is: (
-              identityProvider: IdentityProvider,
-              extantInIdentityProvider: boolean,
-            ) =>
-              identityProvider === 'Okta' && extantInIdentityProvider === false,
-            then: schema =>
-              schema
-                .required('Enter a last name')
-                .max(50, 'Last name cannot exceed 50 characters'),
-            otherwise: schema => schema.notRequired(),
-          },
-        ),
-      userIdentityStatus: userIdentityStatusSchema,
-    })
-    .required();
+import {
+  setUserRolesFormSchema,
+  SetUserRolesFormValues,
+} from './set-user-roles-form';
 
 type Props = {
   site: Site;

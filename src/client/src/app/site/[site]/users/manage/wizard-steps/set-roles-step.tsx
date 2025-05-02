@@ -11,15 +11,15 @@ import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 import { Role } from '@types';
-import { SetUserRolesFormValues } from '../set-user-roles-wizard';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
+import { SetUserRolesFormValues } from '../set-user-roles-form';
 
 export type RolesStepProps = {
   roleOptions: Role[];
 };
 
-const DaysOfWeekStep = ({
+const SetRolesStep = ({
   goToNextStep,
   goToLastStep,
   returnRouteUponCancellation,
@@ -27,6 +27,7 @@ const DaysOfWeekStep = ({
   roleOptions,
 }: InjectedWizardProps & RolesStepProps) => {
   const router = useRouter();
+
   const { register, formState, trigger, getValues } =
     useFormContext<SetUserRolesFormValues>();
   const { errors, isValid: allStepsAreValid } = formState;
@@ -56,14 +57,7 @@ const DaysOfWeekStep = ({
       <h2>Email</h2>
       <p>{getValues('email')}</p>
 
-      <FormGroup
-        error={
-          errors.roleIds
-            ? 'You have not selected any roles for this user'
-            : undefined
-        }
-        legend="Roles"
-      >
+      <FormGroup error={errors.roleIds?.message} legend="Roles">
         <CheckBoxes>
           {roleOptions.toSorted(sortRolesByName).map(r => (
             <CheckBox
@@ -72,7 +66,7 @@ const DaysOfWeekStep = ({
               hint={r.description}
               key={`checkbox-key-${r.id}`}
               value={r.id}
-              {...register('roleIds', { required: true })}
+              {...register('roleIds')}
             />
           ))}
         </CheckBoxes>
@@ -101,4 +95,4 @@ const DaysOfWeekStep = ({
   );
 };
 
-export default DaysOfWeekStep;
+export default SetRolesStep;

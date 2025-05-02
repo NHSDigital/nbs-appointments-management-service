@@ -5,7 +5,7 @@ import MockForm from '@testing/mockForm';
 import {
   setUserRolesFormSchema,
   SetUserRolesFormValues,
-} from '../set-user-roles-wizard';
+} from '../set-user-roles-form';
 import EmailStep, { EmailStepProps } from './email-step';
 import {
   getMockUserAssignments,

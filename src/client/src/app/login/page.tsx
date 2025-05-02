@@ -33,6 +33,7 @@ const Page = async ({ searchParams }: LoginPageProps) => {
           redirectUrl={redirectUrl}
           provider={'okta'}
           friendlyName={'Other Email'}
+          styleType="secondary"
         />
       )}
     </NhsAnonymousPage>

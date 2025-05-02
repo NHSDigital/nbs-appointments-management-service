@@ -4,7 +4,13 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { Site, Role, UserIdentityStatus, UserProfile } from '@types';
+import {
+  Site,
+  Role,
+  UserIdentityStatus,
+  UserProfile,
+  IdentityProvider,
+} from '@types';
 import { saveUserRoleAssignments } from '@services/appointmentsService';
 import SummaryStep from './wizard-steps/summary-step';
 import { useRouter } from 'next/navigation';
@@ -17,22 +23,36 @@ export type SetUserRolesFormValues = {
   roleIds: string[];
   firstName: string;
   lastName: string;
-  userIdentityStatus?: UserIdentityStatus;
+  userIdentityStatus: UserIdentityStatus;
 };
 
-const schema = yup
+const userIdentityStatusSchema: yup.ObjectSchema<UserIdentityStatus> = yup
   .object({
-    email: yup
-      .string()
-      .required()
-      .trim()
-      .lowercase()
-      .email('Enter a valid email address'),
-    roleIds: yup.array().required(),
-    firstName: yup.string().required(),
-    lastName: yup.string().required(),
+    identityProvider: yup
+      .mixed<IdentityProvider>()
+      .oneOf(['Okta', 'NhsMail'])
+      .required(),
+    extantInIdentityProvider: yup.boolean().required(),
+    extantInMya: yup.boolean().required(),
+    meetsWhitelistRequirements: yup.boolean().required(),
   })
   .required();
+
+export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
+  yup
+    .object({
+      email: yup
+        .string()
+        .required()
+        .trim()
+        .lowercase()
+        .email('Enter a valid email address'),
+      roleIds: yup.array().required(),
+      firstName: yup.string().required(),
+      lastName: yup.string().required(),
+      userIdentityStatus: userIdentityStatusSchema,
+    })
+    .required();
 
 type Props = {
   site: Site;
@@ -42,7 +62,7 @@ type Props = {
 
 const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
   const methods = useForm<SetUserRolesFormValues>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(setUserRolesFormSchema),
   });
   const router = useRouter();
 

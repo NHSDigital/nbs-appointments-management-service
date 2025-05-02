@@ -98,8 +98,9 @@ type AvailabilityTemplate = {
 
 export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
 
+type IdentityProvider = 'NhsMail' | 'Okta';
 type UserIdentityStatus = {
-  identityProvider: 'NhsMail' | 'Okta';
+  identityProvider: IdentityProvider;
   extantInIdentityProvider: boolean;
   extantInMya: boolean;
   meetsWhitelistRequirements: boolean;
@@ -386,6 +387,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   EulaVersion,
+  IdentityProvider,
   NhsMyaCookieConsent,
   Role,
   RoleAssignment,

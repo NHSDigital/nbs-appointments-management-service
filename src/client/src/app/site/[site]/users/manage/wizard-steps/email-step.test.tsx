@@ -1,143 +1,242 @@
-// import { screen } from '@testing-library/react';
-// import FindUserForm from './find-user-form';
-// import { usePathname, useRouter } from 'next/navigation';
-// import render from '@testing/render';
+import { screen } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
+import render from '@testing/render';
+import MockForm from '@testing/mockForm';
+import {
+  setUserRolesFormSchema,
+  SetUserRolesFormValues,
+} from '../set-user-roles-wizard';
+import EmailStep, { EmailStepProps } from './email-step';
+import {
+  getMockUserAssignments,
+  mockSite,
+  mockUserProfile,
+} from '@testing/data';
+import { InjectedWizardProps } from '@components/wizard';
+import { proposeNewUser, fetchUsers } from '@services/appointmentsService';
+import { User, UserIdentityStatus } from '@types';
 
-// jest.mock('next/navigation');
+jest.mock('@services/appointmentsService');
+const mockProposeNewUser = proposeNewUser as jest.Mock<
+  Promise<UserIdentityStatus>
+>;
 
-// const mockUsePathName = usePathname as jest.Mock<string>;
-// const mockUseRouter = useRouter as jest.Mock;
-// const mockReplace = jest.fn();
+const mockFetchUsers = fetchUsers as jest.Mock<Promise<User[]>>;
 
-// describe('FindUserForm', () => {
-//   beforeEach(() => {
-//     mockUsePathName.mockReturnValue('/site/TEST/users');
-//     mockUseRouter.mockReturnValue({
-//       replace: mockReplace,
-//     });
-//   });
+jest.mock('next/navigation');
+const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
 
-//   it('shows a validation error when no data is submitted', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     await user.click(searchButton);
+const mockGoToNextStep = jest.fn();
+const mockGoToPreviousStep = jest.fn();
+const mockGoToLastStep = jest.fn();
+const mockSetCurrentStep = jest.fn();
 
-//     expect(
-//       await screen.findByText('You have not entered a valid NHS email address'),
-//     ).toBeVisible();
-//   });
+const defaultProps: InjectedWizardProps & EmailStepProps = {
+  stepNumber: 1,
+  currentStep: 1,
+  isActive: true,
+  setCurrentStep: mockSetCurrentStep,
+  goToNextStep: mockGoToNextStep,
+  goToLastStep: mockGoToLastStep,
+  goToPreviousStep: mockGoToPreviousStep,
+  returnRouteUponCancellation: '/',
+  site: mockSite,
+  sessionUser: mockUserProfile,
+};
 
-//   it('shows a validation error when an invalid email address is submitted', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+describe('Email step', () => {
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
+    mockFetchUsers.mockResolvedValue(getMockUserAssignments(mockSite.id));
+    mockProposeNewUser.mockResolvedValue({
+      identityProvider: 'NhsMail',
+      extantInIdentityProvider: true,
+      extantInMya: true,
+      meetsWhitelistRequirements: true,
+    });
+  });
 
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     const emailInput = screen.getByRole('textbox', {
-//       name: 'Enter email address',
-//     });
+  it('renders', () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     await user.type(emailInput, 'invalid@@email@nhs.com');
-//     await user.click(searchButton);
+    expect(
+      screen.getByRole('heading', { name: 'Add a user' }),
+    ).toBeInTheDocument();
+  });
 
-//     expect(
-//       await screen.findByText('You have not entered a valid NHS email address'),
-//     ).toBeVisible();
-//   });
+  it('navigates to the cancellation route when cancel is clicked', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep
+          {...defaultProps}
+          returnRouteUponCancellation="/route-to-cancel-back-to"
+        />
+      </MockForm>,
+    );
 
-//   it('trims and lowercases the input', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockPush).toHaveBeenCalledWith('/route-to-cancel-back-to');
+  });
 
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     const emailInput = screen.getByRole('textbox', {
-//       name: 'Enter email address',
-//     });
+  it('shows a validation error when no data is submitted', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     await user.type(emailInput, '   TEST@nhs.net  ');
-//     await user.click(searchButton);
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-//     expect(
-//       await screen.queryByText(
-//         'You have not entered a valid nhs email address',
-//       ),
-//     ).toBeNull();
-//     expect(mockReplace).toHaveBeenCalledWith(
-//       '/site/TEST/users?user=test%40nhs.net',
-//     );
-//   });
+    expect(screen.getByText('Enter a valid email address')).toBeVisible();
+  });
 
-//   it('takes the user to the main user page when they cancel', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+  it('shows a validation error when an invalid email address is submitted', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-//     await user.click(cancelButton);
+    await user.type(
+      screen.getByRole('textbox', {
+        name: 'Enter email address',
+      }),
+      'invalid@@email@nhs.com',
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-//     expect(mockReplace).toHaveBeenCalledWith('/site/TEST/users');
-//   });
+    expect(
+      await screen.findByText('Enter a valid email address'),
+    ).toBeVisible();
+  });
 
-//   it('initiates the user edit when a valid email address is submitted', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+  it('trims and lowercases the input', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     const emailInput = screen.getByRole('textbox', {
-//       name: 'Enter email address',
-//     });
+    await user.type(
+      screen.getByRole('textbox', {
+        name: 'Enter email address',
+      }),
+      '   TEST@nhs.net  ',
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-//     await user.type(emailInput, 'test@nhs.net');
-//     await user.click(searchButton);
+    expect(mockProposeNewUser).toHaveBeenCalledWith(
+      mockSite.id,
+      'test@nhs.net',
+    );
+  });
 
-//     expect(
-//       await screen.queryByText(
-//         'You have not entered a valid nhs email address',
-//       ),
-//     ).toBeNull();
-//     expect(mockReplace).toHaveBeenCalledWith(
-//       '/site/TEST/users?user=test%40nhs.net',
-//     );
-//   });
+  it('shows a validation error when a user enters their own email', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('initiates the user edit with lower case when a valid email address is submitted', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={false} />);
+    await user.type(
+      screen.getByRole('textbox', {
+        name: 'Enter email address',
+      }),
+      mockUserProfile.emailAddress,
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     const emailInput = screen.getByRole('textbox', {
-//       name: 'Enter email address',
-//     });
+    expect(
+      await screen.findByText('You may not edit your own roles'),
+    ).toBeVisible();
+  });
 
-//     await user.type(emailInput, 'TEST@NHS.NET');
-//     await user.click(searchButton);
+  it('fetches roles data if the email entered already exists in MYA', async () => {
+    mockProposeNewUser.mockResolvedValue({
+      identityProvider: 'NhsMail',
+      extantInIdentityProvider: true,
+      extantInMya: true,
+      meetsWhitelistRequirements: true,
+    });
 
-//     expect(
-//       await screen.queryByText(
-//         'You have not entered a valid nhs email address',
-//       ),
-//     ).toBeNull();
-//     expect(mockReplace).toHaveBeenCalledWith(
-//       '/site/TEST/users?user=test%40nhs.net',
-//     );
-//   });
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
 
-//   it('initiates the user edit when okta is enabled and emails is not nhs email', async () => {
-//     const { user } = render(<FindUserForm site="TEST" oktaEnabled={true} />);
+    await user.type(
+      screen.getByRole('textbox', {
+        name: 'Enter email address',
+      }),
+      'some.user@nhs.net',
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-//     const searchButton = screen.getByRole('button', { name: 'Continue' });
-//     const emailInput = screen.getByRole('textbox', {
-//       name: 'Enter email address',
-//     });
-//     const heading = screen.getByRole('heading', {
-//       level: 2,
-//       name: 'Add a user',
-//     });
+    expect(mockFetchUsers).toHaveBeenCalledWith(mockSite.id);
+  });
 
-//     await user.type(emailInput, 'test@okta.net');
-//     await user.click(searchButton);
+  it('shows a validation error when the email does not meet whitelist criteria', async () => {
+    mockProposeNewUser.mockResolvedValue({
+      identityProvider: 'NhsMail',
+      extantInIdentityProvider: true,
+      extantInMya: true,
+      meetsWhitelistRequirements: false,
+    });
 
-//     expect(
-//       await screen.queryByText(
-//         'You have not entered a valid nhs email address',
-//       ),
-//     ).toBeNull();
-//     expect(mockReplace).toHaveBeenCalledWith(
-//       '/site/TEST/users?user=test%40okta.net',
-//     );
-//     expect(heading).toBeInTheDocument();
-//   });
-// });
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        schema={setUserRolesFormSchema}
+      >
+        <EmailStep {...defaultProps} />
+      </MockForm>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', {
+        name: 'Enter email address',
+      }),
+      'some.user@nhs.net',
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(mockFetchUsers).toHaveBeenCalledWith(mockSite.id);
+    expect(mockProposeNewUser).toHaveBeenCalledWith(
+      mockSite.id,
+      'some.user@nhs.net',
+    );
+
+    expect(
+      await screen.findByText('Enter a valid email address'),
+    ).toBeVisible();
+  });
+});

@@ -14,14 +14,13 @@ import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
 import { Site, UserProfile } from '@types';
 
-type EmailStepProps = {
+export type EmailStepProps = {
   site: Site;
   sessionUser: UserProfile;
 };
 
 const NamesStep = ({
   goToNextStep,
-  setCurrentStep,
   returnRouteUponCancellation,
   goToPreviousStep,
   site,
@@ -40,23 +39,21 @@ const NamesStep = ({
       return;
     }
 
-    if (sessionUser.emailAddress === emailWatch) {
+    const sanitisedEmail = emailWatch.trim().toLowerCase();
+    if (sessionUser.emailAddress === sanitisedEmail) {
       setError('email', { message: 'You may not edit your own roles' });
       return;
     }
 
-    const proposedUser = await proposeNewUser(site.id, emailWatch);
+    const proposedUser = await proposeNewUser(site.id, sanitisedEmail);
     setValue('userIdentityStatus', proposedUser);
 
     if (proposedUser.extantInMya) {
       const currentRoles =
         (await fetchUsers(site.id))
-          .find(user => user.id === emailWatch)
+          .find(user => user.id === sanitisedEmail)
           ?.roleAssignments.map(roleAssignment => roleAssignment.role) ?? [];
       setValue('roleIds', currentRoles);
-      setCurrentStep(2);
-
-      return;
     }
 
     if (!proposedUser.meetsWhitelistRequirements) {
@@ -74,7 +71,7 @@ const NamesStep = ({
         renderingStrategy="client"
         text="Go back"
       />
-      <NhsHeading title="Enter name" />
+      <NhsHeading title="Add a user" />
 
       <FormGroup error={errors?.email?.message}>
         <TextInput

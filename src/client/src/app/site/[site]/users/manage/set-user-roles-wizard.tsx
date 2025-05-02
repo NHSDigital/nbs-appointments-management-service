@@ -43,7 +43,7 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
     .object({
       email: yup
         .string()
-        .required()
+        .required('Enter a valid email address')
         .trim()
         .lowercase()
         .email('Enter a valid email address'),

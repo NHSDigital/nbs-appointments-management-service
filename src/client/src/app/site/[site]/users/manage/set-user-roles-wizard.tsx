@@ -3,7 +3,7 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { Site, Role, UserProfile } from '@types';
+import { Site, Role, UserProfile, User } from '@types';
 import { saveUserRoleAssignments } from '@services/appointmentsService';
 import SummaryStep from './wizard-steps/summary-step';
 import { useRouter } from 'next/navigation';
@@ -19,10 +19,28 @@ type Props = {
   site: Site;
   roleOptions: Role[];
   sessionUser: UserProfile;
+  userToEdit?: User;
 };
 
-const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
+const SetUserRolesWizard = ({
+  site,
+  roleOptions,
+  sessionUser,
+  userToEdit,
+}: Props) => {
   const methods = useForm<SetUserRolesFormValues>({
+    defaultValues: {
+      email: userToEdit?.id ?? '',
+      roleIds: userToEdit?.roleAssignments.map(role => role.role) ?? [],
+      userIdentityStatus: userToEdit
+        ? {
+            extantInMya: true,
+            extantInIdentityProvider: true,
+            identityProvider: 'NhsMail',
+            meetsWhitelistRequirements: true,
+          }
+        : undefined,
+    },
     resolver: yupResolver(setUserRolesFormSchema),
   });
   const router = useRouter();
@@ -55,12 +73,19 @@ const SetUserRolesWizard = ({ site, roleOptions, sessionUser }: Props) => {
             methods.handleSubmit(submitForm);
           }}
         >
-          <WizardStep>
-            {stepProps => (
-              <EmailStep {...stepProps} site={site} sessionUser={sessionUser} />
-            )}
-          </WizardStep>
-          {isCreatingNewOktaUser && (
+          {userToEdit === undefined && (
+            <WizardStep>
+              {stepProps => (
+                <EmailStep
+                  {...stepProps}
+                  site={site}
+                  sessionUser={sessionUser}
+                />
+              )}
+            </WizardStep>
+          )}
+
+          {userToEdit === undefined && isCreatingNewOktaUser && (
             <WizardStep>{stepProps => <NamesStep {...stepProps} />}</WizardStep>
           )}
           <WizardStep>

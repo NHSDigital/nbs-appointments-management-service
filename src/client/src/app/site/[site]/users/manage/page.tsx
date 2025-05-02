@@ -4,6 +4,7 @@ import {
   fetchSite,
   fetchUserProfile,
   fetchRoles,
+  fetchUsers,
 } from '@services/appointmentsService';
 import { notAuthorized } from '@services/authService';
 import SetUserRolesWizard from './set-user-roles-wizard';
@@ -22,10 +23,11 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
 
   const email = searchParams.user?.toLowerCase();
 
-  const [site, userProfile, roleOptions] = await Promise.all([
+  const [site, userProfile, roleOptions, userToEdit] = await Promise.all([
     fetchSite(params.site),
     fetchUserProfile(),
     fetchRoles(),
+    fetchUsers(params.site).then(users => users.find(u => u.id === email)),
   ]);
 
   if (userProfile.emailAddress === email) {
@@ -38,6 +40,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
         site={site}
         roleOptions={roleOptions}
         sessionUser={userProfile}
+        userToEdit={userToEdit}
       />
     </NhsPage>
   );

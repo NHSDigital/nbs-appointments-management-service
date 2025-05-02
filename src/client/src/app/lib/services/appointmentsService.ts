@@ -96,6 +96,7 @@ export async function proposeNewUser(siteId: string, userId: string) {
 export async function fetchUsers(site: string) {
   const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
     cache: 'no-store',
+    next: { tags: ['user'] },
   });
 
   return handleBodyResponse(response, (users: User[]) =>
@@ -299,6 +300,7 @@ export const saveUserRoleAssignments = async (
     lastName,
     roles: roles,
   };
+  console.dir(payload);
   const response = await appointmentsApi.post(
     `user/roles`,
     JSON.stringify(payload),
@@ -311,6 +313,7 @@ export const saveUserRoleAssignments = async (
   //   : `You have added a new user to MYA The user will be sent information about how to login.`;
   // raiseNotification(notificationType, notificationMessage);
 
+  revalidateTag('users');
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -46,7 +46,7 @@ public class QueryBookingsFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
         ILogger logger)
     {
-        var booking = await bookingQueryService.GetBookings(request.from, request.to, request.site, "*");
+        var booking = await bookingQueryService.GetBookings(request.from, request.to, request.site);
         return Success(booking);
     }
 }

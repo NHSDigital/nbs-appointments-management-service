@@ -8,8 +8,8 @@ public class AllocationStateService(
     {
         var allocationState = new AllocationState();
 
-        var orderedLiveBookings = await bookingQueryService.GetOrderedLiveBookings(site, from, to, service);
-        var slots = await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to), service);
+        var orderedLiveBookings = await bookingQueryService.GetOrderedLiveBookings(site, from, to);
+        var slots = await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
 
         foreach (var booking in orderedLiveBookings)
         {

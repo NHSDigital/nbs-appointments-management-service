@@ -240,16 +240,15 @@ public class BookingWriteService(
 
     private async Task RecalculateAppointmentStatuses_SingleService(string site, DateOnly day)
     {
-        var service = "*";
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var bookings = (await bookingQueryService.GetBookings(dayStart, dayEnd, site, service))
+        var bookings = (await bookingQueryService.GetBookings(dayStart, dayEnd, site))
             .Where(b => b.Status is not AppointmentStatus.Cancelled)
             .OrderBy(b => b.Created);
 
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day, service))
+            (await availabilityStore.GetSessions(site, day, day))
             .ToList();
 
         var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();

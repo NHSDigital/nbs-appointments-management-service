@@ -7,7 +7,8 @@ public class UserDataImportHandler(
     IUserService userService, 
     ISiteService siteService, 
     IFeatureToggleHelper featureToggleHelper,
-    IOktaService oktaService
+    IOktaService oktaService,
+    IEmailWhitelistStore emailWhitelistStore
 ) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
@@ -43,10 +44,18 @@ public class UserDataImportHandler(
             return report.Where(r => !r.Success);
         }
 
+        var whitelistedEmails = await emailWhitelistStore.GetWhitelistedEmails();
+
         foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => new { usr.UserId, usr.SiteId }).SelectMany(usr => usr))
         {
             try
             {
+                if (!whitelistedEmails.Any(userAssignmentGroup.UserId.ToLower().EndsWith))
+                {
+                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to add user. The email domain: {userAssignmentGroup.UserId} is not included in the email domain whitelist."));
+                    continue;
+                }
+
                 if (!userAssignmentGroup.UserId.ToLower().EndsWith("@nhs.net"))
                 {
                     var status = await oktaService.CreateIfNotExists(userAssignmentGroup.UserId, userAssignmentGroup.FirstName, userAssignmentGroup.LastName);

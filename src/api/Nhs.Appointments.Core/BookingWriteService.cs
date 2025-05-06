@@ -161,10 +161,10 @@ public class BookingWriteService(
             var from = booking.From;
             var to = booking.From.AddMinutes(booking.Duration);
 
-            var slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false))
+            var slots = (await allocationStateService.Build(booking.Site, from, to, false))
                 .AvailableSlots;
 
-            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+            var canBook = slots.Any(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {
@@ -293,7 +293,7 @@ public class BookingWriteService(
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var recalculations = (await allocationStateService.Build(site, dayStart, dayEnd, "*")).Recalculations;
+        var recalculations = (await allocationStateService.Build(site, dayStart, dayEnd)).Recalculations;
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 

@@ -4,7 +4,7 @@ public class AllocationStateService(
     IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IAllocationStateService
 {
-    public async Task<AllocationState> Build(string site, DateTime from, DateTime to, string service, bool processRecalculations = true)
+    public async Task<AllocationState> Build(string site, DateTime from, DateTime to, bool processRecalculations = true)
     {
         var allocationState = new AllocationState();
 

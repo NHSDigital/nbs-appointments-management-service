@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
+namespace Nhs.Appointments.Core.UnitTests.AllocationState;
 
 public class SingleServiceTests : AllocationStateServiceTestBase
 {
@@ -16,7 +16,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.Recalculations.Should().BeEmpty();
         resultingAllocationState.Bookings.Should().BeEquivalentTo(bookings);
@@ -37,7 +37,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.Recalculations.Should().HaveCount(3);
         resultingAllocationState.Bookings.Should().BeEquivalentTo(bookings);
@@ -57,7 +57,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.Recalculations.Should().ContainSingle(s =>
             s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -81,7 +81,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         resultingAllocationState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -107,7 +107,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         resultingAllocationState.Recalculations.Should().Contain(s =>
             s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -134,7 +134,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0), "Green");
+        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.Bookings.Should().ContainSingle(b => b.Reference == "2");
         resultingAllocationState.Recalculations.Should().ContainSingle(r =>

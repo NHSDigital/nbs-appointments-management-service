@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
+namespace Nhs.Appointments.Core.UnitTests.AllocationState;
 
 // See https://app.mural.co/t/nhsdigital8118/m/nhsdigital8118/1741252759332/f2fa27aa39fa459db285e5c6c8081e9bb7446d22
 public class IdempotencyTests : AllocationStateServiceTestBase
@@ -40,7 +40,7 @@ public class IdempotencyTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var firstRunResult = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), "*");
+        var firstRunResult = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
 
         firstRunResult.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
@@ -57,7 +57,7 @@ public class IdempotencyTests : AllocationStateServiceTestBase
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), "*");
+            var newResult = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
             newResult.Should().BeEquivalentTo(firstRunResult);
             runs -= 1;
         }

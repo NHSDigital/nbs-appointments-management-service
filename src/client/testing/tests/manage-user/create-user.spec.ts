@@ -47,6 +47,7 @@ test('The current user creates a new NHSMail user with some roles', async ({
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
   await expect(manageUserPage.summaryStep.title).toBeVisible();
@@ -84,7 +85,7 @@ test('The current user creates a new Okta user with some roles', async ({
     'Elizabeth Kensington-Jones',
   );
   await expect(manageUserPage.summaryStep.rolesSummary).toHaveText(
-    'Appointment Manager, Availability Manager',
+    'Appointment manager, Availability manager',
   );
   await expect(manageUserPage.summaryStep.emailAddressSummary).toHaveText(
     externalUserName,
@@ -109,7 +110,6 @@ test('The current user tries to create a new user without any roles', async ({
   await manageUserPage.emailStep.continueButton.click();
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
   expect(

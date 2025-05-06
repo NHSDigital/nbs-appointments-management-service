@@ -2,7 +2,7 @@ import { type Locator, type Page } from '@playwright/test';
 import ManageUserStep from './manage-user-step';
 
 export default class RolesStep extends ManageUserStep {
-  readonly stepTitle: Locator;
+  readonly title: Locator;
 
   readonly appointmentManagerCheckbox: Locator;
   readonly availabilityManagerCheckbox: Locator;
@@ -11,7 +11,7 @@ export default class RolesStep extends ManageUserStep {
 
   constructor(page: Page) {
     super(page);
-    this.stepTitle = page.getByRole('heading', {
+    this.title = page.getByRole('heading', {
       name: 'Additional details',
     });
 

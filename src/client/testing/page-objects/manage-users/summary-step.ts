@@ -2,7 +2,7 @@ import { type Locator, type Page } from '@playwright/test';
 import ManageUserStep from './manage-user-step';
 
 export default class SummaryStep extends ManageUserStep {
-  readonly stepTitle: Locator;
+  readonly title: Locator;
 
   readonly nameSummary: Locator;
   readonly emailAddressSummary: Locator;
@@ -10,25 +10,23 @@ export default class SummaryStep extends ManageUserStep {
 
   constructor(page: Page, positiveActionButtonText = 'Continue') {
     super(page, positiveActionButtonText);
-    this.stepTitle = page.getByRole('heading', {
+    this.title = page.getByRole('heading', {
       name: 'Check user details',
     });
 
     this.nameSummary = this.page
-      .getByRole('listitem')
-      .filter({ has: this.page.getByRole('term', { name: 'Name' }) })
-      .getByRole('definition');
+      .getByRole('listitem', { name: 'Name summary' })
+      .getByRole('definition')
+      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
 
     this.emailAddressSummary = this.page
-      .getByRole('listitem')
-      .filter({ has: this.page.getByRole('term', { name: 'Email address' }) })
-      .getByRole('definition');
+      .getByRole('listitem', { name: 'Address summary' })
+      .getByRole('definition')
+      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
 
     this.rolesSummary = this.page
-      .getByRole('listitem')
-      .filter({
-        has: this.page.getByRole('term', { name: 'Roles' }),
-      })
-      .getByRole('definition');
+      .getByRole('listitem', { name: 'Roles summary' })
+      .getByRole('definition')
+      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
   }
 }

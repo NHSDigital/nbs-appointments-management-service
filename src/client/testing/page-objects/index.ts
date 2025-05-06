@@ -1,38 +1,36 @@
-import CookiesPolicyPage from '../page-objects/cookies-policy';
-import CreateAvailabilityPage from '../page-objects/create-availability';
-import EulaConsentPage from '../page-objects/eula-consent';
-import NotFoundPage from '../page-objects/not-found';
-import OAuthLoginPage from '../page-objects/oauth';
-import RootPage from '../page-objects/root';
-import SiteSelectionPage from '../page-objects/site-selection';
-import SitePage from '../page-objects/site';
-import NotAuthorizedPage from '../page-objects/unauthorized';
-import UserManagementPage from '../page-objects/user-management';
+import CookiesPolicyPage from './cookies-policy';
+import CreateAvailabilityPage from './create-availability';
+import EulaConsentPage from './eula-consent';
+import NotFoundPage from './not-found';
+import OAuthLoginPage from './oauth';
+import RootPage from './root';
+import SiteSelectionPage from './site-selection';
+import SitePage from './site';
+import NotAuthorizedPage from './unauthorized';
+import UserManagementPage from './user-management';
 
-import EditAccessNeedsPage from '../page-objects/change-site-details-pages/edit-access-need';
-import EditInformationForCitizensPage from '../page-objects/change-site-details-pages/edit-citizen-information';
-import EditDetailsPage from '../page-objects/change-site-details-pages/edit-details';
-import EditReferenceDetailsPage from '../page-objects/change-site-details-pages/edit-reference-details';
-import SiteDetailsPage from '../page-objects/change-site-details-pages/site-details';
+import EditAccessNeedsPage from './change-site-details-pages/edit-access-need';
+import EditInformationForCitizensPage from './change-site-details-pages/edit-citizen-information';
+import EditDetailsPage from './change-site-details-pages/edit-details';
+import EditReferenceDetailsPage from './change-site-details-pages/edit-reference-details';
+import SiteDetailsPage from './change-site-details-pages/site-details';
 
-import SummaryPage from '../page-objects/create-availability/summary-page';
+import SummaryPage from './create-availability/summary-page';
 
-import CreateUserPage from '../page-objects/manage-users/create-user-page';
-import EditManageUserRolesPage from '../page-objects/manage-users/edit-manage-user-roles-page';
-import RemoveUserPage from '../page-objects/manage-users/remove-user-page';
-import UsersPage from '../page-objects/manage-users/users-page';
-import UserSummaryPage from '../page-objects/manage-users/user-summary-page';
+import ManageUserPage from './manage-users/manage-user-page';
+import UsersPage from './manage-users/users-page';
+import RemoveUserPage from './manage-users/remove-user-page';
 
-import AddServicesPage from '../page-objects/view-availability-appointment-pages/add-services-page';
-import AddSessionPage from '../page-objects/view-availability-appointment-pages/add-session-page';
-import CancelSessionDetailsPage from '../page-objects/view-availability-appointment-pages/cancel-session-details-page';
-import CancelAppointmentDetailsPage from '../page-objects/view-availability-appointment-pages/cancel-appointment-details-page';
-import ChangeAvailabilityPage from '../page-objects/view-availability-appointment-pages/change-availability-page';
-import CheckSessionDetailsPage from '../page-objects/view-availability-appointment-pages/check-session-details-page';
-import DailyAppointmentDetailsPage from '../page-objects/view-availability-appointment-pages/daily-appointment-details-page';
-import EditAvailabilityConfirmedPage from '../page-objects/view-availability-appointment-pages/edit-availability-confirmed';
-import MonthViewAvailabilityPage from '../page-objects/view-availability-appointment-pages/month-view-availability-page';
-import WeekViewAvailabilityPage from '../page-objects/view-availability-appointment-pages/week-view-availability-page';
+import AddServicesPage from './view-availability-appointment-pages/add-services-page';
+import AddSessionPage from './view-availability-appointment-pages/add-session-page';
+import CancelSessionDetailsPage from './view-availability-appointment-pages/cancel-session-details-page';
+import CancelAppointmentDetailsPage from './view-availability-appointment-pages/cancel-appointment-details-page';
+import ChangeAvailabilityPage from './view-availability-appointment-pages/change-availability-page';
+import CheckSessionDetailsPage from './view-availability-appointment-pages/check-session-details-page';
+import DailyAppointmentDetailsPage from './view-availability-appointment-pages/daily-appointment-details-page';
+import EditAvailabilityConfirmedPage from './view-availability-appointment-pages/edit-availability-confirmed';
+import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
+import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
 export {
   CookiesPolicyPage,
@@ -51,11 +49,9 @@ export {
   EditReferenceDetailsPage,
   SiteDetailsPage,
   SummaryPage,
-  CreateUserPage,
-  EditManageUserRolesPage,
   RemoveUserPage,
   UsersPage,
-  UserSummaryPage,
+  ManageUserPage,
   AddServicesPage,
   AddSessionPage,
   CancelSessionDetailsPage,

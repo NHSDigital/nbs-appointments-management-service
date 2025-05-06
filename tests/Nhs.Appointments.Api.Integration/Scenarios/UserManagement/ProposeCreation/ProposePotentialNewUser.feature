@@ -23,7 +23,7 @@
   Scenario: Propose a valid Okta user
     Given feature toggle 'OktaEnabled' is 'True'
     Given user 'test.user@my-pharmacy.co.uk' does not exist in MYA
-    When I propose creating user 'test.user@my-pharmacy.co.uk'
+    When I propose creating user 'test.user@boots.com'
     Then the request should be successful
     Then the user's current status is returned as follows
       | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |

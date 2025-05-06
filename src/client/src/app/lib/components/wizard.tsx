@@ -64,8 +64,7 @@ const Wizard = ({
 
         return cloneElement<WizardStepProps & InjectedWizardProps>(child, {
           stepNumber,
-          returnRouteUponCancellation:
-            stepNumber === 1 ? returnRouteUponCancellation : undefined,
+          returnRouteUponCancellation,
           currentStep: activeStep,
           setCurrentStep: setActiveStep,
           id: `${id}-step-${stepNumber}`,

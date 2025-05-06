@@ -300,7 +300,7 @@ export const saveUserRoleAssignments = async (
     lastName,
     roles: roles,
   };
-  console.dir(payload);
+
   const response = await appointmentsApi.post(
     `user/roles`,
     JSON.stringify(payload),

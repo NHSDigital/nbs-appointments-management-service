@@ -156,18 +156,18 @@ test('Verify user can only view appointment manager related tiles In app when us
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user8 = getTestUser(8);
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(user8.subjectId);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.verifyUserRoles('Appointment manager', user8.subjectId);
@@ -204,18 +204,18 @@ test('Verify user can only view availability manager related tiles In app when u
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user9 = getTestUser(9);
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(user9.subjectId);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.verifyUserRoles('Availability manager', user9.subjectId);
@@ -259,18 +259,18 @@ test('Verify user can only view user manager related tiles In app when user is a
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user10 = getTestUser(10);
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(user10.subjectId);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.userManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.verifyUserRoles('User manager', user10.subjectId);
@@ -313,18 +313,18 @@ test('Verify user can only view site details manager related tiles In app when u
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user11 = getTestUser(11);
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(user11.subjectId);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.check();
   await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.verifyUserRoles('Site details manager', user11.subjectId);

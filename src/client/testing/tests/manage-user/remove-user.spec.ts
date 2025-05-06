@@ -51,15 +51,15 @@ test('Verify user manager is able to remove a user', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.userExists(newUserName);
@@ -77,15 +77,15 @@ test('Displays a notification banner after removing a user, which disappears whe
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.removeFromThisSiteLink(newUserName);

@@ -50,16 +50,16 @@ test('Verify user manager able to edit user role', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.userExists(newUserName);
@@ -67,12 +67,12 @@ test('Verify user manager able to edit user role', async ({
   // Act: Edit the new user's roles
   await usersPage.clickEditLink(newUserName);
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   // Assert: Check the new user's roles have changed
@@ -92,16 +92,16 @@ test('Verify all roles cannot be removed from existing account', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.userExists(newUserName);
@@ -109,14 +109,14 @@ test('Verify all roles cannot be removed from existing account', async ({
   // Act: Edit the new user's roles
   await usersPage.clickEditLink(newUserName);
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
   await manageUserPage.rolesStep.continueButton.click();
 
   // Assert: Check for a validation message
   // TODO: Shouldn't this be covered by jest tests?
-  expect(
+  await expect(
     page.getByText('You have not selected any roles for this user'),
   ).toBeVisible();
 });

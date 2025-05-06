@@ -1,4 +1,4 @@
-import { test } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 
 import {
   ManageUserPage,
@@ -41,15 +41,15 @@ test('The current user creates a new NHSMail user with some roles', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
   await usersPage.userExists(newUserName);
@@ -65,28 +65,28 @@ test('The current user creates a new Okta user with some roles', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(externalUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.namesStep.title).toBeVisible();
+  await expect(manageUserPage.namesStep.title).toBeVisible();
   await manageUserPage.namesStep.firstNameInput.fill('Elizabeth');
   await manageUserPage.namesStep.lastNameInput.fill('Kensington-Jones');
   await manageUserPage.namesStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
-  expect(manageUserPage.summaryStep.title).toBeVisible();
-  expect(manageUserPage.summaryStep.nameSummary).toHaveTextContent(
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.nameSummary).toHaveText(
     'Elizabeth Kensington-Jones',
   );
-  expect(manageUserPage.summaryStep.rolesSummary).toHaveTextContent(
+  await expect(manageUserPage.summaryStep.rolesSummary).toHaveText(
     'Appointment Manager, Availability Manager',
   );
-  expect(manageUserPage.summaryStep.emailAddressSummary).toHaveTextContent(
+  await expect(manageUserPage.summaryStep.emailAddressSummary).toHaveText(
     externalUserName,
   );
   await manageUserPage.summaryStep.continueButton.click();
@@ -104,11 +104,11 @@ test('The current user tries to create a new user without any roles', async ({
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill(newUserName);
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
   await manageUserPage.rolesStep.continueButton.click();
 
@@ -124,10 +124,12 @@ test('The current user creates a new user but enters the email of an existing us
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  expect(manageUserPage.emailStep.title).toBeVisible();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
   await manageUserPage.emailStep.emailInput.fill('zzz_test_user_3@nhs.net');
   await manageUserPage.emailStep.continueButton.click();
 
-  expect(manageUserPage.rolesStep.title).toBeVisible();
-  expect(manageUserPage.rolesStep.availabilityManagerCheckbox).toBeChecked();
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(
+    manageUserPage.rolesStep.availabilityManagerCheckbox,
+  ).toBeChecked();
 });

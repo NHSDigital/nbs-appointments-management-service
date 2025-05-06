@@ -291,7 +291,6 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
-  // isEdit: boolean,
 ) => {
   const payload = {
     scope: `site:${site}`,

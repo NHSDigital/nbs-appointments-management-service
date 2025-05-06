@@ -306,6 +306,7 @@ export const saveUserRoleAssignments = async (
   );
   handleEmptyResponse(response);
 
+  // re-implement in https://nhsd-jira.digital.nhs.uk/browse/APPT-799
   // const notificationType = 'ams-notification';
   // const notificationMessage = isEdit
   //   ? `You have changed a user's role.`

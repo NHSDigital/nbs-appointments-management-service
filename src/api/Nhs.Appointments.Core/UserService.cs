@@ -115,13 +115,8 @@ public class UserService(
     {
         var userProfile = await userStore.GetOrDefaultAsync(userId);
 
-        if (userProfile is null)
-        {
-            return false;
-        }
-
-        return userProfile.RoleAssignments.Any(roleAssignment =>
-            roleAssignment.Scope == "global" || roleAssignment.Scope == $"site:{siteId}");
+        return userProfile is not null &&
+               userProfile.RoleAssignments.Any(roleAssignment => roleAssignment.Scope == $"site:{siteId}");
     }
 
     private async Task<bool> CheckIfUserExistsInIdentityServer(string userId, IdentityProvider identityProvider)

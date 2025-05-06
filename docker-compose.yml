@@ -65,6 +65,7 @@ services:
       - Okta__ManagementId=local
       - Okta__PrivateKeyKid=local
       - Okta__PEM=local
+      - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw

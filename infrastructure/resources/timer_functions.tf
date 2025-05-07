@@ -95,6 +95,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
+    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
   }
 
   sticky_settings {
@@ -190,6 +191,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
+    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
   }
 
   identity {

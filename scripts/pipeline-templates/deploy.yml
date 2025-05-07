@@ -373,7 +373,7 @@ stages:
               git push origin $TAG_NAME
 
       - job: RetainOnSuccess
-        condition: and(succeeded(), eq('${{env}}', 'stag'))
+        condition: and(succeeded(), eq('${{parameters.env}}', 'stag'))
         displayName: "Retain artifacts successfully deployed to Staging for 1 year"
         steps:
           - task: PowerShell@2

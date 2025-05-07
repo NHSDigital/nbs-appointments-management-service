@@ -21,7 +21,8 @@
     "test:utc:tz": "TZ=UTC jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:pull-request": "playwright test --grep \"@timezone-test-UTC|@timezone-test-Pacific/Kiritimati|@timezone-test-Etc/GMT\\+12\"",
+    "test:e2e:ui": "playwright test --ui --grep-invert \"@timezone-test-UTC|@timezone-test-Pacific/Kiritimati|@timezone-test-Etc/GMT\\+12\""
   },
   "dependencies": {
     "@next/env": "^14.2.28",
@@ -84,4 +85,3 @@
     "glob": "10.4.5"
   }
 }
-

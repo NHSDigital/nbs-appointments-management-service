@@ -327,17 +327,40 @@ stages:
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
 
   - ${{ each env in parameters.environments }}:
-      - template: "scripts/pipeline-templates/deploy.yml"
-        parameters:
-          env: ${{env}}
-          variable_group: nbs-mya-${{env}}
-          httpFunctionAppName: nbs-mya-func-${{env}}-uks
-          highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-          serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-          timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-          webServerName: nbs-mya-app-${{env}}-uks
-          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-          resourceGroup: nbs-mya-rg-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: true
-          buildNumber: "$(Build.BuildNumber)"
+      - stage: Deploy-${{env}}
+        displayName: "Deploy to ${{env}}"
+        dependsOn: Build
+        jobs:
+          - template: "scripts/pipeline-templates/deploy.yml"
+            parameters:
+              env: ${{env}}
+              variable_group: nbs-mya-${{env}}
+              httpFunctionAppName: nbs-mya-func-${{env}}-uks
+              highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+              serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+              timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+              webServerName: nbs-mya-app-${{env}}-uks
+              cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+              resourceGroup: nbs-mya-rg-${{env}}-uks
+              serviceConnectionName: nbs-mya-rg-${{env}}
+              isMain: true
+              buildNumber: "$(Build.BuildNumber)"
+
+          - job: RetainOnSuccess
+            condition: and(succeeded(), eq('${{env}}', 'stag'))
+            displayName: "Retain artifacts successfully deployed to Staging for 1 year"
+            steps:
+              - task: PowerShell@2
+                displayName: "Retain artifacts"
+                inputs:
+                  failOnStderr: true
+                  targetType: "inline"
+                  script: |
+                    $contentType = "application/json";
+                    $headers = @{ Authorization = 'Bearer $(System.AccessToken)' };
+                    $rawRequest = @{ daysValid = 365; definitionId = $(System.DefinitionId); ownerId = 'User:$(Build.RequestedForId)'; protectPipeline = $false; runId = $(Build.BuildId) };
+                    $request = ConvertTo-Json @($rawRequest);
+                    $uri = "$(System.CollectionUri)$(System.TeamProject)/_apis/build/retention/leases?api-version=6.0-preview.1";
+                    $newLease = Invoke-RestMethod -uri $uri -method POST -Headers $headers -ContentType $contentType -Body $request;
+                    $newLeaseId = $newLease.Value[0].LeaseId
+                    echo "##vso[task.setvariable variable=newLeaseId;isOutput=true]$newLeaseId";

@@ -280,7 +280,11 @@ stages:
               cd ./src/client
               npm ci
               npx playwright install --with-deps chromium
-              npm run test:e2e
+              if [ "$(Build.SourceBranchName)" == "main" ]; then
+                npm run test:e2e
+              else
+                npm run test:e2e:pull-request
+              fi
             displayName: "Run E2E tests"
             env:
               CI: "true"

@@ -1,4 +1,4 @@
-namespace Nhs.Appointments.UserManagement.Okta;
+namespace Nhs.Appointments.Core.Okta;
 
 public class OktaLocalUserDirectory : IOktaUserDirectory
 {

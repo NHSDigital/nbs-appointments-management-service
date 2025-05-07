@@ -1,10 +1,10 @@
+using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
 using Okta.Sdk.Api;
 using Okta.Sdk.Client;
-using System.Security.Cryptography;
 
 namespace Nhs.Appointments.UserManagement.Okta;
 
@@ -12,8 +12,18 @@ public static class ServiceProviderExtensions
 {
     public static IServiceCollection AddOktaUserDirectory(this IServiceCollection services, IConfigurationRoot configuration)
     {
+        var oktaConfig = configuration.GetSection("Okta").Get<OktaConfiguration>();
+
         services.Configure<OktaConfiguration>(opts => configuration.GetSection("Okta").Bind(opts));
         services.AddSingleton<IOktaService, OktaService>();
+
+        if (oktaConfig is
+            { Domain: "https://local.okta.com", ManagementId: "local", PEM: "local", PrivateKeyKid: "local" })
+        {
+            services.AddSingleton<IOktaUserDirectory, OktaLocalUserDirectory>();
+            return services;
+        }
+
         services.AddSingleton<IOktaUserDirectory, OktaUserDirectory>();
         services.AddSingleton<UserApi>(sp =>
         {

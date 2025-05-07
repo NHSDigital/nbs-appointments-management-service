@@ -39,23 +39,17 @@ public class UserDataImportHandler(
             report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
         }
 
+        await CheckForNonWhitelistedEmailDomains(userImportRows, report);
+
         if (report.Any(r => !r.Success))
         {
             return report.Where(r => !r.Success);
         }
 
-        var whitelistedEmails = await emailWhitelistStore.GetWhitelistedEmails();
-
         foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => new { usr.UserId, usr.SiteId }).SelectMany(usr => usr))
         {
             try
             {
-                if (!whitelistedEmails.Any(userAssignmentGroup.UserId.ToLower().EndsWith))
-                {
-                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to add user. The email domain: {userAssignmentGroup.UserId} is not included in the email domain whitelist."));
-                    continue;
-                }
-
                 if (!userAssignmentGroup.UserId.ToLower().EndsWith("@nhs.net"))
                 {
                     var status = await oktaService.CreateIfNotExists(userAssignmentGroup.UserId, userAssignmentGroup.FirstName, userAssignmentGroup.LastName);
@@ -79,6 +73,19 @@ public class UserDataImportHandler(
         }
 
         return report;
+    }
+
+    private async Task CheckForNonWhitelistedEmailDomains(List<UserImportRow> userImportRows, List<ReportItem> report)
+    {
+        var whitelistedEmails = await emailWhitelistStore.GetWhitelistedEmails();
+        var invalidEmails = userImportRows
+            .Where(u => !whitelistedEmails.Any(u.UserId.ToLower().EndsWith))
+            .ToList();
+
+        if (invalidEmails.Count > 0)
+        {
+            report.AddRange(invalidEmails.Select(usr => new ReportItem(-1, "Invalid email domain", false, $"The following email domain: {usr.UserId} is not included in the email domain whitelist.")));
+        }
     }
 
     public class UserImportRow

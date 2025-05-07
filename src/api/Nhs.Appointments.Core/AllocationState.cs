@@ -1,9 +1,8 @@
-﻿namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core;
 
 public class AllocationState
 {
     public List<SessionInstance> AvailableSlots = [];
-    public readonly List<BookingAvailabilityUpdate> Recalculations = [];
     public List<Booking> Bookings = [];
 }
 

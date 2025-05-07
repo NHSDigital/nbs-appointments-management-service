@@ -26,15 +26,15 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var resultingAllocationState = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
-        resultingAllocationState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
 
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
-        resultingAllocationState.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
-        resultingAllocationState.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "4");
+        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "5");
 
         resultingAllocationState.Bookings.Should().HaveCount(5);
         resultingAllocationState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");

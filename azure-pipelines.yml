@@ -6,8 +6,10 @@ pool:
 
 parameters:
   - name: environments
+    displayName: "The environments to deploy this build to, if it builds successfully"
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    values: ["dev", "int", "stag", "prod"]
+    default: ["dev", "int"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"

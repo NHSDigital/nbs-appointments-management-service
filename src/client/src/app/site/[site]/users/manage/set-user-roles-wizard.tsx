@@ -34,7 +34,7 @@ const SetUserRolesWizard = ({
       roleIds: userToEdit?.roleAssignments.map(role => role.role) ?? [],
       userIdentityStatus: userToEdit
         ? {
-            extantInMya: true,
+            extantInSite: true,
             extantInIdentityProvider: true,
             identityProvider: 'NhsMail',
             meetsWhitelistRequirements: true,

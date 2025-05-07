@@ -38,7 +38,7 @@ public class ProposePotentialUserFunction(
 
         return ApiResult<ProposePotentialUserResponse>.Success(new ProposePotentialUserResponse
         {
-            ExtantInMya = userIdentityStatus.ExtantInMya,
+            ExtantInSite = userIdentityStatus.ExtantInSite,
             ExtantInIdentityProvider = userIdentityStatus.ExtantInIdentityProvider,
             MeetsWhitelistRequirements = userIdentityStatus.MeetsWhitelistRequirements,
             IdentityProvider = userIdentityStatus.IdentityProvider

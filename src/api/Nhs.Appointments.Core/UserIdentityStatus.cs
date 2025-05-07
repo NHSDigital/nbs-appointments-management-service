@@ -4,7 +4,7 @@ namespace Nhs.Appointments.Core;
 
 public class UserIdentityStatus
 {
-    [JsonProperty("extantInMya")] public required bool ExtantInMya { get; set; }
+    [JsonProperty("extantInSite")] public required bool ExtantInSite { get; set; }
 
     [JsonProperty("extantInIdentityProvider")]
     public required bool ExtantInIdentityProvider { get; set; }

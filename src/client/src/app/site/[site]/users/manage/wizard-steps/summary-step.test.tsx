@@ -40,7 +40,7 @@ const formState: SetUserRolesFormValues = {
   userIdentityStatus: {
     identityProvider: 'NhsMail',
     extantInIdentityProvider: true,
-    extantInMya: false,
+    extantInSite: false,
     meetsWhitelistRequirements: true,
   },
 };
@@ -98,7 +98,7 @@ describe('Summary Step', () => {
           userIdentityStatus: {
             identityProvider: 'Okta',
             extantInIdentityProvider: false,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         }}
@@ -122,7 +122,7 @@ describe('Summary Step', () => {
           userIdentityStatus: {
             identityProvider: 'NhsMail',
             extantInIdentityProvider: false,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         }}
@@ -148,7 +148,7 @@ describe('Summary Step', () => {
           userIdentityStatus: {
             identityProvider: 'Okta',
             extantInIdentityProvider: true,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         }}
@@ -192,7 +192,7 @@ describe('Summary Step', () => {
           userIdentityStatus: {
             identityProvider: 'Okta',
             extantInIdentityProvider: false,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         }}

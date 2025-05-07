@@ -39,7 +39,7 @@ const formState: SetUserRolesFormValues = {
   userIdentityStatus: {
     identityProvider: 'NhsMail',
     extantInIdentityProvider: true,
-    extantInMya: false,
+    extantInSite: false,
     meetsWhitelistRequirements: true,
   },
 };

@@ -48,7 +48,7 @@ const NamesStep = ({
     const proposedUser = await proposeNewUser(site.id, sanitisedEmail);
     setValue('userIdentityStatus', proposedUser);
 
-    if (proposedUser.extantInMya) {
+    if (proposedUser.extantInSite) {
       const currentRoles =
         (await fetchUsers(site.id))
           .find(user => user.id === sanitisedEmail)

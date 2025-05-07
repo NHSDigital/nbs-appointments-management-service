@@ -105,7 +105,7 @@ public class UserService(
         return new UserIdentityStatus
         {
             IdentityProvider = identityProvider,
-            ExtantInMya = await CheckIfUserExistsAtSite(siteId, userId),
+            ExtantInSite = await CheckIfUserExistsAtSite(siteId, userId),
             ExtantInIdentityProvider = await CheckIfUserExistsInIdentityServer(userId, identityProvider),
             MeetsWhitelistRequirements = whitelistedEmails.Any(userId.ToLower().EndsWith)
         };

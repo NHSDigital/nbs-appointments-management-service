@@ -6,7 +6,7 @@
     When I propose creating user 'test.user@nhs.net'
     Then the request should be successful
     Then the user's current status is returned as follows
-      | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
+      | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | False       | True                     | NhsMail          | True                       |
     And feature toggles are cleared
 
@@ -16,7 +16,7 @@
     When I propose creating user 'test.user@nhs.net'
     Then the request should be successful
     Then the user's current status is returned as follows
-      | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
+      | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | True        | True                     | NhsMail          | True                       |
     And feature toggles are cleared
 
@@ -26,7 +26,7 @@
     When I propose creating user 'test.user@boots.com'
     Then the request should be successful
     Then the user's current status is returned as follows
-      | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
+      | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | False       | False                    | Okta             | True                       |
     And feature toggles are cleared
 
@@ -36,7 +36,7 @@
     When I propose creating user 'test.user@not-in-domains-whitelist.co.uk'
     Then the request should be successful
     Then the user's current status is returned as follows
-      | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
+      | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | False       | False                    | Okta             | False                      |
     And feature toggles are cleared
 
@@ -46,6 +46,6 @@
     When I propose creating user 'test.user@my-pharmacy.co.uk'
     Then the request should be successful
     Then the user's current status is returned as follows
-      | ExtantInMya | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
+      | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | False       | False                    | Okta             | False                      |
     And feature toggles are cleared

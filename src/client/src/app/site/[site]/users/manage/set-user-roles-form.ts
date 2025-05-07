@@ -69,7 +69,7 @@ export const setUserRolesFormSchema: yup.ObjectSchema<SetUserRolesFormValues> =
             .oneOf(['Okta', 'NhsMail'])
             .required(),
           extantInIdentityProvider: yup.boolean().required(),
-          extantInMya: yup.boolean().required(),
+          extantInSite: yup.boolean().required(),
           meetsWhitelistRequirements: yup.boolean().required(),
         })
         .required(),

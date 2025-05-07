@@ -102,7 +102,7 @@ type IdentityProvider = 'NhsMail' | 'Okta';
 type UserIdentityStatus = {
   identityProvider: IdentityProvider;
   extantInIdentityProvider: boolean;
-  extantInMya: boolean;
+  extantInSite: boolean;
   meetsWhitelistRequirements: boolean;
 };
 

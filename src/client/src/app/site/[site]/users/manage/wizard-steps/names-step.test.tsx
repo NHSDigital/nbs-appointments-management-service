@@ -37,7 +37,7 @@ const formState: SetUserRolesFormValues = {
   userIdentityStatus: {
     identityProvider: 'Okta',
     extantInIdentityProvider: false,
-    extantInMya: false,
+    extantInSite: false,
     meetsWhitelistRequirements: true,
   },
 };

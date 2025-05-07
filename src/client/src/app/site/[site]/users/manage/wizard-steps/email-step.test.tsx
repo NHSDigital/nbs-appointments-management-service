@@ -54,7 +54,7 @@ describe('Email step', () => {
     mockProposeNewUser.mockResolvedValue({
       identityProvider: 'NhsMail',
       extantInIdentityProvider: true,
-      extantInMya: true,
+      extantInSite: true,
       meetsWhitelistRequirements: true,
     });
   });
@@ -180,7 +180,7 @@ describe('Email step', () => {
     mockProposeNewUser.mockResolvedValue({
       identityProvider: 'NhsMail',
       extantInIdentityProvider: true,
-      extantInMya: true,
+      extantInSite: true,
       meetsWhitelistRequirements: true,
     });
 
@@ -208,7 +208,7 @@ describe('Email step', () => {
     mockProposeNewUser.mockResolvedValue({
       identityProvider: 'NhsMail',
       extantInIdentityProvider: true,
-      extantInMya: true,
+      extantInSite: true,
       meetsWhitelistRequirements: false,
     });
 

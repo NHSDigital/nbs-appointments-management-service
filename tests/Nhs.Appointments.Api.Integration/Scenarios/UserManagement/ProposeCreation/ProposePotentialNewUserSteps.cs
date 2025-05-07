@@ -50,7 +50,7 @@ public class ProposePotentialNewUserSteps : ProposeCreationBaseFeatureSteps
 
         var expectedResponse = new ProposePotentialUserResponse
         {
-            ExtantInMya = bool.Parse(cells.ElementAt(0).Value),
+            ExtantInSite = bool.Parse(cells.ElementAt(0).Value),
             ExtantInIdentityProvider = bool.Parse(cells.ElementAt(1).Value),
             IdentityProvider = Enum.Parse<IdentityProvider>(cells.ElementAt(2).Value),
             MeetsWhitelistRequirements = bool.Parse(cells.ElementAt(3).Value)

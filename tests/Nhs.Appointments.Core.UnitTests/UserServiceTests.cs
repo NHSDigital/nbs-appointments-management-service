@@ -214,7 +214,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", userId);
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.NhsMail);
-            identityStatus.ExtantInMya.Should().BeFalse();
+            identityStatus.ExtantInSite.Should().BeFalse();
             // We currently assume all @nhs.net email addresses are valid
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
@@ -239,7 +239,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.NhsMail);
-            identityStatus.ExtantInMya.Should().BeTrue();
+            identityStatus.ExtantInSite.Should().BeTrue();
             // We currently assume all @nhs.net email addresses are valid
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
@@ -263,7 +263,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", userId);
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeFalse();
+            identityStatus.ExtantInSite.Should().BeFalse();
             identityStatus.ExtantInIdentityProvider.Should().BeFalse();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
@@ -289,7 +289,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeTrue();
+            identityStatus.ExtantInSite.Should().BeTrue();
             identityStatus.ExtantInIdentityProvider.Should().BeFalse();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
@@ -310,7 +310,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeFalse();
+            identityStatus.ExtantInSite.Should().BeFalse();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
@@ -336,7 +336,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeTrue();
+            identityStatus.ExtantInSite.Should().BeTrue();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
@@ -362,7 +362,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-a-valid-domain.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeTrue();
+            identityStatus.ExtantInSite.Should().BeTrue();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeFalse();
         }
@@ -388,7 +388,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var identityStatus = await _sut.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
 
             identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
-            identityStatus.ExtantInMya.Should().BeFalse();
+            identityStatus.ExtantInSite.Should().BeFalse();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }

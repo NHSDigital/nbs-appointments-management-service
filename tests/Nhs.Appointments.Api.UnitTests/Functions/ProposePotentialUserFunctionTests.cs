@@ -31,7 +31,7 @@ public class ProposePotentialUserFunctionTests
         _userService.Setup(service => service.GetUserIdentityStatusAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new ProposePotentialUserResponse
             {
-                ExtantInMya = true,
+                ExtantInSite = true,
                 ExtantInIdentityProvider = true,
                 MeetsWhitelistRequirements = true,
                 IdentityProvider = IdentityProvider.NhsMail
@@ -43,7 +43,7 @@ public class ProposePotentialUserFunctionTests
         result.StatusCode.Should().Be(200);
 
         var response = await ReadResponseAsync<ProposePotentialUserResponse>(result.Content);
-        response.ExtantInMya.Should().BeTrue();
+        response.ExtantInSite.Should().BeTrue();
         response.ExtantInIdentityProvider.Should().BeTrue();
         response.MeetsWhitelistRequirements.Should().BeTrue();
         response.IdentityProvider.Should().Be(IdentityProvider.NhsMail);

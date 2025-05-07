@@ -12,7 +12,7 @@ const validFormValues: SetUserRolesFormValues = {
   userIdentityStatus: {
     identityProvider: 'NhsMail',
     extantInIdentityProvider: true,
-    extantInMya: false,
+    extantInSite: false,
     meetsWhitelistRequirements: true,
   },
 };
@@ -31,7 +31,7 @@ describe('Set User Roles Form', () => {
         userIdentityStatus: {
           identityProvider: 'Okta',
           extantInIdentityProvider: false,
-          extantInMya: false,
+          extantInSite: false,
           meetsWhitelistRequirements: true,
         },
       }),
@@ -71,7 +71,7 @@ describe('Set User Roles Form', () => {
       userIdentityStatus: {
         identityProvider: 'NhsMail',
         extantInIdentityProvider: true,
-        extantInMya: false,
+        extantInSite: false,
         meetsWhitelistRequirements: true,
       },
     };
@@ -103,7 +103,7 @@ describe('Set User Roles Form', () => {
           userIdentityStatus: {
             identityProvider: 'Okta',
             extantInIdentityProvider: false,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         });
@@ -137,7 +137,7 @@ describe('Set User Roles Form', () => {
           userIdentityStatus: {
             identityProvider: 'Okta',
             extantInIdentityProvider: false,
-            extantInMya: false,
+            extantInSite: false,
             meetsWhitelistRequirements: true,
           },
         });

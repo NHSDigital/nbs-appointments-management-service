@@ -7,6 +7,7 @@ Fixes # (issue)
 # Checklist:
 
 - [ ] My work is behind a feature toggle (if appropriate)
+- [ ] If my work is behind a feature toggle, I've added a full suite of tests for both the ON and OFF state
 - [ ] The ticket number is in the Pull Request title, with format "APPT-XXX: My Title Here"
 - [ ] I have ran npm tsc / lint (in the future these will be ran automatically)
 - [ ] My code generates no new .NET warnings (in the future these will be treated as errors)

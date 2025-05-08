@@ -9,6 +9,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<ISiteService> _siteServiceMock = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelperMock = new();
     private readonly Mock<IOktaService> _oktaServiceMock = new();
+    private readonly Mock<IEmailWhitelistStore> _emailWhitelistStore = new();
 
     private readonly UserDataImportHandler _sut;
     private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
@@ -16,10 +17,11 @@ public class UserDataImportHandlerTests
     public UserDataImportHandlerTests()
     {
         _sut = new UserDataImportHandler(
-            _userServiceMock.Object, 
-            _siteServiceMock.Object, 
+            _userServiceMock.Object,
+            _siteServiceMock.Object,
             _featureToggleHelperMock.Object,
-            _oktaServiceMock.Object
+            _oktaServiceMock.Object,
+            _emailWhitelistStore.Object
         );
     }
 
@@ -39,6 +41,8 @@ public class UserDataImportHandlerTests
         _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -105,6 +109,8 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = true });
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@okta.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -113,6 +119,7 @@ public class UserDataImportHandlerTests
 
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
     }
 
     [Fact]
@@ -142,6 +149,8 @@ public class UserDataImportHandlerTests
         _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@okta.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -160,6 +169,8 @@ public class UserDataImportHandlerTests
 
         _siteServiceMock.Setup(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(null as Site);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -189,6 +200,8 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(false, string.Empty, ["test-role:one", "test-role:two"]));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -263,12 +276,15 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = true });
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@okta.net"]);
 
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
     }
 
     [Fact]
@@ -294,6 +310,8 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = false, FailureReason = "Test failure reason." });
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@okta.net"]);
 
         var report = await _sut.ProcessFile(file);
 
@@ -303,6 +321,42 @@ public class UserDataImportHandlerTests
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
         _userServiceMock.Verify(s => s.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+        _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
+    }
+
+    [Fact]
+    public async Task ReadsUserData_AndReportsUnsuccesfulOktaCreation_WhenEmailDomainNotWhitelisted()
+    {
+        string[] inputRows =
+        [
+            "test1@invalid-domain.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
+            "test2@another-invalid-domain.com,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+
+        var sites = GetSites();
+
+        _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
+            .ReturnsAsync(sites[0])
+            .ReturnsAsync(sites[1]);
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new UserProvisioningStatus { Success = false, FailureReason = "Test failure reason." });
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@okta.net"]);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("The following email domain: test1@invalid-domain.net is not included in the email domain whitelist.");
+
+        _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     private List<Site> GetSites()

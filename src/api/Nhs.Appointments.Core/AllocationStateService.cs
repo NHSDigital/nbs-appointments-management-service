@@ -9,14 +9,6 @@ public class AllocationStateService(
         var (bookings, slots) = await FetchData(site, from, to);
         return BuildAllocation(bookings, slots);
     }
-    
-    private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site, DateTime from, DateTime to)
-    {
-        var bookingsTask = GetBookings(site, from, to);
-        var slotsTask = GetSlots(site, from, to);
-        await Task.WhenAll(bookingsTask, slotsTask);
-        return (bookingsTask.Result.ToList(), slotsTask.Result.ToList());
-    }
 
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
         DateTime to)
@@ -26,26 +18,19 @@ public class AllocationStateService(
         var (bookings, slots) = await FetchData(site, from, to);
         var state = BuildAllocation(bookings, slots);
 
-        //wasn't supported but now it is
-        recalculations.AddRange(bookings
-            .Where(booking => state.SupportedBookingReferences.Contains(booking.Reference) &&
-                              booking.AvailabilityStatus is not AvailabilityStatus.Supported)
-            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
-        
-        //was supported but is now no longer supported, set to orphaned
-        recalculations.AddRange(bookings
-            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
-                              booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-                              booking.Status is not AppointmentStatus.Provisional)
-            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned)));
-        
-        //delete any remaining unsupported provisional bookings
-        recalculations.AddRange(bookings
-            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
-                              booking.Status is AppointmentStatus.Provisional)
-            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete)));
+        recalculations.AddNewlySupportedBookings(state, bookings);
+        recalculations.AddNoLongerSupportedBookings(state, bookings);
+        recalculations.DeleteRemainingUnsupportedProvisionalBookings( state, bookings);
 
         return recalculations;
+    }
+
+    private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site, DateTime from, DateTime to)
+    {
+        var bookingsTask = GetBookings(site, from, to);
+        var slotsTask = GetSlots(site, from, to);
+        await Task.WhenAll(bookingsTask, slotsTask);
+        return (bookingsTask.Result.ToList(), slotsTask.Result.ToList());
     }
 
     private AllocationState BuildAllocation(List<Booking> orderedLiveBookings, List<SessionInstance> slots)
@@ -92,4 +77,32 @@ public class AllocationStateService(
 
     private async Task<IEnumerable<SessionInstance>> GetSlots(string site, DateTime from, DateTime to) =>
         await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
+}
+
+public static class RecalculationExtensions
+{
+    public static void AddNewlySupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    {
+        recalculations.AddRange(bookings
+            .Where(booking => state.SupportedBookingReferences.Contains(booking.Reference) &&
+                              booking.AvailabilityStatus is not AvailabilityStatus.Supported)
+            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
+    }
+
+    public static void AddNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    {
+        recalculations.AddRange(bookings
+            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
+                              booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                              booking.Status is not AppointmentStatus.Provisional)
+            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned)));
+    }
+
+    public static void DeleteRemainingUnsupportedProvisionalBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    {
+        recalculations.AddRange(bookings
+            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
+                              booking.Status is AppointmentStatus.Provisional)
+            .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete)));
+    }
 }

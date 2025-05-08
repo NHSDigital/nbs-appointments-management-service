@@ -20,13 +20,13 @@ public class AvailabilityCalculator(
     public async Task<IEnumerable<SessionInstance>> CalculateAvailability(string site, string service, DateOnly from,
         DateOnly until)
     {
-        var allSessions = await availabilityStore.GetSessions(site, from, until, "*");
+        var allSessions = await availabilityStore.GetSessions(site, from, until);
         var filteredSessions = service == "*"
             ? allSessions
             : allSessions.Where(s => s.Services.Contains(service));
 
         var bookings = await bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0, 0)),
-            until.ToDateTime(new TimeOnly(23, 59)), site, "*");
+            until.ToDateTime(new TimeOnly(23, 59)), site);
 
         return GetAvailableSlots(filteredSessions, bookings);
     }

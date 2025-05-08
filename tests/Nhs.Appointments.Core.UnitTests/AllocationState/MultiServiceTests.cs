@@ -25,19 +25,19 @@ public class MultiServiceTests : AllocationStateServiceTestBase
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
-
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
+            
+        var resultingAllocationState = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
-        resultingAllocationState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
 
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
-        resultingAllocationState.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
-        resultingAllocationState.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "4");
+        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "5");
 
-        resultingAllocationState.Bookings.Should().HaveCount(5);
-        resultingAllocationState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
+        resultingAllocationState.Should().HaveCount(5);
+        resultingAllocationState.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
 
     [Fact]
@@ -61,16 +61,16 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.Build(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), "*");
+        var resultingAllocationState = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // Bookings 1 and 2 can be booked
-        resultingAllocationState.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
 
         // Booking 3 could have been booked if we rejuggled appointments, but currently we do not
-        resultingAllocationState.Recalculations.Should().NotContain(r => r.Booking.Reference == "3");
+        resultingAllocationState.Select(b => b.Booking.Reference).Should().NotContain(r => r == "3");
 
-        resultingAllocationState.Bookings.Should().HaveCount(2);
-        resultingAllocationState.Bookings.Select(b => b.Reference).Should().BeEquivalentTo("1", "2");
+        resultingAllocationState.Should().HaveCount(2);
+        resultingAllocationState.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2");
     }
 }

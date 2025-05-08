@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import LogInButton from './log-in-button';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { fetchFeatureFlag } from '@services/appointmentsService';
+import LogInLink from './log-in-link';
 
 export type LoginPageProps = {
   searchParams?: {
@@ -29,11 +30,10 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         friendlyName={'NHS Mail'}
       />
       {oktaEnabledFlag.enabled && (
-        <LogInButton
+        <LogInLink
           redirectUrl={redirectUrl}
           provider={'okta'}
           friendlyName={'Other Email'}
-          styleType="secondary"
         />
       )}
     </NhsAnonymousPage>

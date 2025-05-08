@@ -19,10 +19,10 @@ public class AvailabilityQueryService(
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
     
-    public async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to, string service)
+    public async Task<List<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to)
     {
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, from, to, service))
+            (await availabilityStore.GetSessions(site, from, to))
             .ToList();
 
         var slots = sessionsOnThatDay

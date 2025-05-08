@@ -385,7 +385,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -400,18 +400,17 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<string>()))
+                        It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingWriteService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
                 _availabilityStore.Verify(a =>
-                    a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1), It.IsAny<string>()));
+                    a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
 
                 var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
-                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite, It.IsAny<string>()));
+                _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
 
                 _bookingsDocumentStore.Verify(
                     x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
@@ -447,7 +446,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -462,8 +461,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<string>()))
+                        It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingWriteService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -505,7 +503,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -520,8 +518,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<string>()))
+                        It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingWriteService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -564,7 +561,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -579,8 +576,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<string>()))
+                        It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingWriteService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -626,7 +622,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 };
 
                 _bookingsDocumentStore
-                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+                    .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                     .ReturnsAsync(bookings);
 
                 var sessions = new List<SessionInstance>
@@ -641,8 +637,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     .Setup(x => x.GetSessions(
                         It.Is<string>(s => s == MockSite),
                         It.IsAny<DateOnly>(),
-                        It.IsAny<DateOnly>(),
-                        It.IsAny<string>()))
+                        It.IsAny<DateOnly>()))
                     .ReturnsAsync(sessions);
 
                 await _bookingWriteService.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));

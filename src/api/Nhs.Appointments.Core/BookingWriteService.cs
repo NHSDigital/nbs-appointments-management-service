@@ -161,10 +161,10 @@ public class BookingWriteService(
             var from = booking.From;
             var to = booking.From.AddMinutes(booking.Duration);
 
-            var slots = (await allocationStateService.Build(booking.Site, from, to, booking.Service, false))
+            var slots = (await allocationStateService.BuildAllocation(booking.Site, from, to))
                 .AvailableSlots;
 
-            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+            var canBook = slots.Any(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {
@@ -240,16 +240,15 @@ public class BookingWriteService(
 
     private async Task RecalculateAppointmentStatuses_SingleService(string site, DateOnly day)
     {
-        var service = "*";
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var bookings = (await bookingQueryService.GetBookings(dayStart, dayEnd, site, service))
+        var bookings = (await bookingQueryService.GetBookings(dayStart, dayEnd, site))
             .Where(b => b.Status is not AppointmentStatus.Cancelled)
             .OrderBy(b => b.Created);
 
         var sessionsOnThatDay =
-            (await availabilityStore.GetSessions(site, day, day, service))
+            (await availabilityStore.GetSessions(site, day, day))
             .ToList();
 
         var slots = sessionsOnThatDay.SelectMany(session => session.ToSlots()).ToList();
@@ -294,7 +293,7 @@ public class BookingWriteService(
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var recalculations = (await allocationStateService.Build(site, dayStart, dayEnd, "*")).Recalculations;
+        var recalculations = await allocationStateService.BuildRecalculations(site, dayStart, dayEnd);
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 

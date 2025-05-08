@@ -1,10 +1,11 @@
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
 import { Site } from '@types';
-import { ManageUserPage, RemoveUserPage } from '@testing-page-objects';
+import { ManageUserPage, RemoveUserPage, TopNav } from '@testing-page-objects';
 
 export default class UsersPage extends RootPage {
   readonly title: Locator;
+  readonly topNav: TopNav;
   readonly site: Site;
   readonly emailColumn: Locator;
   readonly addUserButton: Locator;
@@ -13,6 +14,8 @@ export default class UsersPage extends RootPage {
   constructor(page: Page, site: Site) {
     super(page);
     this.site = site;
+    this.topNav = new TopNav(page, site);
+
     this.title = page.getByRole('heading', {
       name: 'Manage users',
     });

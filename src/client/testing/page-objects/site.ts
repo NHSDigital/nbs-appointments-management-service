@@ -6,11 +6,13 @@ import {
   CreateAvailabilityPage,
   MonthViewAvailabilityPage,
   SiteDetailsPage,
+  TopNav,
   UsersPage,
 } from '@testing-page-objects';
 
 export default class SitePage extends RootPage {
   readonly site: Site;
+  readonly topNav: TopNav;
 
   readonly userManagementCard: Locator;
   readonly siteManagementCard: Locator;
@@ -21,6 +23,8 @@ export default class SitePage extends RootPage {
     super(page);
 
     this.site = site;
+    this.topNav = new TopNav(page, site);
+
     this.userManagementCard = this.page.getByRole('main').getByRole('link', {
       name: 'Manage users',
     });

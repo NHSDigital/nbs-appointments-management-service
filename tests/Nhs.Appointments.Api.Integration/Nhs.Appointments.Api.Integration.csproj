@@ -41,12 +41,4 @@
 	  <None Remove="Nhs.Appointments.Api.Integration\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Content Remove="Scenarios\ClinicalServices\ClinicalServices.feature" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Include="Scenarios\ClinicalServices\ClinicalServices.feature" />
-	</ItemGroup>
-
 </Project>

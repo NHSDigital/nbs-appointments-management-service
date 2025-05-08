@@ -30,7 +30,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
                     await _response.Content.ReadAsStreamAsync());
         }
 
-        [Given("And I have Clinical Services")]
+        [Given("I have Clinical Services")]
+        [And("I have Clinical Services")]
         public async Task SetUpClinicalServices(DataTable dataTable) 
         {
             var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()

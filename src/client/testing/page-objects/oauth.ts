@@ -2,7 +2,7 @@ import { type Locator, type Page } from '@playwright/test';
 import env from '../testEnvironment';
 import { userBySubjectId } from '../fixtures';
 import SiteSelectionPage from './site-selection';
-import { RootPage } from '@testing-page-objects';
+import RootPage from './root';
 
 export default class OAuthLoginPage extends RootPage {
   readonly logInButton: Locator;

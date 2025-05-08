@@ -14,7 +14,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
 
 test(
   'A user updates the access needs for a site',
-  { tag: ['affects:site2'] },
+  { tag: ['@affects:site2'] },
   async ({ page }) => {
     await put.checkboxes.accessibleToilet.check();
     await put.checkboxes.stepFreeAccess.check();

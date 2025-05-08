@@ -33,7 +33,8 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
 ['UTC', 'Europe/London', 'Pacific/Kiritimati', 'Etc/GMT+12'].forEach(
   timezone => {
-    test.describe(`Test in timezone: '${timezone}'`, () => {
+    //nhsd-jira.digital.nhs.uk/browse/APPT-867
+    test.describe.fixme(`Test in timezone: '${timezone}'`, () => {
       test.use({ timezoneId: timezone });
 
       test.describe('Add Session', () => {

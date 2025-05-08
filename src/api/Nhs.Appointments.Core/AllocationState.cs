@@ -3,7 +3,7 @@
 public class AllocationState
 {
     public List<SessionInstance> AvailableSlots = [];
-    public List<Booking> SupportedBookings = [];
+    public readonly List<string> SupportedBookingReferences = [];
 }
 
 public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)

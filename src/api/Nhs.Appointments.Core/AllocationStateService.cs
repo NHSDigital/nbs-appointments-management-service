@@ -6,11 +6,16 @@ public class AllocationStateService(
 {
     public async Task<AllocationState> BuildAllocation(string site, DateTime from, DateTime to)
     {
+        var (bookings, slots) = await FetchData(site, from, to);
+        return BuildAllocation(bookings, slots);
+    }
+    
+    private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site, DateTime from, DateTime to)
+    {
         var bookingsTask = GetBookings(site, from, to);
         var slotsTask = GetSlots(site, from, to);
         await Task.WhenAll(bookingsTask, slotsTask);
-
-        return BuildAllocation(bookingsTask.Result.ToList(), slotsTask.Result.ToList());
+        return (bookingsTask.Result.ToList(), slotsTask.Result.ToList());
     }
 
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
@@ -18,26 +23,25 @@ public class AllocationStateService(
     {
         var recalculations = new List<BookingAvailabilityUpdate>();
 
-        var bookingsTask = GetBookings(site, from, to);
-        var slotsTask = GetSlots(site, from, to);
-        await Task.WhenAll(bookingsTask, slotsTask);
+        var (bookings, slots) = await FetchData(site, from, to);
+        var state = BuildAllocation(bookings, slots);
 
-        var bookings = bookingsTask.Result.ToList();
-        var state = BuildAllocation(bookings, slotsTask.Result.ToList());
-
-        var supportedReferences = state.SupportedBookings.Select(x => x.Reference).ToList();
-
+        //wasn't supported but now it is
         recalculations.AddRange(bookings
-            .Where(booking => supportedReferences.Contains(booking.Reference) &&
+            .Where(booking => state.SupportedBookingReferences.Contains(booking.Reference) &&
                               booking.AvailabilityStatus is not AvailabilityStatus.Supported)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
+        
+        //was supported but is now no longer supported, set to orphaned
         recalculations.AddRange(bookings
-            .Where(booking => !supportedReferences.Contains(booking.Reference) &&
+            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
                               booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                               booking.Status is not AppointmentStatus.Provisional)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned)));
+        
+        //delete any remaining unsupported provisional bookings
         recalculations.AddRange(bookings
-            .Where(booking => !supportedReferences.Contains(booking.Reference) &&
+            .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
                               booking.Status is AppointmentStatus.Provisional)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete)));
 
@@ -56,7 +60,10 @@ public class AllocationStateService(
             if (bookingIsSupportedByAvailability)
             {
                 targetSlot.Capacity--;
-                allocationState.SupportedBookings.Add(booking);
+                
+                //TODO this still is only needed for when running a recalculation
+                //waste of memory etc for when no recalculations required
+                allocationState.SupportedBookingReferences.Add(booking.Reference);
             }
         }
 

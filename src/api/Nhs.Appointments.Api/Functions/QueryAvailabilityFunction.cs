@@ -82,7 +82,9 @@ public class QueryAvailabilityFunction(
         
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
         {
-            slots = (await allocationStateService.Build(site, dayStart, dayEnd, service, false)).AvailableSlots;
+            slots = (await allocationStateService.BuildAllocation(site, dayStart, dayEnd)).AvailableSlots
+                .Where(x => x.Services.Contains(service))
+                .ToList();
         }
         else
         {

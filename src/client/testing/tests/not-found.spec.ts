@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { NotFoundPage, RootPage } from '@testing-page-objects';
+import { NotFoundPage, LoginPage } from '@testing-page-objects';
 
 test('Invalid roots yield a styled 404 page', async ({ page }) => {
-  (await new RootPage(page).logInWithNhsMail()).signIn();
+  (await new LoginPage(page).logInWithNhsMail()).signIn();
 
   await page.goto('/this-route-does-not-exist');
   const notFoundPage = new NotFoundPage(page);

@@ -2,117 +2,89 @@ import { test, expect } from '../../fixtures';
 import {
   ManageUserPage,
   NotAuthorizedPage,
-  OAuthLoginPage,
-  RootPage,
-  SitePage,
-  SiteSelectionPage,
-  UsersPage,
+  LoginPage,
 } from '@testing-page-objects';
-import { Site } from '@types';
 
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-let usersPage: UsersPage;
-let manageUserPage: ManageUserPage;
-let notAuthorizedPage: NotAuthorizedPage;
-
-let site: Site;
+let put: ManageUserPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite();
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-  usersPage = new UsersPage(page);
-  manageUserPage = new ManageUserPage(page);
-  notAuthorizedPage = new NotAuthorizedPage(page);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site.name);
-  await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${site.id}/users`);
+  put = await new LoginPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite()))
+    .then(sitePage => sitePage.clickManageUsersCard())
+    .then(manageUsersPage => manageUsersPage.clickAddUser());
 });
 
-test('Verify user manager able to edit user role', async ({
-  page,
-  getTestSite,
-  newUserName,
-}) => {
+test('A user edits the roles of another user', async ({ newUserName }) => {
   // Arrange: Create new user
   // TODO: Use seed data instead!
-  await usersPage.addUserButton.click();
+  await expect(put.emailStep.title).toBeVisible();
+  await put.emailStep.emailInput.fill(newUserName);
+  await put.emailStep.continueButton.click();
 
-  await usersPage.addUserButton.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+  await expect(put.rolesStep.title).toBeVisible();
+  await put.rolesStep.appointmentManagerCheckbox.check();
+  await put.rolesStep.availabilityManagerCheckbox.check();
+  await put.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
-  await manageUserPage.emailStep.continueButton.click();
+  await expect(put.summaryStep.title).toBeVisible();
+  const usersPage = await put.summaryStep.saveUserRoles();
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
-  await manageUserPage.rolesStep.continueButton.click();
-
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
-
-  await usersPage.userExists(newUserName);
+  await expect(
+    usersPage.page.getByRole('cell', { name: newUserName }),
+  ).toBeVisible();
 
   // Act: Edit the new user's roles
-  await usersPage.clickEditLink(newUserName);
+  put = await usersPage.clickEditUserLink(newUserName);
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.continueButton.click();
+  await expect(put.rolesStep.title).toBeVisible();
+  await put.rolesStep.appointmentManagerCheckbox.check();
+  await put.rolesStep.availabilityManagerCheckbox.uncheck();
+  await put.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
+  await expect(put.summaryStep.title).toBeVisible();
+  await put.summaryStep.continueButton.click();
 
   // Assert: Check the new user's roles have changed
-  await usersPage.verifyUserRoles('Appointment manager', newUserName);
-  await usersPage.verifyUserRoleRemoved('Availability manager', newUserName);
+  await expect(
+    usersPage.page
+      .getByRole('row')
+      .filter({ has: usersPage.page.getByText(newUserName) })
+      .getByText('Appointment manager, Availability manager', { exact: true }),
+  ).toBeVisible();
 });
 
-test('Verify all roles cannot be removed from existing account', async ({
+test('A user tries to remove all roles from another user', async ({
   page,
-  getTestSite,
   newUserName,
 }) => {
   // Arrange: Create new user
   // TODO: Use seed data instead!
-  await usersPage.addUserButton.click();
 
-  await usersPage.addUserButton.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+  await expect(put.emailStep.title).toBeVisible();
+  await put.emailStep.emailInput.fill(newUserName);
+  await put.emailStep.continueButton.click();
 
-  await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
-  await manageUserPage.emailStep.continueButton.click();
+  await expect(put.rolesStep.title).toBeVisible();
+  await put.rolesStep.appointmentManagerCheckbox.check();
+  await put.rolesStep.availabilityManagerCheckbox.check();
+  await put.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
-  await manageUserPage.rolesStep.continueButton.click();
+  await expect(put.summaryStep.title).toBeVisible();
+  const usersPage = await put.summaryStep.saveUserRoles();
 
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
-
-  await usersPage.userExists(newUserName);
+  await expect(
+    usersPage.page.getByRole('cell', { name: newUserName }),
+  ).toBeVisible();
 
   // Act: Edit the new user's roles
-  await usersPage.clickEditLink(newUserName);
+  put = await usersPage.clickEditUserLink(newUserName);
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.continueButton.click();
+  await expect(put.rolesStep.title).toBeVisible();
+  await put.rolesStep.appointmentManagerCheckbox.uncheck();
+  await put.rolesStep.availabilityManagerCheckbox.uncheck();
+  await put.rolesStep.continueButton.click();
 
   // Assert: Check for a validation message
   // TODO: Shouldn't this be covered by jest tests?
@@ -121,9 +93,9 @@ test('Verify all roles cannot be removed from existing account', async ({
   ).toBeVisible();
 });
 
-test('Receives 403 error when trying to edit self', async ({ page }) => {
+test('A user tries to edit their own roles', async ({ page, getTestSite }) => {
   await page.goto(
-    `/manage-your-appointments/site/${site.id}/users/manage?user=zzz_test_user_1@nhs.net`,
+    `/manage-your-appointments/site/${getTestSite().id}/users/manage?user=zzz_test_user_1@nhs.net`,
   );
-  await expect(notAuthorizedPage.title).toBeVisible();
+  await expect(new NotAuthorizedPage(page).title).toBeVisible();
 });

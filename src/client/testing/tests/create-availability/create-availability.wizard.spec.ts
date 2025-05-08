@@ -1,4 +1,4 @@
-import { CreateAvailabilityWizardPage, RootPage } from '@testing-page-objects';
+import { CreateAvailabilityWizardPage, LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 import { getDateInFuture } from '../../utils/date-utility';
 
@@ -14,7 +14,7 @@ let put: CreateAvailabilityWizardPage;
 
         test.describe('Create Availability', () => {
           test.beforeEach(async ({ page, getTestSite }) => {
-            put = await new RootPage(page)
+            put = await new LoginPage(page)
               .logInWithNhsMail()
               .then(oAuthPage => oAuthPage.signIn())
               .then(siteSelectionPage =>
@@ -196,7 +196,7 @@ let put: CreateAvailabilityWizardPage;
             },
           );
 
-          test('Create weekly session of RSV availability check sumary page links', async () => {
+          test('A user uses the Change links to check each step of the Create Availability wizard before submitting - weekly session', async () => {
             const tomorrow = getDateInFuture(1);
             const dayAfterTomorrowDate = getDateInFuture(2);
 
@@ -310,7 +310,7 @@ let put: CreateAvailabilityWizardPage;
             await expect(put.summaryStep.title).toBeVisible();
           });
 
-          test('Create single session of RSV availability check sumary page links', async () => {
+          test('A user uses the Change links to check each step of the Create Availability wizard before submitting - single session', async () => {
             const tomorrow = getDateInFuture(1);
 
             // Arrange & Act: comlete the wizard as far as the summary step

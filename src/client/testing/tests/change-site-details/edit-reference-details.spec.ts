@@ -1,10 +1,10 @@
-import { EditReferenceDetailsPage, RootPage } from '@testing-page-objects';
+import { EditReferenceDetailsPage, LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 
 let put: EditReferenceDetailsPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  put = await new RootPage(page)
+  put = await new LoginPage(page)
     .logInWithNhsMail()
     .then(oAuthPage => oAuthPage.signIn())
     .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))

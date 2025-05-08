@@ -6,6 +6,7 @@ import { Site } from '@types';
 
 export default class SummaryStep extends CreateAvailabilityStep {
   readonly title: Locator;
+  readonly site: Site;
 
   private getSummaryListItem(label: string): Locator {
     return this.page
@@ -65,7 +66,9 @@ export default class SummaryStep extends CreateAvailabilityStep {
   ).getByRole('link', { name: 'Change' });
 
   constructor(page: Page, site: Site, positiveActionButtonText: string) {
-    super(page, site, positiveActionButtonText);
+    super(page, positiveActionButtonText);
+    this.site = site;
+
     this.title = page.getByRole('heading', {
       name: 'Check weekly session',
     });

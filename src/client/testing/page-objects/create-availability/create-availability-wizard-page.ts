@@ -21,14 +21,11 @@ export default class CreateAvailabilityWizardPage extends RootPage {
     super(page);
     this.site = site;
 
-    this.singleOrRepeatingSessionStep = new SingleOrRepeatingSessionStep(
-      page,
-      site,
-    );
-    this.startAndEndDateStep = new StartAndEndDateStep(page, site);
-    this.daysOfWeekStep = new DaysOfWeekStep(page, site);
-    this.timeAndCapacityStep = new TimeAndCapacityStep(page, site);
-    this.selectServicesStep = new SelectServicesStep(page, site);
+    this.singleOrRepeatingSessionStep = new SingleOrRepeatingSessionStep(page);
+    this.startAndEndDateStep = new StartAndEndDateStep(page);
+    this.daysOfWeekStep = new DaysOfWeekStep(page);
+    this.timeAndCapacityStep = new TimeAndCapacityStep(page);
+    this.selectServicesStep = new SelectServicesStep(page);
     this.summaryStep = new SummaryStep(page, site, 'Save session');
   }
 }

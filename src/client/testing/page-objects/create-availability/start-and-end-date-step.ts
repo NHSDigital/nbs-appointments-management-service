@@ -1,6 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
 import CreateAvailabilityStep from './create-availability-step';
-import { Site } from '@types';
 
 export default class StartAndEndDateStep extends CreateAvailabilityStep {
   readonly title: Locator;
@@ -12,8 +11,8 @@ export default class StartAndEndDateStep extends CreateAvailabilityStep {
   readonly endDateMonthInput: Locator;
   readonly endDateYearInput: Locator;
 
-  constructor(page: Page, site: Site) {
-    super(page, site);
+  constructor(page: Page) {
+    super(page);
     this.title = page.getByRole('heading', {
       name: 'Add start and end dates',
     });

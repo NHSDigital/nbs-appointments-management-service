@@ -30,6 +30,7 @@ import DailyAppointmentDetailsPage from './view-availability-appointment-pages/d
 import EditAvailabilityConfirmedPage from './view-availability-appointment-pages/edit-availability-confirmed';
 import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
+import LoginPage from './login-page';
 
 export {
   CookiesPolicyPage,
@@ -39,6 +40,7 @@ export {
   NotFoundPage,
   OAuthLoginPage,
   RootPage,
+  LoginPage,
   SiteSelectionPage,
   SitePage,
   NotAuthorizedPage,

@@ -1,17 +1,22 @@
-import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
 import { Site } from '@types';
+import { UsersPage } from '@testing-page-objects';
 
 export default class RemoveUserPage extends RootPage {
+  readonly site: Site;
+  readonly user: string;
   readonly title: Locator;
   readonly confirmRemoveButton: Locator;
   readonly cancelButton: Locator;
-  readonly siteDetails: Site;
 
-  constructor(page: Page, siteDetails: Site) {
+  readonly confirmationMessage: Locator;
+
+  constructor(page: Page, site: Site, user: string) {
     super(page);
-    this.siteDetails = siteDetails;
+    this.site = site;
+    this.user = user;
+
     this.title = page.getByRole('heading', {
       name: 'Remove User',
     });
@@ -21,20 +26,23 @@ export default class RemoveUserPage extends RootPage {
     this.cancelButton = page.getByRole('button', {
       name: 'Cancel',
     });
-  }
 
-  async verifyUserNavigatedToRemovePage(userName: string) {
-    await this.page.waitForURL(
-      `**/site/${this.siteDetails.id}/users/remove?user=${userName}`,
+    this.confirmationMessage = this.page.getByText(
+      `Are you sure you wish to remove ${this.user} from ${this.site.name}?`,
     );
-    await expect(
-      this.page.getByText(
-        `Are you sure you wish to remove ${userName} from ${this.siteDetails.name}?`,
-      ),
-    ).toBeVisible();
   }
 
-  async clickButton(buttonName: 'Remove this account' | 'Cancel') {
-    await this.page.getByRole('button', { name: `${buttonName}` }).click();
+  async clickConfirmButton(): Promise<UsersPage> {
+    await this.confirmRemoveButton.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/users`);
+
+    return new UsersPage(this.page, this.site);
+  }
+
+  async clickCancelButton(): Promise<UsersPage> {
+    await this.cancelButton.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/users`);
+
+    return new UsersPage(this.page, this.site);
   }
 }

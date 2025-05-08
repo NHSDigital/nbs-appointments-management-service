@@ -64,7 +64,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [Then(@"the request should be successful")]
         public async Task AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
 
-        [Then(@"the request should be successful")]
+        [Then(@"the request should be Not Implemented")]
         public async Task AssertHttpNotImplemented() => _statusCode.Should().Be(HttpStatusCode.NotImplemented);
     }
 }

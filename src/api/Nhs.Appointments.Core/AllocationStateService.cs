@@ -16,7 +16,7 @@ public class AllocationStateService(
         var bookings = await GetBookings(site, from, to);
         var state = await BuildAllocation(bookings, await GetSlots(site, from, to));
 
-        var supportedReferences = state.Bookings.Select(x => x.Reference).ToList();
+        var supportedReferences = state.SupportedBookings.Select(x => x.Reference).ToList();
 
         recalculations.AddRange(bookings.Where(booking => supportedReferences.Contains(booking.Reference) && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
@@ -40,7 +40,7 @@ public class AllocationStateService(
             if (bookingIsSupportedByAvailability)
             {
                 targetSlot.Capacity--;
-                allocationState.Bookings.Add(booking);
+                allocationState.SupportedBookings.Add(booking);
                 continue;
             }
         }

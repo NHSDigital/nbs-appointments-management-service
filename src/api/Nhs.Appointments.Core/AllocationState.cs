@@ -1,9 +1,9 @@
-namespace Nhs.Appointments.Core;
+﻿namespace Nhs.Appointments.Core;
 
 public class AllocationState
 {
     public List<SessionInstance> AvailableSlots = [];
-    public List<Booking> Bookings = [];
+    public List<Booking> SupportedBookings = [];
 }
 
 public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)

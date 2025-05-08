@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
+namespace Nhs.Appointments.Core.UnitTests.AllocationState;
 
 public class AllocationStateServiceTestBase
 {
@@ -41,15 +41,14 @@ public class AllocationStateServiceTestBase
 
     protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
     {
-        _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string>()))
+        _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
             .ReturnsAsync(bookings);
 
         _availabilityStore
             .Setup(x => x.GetSessions(
                 It.Is<string>(s => s == MockSite),
                 It.IsAny<DateOnly>(),
-                It.IsAny<DateOnly>(),
-                It.IsAny<string>()))
+                It.IsAny<DateOnly>()))
             .ReturnsAsync(sessions);
     }
 }

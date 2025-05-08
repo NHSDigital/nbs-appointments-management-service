@@ -43,10 +43,10 @@ public class BookingQueryServiceTests
         };
 
         _bookingsDocumentStore
-            .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site, It.IsAny<string>()))
+            .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
             .ReturnsAsync(bookings);
 
-        var response = await _bookingQueryService.GetBookings(new DateTime(), new DateTime(), site, It.IsAny<string>());
+        var response = await _bookingQueryService.GetBookings(new DateTime(), new DateTime(), site);
 
         Assert.Multiple(
             () => Assert.True(response.ToArray()[0].Reference == "4"),

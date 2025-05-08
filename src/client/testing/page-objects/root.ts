@@ -34,7 +34,7 @@ export default class RootPage {
     this.pageContentLogInButton = page.getByRole('button', {
       name: 'Sign in to service with NHS Mail',
     });
-    this.OKTALogInButton = page.getByRole('button', {
+    this.OKTALogInButton = page.getByRole('link', {
       name: 'Sign in to service with Other Email',
     });
     this.logOutButton = page.getByRole('button', { name: 'Log Out' });

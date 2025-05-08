@@ -12,6 +12,7 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
 {
+    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices.feature")]
     public class ClinicalServicesFeatureSteps : BaseFeatureSteps
     {
         private HttpResponseMessage _response;

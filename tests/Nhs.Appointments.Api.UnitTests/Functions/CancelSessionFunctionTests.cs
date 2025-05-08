@@ -14,7 +14,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
+[MockedFeatureToggle("MultipleServicesEnabled", false)]
 public class CancelSessionFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IAvailabilityService> _availabilityService = new();
@@ -68,7 +68,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
     }
 
     [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
+    public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
     {
         var cancelSessionRequest = new CancelSessionRequest(
             "TEST01",
@@ -88,7 +88,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
     }
 
     [Fact]
-    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
+    public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
     {
         Toggle(Flags.MultipleServices, true);
 

@@ -1,5 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
-import { OAuthLoginPage, RootPage } from '@testing-page-objects';
+import RootPage from './root';
+import { OAuthLoginPage } from '@testing-page-objects';
 
 export default class LoginPage extends RootPage {
   readonly pageContentLogInButton: Locator;

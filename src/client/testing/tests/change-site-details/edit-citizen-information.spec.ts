@@ -25,7 +25,6 @@ test(
     await expect(put.infoTextArea).toHaveText(
       'Mock information for citizens about site 2',
     );
-    await expect(put.page.getByText(''));
 
     await put.infoTextArea.clear();
     await put.infoTextArea.fill('New information for citizens about site 2');

@@ -80,7 +80,7 @@ public class QueryAvailabilityFunction(
 
         List<SessionInstance> slots;
         
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             slots = (await allocationStateService.BuildAllocation(site, dayStart, dayEnd)).AvailableSlots
                 .Where(x => x.Services.Contains(service))

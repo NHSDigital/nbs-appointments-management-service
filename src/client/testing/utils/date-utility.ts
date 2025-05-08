@@ -8,14 +8,19 @@ import {
 } from '@services/timeService';
 import { DateComponents } from '@types';
 
+type DateComponentsForTests = DateComponents & {
+  monthName: string;
+};
+
 export const getDateInFuture = (
   numberOfDaysFromToday: number,
-): DateComponents => {
+): DateComponentsForTests => {
   const futureDate = addToUkDatetime(ukNow(), numberOfDaysFromToday, 'day');
 
   return {
     day: futureDate.format('DD'),
     month: futureDate.format('MM'),
+    monthName: futureDate.format('MMMM'),
     year: futureDate.format('YYYY'),
   };
 };

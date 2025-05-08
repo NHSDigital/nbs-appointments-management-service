@@ -3,8 +3,10 @@ import RootPage from './root';
 import { expect } from '@playwright/test';
 import { Site } from '@types';
 import {
+  CreateAvailabilityPage,
   MonthViewAvailabilityPage,
   SiteDetailsPage,
+  UsersPage,
 } from '@testing-page-objects';
 
 export default class SitePage extends RootPage {
@@ -49,6 +51,20 @@ export default class SitePage extends RootPage {
     await this.page.waitForURL(`**/site/${this.site.id}/details`);
 
     return new SiteDetailsPage(this.page, this.site);
+  }
+
+  async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
+    await this.createAvailabilityCard.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
+
+    return new CreateAvailabilityPage(this.page, this.site);
+  }
+
+  async clickManageUsersCard(): Promise<UsersPage> {
+    await this.userManagementCard.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/users`);
+
+    return new UsersPage(this.page, this.site);
   }
 
   async verifyTileVisible(

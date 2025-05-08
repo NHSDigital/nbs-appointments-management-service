@@ -1,58 +1,50 @@
 import {
   EditInformationForCitizensPage,
-  OAuthLoginPage,
   RootPage,
-  SiteDetailsPage,
-  SitePage,
-  SiteSelectionPage,
 } from '@testing-page-objects';
-import { test } from '../../fixtures';
-import { Site } from '@types';
+import { test, expect } from '../../fixtures';
 
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-let siteDetailsPage: SiteDetailsPage;
-let editInformCitizen: EditInformationForCitizensPage;
+let put: EditInformationForCitizensPage;
 
-let site: Site;
-
-// Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite(2);
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-  siteDetailsPage = new SiteDetailsPage(page, site);
-  editInformCitizen = new EditInformationForCitizensPage(page);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
-  await sitePage.siteManagementCard.click();
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await page.waitForURL(
-    `**/site/${site.id}/details/edit-information-for-citizens`,
-  );
+  put = await new RootPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+    .then(sitePage => sitePage.clickSiteDetailsCard())
+    .then(siteDetailsPage =>
+      siteDetailsPage.clickEditInformationForCitizensLink(),
+    );
 });
 
-test('Update information for citizen', async ({ page }) => {
-  await editInformCitizen.verifyInformationForCitizenPageDetails();
-  await editInformCitizen.setInformationForCitizen('Test Automation');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
+test(
+  'A user updates the citizen information for a site',
+  { tag: ['@affects:site2'] },
+  async () => {
+    await expect(put.title).toBeVisible();
+    await expect(put.infoTextArea).toHaveText(
+      'Mock information for citizens about site 2',
+    );
+    await expect(put.page.getByText(''));
 
-  await page.waitForURL(`**/site/${site.id}/details`);
+    await put.infoTextArea.clear(); //();
+    await put.infoTextArea.fill('New information for citizens about site 2');
+    const siteDetailsPage = await put.saveCitizenInformation();
 
-  await siteDetailsPage.verifyInformationSaved('Test Automation');
-});
+    const expectedNotification =
+      'You have successfully updated the access needs for the current site.';
+    await expect(
+      siteDetailsPage.notificationBanner.getByText(expectedNotification),
+    ).toBeVisible();
 
-test('Verify information not saved when cancel button clicked', async () => {
+    await siteDetailsPage.dismissNotificationBannerButton.click();
+    await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
+  },
+);
+
+test('A user begins to update the citizen information but cancels', async () => {
   await editInformCitizen.setInformationForCitizen('Test Automation');
   await editInformCitizen.save_Cancel_InformationForCitizen('Save');
   await siteDetailsPage.editInformationCitizenButton.click();

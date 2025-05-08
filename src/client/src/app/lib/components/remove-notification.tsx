@@ -1,6 +1,8 @@
 'use server';
 import { cookies } from 'next/headers';
 
-export const removeNotification = async () => {
+const removeNotification = async () => {
   cookies().delete('ams-notification');
 };
+
+export default removeNotification;

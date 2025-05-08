@@ -86,7 +86,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
 
       if (dayOverview.services.length > 0) {
         //assert no availability not visible
-        expect(cardDiv.getByText('No availability')).not.toBeVisible();
+        expect(
+          cardDiv.getByText('No availability', { exact: true }),
+        ).not.toBeVisible();
 
         //single table
         expect(cardDiv.getByRole('table')).toBeVisible();
@@ -151,7 +153,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
         ).toBeVisible();
       } else {
         //no services = no availability
-        await expect(cardDiv.getByText('No availability')).toBeVisible();
+        await expect(
+          cardDiv.getByText('No availability', { exact: true }),
+        ).toBeVisible();
 
         //no table
         expect(cardDiv.getByRole('table')).not.toBeVisible();
@@ -178,7 +182,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
         ).not.toBeVisible();
 
         //totals
-        await expect(cardDiv.getByText('Total appointments: 0')).toBeVisible();
+        await expect(
+          cardDiv.getByText('Total appointments: 0', { exact: true }),
+        ).toBeVisible();
         await expect(
           cardDiv.getByText('Booked: 0', { exact: true }),
         ).toBeVisible();
@@ -192,16 +198,16 @@ export default class WeekViewAvailabilityPage extends RootPage {
   async verifyDateCardDisplayed(requiredDate: string) {
     await this.verifyViewNextWeekButtonDisplayed();
     await expect(
-      this.page
-        .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) }),
+      this.page.getByRole('listitem').filter({
+        has: this.page.getByText(`${requiredDate}`, { exact: true }),
+      }),
     ).toBeVisible();
   }
 
   async addAvailability(requiredDate: string) {
     const addAvailabilityButton = this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .filter({ has: this.page.getByText(`${requiredDate}`, { exact: true }) })
       .getByRole('link', { name: 'Add availability to this day' });
     const count: number = await addAvailabilityButton.count();
     if (count == 1) {
@@ -209,7 +215,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
     } else {
       await this.page
         .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .filter({
+          has: this.page.getByText(`${requiredDate}`, { exact: true }),
+        })
         .getByRole('link', { name: 'Add Session' })
         .click();
     }
@@ -223,7 +231,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
     await expect(
       this.page
         .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) })
+        .filter({
+          has: this.page.getByText(`${requiredDate}`, { exact: true }),
+        })
         .getByRole('link', { name: 'Add availability to this day' }),
     ).toBeVisible();
   }
@@ -231,7 +241,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
   async openChangeAvailabilityPage(requiredDate: string) {
     await this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByText(`${requiredDate}`) })
+      .filter({ has: this.page.getByText(`${requiredDate}`, { exact: true }) })
       .getByRole('link', { name: 'Change' })
       .first()
       .click();
@@ -245,15 +255,19 @@ export default class WeekViewAvailabilityPage extends RootPage {
     await expect(
       this.page
         .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) })
-        .getByText(`${time}`)
+        .filter({
+          has: this.page.getByText(`${requiredDate}`, { exact: true }),
+        })
+        .getByText(`${time}`, { exact: true })
         .first(),
     ).toBeVisible();
     await expect(
       this.page
         .getByRole('listitem')
-        .filter({ has: this.page.getByText(`${requiredDate}`) })
-        .getByText(`${service}`)
+        .filter({
+          has: this.page.getByText(`${requiredDate}`, { exact: true }),
+        })
+        .getByText(`${service}`, { exact: true })
         .first(),
     ).toBeVisible();
   }
@@ -261,7 +275,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
   async openDailyAppointmentPage(appointmentDate: string) {
     await this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByText(`${appointmentDate}`) })
+      .filter({
+        has: this.page.getByText(`${appointmentDate}`, { exact: true }),
+      })
       .getByRole('link', { name: 'View daily appointments' })
       .click();
   }

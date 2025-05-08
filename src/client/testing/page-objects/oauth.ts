@@ -1,7 +1,8 @@
 import { type Locator, type Page } from '@playwright/test';
 import env from '../testEnvironment';
 import { userBySubjectId } from '../fixtures';
-import RootPage from './root';
+import SiteSelectionPage from './site-selection';
+import { RootPage } from '@testing-page-objects';
 
 export default class OAuthLoginPage extends RootPage {
   readonly logInButton: Locator;
@@ -15,12 +16,14 @@ export default class OAuthLoginPage extends RootPage {
 
   async signIn(
     user: { username: string; password: string } = userBySubjectId(),
-  ) {
+  ): Promise<SiteSelectionPage> {
     await this.page.getByLabel('Username').fill(user.username);
     await this.page.getByLabel('Password').fill(user.password);
 
     await this.page.getByLabel('Password').press('Enter');
 
     await this.page.waitForURL(`${env.BASE_URL}/sites`);
+
+    return new SiteSelectionPage(this.page);
   }
 }

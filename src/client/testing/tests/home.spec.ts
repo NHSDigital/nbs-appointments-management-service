@@ -12,10 +12,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   site1 = getTestSite(1);
   site2 = getTestSite(2);
   rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
+  oAuthPage = await rootPage.logInWithNhsMail();
 });
 
 test('A user loads home page, only sites with same scope are loaded', async ({

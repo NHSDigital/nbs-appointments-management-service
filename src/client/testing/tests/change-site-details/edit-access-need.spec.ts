@@ -1,77 +1,45 @@
-import {
-  EditAccessNeedsPage,
-  OAuthLoginPage,
-  RootPage,
-  SiteDetailsPage,
-  SitePage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
+import { EditAccessNeedsPage, RootPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-import { Site } from '@types';
 
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-let editAccessNeedsPage: EditAccessNeedsPage;
-let siteDetailsPage: SiteDetailsPage;
-
-let site: Site;
+// Page Under Test
+let put: EditAccessNeedsPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite(2);
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-  editAccessNeedsPage = new EditAccessNeedsPage(page);
-  siteDetailsPage = new SiteDetailsPage(page, site);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
-  await sitePage.siteManagementCard.click();
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.editSiteAccessibilitiesButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
+  put = await new RootPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+    .then(sitePage => sitePage.clickSiteDetailsCard())
+    .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink());
 });
 
-test('Update accessibilities for a site', async ({ page }) => {
-  // Toggle selected accessibilities
-  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
-  await editAccessNeedsPage.selectAccessibility('Step free access');
-  await editAccessNeedsPage.confirmSiteDetailsButton.click();
-  await page.waitForURL(`**/site/${site.id}/details`);
+test(
+  'A user updates the access needs for a site',
+  { tag: ['affects:site2'] },
+  async ({ page }) => {
+    await put.checkboxes.accessibleToilet.check();
+    await put.checkboxes.stepFreeAccess.check();
+    const siteDetailsPage = await put.saveSiteDetails();
 
-  // Check banner function
-  await expect(editAccessNeedsPage.updateNotificationBanner).toBeVisible();
-  await editAccessNeedsPage.closeNotificationBannerButton.click();
-  await expect(editAccessNeedsPage.updateNotificationBanner).not.toBeVisible();
+    const expectedNotification =
+      'You have successfully updated the access needs for the current site.';
+    await expect(
+      siteDetailsPage.notificationBanner.getByText(expectedNotification),
+    ).toBeVisible();
 
-  // Go back into edit UI to assert on checkbox state:
-  await siteDetailsPage.editSiteAccessibilitiesButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
+    await siteDetailsPage.dismissNotificationBannerButton.click();
+    await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
 
-  await editAccessNeedsPage.accessibilityChecked('Accessible toilet');
-  await editAccessNeedsPage.accessibilityNotChecked('Step free access');
+    put = await siteDetailsPage.clickEditAccessNeedsLink();
+    await expect(put.checkboxes.accessibleToilet).toBeChecked();
+    await expect(put.checkboxes.stepFreeAccess).not.toBeChecked();
 
-  // Reload page
-  await editAccessNeedsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-accessibilities`);
+    await put.page.reload();
+    await page.waitForURL(
+      `**/site/${put.site.id}/details/edit-accessibilities`,
+    );
 
-  // Check selected accesibilities are still correctly toggled after page reload
-  await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
-    'Accessible toilet',
-    'Checked',
-  );
-  await editAccessNeedsPage.verifyAccessNeedsCheckedOrUnchecked(
-    'Step free access',
-    'UnChecked',
-  );
-
-  //revert to default state
-  await editAccessNeedsPage.selectAccessibility('Accessible toilet');
-  await editAccessNeedsPage.selectAccessibility('Step free access');
-  await editAccessNeedsPage.confirmSiteDetailsButton.click();
-});
+    await expect(put.checkboxes.accessibleToilet).toBeChecked();
+    await expect(put.checkboxes.stepFreeAccess).not.toBeChecked();
+  },
+);

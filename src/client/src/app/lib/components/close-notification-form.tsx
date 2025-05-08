@@ -1,4 +1,4 @@
-import { removeNotification } from './remove-notification';
+import removeNotification from './remove-notification';
 
 const CloseNotificationForm = () => {
   return (

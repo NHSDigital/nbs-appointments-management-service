@@ -1,15 +1,24 @@
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from './root';
 import { expect } from '@playwright/test';
+import { Site } from '@types';
+import {
+  MonthViewAvailabilityPage,
+  SiteDetailsPage,
+} from '@testing-page-objects';
 
 export default class SitePage extends RootPage {
+  readonly site: Site;
+
   readonly userManagementCard: Locator;
   readonly siteManagementCard: Locator;
   readonly createAvailabilityCard: Locator;
   readonly viewAvailabilityAndManageAppointmentsCard: Locator;
 
-  constructor(page: Page) {
+  constructor(page: Page, site: Site) {
     super(page);
+
+    this.site = site;
     this.userManagementCard = this.page.getByRole('main').getByRole('link', {
       name: 'Manage users',
     });
@@ -26,6 +35,20 @@ export default class SitePage extends RootPage {
       .getByRole('link', {
         name: 'View availability and manage appointments for your site',
       });
+  }
+
+  async clickViewAvailabilityCard(): Promise<MonthViewAvailabilityPage> {
+    await this.viewAvailabilityAndManageAppointmentsCard.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
+
+    return new MonthViewAvailabilityPage(this.page, this.site);
+  }
+
+  async clickSiteDetailsCard(): Promise<SiteDetailsPage> {
+    await this.siteManagementCard.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
+
+    return new SiteDetailsPage(this.page, this.site);
   }
 
   async verifyTileVisible(

@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures';
 import {
   CreateAvailabilityPage,
-  EditManageUserRolesPage,
+  ManageUserPage,
   MonthViewAvailabilityPage,
   NotAuthorizedPage,
   OAuthLoginPage,
@@ -21,7 +21,7 @@ let sitePage: SitePage;
 let usersPage: UsersPage;
 let userManagementPage: UserManagementPage;
 let notAuthorizedPage: NotAuthorizedPage;
-let editManageUserRolesPage: EditManageUserRolesPage;
+let manageUserPage: ManageUserPage;
 let siteDetailsPage1: SiteDetailsPage;
 let createAvailabilityPage: CreateAvailabilityPage;
 let viewMonthAvailabilityPage: MonthViewAvailabilityPage;
@@ -39,7 +39,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   usersPage = new UsersPage(page);
   userManagementPage = new UserManagementPage(page);
   notAuthorizedPage = new NotAuthorizedPage(page);
-  editManageUserRolesPage = new EditManageUserRolesPage(page);
+  manageUserPage = new ManageUserPage(page);
   siteDetailsPage1 = new SiteDetailsPage(page, site1);
   createAvailabilityPage = new CreateAvailabilityPage(page);
   viewMonthAvailabilityPage = new MonthViewAvailabilityPage(page);
@@ -141,24 +141,35 @@ test('Verify user manager cannot edit or remove self account', async ({
 
 test('Verify user can only view appointment manager related tiles In app when user is assigned Appointment Manager role.', async ({
   page,
+  getTestSite,
   getTestUser,
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+
   await sitePage.userManagementCard.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+
   await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user8 = getTestUser(8);
-  await editManageUserRolesPage.emailInput.fill(user8.subjectId);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.unselectStaffRole('Availability manager');
-  await editManageUserRolesPage.unselectStaffRole('Site details manager');
-  await editManageUserRolesPage.unselectStaffRole('User manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(user8.subjectId);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.verifyUserRoles('Appointment manager', user8.subjectId);
   await rootPage.logOut();
   await page.waitForURL(`**/manage-your-appointments/login`);
@@ -178,24 +189,35 @@ test('Verify user can only view appointment manager related tiles In app when us
 
 test('Verify user can only view availability manager related tiles In app when user is assigned Availability Manager role.', async ({
   page,
+  getTestSite,
   getTestUser,
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+
   await sitePage.userManagementCard.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+
   await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user9 = getTestUser(9);
-  await editManageUserRolesPage.emailInput.fill(user9.subjectId);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.unselectStaffRole('Appointment manager');
-  await editManageUserRolesPage.selectStaffRole('Availability manager');
-  await editManageUserRolesPage.unselectStaffRole('Site details manager');
-  await editManageUserRolesPage.unselectStaffRole('User manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(user9.subjectId);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
+  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.verifyUserRoles('Availability manager', user9.subjectId);
   await rootPage.logOut();
   await page.waitForURL(`**/manage-your-appointments/login`);
@@ -222,24 +244,35 @@ test('Verify user can only view availability manager related tiles In app when u
 
 test('Verify user can only view user manager related tiles In app when user is assigned user Manager role.', async ({
   page,
+  getTestSite,
   getTestUser,
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+
   await sitePage.userManagementCard.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+
   await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user10 = getTestUser(10);
-  await editManageUserRolesPage.emailInput.fill(user10.subjectId);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.unselectStaffRole('Appointment manager');
-  await editManageUserRolesPage.unselectStaffRole('Availability manager');
-  await editManageUserRolesPage.unselectStaffRole('Site details manager');
-  await editManageUserRolesPage.selectStaffRole('User manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(user10.subjectId);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.userManagerCheckbox.check();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.verifyUserRoles('User manager', user10.subjectId);
   await rootPage.logOut();
   await page.waitForURL(`**/manage-your-appointments/login`);
@@ -265,24 +298,35 @@ test('Verify user can only view user manager related tiles In app when user is a
 
 test('Verify user can only view site details manager related tiles In app when user is assigned site details manager role.', async ({
   page,
+  getTestSite,
   getTestUser,
 }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
   await siteSelectionPage.selectSite(site1.name);
+
   await sitePage.userManagementCard.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+
   await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   const user11 = getTestUser(11);
-  await editManageUserRolesPage.emailInput.fill(user11.subjectId);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.unselectStaffRole('Appointment manager');
-  await editManageUserRolesPage.unselectStaffRole('Availability manager');
-  await editManageUserRolesPage.selectStaffRole('Site details manager');
-  await editManageUserRolesPage.unselectStaffRole('User manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(user11.subjectId);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.check();
+  await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.verifyUserRoles('Site details manager', user11.subjectId);
   await rootPage.logOut();
   await page.waitForURL(`**/manage-your-appointments/login`);

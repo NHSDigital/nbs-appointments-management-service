@@ -56,6 +56,7 @@ describe('Summary Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -82,6 +83,7 @@ describe('Summary Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -116,6 +118,7 @@ describe('Summary Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -140,6 +143,7 @@ describe('Summary Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -177,6 +181,7 @@ describe('Summary Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

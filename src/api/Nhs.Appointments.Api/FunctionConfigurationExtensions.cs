@@ -25,8 +25,8 @@ using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Okta;
 using Nhs.Appointments.Persistance;
-using Nhs.Appointments.UserManagement.Okta;
 
 namespace Nhs.Appointments.Api;
 
@@ -76,6 +76,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddTransient<ISiteStore, SiteStore>()
+            .AddTransient<IEmailWhitelistStore, EmailWhitelistStore>()
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()

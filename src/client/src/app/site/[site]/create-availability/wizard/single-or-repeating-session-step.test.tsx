@@ -21,6 +21,7 @@ describe('Single or Repeating Session Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -45,6 +46,7 @@ describe('Single or Repeating Session Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

@@ -1,6 +1,6 @@
 import { test, expect } from '../../fixtures';
 import {
-  EditManageUserRolesPage,
+  ManageUserPage,
   NotFoundPage,
   OAuthLoginPage,
   RemoveUserPage,
@@ -16,7 +16,7 @@ let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let usersPage: UsersPage;
-let editManageUserRolesPage: EditManageUserRolesPage;
+let manageUserPage: ManageUserPage;
 let removeUserPage: RemoveUserPage;
 let notFoundPage: NotFoundPage;
 
@@ -29,7 +29,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   usersPage = new UsersPage(page);
-  editManageUserRolesPage = new EditManageUserRolesPage(page);
+  manageUserPage = new ManageUserPage(page);
   removeUserPage = new RemoveUserPage(page, site);
   notFoundPage = new NotFoundPage(page);
 
@@ -41,15 +41,27 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await page.waitForURL(`**/site/${site.id}/users`);
 });
 
+// TODO: Stop creating new users in this test, use seed data instead
+
 test('Verify user manager is able to remove a user', async ({
+  page,
+  getTestSite,
   newUserName,
 }) => {
   await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.userExists(newUserName);
   await usersPage.removeFromThisSiteLink(newUserName);
   await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);
@@ -58,14 +70,23 @@ test('Verify user manager is able to remove a user', async ({
 });
 
 test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
+  page,
+  getTestSite,
   newUserName,
 }) => {
   await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
   await usersPage.userExists(newUserName);
   await usersPage.removeFromThisSiteLink(newUserName);
   await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);

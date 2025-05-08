@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { SummaryList, SummaryListItem } from '@nhsuk-frontend-components';
 
 const mockItems: SummaryListItem[] = [
@@ -23,17 +23,35 @@ const mockItems: SummaryListItem[] = [
   },
 ];
 
-export const verifySummaryListItem = (term: string, expectedValue: string) => {
-  const termRole = screen.getByRole('term', {
-    name: `${term}-term`,
+export const verifySummaryListItem = (
+  term: string,
+  expectedValue: string | string[],
+) => {
+  const matchingListItem = screen.getByRole('listitem', {
+    name: `${term} summary`,
   });
-  expect(termRole).toBeInTheDocument();
-  expect(termRole).toHaveTextContent(term);
-  const description = screen.getByRole('definition', {
-    name: `${term}-description`,
+
+  const termElement = within(matchingListItem).getByRole('term', {
+    name: term,
   });
-  expect(description).toBeInTheDocument();
-  expect(description).toHaveTextContent(expectedValue);
+  expect(termElement).toBeInTheDocument();
+  expect(termElement).toHaveTextContent(term);
+
+  if (typeof expectedValue === 'string') {
+    const definitionElement = within(matchingListItem).getByRole('definition', {
+      name: expectedValue,
+    });
+    expect(definitionElement).toBeInTheDocument();
+    expect(definitionElement).toHaveTextContent(expectedValue);
+  } else {
+    const definitionElement = within(matchingListItem).getByRole('definition', {
+      name: expectedValue.join(', '),
+    });
+    expect(definitionElement).toBeInTheDocument();
+    expectedValue.forEach(value => {
+      expect(definitionElement).toHaveTextContent(value);
+    });
+  }
 };
 
 describe('SummaryList', () => {
@@ -49,7 +67,7 @@ describe('SummaryList', () => {
     verifySummaryListItem('Address', '123 Fake Street');
 
     const addressAction = screen.getByRole('definition', {
-      name: 'Address-description-action',
+      name: 'Change',
     });
     expect(addressAction).toBeInTheDocument();
     expect(addressAction).toHaveTextContent('Change');
@@ -57,17 +75,27 @@ describe('SummaryList', () => {
   });
 
   it('renders multiple addresses if provided', () => {
-    render(<SummaryList items={[mockItems[0], mockItems[2]]} />);
+    render(
+      <SummaryList
+        items={[
+          mockItems[0],
+          {
+            title: 'Address',
+            value: ['456 Fake Street', 'Mock City'],
+          },
+        ]}
+      />,
+    );
 
     verifySummaryListItem('Name', 'John Doe');
-    verifySummaryListItem('Address', '456 Fake Streetsecond address');
+    verifySummaryListItem('Address', ['456 Fake Street', 'Mock City']);
 
     const termDescription = screen.getByRole('definition', {
-      name: 'Address-description',
+      name: '456 Fake Street, Mock City',
     });
     expect(termDescription.children.length).toBe(2);
 
-    const addressParts = mockItems[2].value ?? [];
+    const addressParts = ['456 Fake Street', 'Mock City'];
 
     expect(termDescription.children[0]).toHaveTextContent(addressParts[0]);
     expect(termDescription.children[1]).toHaveTextContent(addressParts[1]);

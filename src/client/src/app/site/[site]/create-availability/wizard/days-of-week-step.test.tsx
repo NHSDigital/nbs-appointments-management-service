@@ -24,6 +24,7 @@ describe('Days of Week Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -49,6 +50,7 @@ describe('Days of Week Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -79,6 +81,7 @@ describe('Days of Week Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -105,6 +108,7 @@ describe('Days of Week Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

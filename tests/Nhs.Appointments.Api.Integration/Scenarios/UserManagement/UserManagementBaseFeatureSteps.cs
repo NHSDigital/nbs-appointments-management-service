@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Gherkin.Ast;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 
@@ -7,9 +8,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
 {
+    [Given(@"There are no role assignments for user '.+'")]
+    public Task NoRoleAssignments() => Task.CompletedTask;
+
     [Given(@"The following role assignments for '(.+)' exist")]
     [And(@"the following role assignments for '(.+)' exist")]
-    public async Task AddRoleAssignments(string user, Gherkin.Ast.DataTable dataTable)
+    public async Task AddRoleAssignments(string user, DataTable dataTable)
     {
         var roleAssignments = dataTable.Rows.Skip(1).Select(
             row => new RoleAssignment()

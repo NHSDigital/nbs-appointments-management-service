@@ -1,15 +1,12 @@
-import { test } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 
 import {
-  CreateUserPage,
-  EditManageUserRolesPage,
+  ManageUserPage,
   OAuthLoginPage,
-  RemoveUserPage,
   RootPage,
   SitePage,
   SiteSelectionPage,
   UsersPage,
-  UserSummaryPage,
 } from '@testing-page-objects';
 
 let rootPage: RootPage;
@@ -17,10 +14,7 @@ let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 let usersPage: UsersPage;
-let createUserPage: CreateUserPage;
-let editManageUserRolesPage: EditManageUserRolesPage;
-let userSummaryPage: UserSummaryPage;
-let removeUserPage: RemoveUserPage;
+let manageUserPage: ManageUserPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
   const site = getTestSite();
@@ -29,10 +23,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   siteSelectionPage = new SiteSelectionPage(page);
   sitePage = new SitePage(page);
   usersPage = new UsersPage(page);
-  createUserPage = new CreateUserPage(page);
-  editManageUserRolesPage = new EditManageUserRolesPage(page);
-  userSummaryPage = new UserSummaryPage(page);
-  removeUserPage = new RemoveUserPage(page, site);
+  manageUserPage = new ManageUserPage(page);
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -42,83 +33,103 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await page.waitForURL(`**/site/${site.id}/users`);
 });
 
-// TODO: Maybe something like this to clear up all the users created along the way?
-// test.afterEach(async ({ page }) => {
-//   await cosmosDbSeeder.clearUsers();
-// });
-
-test('Verify user manager able to create new user', async ({ newUserName }) => {
+test('The current user creates a new NHSMail user with some roles', async ({
+  page,
+  getTestSite,
+  newUserName,
+}) => {
   await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.selectStaffRole('Availability manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await manageUserPage.summaryStep.continueButton.click();
+
   await usersPage.userExists(newUserName);
   await usersPage.verifyUserRoles('Appointment manager', newUserName);
   await usersPage.verifyUserRoles('Availability manager', newUserName);
-  await usersPage.removeFromThisSiteLink(newUserName);
-  await removeUserPage.confirmRemoveButton.click();
 });
 
-test('Verify first and last name visible for okta users', async ({}) => {
-  const userName = 'test@okta.net';
-  await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(userName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.verifyFirstNameLastNameAvailable();
-});
-
-test('Verify first and last name on summary page', async ({}) => {
-  const userName = 'test@okta.net';
-  const firstName = 'first';
-  const lastName = 'last';
-
-  await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(userName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.firstName.fill(firstName);
-  await editManageUserRolesPage.lastName.fill(lastName);
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.continueButton.click();
-
-  await userSummaryPage.verifyUserName(firstName + ' ' + lastName);
-});
-
-test('Cannot create a user without any roles', async ({ newUserName }) => {
-  await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.continueButton.click();
-  await createUserPage.notSelectedAnyRolesErrorMsg();
-});
-
-test('Verify users are redirected to users page upon cancel button clicked', async ({
-  newUserName,
+test('The current user creates a new Okta user with some roles', async ({
+  page,
+  getTestSite,
+  externalUserName,
 }) => {
   await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.cancelButton.click();
-  await usersPage.userDoesNotExist(newUserName);
-});
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-test('Verify users are redirected to edit roles page when emailId already exists', async ({
-  newUserName,
-}) => {
-  await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.selectStaffRole('Appointment manager');
-  await editManageUserRolesPage.continueButton.click();
-  await editManageUserRolesPage.confirmAndSaveButton.click();
-  await usersPage.userExists(newUserName);
-  await usersPage.addUserButton.click();
-  await editManageUserRolesPage.emailInput.fill(newUserName);
-  await editManageUserRolesPage.continueButton.click();
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(externalUserName);
+  await manageUserPage.emailStep.continueButton.click();
 
-  await editManageUserRolesPage.verifyUserRedirectedToEditRolePage(
-    'Appointment manager',
-    'Checked',
+  await expect(manageUserPage.namesStep.title).toBeVisible();
+  await manageUserPage.namesStep.firstNameInput.fill('Elizabeth');
+  await manageUserPage.namesStep.lastNameInput.fill('Kensington-Jones');
+  await manageUserPage.namesStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+  await manageUserPage.rolesStep.availabilityManagerCheckbox.check();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  await expect(manageUserPage.summaryStep.title).toBeVisible();
+  await expect(manageUserPage.summaryStep.nameSummary).toHaveText(
+    'Elizabeth Kensington-Jones',
   );
+  await expect(manageUserPage.summaryStep.rolesSummary).toHaveText(
+    'Appointment manager, Availability manager',
+  );
+  await expect(manageUserPage.summaryStep.emailAddressSummary).toHaveText(
+    externalUserName,
+  );
+  await manageUserPage.summaryStep.continueButton.click();
+
+  await usersPage.userExists(externalUserName);
+  await usersPage.verifyUserRoles('Appointment manager', externalUserName);
+  await usersPage.verifyUserRoles('Availability manager', externalUserName);
+});
+
+test('The current user tries to create a new user without any roles', async ({
+  page,
+  getTestSite,
+  newUserName,
+}) => {
+  await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await manageUserPage.rolesStep.continueButton.click();
+
+  expect(
+    page.getByText('You have not selected any roles for this user'),
+  ).toBeVisible();
+});
+
+test('The current user creates a new user but enters the email of an existing user, and are able to edit this user', async ({
+  page,
+  getTestSite,
+}) => {
+  await usersPage.addUserButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+
+  await expect(manageUserPage.emailStep.title).toBeVisible();
+  await manageUserPage.emailStep.emailInput.fill('zzz_test_user_3@nhs.net');
+  await manageUserPage.emailStep.continueButton.click();
+
+  await expect(manageUserPage.rolesStep.title).toBeVisible();
+  await expect(
+    manageUserPage.rolesStep.availabilityManagerCheckbox,
+  ).toBeChecked();
 });

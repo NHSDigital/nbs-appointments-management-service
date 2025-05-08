@@ -2,7 +2,7 @@ import { type Locator, type Page } from '@playwright/test';
 import { Site } from '@types';
 import {
   CreateAvailabilityPage,
-  MonthViewAvailabilityPage,
+  MonthViewPage,
   SiteDetailsPage,
   SiteSelectionPage,
   UsersPage,
@@ -48,11 +48,11 @@ export default class TopNav {
     return new CreateAvailabilityPage(this.page, this.site);
   }
 
-  async clickViewAvailability(): Promise<MonthViewAvailabilityPage> {
+  async clickViewAvailability(): Promise<MonthViewPage> {
     await this.viewAvailabilityLink.click();
     await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
 
-    return new MonthViewAvailabilityPage(this.page, this.site);
+    return new MonthViewPage(this.page, this.site);
   }
 
   async clickManageUsers(): Promise<UsersPage> {

@@ -4,7 +4,7 @@ import { expect } from '@playwright/test';
 import { Site } from '@types';
 import {
   CreateAvailabilityPage,
-  MonthViewAvailabilityPage,
+  MonthViewPage,
   SiteDetailsPage,
   TopNav,
   UsersPage,
@@ -43,11 +43,11 @@ export default class SitePage extends RootPage {
       });
   }
 
-  async clickViewAvailabilityCard(): Promise<MonthViewAvailabilityPage> {
+  async clickViewAvailabilityCard(): Promise<MonthViewPage> {
     await this.viewAvailabilityAndManageAppointmentsCard.click();
     await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
 
-    return new MonthViewAvailabilityPage(this.page, this.site);
+    return new MonthViewPage(this.page, this.site);
   }
 
   async clickSiteDetailsCard(): Promise<SiteDetailsPage> {

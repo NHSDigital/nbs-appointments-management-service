@@ -1,5 +1,6 @@
 import redirectToIdServer from '../auth/redirectToIdServer';
 import { Button } from '@nhsuk-frontend-components';
+import Link from 'next/link';
 
 type LogInButtonProps = {
   redirectUrl: string;
@@ -17,15 +18,27 @@ const LogInButton = ({
   styleType = 'primary',
 }: LogInButtonProps) => {
   return (
-    <form action={redirectToIdServer.bind(null, redirectUrl, provider)}>
-      <Button
-        aria-label={`Sign in to service with ${friendlyName}`}
-        type="submit"
-        styleType={styleType}
-      >
-        Sign in to service with {friendlyName}
-      </Button>
-    </form>
+    <>
+      {styleType === 'primary' && (
+        <form action={redirectToIdServer.bind(null, redirectUrl, provider)}>
+          <Button
+            aria-label={`Sign in to service with ${friendlyName}`}
+            type="submit"
+            styleType="primary"
+          >
+            Sign in to service with {friendlyName}
+          </Button>
+        </form>
+      )}
+      {styleType === 'secondary' && (
+        <Link
+          href={`auth/login?provider=${provider}&redirectUrl=${redirectUrl}`}
+          aria-label={`Sign in to service with ${friendlyName}`}
+        >
+          Sign in to service with {friendlyName}
+        </Link>
+      )}
+    </>
   );
 };
 

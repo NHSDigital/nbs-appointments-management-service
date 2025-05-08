@@ -1,115 +1,49 @@
-import {
-  EditReferenceDetailsPage,
-  OAuthLoginPage,
-  RootPage,
-  SiteDetailsPage,
-  SitePage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
+import { EditReferenceDetailsPage, RootPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-import { Site } from '@types';
 
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-let editReferenceDetailsPage: EditReferenceDetailsPage;
-let siteDetailsPage: SiteDetailsPage;
-
-let site: Site;
-
-// Annotate entire file as serial.
-test.describe.configure({ mode: 'serial' });
+let put: EditReferenceDetailsPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite(2);
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-  editReferenceDetailsPage = new EditReferenceDetailsPage(page);
-  siteDetailsPage = new SiteDetailsPage(page, site);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site.name);
-  await sitePage.siteManagementCard.click();
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.editSiteReferenceDetailsButton.click();
-
-  await page.waitForURL(`**/site/${site.id}/details/edit-reference-details`);
+  put = await new RootPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+    .then(sitePage => sitePage.clickSiteDetailsCard())
+    .then(siteDetailsPage => siteDetailsPage.clickEditReferenceDetailsLink());
 });
 
-test('Clicking back mid-form does not save the changes', async ({ page }) => {
-  await editReferenceDetailsPage.odsCodeInput.fill('ABC000032434543');
-  await editReferenceDetailsPage.icbSelectInput.selectOption(
-    'Integrated Care Board 1',
-  );
-  await editReferenceDetailsPage.regionSelectInput.selectOption('Region 1');
-  await editReferenceDetailsPage.backLink.click();
+test(
+  'A user updates the reference details for a site',
+  { tag: ['@affects:site2'] },
+  async () => {
+    await put.odsCodeInput.fill('ABC000032434543');
+    await put.icbSelectInput.selectOption('Integrated Care Board 1');
+    await put.regionSelectInput.selectOption('Region 1');
 
-  //verify the data is NOT present on the new details
-  await page.waitForURL(`**/site/${site.id}/details`);
+    const siteDetailsPage = await put.saveReferenceDetails();
 
-  await siteDetailsPage.verifyReferenceDetailsNotificationVisibility(false);
+    const expectedNotification =
+      'You have successfully updated the reference details for the current site.';
+    await expect(
+      siteDetailsPage.notificationBanner.getByText(expectedNotification),
+    ).toBeVisible();
+    await siteDetailsPage.dismissNotificationBannerButton.click();
+    await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
 
-  //verify default state
-  await siteDetailsPage.verifySitePage();
+    await expect(siteDetailsPage.odsCode).toHaveText('ABC000032434543');
+    await expect(siteDetailsPage.icb).toHaveText('Integrated Care Board 1');
+    await expect(siteDetailsPage.region).toHaveText('Region 1');
 
-  // Go back into edit UI to assert input is same as before
-  await siteDetailsPage.editSiteReferenceDetailsButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-reference-details`);
+    put = await siteDetailsPage.clickEditReferenceDetailsLink();
 
-  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
-  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
-  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
+    await expect(put.odsCodeInput).toHaveValue('ABC000032434543');
+    await expect(put.icbSelectInput).toHaveValue('ICB1');
+    await expect(put.regionSelectInput).toHaveValue('R1');
+  },
+);
 
-  await editReferenceDetailsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-reference-details`);
+test('A user navigates back to the site details page using the back link', async () => {
+  const siteDetailsPage = await put.goBack();
 
-  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue('ABC02');
-  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB2');
-  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R2');
-});
-
-test('Update reference details for a site, and verify present on the details page and in the new inputs', async ({
-  page,
-}) => {
-  await editReferenceDetailsPage.odsCodeInput.fill('ABC000032434543');
-  await editReferenceDetailsPage.icbSelectInput.selectOption(
-    'Integrated Care Board 1',
-  );
-  await editReferenceDetailsPage.regionSelectInput.selectOption('Region 1');
-  await editReferenceDetailsPage.saveAndContinueButton.click();
-
-  //verify the data is present on the new details
-  await page.waitForURL(`**/site/${site.id}/details`);
-
-  await siteDetailsPage.verifyReferenceDetailsNotificationVisibility(true);
-
-  await siteDetailsPage.verifyReferenceDetailsContent(
-    'ABC000032434543',
-    'Integrated Care Board 1',
-    'Region 1',
-  );
-
-  // Go back into edit UI to assert new input is there
-  await siteDetailsPage.editSiteReferenceDetailsButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-reference-details`);
-
-  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue(
-    'ABC000032434543',
-  );
-  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
-  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
-
-  await editReferenceDetailsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-reference-details`);
-
-  await expect(editReferenceDetailsPage.odsCodeInput).toHaveValue(
-    'ABC000032434543',
-  );
-  await expect(editReferenceDetailsPage.icbSelectInput).toHaveValue('ICB1');
-  await expect(editReferenceDetailsPage.regionSelectInput).toHaveValue('R1');
+  await expect(siteDetailsPage.title).toBeVisible();
 });

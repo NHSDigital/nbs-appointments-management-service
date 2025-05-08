@@ -6,8 +6,11 @@ import { SiteDetailsPage } from '@testing-page-objects';
 export default class EditInformationForCitizensPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
+  private readonly backLink: Locator = this.page.getByRole('link', {
+    name: 'Go back',
+  });
 
-  readonly saveButton: Locator;
+  private readonly saveButton: Locator;
   readonly cancelButton: Locator;
   readonly infoTextArea: Locator;
 
@@ -22,6 +25,13 @@ export default class EditInformationForCitizensPage extends RootPage {
     this.infoTextArea = page.getByLabel(
       'What information would you like to include?',
     );
+  }
+
+  async goBack(): Promise<SiteDetailsPage> {
+    await this.backLink.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
+
+    return new SiteDetailsPage(this.page, this.site);
   }
 
   async saveCitizenInformation(): Promise<SiteDetailsPage> {

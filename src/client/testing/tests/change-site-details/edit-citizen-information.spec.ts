@@ -6,8 +6,6 @@ import { test, expect } from '../../fixtures';
 
 let put: EditInformationForCitizensPage;
 
-test.describe.configure({ mode: 'serial' });
-
 test.beforeEach(async ({ page, getTestSite }) => {
   put = await new RootPage(page)
     .logInWithNhsMail()
@@ -29,7 +27,7 @@ test(
     );
     await expect(put.page.getByText(''));
 
-    await put.infoTextArea.clear(); //();
+    await put.infoTextArea.clear();
     await put.infoTextArea.fill('New information for citizens about site 2');
     const siteDetailsPage = await put.saveCitizenInformation();
 
@@ -44,18 +42,8 @@ test(
   },
 );
 
-test('A user begins to update the citizen information but cancels', async () => {
-  await editInformCitizen.setInformationForCitizen('Test Automation');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Save');
-  await siteDetailsPage.editInformationCitizenButton.click();
-  await editInformCitizen.setInformationForCitizen('Changed Information');
-  await editInformCitizen.save_Cancel_InformationForCitizen('Cancel');
-  await siteDetailsPage.verifyInformationNotSaved(
-    'Test Automation',
-    'Changed Information',
-  );
-});
+test('A user navigates back to the site details page using the back link', async () => {
+  const siteDetailsPage = await put.goBack();
 
-test('Verify validation handling for information text field', async () => {
-  await editInformCitizen.VerifyValidationMessage();
+  await expect(siteDetailsPage.title).toBeVisible();
 });

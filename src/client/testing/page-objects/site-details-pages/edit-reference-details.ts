@@ -6,8 +6,8 @@ import { SiteDetailsPage } from '@testing-page-objects';
 export default class EditReferenceDetailsPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
-  readonly saveAndContinueButton: Locator;
-  readonly backLink: Locator;
+  private readonly backLink: Locator;
+  private readonly saveAndContinueButton: Locator;
 
   readonly odsCodeInput: Locator;
   readonly icbSelectInput: Locator;
@@ -36,6 +36,13 @@ export default class EditReferenceDetailsPage extends RootPage {
     this.regionSelectInput = page.getByRole('combobox', {
       name: 'Region',
     });
+  }
+
+  async goBack(): Promise<SiteDetailsPage> {
+    await this.backLink.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
+
+    return new SiteDetailsPage(this.page, this.site);
   }
 
   async saveReferenceDetails(): Promise<SiteDetailsPage> {

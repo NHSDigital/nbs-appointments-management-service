@@ -1,7 +1,6 @@
 import { EditAccessNeedsPage, RootPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 
-// Page Under Test
 let put: EditAccessNeedsPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
@@ -43,3 +42,9 @@ test(
     await expect(put.checkboxes.stepFreeAccess).not.toBeChecked();
   },
 );
+
+test('A user navigates back to the site details page using the back link', async () => {
+  const siteDetailsPage = await put.goBack();
+
+  await expect(siteDetailsPage.title).toBeVisible();
+});

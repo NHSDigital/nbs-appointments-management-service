@@ -9,11 +9,11 @@ import SitePage from './site';
 import NotAuthorizedPage from './unauthorized';
 import UserManagementPage from './user-management';
 
-import EditAccessNeedsPage from './change-site-details-pages/edit-access-need';
-import EditInformationForCitizensPage from './change-site-details-pages/edit-citizen-information';
-import EditDetailsPage from './change-site-details-pages/edit-details';
-import EditReferenceDetailsPage from './change-site-details-pages/edit-reference-details';
-import SiteDetailsPage from './change-site-details-pages/site-details';
+import EditAccessNeedsPage from './site-details-pages/edit-access-need';
+import EditInformationForCitizensPage from './site-details-pages/edit-citizen-information';
+import EditDetailsPage from './site-details-pages/edit-details';
+import EditReferenceDetailsPage from './site-details-pages/edit-reference-details';
+import SiteDetailsPage from './site-details-pages/site-details';
 
 import SummaryPage from './create-availability/summary-page';
 

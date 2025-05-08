@@ -6,8 +6,8 @@ import { SiteDetailsPage } from '@testing-page-objects';
 export default class EditDetailsPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
-  readonly saveAndContinueButton: Locator;
-  readonly backLink: Locator;
+  private readonly backLink: Locator;
+  private readonly saveAndContinueButton: Locator;
 
   readonly nameInput: Locator;
   readonly addressInput: Locator;
@@ -46,6 +46,13 @@ export default class EditDetailsPage extends RootPage {
     this.phoneNumberInput = page.getByRole('textbox', {
       name: 'Phone Number',
     });
+  }
+
+  async goBack(): Promise<SiteDetailsPage> {
+    await this.backLink.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
+
+    return new SiteDetailsPage(this.page, this.site);
   }
 
   async saveSiteDetails(): Promise<SiteDetailsPage> {

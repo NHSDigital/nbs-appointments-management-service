@@ -20,7 +20,7 @@ namespace Nhs.Appointments.Api.Functions
         IUserContextProvider userContextProvider,
         ILogger<GetClinicalServicesFunction> logger,
         IMetricsRecorder metricsRecorder,
-        IClinicalService clinicalService,
+        IClinicalServiceStore store,
         IFeatureToggleHelper featureToggleHelper)
         : BaseApiFunction<EmptyRequest, IEnumerable<ClinicalServiceType>>(validator, userContextProvider, logger, metricsRecorder)
     {
@@ -42,7 +42,7 @@ namespace Nhs.Appointments.Api.Functions
 
         protected override async Task<ApiResult<IEnumerable<ClinicalServiceType>>> HandleRequest(EmptyRequest request, ILogger logger)
         {
-            var serviceTypes = await clinicalService.Get();
+            var serviceTypes = await store.Get();
             return ApiResult<IEnumerable<ClinicalServiceType>>.Success(serviceTypes);
         }
 

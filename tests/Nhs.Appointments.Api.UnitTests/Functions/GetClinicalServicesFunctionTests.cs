@@ -21,7 +21,7 @@ public class GetClinicalServicesFunctionTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetClinicalServicesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
-    private readonly Mock<IClinicalService> _clinicalService = new();
+    private readonly Mock<IClinicalServiceStore> _clinicalServiceStore = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     public GetClinicalServicesFunctionTests()
@@ -31,7 +31,7 @@ public class GetClinicalServicesFunctionTests
             _userContextProvider.Object,
             _logger.Object,
             _metricsRecorder.Object,
-            _clinicalService.Object,
+            _clinicalServiceStore.Object,
             _featureToggleHelper.Object);
     }
 
@@ -60,7 +60,7 @@ public class GetClinicalServicesFunctionTests
     public async Task RunsAsync_Returns_501_WhenFeatureDisabled() 
     {
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices)))).ReturnsAsync(false);
-        _clinicalService.Setup(x => x.Get()).ReturnsAsync(MockServices);
+        _clinicalServiceStore.Setup(x => x.Get()).ReturnsAsync(MockServices);
 
         var request = CreateRequest();
 
@@ -68,14 +68,14 @@ public class GetClinicalServicesFunctionTests
         result?.StatusCode.Should().Be(501);
 
         _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices))), Times.Once);
-        _clinicalService.Verify(x => x.Get(), Times.Never);
+        _clinicalServiceStore.Verify(x => x.Get(), Times.Never);
     }
 
     [Fact]
     public async Task RunsAsync_Returns_Services_WhenFeatureEnabled()
     {
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices)))).ReturnsAsync(true);
-        _clinicalService.Setup(x => x.Get()).ReturnsAsync(MockServices);
+        _clinicalServiceStore.Setup(x => x.Get()).ReturnsAsync(MockServices);
 
         var request = CreateRequest();
 
@@ -86,7 +86,7 @@ public class GetClinicalServicesFunctionTests
         Assert.Equivalent(MockServices, response);
 
         _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices))), Times.Once);
-        _clinicalService.Verify(x => x.Get(), Times.Once);
+        _clinicalServiceStore.Verify(x => x.Get(), Times.Once);
     }
 
     private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)

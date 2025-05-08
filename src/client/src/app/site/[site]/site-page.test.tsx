@@ -235,12 +235,6 @@ describe('Site Page', () => {
     );
 
     verifySummaryListItem('Phone Number', '0118 999 88199 9119 725 3');
-
-    const termDescription = screen.getByRole('definition', {
-      name: 'Address-description',
-    });
-    expect(termDescription.children.length).toBe(2);
-    expect(termDescription.children[0]).toHaveTextContent('Delta Street,');
-    expect(termDescription.children[1]).toHaveTextContent('London');
+    verifySummaryListItem('Address', ['Delta Street,', 'London']);
   });
 });

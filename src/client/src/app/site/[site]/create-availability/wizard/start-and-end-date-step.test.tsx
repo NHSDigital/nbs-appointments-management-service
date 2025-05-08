@@ -74,6 +74,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -105,6 +106,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -144,6 +146,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -202,6 +205,7 @@ describe('Start and End Date Step', () => {
             goToNextStep={mockGoToNextStep}
             goToLastStep={mockGoToLastStep}
             goToPreviousStep={mockGoToPreviousStep}
+            returnRouteUponCancellation="/"
           />
         </MockForm>,
       );
@@ -247,6 +251,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -286,6 +291,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -340,6 +346,7 @@ describe('Start and End Date Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

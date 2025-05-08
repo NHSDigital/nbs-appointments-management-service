@@ -7,7 +7,8 @@ public class UserDataImportHandler(
     IUserService userService, 
     ISiteService siteService, 
     IFeatureToggleHelper featureToggleHelper,
-    IOktaService oktaService
+    IOktaService oktaService,
+    IEmailWhitelistStore emailWhitelistStore
 ) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
@@ -37,6 +38,8 @@ public class UserDataImportHandler(
         {
             report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
         }
+
+        await CheckForNonWhitelistedEmailDomains(userImportRows, report);
 
         if (report.Any(r => !r.Success))
         {
@@ -70,6 +73,19 @@ public class UserDataImportHandler(
         }
 
         return report;
+    }
+
+    private async Task CheckForNonWhitelistedEmailDomains(List<UserImportRow> userImportRows, List<ReportItem> report)
+    {
+        var whitelistedEmails = await emailWhitelistStore.GetWhitelistedEmails();
+        var invalidEmails = userImportRows
+            .Where(u => !whitelistedEmails.Any(u.UserId.ToLower().EndsWith))
+            .ToList();
+
+        if (invalidEmails.Count > 0)
+        {
+            report.AddRange(invalidEmails.Select(usr => new ReportItem(-1, "Invalid email domain", false, $"The following email domain: {usr.UserId} is not included in the email domain whitelist.")));
+        }
     }
 
     public class UserImportRow

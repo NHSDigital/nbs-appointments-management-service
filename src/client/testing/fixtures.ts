@@ -100,7 +100,7 @@ export const test = baseTest.extend<
   ],
   externalUserName: [
     async ({}, use) => {
-      const nonNhsUserName = `external-user-${test.info().workerIndex}@gmail.com`;
+      const nonNhsUserName = `external-user-${test.info().workerIndex}@boots.com`;
       await use(nonNhsUserName);
     },
     { scope: 'worker' },

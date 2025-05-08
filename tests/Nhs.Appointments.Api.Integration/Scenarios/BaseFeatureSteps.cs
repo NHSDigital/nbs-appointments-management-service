@@ -101,6 +101,24 @@ public abstract partial class BaseFeatureSteps : Feature
         return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
+    [Given(@"feature toggle '(.+)' is '(.+)'")]
+    public async Task SetLocalFeatureToggleOverride(string name, string state)
+    {
+        var response = await Http.PatchAsync($"http://localhost:7071/api/feature-flag-override/{name}?enabled={state}",
+            null);
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    [And(@"feature toggles are cleared")]
+    public async Task ClearLocalFeatureToggleOverrides()
+    {
+        var response = await Http.PatchAsync("http://localhost:7071/api/feature-flag-overrides-clear",
+            null);
+
+        response.EnsureSuccessStatusCode();
+    }
+
     [Given("the following sessions")]
     [And("the following sessions")]
     public Task SetupSessions(DataTable dataTable)

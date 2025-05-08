@@ -19,6 +19,7 @@ import {
   UserProfile,
   Week,
   WellKnownOdsEntry,
+  RoleAssignment,
 } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
@@ -60,7 +61,7 @@ const mockRoles: Role[] = [
   },
 ];
 
-const mockAssignments = [
+const mockAssignments: RoleAssignment[] = [
   {
     role: 'role-1',
     scope: 'site:TEST',

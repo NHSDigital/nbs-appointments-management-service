@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { WizardStepProps } from './wizard-step';
+import { useRouter } from 'next/navigation';
 
 export interface InjectedWizardProps {
   stepNumber: number;
@@ -15,7 +16,7 @@ export interface InjectedWizardProps {
   goToNextStep(): void;
   goToPreviousStep(): void;
   goToLastStep(): void;
-  returnRouteUponCancellation?: string;
+  returnRouteUponCancellation: string;
 }
 
 interface Props {
@@ -34,6 +35,7 @@ const Wizard = ({
   returnRouteUponCancellation,
   onCompleteFinalStep,
 }: Props) => {
+  const router = useRouter();
   const [activeStep, setActiveStepState] = useState(initialStep);
 
   const filteredChildren = Children.toArray(
@@ -47,6 +49,11 @@ const Wizard = ({
       return;
     }
 
+    if (incomingStep < 1) {
+      router.push(returnRouteUponCancellation);
+      return;
+    }
+
     setActiveStepState(incomingStep);
   };
 
@@ -57,8 +64,7 @@ const Wizard = ({
 
         return cloneElement<WizardStepProps & InjectedWizardProps>(child, {
           stepNumber,
-          returnRouteUponCancellation:
-            stepNumber === 1 ? returnRouteUponCancellation : undefined,
+          returnRouteUponCancellation,
           currentStep: activeStep,
           setCurrentStep: setActiveStep,
           id: `${id}-step-${stepNumber}`,

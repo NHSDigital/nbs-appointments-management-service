@@ -26,6 +26,7 @@ describe('Select Services Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -52,6 +53,7 @@ describe('Select Services Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -87,6 +89,7 @@ describe('Select Services Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );
@@ -117,6 +120,7 @@ describe('Select Services Step', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           clinicalServices={clinicalServices}
+          returnRouteUponCancellation="/"
         />
       </MockForm>,
     );

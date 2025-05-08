@@ -30,7 +30,7 @@ describe('Cancel Appointment Page', () => {
       />,
     );
 
-    verifySummaryListItem('Date and time', '10 November 202414:05pm');
+    verifySummaryListItem('Date and time', ['10 November 2024', '14:05pm']);
 
     expect(
       screen.getByRole('radio', {

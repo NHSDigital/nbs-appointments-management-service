@@ -25,6 +25,7 @@ import {
   FeatureFlag,
   clinicalServices,
   BookingStatus,
+  UserIdentityStatus,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -78,9 +79,24 @@ export const assertEulaAcceptance = async (
   }
 };
 
+export async function proposeNewUser(siteId: string, userId: string) {
+  const payload = {
+    siteId,
+    userId,
+  };
+
+  const response = await appointmentsApi.post<UserIdentityStatus>(
+    `user/propose-potential`,
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
+}
+
 export async function fetchUsers(site: string) {
   const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
     cache: 'no-store',
+    next: { tags: ['user'] },
   });
 
   return handleBodyResponse(response, (users: User[]) =>
@@ -275,7 +291,6 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
-  isEdit: boolean,
 ) => {
   const payload = {
     scope: `site:${site}`,
@@ -284,18 +299,21 @@ export const saveUserRoleAssignments = async (
     lastName,
     roles: roles,
   };
+
   const response = await appointmentsApi.post(
     `user/roles`,
     JSON.stringify(payload),
   );
   handleEmptyResponse(response);
 
-  const notificationType = 'ams-notification';
-  const notificationMessage = isEdit
-    ? `You have changed a user's role.`
-    : `You have added a new user to MYA The user will be sent information about how to login.`;
-  raiseNotification(notificationType, notificationMessage);
+  // re-implement in https://nhsd-jira.digital.nhs.uk/browse/APPT-799
+  // const notificationType = 'ams-notification';
+  // const notificationMessage = isEdit
+  //   ? `You have changed a user's role.`
+  //   : `You have added a new user to MYA The user will be sent information about how to login.`;
+  // raiseNotification(notificationType, notificationMessage);
 
+  revalidateTag('users');
   revalidatePath(`/site/${site}/users`);
   redirect(`/site/${site}/users`);
 };

@@ -55,16 +55,13 @@ export default class CancelAppointmentDetailsPage extends RootPage {
 
   async verifySummaryListItemContentValue(title: string, value: string) {
     const listitem = this.page.getByRole('listitem', {
-      name: `${title}-listitem`,
+      name: `${title} summary`,
     });
     await expect(listitem).toBeVisible();
 
-    const dt = listitem.getByLabel(`${title}-term`);
-    await expect(dt).toBeVisible();
-    await expect(dt).toHaveText(title);
-
-    const dd = listitem.getByLabel(`${title}-description`);
-    await expect(dd).toBeVisible();
-    await expect(dd).toHaveText(value);
+    await expect(listitem.getByRole('term')).toBeVisible();
+    await expect(listitem.getByRole('term')).toHaveText(title);
+    await expect(listitem.getByRole('definition')).toBeVisible();
+    await expect(listitem.getByRole('definition')).toHaveText(value);
   }
 }

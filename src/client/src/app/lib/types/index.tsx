@@ -98,6 +98,14 @@ type AvailabilityTemplate = {
 
 export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
 
+type IdentityProvider = 'NhsMail' | 'Okta';
+type UserIdentityStatus = {
+  identityProvider: IdentityProvider;
+  extantInIdentityProvider: boolean;
+  extantInSite: boolean;
+  meetsWhitelistRequirements: boolean;
+};
+
 type ApplyAvailabilityMode = 'Overwrite' | 'Additive' | 'Edit';
 
 type EulaVersion = {
@@ -162,8 +170,8 @@ type Location = {
 type User = {
   id: string;
   roleAssignments: RoleAssignment[];
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 type UserProfile = {
@@ -379,6 +387,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   EulaVersion,
+  IdentityProvider,
   NhsMyaCookieConsent,
   Role,
   RoleAssignment,
@@ -392,6 +401,7 @@ export type {
   Site,
   TimeComponents,
   User,
+  UserIdentityStatus,
   UserProfile,
   Week,
   WeekSummary,

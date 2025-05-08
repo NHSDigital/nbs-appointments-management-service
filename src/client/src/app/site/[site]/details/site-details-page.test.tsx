@@ -150,27 +150,8 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
-    expect(
-      screen.getByRole('term', { name: 'Accessibility attribute 1-term' }),
-    ).toBeVisible();
-
-    const attr1desc = screen.getByRole('definition', {
-      name: 'Accessibility attribute 1-description',
-    });
-
-    expect(attr1desc).toBeVisible();
-    expect(attr1desc).toHaveTextContent('Yes');
-
-    expect(
-      screen.getByRole('term', { name: 'Accessibility attribute 2-term' }),
-    ).toBeVisible();
-
-    const attr2desc = screen.getByRole('definition', {
-      name: 'Accessibility attribute 2-description',
-    });
-
-    expect(attr2desc).toBeVisible();
-    expect(attr2desc).toHaveTextContent('No');
+    verifySummaryListItem('Accessibility attribute 1', 'Yes');
+    verifySummaryListItem('Accessibility attribute 2', 'No');
   });
 
   it('shows the edit access needs hyperlink if the user has permission', async () => {

@@ -1,52 +1,46 @@
-﻿import NhsPage from '@components/nhs-page';
-import { ManageUsersPage } from './manage-users-page';
+import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchSite,
   fetchUserProfile,
-  fetchFeatureFlag,
+  fetchRoles,
+  fetchUsers,
 } from '@services/appointmentsService';
 import { notAuthorized } from '@services/authService';
+import SetUserRolesWizard from './set-user-roles-wizard';
 
 export type UserPageProps = {
   params: {
     site: string;
   };
-  searchParams?: {
+  searchParams: {
     user?: string;
   };
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   await assertPermission(params.site, 'users:manage');
-  const oktaEnabledFlag = await fetchFeatureFlag('OktaEnabled');
 
-  const userIsSpecified = () =>
-    (searchParams && 'user' in searchParams) ?? false;
-  const [site, userProfile] = await Promise.all([
+  const email = searchParams.user?.toLowerCase();
+
+  const [site, userProfile, roleOptions, userToEdit] = await Promise.all([
     fetchSite(params.site),
     fetchUserProfile(),
+    fetchRoles(),
+    fetchUsers(params.site).then(users => users.find(u => u.id === email)),
   ]);
 
-  if (userProfile.emailAddress === searchParams?.user) {
+  if (userProfile.emailAddress === email) {
     notAuthorized();
   }
 
   return (
-    <NhsPage
-      title=""
-      breadcrumbs={[
-        { name: 'Home', href: '/sites' },
-        { name: site.name, href: `/site/${params.site}` },
-        { name: 'Users', href: `/site/${params.site}/users` },
-      ]}
-      originPage="users-manage"
-    >
-      <ManageUsersPage
-        userIsSpecified={userIsSpecified()}
-        params={params}
-        searchParams={searchParams}
-        oktaEnabled={oktaEnabledFlag.enabled}
+    <NhsPage title="" originPage="users-manage">
+      <SetUserRolesWizard
+        site={site}
+        roleOptions={roleOptions}
+        sessionUser={userProfile}
+        userToEdit={userToEdit}
       />
     </NhsPage>
   );

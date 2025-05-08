@@ -39,29 +39,23 @@ const SummaryList = ({ items, borders = true }: Props) => {
           <div
             className="nhsuk-summary-list__row"
             role="listitem"
-            aria-label={`${item.title}-listitem`}
+            aria-label={`${item.title} summary`}
             key={`summary-list-row-${index}`}
           >
-            <dt
-              className="nhsuk-summary-list__key"
-              aria-label={`${item.title}-term`}
-            >
+            <dt className="nhsuk-summary-list__key" aria-label={item.title}>
               {item.title}
             </dt>
             {typeof item.value === 'string' ? (
-              <dd
-                className="nhsuk-summary-list__value"
-                aria-label={`${item.title}-description`}
-              >
+              <dd className="nhsuk-summary-list__value" aria-label={item.value}>
                 {item.value}
               </dd>
             ) : (
               <dd
                 className="nhsuk-summary-list__value"
-                aria-label={`${item.title}-description`}
+                aria-label={item.value?.join(', ')}
               >
-                {item.value?.map((i, valueIndex) => (
-                  <div key={valueIndex}>{i}</div>
+                {item.value?.map((itemValue, valueIndex) => (
+                  <div key={valueIndex}>{itemValue}</div>
                 ))}
               </dd>
             )}
@@ -69,7 +63,7 @@ const SummaryList = ({ items, borders = true }: Props) => {
             {item.action && (
               <dd
                 className="nhsuk-summary-list__actions"
-                aria-label={`${item.title}-description-action`}
+                aria-label={`${item.action.text}`}
               >
                 {item.action.renderingStrategy === 'server' ? (
                   <Link href={item.action.href}>{item.action.text}</Link>

@@ -1,9 +1,16 @@
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Okta;
 
 namespace Nhs.Appointments.Core;
 
-public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageBus bus) : IUserService
+public class UserService(
+    IUserStore userStore,
+    IRolesStore rolesStore,
+    IMessageBus bus,
+    IOktaUserDirectory oktaStore,
+    IEmailWhitelistStore whiteListStore)
+    : IUserService
 {
     public Task<User> GetUserAsync(string userId)
     {
@@ -89,6 +96,46 @@ public class UserService(IUserStore userStore, IRolesStore rolesStore, IMessageB
 
     public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
         => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
+
+    public async Task<UserIdentityStatus> GetUserIdentityStatusAsync(string siteId, string userId)
+    {
+        var whitelistedEmails = await whiteListStore.GetWhitelistedEmails();
+        var identityProvider = userId.ToLower().EndsWith("@nhs.net") ? IdentityProvider.NhsMail : IdentityProvider.Okta;
+
+        return new UserIdentityStatus
+        {
+            IdentityProvider = identityProvider,
+            ExtantInSite = await CheckIfUserExistsAtSite(siteId, userId),
+            ExtantInIdentityProvider = await CheckIfUserExistsInIdentityServer(userId, identityProvider),
+            MeetsWhitelistRequirements = whitelistedEmails.Any(userId.ToLower().EndsWith)
+        };
+    }
+
+    private async Task<bool> CheckIfUserExistsAtSite(string siteId, string userId)
+    {
+        var userProfile = await userStore.GetOrDefaultAsync(userId);
+
+        return userProfile is not null &&
+               userProfile.RoleAssignments.Any(roleAssignment => roleAssignment.Scope == $"site:{siteId}");
+    }
+
+    private async Task<bool> CheckIfUserExistsInIdentityServer(string userId, IdentityProvider identityProvider)
+    {
+        switch (identityProvider)
+        {
+            case IdentityProvider.NhsMail:
+                // We currently assume all @nhs.net email addresses are valid
+                return true;
+            case IdentityProvider.Okta:
+                {
+                    var userExistsInOkta = await oktaStore.GetUserAsync(userId);
+                    return userExistsInOkta != null;
+                }
+            case IdentityProvider.Unknown:
+            default:
+                return false;
+        }
+    }
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

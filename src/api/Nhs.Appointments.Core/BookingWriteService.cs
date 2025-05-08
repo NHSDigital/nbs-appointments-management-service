@@ -57,7 +57,7 @@ public class BookingWriteService(
             return await CancelBooking_MultipleServices(bookingReference, site);
         }
 
-        return await CancelBooking_SingleService(bookingReference, bookingReference);
+        return await CancelBooking_SingleService(bookingReference, site);
     }
 
 

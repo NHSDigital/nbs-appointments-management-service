@@ -17,6 +17,9 @@ export default class LoginPage extends RootPage {
   }
 
   async logInWithNhsMail(): Promise<OAuthLoginPage> {
+    await this.goto();
+    await this.page.waitForURL('**/manage-your-appointments/**');
+
     await this.pageContentLogInButton.click();
     await this.page.waitForURL('**/Account/Login?ReturnUrl=**');
 

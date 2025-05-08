@@ -55,7 +55,7 @@ export default class SitePage extends RootPage {
 
   async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
     await this.createAvailabilityCard.click();
-    await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
+    await this.page.waitForURL(`**/site/${this.site.id}/create-availability`);
 
     return new CreateAvailabilityPage(this.page, this.site);
   }

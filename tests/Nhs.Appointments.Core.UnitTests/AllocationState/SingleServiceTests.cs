@@ -18,7 +18,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
-        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings);
+        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
         resultingAllocationState.AvailableSlots.Should().HaveCount(15);
     }
 
@@ -39,7 +39,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
         var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         // resultingAllocationState.Recalculations.Should().HaveCount(3);
-        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings);
+        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
         resultingAllocationState.AvailableSlots.Should().HaveCount(15);
     }
 

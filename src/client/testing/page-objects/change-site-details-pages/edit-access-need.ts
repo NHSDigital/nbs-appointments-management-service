@@ -1,53 +1,70 @@
 import { type Locator, type Page } from '@playwright/test';
-import { expect } from '@playwright/test';
 import RootPage from '../root';
+import { Site } from '@types';
+import { SiteDetailsPage } from '@testing-page-objects';
+
+type accessNeedsCheckboxes = {
+  accessibleToilet: Locator;
+  brailleTranslationService: Locator;
+  disabledCarParking: Locator;
+  carParking: Locator;
+  inductionLoop: Locator;
+  signLanguageService: Locator;
+  stepFreeAccess: Locator;
+  textRelay: Locator;
+  wheelchairAccess: Locator;
+};
 
 export default class EditAccessNeedsPage extends RootPage {
+  readonly site: Site;
   readonly title: Locator;
-  readonly confirmSiteDetailsButton: Locator;
-  readonly updateNotificationBanner: Locator;
-  readonly closeNotificationBannerButton: Locator;
 
-  constructor(page: Page) {
+  readonly confirmSiteDetailsButton: Locator;
+  readonly checkboxes: accessNeedsCheckboxes = {
+    accessibleToilet: this.page.getByRole('checkbox', {
+      name: 'Accessible toilet',
+    }),
+    brailleTranslationService: this.page.getByRole('checkbox', {
+      name: 'Braille translation service',
+    }),
+    disabledCarParking: this.page.getByRole('checkbox', {
+      name: 'Disabled car parking',
+    }),
+    carParking: this.page.getByRole('checkbox', {
+      name: 'Car parking',
+    }),
+    inductionLoop: this.page.getByRole('checkbox', {
+      name: 'Induction loop',
+    }),
+    signLanguageService: this.page.getByRole('checkbox', {
+      name: 'Sign language service',
+    }),
+    stepFreeAccess: this.page.getByRole('checkbox', {
+      name: 'Step free access',
+    }),
+    textRelay: this.page.getByRole('checkbox', {
+      name: 'Text relay',
+    }),
+    wheelchairAccess: this.page.getByRole('checkbox', {
+      name: 'Wheelchair access',
+    }),
+  };
+
+  constructor(page: Page, site: Site) {
     super(page);
+    this.site = site;
     this.title = page.getByRole('heading', {
       name: 'Site management',
     });
-    this.updateNotificationBanner = page.getByText(
-      'You have successfully updated the access needs for the current site.',
-    );
     this.confirmSiteDetailsButton = page.getByRole('button', {
       name: 'Confirm site details',
     });
-    this.closeNotificationBannerButton = page.getByRole('button', {
-      name: 'Close',
-    });
   }
 
-  async selectAccessibility(accessibility: string) {
-    await this.page.getByRole('checkbox', { name: accessibility }).click();
-  }
+  async saveSiteDetails(): Promise<SiteDetailsPage> {
+    await this.confirmSiteDetailsButton.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
 
-  async accessibilityChecked(accessibility: string) {
-    await expect(
-      this.page.getByRole('checkbox', { name: accessibility, exact: true }),
-    ).toBeChecked();
-  }
-
-  async accessibilityNotChecked(accessibility: string) {
-    await expect(
-      this.page.getByRole('checkbox', { name: accessibility, exact: true }),
-    ).not.toBeChecked();
-  }
-
-  async verifyAccessNeedsCheckedOrUnchecked(
-    optionName: string,
-    checkboxState: 'Checked' | 'UnChecked',
-  ) {
-    if (checkboxState == 'Checked') {
-      await expect(this.page.getByLabel(optionName)).toBeChecked();
-    } else {
-      await expect(this.page.getByLabel(optionName)).not.toBeChecked();
-    }
+    return new SiteDetailsPage(this.page, this.site);
   }
 }

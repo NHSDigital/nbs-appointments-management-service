@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import OAuthLoginPage from './oauth';
 
 type CookieBanner = {
   preAcceptanceHeader: Locator;
@@ -26,6 +27,9 @@ export default class RootPage {
   readonly cookieBanner: CookieBanner;
   readonly footerLinks: FooterLinks;
   readonly buildNumber: Locator;
+
+  readonly notificationBanner: Locator;
+  readonly dismissNotificationBannerButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -63,6 +67,19 @@ export default class RootPage {
       cookiesPolicy: page.getByRole('link', { name: 'Cookies Policy' }),
     };
     this.buildNumber = page.getByText(/^Build number: /);
+
+    this.notificationBanner = page.getByRole('banner');
+    this.dismissNotificationBannerButton = this.notificationBanner.getByRole(
+      'button',
+      { name: 'Close' },
+    );
+  }
+
+  async logInWithNhsMail(): Promise<OAuthLoginPage> {
+    await this.pageContentLogInButton.click();
+    await this.page.waitForURL('**/Account/Login?ReturnUrl=**');
+
+    return new OAuthLoginPage(this.page);
   }
 
   async goto() {

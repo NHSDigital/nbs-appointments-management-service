@@ -1,5 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
+import { Site } from '@types';
 
 type WeekOverview = {
   header: string;
@@ -15,11 +16,15 @@ type ServiceOverview = {
 };
 
 export default class MonthViewAvailabilityPage extends RootPage {
+  readonly site: Site;
+
   readonly nextButton: Locator;
   readonly previousButton: Locator;
 
-  constructor(page: Page) {
+  constructor(page: Page, site: Site) {
     super(page);
+
+    this.site = site;
     this.nextButton = page.getByRole('link', {
       name: 'Next',
     });

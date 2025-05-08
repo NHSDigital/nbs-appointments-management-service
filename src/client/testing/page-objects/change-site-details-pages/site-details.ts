@@ -2,8 +2,13 @@ import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
 import { Site } from '@types';
+import {
+  EditAccessNeedsPage,
+  EditInformationForCitizensPage,
+} from '@testing-page-objects';
 
 export default class SiteDetailsPage extends RootPage {
+  readonly site: Site;
   readonly title: Locator;
   readonly editSiteAccessibilitiesButton: Locator;
   readonly editSiteDetailsButton: Locator;
@@ -24,8 +29,6 @@ export default class SiteDetailsPage extends RootPage {
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
 
-  readonly siteDetails: Site;
-
   readonly informationSuccessBanner =
     "You have successfully updated the current site's information.";
 
@@ -35,10 +38,9 @@ export default class SiteDetailsPage extends RootPage {
   readonly referenceDetailsSuccessBanner =
     'You have successfully updated the reference details for the current site.';
 
-  constructor(page: Page, siteDetails: Site) {
+  constructor(page: Page, site: Site) {
     super(page);
-
-    this.siteDetails = siteDetails;
+    this.site = site;
 
     this.title = page.getByRole('heading', {
       name: 'Site details',
@@ -61,6 +63,24 @@ export default class SiteDetailsPage extends RootPage {
     });
   }
 
+  async clickEditAccessNeedsLink(): Promise<EditAccessNeedsPage> {
+    await this.editSiteAccessibilitiesButton.click();
+    await this.page.waitForURL(
+      `**/site/${this.site.id}/details/edit-accessibilities`,
+    );
+
+    return new EditAccessNeedsPage(this.page, this.site);
+  }
+
+  async clickEditInformationForCitizensLink(): Promise<EditInformationForCitizensPage> {
+    await this.editSiteAccessibilitiesButton.click();
+    await this.page.waitForURL(
+      `**/site/${this.site.id}/details/edit-accessibilities`,
+    );
+
+    return new EditInformationForCitizensPage(this.page, this.site);
+  }
+
   async accessibilityIsTrue(accessibilityName: string) {
     await expect(
       this.page
@@ -70,14 +90,14 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
   }
 
-  async verifyInformationSaved(information: string) {
-    await expect(
-      this.page.getByText(`${this.informationSuccessBanner}`),
-    ).toBeVisible();
-    await expect(this.page.getByText(information)).toBeVisible();
-    await this.closeNotificationBannerButton.click();
-    await expect(this.closeNotificationBannerButton).not.toBeVisible();
-  }
+  // async verifyInformationSaved(information: string) {
+  //   await expect(
+  //     this.page.getByText(`${this.informationSuccessBanner}`),
+  //   ).toBeVisible();
+  //   await expect(this.page.getByText(information)).toBeVisible();
+  //   await this.closeNotificationBannerButton.click();
+  //   await expect(this.closeNotificationBannerButton).not.toBeVisible();
+  // }
 
   async verifyDetailsNotificationVisibility(shown: boolean) {
     if (!shown) {
@@ -205,7 +225,7 @@ export default class SiteDetailsPage extends RootPage {
       this.page.getByRole('heading', { name: `${this.headerMsg}` }),
     ).toBeVisible();
     await expect(
-      this.page.getByRole('heading', { name: `${this.siteDetails.name}` }),
+      this.page.getByRole('heading', { name: `${this.site.name}` }),
     ).toBeVisible();
 
     await expect(
@@ -213,10 +233,10 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyCoreDetailsContent(
-      this.siteDetails.address,
-      this.siteDetails.location.coordinates[0].toString(),
-      this.siteDetails.location.coordinates[1].toString(),
-      this.siteDetails.phoneNumber,
+      this.site.address,
+      this.site.location.coordinates[0].toString(),
+      this.site.location.coordinates[1].toString(),
+      this.site.phoneNumber,
     );
 
     await expect(
@@ -226,9 +246,9 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyReferenceDetailsContent(
-      this.siteDetails.odsCode,
-      this.siteDetails.integratedCareBoard,
-      this.siteDetails.region,
+      this.site.odsCode,
+      this.site.integratedCareBoard,
+      this.site.region,
     );
 
     await expect(

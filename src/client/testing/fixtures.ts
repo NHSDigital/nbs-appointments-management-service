@@ -9,10 +9,12 @@ export * from '@playwright/test';
 import testUsersDataRaw from '../../../mock-oidc/users.json';
 import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC01.json';
 import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
+import testSite3DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC03.json';
 
 const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
 const testSite1Data: Site = testSite1DataRaw;
 const testSite2Data: Site = testSite2DataRaw;
+const testSite3Data: Site = testSite3DataRaw;
 
 interface UserSeedDataRaw {
   Username: string;
@@ -65,6 +67,8 @@ const siteById = (testSiteId = 1) => {
       return testSite1Data;
     case 2:
       return testSite2Data;
+    case 3:
+      return testSite3Data;
     default:
       throw Error('Test site not found in local sites seed files');
   }

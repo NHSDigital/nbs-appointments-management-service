@@ -20,7 +20,6 @@ import { parseToUkDatetime } from '@services/timeService';
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
 let monthViewAvailabilityPage: MonthViewAvailabilityPage;
 let weekViewAvailabilityPage: WeekViewAvailabilityPage;
 let addSessionPage: AddSessionPage;
@@ -40,11 +39,10 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         test.use({ timezoneId: timezone });
 
         test.describe('Add Session', () => {
-          test.beforeEach(async ({ page }) => {
+          test.beforeEach(async ({ page, getTestSite }) => {
             rootPage = new RootPage(page);
             oAuthPage = new OAuthLoginPage(page);
             siteSelectionPage = new SiteSelectionPage(page);
-            sitePage = new SitePage(page);
             monthViewAvailabilityPage = new MonthViewAvailabilityPage(page);
             weekViewAvailabilityPage = new WeekViewAvailabilityPage(page);
             addSessionPage = new AddSessionPage(page);
@@ -62,7 +60,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
             await rootPage.pageContentLogInButton.click();
             await oAuthPage.signIn();
 
-            await siteSelectionPage.selectSite('Church Lane Pharmacy');
+            const sitePage = await siteSelectionPage.selectSite(getTestSite(2));
             await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
             await page.waitForURL('**/site/**/view-availability');
           });

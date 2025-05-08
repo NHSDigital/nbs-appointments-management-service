@@ -1,6 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import RootPage from './root';
+import { Site } from '@types';
 
 export default class UserManagementPage extends RootPage {
   readonly title: Locator;
@@ -9,7 +10,7 @@ export default class UserManagementPage extends RootPage {
   readonly cancelButton: Locator;
   readonly confirmAndSaveButton: Locator;
 
-  constructor(page: Page) {
+  constructor(page: Page, site: Site) {
     super(page);
     this.title = page.getByRole('heading', {
       name: 'Staff Role Management',

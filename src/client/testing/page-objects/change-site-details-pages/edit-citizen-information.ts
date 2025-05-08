@@ -1,89 +1,33 @@
 import { type Locator, type Page } from '@playwright/test';
-import { expect } from '@playwright/test';
 import RootPage from '../root';
+import { Site } from '@types';
+import { SiteDetailsPage } from '@testing-page-objects';
 
 export default class EditInformationForCitizensPage extends RootPage {
+  readonly site: Site;
   readonly title: Locator;
-  readonly header: Locator;
-  readonly confirmSiteDetailsButton: Locator;
-  readonly cancelButton: Locator;
-  readonly closeNotificationBannerButton: Locator;
-  readonly informationTextField: Locator;
-  readonly charactersRemainingField: Locator;
-  readonly headerMsg = 'Information for citizens';
-  readonly textLimitMsg = 'You have 150 characters remaining';
-  readonly testUrl = 'http://localhost:3000/manage-your-appointments/';
-  readonly informationWithInvalidChar = 'Test@#$%&*()';
-  readonly validationMessage =
-    'Site information cannot contain a URL or special characters except full stops, commas, and hyphens';
 
-  constructor(page: Page) {
+  readonly saveButton: Locator;
+  readonly cancelButton: Locator;
+  readonly infoTextArea: Locator;
+
+  constructor(page: Page, site: Site) {
     super(page);
+    this.site = site;
     this.title = page.getByRole('heading', { name: 'Site management' });
-    this.header = page.getByRole('heading', {
-      name: ' Manage information for citizens',
-    });
-    this.confirmSiteDetailsButton = page.getByRole('button', {
+    this.saveButton = page.getByRole('button', {
       name: 'Confirm site details',
     });
     this.cancelButton = page.getByRole('button', { name: 'Cancel' });
-    this.closeNotificationBannerButton = page.getByRole('button', {
-      name: 'Close',
-    });
-    this.closeNotificationBannerButton = page.getByRole('button', {
-      name: 'Close',
-    });
-    this.informationTextField = page.getByLabel(
+    this.infoTextArea = page.getByLabel(
       'What information would you like to include?',
     );
-    this.charactersRemainingField = page.getByLabel(
-      'information-characters-remaining',
-    );
   }
 
-  async setInformationForCitizen(information: string) {
-    await this.informationTextField.clear();
-    await this.informationTextField.fill(information);
-  }
+  async saveCitizenInformation(): Promise<SiteDetailsPage> {
+    await this.saveButton.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
 
-  async save_Cancel_InformationForCitizen(actionType: 'Save' | 'Cancel') {
-    if (actionType === 'Save') {
-      await this.confirmSiteDetailsButton.click();
-    } else {
-      await this.cancelButton.click();
-    }
-  }
-
-  async verifyInformationForCitizenPageDetails() {
-    await expect(
-      this.page.getByRole('heading', {
-        name: `${this.headerMsg}`,
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(this.charactersRemainingField).toBeVisible();
-    await expect(this.charactersRemainingField).toHaveText(
-      `${this.textLimitMsg}`,
-    );
-  }
-
-  async VerifyValidationMessage() {
-    await this.informationTextField.clear();
-    await this.informationTextField.fill(`${this.testUrl}`);
-    await this.confirmSiteDetailsButton.click();
-    await expect(
-      this.page
-        .getByRole('main')
-        .filter({ hasText: `${this.validationMessage}` }),
-    ).toBeVisible();
-    await this.informationTextField.clear();
-    await this.informationTextField.fill(`${this.informationWithInvalidChar}`);
-    await this.confirmSiteDetailsButton.click();
-    await expect(
-      this.page
-        .getByRole('main')
-        .filter({ hasText: `${this.validationMessage}` }),
-    ).toBeVisible();
-    await this.cancelButton.click();
+    return new SiteDetailsPage(this.page, this.site);
   }
 }

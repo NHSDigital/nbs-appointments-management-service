@@ -18,6 +18,7 @@ type accessNeedsCheckboxes = {
 export default class EditAccessNeedsPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
+  readonly backLink: Locator = this.page.getByRole('link', { name: 'Go back' });
 
   readonly confirmSiteDetailsButton: Locator;
   readonly checkboxes: accessNeedsCheckboxes = {
@@ -59,6 +60,13 @@ export default class EditAccessNeedsPage extends RootPage {
     this.confirmSiteDetailsButton = page.getByRole('button', {
       name: 'Confirm site details',
     });
+  }
+
+  async goBack(): Promise<SiteDetailsPage> {
+    await this.backLink.click();
+    await this.page.waitForURL(`**/site/${this.site.id}/details`);
+
+    return new SiteDetailsPage(this.page, this.site);
   }
 
   async saveSiteDetails(): Promise<SiteDetailsPage> {

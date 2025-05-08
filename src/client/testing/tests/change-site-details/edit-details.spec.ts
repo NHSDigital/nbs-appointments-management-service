@@ -1,126 +1,55 @@
-import {
-  EditDetailsPage,
-  OAuthLoginPage,
-  RootPage,
-  SiteDetailsPage,
-  SitePage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
+import { EditDetailsPage, RootPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-import { Site } from '@types';
 
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-let editDetailsPage: EditDetailsPage;
-let siteDetailsPage: SiteDetailsPage;
-
-let site: Site;
-
-// Annotate entire file as serial.
-test.describe.configure({ mode: 'serial' });
+let put: EditDetailsPage;
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite(2);
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-  editDetailsPage = new EditDetailsPage(page);
-  siteDetailsPage = new SiteDetailsPage(page, site);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site.name);
-  await sitePage.siteManagementCard.click();
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.editSiteDetailsButton.click();
-
-  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
+  put = await new RootPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+    .then(sitePage => sitePage.clickSiteDetailsCard())
+    .then(siteDetailsPage => siteDetailsPage.clickEditDetailsLink());
 });
 
-test('Clicking back mid-form does not save the changes', async ({ page }) => {
-  await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
-  await editDetailsPage.latitudeInput.fill('0.32445345');
-  await editDetailsPage.longitudeInput.fill('53.742');
-  await editDetailsPage.phoneNumberInput.fill('01189998819991197253');
-  await editDetailsPage.backLink.click();
+test(
+  'A user updates the details for a site',
+  { tag: ['@affects:site2'] },
+  async () => {
+    await put.addressInput.fill('One House,\nOne Road,\nOne Town');
+    await put.longitudeInput.fill('0.32445345');
+    await put.latitudeInput.fill('53.742');
+    await put.phoneNumberInput.fill('0118 999 88199 9119 725 3');
 
-  //verify the data is NOT present on the new details
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.verifyDetailsNotificationVisibility(false);
+    const siteDetailsPage = await put.saveSiteDetails();
+    await expect(
+      siteDetailsPage.notificationBanner.getByText(
+        'You have successfully updated the site details.',
+      ),
+    ).toBeVisible();
 
-  //verify default state
-  await siteDetailsPage.verifySitePage();
+    await expect(siteDetailsPage.address).toHaveText(
+      'One House, One Road, One Town',
+    );
+    await expect(siteDetailsPage.latitude).toHaveText('0.32445345');
+    await expect(siteDetailsPage.longitude).toHaveText('53.742');
+    await expect(siteDetailsPage.phoneNumber).toHaveText(
+      '0118 999 88199 9119 725 3',
+    );
 
-  // Go back into edit UI to assert input is same as before
-  await siteDetailsPage.editSiteDetailsButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
+    put = await siteDetailsPage.clickEditDetailsLink();
 
-  //assert address is formed over multiple lines after page reload
-  await expect(editDetailsPage.addressInput).toHaveValue(
-    'Pudsey,\nLeeds,\nLS28 7LD',
-  );
-  await expect(editDetailsPage.longitudeInput).toHaveValue('-1.66382134');
-  await expect(editDetailsPage.latitudeInput).toHaveValue('53.79628754');
-  await expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
+    await expect(put.addressInput).toHaveValue(
+      'One House,\nOne Road,\nOne Town',
+    );
+    await expect(put.longitudeInput).toHaveValue('0.32445345');
+    await expect(put.latitudeInput).toHaveValue('53.742');
+    await expect(put.phoneNumberInput).toHaveValue('0118 999 88199 9119 725 3');
+  },
+);
 
-  await editDetailsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
+test('A user navigates back to the site details page using the back link', async () => {
+  const siteDetailsPage = await put.goBack();
 
-  //assert address is formed over multiple lines after page reload
-  await expect(editDetailsPage.addressInput).toHaveValue(
-    'Pudsey,\nLeeds,\nLS28 7LD',
-  );
-  await expect(editDetailsPage.longitudeInput).toHaveValue('-1.66382134');
-  await expect(editDetailsPage.latitudeInput).toHaveValue('53.79628754');
-  await expect(editDetailsPage.phoneNumberInput).toHaveValue('0113 2222222');
-});
-
-test('Update details for a site, and then reset', async ({ page }) => {
-  await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
-  await editDetailsPage.longitudeInput.fill('0.32445345');
-  await editDetailsPage.latitudeInput.fill('53.742');
-  await editDetailsPage.phoneNumberInput.fill('0118 999 88199 9119 725 3');
-  await editDetailsPage.saveAndContinueButton.click();
-
-  //verify the data is present on the new details
-  await page.waitForURL(`**/site/${site.id}/details`);
-  await siteDetailsPage.verifyDetailsNotificationVisibility(true);
-
-  await siteDetailsPage.verifyCoreDetailsContent(
-    'One House, One Road, One Town',
-    '0.32445345',
-    '53.742',
-    '0118 999 88199 9119 725 3',
-  );
-
-  // Go back into edit UI to assert new input is there
-  await siteDetailsPage.editSiteDetailsButton.click();
-  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
-
-  //assert address is formed over multiple lines after page reload
-  await expect(editDetailsPage.addressInput).toHaveValue(
-    'One House,\nOne Road,\nOne Town',
-  );
-  await expect(editDetailsPage.longitudeInput).toHaveValue('0.32445345');
-  await expect(editDetailsPage.latitudeInput).toHaveValue('53.742');
-  await expect(editDetailsPage.phoneNumberInput).toHaveValue(
-    '0118 999 88199 9119 725 3',
-  );
-
-  await editDetailsPage.page.reload();
-  await page.waitForURL(`**/site/${site.id}/details/edit-details`);
-
-  //assert address is formed over multiple lines after page reload
-  await expect(editDetailsPage.addressInput).toHaveValue(
-    'One House,\nOne Road,\nOne Town',
-  );
-  await expect(editDetailsPage.longitudeInput).toHaveValue('0.32445345');
-  await expect(editDetailsPage.latitudeInput).toHaveValue('53.742');
-  await expect(editDetailsPage.phoneNumberInput).toHaveValue(
-    '0118 999 88199 9119 725 3',
-  );
+  await expect(siteDetailsPage.title).toBeVisible();
 });

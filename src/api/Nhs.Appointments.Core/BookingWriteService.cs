@@ -42,7 +42,7 @@ public class BookingWriteService(
 {
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             return await MakeBooking_MultipleServices(booking);
         }
@@ -52,7 +52,7 @@ public class BookingWriteService(
 
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site)
     {
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             return await CancelBooking_MultipleServices(bookingReference, site);
         }
@@ -113,7 +113,7 @@ public class BookingWriteService(
 
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
     {
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServicesEnabled))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             await RecalculateAppointmentStatuses_MultipleServices(site, day);
         }

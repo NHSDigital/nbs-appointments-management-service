@@ -6,7 +6,7 @@ public class AllocationStateService(
 {
     public async Task<AllocationState> BuildAllocation(string site, DateTime from, DateTime to) 
     {
-        return await BuildAllocation(await GetBookings(site, from, to), await GetSlots(site, from, to));
+        return BuildAllocation(await GetBookings(site, from, to), await GetSlots(site, from, to));
     }
 
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from, DateTime to) 
@@ -14,7 +14,7 @@ public class AllocationStateService(
         var recalculations = new List<BookingAvailabilityUpdate>();
 
         var bookings = await GetBookings(site, from, to);
-        var state = await BuildAllocation(bookings, await GetSlots(site, from, to));
+        var state = BuildAllocation(bookings, await GetSlots(site, from, to));
 
         var supportedReferences = state.SupportedBookings.Select(x => x.Reference).ToList();
 
@@ -28,7 +28,7 @@ public class AllocationStateService(
         return recalculations;
     }
 
-    public Task<AllocationState> BuildAllocation(IEnumerable<Booking> orderedLiveBookings, IEnumerable<SessionInstance> slots)
+    private AllocationState BuildAllocation(IEnumerable<Booking> orderedLiveBookings, IEnumerable<SessionInstance> slots)
     {
         var allocationState = new AllocationState();
 
@@ -47,7 +47,7 @@ public class AllocationStateService(
 
         allocationState.AvailableSlots = slots.Where(s => s.Capacity > 0).ToList();
 
-        return Task.FromResult(allocationState);
+        return allocationState;
     }
 
     /// <summary>

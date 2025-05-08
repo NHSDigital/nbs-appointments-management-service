@@ -24,6 +24,7 @@ import RemoveUserPage from './manage-users/remove-user-page';
 import SiteDetailsPage from './manage-site/site-details';
 import SitePage from './site';
 import SiteSelectionPage from './site-selection';
+import TopNav from './top-nav';
 import UsersPage from './manage-users/users-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
@@ -54,6 +55,7 @@ export {
   SiteDetailsPage,
   SitePage,
   SiteSelectionPage,
+  TopNav,
   UsersPage,
   WeekViewAvailabilityPage,
 };

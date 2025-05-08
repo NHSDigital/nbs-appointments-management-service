@@ -8,11 +8,13 @@ import {
   EditDetailsPage,
   EditInformationForCitizensPage,
   EditReferenceDetailsPage,
+  TopNav,
 } from '@testing-page-objects';
 
 export default class SiteDetailsPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
+  readonly topNav: TopNav;
 
   private getSummaryListItem(label: string): Locator {
     return this.page
@@ -80,6 +82,7 @@ export default class SiteDetailsPage extends RootPage {
   constructor(page: Page, site: Site) {
     super(page);
     this.site = site;
+    this.topNav = new TopNav(page, site);
 
     this.title = page.getByRole('heading', {
       name: 'Site details',

@@ -1,5 +1,5 @@
 import CookiesPolicyPage from './cookies-policy';
-import CreateAvailabilityPage from './create-availability';
+import CreateAvailabilityPage from './create-availability/create-availability-page';
 import EulaConsentPage from './eula-consent';
 import NotFoundPage from './not-found';
 import OAuthLoginPage from './oauth';
@@ -9,13 +9,11 @@ import SitePage from './site';
 import NotAuthorizedPage from './unauthorized';
 import UserManagementPage from './user-management';
 
-import EditAccessNeedsPage from './site-details-pages/edit-access-need';
-import EditInformationForCitizensPage from './site-details-pages/edit-citizen-information';
-import EditDetailsPage from './site-details-pages/edit-details';
-import EditReferenceDetailsPage from './site-details-pages/edit-reference-details';
-import SiteDetailsPage from './site-details-pages/site-details';
-
-import SummaryPage from './create-availability/summary-page';
+import EditAccessNeedsPage from './manage-site/edit-access-need';
+import EditInformationForCitizensPage from './manage-site/edit-citizen-information';
+import EditDetailsPage from './manage-site/edit-details';
+import EditReferenceDetailsPage from './manage-site/edit-reference-details';
+import SiteDetailsPage from './manage-site/site-details';
 
 import ManageUserPage from './manage-users/manage-user-page';
 import UsersPage from './manage-users/users-page';
@@ -48,7 +46,6 @@ export {
   EditDetailsPage,
   EditReferenceDetailsPage,
   SiteDetailsPage,
-  SummaryPage,
   RemoveUserPage,
   UsersPage,
   ManageUserPage,

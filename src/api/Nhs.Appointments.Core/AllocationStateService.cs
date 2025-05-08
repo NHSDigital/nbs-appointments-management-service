@@ -4,31 +4,47 @@ public class AllocationStateService(
     IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IAllocationStateService
 {
-    public async Task<AllocationState> BuildAllocation(string site, DateTime from, DateTime to) 
+    public async Task<AllocationState> BuildAllocation(string site, DateTime from, DateTime to)
     {
-        return BuildAllocation(await GetBookings(site, from, to), await GetSlots(site, from, to));
+        var bookingsTask = GetBookings(site, from, to);
+        var slotsTask = GetSlots(site, from, to);
+        await Task.WhenAll(bookingsTask, slotsTask);
+
+        return BuildAllocation(bookingsTask.Result.ToList(), slotsTask.Result.ToList());
     }
 
-    public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from, DateTime to) 
+    public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
+        DateTime to)
     {
         var recalculations = new List<BookingAvailabilityUpdate>();
 
-        var bookings = await GetBookings(site, from, to);
-        var state = BuildAllocation(bookings, await GetSlots(site, from, to));
+        var bookingsTask = GetBookings(site, from, to);
+        var slotsTask = GetSlots(site, from, to);
+        await Task.WhenAll(bookingsTask, slotsTask);
+
+        var bookings = bookingsTask.Result.ToList();
+        var state = BuildAllocation(bookings, slotsTask.Result.ToList());
 
         var supportedReferences = state.SupportedBookings.Select(x => x.Reference).ToList();
 
-        recalculations.AddRange(bookings.Where(booking => supportedReferences.Contains(booking.Reference) && booking.AvailabilityStatus is not AvailabilityStatus.Supported)
+        recalculations.AddRange(bookings
+            .Where(booking => supportedReferences.Contains(booking.Reference) &&
+                              booking.AvailabilityStatus is not AvailabilityStatus.Supported)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
-        recalculations.AddRange(bookings.Where(booking => !supportedReferences.Contains(booking.Reference) && booking.AvailabilityStatus is AvailabilityStatus.Supported && booking.Status is not AppointmentStatus.Provisional)
+        recalculations.AddRange(bookings
+            .Where(booking => !supportedReferences.Contains(booking.Reference) &&
+                              booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                              booking.Status is not AppointmentStatus.Provisional)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned)));
-        recalculations.AddRange(bookings.Where(booking => !supportedReferences.Contains(booking.Reference) && booking.Status is AppointmentStatus.Provisional)
+        recalculations.AddRange(bookings
+            .Where(booking => !supportedReferences.Contains(booking.Reference) &&
+                              booking.Status is AppointmentStatus.Provisional)
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete)));
 
         return recalculations;
     }
 
-    private AllocationState BuildAllocation(IEnumerable<Booking> orderedLiveBookings, IEnumerable<SessionInstance> slots)
+    private AllocationState BuildAllocation(List<Booking> orderedLiveBookings, List<SessionInstance> slots)
     {
         var allocationState = new AllocationState();
 
@@ -41,7 +57,6 @@ public class AllocationStateService(
             {
                 targetSlot.Capacity--;
                 allocationState.SupportedBookings.Add(booking);
-                continue;
             }
         }
 
@@ -51,7 +66,7 @@ public class AllocationStateService(
     }
 
     /// <summary>
-    /// 'Greedy' solution for assigning bookings to slots for multiple services in a deterministic way
+    ///     'Greedy' solution for assigning bookings to slots for multiple services in a deterministic way
     /// </summary>
     /// <param name="slots"></param>
     /// <param name="booking"></param>
@@ -65,6 +80,9 @@ public class AllocationStateService(
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
 
-    private async Task<IEnumerable<Booking>> GetBookings(string site, DateTime from, DateTime to) => await bookingQueryService.GetOrderedLiveBookings(site, from, to);
-    private async Task<IEnumerable<SessionInstance>> GetSlots(string site, DateTime from, DateTime to) => await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
+    private async Task<IEnumerable<Booking>> GetBookings(string site, DateTime from, DateTime to) =>
+        await bookingQueryService.GetOrderedLiveBookings(site, from, to);
+
+    private async Task<IEnumerable<SessionInstance>> GetSlots(string site, DateTime from, DateTime to) =>
+        await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
 }

@@ -16,7 +16,7 @@ import EditReferenceDetailsPage from './manage-site/edit-reference-details';
 import EulaConsentPage from './eula-consent';
 import LoginPage from './login-page';
 import ManageUserPage from './manage-users/manage-user-page';
-import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
+import MonthViewPage from './view-availability/month-view-page';
 import NotAuthorizedPage from './unauthorized';
 import NotFoundPage from './not-found';
 import OAuthLoginPage from './oauth';
@@ -26,6 +26,7 @@ import SitePage from './site';
 import SiteSelectionPage from './site-selection';
 import TopNav from './top-nav';
 import UsersPage from './manage-users/users-page';
+import WeekViewPage from './view-availability/week-view-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
 export {
@@ -47,7 +48,7 @@ export {
   EulaConsentPage,
   LoginPage,
   ManageUserPage,
-  MonthViewAvailabilityPage,
+  MonthViewPage,
   NotAuthorizedPage,
   NotFoundPage,
   OAuthLoginPage,
@@ -57,5 +58,6 @@ export {
   SiteSelectionPage,
   TopNav,
   UsersPage,
+  WeekViewPage,
   WeekViewAvailabilityPage,
 };

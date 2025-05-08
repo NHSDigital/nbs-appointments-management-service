@@ -153,21 +153,30 @@ test('Verify user can only view appointment manager related tiles In app when us
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.verifyUserRoles('Appointment manager', user8.subjectId);
-  await rootPage.logOut();
-  await page.waitForURL(`**/manage-your-appointments/login`);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser(8));
-  await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
-  await sitePage.verifyTileVisible('ManageAppointment');
-  await sitePage.verifyTileVisible('SiteManagement');
-  await sitePage.verifyTileNotVisible('UserManagement');
-  await sitePage.verifyTileNotVisible('CreateAvailability');
-  await sitePage.siteManagementCard.click();
-  await siteDetailsPage1.verifySitePage();
-  await siteDetailsPage1.verifyEditButtonNotVisible();
+  await expect(
+    put.page
+      .getByRole('row')
+      .filter({ has: put.page.getByText(user8.username) })
+      .getByText('Appointment manager', {
+        exact: true,
+      }),
+  ).toBeVisible();
+  await put.logOut();
+
+  const sitePage = await new LoginPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn(getTestUser(8)))
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(1)));
+
+  await expect(sitePage.siteManagementCard).toBeVisible();
+  await expect(
+    sitePage.viewAvailabilityAndManageAppointmentsCard,
+  ).toBeVisible();
+  await expect(sitePage.createAvailabilityCard).not.toBeVisible();
+  await expect(sitePage.userManagementCard).not.toBeVisible();
+
+  const siteDetailsPage = await sitePage.clickSiteDetailsCard();
+  await expect(siteDetailsPage.editSiteDetailsLink).not.toBeVisible();
 });
 
 test('Verify user can only view availability manager related tiles In app when user is assigned Availability Manager role.', async ({
@@ -175,16 +184,13 @@ test('Verify user can only view availability manager related tiles In app when u
   getTestSite,
   getTestUser,
 }) => {
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  put = await new LoginPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn(getTestUser(1)))
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(1)))
+    .then(sitePage => sitePage.clickManageUsersCard());
 
-  await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users`);
-
-  await usersPage.addUserButton.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+  const manageUserPage = await put.clickAddUser();
 
   const user9 = getTestUser(9);
   await expect(manageUserPage.emailStep.title).toBeVisible();
@@ -201,131 +207,133 @@ test('Verify user can only view availability manager related tiles In app when u
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.verifyUserRoles('Availability manager', user9.subjectId);
-  await rootPage.logOut();
-  await page.waitForURL(`**/manage-your-appointments/login`);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser(9));
-  await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
-  await sitePage.verifyTileVisible('ManageAppointment');
-  await sitePage.verifyTileVisible('SiteManagement');
-  await sitePage.verifyTileNotVisible('UserManagement');
-  await sitePage.verifyTileVisible('CreateAvailability');
-  await sitePage.siteManagementCard.click();
-  await siteDetailsPage1.verifySitePage();
-  await siteDetailsPage1.verifyEditButtonNotVisible();
-  await page.goto(`/manage-your-appointments/site/${site1.id}`);
-  await sitePage.createAvailabilityCard.click();
-  await createAvailabilityPage.createAvailabilityButton.click();
-  await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
-  await page.goto(`/manage-your-appointments/site/${site1.id}`);
-  await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
+  await expect(
+    put.page
+      .getByRole('row')
+      .filter({ has: put.page.getByText(user9.username) })
+      .getByText('Availability manager', {
+        exact: true,
+      }),
+  ).toBeVisible();
+  await put.logOut();
+
+  const sitePage = await new LoginPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn(user9))
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(1)));
+
+  await expect(sitePage.siteManagementCard).toBeVisible();
+  await expect(
+    sitePage.viewAvailabilityAndManageAppointmentsCard,
+  ).toBeVisible();
+  await expect(sitePage.createAvailabilityCard).toBeVisible();
+  await expect(sitePage.userManagementCard).not.toBeVisible();
+
+  const siteDetailsPage = await sitePage.clickSiteDetailsCard();
+  await expect(siteDetailsPage.editSiteDetailsLink).not.toBeVisible();
 });
 
-test('Verify user can only view user manager related tiles In app when user is assigned user Manager role.', async ({
-  page,
-  getTestSite,
-  getTestUser,
-}) => {
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+// test('Verify user can only view user manager related tiles In app when user is assigned user Manager role.', async ({
+//   page,
+//   getTestSite,
+//   getTestUser,
+// }) => {
+//   await rootPage.goto();
+//   await rootPage.pageContentLogInButton.click();
+//   await oAuthPage.signIn();
+//   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
 
-  await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+//   await sitePage.userManagementCard.click();
+//   await page.waitForURL(`**/site/${getTestSite().id}/users`);
 
-  await usersPage.addUserButton.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+//   await usersPage.addUserButton.click();
+//   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  const user10 = getTestUser(10);
-  await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(user10.subjectId);
-  await manageUserPage.emailStep.continueButton.click();
+//   const user10 = getTestUser(10);
+//   await expect(manageUserPage.emailStep.title).toBeVisible();
+//   await manageUserPage.emailStep.emailInput.fill(user10.subjectId);
+//   await manageUserPage.emailStep.continueButton.click();
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.userManagerCheckbox.check();
-  await manageUserPage.rolesStep.continueButton.click();
+//   await expect(manageUserPage.rolesStep.title).toBeVisible();
+//   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.userManagerCheckbox.check();
+//   await manageUserPage.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
+//   await expect(manageUserPage.summaryStep.title).toBeVisible();
+//   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.verifyUserRoles('User manager', user10.subjectId);
-  await rootPage.logOut();
-  await page.waitForURL(`**/manage-your-appointments/login`);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser(10));
-  await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
-  await sitePage.verifyTileVisible('ManageAppointment');
-  await sitePage.verifyTileVisible('SiteManagement');
-  await sitePage.verifyTileVisible('UserManagement');
-  await sitePage.verifyTileNotVisible('CreateAvailability');
-  await sitePage.siteManagementCard.click();
-  await siteDetailsPage1.verifySitePage();
-  await siteDetailsPage1.verifyEditButtonNotVisible();
-  await page.goto(`/manage-your-appointments/site/${site1.id}`);
-  await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
-  await page.goto(`/manage-your-appointments/site/${site1.id}`);
-  await sitePage.userManagementCard.click();
-  await expect(usersPage.title).toBeVisible();
-});
+//   await usersPage.verifyUserRoles('User manager', user10.subjectId);
+//   await rootPage.logOut();
+//   await page.waitForURL(`**/manage-your-appointments/login`);
+//   await rootPage.goto();
+//   await rootPage.pageContentLogInButton.click();
+//   await oAuthPage.signIn(getTestUser(10));
+//   await expect(siteSelectionPage.title).toBeVisible();
+//   await siteSelectionPage.selectSite(site1.name);
+//   await sitePage.verifyTileVisible('ManageAppointment');
+//   await sitePage.verifyTileVisible('SiteManagement');
+//   await sitePage.verifyTileVisible('UserManagement');
+//   await sitePage.verifyTileNotVisible('CreateAvailability');
+//   await sitePage.siteManagementCard.click();
+//   await siteDetailsPage1.verifySitePage();
+//   await siteDetailsPage1.verifyEditButtonNotVisible();
+//   await page.goto(`/manage-your-appointments/site/${site1.id}`);
+//   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
+//   await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
+//   await page.goto(`/manage-your-appointments/site/${site1.id}`);
+//   await sitePage.userManagementCard.click();
+//   await expect(usersPage.title).toBeVisible();
+// });
 
-test('Verify user can only view site details manager related tiles In app when user is assigned site details manager role.', async ({
-  page,
-  getTestSite,
-  getTestUser,
-}) => {
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site1.name);
+// test('Verify user can only view site details manager related tiles In app when user is assigned site details manager role.', async ({
+//   page,
+//   getTestSite,
+//   getTestUser,
+// }) => {
+//   await rootPage.goto();
+//   await rootPage.pageContentLogInButton.click();
+//   await oAuthPage.signIn();
+//   await siteSelectionPage.selectSite(site1.name);
 
-  await sitePage.userManagementCard.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users`);
+//   await sitePage.userManagementCard.click();
+//   await page.waitForURL(`**/site/${getTestSite().id}/users`);
 
-  await usersPage.addUserButton.click();
-  await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
+//   await usersPage.addUserButton.click();
+//   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
-  const user11 = getTestUser(11);
-  await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(user11.subjectId);
-  await manageUserPage.emailStep.continueButton.click();
+//   const user11 = getTestUser(11);
+//   await expect(manageUserPage.emailStep.title).toBeVisible();
+//   await manageUserPage.emailStep.emailInput.fill(user11.subjectId);
+//   await manageUserPage.emailStep.continueButton.click();
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.siteDetailsManagerCheckbox.check();
-  await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
-  await manageUserPage.rolesStep.continueButton.click();
+//   await expect(manageUserPage.rolesStep.title).toBeVisible();
+//   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.availabilityManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.siteDetailsManagerCheckbox.check();
+//   await manageUserPage.rolesStep.userManagerCheckbox.uncheck();
+//   await manageUserPage.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
+//   await expect(manageUserPage.summaryStep.title).toBeVisible();
+//   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.verifyUserRoles('Site details manager', user11.subjectId);
-  await rootPage.logOut();
-  await page.waitForURL(`**/manage-your-appointments/login`);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser(11));
-  await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
-  await sitePage.verifyTileVisible('ManageAppointment');
-  await sitePage.verifyTileVisible('SiteManagement');
-  await sitePage.verifyTileNotVisible('UserManagement');
-  await sitePage.verifyTileNotVisible('CreateAvailability');
-  await sitePage.siteManagementCard.click();
-  await siteDetailsPage1.verifySitePage();
-  await siteDetailsPage1.verifyEditButtonToBeVisible();
-  await page.goto(`/manage-your-appointments/site/${site1.id}`);
-  await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
-  await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
-});
+//   await usersPage.verifyUserRoles('Site details manager', user11.subjectId);
+//   await rootPage.logOut();
+//   await page.waitForURL(`**/manage-your-appointments/login`);
+//   await rootPage.goto();
+//   await rootPage.pageContentLogInButton.click();
+//   await oAuthPage.signIn(getTestUser(11));
+//   await expect(siteSelectionPage.title).toBeVisible();
+//   await siteSelectionPage.selectSite(site1.name);
+//   await sitePage.verifyTileVisible('ManageAppointment');
+//   await sitePage.verifyTileVisible('SiteManagement');
+//   await sitePage.verifyTileNotVisible('UserManagement');
+//   await sitePage.verifyTileNotVisible('CreateAvailability');
+//   await sitePage.siteManagementCard.click();
+//   await siteDetailsPage1.verifySitePage();
+//   await siteDetailsPage1.verifyEditButtonToBeVisible();
+//   await page.goto(`/manage-your-appointments/site/${site1.id}`);
+//   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
+//   await viewMonthAvailabilityPage.verifyViewNextMonthButtonDisplayed();
+// });

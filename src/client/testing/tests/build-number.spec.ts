@@ -1,12 +1,12 @@
-import { RootPage, OAuthLoginPage } from '@testing-page-objects';
+import { LoginPage, OAuthLoginPage } from '@testing-page-objects';
 import { test, expect } from '../fixtures';
 import env from '../testEnvironment';
 
-let rootPage: RootPage;
+let rootPage: LoginPage;
 let oAuthPage: OAuthLoginPage;
 
 test.beforeEach(async ({ page }) => {
-  rootPage = new RootPage(page);
+  rootPage = new LoginPage(page);
   oAuthPage = new OAuthLoginPage(page);
 
   await rootPage.goto();

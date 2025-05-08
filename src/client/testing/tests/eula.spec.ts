@@ -2,17 +2,17 @@ import { test, expect } from '../fixtures';
 import {
   EulaConsentPage,
   OAuthLoginPage,
-  RootPage,
+  LoginPage,
   SiteSelectionPage,
 } from '@testing-page-objects';
 
-let rootPage: RootPage;
+let rootPage: LoginPage;
 let oAuthPage: OAuthLoginPage;
 let siteSelectionPage: SiteSelectionPage;
 let eulaConsentPage: EulaConsentPage;
 
 test.beforeEach(async ({ page }) => {
-  rootPage = new RootPage(page);
+  rootPage = new LoginPage(page);
   oAuthPage = new OAuthLoginPage(page);
   siteSelectionPage = new SiteSelectionPage(page);
   eulaConsentPage = new EulaConsentPage(page);

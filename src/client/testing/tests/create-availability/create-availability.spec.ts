@@ -1,4 +1,4 @@
-import { CreateAvailabilityPage, RootPage } from '@testing-page-objects';
+import { CreateAvailabilityPage, LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 
 let put: CreateAvailabilityPage;
@@ -13,7 +13,7 @@ let put: CreateAvailabilityPage;
 
         test.describe('Create Availability', () => {
           test.beforeEach(async ({ page, getTestSite }) => {
-            put = await new RootPage(page)
+            put = await new LoginPage(page)
               .logInWithNhsMail()
               .then(oAuthPage => oAuthPage.signIn())
               .then(siteSelectionPage =>

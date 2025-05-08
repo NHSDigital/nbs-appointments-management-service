@@ -1,7 +1,6 @@
 /* eslint-disable lines-between-class-members */
 import { type Locator, type Page } from '@playwright/test';
 import CreateAvailabilityStep from './create-availability-step';
-import { Site } from '@types';
 
 export default class TimeAndCapacityStep extends CreateAvailabilityStep {
   readonly title: Locator;
@@ -27,8 +26,8 @@ export default class TimeAndCapacityStep extends CreateAvailabilityStep {
     name: 'How long are your appointments?',
   });
 
-  constructor(page: Page, site: Site) {
-    super(page, site);
+  constructor(page: Page) {
+    super(page);
     this.title = page.getByRole('heading', {
       name: 'What type of session do you want to create?',
     });

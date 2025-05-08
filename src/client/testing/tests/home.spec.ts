@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures';
-import { OAuthLoginPage, RootPage } from '@testing-page-objects';
+import { OAuthLoginPage, LoginPage } from '@testing-page-objects';
 import { Site } from '@types';
 
-let rootPage: RootPage;
+let rootPage: LoginPage;
 let oAuthPage: OAuthLoginPage;
 
 let site1: Site;
@@ -11,7 +11,7 @@ let site2: Site;
 test.beforeEach(async ({ page, getTestSite }) => {
   site1 = getTestSite(1);
   site2 = getTestSite(2);
-  rootPage = new RootPage(page);
+  rootPage = new LoginPage(page);
   oAuthPage = await rootPage.logInWithNhsMail();
 });
 

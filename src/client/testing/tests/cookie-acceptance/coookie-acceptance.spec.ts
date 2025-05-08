@@ -1,10 +1,10 @@
 import { test, expect } from '../../fixtures';
-import { RootPage } from '@testing-page-objects';
+import { LoginPage } from '@testing-page-objects';
 
-let rootPage: RootPage;
+let rootPage: LoginPage;
 
 test.beforeEach(async ({ page }) => {
-  rootPage = new RootPage(page);
+  rootPage = new LoginPage(page);
   await page.context().clearCookies();
 });
 

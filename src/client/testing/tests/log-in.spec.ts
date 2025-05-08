@@ -6,7 +6,7 @@ import {
 } from '../fixtures';
 import {
   OAuthLoginPage,
-  RootPage,
+  LoginPage,
   SiteSelectionPage,
 } from '@testing-page-objects';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -26,7 +26,7 @@ test.describe.configure({ mode: 'serial' });
     test('User visits the site origin, signs in and see the Site Selection menu', async ({
       page,
     }) => {
-      const rootPage = new RootPage(page);
+      const rootPage = new LoginPage(page);
       const oAuthPage = new OAuthLoginPage(page);
       const siteSelectionPage = new SiteSelectionPage(page);
 
@@ -48,7 +48,7 @@ test.describe.configure({ mode: 'serial' });
     test('User visits the site origin, signs in, then signs out again', async ({
       page,
     }) => {
-      const rootPage = new RootPage(page);
+      const rootPage = new LoginPage(page);
       const oAuthPage = new OAuthLoginPage(page);
       const siteSelectionPage = new SiteSelectionPage(page);
 
@@ -81,7 +81,7 @@ test.describe.configure({ mode: 'serial' });
       page,
       getTestUser,
     }) => {
-      const rootPage = new RootPage(page);
+      const rootPage = new LoginPage(page);
       const oAuthPage = new OAuthLoginPage(page);
       const siteSelectionPage = new SiteSelectionPage(page);
 

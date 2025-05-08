@@ -1,10 +1,8 @@
 {
   "FeatureManagement": {
     "OktaEnabled": false,
-    "MultiServiceAvailabilityCalculations": false,
     "JointBookings": true,
     "BulkImport": false,
-    "RSV-Adult": true,
-    "multiple-services": false
+    "MultipleServices": false
   }
 }

@@ -1,21 +1,10 @@
 {
   "FeatureManagement": {
     "OktaEnabled": true,
-    "MultiServiceAvailabilityCalculations": false,
     "TestFeatureEnabled": true,
     "JointBookings": true,
     "BulkImport": true,
-    "multiple-services": true,
-    "RSV-Adult": true,
-    "TestA-Child": true,
-    "TestA-Adult": true,
-    "TestA-Elder": true,
-    "TestB-Child": true,
-    "TestB-Adult": true,
-    "TestB-Elder": true,
-    "TestATestB-Child": true,
-    "TestATestB-Adult": true,
-    "TestATestB-Elder": true,
+    "MultipleServices": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

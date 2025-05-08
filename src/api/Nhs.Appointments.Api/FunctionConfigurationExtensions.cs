@@ -92,7 +92,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
-            .AddTransient<IClinicalService, ClinicalService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<IBookingEventFactory, EventFactory>()

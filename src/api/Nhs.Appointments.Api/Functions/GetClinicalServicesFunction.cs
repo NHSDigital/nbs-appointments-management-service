@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,7 +20,8 @@ namespace Nhs.Appointments.Api.Functions
         IUserContextProvider userContextProvider,
         ILogger<GetClinicalServicesFunction> logger,
         IMetricsRecorder metricsRecorder,
-        IClinicalService clinicalService)
+        IClinicalServiceStore store,
+        IFeatureToggleHelper featureToggleHelper)
         : BaseApiFunction<EmptyRequest, IEnumerable<ClinicalServiceType>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [OpenApiOperation(operationId: "GetServiceTypes", tags: ["serviceTypes"], 
@@ -28,16 +31,18 @@ namespace Nhs.Appointments.Api.Functions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",typeof(ErrorMessageResponseItem), 
             Description = "Unauthorized request to a protected API")]
         [Function("GetClinicalServicesFunction")]
-        public override Task<IActionResult> RunAsync(
+        public override async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "clinical-services")]
             HttpRequest req)
         {
-            return base.RunAsync(req);
+            return !await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices)
+                ? ProblemResponse(HttpStatusCode.NotImplemented, null)
+                : await base.RunAsync(req);
         }
 
         protected override async Task<ApiResult<IEnumerable<ClinicalServiceType>>> HandleRequest(EmptyRequest request, ILogger logger)
         {
-            var serviceTypes = await clinicalService.Get();
+            var serviceTypes = await store.Get();
             return ApiResult<IEnumerable<ClinicalServiceType>>.Success(serviceTypes);
         }
 

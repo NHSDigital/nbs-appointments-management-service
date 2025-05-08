@@ -67,7 +67,7 @@ public class AvailabilityService(
         {
             await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
 
-            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
+            if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
             {
                 await RecalculateAppointmentStatuses(site, date);
             }
@@ -86,7 +86,7 @@ public class AvailabilityService(
     {
         await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
 
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceAvailabilityCalculations))
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             await RecalculateAppointmentStatuses(site, date);
         }

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -89,7 +90,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
     [Fact]
     public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
     {
-        Toggle("MultiServiceAvailabilityCalculations", true);
+        Toggle(Flags.MultipleServices, true);
 
         var cancelSessionRequest = new CancelSessionRequest(
             "TEST01",

@@ -9,6 +9,7 @@ using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -117,7 +118,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     [Fact]
     public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
     {
-        Toggle("MultiServiceAvailabilityCalculations", true);
+        Toggle(Flags.MultipleServices, true);
 
         var bookingRef = "some-booking";
         var site = "TEST01";

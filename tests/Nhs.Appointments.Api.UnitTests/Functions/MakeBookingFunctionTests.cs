@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -161,7 +162,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     [Fact]
     public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
     {
-        Toggle("MultiServiceAvailabilityCalculations", true);
+        Toggle(Flags.MultipleServices, true);
 
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));

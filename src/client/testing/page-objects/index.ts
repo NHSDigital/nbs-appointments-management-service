@@ -1,5 +1,4 @@
 import CookiesPolicyPage from './cookies-policy';
-import CreateAvailabilityPage from './create-availability/create-availability-page';
 import EulaConsentPage from './eula-consent';
 import NotFoundPage from './not-found';
 import OAuthLoginPage from './oauth';
@@ -7,7 +6,6 @@ import RootPage from './root';
 import SiteSelectionPage from './site-selection';
 import SitePage from './site';
 import NotAuthorizedPage from './unauthorized';
-import UserManagementPage from './user-management';
 
 import EditAccessNeedsPage from './manage-site/edit-access-need';
 import EditInformationForCitizensPage from './manage-site/edit-citizen-information';
@@ -18,6 +16,9 @@ import SiteDetailsPage from './manage-site/site-details';
 import ManageUserPage from './manage-users/manage-user-page';
 import UsersPage from './manage-users/users-page';
 import RemoveUserPage from './manage-users/remove-user-page';
+
+import CreateAvailabilityPage from './create-availability/create-availability-page';
+import CreateAvailabilityWizardPage from './create-availability/create-availability-wizard-page';
 
 import AddServicesPage from './view-availability-appointment-pages/add-services-page';
 import AddSessionPage from './view-availability-appointment-pages/add-session-page';
@@ -33,6 +34,7 @@ import WeekViewAvailabilityPage from './view-availability-appointment-pages/week
 export {
   CookiesPolicyPage,
   CreateAvailabilityPage,
+  CreateAvailabilityWizardPage,
   EulaConsentPage,
   NotFoundPage,
   OAuthLoginPage,
@@ -40,7 +42,6 @@ export {
   SiteSelectionPage,
   SitePage,
   NotAuthorizedPage,
-  UserManagementPage,
   EditAccessNeedsPage,
   EditInformationForCitizensPage,
   EditDetailsPage,

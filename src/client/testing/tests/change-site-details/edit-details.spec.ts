@@ -24,7 +24,7 @@ test(
     const siteDetailsPage = await put.saveSiteDetails();
     await expect(
       siteDetailsPage.notificationBanner.getByText(
-        'You have successfully updated the site details.',
+        'You have successfully updated the details for the current site.',
       ),
     ).toBeVisible();
 

@@ -30,19 +30,19 @@ stages:
           apiClientUnitTestProjectPath: "tests/Nhs.Appointments.Api.Client.UnitTests/Nhs.Appointments.Api.Client.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
         steps:
-          # - task: SonarCloudPrepare@3
-          #   displayName: "Prepare analysis on SonarCloud"
-          #   inputs:
-          #     SonarCloud: "nhsdigital-sonarcloud"
-          #     organization: "nhsdigital"
-          #     scannerMode: "dotnet"
-          #     projectKey: "NHSDigital_nbs-appointments-management-service"
-          #     projectName: "nbs-appointments-management-service"
-          #     extraProperties: |
-          #       sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-          #       sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
-          #       sonar.scanner.scanAll=false
-          #       sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
+          - task: SonarCloudPrepare@3
+            displayName: "Prepare analysis on SonarCloud"
+            inputs:
+              SonarCloud: "nhsdigital-sonarcloud"
+              organization: "nhsdigital"
+              scannerMode: "dotnet"
+              projectKey: "NHSDigital_nbs-appointments-management-service"
+              projectName: "nbs-appointments-management-service"
+              extraProperties: |
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+                sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
+                sonar.scanner.scanAll=false
+                sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:
@@ -131,15 +131,15 @@ stages:
               npm run format:check
               npm run test:ci
             displayName: "Run Web App Tests"
-          # - task: PublishTestResults@2
-          #   displayName: "Publish Web App Test Results"
-          #   inputs:
-          #     testResultsFiles: "junit.xml"
-          #     testRunTitle: NBS Appointments Management Service Client Tests
-          #     testResultsFormat: "JUnit"
-          #     publishRunAttachments: true
-          #     searchFolder: "$(Build.SourcesDirectory)/src/client"
-          #   condition: succeededOrFailed()
+          - task: PublishTestResults@2
+            displayName: "Publish Web App Test Results"
+            inputs:
+              testResultsFiles: "junit.xml"
+              testRunTitle: NBS Appointments Management Service Client Tests
+              testResultsFormat: "JUnit"
+              publishRunAttachments: true
+              searchFolder: "$(Build.SourcesDirectory)/src/client"
+            condition: succeededOrFailed()
           - script: |
               cd ./src/client
               npm run build
@@ -173,166 +173,166 @@ stages:
               ArtifactName: "drop_terraform_scripts"
               publishLocation: "Container"
 
-      # - job: RunIntegrationAndE2ETests
-      # displayName: "Run integration and E2E tests"
-      # variables:
-      #   PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
-      #   integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
-      #   bookingDataExtractTestProjectPath: "tests/BookingDataExtractTests/BookingDataExtracts.Integration.csproj"
-      #   capacityDataExtractTestProjectPath: "tests/CapacityDataExtracts.Integration/CapacityDataExtracts.Integration.csproj"
-      #   cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
-      #   prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
-      #   subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
-      # steps:
-      #   - powershell: |
-      #       $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
-      #       $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"
-      #       Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
-      #     displayName: Set short commit hash
-      #   - task: AzureCLI@2
-      #     displayName: "Create Cosmos DB account"
-      #     inputs:
-      #       azureSubscription: $(prBuildServiceConnectionName)
-      #       scriptType: pscore
-      #       scriptLocation: scriptPath
-      #       scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
-      #       arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
-      #   - task: AzureCLI@2
-      #     displayName: "Get Cosmos DB account connection string"
-      #     inputs:
-      #       azureSubscription: $(prBuildServiceConnectionName)
-      #       scriptType: pscore
-      #       scriptLocation: scriptPath
-      #       scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
-      #       arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
-      #   - script: |
-      #       mkdir -p $(PFX_CERT_PATH)
-      #       dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
-      #     displayName: "Create aspnet developer certificate"
-      #   - script: |
-      #       cd data/BookingsDataExtracts && docker compose up --build --detach
-      #     displayName: "Start MESH docker container"
-      #   - script: |
-      #       docker compose up --build --detach
-      #     displayName: "Start application docker containers"
-      #     env:
-      #       COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #       COSMOS_TOKEN: $(COSMOS_TOKEN)
-      #       BUILD_NUMBER: "$(Build.BuildNumber)"
-      #   - task: DotNetCoreCLI@2
-      #     displayName: "Run Booking Data Extract Integration Tests"
-      #     inputs:
-      #       command: "test"
-      #       projects: "$(bookingDataExtractTestProjectPath)"
-      #       arguments: '--logger:"trx;logfilename=myaBookingDataExtractTests.trx";verbosity=detailed'
-      #     env:
-      #       COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #       COSMOS_TOKEN: $(COSMOS_TOKEN)
-      #   - task: PublishTestResults@2
-      #     displayName: "Publish booking data extract integration test results"
-      #     inputs:
-      #       searchFolder: $(Agent.TempDirectory)
-      #       testResultsFormat: "VSTest"
-      #       testResultsFiles: "myaBookingDataExtractTests.trx"
-      #       testRunTitle: "MYA Data Extract Integration Tests"
-      #       publishRunAttachments: true
-      #     condition: succeededOrFailed()
-      #   - task: DotNetCoreCLI@2
-      #     displayName: "Run Capacity Data Extract Integration Tests"
-      #     inputs:
-      #       command: "test"
-      #       projects: "$(capacityDataExtractTestProjectPath)"
-      #       arguments: '--logger:"trx;logfilename=myaCapacityDataExtractTests.trx";verbosity=detailed'
-      #     env:
-      #       COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #       COSMOS_TOKEN: $(COSMOS_TOKEN)
-      #   - task: PublishTestResults@2
-      #     displayName: "Publish capacity data extract integration test results"
-      #     inputs:
-      #       searchFolder: $(Agent.TempDirectory)
-      #       testResultsFormat: "VSTest"
-      #       testResultsFiles: "myaCapacityDataExtractTests.trx"
-      #       testRunTitle: "MYA Data Extract Integration Tests"
-      #       publishRunAttachments: true
-      #     condition: succeededOrFailed()
-      #   - task: DotNetCoreCLI@2
-      #     displayName: "Reset and seed Cosmos DB containers"
-      #     inputs:
-      #       command: "run"
-      #       projects: $(cosmosDbSeederProjectPath)
-      #       arguments: "delete-containers"
-      #     env:
-      #       COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #       COSMOS_TOKEN: $(COSMOS_TOKEN)
-      # - task: DotNetCoreCLI@2
-      #   displayName: "Run Integration Tests"
-      #   inputs:
-      #     command: "test"
-      #     projects: "$(integrationTestProjectPath)"
-      #     arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
-      #   env:
-      #     COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #     COSMOS_TOKEN: $(COSMOS_TOKEN)
-      # - task: PublishTestResults@2
-      #   displayName: "Publish integration test results"
-      #   inputs:
-      #     searchFolder: $(Agent.TempDirectory)
-      #     testResultsFormat: "VSTest"
-      #     testResultsFiles: "myaServiceTests.trx"
-      #     testRunTitle: "NBS Appointments Management Service Integration Tests"
-      #     publishRunAttachments: true
-      #   condition: succeededOrFailed()
-      # - task: DotNetCoreCLI@2
-      #   displayName: "Reset and seed Cosmos DB containers"
-      #   inputs:
-      #     command: "run"
-      #     projects: $(cosmosDbSeederProjectPath)
-      #     arguments: "delete-containers"
-      #   env:
-      #     COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
-      #     COSMOS_TOKEN: $(COSMOS_TOKEN)
-      # - script: |
-      #     docker compose restart api
-      #   displayName: "Restart api docker container to clear cache"
-      # - task: UseNode@1
-      #   displayName: "Install Node"
-      #   inputs:
-      #     version: 20.x
-      # - script: |
-      #     cd ./src/client
-      #     npm ci
-      #     npx playwright install --with-deps chromium
-      #     npm run test:e2e
-      #   displayName: "Run E2E tests"
-      #   env:
-      #     CI: "true"
-      #     SEED_COSMOS_BEFORE_RUN: "false"
-      #     BUILD_NUMBER: "$(Build.BuildNumber)"
-      # - task: PublishTestResults@2
-      #   displayName: "Publish E2E test results"
-      #   condition: succeededOrFailed()
-      #   inputs:
-      #     searchFolder: "src/client/testing"
-      #     testResultsFormat: "JUnit"
-      #     testResultsFiles: "e2e-junit-results.xml"
-      #     mergeTestResults: true
-      #     failTaskOnFailedTests: true
-      #     testRunTitle: "NBS Appointments Management Service End-To-End Tests"
-      # - task: PublishBuildArtifacts@1
-      #   displayName: "Publish E2E test artifacts"
-      #   condition: succeededOrFailed()
-      #   inputs:
-      #     PathtoPublish: "src/client/test-artifacts"
-      #     ArtifactName: "E2E Test-results"
-      # - task: AzureCLI@2
-      #   displayName: "Delete Cosmos DB account"
-      #   condition: or(succeeded(), canceled())
-      #   inputs:
-      #     azureSubscription: $(prBuildServiceConnectionName)
-      #     scriptType: pscore
-      #     scriptLocation: scriptPath
-      #     scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
-      #     arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
+      - job: RunIntegrationAndE2ETests
+        displayName: "Run integration and E2E tests"
+        variables:
+          PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
+          integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
+          bookingDataExtractTestProjectPath: "tests/BookingDataExtractTests/BookingDataExtracts.Integration.csproj"
+          capacityDataExtractTestProjectPath: "tests/CapacityDataExtracts.Integration/CapacityDataExtracts.Integration.csproj"
+          cosmosDbSeederProjectPath: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+          prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
+          subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
+        steps:
+          - powershell: |
+              $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
+              $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"
+              Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
+            displayName: Set short commit hash
+          - task: AzureCLI@2
+            displayName: "Create Cosmos DB account"
+            inputs:
+              azureSubscription: $(prBuildServiceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: $(prBuildServiceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
+          - script: |
+              mkdir -p $(PFX_CERT_PATH)
+              dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
+            displayName: "Create aspnet developer certificate"
+          - script: |
+              cd data/BookingsDataExtracts && docker compose up --build --detach
+            displayName: "Start MESH docker container"
+          - script: |
+              docker compose up --build --detach
+            displayName: "Start application docker containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              BUILD_NUMBER: "$(Build.BuildNumber)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run Booking Data Extract Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(bookingDataExtractTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=myaBookingDataExtractTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishTestResults@2
+            displayName: "Publish booking data extract integration test results"
+            inputs:
+              searchFolder: $(Agent.TempDirectory)
+              testResultsFormat: "VSTest"
+              testResultsFiles: "myaBookingDataExtractTests.trx"
+              testRunTitle: "MYA Data Extract Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
+          - task: DotNetCoreCLI@2
+            displayName: "Run Capacity Data Extract Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(capacityDataExtractTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=myaCapacityDataExtractTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishTestResults@2
+            displayName: "Publish capacity data extract integration test results"
+            inputs:
+              searchFolder: $(Agent.TempDirectory)
+              testResultsFormat: "VSTest"
+              testResultsFiles: "myaCapacityDataExtractTests.trx"
+              testRunTitle: "MYA Data Extract Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
+          - task: DotNetCoreCLI@2
+            displayName: "Reset and seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: DotNetCoreCLI@2
+            displayName: "Run Integration Tests"
+            inputs:
+              command: "test"
+              projects: "$(integrationTestProjectPath)"
+              arguments: '--logger:"trx;logfilename=myaServiceTests.trx";verbosity=detailed'
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: PublishTestResults@2
+            displayName: "Publish integration test results"
+            inputs:
+              searchFolder: $(Agent.TempDirectory)
+              testResultsFormat: "VSTest"
+              testResultsFiles: "myaServiceTests.trx"
+              testRunTitle: "NBS Appointments Management Service Integration Tests"
+              publishRunAttachments: true
+            condition: succeededOrFailed()
+          - task: DotNetCoreCLI@2
+            displayName: "Reset and seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: $(cosmosDbSeederProjectPath)
+              arguments: "delete-containers"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - script: |
+              docker compose restart api
+            displayName: "Restart api docker container to clear cache"
+          - task: UseNode@1
+            displayName: "Install Node"
+            inputs:
+              version: 20.x
+          - script: |
+              cd ./src/client
+              npm ci
+              npx playwright install --with-deps chromium
+              npm run test:e2e
+            displayName: "Run E2E tests"
+            env:
+              CI: "true"
+              SEED_COSMOS_BEFORE_RUN: "false"
+              BUILD_NUMBER: "$(Build.BuildNumber)"
+          - task: PublishTestResults@2
+            displayName: "Publish E2E test results"
+            condition: succeededOrFailed()
+            inputs:
+              searchFolder: "src/client/testing"
+              testResultsFormat: "JUnit"
+              testResultsFiles: "e2e-junit-results.xml"
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: "NBS Appointments Management Service End-To-End Tests"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish E2E test artifacts"
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: "src/client/test-artifacts"
+              ArtifactName: "E2E Test-results"
+          - task: AzureCLI@2
+            displayName: "Delete Cosmos DB account"
+            condition: or(succeeded(), canceled())
+            inputs:
+              azureSubscription: $(prBuildServiceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
 
   - ${{ each env in parameters.environments }}:
       - template: "scripts/pipeline-templates/deploy.yml"

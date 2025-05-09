@@ -84,7 +84,8 @@ public class CancelSessionFunctionTests : FeatureToggledTests
         _bookingService.Verify(
             x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
         _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date,
+                cancelSessionRequest.Date), Times.Never);
     }
 
     [Fact]
@@ -106,7 +107,8 @@ public class CancelSessionFunctionTests : FeatureToggledTests
         _bookingService.Verify(
             x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
         _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date,
+                cancelSessionRequest.Date), Times.Once);
     }
 
     private static HttpRequest BuildRequest(CancelSessionRequest requestBody)

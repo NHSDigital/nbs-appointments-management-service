@@ -17,7 +17,6 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class CancelSessionFunction(
     IAvailabilityWriteService availabilityWriteService,
-    IBookingWriteService bookingWriteService,
     IValidator<CancelSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelSessionFunction> logger,
@@ -54,9 +53,6 @@ public class CancelSessionFunction(
             request.Services,
             request.SlotLength,
             request.Capacity);
-
-        //TODO this recalculation should be done WITHIN the availabilityWriteService layer!!
-        await bookingWriteService.RecalculateAppointmentStatuses(request.Site, request.Date);
 
         return Success(new EmptyResponse());
     }

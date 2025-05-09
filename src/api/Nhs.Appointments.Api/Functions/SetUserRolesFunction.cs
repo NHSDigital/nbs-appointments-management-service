@@ -61,7 +61,7 @@ public class SetUserRolesFunction(
 
             if (!isOktaEnabled)
             {
-                return Failed(HttpStatusCode.ServiceUnavailable, "Okta is disabled.");
+                return Failed(HttpStatusCode.NotImplemented, "Okta is disabled.");
             }
 
             // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't

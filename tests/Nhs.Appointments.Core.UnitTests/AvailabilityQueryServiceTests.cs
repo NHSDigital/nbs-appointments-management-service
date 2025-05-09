@@ -1,14 +1,13 @@
-using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
-[MockedFeatureToggle("MultipleServicesEnabled", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class AvailabilityQueryServiceTests : FeatureToggledTests
 {
-    private readonly AvailabilityQueryService _sut;
-    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+    private readonly AvailabilityQueryService _sut;
 
     public AvailabilityQueryServiceTests() : base(typeof(AvailabilityQueryServiceTests)) =>
         _sut = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
@@ -16,7 +15,7 @@ public class AvailabilityQueryServiceTests : FeatureToggledTests
     [Fact]
     public async Task GetAvailabilityCreatedEvents_OrdersEventsByFromThenByTo()
     {
-        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
+        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>
         {
             new()
             {
@@ -64,7 +63,7 @@ public class AvailabilityQueryServiceTests : FeatureToggledTests
     [Fact]
     public async Task GetAvailabilityCreatedEvents_FiltersEventsAfterDate()
     {
-        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>()
+        var availabilityCreatedEvents = new List<AvailabilityCreatedEvent>
         {
             new()
             {
@@ -146,7 +145,8 @@ public class AvailabilityQueryServiceTests : FeatureToggledTests
             }
         };
 
-        _availabilityStore.Setup(x => x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+        _availabilityStore.Setup(x =>
+                x.GetDailyAvailability(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(availability);
 
         var result = await _sut.GetDailyAvailability("TEST01", fromDate, toDate);

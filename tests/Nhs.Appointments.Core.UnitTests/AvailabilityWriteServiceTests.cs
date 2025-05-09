@@ -1,19 +1,19 @@
-using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
-[MockedFeatureToggle("MultipleServicesEnabled", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class AvailabilityWriteServiceTests : FeatureToggledTests
 {
-    private readonly AvailabilityWriteService _sut;
-    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IBookingWriteService> _bookingsWriteService = new();
+    private readonly AvailabilityWriteService _sut;
 
     public AvailabilityWriteServiceTests() : base(typeof(AvailabilityWriteServiceTests))
     {
-        _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object, _bookingsWriteService.Object);
+        _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object,
+            _bookingsWriteService.Object);
     }
 
     [Theory]
@@ -25,12 +25,12 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
-        var template = new Template()
+        var template = new Template
         {
             Days = [DayOfWeek.Monday],
             Sessions =
             [
-                new Session()
+                new Session
                 {
                     Capacity = 1,
                     From = new TimeOnly(09, 00),
@@ -40,10 +40,14 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
+        var applyTemplate = async () =>
+        {
+            await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
+                user);
+        };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("site must have a value");
     }
-    
+
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateIsNull()
     {
@@ -53,10 +57,14 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         var until = new DateOnly(2025, 01, 12);
         Template template = null;
 
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
+        var applyTemplate = async () =>
+        {
+            await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
+                user);
+        };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("template must be provided");
     }
-    
+
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfFromDateIsAfterUntilDate()
     {
@@ -64,12 +72,12 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 02);
         var until = new DateOnly(2025, 01, 01);
-        var template = new Template()
+        var template = new Template
         {
             Days = [DayOfWeek.Monday],
             Sessions =
             [
-                new Session()
+                new Session
                 {
                     Capacity = 1,
                     From = new TimeOnly(09, 00),
@@ -79,10 +87,14 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
+        var applyTemplate = async () =>
+        {
+            await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
+                user);
+        };
         await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("until date must be after from date");
     }
-    
+
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfNoDaysAreSpecified()
     {
@@ -90,12 +102,12 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
-        var template = new Template()
+        var template = new Template
         {
             Days = [],
             Sessions =
             [
-                new Session()
+                new Session
                 {
                     Capacity = 1,
                     From = new TimeOnly(09, 00),
@@ -105,10 +117,14 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
                 }
             ]
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
+        var applyTemplate = async () =>
+        {
+            await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
+                user);
+        };
         await applyTemplate.Should().ThrowAsync<ArgumentException>("template must specify one or more weekdays");
     }
-    
+
     [Fact]
     public async Task ApplyTemplateAsync_ThrowsArgumentException_IfTemplateContainsNoSessions()
     {
@@ -116,15 +132,15 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         const string user = "mock.user@nhs.net";
         var from = new DateOnly(2025, 01, 06);
         var until = new DateOnly(2025, 01, 12);
-        var template = new Template()
+        var template = new Template { Days = [DayOfWeek.Monday], Sessions = [] };
+        var applyTemplate = async () =>
         {
-            Days = [DayOfWeek.Monday],
-            Sessions = []
+            await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
+                user);
         };
-        var applyTemplate = async () => { await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user); };
         await applyTemplate.Should().ThrowAsync<ArgumentException>("template must contain one or more sessions");
     }
-    
+
     [Fact]
     public async Task ApplyTemplateAsync_CallsAvailabilityStore_WithDatesForRequestedDays()
     {
@@ -134,7 +150,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         var until = new DateOnly(2025, 01, 12);
         Session[] sessions =
         [
-            new ()
+            new()
             {
                 Capacity = 1,
                 From = new TimeOnly(09, 00),
@@ -144,21 +160,18 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             }
         ];
 
-        var template = new Template()
+        var template = new Template
         {
-            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Saturday, DayOfWeek.Sunday],
-            Sessions = sessions
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Saturday, DayOfWeek.Sunday], Sessions = sessions
         };
-        
+
         await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
         var actualDates = _availabilityStore.Invocations
             .Where(i => i.Method.Name == nameof(IAvailabilityStore.ApplyAvailabilityTemplate))
             .Select(i => (DateOnly)i.Arguments[1]);
         var expectedDates = new[]
         {
-            new DateOnly(2025, 01, 06),
-            new DateOnly(2025, 01, 07),
-            new DateOnly(2025, 01, 11),
+            new DateOnly(2025, 01, 06), new DateOnly(2025, 01, 07), new DateOnly(2025, 01, 11),
             new DateOnly(2025, 01, 12)
         };
         actualDates.Should().BeEquivalentTo(expectedDates);
@@ -197,9 +210,12 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
 
         await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)),
+            Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)),
+            Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)),
+            Times.Once);
     }
 
     [Fact]
@@ -225,7 +241,8 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
 
         _availabilityStore.Verify(
             x => x.ApplyAvailabilityTemplate(site, date, sessions, ApplyAvailabilityMode.Overwrite, null), Times.Once);
-        _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user), Times.Once);
+        _availabilityCreatedEventStore.Verify(x => x.LogSingleDateSessionCreated(site, date, sessions, user),
+            Times.Once);
     }
 
     [Fact]
@@ -249,7 +266,8 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)),
+            Times.Once);
     }
 
     [Theory]
@@ -258,14 +276,22 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
     [InlineData(null)]
     public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSiteIsInvalid(string site)
     {
-        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>(), ApplyAvailabilityMode.Overwrite); };
+        var setAvailability = async () =>
+        {
+            await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), site, Array.Empty<Session>(),
+                ApplyAvailabilityMode.Overwrite);
+        };
         await setAvailability.Should().ThrowAsync<ArgumentException>("Site must have a value.");
     }
 
     [Fact]
     public async Task SetAvailabilityAsync_ThrowsArgumentException_WhenSessionsArrayIsEmpty()
     {
-        var setAvailability = async () => { await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), "test-site", Array.Empty<Session>(), ApplyAvailabilityMode.Overwrite); };
+        var setAvailability = async () =>
+        {
+            await _sut.SetAvailabilityAsync(new DateOnly(2024, 10, 10), "test-site", Array.Empty<Session>(),
+                ApplyAvailabilityMode.Overwrite);
+        };
         await setAvailability.Should().ThrowAsync<ArgumentException>("Availability must contain one or more sessions.");
     }
 
@@ -275,13 +301,13 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         var sessions = new List<Session>
         {
             new()
-                {
-                    Capacity = 1,
-                    From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
-                    Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
-                    Services = ["RSV", "COVID"],
-                    SlotLength = 5
-                }
+            {
+                Capacity = 1,
+                From = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 9, 0, 0)),
+                Until = TimeOnly.FromDateTime(new DateTime(2024, 10, 10, 16, 0, 0)),
+                Services = ["RSV", "COVID"],
+                SlotLength = 5
+            }
         }.ToArray();
         var date = new DateOnly(2024, 10, 10);
         var site = "test-site";

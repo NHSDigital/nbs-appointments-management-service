@@ -65,7 +65,7 @@ stages:
               azureSubscription: ${{parameters.serviceConnectionName}}
               scriptType: pscore
               addSpnToEnvironment: true
-              scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-plan.ps1"
+              scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-plan.ps1"
               arguments: |
                 -azure_subscription_id "$(azure_subscription_id)"
                 -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
@@ -106,7 +106,7 @@ stages:
                     azureSubscription: ${{parameters.serviceConnectionName}}
                     scriptType: pscore
                     addSpnToEnvironment: true
-                    scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-apply.ps1
+                    scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-apply.ps1
                     arguments: |
                       -azure_subscription_id "$(azure_subscription_id)"
                       -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}

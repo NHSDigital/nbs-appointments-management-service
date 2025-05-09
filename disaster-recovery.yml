@@ -107,7 +107,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
               arguments: |
-                -azure_subscription_id "$(azure_subscription_id)"
+                -azureSubscriptionId "$(azure_subscription_id)"
                 -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 -buildNumber ${{parameters.buildNumber}}
                 -cosmosEndpoint $(COSMOS_ENDPOINT)
@@ -303,7 +303,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-destroy.ps1"
               arguments: |
-                -azure_subscription_id "$(azure_subscription_id)"
+                -azureSubscriptionId "$(azure_subscription_id)"
                 -terraformEnvironmentFolderPath $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 -buildNumber ${{parameters.buildNumber}}
                 -cosmosEndpoint $(COSMOS_ENDPOINT)

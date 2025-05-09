@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class SetAvailabilityFunction(
-    IAvailabilityService availabilityService,
+    IAvailabilityWriteService availabilityWriteService,
     IValidator<SetAvailabilityRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetAvailabilityFunction> logger,
@@ -49,7 +49,7 @@ public class SetAvailabilityFunction(
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
-        await availabilityService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,
+        await availabilityWriteService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,
             request.Mode, user, request.SessionToEdit);
         return Success(new EmptyResponse());
     }

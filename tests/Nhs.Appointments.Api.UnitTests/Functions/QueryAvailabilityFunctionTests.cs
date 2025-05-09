@@ -12,6 +12,7 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using System.Text;
+#pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -19,6 +20,7 @@ public class QueryAvailabilityFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
+    private readonly Mock<IAllocationStateService> _allocationStateService = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<ILogger<QueryAvailabilityFunction>> _logger = new();
@@ -33,6 +35,7 @@ public class QueryAvailabilityFunctionTests
     {
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object,
+            _allocationStateService.Object,
             _validator.Object,
             _availabilityGrouperFactory.Object,
             _userContextProvider.Object,

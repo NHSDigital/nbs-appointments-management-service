@@ -1,30 +1,17 @@
-﻿using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Messaging;
+namespace Nhs.Appointments.Core.UnitTests.AllocationState;
 
-namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
-
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", true)]
-public class AvailabilityCalculationsBase : FeatureToggledTests
+public class AllocationStateServiceTestBase
 {
-    protected readonly AvailabilityService _sut;
+    protected AllocationStateService _sut;
+    protected readonly Mock<TimeProvider> _timeProvider = new();
+    private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
-    private readonly Mock<IBookingsService> _bookingsService = new();
-    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
-    private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
-    private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
-    private readonly Mock<IBookingEventFactory> _eventFactory = new();
-    private readonly Mock<IMessageBus> _messageBus = new();
-    private readonly Mock<TimeProvider> _time = new();
-
-
+    
     protected const string MockSite = "some-site";
 
-    protected AvailabilityCalculationsBase() : base(typeof(AvailabilityCalculationsBase)) => _sut =
-        new AvailabilityService(_availabilityStore.Object,
-        _availabilityCreatedEventStore.Object, _bookingsService.Object, _siteLeaseManager.Object,
-        _bookingsDocumentStore.Object, _referenceNumberProvider.Object, _eventFactory.Object, _messageBus.Object,
-        _time.Object, _featureToggleHelper.Object);
+    protected AllocationStateServiceTestBase() => _sut =
+        new AllocationStateService(new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object), new BookingQueryService(_bookingsDocumentStore.Object, _timeProvider.Object));
 
     private DateTime TestDateAt(string time)
     {
@@ -35,7 +22,7 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
 
     protected Booking TestBooking(string reference, string service, string from = "09:00",
         int duration = 10, string avStatus = "Orphaned", string status = "Booked",
-        int creationOrder = 1) =>
+        int creationOrder = 1, DateTime? creationDate = null) =>
         new()
         {
             Reference = reference,
@@ -45,7 +32,7 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
             AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
             AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
             Status = Enum.Parse<AppointmentStatus>(status),
-            Created = new DateTime(2024, 11, 15, 9, 45, creationOrder)
+            Created = creationDate ?? new DateTime(2024, 11, 15, 9, 45, creationOrder)
         };
 
     protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
@@ -54,8 +41,7 @@ public class AvailabilityCalculationsBase : FeatureToggledTests
 
     protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
     {
-        _bookingsService
-            .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+        _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
             .ReturnsAsync(bookings);
 
         _availabilityStore

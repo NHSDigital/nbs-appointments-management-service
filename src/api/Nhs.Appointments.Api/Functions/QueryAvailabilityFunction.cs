@@ -23,6 +23,7 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class QueryAvailabilityFunction(
     IAvailabilityCalculator availabilityCalculator,
+    IAllocationStateService allocationStateService,
     IValidator<QueryAvailabilityRequest> validator,
     IAvailabilityGrouperFactory availabilityGrouperFactory,
     IUserContextProvider userContextProvider,
@@ -74,7 +75,23 @@ public class QueryAvailabilityFunction(
 
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until, int consecutive)
     {
-        var slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = until.ToDateTime(new TimeOnly(23, 59));
+
+        List<SessionInstance> slots;
+        
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
+        {
+            slots = (await allocationStateService.BuildAllocation(site, dayStart, dayEnd)).AvailableSlots
+                .Where(x => x.Services.Contains(service))
+                .ToList();
+        }
+        else
+        {
+            #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+            slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+            #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
+        }
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {

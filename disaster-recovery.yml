@@ -104,6 +104,7 @@ stages:
               azureSubscription: ${{parameters.serviceConnectionName}}
               scriptType: pscore
               addSpnToEnvironment: true
+              scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
               arguments: |
                 -azure_subscription_id "$(azure_subscription_id)"
@@ -299,6 +300,7 @@ stages:
               azureSubscription: ${{parameters.serviceConnectionName}}
               scriptType: pscore
               addSpnToEnvironment: true
+              scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-destroy.ps1"
               arguments: |
                 -azure_subscription_id "$(azure_subscription_id)"

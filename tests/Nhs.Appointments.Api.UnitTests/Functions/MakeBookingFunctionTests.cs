@@ -10,11 +10,12 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultipleServicesEnabled", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
@@ -28,7 +29,8 @@ public class MakeBookingFunctionTests : FeatureToggledTests
 
     public MakeBookingFunctionTests() : base(typeof(MakeBookingFunctionTests))
     {
-        _sut = new MakeBookingFunction(_bookingWriteService.Object, _siteService.Object, _validator.Object, _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
+        _sut = new MakeBookingFunction(_bookingWriteService.Object, _siteService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -135,7 +137,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     {
         //TODO to fix and add back in with correct mocking
         throw new NotImplementedException();
-        
+
         // var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
         //     TimeSpan.FromMinutes(5));
         // _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
@@ -163,7 +165,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
     {
         //TODO to fix and add back in with correct mocking
         throw new NotImplementedException();
-        
+
 
         // Toggle("MultipleServicesEnabled", true);
         //

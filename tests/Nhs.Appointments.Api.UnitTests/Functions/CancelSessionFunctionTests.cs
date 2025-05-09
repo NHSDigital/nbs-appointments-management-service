@@ -9,11 +9,12 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultipleServicesEnabled", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class CancelSessionFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IAvailabilityWriteService> _availabilityService = new();
@@ -65,35 +66,35 @@ public class CancelSessionFunctionTests : FeatureToggledTests
             cancelSessionRequest.Date), Times.Once());
     }
 
-     [Fact]
-     public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
-     {
-         //TODO to fix and add back in with correct mocking
-         throw new NotImplementedException();
-         
-         // var cancelSessionRequest = new CancelSessionRequest(
-         //     "TEST01",
-         //     new DateOnly(2025, 1, 10),
-         //     "09:00",
-         //     "12:00",
-         //     ["RSV:Adult"], 5, 2);
-         //
-         // var request = BuildRequest(cancelSessionRequest);
-         //
-         // _ = await _sut.RunAsync(request) as ContentResult;
-         //
-         // _bookingService.Verify(
-         //     x => x.RecalculateAppointmentStatuses_SingleService(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
-         // _bookingService.Verify(
-         //     x => x.RecalculateAppointmentStatuses_MultipleServices(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
-     }
-    
+    [Fact]
+    public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
+    {
+        //TODO to fix and add back in with correct mocking
+        throw new NotImplementedException();
+
+        // var cancelSessionRequest = new CancelSessionRequest(
+        //     "TEST01",
+        //     new DateOnly(2025, 1, 10),
+        //     "09:00",
+        //     "12:00",
+        //     ["RSV:Adult"], 5, 2);
+        //
+        // var request = BuildRequest(cancelSessionRequest);
+        //
+        // _ = await _sut.RunAsync(request) as ContentResult;
+        //
+        // _bookingService.Verify(
+        //     x => x.RecalculateAppointmentStatuses_SingleService(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
+        // _bookingService.Verify(
+        //     x => x.RecalculateAppointmentStatuses_MultipleServices(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
+    }
+
     [Fact]
     public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
     {
         //TODO to fix and add back in with correct mocking
         throw new NotImplementedException();
-        
+
         // Toggle("MultipleServicesEnabled", true);
         //
         // var cancelSessionRequest = new CancelSessionRequest(

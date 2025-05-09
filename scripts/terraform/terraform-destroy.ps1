@@ -26,7 +26,7 @@ terraform destroy `
     -var="OKTA_CLIENT_SECRET=$env:OKTA_CLIENT_SECRET" `
     -var="OKTA_PRIVATE_KEY_KID=$env:OKTA_PRIVATE_KEY_KID" `
     -var="OKTA_PEM=$env:OKTA_PEM" `
-    -var="BUILD_NUMBER=$(buildNumber)" `
-    -var="COSMOS_ENDPOINT=$(cosmosEndpoint)" `
-    -var="COSMOS_TOKEN=$(cosmosToken)" `
-    -var="APP_CONFIG_CONNECTION=$(appConfigConnectionString)"
+    -var="BUILD_NUMBER=$buildNumber" `
+    -var="COSMOS_ENDPOINT=$cosmosEndpoint" `
+    -var="COSMOS_TOKEN=$cosmosToken" `
+    -var="APP_CONFIG_CONNECTION=$appConfigConnectionString"

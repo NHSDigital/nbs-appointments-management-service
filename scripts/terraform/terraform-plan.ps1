@@ -5,9 +5,9 @@ param (
         [string][Parameter(Mandatory)]$buildNumber,
         
         ## Optional variables, only needed for disaster recovery
-        [AllowEmptyString()][string][Parameter]$cosmosEndpoint,
-        [AllowEmptyString()][string][Parameter]$cosmosToken,
-        [AllowEmptyString()][string][Parameter]$appConfigConnectionString
+        [AllowNull()][string][Parameter]$cosmosEndpoint,
+        [AllowNull()][string][Parameter]$cosmosToken,
+        [AllowNull()][string][Parameter]$appConfigConnectionString
 )
 
 $env:ARM_CLIENT_ID=$env:servicePrincipalId

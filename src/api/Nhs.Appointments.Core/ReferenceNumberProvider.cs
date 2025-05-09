@@ -1,46 +1,41 @@
-﻿using System.Reflection.Metadata;
-
 namespace Nhs.Appointments.Core;
 
 public interface IReferenceNumberProvider
 {
-    Task<string> GetReferenceNumber(string siteId);
+    Task<string> GetReferenceNumber();
 }
 
-public class ReferenceNumberProvider : IReferenceNumberProvider
+public class ReferenceNumberProvider(
+    IBookingReferenceDocumentStore bookingReferenceDocumentStore,
+    TimeProvider timeProvider)
+    : IReferenceNumberProvider
 {
-    private readonly ISiteStore _siteStore;
-    private readonly IReferenceNumberDocumentStore _referenceNumberDocumentStore;
-    private readonly TimeProvider _timeProvider;
-    public ReferenceNumberProvider(
-        ISiteStore siteStore,
-        IReferenceNumberDocumentStore referenceNumberDocumentStore,
-        TimeProvider timeProvider)
+    /// <summary>
+    /// Generate the booking reference number in a way that is future-proof, for the very long term (100 years)
+    /// </summary>
+    /// <returns></returns>
+    public async Task<string> GetReferenceNumber()
     {
-        _siteStore = siteStore;
-        _referenceNumberDocumentStore = referenceNumberDocumentStore;
-        _timeProvider = timeProvider;
-    }
-    public async Task<string> GetReferenceNumber(string siteId)
-    {        
-        var referenceGroup = await _siteStore.GetReferenceNumberGroup(siteId);
-        if (referenceGroup == 0)
-        {
-            referenceGroup = await _referenceNumberDocumentStore.AssignReferenceGroup();
-            await _siteStore.AssignPrefix(siteId, referenceGroup);
-        }
+        var sequenceNumber = await bookingReferenceDocumentStore.GetNextSequenceNumber();
 
-        var sequence = await _referenceNumberDocumentStore.GetNextSequenceNumber(referenceGroup);
-        var now = _timeProvider.GetUtcNow();
-        var rng = now.Day + now.Second;
+        //the max sequence number part we are going to use is 100 million, so reset to 0 after
+        var overflowedSequence = sequenceNumber % 100000000;
+        var overflowedSequenceAsString = $"{overflowedSequence:00000000}";
+        
+        var now = timeProvider.GetUtcNow();
+        
+        var yearAsString = $"{now.Year:0000}";
+        
+        //divide total days into 4, result is always < 100, so can use 2 digits
+        //also makes it look more random than using just the week day
+        var dayPartition = (now.DayOfYear / 4) + 1;
+        var dayPartitionAsString = $"{dayPartition:00}";
 
-        return $"{referenceGroup:00}-{rng:00}-{sequence:000000}";
+        return $"{dayPartitionAsString}{yearAsString[^2..]}-{overflowedSequenceAsString[..4]}-{overflowedSequenceAsString[^4..]}";
     }
 }
 
-public interface IReferenceNumberDocumentStore
+public interface IBookingReferenceDocumentStore
 {
-    Task<int> AssignReferenceGroup();
-    Task<int> GetNextSequenceNumber(int prefix);
+    Task<int> GetNextSequenceNumber();
 }
-    

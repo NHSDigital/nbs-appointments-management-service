@@ -77,7 +77,7 @@ stages:
               scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-plan.ps1
               # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-plan.ps1"
               arguments: |
-                -azure_subscription_id "$(azure_subscription_id)"
+                -azureSubscriptionId "$(azure_subscription_id)"
                 -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 -buildNumber ${{parameters.buildNumber}}
       - job: ApproveTerraformPlan
@@ -120,7 +120,7 @@ stages:
                     scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-apply.ps1
                     # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
                     arguments: |
-                      -azure_subscription_id "$(azure_subscription_id)"
+                      -azureSubscriptionId "$(azure_subscription_id)"
                       -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                       -buildNumber ${{parameters.buildNumber}}
       - job: DeployWeb

@@ -236,7 +236,9 @@ describe('Email step', () => {
     );
 
     expect(
-      await screen.findByText('Enter a valid email address'),
+      await screen.findByText(
+        'Email address must be nhs.net or an authorised email domain',
+      ),
     ).toBeVisible();
   });
 });

@@ -1,6 +1,7 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
 import { UsersPage } from './users-page';
 import {
+  getMockOktaUserAssignments,
   getMockUserAssignments,
   mockAllPermissions,
   mockAuditerPermissions,
@@ -20,6 +21,7 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
+        oktaEnabled={true}
       />,
     );
 
@@ -37,6 +39,7 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
+        oktaEnabled={true}
       />,
     );
 
@@ -68,6 +71,7 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
+        oktaEnabled={true}
       />,
     );
 
@@ -87,6 +91,7 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAuditerPermissions}
+        oktaEnabled={true}
       />,
     );
 
@@ -106,6 +111,7 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
+        oktaEnabled={true}
       />,
     );
 
@@ -119,6 +125,27 @@ describe('Users Page', () => {
     ).toHaveAttribute('href', 'users/remove?user=test.two@nhs.net');
 
     // Guard against changes in mock data by providing the current user is included in the list of mock users
+    expect(getMockUserAssignments(mockSiteId).map(_ => _.id)).toContain(
+      mockUserProfile.emailAddress,
+    );
+  });
+
+  it('Does not display the edit or remove buttons for okta users if okta is disabled - but does display them for nhs users', async () => {
+    render(
+      <UsersPage
+        userProfile={mockUserProfile}
+        users={getMockOktaUserAssignments(mockSiteId)}
+        roles={mockRoles}
+        permissions={mockAllPermissions}
+        oktaEnabled={false}
+      />,
+    );
+
+    expect(
+      screen.queryAllByRole('link', { name: 'Remove from this site' }),
+    ).toHaveLength(1);
+    expect(screen.queryAllByRole('link', { name: 'Edit' }).length).toBe(1);
+
     expect(getMockUserAssignments(mockSiteId).map(_ => _.id)).toContain(
       mockUserProfile.emailAddress,
     );

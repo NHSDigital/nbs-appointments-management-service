@@ -69,6 +69,7 @@ public class AvailabilityWriteService(
         };
 
         await availabilityStore.CancelSession(site, date, sessionToCancel);
+        await bookingWriteService.RecalculateAppointmentStatuses(site, date);
     }
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)

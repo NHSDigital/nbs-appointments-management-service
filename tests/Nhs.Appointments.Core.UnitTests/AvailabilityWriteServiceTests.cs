@@ -387,5 +387,6 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
 
         _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date), Times.Once());
     }
 }

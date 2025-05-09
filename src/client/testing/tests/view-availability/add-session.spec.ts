@@ -33,8 +33,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
 ['UTC', 'Europe/London', 'Pacific/Kiritimati', 'Etc/GMT+12'].forEach(
   timezone => {
-    //nhsd-jira.digital.nhs.uk/browse/APPT-867
-    test.describe.fixme(`Test in timezone: '${timezone}'`, () => {
+    test.describe(`Test in timezone: '${timezone}'`, () => {
       test.use({ timezoneId: timezone });
 
       test.describe('Add Session', () => {
@@ -68,7 +67,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         test('Verify user is able to add a session for future date', async ({
           page,
         }) => {
-          const requiredDate = daysFromToday(1, 'D MMMM');
+          const requiredDate = daysFromToday(1, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(1));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -80,7 +79,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.addAvailability(requiredDate);
 
           await page.waitForURL(
@@ -104,7 +103,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         test('Verify add availability option displayed for future date', async ({
           page,
         }) => {
-          const requiredDate = daysFromToday(2, 'D MMMM');
+          const requiredDate = daysFromToday(2, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(2));
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
             requiredWeekRange,
@@ -115,14 +114,14 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.verifyAddAvailabilityButtonDisplayed(
             requiredDate,
           );
         });
 
         test('Verify user is able to change availability', async ({ page }) => {
-          const requiredDate = daysFromToday(1, 'D MMMM');
+          const requiredDate = daysFromToday(1, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(1));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -134,7 +133,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.addAvailability(requiredDate);
 
           await page.waitForURL(
@@ -170,7 +169,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         });
 
         test('Verify user is able to cancel session', async ({ page }) => {
-          const requiredDate = daysFromToday(5, 'D MMMM');
+          const requiredDate = daysFromToday(5, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(5));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -182,7 +181,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.addAvailability(requiredDate);
 
           await page.waitForURL(
@@ -221,7 +220,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         test('Verify session not canceled if not confirmed', async ({
           page,
         }) => {
-          const requiredDate = daysFromToday(3, 'D MMMM');
+          const requiredDate = daysFromToday(3, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(3));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -233,7 +232,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.addAvailability(requiredDate);
 
           await page.waitForURL(
@@ -275,7 +274,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         test('Verify view daily appointment link displayed', async ({
           page,
         }) => {
-          const requiredDate = daysFromToday(3, 'D MMMM');
+          const requiredDate = daysFromToday(3, 'dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(3));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -287,7 +286,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(requiredDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(requiredDate);
           await weekViewAvailabilityPage.addAvailability(requiredDate);
 
           await page.waitForURL(
@@ -310,7 +309,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
         }) => {
           const requiredDate = '2025-08-05';
           const formattedDate =
-            parseToUkDatetime(requiredDate).format('D MMMM');
+            parseToUkDatetime(requiredDate).format('dddd D MMMM');
           const requiredWeekRange = weekHeaderText(requiredDate);
 
           await monthViewAvailabilityPage.navigateToRequiredMonth(
@@ -326,7 +325,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(formattedDate);
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(formattedDate);
           await weekViewAvailabilityPage.openDailyAppointmentPage(
             formattedDate,
           );
@@ -348,7 +347,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           const formattedDate1 =
             parseToUkDatetime(requiredDate).format('DD MMMM');
           const formattedDate2 =
-            parseToUkDatetime(requiredDate).format('D MMMM');
+            parseToUkDatetime(requiredDate).format('dddd D MMMM');
           const requiredWeekRange = weekHeaderText(daysFromToday(1));
 
           await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -360,7 +359,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-          await weekViewAvailabilityPage.verifyWeekViewDisplayed(
+          await weekViewAvailabilityPage.verifyDateCardDisplayed(
             formattedDate2,
           );
           await weekViewAvailabilityPage.addAvailability(formattedDate2);

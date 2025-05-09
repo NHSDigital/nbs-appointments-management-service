@@ -189,7 +189,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
     });
   }
 
-  async verifyWeekViewDisplayed(requiredDate: string) {
+  async verifyDateCardDisplayed(requiredDate: string) {
     await this.verifyViewNextWeekButtonDisplayed();
     await expect(
       this.page

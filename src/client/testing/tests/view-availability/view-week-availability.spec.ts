@@ -632,8 +632,7 @@ const weekTestCases: WeekViewTestCase[] = [
 
 ['UTC', 'Europe/London', 'Pacific/Kiritimati', 'Etc/GMT+12'].forEach(
   timezone => {
-    //nhsd-jira.digital.nhs.uk/browse/APPT-867
-    test.describe.fixme(`Test in timezone: '${timezone}'`, () => {
+    test.describe(`Test in timezone: '${timezone}'`, () => {
       test.use({ timezoneId: timezone });
 
       test.describe('View Week Availability', () => {

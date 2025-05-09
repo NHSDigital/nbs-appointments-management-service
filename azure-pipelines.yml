@@ -166,6 +166,12 @@ stages:
               PathtoPublish: "$(Build.SourcesDirectory)/infrastructure"
               ArtifactName: "drop_terraform"
               publishLocation: "Container"
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Scripts"
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/scripts/terraform"
+              ArtifactName: "drop_terraform_scripts"
+              publishLocation: "Container"
 
       - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"

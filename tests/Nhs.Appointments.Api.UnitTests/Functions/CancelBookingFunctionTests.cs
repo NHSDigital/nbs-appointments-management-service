@@ -13,15 +13,14 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultipleServicesEnabled", false)]
 public class CancelBookingFunctionTests : FeatureToggledTests
 {
     private readonly Mock<IBookingWriteService> _bookingWriteService = new();
-    private readonly Mock<IUserContextProvider> _userContextProvider = new();
-    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
     private readonly Mock<ILogger<CancelBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly CancelBookingFunction _sut;
+    private readonly Mock<IUserContextProvider> _userContextProvider = new();
+    private readonly Mock<IValidator<CancelBookingRequest>> _validator = new();
 
     public CancelBookingFunctionTests() : base(typeof(CancelBookingFunctionTests))
     {
@@ -94,50 +93,6 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         Assert.NotNull(response);
         Assert.Equal(500, response.StatusCode);
     }
-    
-     [Fact]
-     public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
-     {
-         //TODO to fix and add back in with correct mocking
-         throw new NotImplementedException();
-         
-         // var bookingRef = "some-booking";
-         // var site = "TEST01";
-         // _bookingWriteService.Setup(x => x.CancelBooking_SingleService(bookingRef, site))
-         //     .Returns(Task.FromResult(BookingCancellationResult.Success));
-         // _bookingWriteService.Setup(x => x.CancelBooking_MultipleServices(bookingRef, site))
-         //     .Returns(Task.FromResult(BookingCancellationResult.Success));
-         //
-         // var request = BuildRequest(bookingRef, site);
-         //
-         // _ = await _sut.RunAsync(request) as ContentResult;
-         //
-         // _bookingWriteService.Verify(x => x.CancelBooking_SingleService(bookingRef, site), Times.Once);
-         // _bookingWriteService.Verify(x => x.CancelBooking_MultipleServices(bookingRef, site), Times.Never);
-     }
-     
-     [Fact]
-     public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
-     {
-         //TODO to fix and add back in with correct mocking
-         throw new NotImplementedException();
-         
-         // Toggle("MultipleServicesEnabled", true);
-         //
-         // var bookingRef = "some-booking";
-         // var site = "TEST01";
-         // _bookingWriteService.Setup(x => x.CancelBooking_SingleService(bookingRef, site))
-         //     .Returns(Task.FromResult(BookingCancellationResult.Success));
-         // _bookingWriteService.Setup(x => x.CancelBooking_MultipleServices(bookingRef, site))
-         //     .Returns(Task.FromResult(BookingCancellationResult.Success));
-         //
-         // var request = BuildRequest(bookingRef, site);
-         //
-         // _ = await _sut.RunAsync(request) as ContentResult;
-         //
-         // _bookingWriteService.Verify(x => x.CancelBooking_SingleService(bookingRef, site), Times.Never);
-         // _bookingWriteService.Verify(x => x.CancelBooking_MultipleServices(bookingRef, site), Times.Once);
-     }
 
     private static HttpRequest BuildRequest(string reference, string site)
     {

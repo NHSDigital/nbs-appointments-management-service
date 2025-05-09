@@ -2,7 +2,12 @@
 param (
         [string][Parameter(Mandatory)]$azureSubscriptionId,
         [string][Parameter(Mandatory)]$terraformEnvironmentFolderPath,
-        [string][Parameter(Mandatory)]$buildNumber
+        [string][Parameter(Mandatory)]$buildNumber,
+        
+        ## Optional variables, only needed for disaster recovery
+        [string][Parameter]$cosmosEndpoint,
+        [string][Parameter]$cosmosToken,
+        [string][Parameter]$appConfigConnectionString
 )
 
 $env:ARM_CLIENT_ID=$env:servicePrincipalId
@@ -13,13 +18,17 @@ $env:ARM_SUBSCRIPTION_ID=$azureSubscriptionId
 Set-Location $terraformEnvironmentFolderPath
 
 terraform init
-terraform plan `
+terraform apply `
     -no-color `
     -input=false `
+    -auto-approve `
     -var="GOV_NOTIFY_API_KEY=$env:GOV_NOTIFY_API_KEY" `
     -var="SPLUNK_HEC_TOKEN=$env:SPLUNK_HEC_TOKEN" `
     -var="NHS_MAIL_CLIENT_SECRET=$env:AUTH_PROVIDER_CLIENT_SECRET" `
     -var="OKTA_CLIENT_SECRET=$env:OKTA_CLIENT_SECRET" `
     -var="OKTA_PRIVATE_KEY_KID=$env:OKTA_PRIVATE_KEY_KID" `
     -var="OKTA_PEM=$env:OKTA_PEM" `
-    -var="BUILD_NUMBER=$(buildNumber)"
+    -var="BUILD_NUMBER=$(buildNumber)" `
+    -var="COSMOS_ENDPOINT=$(cosmosEndpoint)" `
+    -var="COSMOS_TOKEN=$(cosmosToken)" `
+    -var="APP_CONFIG_CONNECTION=$(appConfigConnectionString)"

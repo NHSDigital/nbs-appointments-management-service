@@ -124,13 +124,13 @@ stages:
             displayName: "Install Node"
             inputs:
               version: 20.x
-          # - script: |
-          #     cd ./src/client
-          #     npm ci
-          #     npm run lint
-          #     npm run format:check
-          #     npm run test:ci
-          #   displayName: "Run Web App Tests"
+          - script: |
+              cd ./src/client
+              npm ci 
+              npm run lint
+              npm run format:check
+              npm run test:ci
+            displayName: "Run Web App Tests"
           # - task: PublishTestResults@2
           #   displayName: "Publish Web App Test Results"
           #   inputs:

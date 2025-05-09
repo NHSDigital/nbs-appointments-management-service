@@ -24,8 +24,6 @@ parameters:
     type: string
   - name: buildNumber
     type: string
-  - name: pipelineBuildId
-    type: string
 
 stages:
   - stage: Deploy${{parameters.env}}
@@ -50,11 +48,8 @@ stages:
           - task: DownloadPipelineArtifact@2
             displayName: Download Terraform Scripts artifact
             inputs:
-              buildType: "specific"
-              project: "covid19.vaccine-booking"
-              definition: "1785"
-              buildVersionToDownload: "specific"
-              pipelineId: ${{parameters.pipelineBuildId}}
+              buildType: "current"
+              downloadType: "single"
               artifactName: "drop_terraform_scripts"
               targetPath: "$(Pipeline.Workspace)/drop_terraform_scripts"
 
@@ -79,7 +74,8 @@ stages:
               scriptType: pscore
               addSpnToEnvironment: true
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-plan.ps1"
+              scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-plan.ps1
+              # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-plan.ps1"
               arguments: |
                 -azure_subscription_id "$(azure_subscription_id)"
                 -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
@@ -121,7 +117,8 @@ stages:
                     scriptType: pscore
                     addSpnToEnvironment: true
                     scriptLocation: scriptPath
-                    scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
+                    scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-apply.ps1
+                    # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
                     arguments: |
                       -azure_subscription_id "$(azure_subscription_id)"
                       -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}

@@ -45,13 +45,13 @@ stages:
             inputs:
               terraformVersion: "latest"
 
-          - task: DownloadPipelineArtifact@2
-            displayName: Download Terraform Scripts artifact
-            inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "drop_terraform_scripts"
-              targetPath: "$(Pipeline.Workspace)/drop_terraform_scripts"
+          # - task: DownloadPipelineArtifact@2
+          #   displayName: Download Terraform Scripts artifact
+          #   inputs:
+          #     buildType: "current"
+          #     downloadType: "single"
+          #     artifactName: "drop_terraform_scripts"
+          #     targetPath: "$(Pipeline.Workspace)/drop_terraform_scripts"
 
           - task: DownloadBuildArtifacts@0
             displayName: Download Terraform Artifact
@@ -74,7 +74,7 @@ stages:
               scriptType: pscore
               addSpnToEnvironment: true
               scriptLocation: scriptPath
-              scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-plan.ps1
+              scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-plan.ps1
               # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-plan.ps1"
               arguments: |
                 -azure_subscription_id "$(azure_subscription_id)"
@@ -117,7 +117,7 @@ stages:
                     scriptType: pscore
                     addSpnToEnvironment: true
                     scriptLocation: scriptPath
-                    scriptPath: $(Pipeline.Workspace)\drop_terraform_scripts\terraform-apply.ps1
+                    scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-apply.ps1
                     # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
                     arguments: |
                       -azure_subscription_id "$(azure_subscription_id)"

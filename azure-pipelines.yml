@@ -349,4 +349,3 @@ stages:
           serviceConnectionName: nbs-mya-rg-${{env}}
           isMain: true
           buildNumber: "$(Build.BuildNumber)"
-          pipelineBuildId: "$(Build.BuildId)"

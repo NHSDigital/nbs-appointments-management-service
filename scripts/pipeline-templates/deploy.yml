@@ -78,8 +78,8 @@ stages:
               # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-plan.ps1"
               arguments: |
                 -azureSubscriptionId "$(azure_subscription_id)"
-                -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
-                -buildNumber ${{parameters.buildNumber}}
+                -terraformEnvironmentFolderPath "$(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}}"
+                -buildNumber "${{parameters.buildNumber}}"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"
@@ -121,8 +121,8 @@ stages:
                     # scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
                     arguments: |
                       -azureSubscriptionId "$(azure_subscription_id)"
-                      -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
-                      -buildNumber ${{parameters.buildNumber}}
+                      -terraformEnvironmentFolderPath "$(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}}"
+                      -buildNumber "${{parameters.buildNumber}}"
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"

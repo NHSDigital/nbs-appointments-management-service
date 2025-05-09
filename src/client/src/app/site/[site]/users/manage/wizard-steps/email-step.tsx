@@ -57,7 +57,9 @@ const NamesStep = ({
     }
 
     if (!proposedUser.meetsWhitelistRequirements) {
-      setError('email', { message: 'Enter a valid email address' });
+      setError('email', {
+        message: 'Email address must be nhs.net or an authorised email domain',
+      });
       return;
     }
 

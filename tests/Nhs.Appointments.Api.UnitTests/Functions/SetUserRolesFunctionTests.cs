@@ -124,7 +124,7 @@ public class SetUserRolesFunctionTests
         var response = await _sut.Invoke(request);
 
         Assert.Multiple(
-            () => response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable),
+            () => response.StatusCode.Should().Be(HttpStatusCode.NotImplemented),
             () => response.IsSuccess.Should().BeFalse(),
             () => _userService.Verify(),
             () => _oktaService.Verify(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never),

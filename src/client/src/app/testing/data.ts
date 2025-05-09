@@ -43,6 +43,36 @@ const getMockUserAssignments = (site: string): User[] => [
   },
 ];
 
+const getMockOktaUserAssignments = (site: string): User[] => [
+  {
+    id: 'nhs.user@nhs.net',
+    roleAssignments: [
+      { role: 'role-1', scope: `site:${site}` },
+      { role: 'role-2', scope: `site:${site}` },
+    ],
+    firstName: 'first1',
+    lastName: 'last1',
+  },
+  {
+    id: 'test.one@nhs.net',
+    roleAssignments: [
+      { role: 'role-1', scope: `site:${site}` },
+      { role: 'role-2', scope: `site:${site}` },
+    ],
+    firstName: 'first1',
+    lastName: 'last1',
+  },
+  {
+    id: 'test.one@okta.net',
+    roleAssignments: [
+      { role: 'role-1', scope: `site:${site}` },
+      { role: 'role-2', scope: `site:${site}` },
+    ],
+    firstName: 'first1',
+    lastName: 'last1',
+  },
+];
+
 const mockRoles: Role[] = [
   {
     displayName: 'Beta Role',
@@ -658,4 +688,5 @@ export {
   mockEmptyDays,
   mockWeekAvailability,
   mockWellKnownOdsCodeEntries,
+  getMockOktaUserAssignments,
 };

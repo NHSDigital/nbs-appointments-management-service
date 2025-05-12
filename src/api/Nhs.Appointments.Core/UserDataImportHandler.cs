@@ -79,7 +79,7 @@ public class UserDataImportHandler(
     {
         var whitelistedEmails = await emailWhitelistStore.GetWhitelistedEmails();
         var invalidEmails = userImportRows
-            .Where(u => !whitelistedEmails.Any(u.UserId.ToLower().EndsWith))
+            .Where(u => !whitelistedEmails.Any(email => u.UserId.Trim().EndsWith(email.Trim(), StringComparison.InvariantCultureIgnoreCase)))
             .ToList();
 
         if (invalidEmails.Count > 0)

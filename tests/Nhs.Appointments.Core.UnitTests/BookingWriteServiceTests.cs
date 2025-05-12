@@ -487,10 +487,10 @@ namespace Nhs.Appointments.Core.UnitTests
                     Service = "Service 1"
                 }
             };
-
-            _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
-                .ReturnsAsync(bookings);
+            
+            _bookingQueryService
+                .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+                .ReturnsAsync(bookings.ToList());
 
             var sessions = new List<SessionInstance>
             {
@@ -514,7 +514,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
-            _bookingsDocumentStore.Verify(b => b.GetInDateRangeAsync(expectedFrom, expectedTo, MockSite));
+            
+            _bookingQueryService.Verify(b => b.GetBookings(expectedFrom, expectedTo, MockSite));
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
@@ -525,7 +526,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
         {
-            IEnumerable<Booking> bookings = new List<Booking>
+            var bookings = new List<Booking>
             {
                 new()
                 {
@@ -549,8 +550,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
 
-            _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+            _bookingQueryService
+                .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                 .ReturnsAsync(bookings);
 
             var sessions = new List<SessionInstance>
@@ -584,7 +585,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_OrphansLiveAppointmentsIfTheyCannotBeFulfilled()
         {
-            IEnumerable<Booking> bookings = new List<Booking>
+            var bookings = new List<Booking>
             {
                 new()
                 {
@@ -606,8 +607,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
 
-            _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+            _bookingQueryService
+                .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                 .ReturnsAsync(bookings);
 
             var sessions = new List<SessionInstance>
@@ -699,7 +700,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_PrioritisesAppointmentsByCreatedDate()
         {
-            IEnumerable<Booking> bookings = new List<Booking>
+            var bookings = new List<Booking>
             {
                 new()
                 {
@@ -725,8 +726,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
 
-            _bookingsDocumentStore
-                .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
+            _bookingQueryService
+                .Setup(x => x.GetBookings(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
                 .ReturnsAsync(bookings);
 
             var sessions = new List<SessionInstance>

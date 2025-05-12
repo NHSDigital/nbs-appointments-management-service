@@ -25,6 +25,8 @@ public class AvailabilityCalculator(
             ? allSessions
             : allSessions.Where(s => s.Services.Contains(service));
 
+        //TODO bookings not filtered by service in SingleService code path.
+        //what happens if we enable MultiServices then disable?
         var bookings = await bookingDocumentStore.GetInDateRangeAsync(from.ToDateTime(new TimeOnly(0, 0)),
             until.ToDateTime(new TimeOnly(23, 59)), site);
 

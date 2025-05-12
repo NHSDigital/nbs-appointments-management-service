@@ -295,4 +295,4 @@ stages:
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isMain: true

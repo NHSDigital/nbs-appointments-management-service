@@ -38,6 +38,10 @@ stages:
         displayName: "Run Terraform Plan"
         steps:
           - checkout: none
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
           - task: DownloadBuildArtifacts@0
             displayName: Download Terraform Artifact
             inputs:
@@ -79,6 +83,10 @@ stages:
             deploy:
               steps:
                 - download: none
+                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: "latest"
                 - task: DownloadBuildArtifacts@0
                   displayName: Download Terraform Artifact
                   inputs:

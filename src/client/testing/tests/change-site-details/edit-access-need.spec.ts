@@ -1,50 +1,69 @@
-import { EditAccessNeedsPage, LoginPage } from '@testing-page-objects';
+import { LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-
-let put: EditAccessNeedsPage;
-
-test.beforeEach(async ({ page, getTestSite }) => {
-  put = await new LoginPage(page)
-    .logInWithNhsMail()
-    .then(oAuthPage => oAuthPage.signIn())
-    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
-    .then(sitePage => sitePage.clickSiteDetailsCard())
-    .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink());
-});
 
 test(
   'A user updates the access needs for a site',
   { tag: ['@affects:site2'] },
-  async ({ page }) => {
-    await put.checkboxes.accessibleToilet.check();
-    await put.checkboxes.stepFreeAccess.check();
-    const siteDetailsPage = await put.saveSiteDetails();
+  async ({ page, getTestSite }) => {
+    await new LoginPage(page)
+      .logInWithNhsMail()
+      .then(oAuthPage => oAuthPage.signIn())
+      .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+      .then(sitePage => sitePage.clickSiteDetailsCard())
+      .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink())
+      .then(async editAccessNeedsPage => {
+        await editAccessNeedsPage.checkboxes.accessibleToilet.check();
+        await editAccessNeedsPage.checkboxes.stepFreeAccess.check();
 
-    const expectedNotification =
-      'You have successfully updated the access needs for the current site.';
-    await expect(
-      siteDetailsPage.notificationBanner.getByText(expectedNotification),
-    ).toBeVisible();
+        return editAccessNeedsPage.saveSiteDetails();
+      })
+      .then(async siteDetailsPage => {
+        await expect(
+          siteDetailsPage.notificationBanner.getByText(
+            'You have successfully updated the access needs for the current site.',
+          ),
+        ).toBeVisible();
 
-    await siteDetailsPage.dismissNotificationBannerButton.click();
-    await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
+        await siteDetailsPage.dismissNotificationBannerButton.click();
+        await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
 
-    put = await siteDetailsPage.clickEditAccessNeedsLink();
-    await expect(put.checkboxes.accessibleToilet).toBeChecked();
-    await expect(put.checkboxes.stepFreeAccess).not.toBeChecked();
+        return await siteDetailsPage.clickEditAccessNeedsLink();
+      })
+      .then(async editAccessNeedsPage => {
+        await expect(
+          editAccessNeedsPage.checkboxes.accessibleToilet,
+        ).toBeChecked();
+        await expect(
+          editAccessNeedsPage.checkboxes.stepFreeAccess,
+        ).not.toBeChecked();
 
-    await put.page.reload();
-    await page.waitForURL(
-      `**/site/${put.site.id}/details/edit-accessibilities`,
-    );
+        await editAccessNeedsPage.page.reload();
+        await page.waitForURL(
+          `**/site/${editAccessNeedsPage.site.id}/details/edit-accessibilities`,
+        );
 
-    await expect(put.checkboxes.accessibleToilet).toBeChecked();
-    await expect(put.checkboxes.stepFreeAccess).not.toBeChecked();
+        await expect(
+          editAccessNeedsPage.checkboxes.accessibleToilet,
+        ).toBeChecked();
+        await expect(
+          editAccessNeedsPage.checkboxes.stepFreeAccess,
+        ).not.toBeChecked();
+      });
   },
 );
 
-test('A user navigates back to the site details page using the back link', async () => {
-  const siteDetailsPage = await put.goBack();
-
-  await expect(siteDetailsPage.title).toBeVisible();
+test('A user navigates back to the site details page using the back link', async ({
+  page,
+  getTestSite,
+}) => {
+  await new LoginPage(page)
+    .logInWithNhsMail()
+    .then(oAuthPage => oAuthPage.signIn())
+    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+    .then(sitePage => sitePage.clickSiteDetailsCard())
+    .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink())
+    .then(editAccessNeedsPage => editAccessNeedsPage.goBack())
+    .then(siteDetailsPage => {
+      expect(siteDetailsPage.title).toBeVisible();
+    });
 });

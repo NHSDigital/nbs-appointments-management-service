@@ -1,15 +1,13 @@
-import AddServicesPage from './view-availability-appointment-pages/add-services-page';
-import AddSessionPage from './view-availability-appointment-pages/add-session-page';
-import CancelAppointmentDetailsPage from './view-availability-appointment-pages/cancel-appointment-details-page';
-import CancelSessionDetailsPage from './view-availability-appointment-pages/cancel-session-details-page';
-import ChangeAvailabilityPage from './view-availability-appointment-pages/change-availability-page';
-import CheckSessionDetailsPage from './view-availability-appointment-pages/check-session-details-page';
+import CancelAppointmentDetailsPage from './cancel-appointment/cancel-appointment-details-page';
+import CancelSessionDetailsPage from './cancel-session/cancel-session-details-page';
+import ChangeAvailabilityPage from './edit-session/change-availability-page';
 import CookiesPolicyPage from './cookies-policy';
 import CreateAvailabilityPage from './create-availability/create-availability-page';
 import CreateAvailabilityWizardPage from './create-availability/create-availability-wizard-page';
 import DailyAppointmentDetailsPage from './view-availability-appointment-pages/daily-appointment-details-page';
+import DayViewPage from './view-availability/day-view-page';
 import EditAccessNeedsPage from './manage-site/edit-access-need';
-import EditAvailabilityConfirmedPage from './view-availability-appointment-pages/edit-availability-confirmed';
+import EditAvailabilityConfirmedPage from './edit-session/edit-availability-confirmed';
 import EditDetailsPage from './manage-site/edit-details';
 import EditInformationForCitizensPage from './manage-site/edit-citizen-information';
 import EditReferenceDetailsPage from './manage-site/edit-reference-details';
@@ -30,16 +28,14 @@ import WeekViewPage from './view-availability/week-view-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
 export {
-  AddServicesPage,
-  AddSessionPage,
   CancelAppointmentDetailsPage,
   CancelSessionDetailsPage,
   ChangeAvailabilityPage,
-  CheckSessionDetailsPage,
   CookiesPolicyPage,
   CreateAvailabilityPage,
   CreateAvailabilityWizardPage,
   DailyAppointmentDetailsPage,
+  DayViewPage,
   EditAccessNeedsPage,
   EditAvailabilityConfirmedPage,
   EditDetailsPage,

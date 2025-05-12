@@ -10,6 +10,7 @@ import testUsersDataRaw from '../../../mock-oidc/users.json';
 import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC01.json';
 import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
 import testSite3DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC03.json';
+import { LoginPage, SitePage } from '@testing-page-objects';
 
 const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
 const testSite1Data: Site = testSite1DataRaw;
@@ -74,39 +75,56 @@ const siteById = (testSiteId = 1) => {
   }
 };
 
-export const test = baseTest.extend<
-  object,
-  {
-    getTestUser: (testUserId?: number) => UserSeedData;
-    getTestSite: (testSiteId?: number) => Site;
-    newUserName: string;
-    externalUserName: string;
-  }
->({
-  getTestUser: [
-    ({}, use) => {
-      use(userBySubjectId);
+type MyaFixture = {
+  signInToSite: (testUser?: number, testSite?: number) => Promise<SitePage>;
+};
+
+export const test = baseTest
+  .extend<MyaFixture>({
+    signInToSite: async ({ page }, use) => {
+      await use(async (testUser = 1, testSite = 1) => {
+        return await new LoginPage(page)
+          .logInWithNhsMail()
+          .then(oAuthPage => oAuthPage.signIn(userBySubjectId(testUser)))
+          .then(siteSelectionPage =>
+            siteSelectionPage.selectSite(siteById(testSite)),
+          );
+      });
     },
-    { scope: 'worker' },
-  ],
-  getTestSite: [
-    ({}, use) => {
-      use(siteById);
-    },
-    { scope: 'worker' },
-  ],
-  newUserName: [
-    async ({}, use) => {
-      const userName = `int-test-user-${test.info().workerIndex}@nhs.net`;
-      await use(userName);
-    },
-    { scope: 'worker' },
-  ],
-  externalUserName: [
-    async ({}, use) => {
-      const nonNhsUserName = `external-user-${test.info().workerIndex}@boots.com`;
-      await use(nonNhsUserName);
-    },
-    { scope: 'worker' },
-  ],
-});
+  })
+  .extend<
+    object,
+    {
+      getTestUser: (testUserId?: number) => UserSeedData;
+      getTestSite: (testSiteId?: number) => Site;
+      newUserName: string;
+      externalUserName: string;
+    }
+  >({
+    getTestUser: [
+      ({}, use) => {
+        use(userBySubjectId);
+      },
+      { scope: 'worker' },
+    ],
+    getTestSite: [
+      ({}, use) => {
+        use(siteById);
+      },
+      { scope: 'worker' },
+    ],
+    newUserName: [
+      async ({}, use) => {
+        const userName = `int-test-user-${test.info().workerIndex}@nhs.net`;
+        await use(userName);
+      },
+      { scope: 'worker' },
+    ],
+    externalUserName: [
+      async ({}, use) => {
+        const nonNhsUserName = `external-user-${test.info().workerIndex}@boots.com`;
+        await use(nonNhsUserName);
+      },
+      { scope: 'worker' },
+    ],
+  });

@@ -20,7 +20,7 @@ Set-Location $terraformEnvironmentFolderPath
 terraform init
     
 if($cosmosEndpoint -eq "" || $cosmosToken -eq "" || $appConfigConnectionString -eq "") {
-        terraform apply `
+        terraform plan `
                 -no-color `
                 -input=false `
                 -var="GOV_NOTIFY_API_KEY=$env:GOV_NOTIFY_API_KEY" `
@@ -32,7 +32,7 @@ if($cosmosEndpoint -eq "" || $cosmosToken -eq "" || $appConfigConnectionString -
                 -var="BUILD_NUMBER=$buildNumber" `
 }
 
-terraform apply `
+terraform plan `
         -no-color `
         -input=false `
         -var="GOV_NOTIFY_API_KEY=$env:GOV_NOTIFY_API_KEY" `

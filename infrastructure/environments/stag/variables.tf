@@ -139,18 +139,3 @@ variable "AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS" {
 variable "BUILD_NUMBER" {
   type = string
 }
-
-variable "COSMOS_ENDPOINT" {
-  type      = string
-  sensitive = true
-}
-
-variable "COSMOS_TOKEN" {
-  type      = string
-  sensitive = true
-}
-
-variable "APP_CONFIG_CONNECTION" {
-  type      = string
-  sensitive = true
-}

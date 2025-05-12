@@ -106,7 +106,13 @@ stages:
               addSpnToEnvironment: true
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-apply.ps1"
-              arguments: -azureSubscriptionId $(azure_subscription_id) -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}} -buildNumber ${{parameters.buildNumber}} -cosmosEndpoint $(COSMOS_ENDPOINT) -cosmosToken $(COSMOS_TOKEN) -appConfigConnection $(APP_CONFIG_CONNECTION)
+              arguments: >
+                -azureSubscriptionId $(azure_subscription_id) 
+                -terraformEnvironmentFolderPath $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}} 
+                -buildNumber ${{parameters.buildNumber}} 
+                -cosmosEndpoint $(COSMOS_ENDPOINT) 
+                -cosmosToken $(COSMOS_TOKEN) 
+                -appConfigConnection $(APP_CONFIG_CONNECTION)
 
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
@@ -296,7 +302,13 @@ stages:
               addSpnToEnvironment: true
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/terraform/terraform-destroy.ps1"
-              arguments: -azureSubscriptionId $(azure_subscription_id) -terraformEnvironmentFolderPath $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw -buildNumber ${{parameters.buildNumber}} -cosmosEndpoint $(COSMOS_ENDPOINT) -cosmosToken $(COSMOS_TOKEN) -appConfigConnection $(APP_CONFIG_CONNECTION)
+              arguments: >
+                -azureSubscriptionId $(azure_subscription_id) 
+                -terraformEnvironmentFolderPath $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw 
+                -buildNumber ${{parameters.buildNumber}} 
+                -cosmosEndpoint $(COSMOS_ENDPOINT) 
+                -cosmosToken $(COSMOS_TOKEN) 
+                -appConfigConnection $(APP_CONFIG_CONNECTION)
 
           - task: AzureCLI@2
             displayName: "Delete Frontdoor route override rule for UK West"

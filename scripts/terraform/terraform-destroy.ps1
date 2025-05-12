@@ -3,8 +3,6 @@ param (
         [string][Parameter(Mandatory)]$azureSubscriptionId,
         [string][Parameter(Mandatory)]$terraformEnvironmentFolderPath,
         [string][Parameter(Mandatory)]$buildNumber,
-        
-        ## Optional variables, only needed for disaster recovery
         [string][Parameter]$cosmosEndpoint,
         [string][Parameter]$cosmosToken,
         [string][Parameter]$appConfigConnectionString

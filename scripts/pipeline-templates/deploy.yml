@@ -67,7 +67,10 @@ stages:
               addSpnToEnvironment: true
               scriptLocation: scriptPath
               scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-plan.ps1
-              arguments: -azureSubscriptionId $(azure_subscription_id) -terraformEnvironmentFolderPath $(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}} -buildNumber ${{parameters.buildNumber}}
+              arguments: |
+                -azureSubscriptionId $(azure_subscription_id) |
+                -terraformEnvironmentFolderPath $(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}} |
+                -buildNumber ${{parameters.buildNumber}}
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"

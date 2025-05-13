@@ -9,7 +9,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
+public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : AuditFeatureSteps(flag, enabled)
 {
     protected HttpResponseMessage Response { get; set; }
 

@@ -91,6 +91,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   sticky_settings {
@@ -191,6 +192,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   identity {

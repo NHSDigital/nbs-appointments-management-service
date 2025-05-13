@@ -272,3 +272,7 @@ variable "app_config_connection" {
   default = ""
   sensitive = true
 }
+
+variable "disable_bulk_import_function" {
+  type = bool
+}

@@ -327,7 +327,7 @@ stages:
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
 
   - ${{ each env in parameters.environments }}:
-      - ${{ if not(eq(env, "perf")) }}:
+      - ${{ if ne(env, 'perf') }}:
         - template: "scripts/pipeline-templates/deploy.yml"
           parameters:
             env: ${{env}}
@@ -342,7 +342,7 @@ stages:
             serviceConnectionName: nbs-mya-rg-${{env}}
             isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
             buildNumber: "$(Build.BuildNumber)"
-      - ${{ if eq(env, "perf") }}:
+      - ${{ if eq(env, 'perf') }}:
         - template: "scripts/pipeline-templates/deploy.yml"
           parameters:
             env: ${{env}}

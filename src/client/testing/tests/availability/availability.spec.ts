@@ -358,8 +358,6 @@ test.describe.configure({ mode: 'serial' });
       let cancelSessionDetailsPage: CancelSessionDetailsPage;
       let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
 
-      let siteId: string;
-
       // ['Europe/London', 'UTC', 'Pacific/Kiritimati', 'Etc/GMT+12']
       ['Europe/London'].forEach(timezone => {
         test.describe(`Test in timezone: '${timezone}'`, () => {
@@ -387,7 +385,9 @@ test.describe.configure({ mode: 'serial' });
             await rootPage.pageContentLogInButton.click();
             await oAuthPage.signIn();
 
-            siteId = getTestSite(2).id;
+            await siteSelectionPage.selectSite(getTestSite(2));
+            await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
+            await page.waitForURL('**/site/**/view-availability');
           });
 
           test('Verify user is able to add a session for future date', async ({
@@ -400,15 +400,9 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -453,17 +447,10 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
               requiredWeekRange,
             );
@@ -491,15 +478,9 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -558,15 +539,9 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -626,15 +601,9 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -697,15 +666,9 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -787,16 +750,13 @@ test.describe.configure({ mode: 'serial' });
               dayIncrement += 7;
             }
 
-            const day = daysFromToday(dayIncrement);
-            const formattedDate1 = parseToUkDatetime(day).format('DD MMMM');
-            const formattedDate2 = parseToUkDatetime(day).format('dddd D MMMM');
-            const requiredWeekRange = weekHeaderText(day);
-
-            await page.goto(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
-            );
-            await page.waitForURL(
-              `/manage-your-appointments/site/${siteId}/view-availability?date=${day}`,
+            const requiredDate = daysFromToday(dayIncrement);
+            const formattedDate1 =
+              parseToUkDatetime(requiredDate).format('DD MMMM');
+            const formattedDate2 =
+              parseToUkDatetime(requiredDate).format('dddd D MMMM');
+            const requiredWeekRange = weekHeaderText(
+              daysFromToday(dayIncrement),
             );
 
             await monthViewAvailabilityPage.verifyViewMonthDisplayed(
@@ -1416,3 +1376,4 @@ test.describe.configure({ mode: 'serial' });
     });
   });
 });
+

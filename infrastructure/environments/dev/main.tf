@@ -70,6 +70,7 @@ module "mya_application_dev" {
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
   cosmos_synapse_enabled                         = true
+  disable_bulk_import_function                   = false
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

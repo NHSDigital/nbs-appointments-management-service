@@ -78,6 +78,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"   = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled" = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.disable_bulk_import_function
   }
 
   sticky_settings {
@@ -160,6 +161,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"   = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled" = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.disable_bulk_import_function
   }
 
   identity {

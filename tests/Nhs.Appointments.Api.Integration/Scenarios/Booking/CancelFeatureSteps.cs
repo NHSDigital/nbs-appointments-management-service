@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
 [FeatureFile("./Scenarios/Booking/Cancel.feature")]
-public sealed class CancelFeatureSteps : BookingBaseFeatureSteps
+public abstract class CancelFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
 {
     [When(@"I cancel the appointment")]
     public async Task CancelAppointment()
@@ -22,3 +24,11 @@ public sealed class CancelFeatureSteps : BookingBaseFeatureSteps
         Response = await Http.PostAsync($"http://localhost:7071/api/booking/{reference}/cancel?site={site}", null);
     }
 }
+
+[Collection("MultipleServicesSerialToggle")]
+public class CancelFeatureSteps_MultipleServicesEnabled()
+    : CancelFeatureSteps(Flags.MultipleServices, true);
+
+[Collection("MultipleServicesSerialToggle")]
+public class CancelFeatureSteps_MultipleServicesDisabled()
+    : CancelFeatureSteps(Flags.MultipleServices, false);

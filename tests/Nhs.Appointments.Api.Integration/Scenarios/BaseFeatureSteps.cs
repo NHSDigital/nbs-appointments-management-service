@@ -32,13 +32,14 @@ public abstract partial class BaseFeatureSteps : Feature
     protected const string ApiSigningKey =
         "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
 
-    protected const string AppointmentsApiUrl = "http://localhost:7071/api";
+    private const string AppointmentsApiUrl = "http://localhost:7071/api";
+
     private readonly Guid _testId = Guid.NewGuid();
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
-
     protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
+    private List<DailyAvailabilityDocument> CreatedAvailability = new List<DailyAvailabilityDocument>();
 
     public BaseFeatureSteps()
     {
@@ -102,21 +103,35 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [Given(@"feature toggle '(.+)' is '(.+)'")]
-    public async Task SetLocalFeatureToggleOverride(string name, string state)
+    protected async Task SetLocalFeatureToggleOverride(string name, string state)
     {
-        var response = await Http.PatchAsync($"http://localhost:7071/api/feature-flag-override/{name}?enabled={state}",
+        var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
             null);
 
         response.EnsureSuccessStatusCode();
     }
 
     [And(@"feature toggles are cleared")]
-    public async Task ClearLocalFeatureToggleOverrides()
+    protected async Task ClearLocalFeatureToggleOverrides()
     {
-        var response = await Http.PatchAsync("http://localhost:7071/api/feature-flag-overrides-clear",
+        var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-overrides-clear",
             null);
 
         response.EnsureSuccessStatusCode();
+    }
+
+    protected async Task Dispose_Bookings_Availability()
+    {
+        foreach (var booking in MadeBookings)
+        {
+            await Client.GetContainer("appts", "booking_data").DeleteItemAsync<BookingDocument>(booking.Id, new PartitionKey(booking.Site));
+            await Client.GetContainer("appts", "index_data").DeleteItemAsync<BookingDocument>(booking.Id, new PartitionKey("booking_index"));
+        }
+
+        foreach (var availability in CreatedAvailability)
+        {
+            await Client.GetContainer("appts", "booking_data").DeleteItemAsync<DailyAvailabilityDocument>(availability.Id, new PartitionKey(availability.Site));
+        }
     }
 
     [Given("the following sessions")]
@@ -125,17 +140,17 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         return SetupSessions("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
     }
-
-    [Given(@"the following sessions for site '(\w)'")]
-    [And(@"the following sessions for site '(\w)'")]
+    
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
     {
         var site = GetSiteId(siteDesignation);
-        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable);
+        var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable).ToList();
         foreach (var document in availabilityDocuments)
         {
             await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
         }
+        
+        CreatedAvailability.AddRange(availabilityDocuments);
     }
 
     [And(@"a citizen with the NHS Number '(\d+)'")]
@@ -283,7 +298,8 @@ public abstract partial class BaseFeatureSteps : Feature
         SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Cancelled);
 
     [And("the following orphaned bookings exist")]
-    public Task SetupOrphanedBookings(DataTable dataTable) => SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Orphaned);
+    public Task SetupOrphanedBookings(DataTable dataTable) =>
+        SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Orphaned);
 
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
@@ -305,7 +321,7 @@ public abstract partial class BaseFeatureSteps : Feature
             AvailabilityStatus = MapAvailabilityStatus(bookingType),
             Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
                 ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
-                : GetCreationDateTime(bookingType),                        
+                : GetCreationDateTime(bookingType),
             StatusUpdated = GetCreationDateTime(bookingType),
             AttendeeDetails = new AttendeeDetails
             {
@@ -323,22 +339,21 @@ public abstract partial class BaseFeatureSteps : Feature
             AdditionalData = new { IsAppBooking = true }
         });
 
-        var bookingIndexDocuments = dataTable.Rows.Skip(1).Select(
-            (row, index) => new BookingIndexDocument
-            {
-                Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
-                            BookingReferences.GetBookingReference(index, bookingType),
-                Site = GetSiteId(),
-                DocumentType = "booking_index",
-                Id = row.Cells.ElementAtOrDefault(4)?.Value ??
-                     BookingReferences.GetBookingReference(index, bookingType),
-                NhsNumber = NhsNumber,
-                Status = MapStatus(bookingType),
-                Created = GetCreationDateTime(bookingType),
-                From = DateTime.ParseExact(
-                    $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
-                    "yyyy-MM-dd HH:mm", null),
-            });
+        var bookingIndexDocuments = dataTable.Rows.Skip(1).Select((row, index) => new BookingIndexDocument
+        {
+            Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
+                        BookingReferences.GetBookingReference(index, bookingType),
+            Site = GetSiteId(),
+            DocumentType = "booking_index",
+            Id = row.Cells.ElementAtOrDefault(4)?.Value ??
+                 BookingReferences.GetBookingReference(index, bookingType),
+            NhsNumber = NhsNumber,
+            Status = MapStatus(bookingType),
+            Created = GetCreationDateTime(bookingType),
+            From = DateTime.ParseExact(
+                $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                "yyyy-MM-dd HH:mm", null),
+        });
 
         foreach (var booking in bookings)
         {
@@ -544,7 +559,8 @@ public abstract partial class BaseFeatureSteps : Feature
                     Description = "A user can create, view, and manage site availability.",
                     Permissions =
                     [
-                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
+                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking,
+                        Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
                     ]
                 },
                 new Role
@@ -553,7 +569,10 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Appointment manager",
                     Description = "A user can view and cancel appointments.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata]
+                    [
+                        Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking,
+                        Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
+                    ]
                 },
                 new Role
                 {
@@ -561,7 +580,10 @@ public abstract partial class BaseFeatureSteps : Feature
                     Name = "Site details manager",
                     Description = "A user can edit site details and accessibility information.",
                     Permissions =
-                        [Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata]
+                    [
+                        Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
+                        Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata
+                    ]
                 },
             ]
         };

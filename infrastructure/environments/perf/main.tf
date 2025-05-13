@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-stag-uks"
+    resource_group_name  = "nbs-myaperf-rg-stag-uks"
     storage_account_name = "myaperftfstaguks"
     container_name       = "tfstate"
     key                  = "perf.tfstate"
@@ -25,7 +25,7 @@ provider "azurerm" {
   }
 }
 
-module "mya_application_stag" {
+module "mya_application_perf" {
   environment                                    = "perf"
   location                                       = "uksouth"
   loc                                            = "uks"

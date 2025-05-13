@@ -26,7 +26,7 @@ let site: Site;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 test.describe.configure({ mode: 'serial' });
 
-[true, false].forEach(multipleServicesEnabled => {
+[false, true].forEach(multipleServicesEnabled => {
   test.describe(`Availability Tests for MultipleServices enabled: '${multipleServicesEnabled}'`, () => {
     test.beforeAll(async () => {
       await overrideFeatureFlag('MultipleServices', multipleServicesEnabled);
@@ -36,12 +36,12 @@ test.describe.configure({ mode: 'serial' });
       await clearAllFeatureFlagOverrides();
     });
 
-    // ['Europe/London', 'UTC', 'Pacific/Kiritimati', 'Etc/GMT+12']
-    ['Europe/London'].forEach(timezone => {
-      test.describe(`Test in timezone: '${timezone}'`, () => {
-        test.use({ timezoneId: timezone });
+    test.describe('Create Availability', () => {
+      // ['Europe/London', 'UTC', 'Pacific/Kiritimati', 'Etc/GMT+12']
+      ['Europe/London'].forEach(timezone => {
+        test.describe(`Test in timezone: '${timezone}'`, () => {
+          test.use({ timezoneId: timezone });
 
-        test.describe('Create Availability', () => {
           test.beforeEach(async ({ page, getTestSite }) => {
             site = getTestSite();
             rootPage = new RootPage(page);

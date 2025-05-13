@@ -107,7 +107,7 @@ public class UserService(
             IdentityProvider = identityProvider,
             ExtantInSite = await CheckIfUserExistsAtSite(siteId, userId),
             ExtantInIdentityProvider = await CheckIfUserExistsInIdentityServer(userId, identityProvider),
-            MeetsWhitelistRequirements = whitelistedEmails.Any(userId.ToLower().EndsWith)
+            MeetsWhitelistRequirements = whitelistedEmails.Any(email => userId.Trim().EndsWith(email.Trim(), StringComparison.CurrentCultureIgnoreCase))
         };
     }
 

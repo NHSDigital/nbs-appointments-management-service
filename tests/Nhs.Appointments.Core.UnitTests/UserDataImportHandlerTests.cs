@@ -260,6 +260,7 @@ public class UserDataImportHandlerTests
         [
             "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
             "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test3@okta-with-trailing-white-space.net ,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -277,13 +278,13 @@ public class UserDataImportHandlerTests
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = true });
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
-            .ReturnsAsync(["@okta.net"]);
+            .ReturnsAsync(["@okta.net", "@okta-with-trailing-white-space.net "]);
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(2);
+        report.Count().Should().Be(3);
 
-        _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(3));
         _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
     }
 

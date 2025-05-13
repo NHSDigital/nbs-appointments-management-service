@@ -248,6 +248,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Theory]
         [InlineData("OKTA.USER1@not-nhs.NET")]
         [InlineData("OkTa.uSeR2@not-nhs-either.NET")]
+        [InlineData("okta.user3@trailing-space.net ")]
         public async Task GetUserIdentityStatus_Okta_User_WhenUserDoesNotExistInMya_AndDoesNotExistInOkta(string userId)
         {
             _userStore
@@ -256,7 +257,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
                 .ReturnsAsync((OktaUserResponse)null);
 
-            var whiteListedEmails = new List<string> { "@not-nhs.net", "not-nhs-either.net" };
+            var whiteListedEmails = new List<string> { "@not-nhs.net", "not-nhs-either.net", "@trailing-space.net " };
             _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
                 .ReturnsAsync(whiteListedEmails);
 

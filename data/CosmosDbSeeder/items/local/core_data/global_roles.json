@@ -67,7 +67,8 @@
         "site:get-meta-data",
         "site:manage",
         "site:manage:admin",
-        "users:view"
+        "users:view",
+        "users:manage"
       ]
     },
     {

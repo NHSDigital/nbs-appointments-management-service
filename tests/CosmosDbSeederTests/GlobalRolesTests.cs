@@ -5,9 +5,9 @@ namespace CosmosDbSeederTests;
 
 public class GlobalRolesTests
 {
-    private static object ReadGlobalRoles(string environment)
+    private static GlobalRolesDocument ReadGlobalRoles(string environment)
     {
-        var globalRoles = JsonConvert.DeserializeObject(File.ReadAllText(Path.Combine(
+        var globalRoles = JsonConvert.DeserializeObject<GlobalRolesDocument>(File.ReadAllText(Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
             $"items/{environment}/core_data/global_roles.json")));
 
@@ -26,5 +26,17 @@ public class GlobalRolesTests
         devGlobalRoles.Should().BeEquivalentTo(intGlobalRoles);
         intGlobalRoles.Should().BeEquivalentTo(stagGlobalRoles);
         stagGlobalRoles.Should().BeEquivalentTo(prodGlobalRoles);
+
+        localGlobalRoles.Roles =
+            localGlobalRoles.Roles.Where(role => role.Id != "system:integration-test-user").ToArray();
+        localGlobalRoles.Should().BeEquivalentTo(devGlobalRoles);
+    }
+
+    [Fact(DisplayName = "APPT-802: Admin User roles should include user manager")]
+    public void AdminUserRolesShouldIncludeManageUsers()
+    {
+        var adminRoles = ReadGlobalRoles("local").Roles.Single(role => role.Id == "system:admin-user");
+
+        adminRoles.Permissions.Should().Contain("users:manage");
     }
 }

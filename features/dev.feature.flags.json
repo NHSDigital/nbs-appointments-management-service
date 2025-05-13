@@ -2,7 +2,7 @@
   "FeatureManagement": {
     "OktaEnabled": true,
     "TestFeatureEnabled": true,
-    "JointBookings": true,
+    "JointBookings": false,
     "BulkImport": true,
     "MultipleServices": true,
     "TestFeaturePercentageEnabled": {

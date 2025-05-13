@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    default: ["dev", "int", "perf", "stag", "prod"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
@@ -327,17 +327,33 @@ stages:
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
 
   - ${{ each env in parameters.environments }}:
-      - template: "scripts/pipeline-templates/deploy.yml"
-        parameters:
-          env: ${{env}}
-          variable_group: nbs-mya-${{env}}
-          httpFunctionAppName: nbs-mya-func-${{env}}-uks
-          highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-          serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-          timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-          webServerName: nbs-mya-app-${{env}}-uks
-          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-          resourceGroup: nbs-mya-rg-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
-          buildNumber: "$(Build.BuildNumber)"
+      - ${{ if not(eq(env, "perf")) }}:
+        - template: "scripts/pipeline-templates/deploy.yml"
+          parameters:
+            env: ${{env}}
+            variable_group: nbs-mya-${{env}}
+            httpFunctionAppName: nbs-mya-func-${{env}}-uks
+            highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+            serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+            timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+            webServerName: nbs-mya-app-${{env}}-uks
+            cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+            resourceGroup: nbs-mya-rg-${{env}}-uks
+            serviceConnectionName: nbs-mya-rg-${{env}}
+            isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+            buildNumber: "$(Build.BuildNumber)"
+      - ${{ if eq(env, "perf") }}:
+        - template: "scripts/pipeline-templates/deploy.yml"
+          parameters:
+            env: ${{env}}
+            variable_group: nbs-mya-${{env}}
+            httpFunctionAppName: nbs-mya-func-${{env}}-uks
+            highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+            serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+            timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+            webServerName: nbs-mya-app-${{env}}-uks
+            cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+            resourceGroup: nbs-mya${{env}}-rg-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-stag
+            isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+            buildNumber: "$(Build.BuildNumber)"

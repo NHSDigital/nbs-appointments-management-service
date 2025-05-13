@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
-public class FeatureToggledSteps(string flag, bool enabled) : BaseFeatureSteps, IAsyncLifetime
+public abstract class FeatureToggledSteps(string flag, bool enabled) : BaseFeatureSteps, IAsyncLifetime
 {
     private string Flag { get; } = flag;
     private bool Enabled { get; } = enabled;
@@ -16,5 +16,6 @@ public class FeatureToggledSteps(string flag, bool enabled) : BaseFeatureSteps, 
     public async Task DisposeAsync()
     {
         await base.ClearLocalFeatureToggleOverrides();
+        await Dispose_Bookings_Availability();
     }
 }

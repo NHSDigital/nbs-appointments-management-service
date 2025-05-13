@@ -1,4 +1,3 @@
-import { LoginPage, MonthViewPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 import {
   expectEmptyWeek,
@@ -72,29 +71,38 @@ import {
               .then(monthViewPage =>
                 // Go to a specific month page that has a daylight savings change
                 monthViewPage.goToSpecificDate('2026-03-01'),
-              );
+              )
+              .then(async monthViewPage => {
+                await expect(monthViewPage.previousMonthButton).toHaveText(
+                  'February 2026',
+                );
+                await expect(monthViewPage.previousMonthButton).toHaveText(
+                  'April 2026',
+                );
 
-            await expect(put.previousMonthButton).toHaveText('February 2026');
-            await expect(put.previousMonthButton).toHaveText('April 2026');
-
-            await expectEmptyWeek(put, '23 February to 1 March');
-            await expectEmptyWeek(put, '2 March to 8 March');
-            await expectEmptyWeek(put, '9 March to 15 March');
-            await expectEmptyWeek(put, '16 March to 22 March');
-            await expectWeekSummary(put, {
-              weekTitle: '23 March to 29 March',
-              services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 4 }],
-              totalAppointments: 480,
-              booked: 4,
-              unbooked: 476,
-            });
-            await expectWeekSummary(put, {
-              weekTitle: '30 March to 5 April',
-              services: [{ serviceName: 'RSV (Adult)', bookedAppointments: 2 }],
-              totalAppointments: 240,
-              booked: 2,
-              unbooked: 238,
-            });
+                await expectEmptyWeek(monthViewPage, '23 February to 1 March');
+                await expectEmptyWeek(monthViewPage, '2 March to 8 March');
+                await expectEmptyWeek(monthViewPage, '9 March to 15 March');
+                await expectEmptyWeek(monthViewPage, '16 March to 22 March');
+                await expectWeekSummary(monthViewPage, {
+                  weekTitle: '23 March to 29 March',
+                  services: [
+                    { serviceName: 'RSV (Adult)', bookedAppointments: 4 },
+                  ],
+                  totalAppointments: 480,
+                  booked: 4,
+                  unbooked: 476,
+                });
+                await expectWeekSummary(monthViewPage, {
+                  weekTitle: '30 March to 5 April',
+                  services: [
+                    { serviceName: 'RSV (Adult)', bookedAppointments: 2 },
+                  ],
+                  totalAppointments: 240,
+                  booked: 2,
+                  unbooked: 238,
+                });
+              });
           });
         });
       },

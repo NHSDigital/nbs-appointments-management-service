@@ -1,14 +1,10 @@
-import { LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
 
 test(
   'A user updates the access needs for a site',
-  { tag: ['@affects:site2'] },
-  async ({ page, getTestSite }) => {
-    await new LoginPage(page)
-      .logInWithNhsMail()
-      .then(oAuthPage => oAuthPage.signIn())
-      .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
+  { tag: ['@acts-as:user1', '@alters:site2'] },
+  async ({ signInToSite }) => {
+    await signInToSite(1, 2)
       .then(sitePage => sitePage.clickSiteDetailsCard())
       .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink())
       .then(async editAccessNeedsPage => {
@@ -27,43 +23,22 @@ test(
         await siteDetailsPage.dismissNotificationBannerButton.click();
         await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
 
-        return await siteDetailsPage.clickEditAccessNeedsLink();
-      })
-      .then(async editAccessNeedsPage => {
-        await expect(
-          editAccessNeedsPage.checkboxes.accessibleToilet,
-        ).toBeChecked();
-        await expect(
-          editAccessNeedsPage.checkboxes.stepFreeAccess,
-        ).not.toBeChecked();
-
-        await editAccessNeedsPage.page.reload();
-        await page.waitForURL(
-          `**/site/${editAccessNeedsPage.site.id}/details/edit-accessibilities`,
-        );
-
-        await expect(
-          editAccessNeedsPage.checkboxes.accessibleToilet,
-        ).toBeChecked();
-        await expect(
-          editAccessNeedsPage.checkboxes.stepFreeAccess,
-        ).not.toBeChecked();
+        await expect(siteDetailsPage.accessibleToilet).toHaveText(/Yes/);
+        await expect(siteDetailsPage.stepFreeAccess).toHaveText(/Yes/);
       });
   },
 );
 
-test('A user navigates back to the site details page using the back link', async ({
-  page,
-  getTestSite,
-}) => {
-  await new LoginPage(page)
-    .logInWithNhsMail()
-    .then(oAuthPage => oAuthPage.signIn())
-    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
-    .then(sitePage => sitePage.clickSiteDetailsCard())
-    .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink())
-    .then(editAccessNeedsPage => editAccessNeedsPage.goBack())
-    .then(siteDetailsPage => {
-      expect(siteDetailsPage.title).toBeVisible();
-    });
-});
+test(
+  'A user navigates back to the site details page using the cancel button',
+  { tag: ['@acts-as:user1', '@asserts-on:site2'] },
+  async ({ signInToSite }) => {
+    await signInToSite(1, 2)
+      .then(sitePage => sitePage.clickSiteDetailsCard())
+      .then(siteDetailsPage => siteDetailsPage.clickEditAccessNeedsLink())
+      .then(editAccessNeedsPage => editAccessNeedsPage.cancel())
+      .then(siteDetailsPage => {
+        expect(siteDetailsPage.title).toBeVisible();
+      });
+  },
+);

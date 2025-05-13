@@ -38,6 +38,7 @@ export default class TopNav {
 
     this.serviceName = this.page
       .getByRole('banner')
+      .filter({ hasText: 'Manage Your Appointments' })
       .getByRole('link', { name: 'Manage Your Appointments' });
   }
 

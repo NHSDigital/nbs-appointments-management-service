@@ -27,8 +27,8 @@ export default class EditInformationForCitizensPage extends RootPage {
     );
   }
 
-  async goBack(): Promise<SiteDetailsPage> {
-    await this.backLink.click();
+  async cancel(): Promise<SiteDetailsPage> {
+    await this.cancelButton.click();
     await this.page.waitForURL(`**/site/${this.site.id}/details`);
 
     return new SiteDetailsPage(this.page, this.site);

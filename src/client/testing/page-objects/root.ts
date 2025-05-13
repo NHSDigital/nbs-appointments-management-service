@@ -57,7 +57,7 @@ export default class RootPage {
     };
     this.buildNumber = page.getByText(/^Build number: /);
 
-    this.notificationBanner = page.getByRole('banner');
+    this.notificationBanner = page.getByRole('main').getByRole('banner');
     this.dismissNotificationBannerButton = this.notificationBanner.getByRole(
       'button',
       { name: 'Close' },

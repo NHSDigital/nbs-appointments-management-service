@@ -1,3 +1,4 @@
+/* eslint-disable lines-between-class-members */
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
 import { Site } from '@types';
@@ -18,9 +19,11 @@ type accessNeedsCheckboxes = {
 export default class EditAccessNeedsPage extends RootPage {
   readonly site: Site;
   readonly title: Locator;
-  readonly backLink: Locator = this.page.getByRole('link', { name: 'Go back' });
 
   readonly confirmSiteDetailsButton: Locator;
+  readonly cancelButton: Locator = this.page.getByRole('button', {
+    name: 'Cancel',
+  });
   readonly checkboxes: accessNeedsCheckboxes = {
     accessibleToilet: this.page.getByRole('checkbox', {
       name: 'Accessible toilet',
@@ -62,8 +65,8 @@ export default class EditAccessNeedsPage extends RootPage {
     });
   }
 
-  async goBack(): Promise<SiteDetailsPage> {
-    await this.backLink.click();
+  async cancel(): Promise<SiteDetailsPage> {
+    await this.cancelButton.click();
     await this.page.waitForURL(`**/site/${this.site.id}/details`);
 
     return new SiteDetailsPage(this.page, this.site);

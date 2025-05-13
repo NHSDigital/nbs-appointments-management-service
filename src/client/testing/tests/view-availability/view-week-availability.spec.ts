@@ -17,7 +17,7 @@
 //             put = await new LoginPage(page)
 //               .logInWithNhsMail()
 //               .then(oAuthPage => oAuthPage.signIn())
-//               .then(siteSelectionPage =>
+//               .then( siteSelectionPage =>
 //                 siteSelectionPage.selectSite(getTestSite(2)),
 //               )
 //               .then(sitePage => sitePage.clickViewAvailabilityCard())

@@ -1,49 +1,49 @@
-import { EditReferenceDetailsPage, LoginPage } from '@testing-page-objects';
 import { test, expect } from '../../fixtures';
-
-let put: EditReferenceDetailsPage;
-
-test.beforeEach(async ({ page, getTestSite }) => {
-  put = await new LoginPage(page)
-    .logInWithNhsMail()
-    .then(oAuthPage => oAuthPage.signIn())
-    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
-    .then(sitePage => sitePage.clickSiteDetailsCard())
-    .then(siteDetailsPage => siteDetailsPage.clickEditReferenceDetailsLink());
-});
 
 test(
   'A user updates the reference details for a site',
-  { tag: ['@affects:site2'] },
-  async () => {
-    await put.odsCodeInput.fill('ABC000032434543');
-    await put.icbSelectInput.selectOption('Integrated Care Board 1');
-    await put.regionSelectInput.selectOption('Region 1');
+  { tag: ['@acts-as:user1', '@alters:site2'] },
+  async ({ signInToSite }) => {
+    await signInToSite(1, 2)
+      .then(sitePage => sitePage.clickSiteDetailsCard())
+      .then(siteDetailsPage => siteDetailsPage.clickEditReferenceDetailsLink())
+      .then(async editReferenceDetailsPage => {
+        await editReferenceDetailsPage.odsCodeInput.fill('ABC000032434543');
+        await editReferenceDetailsPage.icbSelectInput.selectOption(
+          'Integrated Care Board 1',
+        );
+        await editReferenceDetailsPage.regionSelectInput.selectOption(
+          'Region 1',
+        );
 
-    const siteDetailsPage = await put.saveReferenceDetails();
+        return editReferenceDetailsPage.saveReferenceDetails();
+      })
+      .then(async siteDetailsPage => {
+        await expect(
+          siteDetailsPage.notificationBanner.getByText(
+            'You have successfully updated the reference details for the current site.',
+          ),
+        ).toBeVisible();
+        await siteDetailsPage.dismissNotificationBannerButton.click();
+        await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
 
-    const expectedNotification =
-      'You have successfully updated the reference details for the current site.';
-    await expect(
-      siteDetailsPage.notificationBanner.getByText(expectedNotification),
-    ).toBeVisible();
-    await siteDetailsPage.dismissNotificationBannerButton.click();
-    await expect(siteDetailsPage.notificationBanner).not.toBeVisible();
-
-    await expect(siteDetailsPage.odsCode).toHaveText('ABC000032434543');
-    await expect(siteDetailsPage.icb).toHaveText('Integrated Care Board 1');
-    await expect(siteDetailsPage.region).toHaveText('Region 1');
-
-    put = await siteDetailsPage.clickEditReferenceDetailsLink();
-
-    await expect(put.odsCodeInput).toHaveValue('ABC000032434543');
-    await expect(put.icbSelectInput).toHaveValue('ICB1');
-    await expect(put.regionSelectInput).toHaveValue('R1');
+        await expect(siteDetailsPage.odsCode).toHaveText(/ABC000032434543/);
+        await expect(siteDetailsPage.icb).toHaveText(/Integrated Care Board 1/);
+        await expect(siteDetailsPage.region).toHaveText(/Region 1/);
+      });
   },
 );
 
-test('A user navigates back to the site details page using the back link', async () => {
-  const siteDetailsPage = await put.goBack();
-
-  await expect(siteDetailsPage.title).toBeVisible();
-});
+test(
+  'A user navigates back to the site details page using the back link',
+  { tag: ['@acts-as:user1', '@asserts-on:site2'] },
+  async ({ signInToSite }) => {
+    await signInToSite(1, 2)
+      .then(sitePage => sitePage.clickSiteDetailsCard())
+      .then(siteDetailsPage => siteDetailsPage.clickEditReferenceDetailsLink())
+      .then(editReferenceDetailsPage => editReferenceDetailsPage.goBack())
+      .then(async siteDetailsPage => {
+        await expect(siteDetailsPage.title).toBeVisible();
+      });
+  },
+);

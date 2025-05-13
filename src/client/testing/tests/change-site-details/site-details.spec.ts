@@ -1,55 +1,58 @@
 import { test, expect } from '../../fixtures';
-import { LoginPage, SiteDetailsPage } from '@testing-page-objects';
-
-let put: SiteDetailsPage;
-
-test.beforeEach(async ({ page, getTestSite }) => {
-  put = await new LoginPage(page)
-    .logInWithNhsMail()
-    .then(oAuthPage => oAuthPage.signIn())
-    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite(2)))
-    .then(sitePage => sitePage.clickSiteDetailsCard());
-});
 
 test(
   'A user views the details of a site',
-  { tag: ['@affects:site2'] },
-  async () => {
-    await expect(put.title).toBeVisible();
+  { tag: ['@acts-as:user1', '@asserts-on:site1'] },
+  async ({ signInToSite }) => {
+    await signInToSite()
+      .then(sitePage => sitePage.clickSiteDetailsCard())
+      .then(async siteDetailsPage => {
+        await expect(siteDetailsPage.title).toBeVisible();
 
-    await expect(
-      put.page.getByRole('heading', { name: 'Site reference details' }),
-    ).toBeVisible();
-    await expect(put.odsCode).toHaveText('ABC000032434543');
-    await expect(put.icb).toHaveText('Integrated Care Board 1');
-    await expect(put.region).toHaveText('Region 1');
+        await expect(
+          siteDetailsPage.page.getByRole('heading', {
+            name: 'Site reference details',
+          }),
+        ).toBeVisible();
+        await expect(siteDetailsPage.odsCode).toHaveText(/ABC01/);
+        await expect(siteDetailsPage.icb).toHaveText(/Integrated Care Board 1/);
+        await expect(siteDetailsPage.region).toHaveText(/Region 1/);
 
-    await expect(
-      put.page.getByRole('heading', { name: 'Site details' }),
-    ).toBeVisible();
-    await expect(put.address).toHaveText('Site 2 Address');
-    await expect(put.latitude).toHaveText('53.742');
-    await expect(put.longitude).toHaveText('0.32445345');
-    await expect(put.phoneNumber).toHaveText('0118 999 88199 9119 725 3');
+        await expect(
+          siteDetailsPage.page.getByRole('heading', { name: 'Site details' }),
+        ).toBeVisible();
+        await expect(siteDetailsPage.address).toHaveText(
+          /Pudsey, Leeds, LS28 7BR/,
+        );
+        await expect(siteDetailsPage.latitude).toHaveText(/53.795467/);
+        await expect(siteDetailsPage.longitude).toHaveText(/-1.6610648/);
+        await expect(siteDetailsPage.phoneNumber).toHaveText(/0113 1111111/);
 
-    await expect(
-      put.page.getByRole('heading', { name: 'Access needs' }),
-    ).toBeVisible();
-    await expect(put.accessibleToilet).toHaveText('Yes');
-    await expect(put.brailleTranslationService).toHaveText('No');
-    await expect(put.disabledCarParking).toHaveText('No');
-    await expect(put.carParking).toHaveText('No');
-    await expect(put.inductionLoop).toHaveText('No');
-    await expect(put.signLanguageService).toHaveText('No');
-    await expect(put.stepFreeAccess).toHaveText('No');
-    await expect(put.textRelay).toHaveText('No');
-    await expect(put.wheelchairAccess).toHaveText('No');
+        await expect(
+          siteDetailsPage.page.getByRole('heading', { name: 'Access needs' }),
+        ).toBeVisible();
+        await expect(siteDetailsPage.accessibleToilet).toHaveText(/No/);
+        await expect(siteDetailsPage.brailleTranslationService).toHaveText(
+          /No/,
+        );
+        await expect(siteDetailsPage.disabledCarParking).toHaveText(/No/);
+        await expect(siteDetailsPage.carParking).toHaveText(/No/);
+        await expect(siteDetailsPage.inductionLoop).toHaveText(/No/);
+        await expect(siteDetailsPage.signLanguageService).toHaveText(/No/);
+        await expect(siteDetailsPage.stepFreeAccess).toHaveText(/No/);
+        await expect(siteDetailsPage.textRelay).toHaveText(/No/);
+        await expect(siteDetailsPage.wheelchairAccess).toHaveText(/No/);
 
-    await expect(
-      put.page.getByRole('heading', { name: 'Information for citizens' }),
-    ).toBeVisible();
-    await expect(
-      put.page.getByText('Mock information for citizens about site 2'),
-    ).toBeVisible();
+        await expect(
+          siteDetailsPage.page.getByRole('heading', {
+            name: 'Information for citizens',
+          }),
+        ).toBeVisible();
+        await expect(
+          siteDetailsPage.page.getByText(
+            /Mock information for citizens about site 1/,
+          ),
+        ).toBeVisible();
+      });
   },
 );

@@ -33,70 +33,79 @@ const SiteDetailsPage = async ({
   const siteCoreSummary = mapCoreSiteSummaryData(site);
 
   return (
-    <>
-      <Card title="Site reference details">
-        {siteReferenceSummaryData && (
-          <SummaryList {...siteReferenceSummaryData}></SummaryList>
-        )}
-        {permissions.includes('site:manage:admin') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-reference-details`}
-            className="nhsuk-link"
-          >
-            Edit site reference details
-          </Link>
-        ) : null}
-      </Card>
-      <Card title="Site details">
-        {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
-        {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-details`}
-            className="nhsuk-link"
-          >
-            Edit site details
-          </Link>
-        ) : null}
-      </Card>
-      <Card title="Access needs">
-        <SummaryList
-          borders={true}
-          items={accessibilityDefinitions.map(definition => {
-            return {
-              title: definition.displayName,
-              value:
-                site?.accessibilities.find(value => value.id === definition.id)
-                  ?.value === 'true'
-                  ? 'Yes'
-                  : 'No',
-            };
-          })}
-        />
-        {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-accessibilities`}
-            className="nhsuk-link"
-          >
-            Edit access needs
-          </Link>
-        ) : null}
-      </Card>
-      <Card title="Information for citizens">
-        {site.informationForCitizens ? (
-          <p>{site.informationForCitizens}</p>
-        ) : (
-          <p>Information for people visiting the site</p>
-        )}
-        {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-information-for-citizens`}
-            className="nhsuk-link"
-          >
-            Edit information for citizens
-          </Link>
-        ) : null}
-      </Card>
-    </>
+    <ol className="card-list">
+      <li key={`site-reference-summary`}>
+        <Card title="Site reference details">
+          {siteReferenceSummaryData && (
+            <SummaryList {...siteReferenceSummaryData}></SummaryList>
+          )}
+          {permissions.includes('site:manage:admin') ? (
+            <Link
+              href={`/site/${site.id}/details/edit-reference-details`}
+              className="nhsuk-link"
+            >
+              Edit site reference details
+            </Link>
+          ) : null}
+        </Card>
+      </li>
+      <li key={`site-details-summary`}>
+        <Card title="Site details">
+          {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
+          {permissions.includes('site:manage') ? (
+            <Link
+              href={`/site/${site.id}/details/edit-details`}
+              className="nhsuk-link"
+            >
+              Edit site details
+            </Link>
+          ) : null}
+        </Card>
+      </li>
+      <li key={`site-access-needs-summary`}>
+        <Card title="Access needs">
+          <SummaryList
+            borders={true}
+            items={accessibilityDefinitions.map(definition => {
+              return {
+                title: definition.displayName,
+                value:
+                  site?.accessibilities.find(
+                    value => value.id === definition.id,
+                  )?.value === 'true'
+                    ? 'Yes'
+                    : 'No',
+              };
+            })}
+          />
+          {permissions.includes('site:manage') ? (
+            <Link
+              href={`/site/${site.id}/details/edit-accessibilities`}
+              className="nhsuk-link"
+            >
+              Edit access needs
+            </Link>
+          ) : null}
+        </Card>
+      </li>
+      <li key={`site-citizen-information-summary`}>
+        <Card title="Information for citizens">
+          {site.informationForCitizens ? (
+            <p>{site.informationForCitizens}</p>
+          ) : (
+            <p>Information for people visiting the site</p>
+          )}
+          {permissions.includes('site:manage') ? (
+            <Link
+              href={`/site/${site.id}/details/edit-information-for-citizens`}
+              className="nhsuk-link"
+            >
+              Edit information for citizens
+            </Link>
+          ) : null}
+        </Card>
+      </li>
+    </ol>
   );
 };
 

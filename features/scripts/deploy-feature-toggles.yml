@@ -3,6 +3,11 @@
     type: string
   - name: isMain
     type: string
+variables:
+  ${{ if eq(parameters.env, 'perf') }}:
+    - resourceGroup: "nbs-mya${{parameters.env}}-rg-stag"
+  ${{ if eq(parameters.env, 'perf') }}:
+    - resourceGroup: "nbs-mya-rg-${{parameters.env}}"
 
 stages:
   - stage: DeployFeatures${{parameters.env}}
@@ -22,11 +27,6 @@ stages:
       - job: ApplyFeatureToggles
         dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles"
-        variables:
-          ${{ if eq(parameters.env, 'perf') }}:
-            - resourceGroup: "nbs-mya${{parameters.env}}-rg-stag"
-          ${{ if eq(parameters.env, 'perf') }}:
-            - resourceGroup: "nbs-mya-rg-${{parameters.env}}"  
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"

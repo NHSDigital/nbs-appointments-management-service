@@ -18,7 +18,7 @@ import {
           test('All the month page data is arranged in the week cards as expected - Oct 2025', async ({
             signInToSite,
           }) => {
-            await signInToSite()
+            await signInToSite(1, 2)
               .then(sitePage => sitePage.clickViewAvailabilityCard())
               .then(monthViewPage =>
                 // Go to a specific month page that has a daylight savings change
@@ -26,10 +26,10 @@ import {
               )
               .then(async monthViewPage => {
                 await expect(monthViewPage.previousMonthButton).toHaveText(
-                  'September 2025',
+                  /September 2025/,
                 );
-                await expect(monthViewPage.previousMonthButton).toHaveText(
-                  'November 2025',
+                await expect(monthViewPage.nextMonthButton).toHaveText(
+                  /November 2025/,
                 );
 
                 await expectEmptyWeek(
@@ -66,7 +66,7 @@ import {
           test('All the month page data is arranged in the week cards as expected - March 2026', async ({
             signInToSite,
           }) => {
-            await signInToSite()
+            await signInToSite(1, 2)
               .then(sitePage => sitePage.clickViewAvailabilityCard())
               .then(monthViewPage =>
                 // Go to a specific month page that has a daylight savings change
@@ -74,10 +74,10 @@ import {
               )
               .then(async monthViewPage => {
                 await expect(monthViewPage.previousMonthButton).toHaveText(
-                  'February 2026',
+                  /February 2026/,
                 );
-                await expect(monthViewPage.previousMonthButton).toHaveText(
-                  'April 2026',
+                await expect(monthViewPage.nextMonthButton).toHaveText(
+                  /April 2026/,
                 );
 
                 await expectEmptyWeek(monthViewPage, '23 February to 1 March');

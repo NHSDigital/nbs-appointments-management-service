@@ -45,7 +45,7 @@ export default class MonthViewPage extends RootPage {
 
   async clickWeekCard(week: string): Promise<WeekViewPage> {
     const weekCard = await this.weekCard(week);
-    await weekCard.click();
+    await weekCard.getByRole('link', { name: 'View week' }).click();
     await this.page.waitForURL(
       `**/site/${this.site.id}/view-availability/week?**`,
     );

@@ -141,3 +141,5 @@ async function verifyAllDayCardInformationDisplayedCorrectly(
     }
   });
 }
+
+export default verifyAllDayCardInformationDisplayedCorrectly;

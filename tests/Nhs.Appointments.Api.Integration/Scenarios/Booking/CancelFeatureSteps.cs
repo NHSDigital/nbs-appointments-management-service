@@ -20,8 +20,9 @@ public abstract class CancelFeatureSteps(string flag, bool enabled) : BookingBas
     [When(@"I cancel the appointment with reference '(.+)'")]
     public async Task CancelAppointmentWithReference(string reference)
     {
+        var customId = CreateCustomBookingReference(reference);
         var site = GetSiteId();
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{reference}/cancel?site={site}", null);
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
 }
 

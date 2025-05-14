@@ -1,10 +1,10 @@
 {
   "FeatureManagement": {
-    "BulkImport": true,
-    "JointBookings": true,
-    "OktaEnabled": true,
-    "TestFeatureEnabled": true,
-    "MultipleServices": true,
+    "BulkImport": false,
+    "JointBookings": false,
+    "OktaEnabled": false,
+    "TestFeatureEnabled": false,
+    "MultipleServices": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

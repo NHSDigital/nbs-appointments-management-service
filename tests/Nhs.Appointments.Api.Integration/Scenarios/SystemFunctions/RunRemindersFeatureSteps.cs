@@ -7,13 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SystemFunctions;
     
 
 [FeatureFile("./Scenarios/SystemFunctions/RunReminders.feature")]
-public class RunRemindersFeatureSteps : BaseFeatureSteps
+public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     [When("the reminders job runs")]
     public async Task RunRemindersJob()
@@ -103,6 +105,14 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         _ => throw new ArgumentOutOfRangeException()
     };
 }
+
+[Collection("MultipleServicesSerialToggle")]
+public class RunRemindersFeatureSteps_MultipleServicesEnabled()
+    : RunRemindersFeatureSteps(Flags.MultipleServices, true);
+
+[Collection("MultipleServicesSerialToggle")]
+public class RunRemindersFeatureSteps_MultipleServicesDisabled()
+    : RunRemindersFeatureSteps(Flags.MultipleServices, false);
 
 public record NotificationData(string recipient, string templateId, Dictionary<string, object> templateValues);
    

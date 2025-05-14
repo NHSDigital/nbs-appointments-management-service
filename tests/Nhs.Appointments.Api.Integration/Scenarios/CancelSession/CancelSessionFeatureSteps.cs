@@ -6,12 +6,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public class CancelSessionFeatureSteps : BaseFeatureSteps
+public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
@@ -66,3 +68,11 @@ public class CancelSessionFeatureSteps : BaseFeatureSteps
         _actualResponse.Site.Should().Be(expectedBooking.Site);
     }
 }
+
+[Collection("MultipleServicesSerialToggle")]
+public class CancelSessionFeatureSteps_MultipleServicesEnabled()
+    : CancelSessionFeatureSteps(Flags.MultipleServices, true);
+
+[Collection("MultipleServicesSerialToggle")]
+public class CancelSessionFeatureSteps_MultipleServicesDisabled()
+    : CancelSessionFeatureSteps(Flags.MultipleServices, false);

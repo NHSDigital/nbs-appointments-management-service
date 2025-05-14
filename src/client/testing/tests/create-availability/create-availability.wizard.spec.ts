@@ -38,14 +38,16 @@ let put: CreateAvailabilityWizardPage;
               await put.singleOrRepeatingSessionStep.singleSessionRadio.check();
               await put.singleOrRepeatingSessionStep.continueButton.click();
 
-              await expect(put.startAndEndDateStep.title).toBeVisible();
-              await put.startAndEndDateStep.startDateDayInput.fill(
+              await expect(
+                put.startAndEndDateStep.singleSessionTitle,
+              ).toBeVisible();
+              await put.startAndEndDateStep.singleSessionDateDayInput.fill(
                 `${tomorrow.day}`,
               );
-              await put.startAndEndDateStep.startDateMonthInput.fill(
+              await put.startAndEndDateStep.singleSessionDateMonthInput.fill(
                 `${tomorrow.month}`,
               );
-              await put.startAndEndDateStep.startDateYearInput.fill(
+              await put.startAndEndDateStep.singleSessionDateYearInput.fill(
                 `${tomorrow.year}`,
               );
               await put.startAndEndDateStep.continueButton.click();
@@ -117,7 +119,9 @@ let put: CreateAvailabilityWizardPage;
               await put.singleOrRepeatingSessionStep.weeklyRepeatingSessionRadio.check();
               await put.singleOrRepeatingSessionStep.continueButton.click();
 
-              await expect(put.startAndEndDateStep.title).toBeVisible();
+              await expect(
+                put.startAndEndDateStep.repeatingSessionTitle,
+              ).toBeVisible();
               await put.startAndEndDateStep.startDateDayInput.fill(
                 `${tomorrow.day}`,
               );
@@ -205,7 +209,9 @@ let put: CreateAvailabilityWizardPage;
             await put.singleOrRepeatingSessionStep.weeklyRepeatingSessionRadio.check();
             await put.singleOrRepeatingSessionStep.continueButton.click();
 
-            await expect(put.startAndEndDateStep.title).toBeVisible();
+            await expect(
+              put.startAndEndDateStep.repeatingSessionTitle,
+            ).toBeVisible();
             await put.startAndEndDateStep.startDateDayInput.fill(
               `${tomorrow.day}`,
             );
@@ -280,7 +286,9 @@ let put: CreateAvailabilityWizardPage;
 
             // Assert: test each Change link visits the correct step and skips to summary on continue
             await put.summaryStep.changeDatesLink.click();
-            await expect(put.startAndEndDateStep.title).toBeVisible();
+            await expect(
+              put.startAndEndDateStep.repeatingSessionTitle,
+            ).toBeVisible();
             await put.startAndEndDateStep.continueButton.click();
             await expect(put.summaryStep.title).toBeVisible();
 
@@ -318,7 +326,9 @@ let put: CreateAvailabilityWizardPage;
             await put.singleOrRepeatingSessionStep.singleSessionRadio.check();
             await put.singleOrRepeatingSessionStep.continueButton.click();
 
-            await expect(put.startAndEndDateStep.title).toBeVisible();
+            await expect(
+              put.startAndEndDateStep.singleSessionTitle,
+            ).toBeVisible();
             await put.startAndEndDateStep.startDateDayInput.fill(
               `${tomorrow.day}`,
             );
@@ -380,7 +390,9 @@ let put: CreateAvailabilityWizardPage;
 
             // Assert: test each Change link visits the correct step and skips to summary on continue
             await put.summaryStep.changeDatesLink.click();
-            await expect(put.startAndEndDateStep.title).toBeVisible();
+            await expect(
+              put.startAndEndDateStep.singleSessionTitle,
+            ).toBeVisible();
             await put.startAndEndDateStep.continueButton.click();
             await expect(put.summaryStep.title).toBeVisible();
 

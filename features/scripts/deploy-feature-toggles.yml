@@ -25,7 +25,7 @@ stages:
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
-            condition: ${{ in(parameters.env, 'dev', 'int', 'stag', 'prod') }}
+            condition: and(succeeded(), ${{ in(parameters.env, 'dev', 'int', 'stag', 'prod') }})
             inputs:
               azureSubscription: "nbs-mya-rg-${{parameters.env}}-uks"
               scriptType: pscore
@@ -34,7 +34,7 @@ stages:
               arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
-            condition: ${{ notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }}
+            condition: and(succeeded(), ${{ notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }})
             inputs:
               azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
               scriptType: pscore

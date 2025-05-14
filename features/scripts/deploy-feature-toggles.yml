@@ -26,11 +26,13 @@ stages:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
             inputs:
-              ${{ if in(parameters.env, 'dev', 'int', 'stag', 'prod') }}:
+              ${{ if ne(env, 'perf') }}:
                 azureSubscription: "nbs-mya-rg-${{parameters.env}}"
-              ${{ if notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }}:
+              ${{ if ne(env, 'perf') }}:
                 azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+              arguments: >
+                -appConfigName nbs-mya-config-${{parameters.env}}-uks 
+                -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json

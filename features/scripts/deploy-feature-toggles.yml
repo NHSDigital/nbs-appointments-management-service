@@ -36,7 +36,7 @@ stages:
             displayName: "Apply Feature Toggles"
             condition: and(succeeded(), ${{ notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }})
             inputs:
-              azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
+              azureSubscription: "nbs-mya${{parameters.env}}-rg-stag-uks"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"

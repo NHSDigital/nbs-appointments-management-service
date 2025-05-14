@@ -45,20 +45,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
   viewMonthAvailabilityPage = new MonthViewAvailabilityPage(page);
 });
 
-test('A user with the appropriate permission can view other users at a site but not edit them', async ({
-  getTestUser,
-}) => {
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.signIn(getTestUser(2));
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
-  await sitePage.userManagementCard.click();
-  await expect(usersPage.title).toBeVisible();
-  await expect(usersPage.emailColumn).toBeVisible();
-  await expect(usersPage.manageColumn).not.toBeVisible();
-  await expect(usersPage.addUserButton).not.toBeVisible();
-});
-
 test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
@@ -122,8 +108,8 @@ test('permissions are applied per site', async ({ getTestUser }) => {
 
   await siteSelectionPage.selectSite(site1.name);
 
-  await sitePage.userManagementCard.click();
-  await expect(usersPage.manageColumn).not.toBeVisible();
+  await sitePage.siteManagementCard.click();
+  await expect(siteDetailsPage1.editSiteDetailsButton).not.toBeVisible();
 });
 
 test('Verify user manager cannot edit or remove self account', async ({

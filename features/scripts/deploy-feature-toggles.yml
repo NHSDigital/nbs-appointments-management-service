@@ -22,7 +22,7 @@ stages:
       - job: ApplyFeatureTogglesPerf
         dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles Perf"
-        condition: eq('${{ parameters.env }}', 'perf')
+        condition: eq(${{ parameters.env }}, 'perf')
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
@@ -35,7 +35,7 @@ stages:
       - job: ApplyFeatureToggles
         dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles"
-        condition: ne('${{ parameters.env }}', 'perf')
+        condition: ne(${{ parameters.env }}, 'perf')
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"

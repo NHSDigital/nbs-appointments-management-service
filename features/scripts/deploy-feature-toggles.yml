@@ -27,16 +27,10 @@ stages:
             displayName: "Apply Feature Toggles"
             condition: and(succeeded(), ${{ in(parameters.env, 'dev', 'int', 'stag', 'prod') }})
             inputs:
-              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
-          - task: AzureCLI@2
-            displayName: "Apply Feature Toggles"
-            condition: and(succeeded(), ${{ notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }})
-            inputs:
-              azureSubscription: "nbs-myaperf-rg-stag"
+              ${{ if in(parameters.env, 'dev', 'int', 'stag', 'prod') }}:
+                azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              ${{ if notIn(parameters.env, 'dev', 'int', 'stag', 'prod') }}:
+                azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"

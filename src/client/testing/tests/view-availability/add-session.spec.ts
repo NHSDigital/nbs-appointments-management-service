@@ -57,7 +57,7 @@
 
 //             await rootPage.goto();
 //             await rootPage.cookieBanner.acceptCookiesButton.click();
-//             await rootPage.pageContentLogInButton.click();
+//             await rootPage.nhsMailLogInButton.click();
 //             await oAuthPage.signIn();
 
 //             const sitePage = await siteSelectionPage.selectSite(getTestSite(2));

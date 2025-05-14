@@ -1,22 +1,5 @@
 import { test, expect } from '../fixtures';
-import {
-  EulaConsentPage,
-  OAuthLoginPage,
-  LoginPage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
-
-let rootPage: LoginPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let eulaConsentPage: EulaConsentPage;
-
-test.beforeEach(async ({ page }) => {
-  rootPage = new LoginPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  eulaConsentPage = new EulaConsentPage(page);
-});
+import { EulaConsentPage, LoginPage } from '@testing-page-objects';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -24,52 +7,61 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
   page,
   getTestUser,
 }) => {
-  const user5 = getTestUser(5);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
+  await new LoginPage(page)
+    .goto()
+    .then(loginPage => loginPage.logInWithNhsMail())
+    .then(async oAuthPage => {
+      oAuthPage.signInExpectingEulaRedirect(getTestUser(5));
 
-  await oAuthPage.page.getByLabel('Username').fill(user5.username);
-  await oAuthPage.page.getByLabel('Password').fill(user5.password);
-  await oAuthPage.page.getByLabel('Password').press('Enter');
+      return new EulaConsentPage(oAuthPage.page);
+    })
+    .then(async eulaConsentPage => {
+      await expect(eulaConsentPage.title).toBeVisible();
 
-  await page.waitForURL('**/eula');
-  await expect(eulaConsentPage.title).toBeVisible();
+      // Try to bypass EULA consent
+      await page.goto('/manage-your-appointments/sites');
 
-  // Try to bypass EULA consent
-  await page.goto('/manage-your-appointments/sites');
-
-  await page.waitForURL('**/eula');
-  await expect(eulaConsentPage.title).toBeVisible();
-  await expect(siteSelectionPage.title).not.toBeVisible();
+      await page.waitForURL('**/eula');
+      await expect(eulaConsentPage.title).toBeVisible();
+      await expect(
+        page.getByRole('heading', {
+          name: 'Manage your appointments',
+        }),
+      ).not.toBeVisible();
+    });
 });
 
 test('A user with an out of date EULA version is prompted with the EULA consent page on login, but not again after they have consented', async ({
   page,
   getTestUser,
 }) => {
-  const user5 = getTestUser(5);
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
+  await new LoginPage(page)
+    .goto()
+    .then(loginPage => loginPage.logInWithNhsMail())
+    .then(async oAuthPage => {
+      oAuthPage.signInExpectingEulaRedirect(getTestUser(5));
 
-  await oAuthPage.page.getByLabel('Username').fill(user5.username);
-  await oAuthPage.page.getByLabel('Password').fill(user5.password);
-  await oAuthPage.page.getByLabel('Password').press('Enter');
+      await page.waitForURL('**/eula');
+      return new EulaConsentPage(oAuthPage.page);
+    })
+    .then(async eulaConsentPage => {
+      await expect(eulaConsentPage.title).toBeVisible();
 
-  await page.waitForURL('**/eula');
-  await expect(eulaConsentPage.title).toBeVisible();
+      // Try to bypass EULA consent
+      await page.goto('/manage-your-appointments/sites');
 
-  await eulaConsentPage.acceptAndContinueButton.click();
+      await page.waitForURL('**/eula');
 
-  await page.waitForURL('**/');
-  await expect(siteSelectionPage.title).toBeVisible();
+      return await eulaConsentPage.acceptEula();
+    })
+    .then(async siteSelectionPage => {
+      await expect(siteSelectionPage.title).toBeVisible();
 
-  await rootPage.logOutButton.click();
-  await rootPage.pageContentLogInButton.click();
-  await oAuthPage.page.getByLabel('Username').fill(user5.username);
-  await oAuthPage.page.getByLabel('Password').fill(user5.password);
-  await oAuthPage.page.getByLabel('Password').press('Enter');
-
-  // do not expect to see the EULA consent page again
-  await page.waitForURL('**/');
-  await expect(siteSelectionPage.title).toBeVisible();
+      return siteSelectionPage.logOut();
+    })
+    .then(loginPage => loginPage.logInWithNhsMail())
+    .then(async oAuthPage => oAuthPage.signIn(getTestUser(5)))
+    .then(async siteSelectionPage => {
+      await expect(siteSelectionPage.title).toBeVisible();
+    });
 });

@@ -4,11 +4,7 @@ import {
   overrideFeatureFlag,
   clearAllFeatureFlagOverrides,
 } from '../fixtures';
-import {
-  OAuthLoginPage,
-  LoginPage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
+import { LoginPage } from '@testing-page-objects';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 test.describe.configure({ mode: 'serial' });
@@ -26,70 +22,74 @@ test.describe.configure({ mode: 'serial' });
     test('User visits the site origin, signs in and see the Site Selection menu', async ({
       page,
     }) => {
-      const rootPage = new LoginPage(page);
-      const oAuthPage = new OAuthLoginPage(page);
-      const siteSelectionPage = new SiteSelectionPage(page);
+      await new LoginPage(page)
+        .goto()
+        .then(async loginPage => {
+          if (oktaEnabled) {
+            await expect(loginPage.OKTALogInLink).toBeVisible();
+          } else {
+            await expect(loginPage.OKTALogInLink).not.toBeVisible();
+          }
 
-      if (oktaEnabled) {
-        expect(rootPage.OKTALogInButton).toBeVisible();
-      } else {
-        expect(rootPage.OKTALogInButton).not.toBeVisible();
-      }
-
-      await rootPage.goto();
-      await rootPage.pageContentLogInButton.click();
-
-      await oAuthPage.signIn();
-
-      await expect(rootPage.logOutButton).toBeVisible();
-      await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
+          return loginPage.logInWithNhsMail();
+        })
+        .then(oAuthPage => oAuthPage.signIn())
+        .then(async siteSelectionPage => {
+          await expect(siteSelectionPage.logOutButton).toBeVisible();
+          await expect(
+            siteSelectionPage.siteSelectionCardHeading,
+          ).toBeVisible();
+        });
     });
 
     test('User visits the site origin, signs in, then signs out again', async ({
       page,
     }) => {
-      const rootPage = new LoginPage(page);
-      const oAuthPage = new OAuthLoginPage(page);
-      const siteSelectionPage = new SiteSelectionPage(page);
+      await new LoginPage(page)
+        .goto()
+        .then(async loginPage => {
+          return loginPage.logInWithNhsMail();
+        })
+        .then(oAuthPage => oAuthPage.signIn())
+        .then(async siteSelectionPage => {
+          await expect(siteSelectionPage.logOutButton).toBeVisible();
+          await expect(
+            siteSelectionPage.siteSelectionCardHeading,
+          ).toBeVisible();
 
-      await rootPage.goto();
-      await rootPage.pageContentLogInButton.click();
-      await oAuthPage.signIn();
+          await expect(siteSelectionPage.logOutButton).toBeVisible();
+          return siteSelectionPage.logOut();
+        })
+        .then(async logInPage => {
+          await expect(
+            logInPage.page.getByRole('heading', {
+              name: 'Manage your appointments',
+            }),
+          ).toBeVisible();
 
-      await expect(rootPage.logOutButton).toBeVisible();
-      await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
+          await expect(
+            logInPage.page.getByText(
+              'You are currently not signed in. You must sign in to access this service.',
+            ),
+          ).toBeVisible();
 
-      await expect(siteSelectionPage.logOutButton).toBeVisible();
-      await siteSelectionPage.logOutButton.click();
-
-      await page.waitForURL('**/login');
-
-      await expect(
-        page.getByRole('heading', { name: 'Manage your appointments' }),
-      ).toBeVisible();
-
-      await expect(
-        page.getByText(
-          'You are currently not signed in. You must sign in to access this service.',
-        ),
-      ).toBeVisible();
-
-      await expect(rootPage.pageContentLogInButton).toBeVisible();
+          await expect(logInPage.nhsMailLogInButton).toBeVisible();
+        });
     });
 
     test('Users with no roles at any site but valid auth credentials can still sign in', async ({
       page,
       getTestUser,
     }) => {
-      const rootPage = new LoginPage(page);
-      const oAuthPage = new OAuthLoginPage(page);
-      const siteSelectionPage = new SiteSelectionPage(page);
-
-      await rootPage.goto();
-      await rootPage.pageContentLogInButton.click();
-      await oAuthPage.signIn(getTestUser(4));
-
-      await expect(siteSelectionPage.noSitesMessage).toBeVisible();
+      await new LoginPage(page)
+        .goto()
+        .then(async loginPage => {
+          return loginPage.logInWithNhsMail();
+        })
+        .then(oAuthPage => oAuthPage.signIn(getTestUser(4)))
+        .then(async siteSelectionPage => {
+          await expect(siteSelectionPage.noSitesMessage).toBeVisible();
+        });
     });
   });
 });

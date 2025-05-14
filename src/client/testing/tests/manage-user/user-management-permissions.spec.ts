@@ -239,7 +239,7 @@ test('Verify user can only view availability manager related tiles In app when u
 //   getTestUser,
 // }) => {
 //   await rootPage.goto();
-//   await rootPage.pageContentLogInButton.click();
+//   await rootPage.nhsMailLogInButton.click();
 //   await oAuthPage.signIn();
 //   await siteSelectionPage.selectSite('Robin Lane Medical Centre');
 
@@ -268,7 +268,7 @@ test('Verify user can only view availability manager related tiles In app when u
 //   await rootPage.logOut();
 //   await page.waitForURL(`**/manage-your-appointments/login`);
 //   await rootPage.goto();
-//   await rootPage.pageContentLogInButton.click();
+//   await rootPage.nhsMailLogInButton.click();
 //   await oAuthPage.signIn(getTestUser(10));
 //   await expect(siteSelectionPage.title).toBeVisible();
 //   await siteSelectionPage.selectSite(site1.name);
@@ -293,7 +293,7 @@ test('Verify user can only view availability manager related tiles In app when u
 //   getTestUser,
 // }) => {
 //   await rootPage.goto();
-//   await rootPage.pageContentLogInButton.click();
+//   await rootPage.nhsMailLogInButton.click();
 //   await oAuthPage.signIn();
 //   await siteSelectionPage.selectSite(site1.name);
 
@@ -322,7 +322,7 @@ test('Verify user can only view availability manager related tiles In app when u
 //   await rootPage.logOut();
 //   await page.waitForURL(`**/manage-your-appointments/login`);
 //   await rootPage.goto();
-//   await rootPage.pageContentLogInButton.click();
+//   await rootPage.nhsMailLogInButton.click();
 //   await oAuthPage.signIn(getTestUser(11));
 //   await expect(siteSelectionPage.title).toBeVisible();
 //   await siteSelectionPage.selectSite(site1.name);

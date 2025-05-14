@@ -34,7 +34,7 @@ test('The current user creates a new NHSMail user with some roles', async ({
     usersPage.page
       .getByRole('row')
       .filter({ has: usersPage.page.getByText(newUserName) })
-      .getByText('Appointment manager, Availability manager', { exact: true }),
+      .getByText('Appointment manager | Availability manager', { exact: true }),
   ).toBeVisible();
 });
 
@@ -74,7 +74,7 @@ test('The current user creates a new Okta user with some roles', async ({
     usersPage.page
       .getByRole('row')
       .filter({ has: usersPage.page.getByText(externalUserName) })
-      .getByText('Appointment manager, Availability manager', { exact: true }),
+      .getByText('Appointment manager | Availability manager', { exact: true }),
   ).toBeVisible();
 });
 

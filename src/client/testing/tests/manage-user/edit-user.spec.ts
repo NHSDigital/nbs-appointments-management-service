@@ -51,7 +51,7 @@ test('A user edits the roles of another user', async ({ newUserName }) => {
     usersPage.page
       .getByRole('row')
       .filter({ has: usersPage.page.getByText(newUserName) })
-      .getByText('Appointment manager, Availability manager', { exact: true }),
+      .getByText('Appointment manager | Availability manager', { exact: true }),
   ).toBeVisible();
 });
 

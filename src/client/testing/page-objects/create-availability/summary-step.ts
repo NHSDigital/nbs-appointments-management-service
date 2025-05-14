@@ -11,8 +11,7 @@ export default class SummaryStep extends CreateAvailabilityStep {
   private getSummaryListItem(label: string): Locator {
     return this.page
       .getByRole('listitem')
-      .filter({ has: this.page.getByRole('term', { name: label }) })
-      .getByRole('definition');
+      .filter({ has: this.page.getByText(label, { exact: true }) });
   }
 
   readonly datesSummary: Locator = this.getSummaryListItem('Dates').filter({

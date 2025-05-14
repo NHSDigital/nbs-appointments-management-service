@@ -3,6 +3,7 @@ import env from '../testEnvironment';
 import { userBySubjectId, UserSeedData } from '../fixtures';
 import SiteSelectionPage from './site-selection';
 import RootPage from './root';
+import EulaConsentPage from './eula-consent';
 
 export default class OAuthLoginPage extends RootPage {
   readonly logInButton: Locator;
@@ -19,11 +20,20 @@ export default class OAuthLoginPage extends RootPage {
   ): Promise<SiteSelectionPage> {
     await this.page.getByLabel('Username').fill(user.username);
     await this.page.getByLabel('Password').fill(user.password);
-
     await this.page.getByLabel('Password').press('Enter');
 
     await this.page.waitForURL(`${env.BASE_URL}/sites`);
-
     return new SiteSelectionPage(this.page);
+  }
+
+  async signInExpectingEulaRedirect(
+    user: UserSeedData = userBySubjectId(),
+  ): Promise<EulaConsentPage> {
+    await this.page.getByLabel('Username').fill(user.username);
+    await this.page.getByLabel('Password').fill(user.password);
+    await this.page.getByLabel('Password').press('Enter');
+
+    await this.page.waitForURL('**/eula');
+    return new EulaConsentPage(this.page);
   }
 }

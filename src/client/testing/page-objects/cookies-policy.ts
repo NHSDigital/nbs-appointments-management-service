@@ -1,5 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from './root';
+import { SiteSelectionPage } from '@testing-page-objects';
 
 type ManageCookieAcceptanceForm = {
   legend: Locator;
@@ -34,5 +35,12 @@ export default class CookiesPolicyPage extends RootPage {
         name: 'Save my cookie settings',
       }),
     };
+  }
+
+  async saveCookiePreferences(): Promise<SiteSelectionPage> {
+    await this.manageCookieAcceptanceForm.submitButton.click();
+    await this.page.waitForURL('**/sites');
+
+    return new SiteSelectionPage(this.page);
   }
 }

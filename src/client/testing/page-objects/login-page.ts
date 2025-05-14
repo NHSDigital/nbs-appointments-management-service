@@ -1,26 +1,33 @@
 import { type Locator, type Page } from '@playwright/test';
-import RootPage from './root';
 import { OAuthLoginPage } from '@testing-page-objects';
 
-export default class LoginPage extends RootPage {
-  readonly pageContentLogInButton: Locator;
-  readonly OKTALogInButton: Locator;
+export default class LoginPage {
+  readonly page: Page;
+  readonly nhsMailLogInButton: Locator;
+  readonly OKTALogInLink: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.pageContentLogInButton = page.getByRole('button', {
+    this.page = page;
+    this.nhsMailLogInButton = page.getByRole('button', {
       name: 'Sign in to service with NHS Mail',
     });
-    this.OKTALogInButton = page.getByRole('button', {
+    this.OKTALogInLink = page.getByRole('link', {
       name: 'Sign in to service with Other Email',
     });
+  }
+
+  async goto(): Promise<LoginPage> {
+    await this.page.goto('/');
+    await this.page.waitForURL('**/manage-your-appointments/**');
+
+    return this;
   }
 
   async logInWithNhsMail(): Promise<OAuthLoginPage> {
     await this.goto();
     await this.page.waitForURL('**/manage-your-appointments/**');
 
-    await this.pageContentLogInButton.click();
+    await this.nhsMailLogInButton.click();
     await this.page.waitForURL('**/Account/Login?ReturnUrl=**');
 
     return new OAuthLoginPage(this.page);

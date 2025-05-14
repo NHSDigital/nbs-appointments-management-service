@@ -1,4 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
+import LoginPage from './login-page';
+import { CookiesPolicyPage } from '@testing-page-objects';
 
 type CookieBanner = {
   preAcceptanceHeader: Locator;
@@ -64,11 +66,21 @@ export default class RootPage {
     );
   }
 
-  async goto() {
-    await this.page.goto('/manage-your-appointments/');
+  // async goto() {
+  //   await this.page.goto('/manage-your-appointments/');
+  // }
+
+  async logOut(): Promise<LoginPage> {
+    await this.logOutButton.click();
+    await this.page.waitForURL('**/login');
+
+    return new LoginPage(this.page);
   }
 
-  async logOut() {
-    await this.logOutButton.click();
+  async clickCookiesFooterLink(): Promise<CookiesPolicyPage> {
+    await this.footerLinks.cookiesPolicy.click();
+    await this.page.waitForURL('**/cookies-policy');
+
+    return new CookiesPolicyPage(this.page);
   }
 }

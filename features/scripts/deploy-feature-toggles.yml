@@ -7,7 +7,7 @@
 stages:
   - stage: DeployFeatures${{parameters.env}}
     displayName: Deploy Features ${{parameters.env}}
-    condition: and(succeeded())
+    condition: succeeded()
     dependsOn: []
     jobs:
       - job: ApproveFeatureToggles

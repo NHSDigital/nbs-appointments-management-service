@@ -39,7 +39,6 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
     protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
-    private List<DailyAvailabilityDocument> CreatedAvailability = new List<DailyAvailabilityDocument>();
 
     public BaseFeatureSteps()
     {
@@ -103,7 +102,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [Given(@"feature toggle '(.+)' is '(.+)'")]
-    protected async Task SetLocalFeatureToggleOverride(string name, string state)
+    public async Task SetLocalFeatureToggleOverride(string name, string state)
     {
         var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
             null);
@@ -112,26 +111,12 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [And(@"feature toggles are cleared")]
-    protected async Task ClearLocalFeatureToggleOverrides()
+    public async Task ClearLocalFeatureToggleOverrides()
     {
         var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-overrides-clear",
             null);
 
         response.EnsureSuccessStatusCode();
-    }
-
-    protected async Task Dispose_Bookings_Availability()
-    {
-        foreach (var booking in MadeBookings)
-        {
-            await Client.GetContainer("appts", "booking_data").DeleteItemAsync<BookingDocument>(booking.Id, new PartitionKey(booking.Site));
-            await Client.GetContainer("appts", "index_data").DeleteItemAsync<BookingDocument>(booking.Id, new PartitionKey("booking_index"));
-        }
-
-        foreach (var availability in CreatedAvailability)
-        {
-            await Client.GetContainer("appts", "booking_data").DeleteItemAsync<DailyAvailabilityDocument>(availability.Id, new PartitionKey(availability.Site));
-        }
     }
 
     [Given("the following sessions")]
@@ -140,7 +125,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         return SetupSessions("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
     }
-    
+
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
     {
         var site = GetSiteId(siteDesignation);
@@ -149,8 +134,6 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
         }
-        
-        CreatedAvailability.AddRange(availabilityDocuments);
     }
 
     [And(@"a citizen with the NHS Number '(\d+)'")]
@@ -262,13 +245,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following bookings have been made")]
     public Task SetupBookings(DataTable dataTable)
     {
-        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
-    }
-
-    [And(@"the following bookings have been made for site '(\w)'")]
-    public Task SetupBookings(string siteDesignation, DataTable dataTable)
-    {
-        return SetupBookings(siteDesignation, dataTable, BookingType.Confirmed);
+        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Confirmed);
     }
 
     [Given("the following recent bookings have been made")]
@@ -303,56 +280,69 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
-        var bookings = dataTable.Rows.Skip(1).Select((row, index) => new BookingDocument
+        var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
         {
-            Id = row.Cells.ElementAtOrDefault(4)?.Value ??
-                 BookingReferences.GetBookingReference(index, bookingType),
-            DocumentType = "booking",
-            Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
-                        BookingReferences.GetBookingReference(index, bookingType),
-            From =
-                DateTime.ParseExact(
-                    $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
-                    "yyyy-MM-dd HH:mm", null),
-            Duration = int.Parse(row.Cells.ElementAt(2).Value),
-            Service = row.Cells.ElementAt(3).Value,
-            Site = GetSiteId(siteDesignation),
-            Status = MapStatus(bookingType),
-            AvailabilityStatus = MapAvailabilityStatus(bookingType),
-            Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
-                ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
-                : GetCreationDateTime(bookingType),
-            StatusUpdated = GetCreationDateTime(bookingType),
-            AttendeeDetails = new AttendeeDetails
+            var customId = CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value);
+
+            return new BookingDocument
             {
-                NhsNumber = NhsNumber,
-                FirstName = "FirstName",
-                LastName = "LastName",
-                DateOfBirth = new DateOnly(2000, 1, 1)
-            },
-            ContactDetails =
-            [
-                new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
-                new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
-                new ContactItem { Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline) }
-            ],
-            AdditionalData = new { IsAppBooking = true }
+                Id = customId ??
+                     BookingReferences.GetBookingReference(index, bookingType),
+                DocumentType = "booking",
+                Reference = customId ??
+                            BookingReferences.GetBookingReference(index, bookingType),
+                From =
+                    DateTime.ParseExact(
+                        $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                        "yyyy-MM-dd HH:mm", null),
+                Duration = int.Parse(row.Cells.ElementAt(2).Value),
+                Service = row.Cells.ElementAt(3).Value,
+                Site = GetSiteId(siteDesignation),
+                Status = MapStatus(bookingType),
+                AvailabilityStatus = MapAvailabilityStatus(bookingType),
+                Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
+                    ? DateTimeOffset.Parse(row.Cells.ElementAtOrDefault(5)?.Value)
+                    : GetCreationDateTime(bookingType),
+                StatusUpdated = GetCreationDateTime(bookingType),
+                AttendeeDetails = new AttendeeDetails
+                {
+                    NhsNumber = NhsNumber,
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    DateOfBirth = new DateOnly(2000, 1, 1)
+                },
+                ContactDetails =
+                [
+                    new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
+                    new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
+                    new ContactItem
+                    {
+                        Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
+                    }
+                ],
+                AdditionalData = new { IsAppBooking = true }
+            };
         });
 
-        var bookingIndexDocuments = dataTable.Rows.Skip(1).Select((row, index) => new BookingIndexDocument
+        var bookingIndexDocuments = dataTable.Rows.Skip(1).Select((row, index) =>
         {
-            Reference = row.Cells.ElementAtOrDefault(4)?.Value ??
-                        BookingReferences.GetBookingReference(index, bookingType),
-            Site = GetSiteId(),
-            DocumentType = "booking_index",
-            Id = row.Cells.ElementAtOrDefault(4)?.Value ??
-                 BookingReferences.GetBookingReference(index, bookingType),
-            NhsNumber = NhsNumber,
-            Status = MapStatus(bookingType),
-            Created = GetCreationDateTime(bookingType),
-            From = DateTime.ParseExact(
-                $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
-                "yyyy-MM-dd HH:mm", null),
+            var customId = CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value);
+
+            return new BookingIndexDocument
+            {
+                Reference = customId ??
+                            BookingReferences.GetBookingReference(index, bookingType),
+                Site = GetSiteId(siteDesignation),
+                DocumentType = "booking_index",
+                Id = customId ??
+                     BookingReferences.GetBookingReference(index, bookingType),
+                NhsNumber = NhsNumber,
+                Status = MapStatus(bookingType),
+                Created = GetCreationDateTime(bookingType),
+                From = DateTime.ParseExact(
+                    $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                    "yyyy-MM-dd HH:mm", null),
+            };
         });
 
         foreach (var booking in bookings)
@@ -366,6 +356,18 @@ public abstract partial class BaseFeatureSteps : Feature
         }
 
         MadeBookings.AddRange(bookings);
+    }
+
+    protected string CreateCustomBookingReference(string identifier)
+    {
+        var customId = identifier;
+
+        if (!string.IsNullOrWhiteSpace(customId))
+        {
+            customId += $"_{_testId}";
+        }
+
+        return customId;
     }
 
     [And(@"the original booking has been '(\w+)'")]
@@ -384,18 +386,18 @@ public abstract partial class BaseFeatureSteps : Feature
     [And(@"the booking with reference '(.+)' has been '(.+)'")]
     public async Task AssertSpecificBookingStatusChange(string bookingReference, string status)
     {
+        var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-
-        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+        await AssertBookingStatusByReference(customId, expectedStatus);
     }
 
     [Then(@"the booking with reference '(.+)' has status '(.+)'")]
     [And(@"the booking with reference '(.+)' has status '(.+)'")]
     public async Task AssertSpecificBookingStatus(string bookingReference, string status)
     {
+        var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-
-        await AssertBookingStatusByReference(bookingReference, expectedStatus, false);
+        await AssertBookingStatusByReference(customId, expectedStatus, false);
     }
 
     [And("the booking should be deleted")]
@@ -420,9 +422,9 @@ public abstract partial class BaseFeatureSteps : Feature
     [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
     public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)
     {
+        var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
-
-        await AssertAvailabilityStatusByReference(bookingReference, expectedStatus, false);
+        await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
     }
 
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
@@ -659,7 +661,8 @@ public class BookingReferenceManager
 {
     private readonly Dictionary<int, string> _bookingReferences = new();
 
-    public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType)
+    public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType,
+        string customBookingReference = null)
     {
         if (bookingType != BaseFeatureSteps.BookingType.Confirmed && bookingType != BaseFeatureSteps.BookingType.Recent)
         {

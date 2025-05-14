@@ -44,7 +44,9 @@ export default class UsersPage extends RootPage {
       .getByRole('link', { name: 'Edit' })
       .click();
 
-    await this.page.waitForURL(`**/site/${this.site.id}/users/manage`);
+    await this.page.waitForURL(
+      `**/site/${this.site.id}/users/manage?user=${userEmail}`,
+    );
 
     return new ManageUserPage(this.page, this.site);
   }
@@ -56,87 +58,10 @@ export default class UsersPage extends RootPage {
       .getByRole('link', { name: 'Remove from this site' })
       .click();
 
-    await this.page.waitForURL(`**/site/${this.site.id}/users/manage`);
+    await this.page.waitForURL(
+      `**/site/${this.site.id}/users/remove?user=${userEmail}`,
+    );
 
     return new RemoveUserPage(this.page, this.site, userEmail);
   }
-
-  // async verifyUserRoles(roleName: string, newUserName: string) {
-  //   await expect(
-  //     this.page
-  //       .getByRole('row')
-  //       .filter({ has: this.page.getByText(newUserName) })
-  //       .getByText(roleName),
-  //   ).toBeVisible();
-  // }
-
-  // async userExists(email: string) {
-  //   await expect(this.page.getByRole('cell', { name: email })).toBeVisible();
-  // }
-
-  // async userDoesNotExist(email: string) {
-  //   await expect(
-  //     this.page.getByRole('cell', { name: email }),
-  //   ).not.toBeVisible();
-  // }
-
-  // async removeFromThisSiteLink(newUserName: string) {
-  //   await this.page
-  //     .getByRole('row')
-  //     .filter({ has: this.page.getByText(newUserName) })
-  //     .getByRole('link', { name: 'Remove from this site' })
-  //     .click();
-  // }
-
-  // async verifyRemoveUserSuccessBannerDisplayed(userName: string) {
-  //   await expect(
-  //     this.page.getByRole('main').filter({
-  //       has: this.page.getByText(
-  //         `You have successfully removed ${userName} from the current site.`,
-  //       ),
-  //     }),
-  //   ).toBeVisible();
-  // }
-
-  // async closeBanner() {
-  //   this.page.getByRole('button', { name: 'Close' }).click();
-  // }
-
-  // async verifyRemoveUserSuccessBannerNotDisplayed(userName: string) {
-  //   await expect(
-  //     this.page.getByRole('main').filter({
-  //       has: this.page.getByText(
-  //         `You have successfully removed ${userName} from the current site.`,
-  //       ),
-  //     }),
-  //   ).not.toBeVisible();
-  // }
-
-  // async clickEditLink(newUserName: string): Promise<ManageUserPage> {
-  //   await this.page
-  //     .getByRole('row')
-  //     .filter({ has: this.page.getByText(newUserName) })
-  //     .getByRole('link', { name: 'Edit' })
-  //     .click();
-
-  //   return new ManageUserPage(this.page, this.site);
-  // }
-
-  // async verifyUserRoleRemoved(roleName: string, newUserName: string) {
-  //   await expect(
-  //     this.page
-  //       .getByRole('row')
-  //       .filter({ has: this.page.getByText(newUserName) })
-  //       .getByText(roleName),
-  //   ).not.toBeVisible();
-  // }
-
-  // async verifyLinkNotVisible(newUserName: string, linkName: string) {
-  //   await expect(
-  //     this.page
-  //       .getByRole('row')
-  //       .filter({ has: this.page.getByText(newUserName) })
-  //       .getByRole('link', { name: `${linkName}` }),
-  //   ).not.toBeVisible();
-  // }
 }

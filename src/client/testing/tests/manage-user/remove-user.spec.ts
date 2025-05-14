@@ -1,55 +1,61 @@
 import { test, expect } from '../../fixtures';
-import {
-  NotFoundPage,
-  RemoveUserPage,
-  LoginPage,
-  UsersPage,
-} from '@testing-page-objects';
+import { NotFoundPage } from '@testing-page-objects';
 
-let put: RemoveUserPage;
-let usersPage: UsersPage;
-
-test.beforeEach(async ({ page, getTestSite }) => {
-  usersPage = await new LoginPage(page)
-    .logInWithNhsMail()
-    .then(oAuthPage => oAuthPage.signIn())
-    .then(siteSelectionPage => siteSelectionPage.selectSite(getTestSite()))
-    .then(sitePage => sitePage.clickManageUsersCard());
-});
-
-test('A user removes the account of another user', async ({ newUserName }) => {
+test('A user removes the account of another user', async ({
+  newUserName,
+  getTestSite,
+  signInToSite,
+}) => {
   // TODO: Use seed data instead of creating a new user just for this test
-  const manageUserPage = await usersPage.clickAddUser();
+  await signInToSite()
+    .then(async sitePage => sitePage.clickManageUsersCard())
+    .then(usersPage => usersPage.clickAddUser())
+    .then(async manageUserPage => {
+      await expect(manageUserPage.emailStep.title).toBeVisible();
+      await manageUserPage.emailStep.emailInput.fill(newUserName);
+      await manageUserPage.emailStep.continueButton.click();
 
-  await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
-  await manageUserPage.emailStep.continueButton.click();
+      await expect(manageUserPage.rolesStep.title).toBeVisible();
+      await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
+      await manageUserPage.rolesStep.continueButton.click();
 
-  await expect(manageUserPage.rolesStep.title).toBeVisible();
-  await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
-  await manageUserPage.rolesStep.continueButton.click();
+      await expect(manageUserPage.summaryStep.title).toBeVisible();
+      return await manageUserPage.summaryStep.saveUserRoles();
+    })
+    .then(async usersPage => {
+      await expect(
+        usersPage.page.getByRole('cell', { name: newUserName }),
+      ).toBeVisible();
 
-  await expect(manageUserPage.summaryStep.title).toBeVisible();
-  await manageUserPage.summaryStep.continueButton.click();
+      return await usersPage.clickRemoveUserLink(newUserName);
+    })
+    .then(async removeUserPage => {
+      await expect(removeUserPage.title).toBeVisible();
+      await expect(removeUserPage.confirmationMessage).toHaveText(
+        `Are you sure you wish to remove ${newUserName} from ${getTestSite(1).name}?`,
+      );
 
-  await expect(
-    usersPage.page.getByRole('cell', { name: newUserName }),
-  ).toBeVisible();
-  put = await usersPage.clickRemoveUserLink(newUserName);
+      return await removeUserPage.clickConfirmButton();
+    })
+    .then(async usersPage => {
+      await expect(
+        usersPage.notificationBanner.getByText(
+          `You have successfully removed ${newUserName} from the current site.`,
+        ),
+      ).toBeVisible();
 
-  await expect(put.title).toBeVisible();
-  await expect(put.confirmationMessage).toHaveText(
-    `Are you sure you want to remove ${newUserName} from this site?`,
-  );
-
-  usersPage = await put.clickConfirmButton();
-  await expect(usersPage.page.getByText(newUserName)).not.toBeVisible();
+      await usersPage.dismissNotificationBannerButton.click();
+      await expect(usersPage.notificationBanner).not.toBeVisible();
+      await expect(usersPage.page.getByText(newUserName)).not.toBeVisible();
+    });
 });
 
 test('A user manipulates the url to try to remove an invalid user', async ({
   page,
   getTestSite,
+  signInToSite,
 }) => {
+  await signInToSite();
   await page.goto(
     `/manage-your-appointments/site/${getTestSite().id}/users/remove?user=not-a-user`,
   );

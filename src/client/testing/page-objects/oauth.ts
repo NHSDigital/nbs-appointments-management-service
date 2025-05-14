@@ -22,7 +22,7 @@ export default class OAuthLoginPage extends RootPage {
     await this.page.getByLabel('Password').fill(user.password);
     await this.page.getByLabel('Password').press('Enter');
 
-    await this.page.waitForURL(`${env.BASE_URL}/sites`);
+    await this.page.waitForURL(`**/sites`);
     return new SiteSelectionPage(this.page);
   }
 

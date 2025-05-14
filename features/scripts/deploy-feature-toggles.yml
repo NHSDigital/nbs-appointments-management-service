@@ -19,8 +19,8 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Approve Toggles to ${{parameters.env}}
-      - job: ApplyFeatureToggles
-        dependsOn: ApproveFeatureTogglesPerf
+      - job: ApplyFeatureTogglesPerf
+        dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles Perf"
         condition: eq('${{ parameters.env }}', 'perf')
         steps:

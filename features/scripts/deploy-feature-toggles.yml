@@ -20,8 +20,8 @@ stages:
               notifyUsers: ""
               instructions: Approve Toggles to ${{parameters.env}}
       - job: ApplyFeatureToggles
-        dependsOn: ApproveFeatureToggles
-        displayName: "Apply Feature Toggles"
+        dependsOn: ApproveFeatureTogglesPerf
+        displayName: "Apply Feature Toggles Perf"
         condition: eq('${{ parameters.env }}', 'perf')
         steps:
           - task: AzureCLI@2

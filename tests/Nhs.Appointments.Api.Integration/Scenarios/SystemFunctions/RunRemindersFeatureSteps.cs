@@ -1,27 +1,26 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Nhs.Appointments.Core.Features;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SystemFunctions;
-    
 
 [FeatureFile("./Scenarios/SystemFunctions/RunReminders.feature")]
-public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public class RunRemindersFeatureSteps : BaseFeatureSteps
 {
     [When("the reminders job runs")]
     public async Task RunRemindersJob()
     {
-        var response = await Http.PostAsync($"http://localhost:7071/api/system/run-reminders", new StringContent(""));
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var response = await Http.PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Then("there are no errors")]
@@ -30,7 +29,7 @@ public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : Feat
         return Task.CompletedTask;
     }
 
-    [And ("those appointments have already had notifications sent")]
+    [And("those appointments have already had notifications sent")]
     public async Task SetReminderSentFlag()
     {
         var container = Client.GetContainer("appts", "booking_data");
@@ -60,12 +59,12 @@ public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : Feat
     }
 
     [Then("the following notifications are sent out")]
-    public async Task AssertNotifications(Gherkin.Ast.DataTable dataTable)
+    public async Task AssertNotifications(DataTable dataTable)
     {
         var data = dataTable.Rows.Skip(1).Select(r => (r.Cells.ElementAt(0).Value, r.Cells.ElementAt(1).Value));
-        foreach(var item in data)
+        foreach (var item in data)
         {
-            var contactItemType = Enum.Parse<ContactItemType>(item.Item1, true);            
+            var contactItemType = Enum.Parse<ContactItemType>(item.Item1, true);
 
             var contactDetails = GetContactInfo(contactItemType);
             var notifications = await GetNotificationsForRecipient(contactDetails);
@@ -84,13 +83,12 @@ public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : Feat
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Landline)));
 
         allNotifications.Count().Should().Be(0);
-    }    
+    }
 
     private Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
     {
         var container = Client.GetContainer("appts", "local_notifications");
         return RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
-
     }
 
     private string ResolveEventName(string shortEventName) => shortEventName switch
@@ -106,13 +104,4 @@ public abstract class RunRemindersFeatureSteps(string flag, bool enabled) : Feat
     };
 }
 
-[Collection("MultipleServicesSerialToggle")]
-public class RunRemindersFeatureSteps_MultipleServicesEnabled()
-    : RunRemindersFeatureSteps(Flags.MultipleServices, true);
-
-[Collection("MultipleServicesSerialToggle")]
-public class RunRemindersFeatureSteps_MultipleServicesDisabled()
-    : RunRemindersFeatureSteps(Flags.MultipleServices, false);
-
 public record NotificationData(string recipient, string templateId, Dictionary<string, object> templateValues);
-   

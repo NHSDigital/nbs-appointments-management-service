@@ -19,28 +19,18 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Approve Toggles to ${{parameters.env}}
-      - job: ApplyFeatureTogglesPerf
-        dependsOn: ApproveFeatureToggles
-        displayName: "Apply Feature Toggles Perf"
-        condition: eq(${{ parameters.env }}, 'perf')
-        steps:
-          - task: AzureCLI@2
-            displayName: "Apply Feature Toggles"
-            inputs:
-              azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
       - job: ApplyFeatureToggles
         dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles"
-        condition: ne(${{ parameters.env }}, 'perf')
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
             inputs:
-              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              {{if in(parameters.env, 'dev', 'int', 'stag', 'prod')}}
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}-uks"
+              {{else}}
+              azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
+              {{endif}}
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"

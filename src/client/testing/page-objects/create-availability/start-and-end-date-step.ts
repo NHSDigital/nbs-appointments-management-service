@@ -5,9 +5,9 @@ export default class StartAndEndDateStep extends CreateAvailabilityStep {
   readonly repeatingSessionTitle: Locator;
   readonly singleSessionTitle: Locator;
 
-  readonly singleSessionDateDayInput: Locator;
-  readonly singleSessionDateMonthInput: Locator;
-  readonly singleSessionDateYearInput: Locator;
+  readonly singleDateDayInput: Locator;
+  readonly singleDateMonthInput: Locator;
+  readonly singleDateYearInput: Locator;
 
   readonly startDateDayInput: Locator;
   readonly startDateMonthInput: Locator;
@@ -26,61 +26,23 @@ export default class StartAndEndDateStep extends CreateAvailabilityStep {
       name: /Add a date for your session/,
     });
 
-    this.singleSessionDateDayInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Day',
-      });
-    this.singleSessionDateMonthInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Month',
-      });
-    this.singleSessionDateYearInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Year',
-      });
+    this.singleDateDayInput = this.getDateInput('Session date', 'Day');
+    this.singleDateMonthInput = this.getDateInput('Session date', 'Month');
+    this.singleDateYearInput = this.getDateInput('Session date', 'Year');
 
-    this.startDateDayInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Day',
-      });
-    this.startDateMonthInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Month',
-      });
-    this.startDateYearInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('Start date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Year',
-      });
+    this.startDateDayInput = this.getDateInput('Start date', 'Day');
+    this.startDateMonthInput = this.getDateInput('Start date', 'Month');
+    this.startDateYearInput = this.getDateInput('Start date', 'Year');
 
-    this.endDateDayInput = page
+    this.endDateDayInput = this.getDateInput('End date', 'Day');
+    this.endDateMonthInput = this.getDateInput('End date', 'Month');
+    this.endDateYearInput = this.getDateInput('End date', 'Year');
+  }
+
+  private getDateInput(groupLabel: string, inputLabel: string): Locator {
+    return this.page
       .getByRole('group')
-      .filter({ has: this.page.getByText('End date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Day',
-      });
-    this.endDateMonthInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('End date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Month',
-      });
-    this.endDateYearInput = page
-      .getByRole('group')
-      .filter({ has: this.page.getByText('End date', { exact: true }) })
-      .getByRole('textbox', {
-        name: 'Year',
-      });
+      .filter({ has: this.page.getByText(groupLabel, { exact: true }) })
+      .getByLabel(inputLabel);
   }
 }

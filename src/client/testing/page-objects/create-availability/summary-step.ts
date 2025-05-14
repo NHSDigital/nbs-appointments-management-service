@@ -5,7 +5,8 @@ import CreateAvailabilityPage from './create-availability-page';
 import { Site } from '@types';
 
 export default class SummaryStep extends CreateAvailabilityStep {
-  readonly title: Locator;
+  readonly repeatingSessionTitle: Locator;
+  readonly singleDateSessionTitle: Locator;
   readonly site: Site;
 
   private getSummaryListItem(label: string): Locator {
@@ -14,62 +15,27 @@ export default class SummaryStep extends CreateAvailabilityStep {
       .filter({ has: this.page.getByText(label, { exact: true }) });
   }
 
-  readonly datesSummary: Locator = this.getSummaryListItem('Dates').filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeDatesLink: Locator = this.getSummaryListItem(
-    'Dates',
-  ).getByRole('link', { name: 'Change' });
-
-  readonly daysSummary: Locator = this.getSummaryListItem('Days').filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeDaysLink: Locator = this.getSummaryListItem('Days').getByRole(
-    'link',
-    { name: 'Change' },
-  );
-
-  readonly timeSummary: Locator = this.getSummaryListItem('Time').filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeTimeLink: Locator = this.getSummaryListItem('Time').getByRole(
-    'link',
-    { name: 'Change' },
-  );
-
+  readonly dateSummary: Locator = this.getSummaryListItem('Date');
+  readonly datesSummary: Locator = this.getSummaryListItem('Dates');
+  readonly daysSummary: Locator = this.getSummaryListItem('Days');
+  readonly timeSummary: Locator = this.getSummaryListItem('Time');
   readonly capacitySummary: Locator = this.getSummaryListItem(
     'Vaccinators or vaccination spaces available',
-  ).filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeCapacityLink: Locator = this.getSummaryListItem(
-    'Vaccinators or vaccination spaces available',
-  ).getByRole('link', { name: 'Change' });
-
-  readonly appointmentLengthSummary: Locator = this.getSummaryListItem(
-    'Appointment length',
-  ).filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeAppointmentLengthLink: Locator = this.getSummaryListItem(
-    'Appointment length',
-  ).getByRole('link', { name: 'Change' });
-
-  readonly servicesSummary: Locator = this.getSummaryListItem(
-    'Services available',
-  ).filter({
-    hasNot: this.page.getByRole('link', { name: 'Change' }),
-  });
-  readonly changeServicesLink: Locator = this.getSummaryListItem(
-    'Services available',
-  ).getByRole('link', { name: 'Change' });
+  );
+  readonly appointmentLengthSummary: Locator =
+    this.getSummaryListItem('Appointment length');
+  readonly servicesSummary: Locator =
+    this.getSummaryListItem('Services available');
 
   constructor(page: Page, site: Site, positiveActionButtonText: string) {
     super(page, positiveActionButtonText);
     this.site = site;
 
-    this.title = page.getByRole('heading', {
+    this.repeatingSessionTitle = page.getByRole('heading', {
       name: 'Check weekly session',
+    });
+    this.singleDateSessionTitle = page.getByRole('heading', {
+      name: 'Check single date session',
     });
   }
 

@@ -18,18 +18,18 @@ export default class TimeAndCapacityStep extends CreateAvailabilityStep {
     name: 'Session end time - minute',
   });
 
-  readonly capacityInput: Locator = this.page.getByRole('textbox', {
-    name: 'How many vaccinators or vaccination spaces do you have?',
-  });
+  readonly capacityInput: Locator = this.page.getByLabel(
+    'How many vaccinators or vaccination spaces do you have?',
+  );
 
-  readonly appointmentLengthInput: Locator = this.page.getByRole('textbox', {
-    name: 'How long are your appointments?',
-  });
+  readonly appointmentLengthInput: Locator = this.page.getByLabel(
+    'How long are your appointments?',
+  );
 
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'What type of session do you want to create?',
+      name: 'Set time and capacity for your session',
     });
   }
 }

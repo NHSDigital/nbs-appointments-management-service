@@ -25,6 +25,8 @@ stages:
           csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
+          apiClientUnitTestProjectPath: "tests/Nhs.Appointments.Api.Client.UnitTests/Nhs.Appointments.Api.Client.UnitTests.csproj"
+          cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -83,6 +85,18 @@ stages:
             inputs:
               command: "test"
               projects: $(capacityExtractsTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run API Client unit tests"
+            inputs:
+              command: "test"
+              projects: $(apiClientUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Cosmos Db Seeder tests"
+            inputs:
+              command: "test"
+              projects: $(cosmosDbSeederTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"

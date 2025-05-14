@@ -14,7 +14,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-public abstract class BestFitBaseFeatureSteps : BaseFeatureSteps
+public abstract class BestFitBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
     private List<Core.Booking> _getBookingsResponse;

@@ -16,7 +16,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
         resultingAllocationState.AvailableSlots.Should().HaveCount(15);
@@ -36,7 +36,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         // resultingAllocationState.Recalculations.Should().HaveCount(3);
         resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
@@ -56,7 +56,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         // resultingAllocationState.Recalculations.Should().ContainSingle(s =>
         //     s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -68,7 +68,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
     public async Task DeletesProvisionalAppointments()
     {
         var utcNow = DateTime.UtcNow;
-        base._timeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
         
         var bookings = new List<Booking>
         {
@@ -80,7 +80,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // resultingAllocationState.Recalculations.Should().Contain(s =>
         //     s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -94,7 +94,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
     public async Task ExpiredProvisionalAppointments_NotDeleted()
     {
         var utcNow = DateTime.UtcNow;
-        base._timeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
         
         var bookings = new List<Booking>
         {
@@ -106,7 +106,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // resultingAllocationState.Recalculations.Should().Contain(s =>
         //     s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
@@ -133,7 +133,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
 
         resultingAllocationState.SupportedBookingReferences.Should().ContainSingle(b => b == "2");
         // resultingAllocationState.Recalculations.Should().ContainSingle(r =>

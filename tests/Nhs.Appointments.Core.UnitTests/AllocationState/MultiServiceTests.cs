@@ -26,7 +26,7 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var resultingAllocationState = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var resultingAllocationState = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -61,7 +61,7 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var resultingAllocationState = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
 
         // Bookings 1 and 2 can be booked
         resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)

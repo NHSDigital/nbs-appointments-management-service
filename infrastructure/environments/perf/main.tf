@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-stag-uks"
-    storage_account_name = "myatfstaguks"
+    resource_group_name  = "nbs-myaperf-rg-stag-uks"
+    storage_account_name = "myaperftfstaguks"
     container_name       = "tfstate"
-    key                  = "stag.tfstate"
+    key                  = "perf.tfstate"
   }
 
   required_version = ">= 1.6.5"
@@ -25,8 +25,8 @@ provider "azurerm" {
   }
 }
 
-module "mya_application_stag" {
-  environment                                    = "stag"
+module "mya_application_perf" {
+  environment                                    = "perf"
   location                                       = "uksouth"
   loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER
@@ -88,5 +88,17 @@ module "mya_application_stag" {
       location          = "ukwest"
       failover_priority = 1
       zone_redundant    = false
+  }]
+  cosmos_booking_autoscale_settings = [{
+    max_throughput = 60000
+  }]
+  cosmos_core_autoscale_settings = [{
+    max_throughput = 25000
+  }]
+  cosmos_index_autoscale_settings = [{
+    max_throughput = 4000
+  }]
+  cosmos_audit_autoscale_settings = [{
+    max_throughput = 2000
   }]
 }

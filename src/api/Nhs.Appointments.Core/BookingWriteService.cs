@@ -164,7 +164,7 @@ public class BookingWriteService(
             var slots = (await allocationStateService.BuildAllocation(booking.Site, from, to))
                 .AvailableSlots;
 
-            var canBook = slots.Any(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+            var canBook = slots.Exists(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {
@@ -257,7 +257,7 @@ public class BookingWriteService(
 
         foreach (var booking in bookings)
         {
-            var targetSlot = slots.FirstOrDefault(sl => sl.Capacity > 0 &&
+            var targetSlot = slots.Find(sl => sl.Capacity > 0 &&
                                                         sl.From == booking.From &&
                                                         (int)sl.Duration.TotalMinutes == booking.Duration &&
                                                         sl.Services.Contains(booking.Service));

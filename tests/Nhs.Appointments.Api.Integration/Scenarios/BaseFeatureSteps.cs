@@ -502,7 +502,8 @@ public abstract partial class BaseFeatureSteps : Feature
     protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>
         $"{_testId}-{siteDesignation}";
 
-    protected string GetUserId(string userId) => $"{userId}@{_testId}.com";
+    // TODO: Update to handle Okta on / off state
+    protected string GetUserId(string userId) => $"{userId}_{_testId}@nhs.net";
 
     private async Task SetUpRoles()
     {

@@ -76,7 +76,7 @@ public class QueryAvailabilityFunction(
     private async Task<QueryAvailabilityResponseItem> GetAvailability(string site, string service, QueryType queryType, DateOnly from, DateOnly until, int consecutive)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = until.ToDateTime(new TimeOnly(23, 59));
+        var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
 
         List<SessionInstance> slots;
         

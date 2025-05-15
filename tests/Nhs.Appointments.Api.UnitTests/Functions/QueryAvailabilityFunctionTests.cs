@@ -221,6 +221,87 @@ public class QueryAvailabilityFunctionTests
             Times.Exactly(3));
         _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
     }
+    
+    [Fact]
+    public async Task RunAsync_CallsAvailabilityCalculator_WhenMultipleServicesDisabled()
+    {
+        var blocks = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 9, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 2, 10, 0, 0), new DateTime(2077, 1, 2, 10, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 3, 11, 0, 0), new DateTime(2077, 1, 3, 11, 5, 0)),
+        };
+        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
+
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
+            .Returns(responseBlocks);
+        _availabilityCalculator.Setup(x =>
+                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
+                    It.IsAny<DateOnly>()))
+            .ReturnsAsync(blocks.AsEnumerable());
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(false);
+        
+        var request = new QueryAvailabilityRequest(
+            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
+            QueryType.Days, 
+            null);
+
+        var httpRequest = CreateRequest(request);
+
+        await _sut.RunAsync(httpRequest);
+        
+        _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
+                new DateOnly(2077, 01, 03)),
+            Times.Exactly(1));
+        _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
+                new DateTime(2077, 01, 03, 23, 59, 59, 59)),
+            Times.Exactly(0));
+    }
+    
+    [Fact]
+    public async Task RunAsync_CallsAllocationStateService_WhenMultipleServicesEnabled()
+    {
+        var blocks = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 9, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 2, 10, 0, 0), new DateTime(2077, 1, 2, 10, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 3, 11, 0, 0), new DateTime(2077, 1, 3, 11, 5, 0)),
+        };
+        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
+
+        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
+            .Returns(responseBlocks);
+        _allocationStateService.Setup(x =>
+                x.BuildAllocation(It.IsAny<string>(), It.IsAny<DateTime>(),
+                    It.IsAny<DateTime>()))
+            .ReturnsAsync(new AllocationState()
+            {
+                AvailableSlots = blocks.ToList()
+            });
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(true);
+        
+        var request = new QueryAvailabilityRequest(
+            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 03),
+            QueryType.Days, 
+            null);
+
+        var httpRequest = CreateRequest(request);
+
+        await _sut.RunAsync(httpRequest);
+        
+        _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
+                new DateOnly(2077, 01, 03)),
+            Times.Exactly(0));
+        _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
+                new DateTime(2077, 01, 03, 23, 59, 59)),
+            Times.Exactly(1));
+    }
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)
     {

@@ -932,11 +932,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 x.BuildAllocation(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
         }
         
-        [Fact]
-        public async Task MakeBooking_MultipleServices_Scenario()
-        {
-            Assert.Fail();
-        }
+        //TODO
+        //Add new tests to assert new expected MultipleService functionality
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

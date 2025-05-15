@@ -37,7 +37,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
       test.use({ timezoneId: timezone });
 
       test.describe('Add Session', () => {
-        test.beforeEach(async ({ page }) => {
+        test.beforeEach(async ({ page, getTestSite }) => {
           rootPage = new RootPage(page);
           oAuthPage = new OAuthLoginPage(page);
           siteSelectionPage = new SiteSelectionPage(page);
@@ -59,7 +59,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           await rootPage.pageContentLogInButton.click();
           await oAuthPage.signIn();
 
-          await siteSelectionPage.selectSite('Church Lane Pharmacy');
+          await siteSelectionPage.selectSite(getTestSite(2));
           await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
           await page.waitForURL('**/site/**/view-availability');
         });

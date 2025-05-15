@@ -132,65 +132,6 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         actualArgument.Should().BeEquivalentTo(expectedBooking);
     }
 
-    [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultipleServicesEnabledAreDisabled()
-    {
-        //TODO to fix and add back in with correct mocking
-        throw new NotImplementedException();
-
-        // var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
-        //     TimeSpan.FromMinutes(5));
-        // _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
-        //     new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-        //         "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
-        //         new Location("Point", [0, 0])));
-        // _bookingWriteService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        // _availabilityService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        //
-        // var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-        //     "FirstName", "LastName",
-        //     "1958-06-08", "test@tempuri.org", "0123456789", null);
-        //
-        // var result = await _sut.RunAsync(request) as ContentResult;
-        // result.StatusCode.Should().Be(200);
-        // var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
-        // response.BookingReference.Should().Be("TEST01");
-        //
-        // _bookingWriteService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Once);
-        // _availabilityService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task RunAsync_UsesNewMethodIfMultipleServicesEnabledAreEnabled()
-    {
-        //TODO to fix and add back in with correct mocking
-        throw new NotImplementedException();
-
-
-        // Toggle("MultipleServicesEnabled", true);
-        //
-        // var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
-        //     TimeSpan.FromMinutes(5));
-        // _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
-        //     new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-        //         "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
-        //         new Location("Point", [0, 0])));
-        // _bookingWriteService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        // _availabilityService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        //
-        // var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-        //     "FirstName", "LastName",
-        //     "1958-06-08", "test@tempuri.org", "0123456789", null);
-        //
-        // var result = await _sut.RunAsync(request) as ContentResult;
-        // result.StatusCode.Should().Be(200);
-        // var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
-        // response.BookingReference.Should().Be("TEST01");
-        //
-        // _bookingWriteService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Never);
-        // _availabilityService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Once);
-    }
-
     private static HttpRequest CreateRequest(
         string site,
         string from,

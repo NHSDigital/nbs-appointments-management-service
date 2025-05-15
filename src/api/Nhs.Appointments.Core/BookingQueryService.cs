@@ -21,6 +21,14 @@ public class BookingQueryService(
         return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
     }
 
+    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
+    {
+        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookings
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.AttendeeDetails.LastName);
+    }
+
     public Task<Booking> GetBookingByReference(string bookingReference)
     {
         return bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
@@ -29,14 +37,6 @@ public class BookingQueryService(
     public Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
     {
         return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
-    }
-
-    public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
-    {
-        var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
-        return bookings
-            .OrderBy(b => b.From)
-            .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
     public async Task<List<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to)
@@ -50,6 +50,6 @@ public class BookingQueryService(
         return bookings;
     }
 
-    private bool IsExpiredProvisional(Booking b) => b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
-    
+    private bool IsExpiredProvisional(Booking b) =>
+        b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
 }

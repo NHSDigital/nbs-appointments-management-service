@@ -2,32 +2,72 @@ namespace Nhs.Appointments.Core.Okta;
 
 public class OktaService(IOktaUserDirectory oktaUserDirectory) : IOktaService
 {
-    public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string? firstName, string? lastName)
+    public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string firstName, string lastName)
     {
-        var success = false;
-        var oktaUser = await oktaUserDirectory.GetUserAsync(userEmail);
-
-        if (oktaUser != null)
+        var userState = await GetUserState(userEmail);
+        return userState switch
         {
-            var isOlderThanOneDay = DateTime.UtcNow - oktaUser.Created > TimeSpan.FromDays(1);
-
-            if (oktaUser.IsProvisioned && isOlderThanOneDay)
+            UserState.UserDoesNotExist => await CreateUser(userEmail, firstName, lastName),
+            UserState.UserWasProvisionedButOver24HoursAgo => await ReactivateUser(userEmail),
+            UserState.UserWasProvisionedButUnder24HoursAgo or UserState.UserIsActive => new UserProvisioningStatus
             {
-                success = await oktaUserDirectory.ReactivateUserAsync(userEmail);
-            }
-            else if (oktaUser.IsActive)
+                Success = true
+            },
+            _ => new UserProvisioningStatus
             {
-                success = true;
+                Success = false, FailureReason = "Failed to identify if user was active, provisioned or not extant."
             }
-
-            return new UserProvisioningStatus { Success = success };
-        }
-   
-        success = await oktaUserDirectory.CreateUserAsync(userEmail, firstName, lastName);
-
-        return new UserProvisioningStatus{ 
-            Success = success, 
-            FailureReason = !success ? "User could not be created" : string.Empty 
         };
+    }
+
+    private async Task<UserProvisioningStatus> CreateUser(string email, string firstName, string lastName)
+    {
+        var createdSuccessfully = await oktaUserDirectory.CreateUserAsync(email, firstName, lastName);
+        return new UserProvisioningStatus
+        {
+            Success = createdSuccessfully,
+            FailureReason = !createdSuccessfully ? "Failed to create the user" : string.Empty
+        };
+    }
+
+    private async Task<UserProvisioningStatus> ReactivateUser(string email)
+    {
+        var reactivatedSuccessfully = await oktaUserDirectory.ReactivateUserAsync(email);
+        return new UserProvisioningStatus
+        {
+            Success = reactivatedSuccessfully,
+            FailureReason = !reactivatedSuccessfully ? "Failed to reactivate the user" : string.Empty
+        };
+    }
+
+    private enum UserState
+    {
+        Unknown,
+        UserDoesNotExist,
+        UserWasProvisionedButOver24HoursAgo,
+        UserWasProvisionedButUnder24HoursAgo,
+        UserIsActive
+    }
+
+    private async Task<UserState> GetUserState(string userEmail)
+    {
+        var user = await oktaUserDirectory.GetUserAsync(userEmail);
+        if (user is null)
+        {
+            return UserState.UserDoesNotExist;
+        }
+
+        var isOlderThanOneDay = DateTime.UtcNow - user.Created > TimeSpan.FromDays(1);
+        if (user.IsProvisioned && isOlderThanOneDay)
+        {
+            return UserState.UserWasProvisionedButOver24HoursAgo;
+        }
+
+        if (user.IsProvisioned && !isOlderThanOneDay)
+        {
+            return UserState.UserWasProvisionedButUnder24HoursAgo;
+        }
+
+        return user.IsActive ? UserState.UserIsActive : UserState.Unknown;
     }
 }

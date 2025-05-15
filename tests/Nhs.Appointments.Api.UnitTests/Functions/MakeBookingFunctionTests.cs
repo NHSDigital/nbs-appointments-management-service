@@ -128,7 +128,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         };
         _sut.RunAsync(request);
         _bookingWriteService.Invocations.Should().HaveCount(1);
-        var actualArgument = _bookingWriteService.Invocations.First().Arguments.First();
+        var actualArgument = _bookingWriteService.Invocations[0].Arguments[0];
         actualArgument.Should().BeEquivalentTo(expectedBooking);
     }
 

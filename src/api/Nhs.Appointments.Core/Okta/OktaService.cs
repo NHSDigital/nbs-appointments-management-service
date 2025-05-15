@@ -1,6 +1,6 @@
 namespace Nhs.Appointments.Core.Okta;
 
-public class OktaService(IOktaUserDirectory oktaUserDirectory) : IOktaService
+public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider timeProvider) : IOktaService
 {
     public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string firstName, string lastName)
     {
@@ -57,7 +57,7 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory) : IOktaService
             return UserState.UserDoesNotExist;
         }
 
-        var isOlderThanOneDay = DateTime.UtcNow - user.Created > TimeSpan.FromDays(1);
+        var isOlderThanOneDay = timeProvider.GetUtcNow() - user.Created > TimeSpan.FromDays(1);
         if (user.IsProvisioned && isOlderThanOneDay)
         {
             return UserState.UserWasProvisionedButOver24HoursAgo;

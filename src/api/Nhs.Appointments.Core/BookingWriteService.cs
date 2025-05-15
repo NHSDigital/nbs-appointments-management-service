@@ -131,7 +131,7 @@ public class BookingWriteService(
                 .ToList();
 #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 
-            var canBook = slots.Any(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
+            var canBook = slots.Exists(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {

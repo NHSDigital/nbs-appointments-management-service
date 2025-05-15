@@ -4,43 +4,43 @@
     "services": [
         {
             "id": "RSV:Adult",
-            "label": "RSV (Adult)"
+            "label": "RSV Adult"
         },
         {
             "id": "TestA:Child",
-            "label": "Test A (Child)"
+            "label": "Test A Child"
         },
         {
             "id": "TestA:Adult",
-            "label": "Test A (Adult)"
+            "label": "Test A Adult"
         },
         {
             "id": "TestA:Elder",
-            "label": "Test A (Elder)"
+            "label": "Test A Elder"
         },
         {
             "id": "TestB:Child",
-            "label": "Test B (Child)"
+            "label": "Test B Child"
         },
         {
             "id": "TestB:Adult",
-            "label": "Test B (Adult)"
+            "label": "Test B Adult"
         },
         {
             "id": "TestB:Elder",
-            "label": "Test B (Elder)"
+            "label": "Test B Elder"
         },
         {
             "id": "TestATestB:Child",
-            "label": "Test A/B (Child)"
+            "label": "Test A/B Child"
         },
         {
             "id": "TestATestB:Adult",
-            "label": "Test A/B (Adult)"
+            "label": "Test A/B Adult"
         },
         {
             "id": "TestATestB:Elder",
-            "label": "Test A/B (Elder)"
+            "label": "Test A/B Elder"
         }
     ]
 }

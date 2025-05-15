@@ -4,7 +4,7 @@
     "JointBookings": true,
     "OktaEnabled": true,
     "TestFeatureEnabled": true,
-    "MultipleServices": true,
+    "MultipleServices": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

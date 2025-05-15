@@ -38,7 +38,8 @@ public class CsvProcessor<TDocument, TMap>(
                 report.Add(new ReportItem(index, "", false, $"Bad data found in field '{args.Field}'"));
             },
             Delimiter = ",",
-            Quote = '"'
+            Quote = '"',
+            TrimOptions = TrimOptions.Trim
         };
 
         using (var csv = new CsvReader(csvReader, config))

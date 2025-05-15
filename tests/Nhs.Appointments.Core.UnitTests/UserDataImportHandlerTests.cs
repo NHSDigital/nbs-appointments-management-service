@@ -228,7 +228,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
-        report.First().Message.Should().Contain("Invalid bool string format:  test");
+        report.First().Message.Should().Contain("Invalid bool string format: test");
     }
 
     [Fact]
@@ -286,6 +286,8 @@ public class UserDataImportHandlerTests
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(3));
         _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
+        // Verify email whitespace is trimmed before calling Okta
+        _oktaServiceMock.Verify(s => s.CreateIfNotExists("test3@okta-with-trailing-white-space.net", "Jane", "Smith"), Times.Once);
     }
 
     [Fact]

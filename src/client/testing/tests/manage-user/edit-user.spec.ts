@@ -47,8 +47,6 @@ test('Verify user manager able to edit user role', async ({
   // Arrange: Create new user
   // TODO: Use seed data instead!
   await usersPage.addUserButton.click();
-
-  await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();

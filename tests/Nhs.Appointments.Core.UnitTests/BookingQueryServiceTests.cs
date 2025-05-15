@@ -54,11 +54,10 @@ public class BookingQueryServiceTests
         var response = await _bookingQueryService.GetBookings(new DateTime(), new DateTime(), site);
 
         Assert.Multiple(
-            () => Assert.True(response.ToArray()[0].Reference == "4"),
-            () => Assert.True(response.ToArray()[1].Reference == "3"),
-            () => Assert.True(response.ToArray()[2].Reference == "2"),
-            () => Assert.True(response.ToArray()[3].Reference == "1")
-        );
+            () => Assert.Equal("4", response.ToArray()[0].Reference),
+            () => Assert.Equal("3", response.ToArray()[1].Reference),
+            () => Assert.Equal("2", response.ToArray()[2].Reference),
+            () => Assert.Equal("1", response.ToArray()[3].Reference));
     }
 
     [Fact]
@@ -113,9 +112,8 @@ public class BookingQueryServiceTests
         response.Should().HaveCount(2);
 
         Assert.Multiple(
-            () => Assert.True(response.ToArray()[0].Reference == "3"),
-            () => Assert.True(response.ToArray()[1].Reference == "1")
-        );
+            () => Assert.Equal("3", response.ToArray()[0].Reference),
+            () => Assert.Equal("1", response.ToArray()[1].Reference));
     }
 
     [Fact]
@@ -194,9 +192,8 @@ public class BookingQueryServiceTests
         response.Should().HaveCount(3);
 
         Assert.Multiple(
-            () => Assert.True(response.ToArray()[0].Reference == "5"),
-            () => Assert.True(response.ToArray()[1].Reference == "6"),
-            () => Assert.True(response.ToArray()[2].Reference == "1")
-        );
+            () => Assert.Equal("5", response.ToArray()[0].Reference),
+            () => Assert.Equal("6", response.ToArray()[1].Reference),
+            () => Assert.Equal("1", response.ToArray()[2].Reference));
     }
 }

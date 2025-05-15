@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Nhs.Appointments.Core;
 
 public class AvailabilityWriteService(
@@ -62,8 +64,8 @@ public class AvailabilityWriteService(
         var sessionToCancel = new Session
         {
             Capacity = capacity,
-            From = TimeOnly.Parse(from),
-            Until = TimeOnly.Parse(until),
+            From = TimeOnly.Parse(from, CultureInfo.InvariantCulture),
+            Until = TimeOnly.Parse(until, CultureInfo.InvariantCulture),
             Services = services,
             SlotLength = slotLength,
         };

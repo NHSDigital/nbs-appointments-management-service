@@ -33,7 +33,7 @@ public class AllocationStateService(
         return (bookingsTask.Result.ToList(), slotsTask.Result.ToList());
     }
 
-    private AllocationState BuildAllocation(List<Booking> orderedLiveBookings, List<SessionInstance> slots)
+    private static AllocationState BuildAllocation(List<Booking> orderedLiveBookings, List<SessionInstance> slots)
     {
         var allocationState = new AllocationState();
 
@@ -63,7 +63,7 @@ public class AllocationStateService(
     /// <param name="slots"></param>
     /// <param name="booking"></param>
     /// <returns></returns>
-    private SessionInstance ChooseHighestPrioritySlot(IEnumerable<SessionInstance> slots, Booking booking) =>
+    private static SessionInstance ChooseHighestPrioritySlot(IEnumerable<SessionInstance> slots, Booking booking) =>
         slots.Where(sl => sl.Capacity > 0
                           && sl.From == booking.From
                           && (int)sl.Duration.TotalMinutes == booking.Duration

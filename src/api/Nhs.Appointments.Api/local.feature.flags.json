@@ -3,7 +3,7 @@
     "BulkImport": false,
     "JointBookings": false,
     "OktaEnabled": false,
-    "TestFeatureEnabled": false,
+    "TestFeatureEnabled": true,
     "MultipleServices": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [

@@ -50,6 +50,6 @@ public class BookingQueryService(
         return bookings;
     }
 
-    private bool IsExpiredProvisional(Booking b) =>
-        b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
+    private bool IsExpiredProvisional(Booking b) => b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);
+    
 }

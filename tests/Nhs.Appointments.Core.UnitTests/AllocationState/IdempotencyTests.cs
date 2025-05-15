@@ -40,7 +40,7 @@ public class IdempotencyTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var firstRunResult = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
+        var firstRunResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
 
         firstRunResult.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
@@ -57,7 +57,7 @@ public class IdempotencyTests : AllocationStateServiceTestBase
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await _sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
+            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
             newResult.Should().BeEquivalentTo(firstRunResult);
             runs -= 1;
         }

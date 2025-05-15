@@ -4,7 +4,7 @@
     "services": [
         {
             "id": "RSV:Adult",
-            "label": "RSV (Adult)"
+            "label": "RSV Adult"
         },
         {
             "id": "COVID:5_11",

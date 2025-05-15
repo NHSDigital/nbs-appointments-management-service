@@ -52,21 +52,25 @@ stages:
               downloadType: "single"
               artifactName: "drop_terraform"
               downloadPath: $(Pipeline.Workspace)
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Terraform Scripts Artifact
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop_terraform_scripts"
+              downloadPath: $(Pipeline.Workspace)
           - task: AzureCLI@2
             displayName: "Run Terraform Plan"
             inputs:
-              scriptType: pscore
-              scriptLocation: inlineScript
-              addSpnToEnvironment: true
               azureSubscription: ${{parameters.serviceConnectionName}}
-              inlineScript: |
-                $env:ARM_CLIENT_ID=$env:servicePrincipalId
-                $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
-                $env:ARM_TENANT_ID=$env:tenantId
-                $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
-                cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
-                terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+              scriptType: pscore
+              addSpnToEnvironment: true
+              scriptLocation: scriptPath
+              scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-plan.ps1
+              arguments: >
+                -azureSubscriptionId $(azure_subscription_id)
+                -terraformEnvironmentFolderPath $(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}}
+                -buildNumber ${{parameters.buildNumber}}
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"
@@ -97,22 +101,25 @@ stages:
                     downloadType: "single"
                     artifactName: "drop_terraform"
                     downloadPath: $(Pipeline.Workspace)
+                - task: DownloadBuildArtifacts@0
+                  displayName: Download Terraform Scripts Artifact
+                  inputs:
+                    buildType: "current"
+                    downloadType: "single"
+                    artifactName: "drop_terraform_scripts"
+                    downloadPath: $(Pipeline.Workspace)
                 - task: AzureCLI@2
                   displayName: "Apply Terraform"
-                  name: ApplyTerraformTask
                   inputs:
-                    scriptType: pscore
-                    scriptLocation: inlineScript
-                    addSpnToEnvironment: true
                     azureSubscription: ${{parameters.serviceConnectionName}}
-                    inlineScript: |
-                      $env:ARM_CLIENT_ID=$env:servicePrincipalId
-                      $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
-                      $env:ARM_TENANT_ID=$env:tenantId
-                      $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
-                      cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
-                      terraform init
-                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+                    scriptType: pscore
+                    addSpnToEnvironment: true
+                    scriptLocation: scriptPath
+                    scriptPath: $(Pipeline.Workspace)/drop_terraform_scripts/terraform-apply.ps1
+                    arguments: >
+                      -azureSubscriptionId $(azure_subscription_id) 
+                      -terraformEnvironmentFolderPath $(Pipeline.Workspace)/drop_terraform/environments/${{parameters.env}} 
+                      -buildNumber ${{parameters.buildNumber}}
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"
@@ -380,3 +387,23 @@ stages:
 
               git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildNumber)" $COMMIT_SHA
               git push origin $TAG_NAME
+
+      - job: RetainOnSuccess
+        condition: and(succeeded(), eq('${{parameters.env}}', 'stag'))
+        displayName: "Retain artifacts successfully deployed to Staging for 1 year"
+        dependsOn: CreateReleaseTag
+        steps:
+          - task: PowerShell@2
+            displayName: "Retain artifacts"
+            inputs:
+              failOnStderr: true
+              targetType: "inline"
+              script: |
+                $contentType = "application/json";
+                $headers = @{ Authorization = 'Bearer $(System.AccessToken)' };
+                $rawRequest = @{ daysValid = 365; definitionId = $(System.DefinitionId); ownerId = 'User:$(Build.RequestedForId)'; protectPipeline = $false; runId = $(Build.BuildId) };
+                $request = ConvertTo-Json @($rawRequest);
+                $uri = "$(System.CollectionUri)$(System.TeamProject)/_apis/build/retention/leases?api-version=6.0-preview.1";
+                $newLease = Invoke-RestMethod -uri $uri -method POST -Headers $headers -ContentType $contentType -Body $request;
+                $newLeaseId = $newLease.Value[0].LeaseId
+                echo "##vso[task.setvariable variable=newLeaseId;isOutput=true]$newLeaseId";

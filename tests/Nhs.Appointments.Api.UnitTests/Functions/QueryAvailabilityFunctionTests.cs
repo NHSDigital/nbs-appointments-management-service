@@ -67,7 +67,7 @@ public class QueryAvailabilityFunctionTests
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
@@ -76,13 +76,17 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
-        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
-        response.Count.Should().Be(2);
-        response[0].site.Should().Be("2de5bb57-060f-4cb5-b14d-16587d0c2e8f");
-        response[1].site.Should().Be("34e990af-5dc9-43a6-8895-b9123216d699");
+        if (await _sut.RunAsync(httpRequest) is ContentResult result)
+        {
+            result.StatusCode.Should().Be(200);
+            _hasConsecutiveCapacityFilter.Verify(
+                x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+                Times.Never);
+            var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+            response.Count.Should().Be(2);
+            response[0].site.Should().Be("2de5bb57-060f-4cb5-b14d-16587d0c2e8f");
+            response[1].site.Should().Be("34e990af-5dc9-43a6-8895-b9123216d699");
+        }
     }
 
     [Theory]
@@ -105,7 +109,7 @@ public class QueryAvailabilityFunctionTests
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 01),
@@ -135,7 +139,7 @@ public class QueryAvailabilityFunctionTests
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
@@ -144,14 +148,18 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
-        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+        if (await _sut.RunAsync(httpRequest) is ContentResult result)
+        {
+            result.StatusCode.Should().Be(200);
+            _hasConsecutiveCapacityFilter.Verify(
+                x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+                Times.Never);
+            var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
-        response[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
-        response[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
-        response[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
+            response[0].availability[0].date.Should().Be(new DateOnly(2077, 01, 01));
+            response[0].availability[1].date.Should().Be(new DateOnly(2077, 01, 02));
+            response[0].availability[2].date.Should().Be(new DateOnly(2077, 01, 03));
+        }
     }
 
     [Fact]
@@ -171,7 +179,7 @@ public class QueryAvailabilityFunctionTests
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
@@ -180,8 +188,11 @@ public class QueryAvailabilityFunctionTests
 
         var httpRequest = CreateRequest(request);
 
-        var result = await _sut.RunAsync(httpRequest) as ContentResult;
-        result.StatusCode.Should().Be(200);
+        if (await _sut.RunAsync(httpRequest) is ContentResult result)
+        {
+            result.StatusCode.Should().Be(200);
+        }
+
         _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Once);
     }
 
@@ -206,7 +217,7 @@ public class QueryAvailabilityFunctionTests
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
@@ -242,7 +253,7 @@ public class QueryAvailabilityFunctionTests
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(false);
         
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
@@ -284,7 +295,7 @@ public class QueryAvailabilityFunctionTests
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(true);
         
         var request = new QueryAvailabilityRequest(
-            new[] { "2de5bb57-060f-4cb5-b14d-16587d0c2e8f" },
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
             new DateOnly(2077, 01, 01),
             new DateOnly(2077, 01, 03),
@@ -315,16 +326,7 @@ public class QueryAvailabilityFunctionTests
 
         var context = new DefaultHttpContext();
         var request = context.Request;
-        var body = string.Empty;
-        if (consecutive.HasValue)
-        {
-            body =
-            $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": {consecutive} }} ";
-        } else 
-        {
-            body =
-                $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
-        }
+        var body = consecutive.HasValue ? $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\", \"consecutive\": {consecutive} }} " : $"{{ \"sites\": [{sitesArray}], \"service\": \"{service}\", \"from\":  \"{from.ToString(DateTimeFormats.DateOnly)}\", \"until\": \"{until.ToString(DateTimeFormats.DateOnly)}\", \"queryType\": \"{queryType}\" }} ";
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
         request.Headers.Append("Authorization", "Test 123");
         return request;

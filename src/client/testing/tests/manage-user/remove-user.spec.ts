@@ -36,7 +36,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${site.id}/users`);
 });
@@ -48,11 +48,12 @@ test('Verify user manager is able to remove a user', async ({
   getTestSite,
   newUserName,
 }) => {
+  const newUser = newUserName(test.info());
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.emailInput.fill(newUser);
   await manageUserPage.emailStep.continueButton.click();
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
@@ -62,11 +63,11 @@ test('Verify user manager is able to remove a user', async ({
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.userExists(newUserName);
-  await usersPage.removeFromThisSiteLink(newUserName);
-  await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);
+  await usersPage.userExists(newUser);
+  await usersPage.removeFromThisSiteLink(newUser);
+  await removeUserPage.verifyUserNavigatedToRemovePage(newUser);
   await removeUserPage.clickButton('Remove this account');
-  await usersPage.userDoesNotExist(newUserName);
+  await usersPage.userDoesNotExist(newUser);
 });
 
 test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
@@ -74,11 +75,12 @@ test('Displays a notification banner after removing a user, which disappears whe
   getTestSite,
   newUserName,
 }) => {
+  const newUser = newUserName(test.info());
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.emailInput.fill(newUser);
   await manageUserPage.emailStep.continueButton.click();
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
@@ -87,13 +89,13 @@ test('Displays a notification banner after removing a user, which disappears whe
 
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
-  await usersPage.userExists(newUserName);
-  await usersPage.removeFromThisSiteLink(newUserName);
-  await removeUserPage.verifyUserNavigatedToRemovePage(newUserName);
+  await usersPage.userExists(newUser);
+  await usersPage.removeFromThisSiteLink(newUser);
+  await removeUserPage.verifyUserNavigatedToRemovePage(newUser);
   await removeUserPage.clickButton('Remove this account');
-  await usersPage.verifyRemoveUserSuccessBannerDisplayed(newUserName);
+  await usersPage.verifyRemoveUserSuccessBannerDisplayed(newUser);
   await usersPage.closeBanner();
-  await usersPage.verifyRemoveUserSuccessBannerNotDisplayed(newUserName);
+  await usersPage.verifyRemoveUserSuccessBannerNotDisplayed(newUser);
 });
 
 test('Receives 404 when trying to remove an invalid user', async ({ page }) => {

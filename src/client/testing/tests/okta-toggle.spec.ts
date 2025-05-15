@@ -118,7 +118,7 @@ test.describe.configure({ mode: 'serial' });
         await rootPage.goto();
         await rootPage.pageContentLogInButton.click();
         await oAuthPage.signIn();
-        await siteSelectionPage.selectSite(site.name);
+        await siteSelectionPage.selectSite(site);
         await sitePage.userManagementCard.click();
         await page.waitForURL(`**/site/${site.id}/users`);
       });

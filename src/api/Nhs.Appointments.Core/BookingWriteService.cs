@@ -274,7 +274,6 @@ public class BookingWriteService(
                 continue;
             }
 
-            // TODO: Delete the provisional rather than just excluding it from this check. This work is another PR in code review.
             if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                 booking.Status is not AppointmentStatus.Provisional)
             {

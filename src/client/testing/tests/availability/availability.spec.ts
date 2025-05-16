@@ -112,7 +112,7 @@ test.describe.configure({ mode: 'serial' });
             await createAvailabilityPage.enterNoOfVaccinators('2');
             await createAvailabilityPage.appointmentLength('6');
             await createAvailabilityPage.continueButton.click();
-            await createAvailabilityPage.addService('RSV (Adult)');
+            await createAvailabilityPage.addService('RSV Adult');
             await createAvailabilityPage.continueButton.click();
             await createAvailabilityPage.saveSessionButton.click();
             await expect(
@@ -158,7 +158,7 @@ test.describe.configure({ mode: 'serial' });
             await createAvailabilityPage.enterNoOfVaccinators('1');
             await createAvailabilityPage.appointmentLength('5');
             await createAvailabilityPage.continueButton.click();
-            await createAvailabilityPage.addService('RSV (Adult)');
+            await createAvailabilityPage.addService('RSV Adult');
             await createAvailabilityPage.continueButton.click();
             await createAvailabilityPage.saveSessionButton.click();
             await expect(
@@ -260,7 +260,7 @@ test.describe.configure({ mode: 'serial' });
             await createAvailabilityPage.enterNoOfVaccinators('1');
             await createAvailabilityPage.appointmentLength('5');
             await createAvailabilityPage.continueButton.click();
-            await createAvailabilityPage.addService('RSV (Adult)');
+            await createAvailabilityPage.addService('RSV Adult');
             await createAvailabilityPage.continueButton.click();
 
             // Then check Date change link is working
@@ -314,7 +314,7 @@ test.describe.configure({ mode: 'serial' });
             await createAvailabilityPage.enterNoOfVaccinators('2');
             await createAvailabilityPage.appointmentLength('6');
             await createAvailabilityPage.continueButton.click();
-            await createAvailabilityPage.addService('RSV (Adult)');
+            await createAvailabilityPage.addService('RSV Adult');
             await createAvailabilityPage.continueButton.click();
 
             // Then check Date change link is working
@@ -427,7 +427,7 @@ test.describe.configure({ mode: 'serial' });
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
 
             await addServicesPage.verifyAddServicesPageDisplayed();
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
 
             await checkSessionDetailsPage.verifyCheckSessionDetailsPageDisplayed();
             await checkSessionDetailsPage.saveSession();
@@ -502,7 +502,7 @@ test.describe.configure({ mode: 'serial' });
             );
 
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
             await checkSessionDetailsPage.saveSession();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -563,7 +563,7 @@ test.describe.configure({ mode: 'serial' });
             );
 
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
             await checkSessionDetailsPage.saveSession();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -625,7 +625,7 @@ test.describe.configure({ mode: 'serial' });
             );
 
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
             await checkSessionDetailsPage.saveSession();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -652,7 +652,7 @@ test.describe.configure({ mode: 'serial' });
             await weekViewAvailabilityPage.verifyFirstSessionRecordDetail(
               requiredDate,
               '09:00 - 10:00',
-              'RSV (Adult)',
+              'RSV Adult',
             );
           });
 
@@ -690,7 +690,7 @@ test.describe.configure({ mode: 'serial' });
             );
 
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
             await checkSessionDetailsPage.saveSession();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -778,7 +778,7 @@ test.describe.configure({ mode: 'serial' });
             );
 
             await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-            await addServicesPage.addService('RSV (Adult)');
+            await addServicesPage.addService('RSV Adult');
             await checkSessionDetailsPage.saveSession();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -891,7 +891,7 @@ test.describe.configure({ mode: 'serial' });
                 {
                   header: '20 October to 26 October',
                   services: [
-                    { serviceName: 'RSV (Adult)', bookedAppointments: 4 },
+                    { serviceName: 'RSV Adult', bookedAppointments: 4 },
                   ],
                   totalAppointments: 840,
                   booked: 4,
@@ -900,7 +900,7 @@ test.describe.configure({ mode: 'serial' });
                 {
                   header: '27 October to 2 November',
                   services: [
-                    { serviceName: 'RSV (Adult)', bookedAppointments: 2 },
+                    { serviceName: 'RSV Adult', bookedAppointments: 2 },
                   ],
                   totalAppointments: 420,
                   booked: 2,
@@ -959,7 +959,7 @@ test.describe.configure({ mode: 'serial' });
                 {
                   header: '23 March to 29 March',
                   services: [
-                    { serviceName: 'RSV (Adult)', bookedAppointments: 4 },
+                    { serviceName: 'RSV Adult', bookedAppointments: 4 },
                   ],
                   totalAppointments: 480,
                   booked: 4,
@@ -968,7 +968,7 @@ test.describe.configure({ mode: 'serial' });
                 {
                   header: '30 March to 5 April',
                   services: [
-                    { serviceName: 'RSV (Adult)', bookedAppointments: 2 },
+                    { serviceName: 'RSV Adult', bookedAppointments: 2 },
                   ],
                   totalAppointments: 240,
                   booked: 2,

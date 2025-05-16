@@ -81,7 +81,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '17',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 418,
     viewDailyAppointments: [
@@ -107,7 +107,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '25 October 202516:55pm',
@@ -115,7 +115,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -129,7 +129,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '17',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 418,
     viewDailyAppointments: [
@@ -155,7 +155,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '26 October 202516:55pm',
@@ -163,7 +163,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -177,7 +177,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '17',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 418,
     viewDailyAppointments: [
@@ -203,7 +203,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '27 October 202516:55pm',
@@ -211,7 +211,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -225,7 +225,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '14',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 238,
     viewDailyAppointments: [
@@ -251,7 +251,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '28 March 202613:45pm',
@@ -259,7 +259,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -273,7 +273,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '14',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 238,
     viewDailyAppointments: [
@@ -299,7 +299,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '29 March 202613:45pm',
@@ -307,7 +307,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -321,7 +321,7 @@ export const sessionTestCases: SessionTestCase[] = [
     startMins: '00',
     endHour: '14',
     endMins: '00',
-    service: 'RSV (Adult)',
+    service: 'RSV Adult',
     booked: 2,
     unbooked: 238,
     viewDailyAppointments: [
@@ -347,7 +347,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
       {
         time: '30 March 202613:45pm',
@@ -355,7 +355,7 @@ export const sessionTestCases: SessionTestCase[] = [
         nhsNumber: '1975486535',
         dob: '13 November 1952',
         contactDetails: 'Not provided',
-        services: 'RSV (Adult)',
+        services: 'RSV Adult',
       },
     ],
   },
@@ -407,7 +407,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Saturday 25 October',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
@@ -421,7 +421,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Sunday 26 October',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
@@ -443,7 +443,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Monday 27 October',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
@@ -542,7 +542,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Saturday 28 March',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',
@@ -556,7 +556,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Sunday 29 March',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',
@@ -578,7 +578,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         header: 'Monday 30 March',
         services: [
           {
-            serviceName: 'RSV (Adult)',
+            serviceName: 'RSV Adult',
             booked: 2,
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',

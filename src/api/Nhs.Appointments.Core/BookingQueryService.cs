@@ -5,7 +5,7 @@ public interface IBookingQueryService
     Task<Booking> GetBookingByReference(string bookingReference);
     Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber);
 
-    Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to);
+    Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to);
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<IEnumerable<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to);
 }
@@ -16,7 +16,7 @@ public class BookingQueryService(
 {
     private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
-    public Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to)
+    public Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to)
     {
         return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
     }

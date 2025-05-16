@@ -17,14 +17,13 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
     private HttpStatusCode _statusCode;
     private QueryAvailabilityResponse _actualResponse;
 
-    protected HttpResponseMessage Response => _response;
-    protected HttpStatusCode StatusCode => _statusCode;
-    protected QueryAvailabilityResponse ActualReponse => _actualResponse;
+    private HttpStatusCode StatusCode => _statusCode;
+    private QueryAvailabilityResponse ActualResponse => _actualResponse;
     
     [Then(@"the following daily availability is returned")]
     public void AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
     {
-        var expectedAvailabilty = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
+        var expectedAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
         (
             ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
             new List<QueryAvailabilityResponseBlock>()
@@ -35,16 +34,16 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
         ));
 
         StatusCode.Should().Be(HttpStatusCode.OK);
-        ActualReponse
+        ActualResponse
             .First().availability
-            .Should().BeEquivalentTo(expectedAvailabilty);
+            .Should().BeEquivalentTo(expectedAvailability);
     }
 
     [Then(@"the request is successful and no availability is returned")]
     public void AssertNoAvailability()
     {
         StatusCode.Should().Be(HttpStatusCode.OK);
-        ActualReponse.Should().BeEmpty();
+        ActualResponse.Should().BeEmpty();
     }
 
     [When(@"I check ([\w:]+) availability for '([\w:]+)' between '(.+)' and '(.+)'")]
@@ -89,7 +88,7 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
             expectedHourBlocks);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
-        var actualBlocks = _actualResponse
+        _actualResponse
             .Single().availability
             .Single(x => x.date == expectedDate)
             .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());

@@ -1,3 +1,4 @@
+using System.Net;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -78,7 +79,7 @@ public class QueryAvailabilityFunctionTests
 
         if (await _sut.RunAsync(httpRequest) is ContentResult result)
         {
-            result.StatusCode.Should().Be(200);
+            result.StatusCode.Should().Be((int)HttpStatusCode.OK);
             _hasConsecutiveCapacityFilter.Verify(
                 x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
                 Times.Never);
@@ -150,7 +151,7 @@ public class QueryAvailabilityFunctionTests
 
         if (await _sut.RunAsync(httpRequest) is ContentResult result)
         {
-            result.StatusCode.Should().Be(200);
+            result.StatusCode.Should().Be((int)HttpStatusCode.OK);
             _hasConsecutiveCapacityFilter.Verify(
                 x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
                 Times.Never);
@@ -190,7 +191,7 @@ public class QueryAvailabilityFunctionTests
 
         if (await _sut.RunAsync(httpRequest) is ContentResult result)
         {
-            result.StatusCode.Should().Be(200);
+            result.StatusCode.Should().Be((int)HttpStatusCode.OK);
         }
 
         _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Once);

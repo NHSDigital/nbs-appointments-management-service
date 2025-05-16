@@ -51,6 +51,7 @@ public class SetUserRolesFunction(
     {
         if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
         {
+            logger.LogError("Failed to set user roles. Reason: A user may not edit their own roles.");
             return Failed(HttpStatusCode.BadRequest,
                 "You cannot update the role assignments of the currently logged in user.");
         }
@@ -61,6 +62,7 @@ public class SetUserRolesFunction(
 
             if (!isOktaEnabled)
             {
+                logger.LogError("Failed to set user roles. Reason: Okta is disabled.");
                 return Failed(HttpStatusCode.NotImplemented, "Okta is disabled.");
             }
 
@@ -68,6 +70,7 @@ public class SetUserRolesFunction(
             var externalDirectoryResult = await oktaService.CreateIfNotExists(request.User, request.FirstName, request.LastName);
             if (!externalDirectoryResult.Success)
             {
+                logger.LogError("Failed to set user roles. Reason: {reason}", externalDirectoryResult.FailureReason);
                 return Failed(HttpStatusCode.BadRequest, externalDirectoryResult.FailureReason);
             }
         }

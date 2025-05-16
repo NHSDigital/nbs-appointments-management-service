@@ -133,6 +133,13 @@ test.describe.configure({ mode: 'serial' });
         await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
         await expect(manageUserPage.emailStep.title).toBeVisible();
+
+        if (oktaEnabled) {
+          await expect(manageUserPage.emailStep.emailHint).toBeVisible();
+        } else {
+          await expect(manageUserPage.emailStep.emailHint).not.toBeVisible();
+        }
+
         await manageUserPage.emailStep.emailInput.fill(newUser);
         await manageUserPage.emailStep.continueButton.click();
 
@@ -165,6 +172,13 @@ test.describe.configure({ mode: 'serial' });
         await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
         await expect(manageUserPage.emailStep.title).toBeVisible();
+
+        if (oktaEnabled) {
+          await expect(manageUserPage.emailStep.emailHint).toBeVisible();
+        } else {
+          await expect(manageUserPage.emailStep.emailHint).not.toBeVisible();
+        }
+
         await manageUserPage.emailStep.emailInput.fill(externalUser);
         await manageUserPage.emailStep.continueButton.click();
 
@@ -204,6 +218,13 @@ test.describe.configure({ mode: 'serial' });
         await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
         await expect(manageUserPage.emailStep.title).toBeVisible();
+
+        if (oktaEnabled) {
+          await expect(manageUserPage.emailStep.emailHint).toBeVisible();
+        } else {
+          await expect(manageUserPage.emailStep.emailHint).not.toBeVisible();
+        }
+
         await manageUserPage.emailStep.emailInput.fill(
           newUserName(test.info()),
         );
@@ -225,6 +246,13 @@ test.describe.configure({ mode: 'serial' });
         await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
         await expect(manageUserPage.emailStep.title).toBeVisible();
+
+        if (oktaEnabled) {
+          await expect(manageUserPage.emailStep.emailHint).toBeVisible();
+        } else {
+          await expect(manageUserPage.emailStep.emailHint).not.toBeVisible();
+        }
+
         await manageUserPage.emailStep.emailInput.fill(
           'zzz_test_user_3@nhs.net',
         );

@@ -43,6 +43,7 @@ const defaultProps: InjectedWizardProps & EmailStepProps = {
   returnRouteUponCancellation: '/',
   site: mockSite,
   sessionUser: mockUserProfile,
+  oktaEnabled: true,
 };
 
 describe('Email step', () => {

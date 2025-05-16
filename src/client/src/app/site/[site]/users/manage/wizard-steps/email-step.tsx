@@ -17,6 +17,7 @@ import { Site, UserProfile } from '@types';
 export type EmailStepProps = {
   site: Site;
   sessionUser: UserProfile;
+  oktaEnabled: boolean;
 };
 
 const NamesStep = ({
@@ -25,6 +26,7 @@ const NamesStep = ({
   goToPreviousStep,
   site,
   sessionUser,
+  oktaEnabled,
 }: InjectedWizardProps & EmailStepProps) => {
   const router = useRouter();
   const { formState, trigger, register, watch, setError, setValue } =
@@ -83,21 +85,23 @@ const NamesStep = ({
       <NhsHeading title="Add a user" />
 
       <FormGroup error={errors?.email?.message}>
-        <div className="nhsuk-hint">
-          Email address must be nhs.net or on the list of{' '}
-          <a href={authorisedDomainsUrl} target="_blank" rel="noreferrer">
-            authorised email domains
-          </a>
-          . Read the{' '}
-          <a href={userGuidanceUrl} target="_blank" rel="noreferrer">
-            user guidance on logging in without an NHS.net account
-          </a>{' '}
-          or you can apply for their{' '}
-          <a href={emailDomainRequestUrl} target="_blank" rel="noreferrer">
-            email domain to be approved
-          </a>
-          .
-        </div>
+        {oktaEnabled && (
+          <div className="nhsuk-hint">
+            Email address must be nhs.net or on the list of{' '}
+            <a href={authorisedDomainsUrl} target="_blank" rel="noreferrer">
+              authorised email domains
+            </a>
+            . Read the{' '}
+            <a href={userGuidanceUrl} target="_blank" rel="noreferrer">
+              user guidance on logging in without an NHS.net account
+            </a>{' '}
+            or you can apply for their{' '}
+            <a href={emailDomainRequestUrl} target="_blank" rel="noreferrer">
+              email domain to be approved
+            </a>
+            .
+          </div>
+        )}
         <TextInput
           id="email"
           label="Enter email address"

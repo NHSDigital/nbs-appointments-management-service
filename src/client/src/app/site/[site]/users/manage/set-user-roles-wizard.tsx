@@ -20,6 +20,7 @@ type Props = {
   roleOptions: Role[];
   sessionUser: UserProfile;
   userToEdit?: User;
+  oktaEnabled: boolean;
 };
 
 const SetUserRolesWizard = ({
@@ -27,6 +28,7 @@ const SetUserRolesWizard = ({
   roleOptions,
   sessionUser,
   userToEdit,
+  oktaEnabled,
 }: Props) => {
   const methods = useForm<SetUserRolesFormValues>({
     defaultValues: {
@@ -80,6 +82,7 @@ const SetUserRolesWizard = ({
                   {...stepProps}
                   site={site}
                   sessionUser={sessionUser}
+                  oktaEnabled={oktaEnabled}
                 />
               )}
             </WizardStep>

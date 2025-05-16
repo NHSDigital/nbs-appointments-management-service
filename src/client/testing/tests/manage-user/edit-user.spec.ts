@@ -33,7 +33,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site.name);
+  await siteSelectionPage.selectSite(site);
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${site.id}/users`);
 });
@@ -43,15 +43,14 @@ test('Verify user manager able to edit user role', async ({
   getTestSite,
   newUserName,
 }) => {
+  const newUser = newUserName(test.info());
   // Arrange: Create new user
   // TODO: Use seed data instead!
-  await usersPage.addUserButton.click();
-
   await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.emailInput.fill(newUser);
   await manageUserPage.emailStep.continueButton.click();
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
@@ -62,10 +61,10 @@ test('Verify user manager able to edit user role', async ({
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.userExists(newUserName);
+  await usersPage.userExists(newUser);
 
   // Act: Edit the new user's roles
-  await usersPage.clickEditLink(newUserName);
+  await usersPage.clickEditLink(newUser);
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.check();
@@ -76,8 +75,8 @@ test('Verify user manager able to edit user role', async ({
   await manageUserPage.summaryStep.continueButton.click();
 
   // Assert: Check the new user's roles have changed
-  await usersPage.verifyUserRoles('Appointment manager', newUserName);
-  await usersPage.verifyUserRoleRemoved('Availability manager', newUserName);
+  await usersPage.verifyUserRoles('Appointment manager', newUser);
+  await usersPage.verifyUserRoleRemoved('Availability manager', newUser);
 });
 
 test('Verify all roles cannot be removed from existing account', async ({
@@ -85,6 +84,7 @@ test('Verify all roles cannot be removed from existing account', async ({
   getTestSite,
   newUserName,
 }) => {
+  const newUser = newUserName(test.info());
   // Arrange: Create new user
   // TODO: Use seed data instead!
   await usersPage.addUserButton.click();
@@ -93,7 +93,7 @@ test('Verify all roles cannot be removed from existing account', async ({
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();
-  await manageUserPage.emailStep.emailInput.fill(newUserName);
+  await manageUserPage.emailStep.emailInput.fill(newUser);
   await manageUserPage.emailStep.continueButton.click();
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
@@ -104,10 +104,10 @@ test('Verify all roles cannot be removed from existing account', async ({
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
 
-  await usersPage.userExists(newUserName);
+  await usersPage.userExists(newUser);
 
   // Act: Edit the new user's roles
-  await usersPage.clickEditLink(newUserName);
+  await usersPage.clickEditLink(newUser);
 
   await expect(manageUserPage.rolesStep.title).toBeVisible();
   await manageUserPage.rolesStep.appointmentManagerCheckbox.uncheck();

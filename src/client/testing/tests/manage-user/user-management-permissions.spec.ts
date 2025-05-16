@@ -45,11 +45,13 @@ test.beforeEach(async ({ page, getTestSite }) => {
   viewMonthAvailabilityPage = new MonthViewAvailabilityPage(page);
 });
 
-test('A user with the appropriate permission can view other users at a site and also edit them', async () => {
+test('A user with the appropriate permission can view other users at a site and also edit them', async ({
+  getTestSite,
+}) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).toBeVisible();
   const userCount = await userManagementPage.page
@@ -99,14 +101,14 @@ test('permissions are applied per site', async ({ getTestUser }) => {
   await oAuthPage.signIn(getTestUser(2));
 
   // First check Edit column exists at Church Lane
-  await siteSelectionPage.selectSite(site2.name);
+  await siteSelectionPage.selectSite(site2);
   await sitePage.userManagementCard.click();
   await expect(usersPage.manageColumn).toBeVisible();
 
   // Then check it does NOT exist at Robin Lane
   await rootPage.goto();
 
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
 
   await sitePage.siteManagementCard.click();
   await expect(siteDetailsPage1.editSiteDetailsButton).not.toBeVisible();
@@ -114,12 +116,13 @@ test('permissions are applied per site', async ({ getTestUser }) => {
 
 test('Verify user manager cannot edit or remove self account', async ({
   getTestUser,
+  getTestSite,
 }) => {
   const user1 = getTestUser(1);
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(user1);
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
   await sitePage.userManagementCard.click();
   await usersPage.verifyLinkNotVisible(user1.username, 'Edit');
   await usersPage.verifyLinkNotVisible(user1.username, 'Remove from this site');
@@ -133,7 +136,7 @@ test('Verify user can only view appointment manager related tiles In app when us
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
 
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users`);
@@ -155,6 +158,7 @@ test('Verify user can only view appointment manager related tiles In app when us
 
   await expect(manageUserPage.summaryStep.title).toBeVisible();
   await manageUserPage.summaryStep.continueButton.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/users`);
 
   await usersPage.verifyUserRoles('Appointment manager', user8.subjectId);
   await rootPage.logOut();
@@ -163,12 +167,13 @@ test('Verify user can only view appointment manager related tiles In app when us
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(8));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');
   await sitePage.verifyTileNotVisible('CreateAvailability');
   await sitePage.siteManagementCard.click();
+  await page.waitForURL(`**/site/${getTestSite().id}/details`);
   await siteDetailsPage1.verifySitePage();
   await siteDetailsPage1.verifyEditButtonNotVisible();
 });
@@ -181,7 +186,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
 
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users`);
@@ -211,7 +216,7 @@ test('Verify user can only view availability manager related tiles In app when u
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(9));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');
@@ -222,6 +227,9 @@ test('Verify user can only view availability manager related tiles In app when u
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.createAvailabilityCard.click();
   await createAvailabilityPage.createAvailabilityButton.click();
+  await page.waitForURL(
+    `/manage-your-appointments/site/${site1.id}/create-availability/wizard`,
+  );
   await createAvailabilityPage.verifyCreateAvailabilitySessionPageDisplayed();
   await page.goto(`/manage-your-appointments/site/${site1.id}`);
   await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
@@ -236,7 +244,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Robin Lane Medical Centre');
+  await siteSelectionPage.selectSite(getTestSite());
 
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users`);
@@ -266,7 +274,7 @@ test('Verify user can only view user manager related tiles In app when user is a
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(10));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileVisible('UserManagement');
@@ -290,7 +298,7 @@ test('Verify user can only view site details manager related tiles In app when u
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
 
   await sitePage.userManagementCard.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users`);
@@ -320,7 +328,7 @@ test('Verify user can only view site details manager related tiles In app when u
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn(getTestUser(11));
   await expect(siteSelectionPage.title).toBeVisible();
-  await siteSelectionPage.selectSite(site1.name);
+  await siteSelectionPage.selectSite(site1);
   await sitePage.verifyTileVisible('ManageAppointment');
   await sitePage.verifyTileVisible('SiteManagement');
   await sitePage.verifyTileNotVisible('UserManagement');

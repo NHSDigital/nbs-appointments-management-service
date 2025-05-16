@@ -61,7 +61,7 @@ export default class UsersPage extends RootPage {
   }
 
   async closeBanner() {
-    this.page.getByRole('button', { name: 'Close' }).click();
+    await this.page.getByRole('button', { name: 'Close' }).click();
   }
 
   async verifyRemoveUserSuccessBannerNotDisplayed(userName: string) {

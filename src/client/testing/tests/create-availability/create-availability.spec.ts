@@ -36,7 +36,7 @@ let site: Site;
           await rootPage.goto();
           await rootPage.pageContentLogInButton.click();
           await oAuthPage.signIn();
-          await siteSelectionPage.selectSite(site.name);
+          await siteSelectionPage.selectSite(site);
           await sitePage.createAvailabilityCard.click();
           await page.waitForURL(`**/site/${site.id}/create-availability`);
         });

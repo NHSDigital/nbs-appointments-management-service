@@ -266,10 +266,10 @@ public class QueryAvailabilityFunctionTests
         
         _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
                 new DateOnly(2077, 01, 03)),
-            Times.Exactly(1));
+            Times.Once);
         _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59, 59)),
-            Times.Exactly(0));
+            Times.Never);
     }
     
     [Fact]
@@ -308,10 +308,10 @@ public class QueryAvailabilityFunctionTests
         
         _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
                 new DateOnly(2077, 01, 03)),
-            Times.Exactly(0));
+            Times.Never);
         _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59)),
-            Times.Exactly(1));
+            Times.Once);
     }
 
     private static HttpRequest CreateRequest(QueryAvailabilityRequest request)

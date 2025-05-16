@@ -17,6 +17,7 @@ import { Site, UserProfile } from '@types';
 export type EmailStepProps = {
   site: Site;
   sessionUser: UserProfile;
+  oktaEnabled: boolean;
 };
 
 const NamesStep = ({
@@ -25,6 +26,7 @@ const NamesStep = ({
   goToPreviousStep,
   site,
   sessionUser,
+  oktaEnabled,
 }: InjectedWizardProps & EmailStepProps) => {
   const router = useRouter();
   const { formState, trigger, register, watch, setError, setValue } =
@@ -66,6 +68,13 @@ const NamesStep = ({
     goToNextStep();
   };
 
+  const authorisedDomainsUrl =
+    'https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/care-identity-email-domain-allow-list';
+  const userGuidanceUrl =
+    'https://digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance/log-in-and-select-site';
+  const emailDomainRequestUrl =
+    'https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/request-an-addition-to-the-email-domain-allow-list';
+
   return (
     <>
       <BackLink
@@ -76,6 +85,23 @@ const NamesStep = ({
       <NhsHeading title="Add a user" />
 
       <FormGroup error={errors?.email?.message}>
+        {oktaEnabled && (
+          <div className="nhsuk-hint">
+            Email address must be nhs.net or on the list of{' '}
+            <a href={authorisedDomainsUrl} target="_blank" rel="noreferrer">
+              authorised email domains
+            </a>
+            . Read the{' '}
+            <a href={userGuidanceUrl} target="_blank" rel="noreferrer">
+              user guidance on logging in without an NHS.net account
+            </a>{' '}
+            or you can apply for their{' '}
+            <a href={emailDomainRequestUrl} target="_blank" rel="noreferrer">
+              email domain to be approved
+            </a>
+            .
+          </div>
+        )}
         <TextInput
           id="email"
           label="Enter email address"

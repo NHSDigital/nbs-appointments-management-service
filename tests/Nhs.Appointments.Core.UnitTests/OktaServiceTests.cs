@@ -1,6 +1,6 @@
 using Nhs.Appointments.Core.Okta;
 
-namespace Nhs.Appointments.UserManagement.Okta.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests;
 
 public class OktaServiceTests
 {

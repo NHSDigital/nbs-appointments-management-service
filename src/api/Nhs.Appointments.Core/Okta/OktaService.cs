@@ -40,15 +40,6 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider time
         };
     }
 
-    private enum UserState
-    {
-        Unknown,
-        UserDoesNotExist,
-        UserWasProvisionedButOver24HoursAgo,
-        UserWasProvisionedButUnder24HoursAgo,
-        UserIsActive
-    }
-
     private async Task<UserState> GetUserState(string userEmail)
     {
         var user = await oktaUserDirectory.GetUserAsync(userEmail);
@@ -57,17 +48,28 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider time
             return UserState.UserDoesNotExist;
         }
 
-        var isOlderThanOneDay = timeProvider.GetUtcNow() - user.Created > TimeSpan.FromDays(1);
-        if (user.IsProvisioned && isOlderThanOneDay)
+        if (user.IsProvisioned)
         {
-            return UserState.UserWasProvisionedButOver24HoursAgo;
-        }
-
-        if (user.IsProvisioned && !isOlderThanOneDay)
-        {
-            return UserState.UserWasProvisionedButUnder24HoursAgo;
+            return GetProvisionedState(user.Created);
         }
 
         return user.IsActive ? UserState.UserIsActive : UserState.Unknown;
+    }
+
+    private UserState GetProvisionedState(DateTimeOffset created)
+    {
+        var isOlderThanOneDay = timeProvider.GetUtcNow() - created > TimeSpan.FromDays(1);
+        return isOlderThanOneDay
+            ? UserState.UserWasProvisionedButOver24HoursAgo
+            : UserState.UserWasProvisionedButUnder24HoursAgo;
+    }
+
+    private enum UserState
+    {
+        Unknown,
+        UserDoesNotExist,
+        UserWasProvisionedButOver24HoursAgo,
+        UserWasProvisionedButUnder24HoursAgo,
+        UserIsActive
     }
 }

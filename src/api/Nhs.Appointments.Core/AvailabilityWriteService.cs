@@ -10,25 +10,34 @@ public class AvailabilityWriteService(
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
         if (string.IsNullOrEmpty(site))
+        {
             throw new ArgumentException("site must have a value");
+        }
 
         if (from > until)
+        {
             throw new ArgumentException("until date must be after from date");
+        }
 
         if (template == null)
+        {
             throw new ArgumentException("template must be provided");
+        }
 
         if (template.Sessions is null || template.Sessions.Length == 0)
+        {
             throw new ArgumentException("template must contain one or more sessions");
+        }
 
         if (template.Days is null || template.Days.Length == 0)
+        {
             throw new ArgumentException("template must specify one or more weekdays");
+        }
 
         var dates = GetDatesBetween(from, until, template.Days);
         foreach (var date in dates)
         {
-            await availabilityStore.ApplyAvailabilityTemplate(site, date, template.Sessions, mode);
-            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+            await SetAvailabilityAsync(date, site, template.Sessions, mode);
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
@@ -38,7 +47,6 @@ public class AvailabilityWriteService(
         ApplyAvailabilityMode mode, string user, Session sessionToEdit = null)
     {
         await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
-        await bookingWriteService.RecalculateAppointmentStatuses(site, date);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
@@ -46,10 +54,14 @@ public class AvailabilityWriteService(
         Session sessionToEdit = null)
     {
         if (string.IsNullOrEmpty(site))
+        {
             throw new ArgumentException("Site must have a value.");
+        }
 
         if (sessions is null || sessions.Length == 0)
+        {
             throw new ArgumentException("Availability must contain one or more sessions.");
+        }
 
         if (mode is ApplyAvailabilityMode.Edit && sessionToEdit is null)
         {
@@ -57,6 +69,7 @@ public class AvailabilityWriteService(
         }
 
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
+        await bookingWriteService.RecalculateAppointmentStatuses(site, date);
     }
 
     public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)

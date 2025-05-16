@@ -20,15 +20,15 @@ public class AllocationStateService(
 
         recalculations.AppendNewlySupportedBookings(state, bookings);
         recalculations.AppendNoLongerSupportedBookings(state, bookings);
-        recalculations.AppendProvisionalBookingsToBeDeleted( state, bookings);
+        recalculations.AppendProvisionalBookingsToBeDeleted(state, bookings);
 
         return recalculations;
     }
 
     private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site, DateTime from, DateTime to)
     {
-        var bookingsTask = GetBookings(site, from, to);
-        var slotsTask = GetSlots(site, from, to);
+        var bookingsTask = bookingQueryService.GetOrderedLiveBookings(site, from, to);
+        var slotsTask = availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
         await Task.WhenAll(bookingsTask, slotsTask);
         return (bookingsTask.Result.ToList(), slotsTask.Result.ToList());
     }
@@ -71,12 +71,6 @@ public class AllocationStateService(
             .OrderBy(slot => slot.Services.Length)
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
-
-    private async Task<IEnumerable<Booking>> GetBookings(string site, DateTime from, DateTime to) =>
-        await bookingQueryService.GetOrderedLiveBookings(site, from, to);
-
-    private async Task<IEnumerable<SessionInstance>> GetSlots(string site, DateTime from, DateTime to) =>
-        await availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
 }
 
 public static class RecalculationExtensions

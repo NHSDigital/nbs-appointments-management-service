@@ -7,7 +7,7 @@ public interface IBookingQueryService
 
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to);
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
-    Task<List<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to);
+    Task<IEnumerable<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to);
 }
 
 public class BookingQueryService(
@@ -39,13 +39,12 @@ public class BookingQueryService(
         return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
-    public async Task<List<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetOrderedLiveBookings(string site, DateTime from, DateTime to)
     {
         var bookings = (await GetBookings(from, to, site))
             .Where(b => _liveStatuses.Contains(b.Status))
             .Where(b => !IsExpiredProvisional(b))
-            .OrderBy(b => b.Created)
-            .ToList();
+            .OrderBy(b => b.Created);
 
         return bookings;
     }

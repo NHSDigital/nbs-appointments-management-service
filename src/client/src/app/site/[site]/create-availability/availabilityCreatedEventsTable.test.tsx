@@ -61,25 +61,25 @@ describe('Availability Created Events Table', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '1 Jan 2024 - 28 Feb 2024 Mon, Tue RSV (Adult) Weekly repeating',
+        name: '1 Jan 2024 - 28 Feb 2024 Mon, Tue RSV Adult Weekly repeating',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '1 Jan 2025 Wed RSV (Adult) Single date',
+        name: '1 Jan 2025 Wed RSV Adult Single date',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '1 Mar 2024 - 30 Apr 2024 All RSV (Adult) Weekly repeating',
+        name: '1 Mar 2024 - 30 Apr 2024 All RSV Adult Weekly repeating',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '16 Feb 2025 Sun RSV (Adult) Single date',
+        name: '16 Feb 2025 Sun RSV Adult Single date',
       }),
     );
   });

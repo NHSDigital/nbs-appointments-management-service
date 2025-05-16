@@ -92,7 +92,7 @@ describe('Summary Step', () => {
     verifySummaryListItem('Time', '09:30 - 17:45');
     verifySummaryListItem('Vaccinators or vaccination spaces available', '2');
     verifySummaryListItem('Appointment length', '15 minutes');
-    verifySummaryListItem('Services available', 'RSV (Adult)');
+    verifySummaryListItem('Services available', 'RSV Adult');
 
     expect(
       screen.queryByRole('term', { name: 'Days' }),

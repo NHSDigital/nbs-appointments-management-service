@@ -1,18 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
-
-type WeekOverview = {
-  header: string;
-  services: ServiceOverview[];
-  totalAppointments: number;
-  booked: number;
-  unbooked: number;
-};
-
-type ServiceOverview = {
-  serviceName: string;
-  bookedAppointments: number;
-};
+import { WeekOverview } from '../../availability';
 
 export default class MonthViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;

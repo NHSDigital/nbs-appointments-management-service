@@ -71,18 +71,14 @@ let site: Site;
               },
               {
                 header: '20 October to 26 October',
-                services: [
-                  { serviceName: 'RSV (Adult)', bookedAppointments: 4 },
-                ],
+                services: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
                 totalAppointments: 840,
                 booked: 4,
                 unbooked: 836,
               },
               {
                 header: '27 October to 2 November',
-                services: [
-                  { serviceName: 'RSV (Adult)', bookedAppointments: 2 },
-                ],
+                services: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
                 totalAppointments: 420,
                 booked: 2,
                 unbooked: 418,
@@ -141,18 +137,14 @@ let site: Site;
               },
               {
                 header: '23 March to 29 March',
-                services: [
-                  { serviceName: 'RSV (Adult)', bookedAppointments: 4 },
-                ],
+                services: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
                 totalAppointments: 480,
                 booked: 4,
                 unbooked: 476,
               },
               {
                 header: '30 March to 5 April',
-                services: [
-                  { serviceName: 'RSV (Adult)', bookedAppointments: 2 },
-                ],
+                services: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
                 totalAppointments: 240,
                 booked: 2,
                 unbooked: 238,

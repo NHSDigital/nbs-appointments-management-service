@@ -63,7 +63,7 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByRole('row', {
-          name: '09:00 - 17:00 RSV (Adult) 5 booked 118 unbooked Change',
+          name: '09:00 - 17:00 RSV Adult 5 booked 118 unbooked Change',
         }),
       ).toBeInTheDocument();
     });

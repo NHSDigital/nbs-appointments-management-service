@@ -66,7 +66,7 @@ let site: Site;
           await createAvailabilityPage.enterNoOfVaccinators('2');
           await createAvailabilityPage.appointmentLength('6');
           await createAvailabilityPage.continueButton.click();
-          await createAvailabilityPage.addService('RSV (Adult)');
+          await createAvailabilityPage.addService('RSV Adult');
           await createAvailabilityPage.continueButton.click();
           await createAvailabilityPage.saveSessionButton.click();
           await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
@@ -101,7 +101,7 @@ let site: Site;
           await createAvailabilityPage.enterNoOfVaccinators('1');
           await createAvailabilityPage.appointmentLength('5');
           await createAvailabilityPage.continueButton.click();
-          await createAvailabilityPage.addService('RSV (Adult)');
+          await createAvailabilityPage.addService('RSV Adult');
           await createAvailabilityPage.continueButton.click();
           await createAvailabilityPage.saveSessionButton.click();
           await expect(createAvailabilityPage.sessionSuccessMsg).toBeVisible();
@@ -180,7 +180,7 @@ let site: Site;
           await createAvailabilityPage.enterNoOfVaccinators('1');
           await createAvailabilityPage.appointmentLength('5');
           await createAvailabilityPage.continueButton.click();
-          await createAvailabilityPage.addService('RSV (Adult)');
+          await createAvailabilityPage.addService('RSV Adult');
           await createAvailabilityPage.continueButton.click();
 
           // Then check Date change link is working
@@ -227,7 +227,7 @@ let site: Site;
           await createAvailabilityPage.enterNoOfVaccinators('2');
           await createAvailabilityPage.appointmentLength('6');
           await createAvailabilityPage.continueButton.click();
-          await createAvailabilityPage.addService('RSV (Adult)');
+          await createAvailabilityPage.addService('RSV Adult');
           await createAvailabilityPage.continueButton.click();
 
           // Then check Date change link is working

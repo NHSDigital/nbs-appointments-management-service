@@ -477,7 +477,7 @@ const mockDetailedWeeks: Week[] = [
     bookedAppointments: [
       { service: 'COVID 75+', count: 10 },
       { service: 'FLU 18-64', count: 5 },
-      { service: 'RSV (Adult)', count: 2 },
+      { service: 'RSV Adult', count: 2 },
     ],
     booked: 17,
     unbooked: 13,
@@ -495,7 +495,7 @@ const mockDetailedWeeks: Week[] = [
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 1 },
-      { service: 'RSV (Adult)', count: 12 },
+      { service: 'RSV Adult', count: 12 },
     ],
     booked: 18,
     unbooked: 12,
@@ -513,7 +513,7 @@ const mockDetailedWeeks: Week[] = [
     bookedAppointments: [
       { service: 'COVID 75+', count: 5 },
       { service: 'FLU 18-64', count: 10 },
-      { service: 'RSV (Adult)', count: 10 },
+      { service: 'RSV Adult', count: 10 },
     ],
     booked: 25,
     unbooked: 5,

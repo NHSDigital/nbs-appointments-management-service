@@ -90,7 +90,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
 
           await addServicesPage.verifyAddServicesPageDisplayed();
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
 
           await checkSessionDetailsPage.verifyCheckSessionDetailsPageDisplayed();
           await checkSessionDetailsPage.saveSession();
@@ -141,7 +141,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           );
 
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
           await checkSessionDetailsPage.saveSession();
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -189,7 +189,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           );
 
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
           await checkSessionDetailsPage.saveSession();
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -240,7 +240,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           );
 
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
           await checkSessionDetailsPage.saveSession();
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -267,7 +267,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           await weekViewAvailabilityPage.verifyFirstSessionRecordDetail(
             requiredDate,
             '09:00 - 10:00',
-            'RSV (Adult)',
+            'RSV Adult',
           );
         });
 
@@ -294,7 +294,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           );
 
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
           await checkSessionDetailsPage.saveSession();
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -369,7 +369,7 @@ let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
           );
 
           await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
-          await addServicesPage.addService('RSV (Adult)');
+          await addServicesPage.addService('RSV Adult');
           await checkSessionDetailsPage.saveSession();
 
           await page.waitForURL('**/site/**/view-availability/week?date=**');

@@ -32,7 +32,7 @@ describe('Edit Session Decision Page', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked',
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
       }),
     ).toBeInTheDocument();
   });

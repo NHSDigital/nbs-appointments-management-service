@@ -96,7 +96,7 @@ public class BookingWriteService(
         var windowStart = time.GetLocalNow().DateTime;
         var windowEnd = windowStart.AddDays(3);
 
-        var bookings = await bookingQueryService.GetBookings(windowStart, windowEnd);
+        var bookings = await bookingQueryService.GetBookedBookingsAcrossAllSites(windowStart, windowEnd);
         foreach (var booking in bookings.Where(b => !b.ReminderSent && b.Created < windowStart.AddDays(-1)))
         {
             var reminders = eventFactory.BuildBookingEvents<BookingReminder>(booking);

@@ -681,7 +681,7 @@ test.describe.configure({ mode: 'serial' });
             await rootPage.goto();
             await rootPage.pageContentLogInButton.click();
             await oAuthPage.signIn();
-            await siteSelectionPage.selectSite(site.name);
+            await siteSelectionPage.selectSite(site);
             await sitePage.createAvailabilityCard.click();
             await page.waitForURL(`**/site/${site.id}/create-availability`);
           });
@@ -971,7 +971,7 @@ test.describe.configure({ mode: 'serial' });
         test.describe(`Test in timezone: '${timezone}'`, () => {
           test.use({ timezoneId: timezone });
 
-          test.beforeEach(async ({ page }) => {
+          test.beforeEach(async ({ page, getTestSite }) => {
             rootPage = new RootPage(page);
             oAuthPage = new OAuthLoginPage(page);
             siteSelectionPage = new SiteSelectionPage(page);
@@ -993,7 +993,7 @@ test.describe.configure({ mode: 'serial' });
             await rootPage.pageContentLogInButton.click();
             await oAuthPage.signIn();
 
-            await siteSelectionPage.selectSite('Church Lane Pharmacy');
+            await siteSelectionPage.selectSite(getTestSite(2));
             await sitePage.viewAvailabilityAndManageAppointmentsCard.click();
             await page.waitForURL('**/site/**/view-availability');
           });

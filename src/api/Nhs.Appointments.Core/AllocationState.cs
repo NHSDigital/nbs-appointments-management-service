@@ -1,13 +1,13 @@
 ﻿namespace Nhs.Appointments.Core;
 
-public class AvailabilityState
+public class AllocationState
 {
-    public List<SessionInstance> AvailableSlots = [];
-    public List<AvailabilityUpdate> Recalculations = [];
-    public List<Booking> Bookings = [];
+    public readonly List<string> SupportedBookingReferences = [];
+
+    public List<SessionInstance> AvailableSlots { get; set; } = [];
 }
 
-public class AvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)
+public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)
 {
     public Booking Booking { get; } = booking;
     public AvailabilityUpdateAction Action { get; } = action;

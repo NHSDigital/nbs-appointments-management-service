@@ -15,12 +15,11 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class MakeBookingFunctionTests : FeatureToggledTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
-    private readonly Mock<IBookingsService> _bookingService = new();
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<IBookingWriteService> _bookingWriteService = new();
     private readonly Mock<ILogger<MakeBookingFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();
@@ -30,9 +29,8 @@ public class MakeBookingFunctionTests : FeatureToggledTests
 
     public MakeBookingFunctionTests() : base(typeof(MakeBookingFunctionTests))
     {
-        _sut = new MakeBookingFunction(_bookingService.Object, _siteService.Object, _availabilityService.Object,
-            _validator.Object,
-            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _featureToggleHelper.Object);
+        _sut = new MakeBookingFunction(_bookingWriteService.Object, _siteService.Object, _validator.Object,
+            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<MakeBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -46,7 +44,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
                 "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
                 new Location("Point", [0, 0])));
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
+        _bookingWriteService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
         var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
             "FirstName", "LastName",
@@ -103,7 +101,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
+        _bookingWriteService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
         var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
             "FirstName", "LastName",
@@ -129,61 +127,9 @@ public class MakeBookingFunctionTests : FeatureToggledTests
             ]
         };
         _sut.RunAsync(request);
-        _bookingService.Invocations.Should().HaveCount(1);
-        var actualArgument = _bookingService.Invocations.First().Arguments.First();
+        _bookingWriteService.Invocations.Should().HaveCount(1);
+        var actualArgument = _bookingWriteService.Invocations[0].Arguments[0];
         actualArgument.Should().BeEquivalentTo(expectedBooking);
-    }
-
-    [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
-    {
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
-            TimeSpan.FromMinutes(5));
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
-            new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-                "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
-                new Location("Point", [0, 0])));
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        _availabilityService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-            "FirstName", "LastName",
-            "1958-06-08", "test@tempuri.org", "0123456789", null);
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
-        response.BookingReference.Should().Be("TEST01");
-
-        _bookingService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Once);
-        _availabilityService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
-    {
-        Toggle(Flags.MultipleServices, true);
-
-        var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
-            TimeSpan.FromMinutes(5));
-        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
-            new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
-                "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
-                new Location("Point", [0, 0])));
-        _bookingService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-        _availabilityService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
-
-        var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
-            "FirstName", "LastName",
-            "1958-06-08", "test@tempuri.org", "0123456789", null);
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-        result.StatusCode.Should().Be(200);
-        var response = await ReadResponseAsync<MakeBookingResponse>(result.Content);
-        response.BookingReference.Should().Be("TEST01");
-
-        _bookingService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Never);
-        _availabilityService.Verify(x => x.MakeBooking(It.IsAny<Booking>()), Times.Once);
     }
 
     private static HttpRequest CreateRequest(

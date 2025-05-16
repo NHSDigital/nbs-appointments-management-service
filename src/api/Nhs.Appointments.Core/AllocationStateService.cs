@@ -18,9 +18,9 @@ public class AllocationStateService(
         var (bookings, slots) = await FetchData(site, from, to);
         var state = BuildAllocation(bookings, slots);
 
-        recalculations.AddNewlySupportedBookings(state, bookings);
-        recalculations.AddNoLongerSupportedBookings(state, bookings);
-        recalculations.DeleteRemainingUnsupportedProvisionalBookings( state, bookings);
+        recalculations.AppendNewlySupportedBookings(state, bookings);
+        recalculations.AppendNoLongerSupportedBookings(state, bookings);
+        recalculations.AppendProvisionalBookingsToBeDeleted( state, bookings);
 
         return recalculations;
     }
@@ -81,7 +81,7 @@ public class AllocationStateService(
 
 public static class RecalculationExtensions
 {
-    public static void AddNewlySupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    public static void AppendNewlySupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
     {
         recalculations.AddRange(bookings
             .Where(booking => state.SupportedBookingReferences.Contains(booking.Reference) &&
@@ -89,7 +89,7 @@ public static class RecalculationExtensions
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported)));
     }
 
-    public static void AddNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    public static void AppendNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
     {
         recalculations.AddRange(bookings
             .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&
@@ -98,7 +98,7 @@ public static class RecalculationExtensions
             .Select(booking => new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned)));
     }
 
-    public static void DeleteRemainingUnsupportedProvisionalBookings(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
+    public static void AppendProvisionalBookingsToBeDeleted(this List<BookingAvailabilityUpdate> recalculations, AllocationState state, List<Booking> bookings)
     {
         recalculations.AddRange(bookings
             .Where(booking => !state.SupportedBookingReferences.Contains(booking.Reference) &&

@@ -45,7 +45,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
                 user);
         };
-        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("site must have a value");
+        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("Site must have a value.");
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
                 user);
         };
-        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("template must be provided");
+        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("Template must be provided.");
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
                 user);
         };
-        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("until date must be after from date");
+        await applyTemplate.Should().ThrowAsync<ArgumentException>().WithMessage("Until date must be after from date.");
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
                 user);
         };
-        await applyTemplate.Should().ThrowAsync<ArgumentException>("template must specify one or more weekdays");
+        await applyTemplate.Should().ThrowAsync<ArgumentException>("Template must specify one or more weekdays.");
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
             await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite,
                 user);
         };
-        await applyTemplate.Should().ThrowAsync<ArgumentException>("template must contain one or more sessions");
+        await applyTemplate.Should().ThrowAsync<ArgumentException>("Template must contain one or more sessions.");
     }
 
     [Fact]

@@ -36,7 +36,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@azure/cosmos": "^4.3.0",
+    "@azure/cosmos": "^4.4.1",
     "@playwright/test": "^1.52.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

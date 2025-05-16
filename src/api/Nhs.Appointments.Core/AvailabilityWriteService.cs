@@ -11,27 +11,27 @@ public class AvailabilityWriteService(
     {
         if (string.IsNullOrEmpty(site))
         {
-            throw new ArgumentException("site must have a value");
+            throw new ArgumentException("Site must have a value.");
         }
 
         if (from > until)
         {
-            throw new ArgumentException("until date must be after from date");
+            throw new ArgumentException("Until date must be after from date.");
         }
 
         if (template == null)
         {
-            throw new ArgumentException("template must be provided");
+            throw new ArgumentException("Template must be provided.");
         }
 
         if (template.Sessions is null || template.Sessions.Length == 0)
         {
-            throw new ArgumentException("template must contain one or more sessions");
+            throw new ArgumentException("Template must contain one or more sessions.");
         }
 
         if (template.Days is null || template.Days.Length == 0)
         {
-            throw new ArgumentException("template must specify one or more weekdays");
+            throw new ArgumentException("Template must specify one or more weekdays.");
         }
 
         var dates = GetDatesBetween(from, until, template.Days);

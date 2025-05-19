@@ -132,6 +132,9 @@ public class BookingWriteService(
                 .ToList();
 #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            // Existing live code behaviour, no desire to alter for the release.
+            // Has been 'fixed' in the MakeBooking_MultipleServices method
             var canBook = slots.Exists(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
@@ -157,35 +160,37 @@ public class BookingWriteService(
 
     private async Task<(bool Success, string Reference)> MakeBooking_MultipleServices(Booking booking)
     {
-        using (var leaseContent = siteLeaseManager.Acquire(booking.Site))
+        using var leaseContent = siteLeaseManager.Acquire(booking.Site);
+        
+        var from = booking.From;
+        var to = booking.From.AddMinutes(booking.Duration);
+
+        var slots = (await allocationStateService.BuildAllocation(booking.Site, from, to))
+            .AvailableSlots;
+
+        //duration totalMinutes should always be an integer until we allow slot lengths that aren't integer minutes
+        var canBook = slots.Exists(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
+
+        if (!canBook)
         {
-            var from = booking.From;
-            var to = booking.From.AddMinutes(booking.Duration);
-
-            var slots = (await allocationStateService.BuildAllocation(booking.Site, from, to))
-                .AvailableSlots;
-
-            var canBook = slots.Exists(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
-
-            if (canBook)
-            {
-                booking.Created = time.GetUtcNow();
-                booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
-                booking.ReminderSent = false;
-                booking.AvailabilityStatus = AvailabilityStatus.Supported;
-                await bookingDocumentStore.InsertAsync(booking);
-
-                if (booking.Status == AppointmentStatus.Booked && booking.ContactDetails?.Length > 0)
-                {
-                    var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
-                    await bus.Send(bookingMadeEvents);
-                }
-
-                return (true, booking.Reference);
-            }
-
             return (false, string.Empty);
         }
+
+        booking.Created = time.GetUtcNow();
+        booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+        booking.ReminderSent = false;
+        booking.AvailabilityStatus = AvailabilityStatus.Supported;
+        await bookingDocumentStore.InsertAsync(booking);
+
+        if (booking.Status != AppointmentStatus.Booked || !(booking.ContactDetails?.Length > 0))
+        {
+            return (true, booking.Reference);
+        }
+
+        var bookingMadeEvents = eventFactory.BuildBookingEvents<BookingMade>(booking);
+        await bus.Send(bookingMadeEvents);
+
+        return (true, booking.Reference);
     }
 
     private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>

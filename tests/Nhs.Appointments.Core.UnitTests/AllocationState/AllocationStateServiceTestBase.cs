@@ -20,7 +20,7 @@ public class AllocationStateServiceTestBase
         return new DateTime(2025, 01, 01, hour, minute, 0);
     }
 
-    protected Booking TestBooking(string reference, string service, string from = "09:00",
+    protected static Booking TestBooking(string reference, string service, string from = "09:00",
         int duration = 10, string avStatus = "Orphaned", string status = "Booked",
         int creationOrder = 1, DateTime? creationDate = null) =>
         new()
@@ -35,7 +35,7 @@ public class AllocationStateServiceTestBase
             Created = creationDate ?? new DateTime(2024, 11, 15, 9, 45, creationOrder)
         };
 
-    protected SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
+    protected static SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
         int capacity = 1) =>
         new(TestDateAt(start), TestDateAt(end)) { Services = services, SlotLength = slotLength, Capacity = capacity };
 

@@ -6,7 +6,7 @@ parameters:
     displayName: "The environment the disaster recovery should be ran for."
     type: string
     default: "stag"
-    values: ["stag"]
+    values: ["stag", "prod"]
 
 trigger: none
 pr: none

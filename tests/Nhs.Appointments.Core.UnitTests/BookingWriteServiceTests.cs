@@ -44,10 +44,10 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             var expectedFrom = new DateOnly(2077, 1, 1);
             var expectedUntil = expectedFrom.AddDays(1);
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
-            };
+            SessionInstance[] availability =
+            [
+                new(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
+            ];
 
             var booking = new Booking
             {
@@ -87,7 +87,7 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
                 {
-                    Services = new[] { "TSERV" }
+                    Services = ["TSERV"]
                 }
             };
 
@@ -133,7 +133,7 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
                 {
-                    Services = new[] { "TSERV" }
+                    Services = ["TSERV"]
                 }
             };
 
@@ -165,11 +165,11 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
                 {
-                    Services = new[] { "TSERV" }
+                    Services = ["TSERV"]
                 },
                 new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
                 {
-                    Services = new[] { "TSERV" }
+                    Services = ["TSERV"]
                 },
             };
 
@@ -194,11 +194,11 @@ namespace Nhs.Appointments.Core.UnitTests
                 .ReturnsAsync([
                     new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
                     {
-                        Services = new[] { "TSERV" }
+                        Services = ["TSERV"]
                     },
                     new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
                     {
-                        Services = new[] { "TSERV" }
+                        Services = ["TSERV"]
                     }
                 ]);
 
@@ -388,7 +388,7 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
                 {
-                    Services = new[] { "TSERV" }
+                    Services = ["TSERV"]
                 }
             };
 
@@ -574,13 +574,10 @@ namespace Nhs.Appointments.Core.UnitTests
     ///     Test suite for MultipleServices flag disabled
     /// </summary>
     [MockedFeatureToggle(Flags.MultipleServices, false)]
-    public class BookingWriteServiceTests_SingleService : BookingWriteBaseServiceTests
+    public class BookingWriteServiceTests_SingleService()
+        : BookingWriteBaseServiceTests(typeof(BookingWriteServiceTests_SingleService))
     {
-        public BookingWriteServiceTests_SingleService() : base(typeof(BookingWriteServiceTests_SingleService))
-        {
-        }
-        
-         [Fact]
+        [Fact]
         public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
         {
             var bookings = new List<Booking>
@@ -917,13 +914,10 @@ namespace Nhs.Appointments.Core.UnitTests
     ///     Test suite for MultipleServices flag enabled
     /// </summary>
     [MockedFeatureToggle(Flags.MultipleServices, true)]
-    public class BookingWriteServiceTests_MultipleServices : BookingWriteBaseServiceTests
+    public class BookingWriteServiceTests_MultipleServices()
+        : BookingWriteBaseServiceTests(typeof(BookingWriteServiceTests_MultipleServices))
     {
-        public BookingWriteServiceTests_MultipleServices() : base(typeof(BookingWriteServiceTests_MultipleServices))
-        {
-        }
-        
-         [Fact]
+        [Fact]
         public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
         {
             var bookings = new List<Booking>
@@ -1121,6 +1115,7 @@ namespace Nhs.Appointments.Core.UnitTests
     {
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
     }
 }

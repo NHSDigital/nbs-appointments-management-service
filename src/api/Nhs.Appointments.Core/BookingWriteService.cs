@@ -116,6 +116,7 @@ public class BookingWriteService(
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             await RecalculateAppointmentStatuses_MultipleServices(site, day);
+            return;
         }
 
         await RecalculateAppointmentStatuses_SingleService(site, day);

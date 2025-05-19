@@ -10,6 +10,7 @@ updates:
           - "*"
     ignore:
       - dependency-name: "FluentAssertions"
+      - dependency-name: "Microsoft.Azure.Cosmos"
 
   - package-ecosystem: "npm"
     directory: "/src/client"

@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotMarkdown" Version="0.3.0" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.49.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.OpenApi.Configuration.AppSettings" Version="1.5.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />

@@ -1,7 +1,7 @@
 namespace Nhs.Appointments.Core;
 
-public interface IAllocationStateService
+public interface IBookingAvailabilityStateService
 {
-    Task<AllocationState> BuildAllocation(string site, DateTime from, DateTime to);
+    Task<List<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to);
     Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from, DateTime to);
 }

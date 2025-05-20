@@ -343,5 +343,5 @@ stages:
           ${{ if eq(env, 'perf') }}:
             resourceGroup: nbs-mya${{env}}-rg-uks
             serviceConnectionName: nbs-mya${{env}}-rg-stag  
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isMain: true
           buildNumber: "$(Build.BuildNumber)"

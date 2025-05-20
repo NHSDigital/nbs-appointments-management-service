@@ -136,6 +136,21 @@
       "name": "Data Importer",
       "description": "System role used for the bulk importing of users and sites",
       "permissions": ["system:data-importer"]
+    },
+    {
+      "id": "system:regional-user",
+      "name": "Regional User",
+      "description": "System role to give a user permissions to all sites within a region",
+      "permissions": [
+        "availability:query",
+        "site:view",
+        "site:view:preview",
+        "site:manage",
+        "site:manage:admin",
+        "site:get-meta-data",
+        "users:view",
+        "users:manage"
+      ]
     }
   ]
 }

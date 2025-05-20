@@ -90,7 +90,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
             .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
             .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()
-            .AddTransient<IAllocationStateService, AllocationStateService>()
+            .AddTransient<IBookingAvailabilityStateService, BookingAvailabilityStateService>()
             .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()

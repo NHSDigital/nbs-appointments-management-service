@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
+﻿namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
-public class SingleServiceTests : AllocationStateServiceTestBase
+public class SingleServiceTests : BookingAvailabilityStateServiceTestBase
 {
     [Fact]
     public async Task MakesNoChangesIfAllAppointmentsAreStillValid()
@@ -16,10 +16,8 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
-        resultingAllocationState.AvailableSlots.Should().HaveCount(15);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -36,10 +34,8 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().BeEquivalentTo(bookings.Select(b => b.Reference));
-        resultingAllocationState.AvailableSlots.Should().HaveCount(15);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -55,10 +51,8 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().HaveCount(1);
-        resultingAllocationState.AvailableSlots.Should().HaveCount(17);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(17);
     }
 
     [Fact]
@@ -77,10 +71,8 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().BeEmpty();
-        resultingAllocationState.AvailableSlots.Should().HaveCount(12);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        slots.Should().HaveCount(12);
     }
 
     [Fact]
@@ -99,10 +91,8 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().BeEmpty();
-        resultingAllocationState.AvailableSlots.Should().HaveCount(12);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        slots.Should().HaveCount(12);
     }
     
     [Fact]
@@ -119,9 +109,7 @@ public class SingleServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildAllocation(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
-
-        resultingAllocationState.SupportedBookingReferences.Should().ContainSingle(b => b == "2");
-        resultingAllocationState.AvailableSlots.Should().HaveCount(17);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(17);
     }
 }

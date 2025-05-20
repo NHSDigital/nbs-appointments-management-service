@@ -21,7 +21,7 @@ public class QueryAvailabilityFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
     private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
-    private readonly Mock<IAllocationStateService> _allocationStateService = new();
+    private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
     private readonly Mock<ILogger<QueryAvailabilityFunction>> _logger = new();
@@ -36,7 +36,7 @@ public class QueryAvailabilityFunctionTests
     {
         _sut = new QueryAvailabilityFunction(
             _availabilityCalculator.Object,
-            _allocationStateService.Object,
+            _bookingAvailabilityStateService.Object,
             _validator.Object,
             _availabilityGrouperFactory.Object,
             _userContextProvider.Object,
@@ -268,13 +268,13 @@ public class QueryAvailabilityFunctionTests
         _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
                 new DateOnly(2077, 01, 03)),
             Times.Once);
-        _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
+        _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59, 59)),
             Times.Never);
     }
     
     [Fact]
-    public async Task RunAsync_CallsAllocationStateService_WhenMultipleServicesEnabled()
+    public async Task RunAsync_CallsBookingAvailabilityStateService_WhenMultipleServicesEnabled()
     {
         var blocks = new[]
         {
@@ -286,13 +286,10 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _allocationStateService.Setup(x =>
-                x.BuildAllocation(It.IsAny<string>(), It.IsAny<DateTime>(),
+        _bookingAvailabilityStateService.Setup(x =>
+                x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(),
                     It.IsAny<DateTime>()))
-            .ReturnsAsync(new AllocationState()
-            {
-                AvailableSlots = blocks.ToList()
-            });
+            .ReturnsAsync(blocks.ToList());
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(true);
         
         var request = new QueryAvailabilityRequest(
@@ -310,7 +307,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
                 new DateOnly(2077, 01, 03)),
             Times.Never);
-        _allocationStateService.Verify(x => x.BuildAllocation("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
+        _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59)),
             Times.Once);
     }

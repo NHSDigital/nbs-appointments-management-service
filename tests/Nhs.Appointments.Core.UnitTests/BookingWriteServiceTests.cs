@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Core.UnitTests
     {
         protected const string MockSite = "some-site";
 
-        protected readonly Mock<IAllocationStateService> _allocationStateService = new();
+        protected readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
         protected readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         protected readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
         protected readonly Mock<IAvailabilityStore> _availabilityStore = new();
@@ -32,7 +32,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _siteLeaseManager.Object,
                 _availabilityStore.Object,
                 _availabilityCalculator.Object,
-                _allocationStateService.Object,
+                _bookingAvailabilityStateService.Object,
                 new EventFactory(),
                 _messageBus.Object,
                 TimeProvider.System,
@@ -67,7 +67,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
                 _referenceNumberProvider.Object,
                 leaseManager, _availabilityStore.Object, _availabilityCalculator.Object,
-                new AllocationStateService(availabilityQueryService, bookingQueryService),
+                new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
                 new EventFactory(), _messageBus.Object, TimeProvider.System, _featureToggleHelper.Object);
 
             var task = Task.Run(() => bookingService.MakeBooking(booking));
@@ -121,9 +121,9 @@ namespace Nhs.Appointments.Core.UnitTests
                 .ReturnsAsync(availability);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
                     new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState { AvailableSlots = availability.ToList() });
+                .ReturnsAsync(availability.ToList());
         }
 
         [Fact]
@@ -203,28 +203,20 @@ namespace Nhs.Appointments.Core.UnitTests
                 ]);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
                     new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState
-                {
-                    AvailableSlots =
-                    [
+                .ReturnsAsync([
                         new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
                             new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
-                    ]
-                });
+                    ]);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 11, 0, 0, 0),
                     new DateTime(2077, 1, 1, 11, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState
-                {
-                    AvailableSlots =
-                    [
+                .ReturnsAsync([
                         new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
                             new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
-                    ]
-                });
+                    ]);
 
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
@@ -308,28 +300,22 @@ namespace Nhs.Appointments.Core.UnitTests
                 ]);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 10, 0, 0, 0),
                     new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState
-                {
-                    AvailableSlots =
+                .ReturnsAsync(
                     [
                         new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
                             new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
-                    ]
-                });
+                    ]);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 11, 0, 0, 0),
                     new DateTime(2077, 1, 1, 11, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState
-                {
-                    AvailableSlots =
+                .ReturnsAsync(
                     [
                         new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
                             new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
-                    ]
-                });
+                    ]);
 
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
@@ -475,11 +461,9 @@ namespace Nhs.Appointments.Core.UnitTests
                 ]);
 
             //mock for MultiService
-            _allocationStateService.Setup(x => x.BuildAllocation(MockSite, new DateTime(2077, 1, 1, 13, 0, 0, 0),
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite, new DateTime(2077, 1, 1, 13, 0, 0, 0),
                     new DateTime(2077, 1, 1, 13, 10, 0, 0)))
-                .ReturnsAsync(new Core.AllocationState
-                {
-                    AvailableSlots =
+                .ReturnsAsync(
                     [
                         new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
                         {
@@ -488,8 +472,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         //test a different session that could have been used, had it been the right service for the booking
                         new SessionInstance(new DateTime(2077, 1, 1, 13, 0, 0, 0),
                             new DateTime(2077, 1, 1, 13, 10, 0, 0)) { Services = ["TDIFFSERV"] }
-                    ]
-                });
+                    ]);
 
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
@@ -944,7 +927,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
 
-            _allocationStateService
+            _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
                     new List<BookingAvailabilityUpdate>()
                     {
@@ -990,7 +973,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
             
-            _allocationStateService
+            _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
                     new List<BookingAvailabilityUpdate>()
                     {
@@ -1042,7 +1025,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 }
             };
 
-            _allocationStateService
+            _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
                     new List<BookingAvailabilityUpdate>()
                     {
@@ -1066,7 +1049,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_MakesNoChangesIfAllAppointmentsAreStillValid()
         {
-            _allocationStateService.Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new List<BookingAvailabilityUpdate>());
+            _bookingAvailabilityStateService.Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new List<BookingAvailabilityUpdate>());
 
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
@@ -1082,12 +1065,12 @@ namespace Nhs.Appointments.Core.UnitTests
             var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1) };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-            _allocationStateService
-                .Setup(x => x.BuildAllocation(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(Task.FromResult(new Core.AllocationState()));
+            _bookingAvailabilityStateService
+                .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Task.FromResult(new List<SessionInstance>()));
             await _sut.MakeBooking(booking);
-            _allocationStateService.Verify(x =>
-                x.BuildAllocation(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
+            _bookingAvailabilityStateService.Verify(x =>
+                x.GetAvailableSlots(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
         }
         
         //TODO

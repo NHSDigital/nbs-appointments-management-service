@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AllocationState;
+﻿namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
-public class MultiServiceTests : AllocationStateServiceTestBase
+public class MultiServiceTests : BookingAvailabilityStateServiceTestBase
 {
     [Fact]
     public async Task MultipleServicesByCreatedDate()
@@ -26,18 +26,18 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var resultingAllocationState = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
-        resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
 
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
-        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "4");
-        resultingAllocationState.Should().NotContain(r => r.Booking.Reference == "5");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "5");
 
-        resultingAllocationState.Should().HaveCount(5);
-        resultingAllocationState.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
+        recalculations.Should().HaveCount(5);
+        recalculations.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
 
     [Fact]
@@ -61,16 +61,16 @@ public class MultiServiceTests : AllocationStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAllocationState = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
 
         // Bookings 1 and 2 can be booked
-        resultingAllocationState.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2");
 
         // Booking 3 could have been booked if we rejuggled appointments, but currently we do not
-        resultingAllocationState.Select(b => b.Booking.Reference).Should().NotContain(r => r == "3");
+        recalculations.Select(b => b.Booking.Reference).Should().NotContain(r => r == "3");
 
-        resultingAllocationState.Should().HaveCount(2);
-        resultingAllocationState.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2");
+        recalculations.Should().HaveCount(2);
+        recalculations.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2");
     }
 }

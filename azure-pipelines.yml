@@ -341,7 +341,7 @@ stages:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
           ${{ if eq(env, 'perf') }}:
-            resourceGroup: nbs-mya${{env}}-rg-uks
+            resourceGroup: nbs-mya${{env}}-rg-stag-uks
             serviceConnectionName: nbs-mya${{env}}-rg-stag  
           isMain: true
           buildNumber: "$(Build.BuildNumber)"

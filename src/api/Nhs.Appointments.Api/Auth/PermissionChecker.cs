@@ -73,11 +73,11 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
     public async Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId)
     {
-        Func<RoleAssignment, bool> filter = ra => ra.Scope == "global" || ra.Scope == $"site:{siteId}";
+        var filter = GlobalOrSiteFilter(siteId);
 
         if (string.IsNullOrEmpty(siteId))
         {
-            filter = ra => ra.Scope == "global";
+            filter = GlobalOnlyFilter();
         }
 
         var regionalPermissions = await GetRegionPermissionsAsync(userId);
@@ -86,7 +86,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
             var sites = await GetSitesInRegions(regionalPermissions);
             if (sites.Any(s => s.Id == siteId))
             {
-                filter = ra => regionalPermissions.Contains(ra.Scope);
+                filter = GlobalRegionalOrSiteFilter(regionalPermissions, siteId);
             }
         }
 
@@ -162,4 +162,13 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
         return sites.Distinct();
     }
+
+    private static Func<RoleAssignment, bool> GlobalOnlyFilter()
+        => ra => ra.Scope == "global";
+
+    private static Func<RoleAssignment, bool> GlobalOrSiteFilter(string siteId)
+        => ra => ra.Scope == "global" || ra.Scope == $"site:{siteId}";
+
+    private static Func<RoleAssignment, bool> GlobalRegionalOrSiteFilter(IEnumerable<string> regionalPermissions, string siteId)
+        => ra => ra.Scope == "global" || ra.Scope == $"site:{siteId}" || regionalPermissions.Contains(ra.Scope);
 }

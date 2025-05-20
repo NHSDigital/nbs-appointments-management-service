@@ -124,14 +124,14 @@
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
-      | Date     | Time  | Duration | Service | Reference   | Created                  |
-      | Tomorrow | 09:20 | 5        | COVID   | 56923-19232 | 2024-12-01T09:00:00.000Z |
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 56923-19232 |
     And the following provisional bookings have been made
-      | Date     | Time  | Duration | Service | Reference   | Created                  |
-      | Tomorrow | 09:20 | 5        | COVID   | 19283-30492 | 2024-12-02T09:00:00.000Z |
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 19283-30492 |
     And the following orphaned bookings exist
-      | Date     | Time  | Duration | Service | Reference   | Created                  |
-      | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 | 2024-12-03T09:00:00.000Z |
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 |
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
@@ -141,6 +141,50 @@
     And the booking with reference '19283-30492' has availability status 'Supported'
     And the booking with reference '45721-10293' has status 'Booked'
     And the booking with reference '45721-10293' has availability status 'Orphaned'
+
+  Scenario: Provisional bookings that are unsupported are deleted from the DB
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 84583-19232 |
+      | Tomorrow | 09:20 | 5        | COVID   | 90386-19232 |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 92225-30492 |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
+    Then the booking with reference '84583-19232' has status 'Booked'
+    And the booking with reference '84583-19232' has availability status 'Supported'
+    And the booking with reference '90386-19232' has status 'Booked'
+    And the booking with reference '90386-19232' has availability status 'Supported'
+    And the booking with reference '92225-30492' should be deleted
+
+  Scenario: Expired provisional bookings are not considered live and can allow orphaned appointments to take their place
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 65734-19232 |
+    And the following expired provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 92363-30492 |
+    And the following orphaned bookings exist
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 61865-10293 |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
+    Then the booking with reference '65734-19232' has status 'Booked'
+    And the booking with reference '65734-19232' has availability status 'Supported'
+#    The expired provisional stays in the DB, and will be cleaned up by the cleanup process
+    And the booking with reference '92363-30492' has status 'Provisional'
+    And the booking with reference '92363-30492' has availability status 'Supported'
+    And the booking with reference '61865-10293' has status 'Booked'
+    And the booking with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
     Given there is no existing availability

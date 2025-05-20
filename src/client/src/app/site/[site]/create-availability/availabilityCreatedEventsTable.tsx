@@ -50,9 +50,9 @@ const mapTableData = (
       parseToUkDatetime(availability.from).format('D MMM YYYY'),
       parseToUkDatetime(availability.from).format('ddd'),
       availability.sessions
-        ? availability.sessions[0].services.map(service =>
-            serviceValueToLabel(service, clinicalServices),
-          )
+        ? availability.sessions[0].services
+            .map(service => serviceValueToLabel(service, clinicalServices))
+            .join(', ')
         : 'Error',
       'Single date',
     ];

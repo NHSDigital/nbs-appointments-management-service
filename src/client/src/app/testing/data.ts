@@ -20,6 +20,7 @@ import {
   Week,
   WellKnownOdsEntry,
   RoleAssignment,
+  ClinicalService,
 } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
@@ -275,9 +276,30 @@ const mockSession3: AvailabilitySession = {
   slotLength: 10,
 };
 
+const mockSessionMultipleServices1: AvailabilitySession = {
+  from: '09:00',
+  until: '12:00',
+  services: ['RSV:Adult', 'TEST:COHORT'],
+  capacity: 2,
+  slotLength: 5,
+};
+
+const mockSessionMultipleServices2: AvailabilitySession = {
+  from: '13:00',
+  until: '17:30',
+  services: ['RSV:Adult', 'TEST:COHORT'],
+  capacity: 2,
+  slotLength: 5,
+};
+
 const mockTemplate1: AvailabilityTemplate = {
   days: ['Monday', 'Tuesday'],
   sessions: [mockSession1],
+};
+
+const mockTemplateMultipleServices1: AvailabilityTemplate = {
+  days: ['Monday', 'Tuesday'],
+  sessions: [mockSessionMultipleServices1],
 };
 
 const mockTemplate2: AvailabilityTemplate = {
@@ -331,6 +353,46 @@ const mockAvailabilityCreatedEvents: AvailabilityCreatedEvent[] = [
     sessions: [mockSession3],
   },
 ];
+
+const mockMultipleServicesAvailabilityCreatedEvents: AvailabilityCreatedEvent[] =
+  [
+    {
+      created: '2024-11-20T13:36:43.4680585Z',
+      by: mockUserProfile.emailAddress,
+      site: mockSite.id,
+      from: '2024-01-01',
+      to: '2024-02-28',
+      template: mockTemplateMultipleServices1,
+      sessions: undefined,
+    },
+    {
+      created: '2024-11-20T13:36:43.4680585Z',
+      by: mockUserProfile.emailAddress,
+      site: mockSite.id,
+      from: '2025-01-01',
+      to: undefined,
+      template: undefined,
+      sessions: [mockSessionMultipleServices2],
+    },
+    {
+      created: '2024-11-20T13:36:43.4680585Z',
+      by: mockUserProfile.emailAddress,
+      site: mockSite.id,
+      from: '2024-03-01',
+      to: '2024-04-30',
+      template: mockTemplate2,
+      sessions: undefined,
+    },
+    {
+      created: '2024-11-20T13:36:43.4680585Z',
+      by: mockUserProfile.emailAddress,
+      site: mockSite.id,
+      from: '2025-02-16',
+      to: undefined,
+      template: undefined,
+      sessions: [mockSession3],
+    },
+  ];
 
 const mockAvailability: AvailabilityResponse[] = [
   {
@@ -666,9 +728,15 @@ const mockWeekAvailability: DailyAvailability[] = [
   },
 ];
 
+const mockClinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+  { label: 'Test', value: 'TEST:COHORT' },
+];
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
+  mockMultipleServicesAvailabilityCreatedEvents,
   mockRoles,
   mockAssignments,
   mockSite,
@@ -689,4 +757,5 @@ export {
   mockWeekAvailability,
   mockWellKnownOdsCodeEntries,
   getMockOktaUserAssignments,
+  mockClinicalServices,
 };

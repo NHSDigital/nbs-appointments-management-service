@@ -34,7 +34,7 @@ public class BookingWriteService(
     ISiteLeaseManager siteLeaseManager,
     IAvailabilityStore availabilityStore,
     IAvailabilityCalculator availabilityCalculator,
-    IAllocationStateService allocationStateService,
+    IBookingAvailabilityStateService bookingAvailabilityStateService,
     IBookingEventFactory eventFactory,
     IMessageBus bus,
     TimeProvider time,
@@ -165,11 +165,10 @@ public class BookingWriteService(
         var from = booking.From;
         var to = booking.From.AddMinutes(booking.Duration);
 
-        var slots = (await allocationStateService.BuildAllocation(booking.Site, from, to))
-            .AvailableSlots;
+        var availableSlots = (await bookingAvailabilityStateService.GetAvailableSlots(booking.Site, from, to));
 
         //duration totalMinutes should always be an integer until we allow slot lengths that aren't integer minutes
-        var canBook = slots.Exists(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
+        var canBook = availableSlots.Any(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
 
         if (!canBook)
         {
@@ -298,7 +297,7 @@ public class BookingWriteService(
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var recalculations = await allocationStateService.BuildRecalculations(site, dayStart, dayEnd);
+        var recalculations = await bookingAvailabilityStateService.BuildRecalculations(site, dayStart, dayEnd);
 
         using var leaseContent = siteLeaseManager.Acquire(site);
 

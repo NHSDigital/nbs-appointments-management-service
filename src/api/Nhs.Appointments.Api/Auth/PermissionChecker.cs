@@ -65,6 +65,14 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return GetFilteredPermissionsAsync(userId, filter);
     }
 
+    public async Task<IEnumerable<string>> GetRegionPermissionsAsync(string userId)
+    {
+        var userRoleAssignments = await GetUserRoleAssignmentsAsync(userId);
+        var distinctRegionRoles = userRoleAssignments.Where(ra => ra.Scope.StartsWith("region:")).Distinct();
+
+        return distinctRegionRoles.Select(roles => roles.Scope.Replace("region:", ""));
+    }
+
     private async Task<IEnumerable<string>> GetFilteredPermissionsAsync(string userId,
         Func<RoleAssignment, bool> filter)
     {

@@ -17,6 +17,7 @@ public interface ISiteService
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
         string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+    Task<IEnumerable<Site>> GetSitesInRegion(string region);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -65,6 +66,18 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             site.Accessibilities.Where(a => a.Id.Contains($"{scope}/", StringComparison.CurrentCultureIgnoreCase));
 
         return site;
+    }
+
+    public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
+    {
+        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        if (sites is null)
+        {
+            sites = await siteStore.GetAllSites();
+            memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+        }
+
+        return sites.Where(s => s.Region == region);
     }
 
     public async Task<IEnumerable<SitePreview>> GetSitesPreview()

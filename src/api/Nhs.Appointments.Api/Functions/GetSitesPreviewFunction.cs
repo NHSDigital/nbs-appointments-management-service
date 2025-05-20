@@ -70,6 +70,16 @@ public class GetSitesPreviewFunction(
                     sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode));
                 }
             }
+
+            var regionPermissions = await permissionChecker.GetRegionPermissionsAsync(userEmail);
+            if (regionPermissions.Any())
+            {
+                foreach (var region in regionPermissions)
+                {
+                    var sites = await siteService.GetSitesInRegion(region);
+                    sitesResult.AddRange(sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode)));
+                }
+            }
         }
 
         return ApiResult<IEnumerable<SitePreview>>.Success(sitesResult);

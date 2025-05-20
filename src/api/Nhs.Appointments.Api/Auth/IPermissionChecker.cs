@@ -25,4 +25,6 @@ public interface IPermissionChecker
     Task<IEnumerable<string>> GetSitesWithPermissionAsync(string userId, string requiredPermission);
     
     Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId);
+
+    Task<IEnumerable<string>> GetRegionPermissionsAsync(string userId);
 }

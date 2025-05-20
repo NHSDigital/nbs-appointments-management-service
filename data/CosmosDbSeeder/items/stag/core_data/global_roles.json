@@ -121,6 +121,7 @@
       "description": "System role to give a user permissions to all sites within a region",
       "permissions": [
         "availability:query",
+        "booking:query",
         "site:view",
         "site:view:preview",
         "site:manage",

@@ -417,6 +417,24 @@ public abstract partial class BaseFeatureSteps : Feature
                 .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
         exception.Message.Should().Contain("404");
     }
+    
+    [And("the booking with reference '(.+)' should be deleted")]
+    [Then("the booking with reference '(.+)' should be deleted")]
+    public async Task AssertBookingDeleted(string bookingReference)
+    {
+        var siteId = GetSiteId();
+        var customId = CreateCustomBookingReference(bookingReference);
+
+        var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
+            await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(customId, new PartitionKey(siteId)));
+        exception.Message.Should().Contain("404");
+
+        exception = await Assert.ThrowsAsync<CosmosException>(async () =>
+            await Client.GetContainer("appts", "index_data")
+                .ReadItemAsync<BookingIndexDocument>(customId, new PartitionKey("booking_index")));
+        exception.Message.Should().Contain("404");
+    }
 
     [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
     [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
@@ -461,9 +479,9 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),
         BookingType.Confirmed => DateTime.UtcNow.AddHours(-48),
-        BookingType.Provisional => DateTime.UtcNow.AddMinutes(-2),
+        BookingType.Provisional => DateTime.UtcNow.AddMinutes(-3),
         BookingType.ExpiredProvisional => DateTime.UtcNow.AddHours(-25),
-        BookingType.Orphaned => DateTime.UtcNow.AddHours(-64),
+        BookingType.Orphaned => DateTime.UtcNow.AddMinutes(-1),
         BookingType.Cancelled => DateTime.UtcNow.AddHours(-82),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };

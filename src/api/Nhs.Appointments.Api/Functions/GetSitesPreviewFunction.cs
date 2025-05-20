@@ -74,7 +74,7 @@ public class GetSitesPreviewFunction(
             var regionPermissions = await permissionChecker.GetRegionPermissionsAsync(userEmail);
             if (regionPermissions.Any())
             {
-                foreach (var region in regionPermissions)
+                foreach (var region in regionPermissions.Select(r => r.Replace("region:", "")))
                 {
                     var sites = await siteService.GetSitesInRegion(region);
                     sitesResult.AddRange(sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode)));

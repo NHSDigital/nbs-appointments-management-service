@@ -82,7 +82,7 @@ public class GetSitesPreviewFunction(
             }
         }
 
-        return ApiResult<IEnumerable<SitePreview>>.Success(sitesResult);
+        return ApiResult<IEnumerable<SitePreview>>.Success(sitesResult.Distinct());
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

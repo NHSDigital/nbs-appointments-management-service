@@ -19,7 +19,7 @@ describe('Cancellation Confirmed Page', () => {
     );
 
     expect(
-      screen.getByRole('row', { name: '09:00 - 12:00 RSV (Adult)' }),
+      screen.getByRole('row', { name: '09:00 - 12:00 RSV Adult' }),
     ).toBeInTheDocument();
   });
 

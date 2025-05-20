@@ -59,18 +59,18 @@ describe('Select Services Step', () => {
     );
 
     expect(
-      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+      screen.getByRole('checkbox', { name: 'RSV Adult' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+      screen.getByRole('checkbox', { name: 'RSV Adult' }),
     ).not.toBeChecked();
 
-    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
-    expect(screen.getByRole('checkbox', { name: 'RSV (Adult)' })).toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
+    expect(screen.getByRole('checkbox', { name: 'RSV Adult' })).toBeChecked();
 
-    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
+    await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
     expect(
-      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+      screen.getByRole('checkbox', { name: 'RSV Adult' }),
     ).not.toBeChecked();
   });
 
@@ -95,7 +95,7 @@ describe('Select Services Step', () => {
     );
 
     expect(
-      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+      screen.getByRole('checkbox', { name: 'RSV Adult' }),
     ).not.toBeChecked();
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -126,9 +126,9 @@ describe('Select Services Step', () => {
     );
 
     expect(
-      screen.getByRole('checkbox', { name: 'RSV (Adult)' }),
+      screen.getByRole('checkbox', { name: 'RSV Adult' }),
     ).not.toBeChecked();
-    await user.click(screen.getByRole('checkbox', { name: 'RSV (Adult)' }));
+    await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(mockGoToNextStep).toHaveBeenCalled();

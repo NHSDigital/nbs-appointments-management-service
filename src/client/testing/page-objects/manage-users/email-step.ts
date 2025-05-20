@@ -4,6 +4,7 @@ import ManageUserStep from './manage-user-step';
 export default class EmailStep extends ManageUserStep {
   readonly title: Locator;
   readonly emailInput: Locator;
+  readonly emailHint: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -11,5 +12,6 @@ export default class EmailStep extends ManageUserStep {
       name: 'Add a user',
     });
     this.emailInput = page.getByLabel('Enter email address');
+    this.emailHint = page.locator('.nhsuk-hint');
   }
 }

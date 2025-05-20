@@ -16,7 +16,7 @@ jest.mock('@types', () => ({
 }));
 
 const clinicalServices: ClinicalService[] = [
-  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+  { label: 'RSV Adult', value: 'RSV:Adult' },
   { label: 'FLU 18-64', value: 'FLU:18_64' },
   { label: 'COVID 75+', value: 'COVID:75+' },
 ];
@@ -67,12 +67,12 @@ describe('Session summary table', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked',
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '13:00 - 17:30 RSV (Adult) 0 booked 54 unbooked',
+        name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked',
       }),
     ).toBeInTheDocument();
   });
@@ -102,14 +102,14 @@ describe('Session summary table', () => {
     expect(
       within(
         screen.getByRole('row', {
-          name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked Change',
+          name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked Change',
         }),
       ).getByRole('link', { name: 'Change' }),
     ).toBeInTheDocument();
 
     const changeLink = within(
       screen.getByRole('row', {
-        name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked Change',
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked Change',
       }),
     ).getByRole('link', { name: 'Change' });
 
@@ -139,12 +139,12 @@ describe('Session summary table', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '09:00 - 12:00 RSV (Adult) 2 booked 70 unbooked',
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '13:00 - 17:30 RSV (Adult) 0 booked 54 unbooked Change',
+        name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked Change',
       }),
     ).toBeInTheDocument();
   });

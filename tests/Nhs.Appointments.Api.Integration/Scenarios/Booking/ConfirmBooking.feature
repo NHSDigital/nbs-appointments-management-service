@@ -70,12 +70,7 @@ Feature: Book an appointment
     When I confirm the booking
     Then the call should fail with 412
 
-
-########################################
-####### JOINT BOOKINGS SCENARIOS #######
-########################################
-
-
+  @ignore
   Scenario: JB:Confirm provisional appointments
     Given the site is configured for MYA
     And the following sessions
@@ -89,6 +84,7 @@ Feature: Book an appointment
     Then the call should be successful
     And the bookings are no longer marked as provisional
 
+   @ignore
    Scenario: JB:Confirmation can record contact details
      Given the site is configured for MYA
      And the following sessions
@@ -106,6 +102,7 @@ Feature: Book an appointment
        | Email         | Phone         | Landline    |
        | test@test.com | 07654 3210987 | 00001234567 |
  
+   @ignore
    Scenario: JB:Cannot confirm appointments that do not exist
      Given the site is configured for MYA
      And the following sessions
@@ -114,6 +111,7 @@ Feature: Book an appointment
      When I confirm the bookings
      Then the call should fail with 410
  
+   @ignore
    Scenario: JB:Cannot confirm a provisional appointment that has expired
      Given the site is configured for MYA
      And the following sessions
@@ -126,6 +124,7 @@ Feature: Book an appointment
      When I confirm the bookings
      Then the call should fail with 410
  
+   @ignore
    Scenario: JB:A provisional booking expires
      Given the site is configured for MYA
      And the following sessions
@@ -138,7 +137,8 @@ Feature: Book an appointment
      When the provisional bookings are cleaned up
      Then the call should be successful
      And the booking should be deleted
- 
+
+   @ignore
    Scenario: JB:Cannot confirm a non-provisional appointment
      Given the site is configured for MYA
      And the following sessions

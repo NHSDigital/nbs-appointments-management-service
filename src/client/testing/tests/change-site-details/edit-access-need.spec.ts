@@ -30,7 +30,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite('Church Lane Pharmacy');
+  await siteSelectionPage.selectSite(site);
   await sitePage.siteManagementCard.click();
   await page.waitForURL(`**/site/${site.id}/details`);
   await siteDetailsPage.editSiteAccessibilitiesButton.click();

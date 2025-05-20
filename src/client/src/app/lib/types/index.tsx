@@ -357,7 +357,7 @@ type CancelSessionRequest = {
 
 // TODO: Decide where this info should live and move it there
 const clinicalServices: ClinicalService[] = [
-  { label: 'RSV (Adult)', value: 'RSV:Adult' },
+  { label: 'RSV Adult', value: 'RSV:Adult' },
 ];
 
 export type {

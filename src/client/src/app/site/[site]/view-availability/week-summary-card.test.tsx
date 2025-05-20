@@ -6,7 +6,7 @@ import { clinicalServices } from '@types';
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
   clinicalServices: [
-    { label: 'RSV (Adult)', value: 'RSV:Adult' },
+    { label: 'RSV Adult', value: 'RSV:Adult' },
     { label: 'FLU 18-64', value: 'FLU:18_64' },
     { label: 'COVID 75+', value: 'COVID:75+' },
   ],
@@ -42,7 +42,7 @@ describe('Week Summary Card', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: 'RSV (Adult) 3',
+        name: 'RSV Adult 3',
       }),
     ).toBeInTheDocument();
     expect(

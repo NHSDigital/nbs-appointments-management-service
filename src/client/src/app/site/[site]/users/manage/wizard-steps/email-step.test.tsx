@@ -43,6 +43,7 @@ const defaultProps: InjectedWizardProps & EmailStepProps = {
   returnRouteUponCancellation: '/',
   site: mockSite,
   sessionUser: mockUserProfile,
+  oktaEnabled: true,
 };
 
 describe('Email step', () => {
@@ -60,7 +61,7 @@ describe('Email step', () => {
   });
 
   it('renders', () => {
-    render(
+    const { container } = render(
       <MockForm<SetUserRolesFormValues>
         submitHandler={jest.fn()}
         schema={setUserRolesFormSchema}
@@ -72,6 +73,39 @@ describe('Email step', () => {
     expect(
       screen.getByRole('heading', { name: 'Add a user' }),
     ).toBeInTheDocument();
+
+    expect(container.getElementsByClassName('nhsuk-hint').length).toBe(1);
+
+    // Links
+    const authorisedDomainsLink = screen.getByRole('link', {
+      name: 'authorised email domains',
+    });
+    expect(authorisedDomainsLink).toBeInTheDocument();
+    expect(authorisedDomainsLink).toHaveAttribute(
+      'href',
+      'https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/care-identity-email-domain-allow-list',
+    );
+    expect(authorisedDomainsLink).toHaveAttribute('target', '_blank');
+
+    const userGuidanceUrl = screen.getByRole('link', {
+      name: 'user guidance on logging in without an NHS.net account',
+    });
+    expect(userGuidanceUrl).toBeInTheDocument();
+    expect(userGuidanceUrl).toHaveAttribute(
+      'href',
+      'https://digital.nhs.uk/services/vaccinations-national-booking-service/manage-your-appointments-guidance/log-in-and-select-site',
+    );
+    expect(userGuidanceUrl).toHaveAttribute('target', '_blank');
+
+    const emailDomainRequestLink = screen.getByRole('link', {
+      name: 'email domain to be approved',
+    });
+    expect(emailDomainRequestLink).toBeInTheDocument();
+    expect(emailDomainRequestLink).toHaveAttribute(
+      'href',
+      'https://digital.nhs.uk/services/care-identity-service/applications-and-services/apply-for-care-id/request-an-addition-to-the-email-domain-allow-list',
+    );
+    expect(emailDomainRequestLink).toHaveAttribute('target', '_blank');
   });
 
   it('navigates to the cancellation route when cancel is clicked', async () => {

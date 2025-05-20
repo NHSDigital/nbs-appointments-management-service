@@ -1,7 +1,7 @@
 // We need this to avoid SSL errors when running tests locally
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-import { test as baseTest, request } from '@playwright/test';
+import { test as baseTest, request, TestInfo } from '@playwright/test';
 import { Site } from '@types';
 
 export * from '@playwright/test';
@@ -70,13 +70,21 @@ const siteById = (testSiteId = 1) => {
   }
 };
 
+const newUserName = (testInfo: TestInfo) => {
+  return `int-test-user-${testInfo.testId}-${testInfo.line}@nhs.net`;
+};
+
+const externalUserName = (testInfo: TestInfo) => {
+  return `external-test-user-${testInfo.testId}-${testInfo.line}@boots.com`;
+};
+
 export const test = baseTest.extend<
   object,
   {
     getTestUser: (testUserId?: number) => UserSeedData;
     getTestSite: (testSiteId?: number) => Site;
-    newUserName: string;
-    externalUserName: string;
+    newUserName: (testInfo: TestInfo) => string;
+    externalUserName: (testInfo: TestInfo) => string;
   }
 >({
   getTestUser: [
@@ -93,15 +101,13 @@ export const test = baseTest.extend<
   ],
   newUserName: [
     async ({}, use) => {
-      const userName = `int-test-user-${test.info().workerIndex}@nhs.net`;
-      await use(userName);
+      await use(newUserName);
     },
     { scope: 'worker' },
   ],
   externalUserName: [
     async ({}, use) => {
-      const nonNhsUserName = `external-user-${test.info().workerIndex}@boots.com`;
-      await use(nonNhsUserName);
+      await use(externalUserName);
     },
     { scope: 'worker' },
   ],

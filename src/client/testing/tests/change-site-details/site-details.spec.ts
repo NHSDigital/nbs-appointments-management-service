@@ -24,7 +24,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-  await siteSelectionPage.selectSite(defaultSite.name);
+  await siteSelectionPage.selectSite(defaultSite);
   await sitePage.siteManagementCard.click();
   await page.waitForURL(`**/site/${defaultSite.id}/details`);
 });

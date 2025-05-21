@@ -4,17 +4,13 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
-    [FeatureFile("./Scenarios/CreateAvailability/SetAvailability.feature")]
-    public abstract class SetAvailabilityFeatureSteps(string flag, bool enabled)
-        : BaseCreateAvailabilityFeatureSteps(flag, enabled)
-    {
-    }
-
+    [FeatureFile("./Scenarios/CreateAvailability/SetAvailability_MultipleServicesEnabled.feature")]
     [Collection("MultipleServicesSerialToggle")]
     public class SetAvailabilityFeatureSteps_MultipleServicesEnabled()
-        : SetAvailabilityFeatureSteps(Flags.MultipleServices, true);
+        : BaseCreateAvailabilityFeatureSteps(Flags.MultipleServices, true);
 
+    [FeatureFile("./Scenarios/CreateAvailability/SetAvailability_MultipleServicesDisabled.feature")]
     [Collection("MultipleServicesSerialToggle")]
     public class SetAvailabilityFeatureSteps_MultipleServicesDisabled()
-        : SetAvailabilityFeatureSteps(Flags.MultipleServices, false);
+        : BaseCreateAvailabilityFeatureSteps(Flags.MultipleServices, false);
 }

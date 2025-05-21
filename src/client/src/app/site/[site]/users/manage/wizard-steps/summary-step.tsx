@@ -101,7 +101,9 @@ const SummaryStep = ({
       <NhsHeading title={'Check user details'} />
       <SummaryList items={summaryItems}></SummaryList>
 
-      <p>{`${isCreatingNewOktaUser ? `${firstName} ${lastName}` : email} will be sent information about how to log in.`}</p>
+      {!isEditingExistingUser && (
+        <p>{`${isCreatingNewOktaUser ? `${firstName} ${lastName}` : email} will be sent information about how to log in.`}</p>
+      )}
 
       {isSubmitting || isSubmitSuccessful ? (
         <SmallSpinnerWithText text="Saving..." />

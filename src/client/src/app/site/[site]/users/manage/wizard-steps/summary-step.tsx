@@ -44,6 +44,8 @@ const SummaryStep = ({
     userIdentityStatus?.identityProvider === 'Okta' &&
     userIdentityStatus?.extantInIdentityProvider === false;
 
+  const isEditingExistingUser = userIdentityStatus.extantInSite;
+
   const nameSummary: SummaryListItem[] = isCreatingNewOktaUser
     ? [
         {
@@ -64,13 +66,15 @@ const SummaryStep = ({
     {
       title: 'Email address',
       value: email,
-      action: {
-        renderingStrategy: 'client',
-        text: 'Change',
-        onClick: () => {
-          setCurrentStep(1);
-        },
-      },
+      action: isEditingExistingUser
+        ? undefined
+        : {
+            renderingStrategy: 'client',
+            text: 'Change',
+            onClick: () => {
+              setCurrentStep(1);
+            },
+          },
     },
     {
       title: 'Roles',
@@ -79,7 +83,7 @@ const SummaryStep = ({
         renderingStrategy: 'client',
         text: 'Change',
         onClick: () => {
-          setCurrentStep(3);
+          goToPreviousStep();
         },
       },
     },

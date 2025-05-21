@@ -264,4 +264,32 @@ describe('Summary Step', () => {
 
     expect(mockGoToPreviousStep).toHaveBeenCalled();
   });
+
+  it('hides text about log in notification for existing users', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'Okta',
+            extantInIdentityProvider: false,
+            extantInSite: true,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
+
+    expect(
+      screen.queryByText(
+        'Elizabeth Kensington-Jones will be sent information about how to log in.',
+      ),
+    ).not.toBeInTheDocument();
+  });
 });

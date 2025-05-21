@@ -2,7 +2,6 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
@@ -16,10 +15,16 @@ public class PermissionCheckerTests
     private readonly Mock<IRolesService> _roleService = new();
     private readonly Mock<IMemoryCache> _cache = new();
     private readonly Mock<ICacheEntry> _cacheEntry = new();
+    private readonly Mock<ISiteService> _siteService = new();
 
     public PermissionCheckerTests()
     {
-        _sut = new PermissionChecker(_userAssignmentService.Object, _roleService.Object, _cache.Object);
+        _sut = new PermissionChecker(
+            _userAssignmentService.Object,
+            _roleService.Object,
+            _cache.Object,
+            _siteService.Object);
+
         _cache.Setup(x => x.CreateEntry(It.IsAny<string>())).Returns(_cacheEntry.Object);
     }
 

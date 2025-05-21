@@ -561,6 +561,29 @@ namespace Nhs.Appointments.Core.UnitTests
         : BookingWriteBaseServiceTests(typeof(BookingWriteServiceTests_SingleService))
     {
         [Fact]
+        public async Task RecalculateAppointmentStatuses_DoesntGoDownMultipleServiceCodePath()
+        {
+            _bookingAvailabilityStateService
+                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
+                    new List<BookingAvailabilityUpdate>());
+
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+            
+            //singleService code path
+            _bookingQueryService.Verify(x => x.GetBookings(
+                    It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
+                Times.Once);
+            _availabilityStore.Verify(x => x.GetSessions(
+                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
+                Times.Once);
+            
+            //multiService code path
+            _bookingAvailabilityStateService.Verify(x => x.BuildRecalculations(
+                    MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>()),
+                Times.Never);
+        }
+        
+        [Fact]
         public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
         {
             var bookings = new List<Booking>
@@ -1073,8 +1096,28 @@ namespace Nhs.Appointments.Core.UnitTests
                 x.GetAvailableSlots(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
         }
         
-        //TODO
-        //Add new tests to assert new expected MultipleService functionality
+        [Fact]
+        public async Task RecalculateAppointmentStatuses_DoesntGoDownSingleServiceCodePath()
+        {
+            _bookingAvailabilityStateService
+                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
+                    new List<BookingAvailabilityUpdate>());
+
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+            //multiService code path
+            _bookingAvailabilityStateService.Verify(x => x.BuildRecalculations(
+                    MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>()),
+                Times.Once);
+            
+            //singleService code path
+            _bookingQueryService.Verify(x => x.GetBookings(
+                    It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
+                Times.Never);
+            _availabilityStore.Verify(x => x.GetSessions(
+                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
+                Times.Never);
+        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

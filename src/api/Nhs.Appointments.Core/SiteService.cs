@@ -68,12 +68,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     }
 
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
-    {
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        sites ??= await GetAndCacheSites();
-
-        return sites.Where(s => s.Region == region);
-    }
+        => await siteStore.GetSitesInRegionAsync(region);
 
     public async Task<IEnumerable<SitePreview>> GetSitesPreview()
     {

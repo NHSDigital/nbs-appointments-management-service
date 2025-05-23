@@ -9,15 +9,15 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         : BookingBaseFeatureSteps(flag, enabled);
 
     [Collection("MultipleServicesSerialToggle")]
-    public class MakeBookingSingleService_MultipleServicesEnabled()
+    public class MakeBooking_SingleService_MultipleServicesEnabled()
         : MakeBookingSingleServiceFeatureSteps(Flags.MultipleServices, true);
     
     [Collection("MultipleServicesSerialToggle")]
-    public class MakeBookingSingleService_MultipleServicesDisabled()
+    public class MakeBooking_SingleService_MultipleServicesDisabled()
         : MakeBookingSingleServiceFeatureSteps(Flags.MultipleServices, false);
     
     [FeatureFile("./Scenarios/Booking/MakeBooking_MultipleServices.feature")]
     [Collection("MultipleServicesSerialToggle")]
-    public class MakeBookingMultipleServices()
+    public class MakeBooking_MultipleServices()
         : BookingBaseFeatureSteps(Flags.MultipleServices, true);
 }

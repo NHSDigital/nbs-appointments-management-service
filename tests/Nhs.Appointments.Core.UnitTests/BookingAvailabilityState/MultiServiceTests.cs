@@ -40,6 +40,368 @@ public class MultiServiceTests : BookingAvailabilityStateServiceTestBase
         recalculations.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
 
+    /// <summary>
+    /// Prove that greedy model can in some cases increase utilisation where the SingleService code would not
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_BuildRecalculations_IncreasedUtilisation_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "C", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "C", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "C", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "F", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "G", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "E", avStatus: "Orphaned", creationOrder: 6),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["B", "C", "D", "E", "F", "G"], capacity: 3),
+            TestSession("09:00", "09:10", ["A", "C", "D"], capacity: 3),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        //prove all 6 find a slot 
+        recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
+    }
+    
+    /// <summary>
+    /// Prove that greedy model can in some cases increase utilisation where the SingleService code would not
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_BuildRecalculations_IncreasedUtilisation_2()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "C", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "C", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "C", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "B", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "B", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "B", avStatus: "Orphaned", creationOrder: 6),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 3),
+            TestSession("09:00", "09:10", ["A", "C", "D"], capacity: 3),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        //prove all 6 find a slot due to alphabetical ordering
+        recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
+    }
+    
+    /// <summary>
+    /// Prove that greedy model isn't always optimal, and can lead to loss in utilisation
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_BuildRecalculations_LostUtilisation_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "C", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "C", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "C", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "F", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "G", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "E", avStatus: "Orphaned", creationOrder: 6),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["B", "C", "D", "E", "F", "G"], capacity: 3),
+            TestSession("09:00", "09:10", ["A", "C", "D", "U", "Z", "H", "I", "J"], capacity: 3),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        // Bookings 1, 2, 3 should be supported
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
+
+        // Bookings 4, 5, 6 should not be, due to non-optimal greedy algorithm
+        recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "6");
+    }
+    
+    /// <summary>
+    /// Prove that greedy model isn't always optimal, and can lead to loss in utilisation
+    /// This test proves a scenario where just selecting the first available slot would actually have been preferable over the alphabetical ordering
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_BuildRecalculations_LostUtilisation_2()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "C", avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "C", avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "C", avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "B", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "B", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "B", avStatus: "Orphaned", creationOrder: 6),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["D", "C", "E"], capacity: 3),
+            TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 3),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        // Bookings 1, 2, 3 should be supported
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
+
+        // Bookings 4, 5, 6 should not be, due to non-optimal greedy algorithm
+        recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "6");
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServiceLengthsDescending_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Blue", "Lilac", "Purple"], capacity: 1),
+            //prove this slot is taken
+            TestSession("09:00", "09:10", ["Gold", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(3);
+        
+        //prove the other 3 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[0].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[1].ToSlots().Single()),
+            () => availableSlots[2].Should().BeEquivalentTo(sessions[3].ToSlots().Single())
+        );
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServiceLengthsDescending_2()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Blue", "Lilac", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
+            //prove this slot is taken
+            TestSession("09:00", "09:10", ["Blue"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(3);
+        
+        //prove the other 3 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[0].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[1].ToSlots().Single()),
+            () => availableSlots[2].Should().BeEquivalentTo(sessions[2].ToSlots().Single())
+        );
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServiceLengthsDescending_3()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            //prove this slot is taken
+            TestSession("09:00", "09:10", ["Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Blue", "Lilac", "Purple"], capacity: 1),
+            TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(3);
+        
+        //prove the other 3 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[1].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[2].ToSlots().Single()),
+            () => availableSlots[2].Should().BeEquivalentTo(sessions[3].ToSlots().Single())
+        );
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// If some have equal service length, it will then allocate to the slot by supported services alphabetical
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServicesAlphabetical_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
+            //prove this slot is taken
+            TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(2);
+        
+        //prove the other 2 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[0].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[1].ToSlots().Single())
+        );
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// If some have equal service length, it will then allocate to the slot by supported services alphabetical
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServicesAlphabetical_2()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            //prove this slot is taken
+            TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(2);
+        
+        //prove the other 2 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[1].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[2].ToSlots().Single())
+        );
+    }
+    
+    /// <summary>
+    /// Show that the greedy model allocates a booking to the slot with the fewest available supported services.
+    /// If some have equal service length, it will then allocate to the slot by supported services alphabetical
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationBySessionServicesAlphabetical_3()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
+            TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
+            //prove this slot is taken despite being alphabetically lowest (fewer services order is first)
+            TestSession("09:00", "09:10", ["White", "Blue"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(2);
+        
+        //prove the other 2 slots with more services are still available
+        Assert.Multiple(
+            () => availableSlots[0].Should().BeEquivalentTo(sessions[0].ToSlots().Single()),
+            () => availableSlots[1].Should().BeEquivalentTo(sessions[1].ToSlots().Single())
+        );
+    }
+    
+    [Fact]
+    public async Task MultipleServices_GreedyAllocationWhenAllSessionsEquivalent()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            //prove this slot is taken, will just use the first in the list when all else equal
+            TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
+            TestSession("09:00", "09:10", ["Yellow", "Black", "Blue"], capacity: 1),
+            TestSession("09:00", "09:10", ["Black", "Yellow", "Blue"], capacity: 1),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var availableSlots = (await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        availableSlots.Count.Should().Be(2);
+        
+        Assert.Multiple(
+            () => availableSlots[0].Services.Should().BeSameAs(sessions[1].Services),
+            () => availableSlots[1].Services.Should().BeSameAs(sessions[2].Services)
+        );
+    }
+    
     [Fact]
     public async Task TheBestFitProblem()
     {

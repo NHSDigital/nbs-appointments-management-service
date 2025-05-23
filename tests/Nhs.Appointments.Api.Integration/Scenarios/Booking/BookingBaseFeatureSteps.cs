@@ -20,6 +20,23 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
 {
     protected HttpResponseMessage Response { get; set; }
     
+    [When(@"I cancel the appointment")]
+    public async Task CancelAppointment()
+    {
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+        var site = GetSiteId();
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+            null);
+    }
+
+    [When(@"I cancel the appointment with reference '(.+)'")]
+    public async Task CancelAppointmentWithReference(string reference)
+    {
+        var customId = CreateCustomBookingReference(reference);
+        var site = GetSiteId();
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+    }
+    
     [When("I make the appointment with the following details")]
     public async Task MakeBooking(DataTable dataTable)
     {

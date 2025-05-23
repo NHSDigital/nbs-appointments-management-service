@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import render from '@testing/render';
 import { useRouter } from 'next/navigation';
 import MockForm from '@testing/mockForm';
@@ -243,5 +243,53 @@ describe('Summary Step', () => {
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(mockPush).toHaveBeenCalledWith('/route-to-cancel-back-to');
+  });
+
+  it('moves back to the role steps when Change (roles) is clicked', async () => {
+    const { user } = render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={formState}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep
+          {...defaultProps}
+          returnRouteUponCancellation="/route-to-cancel-back-to"
+        />
+      </MockForm>,
+    );
+
+    const rolesRow = screen.getByRole('listitem', { name: 'Roles summary' });
+    await user.click(within(rolesRow).getByRole('button', { name: 'Change' }));
+
+    expect(mockGoToPreviousStep).toHaveBeenCalled();
+  });
+
+  it('hides text about log in notification for existing users', async () => {
+    render(
+      <MockForm<SetUserRolesFormValues>
+        submitHandler={jest.fn()}
+        defaultValues={{
+          ...formState,
+          firstName: 'Elizabeth',
+          lastName: 'Kensington-Jones',
+          userIdentityStatus: {
+            identityProvider: 'Okta',
+            extantInIdentityProvider: false,
+            extantInSite: true,
+            meetsWhitelistRequirements: true,
+          },
+        }}
+        schema={setUserRolesFormSchema}
+      >
+        <SummaryStep {...defaultProps} />
+      </MockForm>,
+    );
+
+    expect(
+      screen.queryByText(
+        'Elizabeth Kensington-Jones will be sent information about how to log in.',
+      ),
+    ).not.toBeInTheDocument();
   });
 });

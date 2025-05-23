@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class SetAvailabilityFunctionTests
 {
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
+    private readonly Mock<IAvailabilityWriteService> _availabilityService = new();
     private readonly Mock<ILogger<SetAvailabilityFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly SetAvailabilityFunctionTestProxy _sut;
@@ -64,12 +64,12 @@ public class SetAvailabilityFunctionTests
     }
 
     private class SetAvailabilityFunctionTestProxy(
-        IAvailabilityService availabilityService,
+        IAvailabilityWriteService availabilityWriteService,
         IValidator<SetAvailabilityRequest> validator,
         IUserContextProvider userContextProvider,
         ILogger<SetAvailabilityFunction> logger,
         IMetricsRecorder metricsRecorder)
-        : SetAvailabilityFunction(availabilityService, validator, userContextProvider, logger, metricsRecorder)
+        : SetAvailabilityFunction(availabilityWriteService, validator, userContextProvider, logger, metricsRecorder)
     {
         private readonly ILogger<SetAvailabilityFunction> _logger = logger;
 

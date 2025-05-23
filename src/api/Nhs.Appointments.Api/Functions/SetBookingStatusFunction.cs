@@ -14,7 +14,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class SetBookingStatusFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     IValidator<SetBookingStatusRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetBookingStatusFunction> logger,
@@ -46,7 +46,7 @@ public class SetBookingStatusFunction(
     protected override async Task<ApiResult<SetBookingStatusResponse>> HandleRequest(SetBookingStatusRequest request,
         ILogger logger)
     {
-        var result = await bookingService.SetBookingStatus(request.bookingReference, request.status,
+        var result = await bookingWriteService.SetBookingStatus(request.bookingReference, request.status,
             DeriveAvailabilityStatusFromAppointmentStatus(request.status));
         return result
             ? Success(new SetBookingStatusResponse(request.bookingReference, request.status))

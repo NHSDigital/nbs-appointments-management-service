@@ -1,7 +1,7 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
+namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
 // See https://app.mural.co/t/nhsdigital8118/m/nhsdigital8118/1741252759332/f2fa27aa39fa459db285e5c6c8081e9bb7446d22
-public class IdempotencyTests : AvailabilityCalculationsBase
+public class IdempotencyTests : BookingAvailabilityStateServiceTestBase
 {
     [Fact]
     public async Task MultiplePassesProduceTheSameResult()
@@ -40,25 +40,25 @@ public class IdempotencyTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var firstRunResult = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0))).ToList();
 
-        firstRunResult.Recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
                 "14", "15", "16", "19", "20", "18");
 
         // Bookings 4 and 5 should not be, because they were created after 6 and 7
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "4");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "5");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "6");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "13");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "17");
-        firstRunResult.Recalculations.Should().NotContain(r => r.Booking.Reference == "21");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "5");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "6");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "13");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "17");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "21");
 
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-            newResult.Should().BeEquivalentTo(firstRunResult);
+            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
+            newResult.Should().BeEquivalentTo(recalculations);
             runs -= 1;
         }
     }

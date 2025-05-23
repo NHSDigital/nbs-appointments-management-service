@@ -8,12 +8,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
 {
     [FeatureFile("./Scenarios/Availability/DailyAvailability.feature")]
-    public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
+    public abstract class DailyAvailabilityFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
     {
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
@@ -58,4 +60,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             _actualResponse.Should().BeEquivalentTo(expectedDailyAvailability);
         }
     }
+
+    [Collection("MultipleServicesSerialToggle")]
+    public class DailyAvailabilityFeatureSteps_MultipleServicesEnabled()
+        : DailyAvailabilityFeatureSteps(Flags.MultipleServices, true);
+    
+    [Collection("MultipleServicesSerialToggle")]
+    public class DailyAvailabilityFeatureSteps_MultipleServicesDisabled()
+        : DailyAvailabilityFeatureSteps(Flags.MultipleServices, false);
 }

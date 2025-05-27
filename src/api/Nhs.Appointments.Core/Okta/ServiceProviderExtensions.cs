@@ -23,6 +23,14 @@ public static class ServiceProviderExtensions
             return services;
         }
 
+        if (oktaConfig is null || string.IsNullOrEmpty(oktaConfig.Domain) ||
+            string.IsNullOrEmpty(oktaConfig.ManagementId) ||
+            string.IsNullOrEmpty(oktaConfig.PEM) || string.IsNullOrEmpty(oktaConfig.PrivateKeyKid))
+        {
+            services.AddSingleton<IOktaUserDirectory, OktaUnimplementedUserDirectory>();
+            return services;
+        }
+
         services.AddSingleton<IOktaUserDirectory, OktaUserDirectory>();
         services.AddSingleton<UserApi>(sp =>
         {

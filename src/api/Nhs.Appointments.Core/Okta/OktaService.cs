@@ -4,21 +4,34 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider time
 {
     public async Task<UserProvisioningStatus> CreateIfNotExists(string userEmail, string firstName, string lastName)
     {
-        var userState = await GetUserState(userEmail);
-        return userState switch
+        var oktaUser = await oktaUserDirectory.GetUserAsync(userEmail);
+
+        switch (oktaUser?.Status)
         {
-            UserState.UserDoesNotExist => await CreateUser(userEmail, firstName, lastName),
-            UserState.UserWasProvisionedButOver24HoursAgo => await ReactivateUser(userEmail),
-            UserState.UserWasProvisionedButUnder24HoursAgo or UserState.UserIsActive => new UserProvisioningStatus
-            {
-                Success = true
-            },
-            _ => new UserProvisioningStatus
-            {
-                Success = false, FailureReason = "Failed to identify if user was active, provisioned or not extant."
-            }
-        };
+            case null:
+            case OktaUserStatus.Deactivated:
+                return await CreateUser(userEmail, firstName, lastName);
+            case OktaUserStatus.Active:
+                return new UserProvisioningStatus { Success = true };
+            case OktaUserStatus.Provisioned:
+                {
+                    var isOlderThanOneDay = timeProvider.GetUtcNow() - oktaUser.Created > TimeSpan.FromDays(1);
+                    if (isOlderThanOneDay)
+                    {
+                        return await ReactivateUser(userEmail);
+                    }
+
+                    return new UserProvisioningStatus { Success = true };
+                }
+            default:
+                return new UserProvisioningStatus
+                {
+                    Success = false,
+                    FailureReason = "Failed to identify if user was active, provisioned or not extant."
+                };
+        }
     }
+
 
     private async Task<UserProvisioningStatus> CreateUser(string email, string firstName, string lastName)
     {
@@ -38,38 +51,5 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider time
             Success = reactivatedSuccessfully,
             FailureReason = !reactivatedSuccessfully ? "Failed to reactivate the user" : string.Empty
         };
-    }
-
-    private async Task<UserState> GetUserState(string userEmail)
-    {
-        var user = await oktaUserDirectory.GetUserAsync(userEmail);
-        if (user is null)
-        {
-            return UserState.UserDoesNotExist;
-        }
-
-        if (user.IsProvisioned)
-        {
-            return GetProvisionedState(user.Created);
-        }
-
-        return user.IsActive ? UserState.UserIsActive : UserState.Unknown;
-    }
-
-    private UserState GetProvisionedState(DateTimeOffset created)
-    {
-        var isOlderThanOneDay = timeProvider.GetUtcNow() - created > TimeSpan.FromDays(1);
-        return isOlderThanOneDay
-            ? UserState.UserWasProvisionedButOver24HoursAgo
-            : UserState.UserWasProvisionedButUnder24HoursAgo;
-    }
-
-    private enum UserState
-    {
-        Unknown,
-        UserDoesNotExist,
-        UserWasProvisionedButOver24HoursAgo,
-        UserWasProvisionedButUnder24HoursAgo,
-        UserIsActive
     }
 }

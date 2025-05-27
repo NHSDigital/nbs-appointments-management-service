@@ -17,16 +17,16 @@ export default class SummaryStep extends ManageUserStep {
     this.nameSummary = this.page
       .getByRole('listitem', { name: 'Name summary' })
       .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
+      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
 
     this.emailAddressSummary = this.page
       .getByRole('listitem', { name: 'Address summary' })
       .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
+      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
 
     this.rolesSummary = this.page
       .getByRole('listitem', { name: 'Roles summary' })
       .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('link', { name: 'Change' }) });
+      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
   }
 }

@@ -96,7 +96,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   sticky_settings {
@@ -169,6 +168,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
     "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
     "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
+    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
@@ -181,19 +181,23 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
     "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAttributesFunction.Disabled"                      = true
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
     "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
     "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = true
     "AzureWebJobs.SetUserRoles.Disabled"                                   = true
     "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
-    "AzureWebJobs.SendBookingReminders.Disabled"                           = true
-    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
+    "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
+    "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   identity {

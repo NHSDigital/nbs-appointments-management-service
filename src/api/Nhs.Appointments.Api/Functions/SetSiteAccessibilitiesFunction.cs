@@ -41,7 +41,7 @@ public class SetSiteAccessibilitiesFunction(
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.ManageSite, typeof(SiteFromPathInspector))]
     [RequiresAudit(typeof(SiteFromPathInspector))]
-    [Function("SetSiteAttributesFunction")]
+    [Function("SetSiteAccessibilitiesFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites/{site}/accessibilities")]
         HttpRequest req)

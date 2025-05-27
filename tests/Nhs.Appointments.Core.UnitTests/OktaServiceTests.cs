@@ -67,6 +67,26 @@ public class OktaServiceTests
     }
 
     [Fact]
+    public async Task CreateIfNotExists_UserDeactivated()
+    {
+        var oktaUserResponse = new OktaUserResponse
+        {
+            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero),
+            Status = OktaUserStatus.Deactivated
+        };
+        _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);
+        _oktaUserDirectory.Setup(x => x.CreateUserAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+
+        var result = await _sut.CreateIfNotExists(userEmail, firstName, lastName);
+
+        Assert.Multiple(
+            () => result.Success.Should().BeTrue(),
+            () => result.FailureReason.Should().BeNullOrEmpty()
+        );
+    }
+
+    [Fact]
     public async Task CreateIfNotExists_ReactivateUser()
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 3, 20, 20, 0, 59));

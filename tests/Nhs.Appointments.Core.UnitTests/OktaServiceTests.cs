@@ -54,8 +54,7 @@ public class OktaServiceTests
     public async Task CreateIfNotExists_UserExists()
     {
         var oktaUserResponse = new OktaUserResponse { 
-            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), 
-            IsActive = true 
+            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), Status = OktaUserStatus.Active
         };
         _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);
 
@@ -74,8 +73,7 @@ public class OktaServiceTests
 
         var oktaUserResponse = new OktaUserResponse
         {
-            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero),
-            IsProvisioned = true
+            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), Status = OktaUserStatus.Provisioned
         };
         _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);
         _oktaUserDirectory.Setup(x => x.ReactivateUserAsync(It.IsAny<string>())).ReturnsAsync(true);
@@ -98,9 +96,7 @@ public class OktaServiceTests
 
         var oktaUserResponse = new OktaUserResponse
         {
-            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero),
-            IsProvisioned = true,
-            IsActive = false
+            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), Status = OktaUserStatus.Provisioned
         };
 
         _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);

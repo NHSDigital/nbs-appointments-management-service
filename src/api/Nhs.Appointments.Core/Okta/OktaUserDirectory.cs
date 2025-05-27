@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Okta.Sdk.Api;
+using Okta.Sdk.Client;
 using Okta.Sdk.Model;
 
 namespace Nhs.Appointments.Core.Okta;
@@ -22,7 +24,23 @@ public class OktaUserDirectory : IOktaUserDirectory
             await _userApi.ReactivateUserAsync(user, true);
             return true;
         }
-        catch (Exception ex)
+        catch (ApiException ex)
+        {
+            var errorContent = JsonConvert.DeserializeObject<OktaErrorContent>(ex.ErrorContent.ToString());
+            if (errorContent.ErrorCode == "E0000006" && errorContent.ErrorSummary ==
+                "You do not have permission to perform the requested action")
+            {
+                _logger.LogError(
+                    "Erroneously lacked permissions to de/reactivate a user. Known bug APPT-898. Swallowing this error until this bug is resolved. Okta error code: {errorCode}, Okta error summary: {errorSummary}",
+                    errorContent.ErrorCode, errorContent.ErrorSummary);
+                return true; // Should return false on error once APPT-898 is resolved
+            }
+
+
+            _logger.LogInformation($"Failed to reactivate okta user: {user}!");
+            return false;
+        }
+        catch (Exception)
         {
             _logger.LogInformation($"Failed to reactivate okta user: {user}!");
             return false;
@@ -39,7 +57,7 @@ public class OktaUserDirectory : IOktaUserDirectory
             });
             return createdUser != null;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _logger.LogInformation(
                 $"Failed to create okta, user: {user}, firstName: {firstName}, lastName: {lastName}!");
@@ -83,18 +101,25 @@ public class OktaUserDirectory : IOktaUserDirectory
             case nameof(UserStatus.LOCKEDOUT):
                 return OktaUserStatus.Active;
 
-            // When a user is created they're briefly staged before being provisioned
-            case nameof(UserStatus.STAGED):
+            // A provisioned user needs to set their own password and activate their account to move to the Active state
+            // The only workflow we can safely begin for them is "Deactivate User" ("Reactivate" calls this followed by "Activate")
             case nameof(UserStatus.PROVISIONED):
                 return OktaUserStatus.Provisioned;
 
-            // Okta docs do not say whether trying to CreateUser on a Deprovisioned user will succeed or not.
-            // TODO: investigate this if we see errors for deleted users
+            // Is a user is Staged, Deprovisioned, or has never existed, it is safe to begin the "Activate User" workflow for them
+            case nameof(UserStatus.STAGED):
             case nameof(UserStatus.DEPROVISIONED):
                 return OktaUserStatus.Deactivated;
 
             default:
                 return OktaUserStatus.Unknown;
         }
+    }
+
+    private class OktaErrorContent
+    {
+        public string ErrorCode { get; set; }
+        public string ErrorSummary { get; set; }
+        public string ErrorId { get; set; }
     }
 }

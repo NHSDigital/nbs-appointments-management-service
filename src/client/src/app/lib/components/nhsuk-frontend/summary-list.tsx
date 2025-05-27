@@ -68,7 +68,7 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 {item.action.renderingStrategy === 'server' ? (
                   <Link href={item.action.href}>{item.action.text}</Link>
                 ) : (
-                  <Link href={''} onClick={item.action.onClick}>
+                  <Link href={''} onClick={item.action.onClick} role="button">
                     {item.action.text}
                   </Link>
                 )}

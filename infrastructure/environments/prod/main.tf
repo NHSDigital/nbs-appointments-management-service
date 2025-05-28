@@ -60,8 +60,6 @@ module "mya_application_prod" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
-  disable_query_availability_function            = true
-  create_high_load_function_app                  = true
   create_app_slot                                = true
   create_autoscale_settings                      = true
   create_frontdoor                               = true
@@ -78,7 +76,6 @@ module "mya_application_prod" {
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
   cosmos_synapse_enabled                         = false
-  disable_bulk_import_function                   = true
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0
@@ -101,4 +98,47 @@ module "mya_application_prod" {
   cosmos_audit_autoscale_settings = [{
     max_throughput = 2000
   }]
+  high_load_functions = ["QueryAvailabilityFunction", "BulkImportFunction"]
+  http_functions = [
+    "ApplyAvailabilityTemplate",
+    "AuthenticateCallbackFunction",
+    "AuthenticateFunction",
+    "CancelBookingFunction",
+    "CancelSessionFunction",
+    "ConfirmProvisionalBookingFunction",
+    "ConsentToEula",
+    "GetAccessibilityDefinitionsFunction",
+    "GetAuthTokenFunction",
+    "GetAvailabilityCreatedEventsFunction",
+    "GetClinicalServicesFunction",
+    "GetDailyAvailabilityFunction",
+    "GetEulaFunction",
+    "GetFeatureFlagFunction",
+    "GetRolesFunction",
+    "GetSiteFunction",
+    "GetSiteMetaData",
+    "GetSitesByAreaFunction",
+    "GetSitesPreviewFunction",
+    "GetPermissionsForUserFunction",
+    "GetUserProfileFunction",
+    "GetUserRoleAssignmentsFunction",
+    "GetWellKnownOdsCodeEntriesFunction",
+    "MakeBookingFunction",
+    "ProposePotentialUserFunction",
+    "QueryBookingByNhsNumberReference",
+    "QueryBookingByBookingReference",
+    "QueryBookingsFunction",
+    "RemoveUserFunction",
+    "SetAvailabilityFunction",
+    "SetBookingStatusFunction",
+    "SetSiteAccessibilitiesFunction",
+    "SetSiteDetailsFunction",
+    "SetSiteInformationForCitizensFunction",
+    "SetSiteReferenceDetailsFunction",
+    "SetUserRoles",
+    "TriggerBookingReminders",
+    "TriggerUnconfirmedProvisionalBookingsCollector"
+  ]
+  servicebus_functions = ["NotifyBookingCancelled", "NotifyBookingMade", "NotifyBookingReminder", "NotifyBookingRescheduled", "NotifyOktaUserRolesChanged", "NotifyUserRolesChanged"]
+  timer_functions      = ["SendBookingReminders", "RemoveUnconfirmedProvisionalBookings"]
 }

@@ -4,7 +4,7 @@
 # This function app is only created in staging and production
 
 resource "azurerm_service_plan" "nbs_mya_high_load_func_service_plan" {
-  count               = var.create_high_load_function_app ? 1 : 0
+  count               = length(var.high_load_functions) > 0 ? 1 : 0
   name                = "${var.application}-hlfsp-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
@@ -13,7 +13,7 @@ resource "azurerm_service_plan" "nbs_mya_high_load_func_service_plan" {
 }
 
 resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
-  count               = var.create_high_load_function_app ? 1 : 0
+  count               = length(var.high_load_functions) > 0 ? 1 : 0
   name                = "${var.application}-hlfunc-${var.environment}-${var.loc}"
   resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
   location            = var.location
@@ -64,58 +64,60 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
     Auth__Providers__1__RequiresStateForAuthorize                          = true
-    "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
-    "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
-    "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
-    "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
-    "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
-    "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
-    "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
-    "AzureWebJobs.AuthenticateFunction.Disabled"                           = true
-    "AzureWebJobs.CancelBookingFunction.Disabled"                          = true
-    "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
-    "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
-    "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
-    "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
-    "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
-    "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetEulaFunction.Disabled"                                = true
-    "AzureWebJobs.GetRolesFunction.Disabled"                               = true
-    "AzureWebJobs.GetSiteFunction.Disabled"                                = true
-    "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
-    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
-    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
-    "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
-    "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
-    "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
-    "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = true
-    "AzureWebJobs.MakeBookingFunction.Disabled"                            = true
-    "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = true
-    "AzureWebJobs.QueryBookingByBookingReference.Disabled"                 = true
-    "AzureWebJobs.QueryBookingsFunction.Disabled"                          = true
-    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
-    "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
-    "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
-    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
-    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
-    "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = true
-    "AzureWebJobs.SetUserRoles.Disabled"                                   = true
-    "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
-    "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
-    "AzureWebJobs.SendBookingReminders.Disabled"                           = true
-    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.ApplyAvailabilityTemplate.Disabled"                      = !contains(var.high_load_functions, "ApplyAvailabilityTemplate")
+    "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = !contains(var.high_load_functions, "AuthenticateCallbackFunction")
+    "AzureWebJobs.AuthenticateFunction.Disabled"                           = !contains(var.high_load_functions, "AuthenticateFunction")
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = !contains(var.high_load_functions, "BulkImportFunction")
+    "AzureWebJobs.CancelBookingFunction.Disabled"                          = !contains(var.high_load_functions, "CancelBookingFunction")
+    "AzureWebJobs.CancelSessionFunction.Disabled"                          = !contains(var.high_load_functions, "CancelSessionFunction")
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = !contains(var.high_load_functions, "ClearLocalFeatureFlagOverridesFunction")
+    "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = !contains(var.high_load_functions, "ConfirmProvisionalBookingFunction")
+    "AzureWebJobs.ConsentToEula.Disabled"                                  = !contains(var.high_load_functions, "ConsentToEula")
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = !contains(var.high_load_functions, "GetAccessibilityDefinitionsFunction")
+    "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = !contains(var.high_load_functions, "GetAuthTokenFunction")
+    "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = !contains(var.high_load_functions, "GetAvailabilityCreatedEventsFunction")
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = !contains(var.high_load_functions, "GetClinicalServicesFunction")
+    "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = !contains(var.high_load_functions, "GetDailyAvailabilityFunction")
+    "AzureWebJobs.GetEulaFunction.Disabled"                                = !contains(var.high_load_functions, "GetEulaFunction")
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = !contains(var.high_load_functions, "GetFeatureFlagFunction")
+    "AzureWebJobs.GetRolesFunction.Disabled"                               = !contains(var.high_load_functions, "GetRolesFunction")
+    "AzureWebJobs.GetSiteFunction.Disabled"                                = !contains(var.high_load_functions, "GetSiteFunction")
+    "AzureWebJobs.GetSiteMetaData.Disabled"                                = !contains(var.high_load_functions, "GetSiteMetaData")
+    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = !contains(var.high_load_functions, "GetSitesByAreaFunction")
+    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = !contains(var.high_load_functions, "GetSitesPreviewFunction")
+    "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = !contains(var.high_load_functions, "GetPermissionsForUserFunction")
+    "AzureWebJobs.GetUserProfileFunction.Disabled"                         = !contains(var.high_load_functions, "GetUserProfileFunction")
+    "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = !contains(var.high_load_functions, "GetUserRoleAssignmentsFunction")
+    "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = !contains(var.high_load_functions, "GetWellKnownOdsCodeEntriesFunction")
+    "AzureWebJobs.MakeBookingFunction.Disabled"                            = !contains(var.high_load_functions, "MakeBookingFunction")
+    "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = !contains(var.high_load_functions, "NotifyBookingCancelled")
+    "AzureWebJobs.NotifyBookingMade.Disabled"                              = !contains(var.high_load_functions, "NotifyBookingMade")
+    "AzureWebJobs.NotifyBookingReminder.Disabled"                          = !contains(var.high_load_functions, "NotifyBookingReminder")
+    "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = !contains(var.high_load_functions, "NotifyBookingRescheduled")
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = !contains(var.high_load_functions, "NotifyOktaUserRolesChanged")
+    "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = !contains(var.high_load_functions, "NotifyUserRolesChanged")
+    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = !contains(var.high_load_functions, "ProposePotentialUserFunction")
+    "AzureWebJobs.QueryAvailabilityFunction.Disabled"                      = !contains(var.high_load_functions, "QueryAvailabilityFunction")
+    "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = !contains(var.high_load_functions, "QueryBookingByNhsNumberReference")
+    "AzureWebJobs.QueryBookingByBookingReference.Disabled"                 = !contains(var.high_load_functions, "QueryBookingByBookingReference")
+    "AzureWebJobs.QueryBookingsFunction.Disabled"                          = !contains(var.high_load_functions, "QueryBookingsFunction")
+    "AzureWebJobs.RemoveUserFunction.Disabled"                             = !contains(var.high_load_functions, "RemoveUserFunction")
+    "AzureWebJobs.SendBookingReminders.Disabled"                           = !contains(var.high_load_functions, "SendBookingReminders")
+    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = !contains(var.high_load_functions, "RemoveUnconfirmedProvisionalBookings")
+    "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = !contains(var.high_load_functions, "SetAvailabilityFunction")
+    "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = !contains(var.high_load_functions, "SetBookingStatusFunction")
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = !contains(var.high_load_functions, "SetLocalFeatureFlagOverrideFunction")
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = !contains(var.high_load_functions, "SetSiteAccessibilitiesFunction")
+    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = !contains(var.high_load_functions, "SetSiteDetailsFunction")
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = !contains(var.high_load_functions, "SetSiteInformationForCitizensFunction")
+    "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = !contains(var.high_load_functions, "SetSiteReferenceDetailsFunction")
+    "AzureWebJobs.SetUserRoles.Disabled"                                   = !contains(var.high_load_functions, "SetUserRoles")
+    "AzureWebJobs.TriggerBookingReminders.Disabled"                        = !contains(var.high_load_functions, "TriggerBookingReminders")
+    "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = !contains(var.high_load_functions, "TriggerUnconfirmedProvisionalBookingsCollector")
     "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
     "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
-    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
-    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
-    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
-    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
-    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
   }
 
   sticky_settings {
@@ -135,7 +137,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
 }
 
 resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview" {
-  count                      = var.create_high_load_function_app && var.create_app_slot ? 1 : 0
+  count                      = length(var.high_load_functions) > 0 && var.create_app_slot ? 1 : 0
   name                       = "preview"
   function_app_id            = azurerm_windows_function_app.nbs_mya_high_load_func_app[0].id
   storage_account_name       = azurerm_storage_account.nbs_mya_high_load_func_storage_account[0].name
@@ -183,58 +185,60 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Auth__Providers__1__ClientCodeExchangeUri                              = "${local.client_code_exchange_uri}?provider=okta"
     Auth__Providers__1__ReturnUri                                          = "${local.auth_provider_return_uri}?provider=okta"
     Auth__Providers__1__RequiresStateForAuthorize                          = true
-    "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
-    "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
-    "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
-    "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
-    "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
-    "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
-    "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
-    "AzureWebJobs.AuthenticateFunction.Disabled"                           = true
-    "AzureWebJobs.CancelBookingFunction.Disabled"                          = true
-    "AzureWebJobs.CancelSessionFunction.Disabled"                          = true
-    "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = true
-    "AzureWebJobs.ConsentToEula.Disabled"                                  = true
-    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = true
-    "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
-    "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
-    "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetEulaFunction.Disabled"                                = true
-    "AzureWebJobs.GetRolesFunction.Disabled"                               = true
-    "AzureWebJobs.GetSiteFunction.Disabled"                                = true
-    "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
-    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
-    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
-    "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
-    "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
-    "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
-    "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = true
-    "AzureWebJobs.MakeBookingFunction.Disabled"                            = true
-    "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = true
-    "AzureWebJobs.QueryBookingByBookingReference.Disabled"                 = true
-    "AzureWebJobs.QueryBookingsFunction.Disabled"                          = true
-    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
-    "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
-    "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
-    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
-    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
-    "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = true
-    "AzureWebJobs.SetUserRoles.Disabled"                                   = true
-    "AzureWebJobs.TriggerBookingReminders.Disabled"                        = true
-    "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
-    "AzureWebJobs.SendBookingReminders.Disabled"                           = true
-    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.ApplyAvailabilityTemplate.Disabled"                      = !contains(var.high_load_functions, "ApplyAvailabilityTemplate")
+    "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = !contains(var.high_load_functions, "AuthenticateCallbackFunction")
+    "AzureWebJobs.AuthenticateFunction.Disabled"                           = !contains(var.high_load_functions, "AuthenticateFunction")
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = !contains(var.high_load_functions, "BulkImportFunction")
+    "AzureWebJobs.CancelBookingFunction.Disabled"                          = !contains(var.high_load_functions, "CancelBookingFunction")
+    "AzureWebJobs.CancelSessionFunction.Disabled"                          = !contains(var.high_load_functions, "CancelSessionFunction")
+    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = !contains(var.high_load_functions, "ClearLocalFeatureFlagOverridesFunction")
+    "AzureWebJobs.ConfirmProvisionalBookingFunction.Disabled"              = !contains(var.high_load_functions, "ConfirmProvisionalBookingFunction")
+    "AzureWebJobs.ConsentToEula.Disabled"                                  = !contains(var.high_load_functions, "ConsentToEula")
+    "AzureWebJobs.GetAccessibilityDefinitionsFunction.Disabled"            = !contains(var.high_load_functions, "GetAccessibilityDefinitionsFunction")
+    "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = !contains(var.high_load_functions, "GetAuthTokenFunction")
+    "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = !contains(var.high_load_functions, "GetAvailabilityCreatedEventsFunction")
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = !contains(var.high_load_functions, "GetClinicalServicesFunction")
+    "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = !contains(var.high_load_functions, "GetDailyAvailabilityFunction")
+    "AzureWebJobs.GetEulaFunction.Disabled"                                = !contains(var.high_load_functions, "GetEulaFunction")
+    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = !contains(var.high_load_functions, "GetFeatureFlagFunction")
+    "AzureWebJobs.GetRolesFunction.Disabled"                               = !contains(var.high_load_functions, "GetRolesFunction")
+    "AzureWebJobs.GetSiteFunction.Disabled"                                = !contains(var.high_load_functions, "GetSiteFunction")
+    "AzureWebJobs.GetSiteMetaData.Disabled"                                = !contains(var.high_load_functions, "GetSiteMetaData")
+    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = !contains(var.high_load_functions, "GetSitesByAreaFunction")
+    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = !contains(var.high_load_functions, "GetSitesPreviewFunction")
+    "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = !contains(var.high_load_functions, "GetPermissionsForUserFunction")
+    "AzureWebJobs.GetUserProfileFunction.Disabled"                         = !contains(var.high_load_functions, "GetUserProfileFunction")
+    "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = !contains(var.high_load_functions, "GetUserRoleAssignmentsFunction")
+    "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = !contains(var.high_load_functions, "GetWellKnownOdsCodeEntriesFunction")
+    "AzureWebJobs.MakeBookingFunction.Disabled"                            = !contains(var.high_load_functions, "MakeBookingFunction")
+    "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = !contains(var.high_load_functions, "NotifyBookingCancelled")
+    "AzureWebJobs.NotifyBookingMade.Disabled"                              = !contains(var.high_load_functions, "NotifyBookingMade")
+    "AzureWebJobs.NotifyBookingReminder.Disabled"                          = !contains(var.high_load_functions, "NotifyBookingReminder")
+    "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = !contains(var.high_load_functions, "NotifyBookingRescheduled")
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = !contains(var.high_load_functions, "NotifyOktaUserRolesChanged")
+    "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = !contains(var.high_load_functions, "NotifyUserRolesChanged")
+    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = !contains(var.high_load_functions, "ProposePotentialUserFunction")
+    "AzureWebJobs.QueryAvailabilityFunction.Disabled"                      = !contains(var.high_load_functions, "QueryAvailabilityFunction")
+    "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = !contains(var.high_load_functions, "QueryBookingByNhsNumberReference")
+    "AzureWebJobs.QueryBookingByBookingReference.Disabled"                 = !contains(var.high_load_functions, "QueryBookingByBookingReference")
+    "AzureWebJobs.QueryBookingsFunction.Disabled"                          = !contains(var.high_load_functions, "QueryBookingsFunction")
+    "AzureWebJobs.RemoveUserFunction.Disabled"                             = !contains(var.high_load_functions, "RemoveUserFunction")
+    "AzureWebJobs.SendBookingReminders.Disabled"                           = !contains(var.high_load_functions, "SendBookingReminders")
+    "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = !contains(var.high_load_functions, "RemoveUnconfirmedProvisionalBookings")
+    "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = !contains(var.high_load_functions, "SetAvailabilityFunction")
+    "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = !contains(var.high_load_functions, "SetBookingStatusFunction")
+    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = !contains(var.high_load_functions, "SetLocalFeatureFlagOverrideFunction")
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = !contains(var.high_load_functions, "SetSiteAccessibilitiesFunction")
+    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = !contains(var.high_load_functions, "SetSiteDetailsFunction")
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = !contains(var.high_load_functions, "SetSiteInformationForCitizensFunction")
+    "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = !contains(var.high_load_functions, "SetSiteReferenceDetailsFunction")
+    "AzureWebJobs.SetUserRoles.Disabled"                                   = !contains(var.high_load_functions, "SetUserRoles")
+    "AzureWebJobs.TriggerBookingReminders.Disabled"                        = !contains(var.high_load_functions, "TriggerBookingReminders")
+    "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = !contains(var.high_load_functions, "TriggerUnconfirmedProvisionalBookingsCollector")
     "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
     "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
-    "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
-    "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
-    "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
-    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
-    "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
   }
 
   identity {

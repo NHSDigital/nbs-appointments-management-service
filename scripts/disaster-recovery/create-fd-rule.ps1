@@ -41,7 +41,7 @@ az afd rule create `
     --rule-set-name $ruleSetName `
     --profile-name $profileName `
     --rule-name $bulkImportRuleName `
-    --order 1 `
+    --order 2 `
     --action-name 'RouteConfigurationOverride' `
     --forwarding-protocol MatchRequest `
     --origin-group "mya-high-load-api-ukw"

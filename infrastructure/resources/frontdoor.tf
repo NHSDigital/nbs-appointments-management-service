@@ -145,7 +145,7 @@ resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_bulk_import_override
 
   name                      = "BulkImportRouteOverride"
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.nbs_mya_origin_group_override_rule_set[0].id
-  order                     = 1
+  order                     = 2
   behavior_on_match         = "Continue"
 
   actions {

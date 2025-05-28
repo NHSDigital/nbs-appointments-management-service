@@ -13,7 +13,7 @@ $bulkImportRuleName = "BulkImportRouteOverride"
 
 az afd rule-set create `
   --resource-group $resourceGroup `
-  --rule-set-name "MyaOverrideRuleSetUKW" `
+  --rule-set-name $ruleSetName `
   --profile-name $profileName
 
 az afd rule create `

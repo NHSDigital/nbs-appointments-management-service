@@ -8,7 +8,8 @@ $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
 $ruleSetName = "MyaOverrideRuleSetUKW"
-$ruleName = "AvailabilityQueryRouteOverride"
+$queryRuleName = "AvailabilityQueryRouteOverride"
+$bulkImportRuleName = "BulkImportRouteOverride"
 
 az afd rule-set create `
   --resource-group $resourceGroup `
@@ -19,7 +20,7 @@ az afd rule create `
     --resource-group $resourceGroup `
     --rule-set-name $ruleSetName `
     --profile-name $profileName `
-    --rule-name $ruleName `
+    --rule-name $queryRuleName `
     --order 1 `
     --action-name 'RouteConfigurationOverride' `
     --forwarding-protocol MatchRequest `
@@ -29,8 +30,28 @@ az afd rule condition add `
     --resource-group $resourceGroup `
     --rule-set-name $ruleSetName `
     --profile-name $profileName `
-    --rule-name $ruleName `
+    --rule-name $queryRuleName `
     --match-variable UrlPath `
     --operator EndsWith `
     --match-values "/availability/query" `
+    --transforms "Lowercase"
+
+az afd rule create `
+    --resource-group $resourceGroup `
+    --rule-set-name $ruleSetName `
+    --profile-name $profileName `
+    --rule-name $bulkImportRuleName `
+    --order 1 `
+    --action-name 'RouteConfigurationOverride' `
+    --forwarding-protocol MatchRequest `
+    --origin-group "mya-high-load-api-ukw"
+
+az afd rule condition add `
+    --resource-group $resourceGroup `
+    --rule-set-name $ruleSetName `
+    --profile-name $profileName `
+    --rule-name $bulkImportRuleName `
+    --match-variable UrlPath `
+    --operator EndsWith `
+    --match-values "/site/import" "/user/import" `
     --transforms "Lowercase"

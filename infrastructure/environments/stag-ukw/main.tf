@@ -62,9 +62,7 @@ module "mya_application_stag_ukw" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   cosmos_endpoint                                = var.COSMOS_ENDPOINT
   cosmos_token                                   = var.COSMOS_TOKEN
-  app_config_connection                          = var.APP_CONFIG_CONNECTION 
-  disable_query_availability_function            = false
-  create_high_load_function_app                  = true
+  app_config_connection                          = var.APP_CONFIG_CONNECTION
   create_app_slot                                = false
   create_autoscale_settings                      = false
   create_frontdoor                               = false
@@ -81,7 +79,6 @@ module "mya_application_stag_ukw" {
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
   cosmos_synapse_enabled                         = false
-  disable_bulk_import_function                   = false
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]
@@ -94,4 +91,47 @@ module "mya_application_stag_ukw" {
   cosmos_audit_autoscale_settings = [{
     max_throughput = 2000
   }]
+  high_load_functions = ["QueryAvailabilityFunction", "BulkImportFunction"]
+  http_functions = [
+    "ApplyAvailabilityTemplate",
+    "AuthenticateCallbackFunction",
+    "AuthenticateFunction",
+    "CancelBookingFunction",
+    "CancelSessionFunction",
+    "ConfirmProvisionalBookingFunction",
+    "ConsentToEula",
+    "GetAccessibilityDefinitionsFunction",
+    "GetAuthTokenFunction",
+    "GetAvailabilityCreatedEventsFunction",
+    "GetClinicalServicesFunction",
+    "GetDailyAvailabilityFunction",
+    "GetEulaFunction",
+    "GetFeatureFlagFunction",
+    "GetRolesFunction",
+    "GetSiteFunction",
+    "GetSiteMetaData",
+    "GetSitesByAreaFunction",
+    "GetSitesPreviewFunction",
+    "GetPermissionsForUserFunction",
+    "GetUserProfileFunction",
+    "GetUserRoleAssignmentsFunction",
+    "GetWellKnownOdsCodeEntriesFunction",
+    "MakeBookingFunction",
+    "ProposePotentialUserFunction",
+    "QueryBookingByNhsNumberReference",
+    "QueryBookingByBookingReference",
+    "QueryBookingsFunction",
+    "RemoveUserFunction",
+    "SetAvailabilityFunction",
+    "SetBookingStatusFunction",
+    "SetSiteAccessibilitiesFunction",
+    "SetSiteDetailsFunction",
+    "SetSiteInformationForCitizensFunction",
+    "SetSiteReferenceDetailsFunction",
+    "SetUserRoles",
+    "TriggerBookingReminders",
+    "TriggerUnconfirmedProvisionalBookingsCollector"
+  ]
+  servicebus_functions = ["NotifyBookingCancelled", "NotifyBookingMade", "NotifyBookingReminder", "NotifyBookingRescheduled", "NotifyOktaUserRolesChanged", "NotifyUserRolesChanged"]
+  timer_functions      = ["SendBookingReminders", "RemoveUnconfirmedProvisionalBookings"]
 }

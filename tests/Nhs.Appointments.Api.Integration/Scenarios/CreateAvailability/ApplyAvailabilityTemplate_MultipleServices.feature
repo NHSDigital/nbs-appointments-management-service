@@ -110,7 +110,7 @@
     Then the booking with reference '89999-44622' has status 'Booked'
     And the booking with reference '89999-44622' has availability status 'Orphaned'
 
-  # Prove that creating more availability for B and C results in booking E being supported, through alphabetical shuffling
+  # Prove that creating more availability for B and C results in booking E being supported, through service length shuffling
   Scenario: Greedy allocation service lengths - shuffling - Appointment is supported after an unrelated availability template is applied
     Given there is no existing availability
     And the following orphaned bookings exist

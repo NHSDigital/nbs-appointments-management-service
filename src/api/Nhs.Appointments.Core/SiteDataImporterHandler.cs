@@ -37,7 +37,8 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                     site.ICB,
                     site.Region,
                     site.Location,
-                    site.Accessibilities);
+                    site.Accessibilities,
+                    site.Type);
             }
             catch (Exception ex)
             {
@@ -134,6 +135,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         public string OdsCode { get; set; }
         public string Region { get; set; }
         public string ICB { get; set; }
+        public string Type { get; set; }
         public Location Location { get; set; }
         public IEnumerable<Accessibility> Accessibilities { get; set; }
     }

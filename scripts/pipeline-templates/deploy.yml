@@ -258,9 +258,26 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+      
+      -job: ImportFeatureFlags
+        displayName: "Import Feature Flags"
+        dependsOn: UploadCosmosDocuments
+        variables:
+          environment: ${{parameters.env}}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+              displayName: "Apply Feature Toggles"
+              inputs:
+                azureSubscription: ${{parameters.serviceConnectionName}}
+                scriptType: pscore
+                scriptLocation: scriptPath
+                scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
+                arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+                
       - job: WaitForSlotApproval
         dependsOn:
-          - UploadCosmosDocuments
+          - ImportFeatureFlags
         condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
         displayName: "Wait for approval to swap slots"
         pool: server

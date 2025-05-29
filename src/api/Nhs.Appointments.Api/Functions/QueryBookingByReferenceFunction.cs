@@ -17,7 +17,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryBookingByReferenceFunction(
-    IBookingsService bookingsService,
+    IBookingQueryService bookingQueryService,
     IValidator<QueryBookingByReferenceRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingByReferenceFunction> logger,
@@ -50,7 +50,7 @@ public class QueryBookingByReferenceFunction(
     protected override async Task<ApiResult<Booking>> HandleRequest(QueryBookingByReferenceRequest request,
         ILogger logger)
     {
-        var booking = await bookingsService.GetBookingByReference(request.bookingReference);
+        var booking = await bookingQueryService.GetBookingByReference(request.bookingReference);
 
         return booking is null
                || (!string.IsNullOrEmpty(request.site) && request.site != booking.Site)

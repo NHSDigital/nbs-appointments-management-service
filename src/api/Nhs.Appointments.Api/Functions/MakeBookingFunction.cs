@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,20 +12,17 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
 public class MakeBookingFunction(
-    IBookingsService bookingService,
+    IBookingWriteService bookingWriteService,
     ISiteService siteService,
-    IAvailabilityService availabilityService,
     IValidator<MakeBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<MakeBookingFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<MakeBookingRequest, MakeBookingResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "MakeBooking", tags: ["Booking"], Summary = "Make a booking")]
@@ -70,9 +67,7 @@ public class MakeBookingFunction(
             return Failed(HttpStatusCode.NotFound, "Site for booking request could not be found");
         }
 
-        var bookingResult = await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices)
-            ? await availabilityService.MakeBooking(requestedBooking)
-            : await bookingService.MakeBooking(requestedBooking);
+        var bookingResult = await bookingWriteService.MakeBooking(requestedBooking);
 
         if (bookingResult.Success == false)
         {

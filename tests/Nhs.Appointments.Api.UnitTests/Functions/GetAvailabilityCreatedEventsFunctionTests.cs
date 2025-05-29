@@ -19,12 +19,12 @@ public class GetAvailabilityCreatedEventsFunctionTests
     private readonly GetAvailabilityCreatedEventsFunction _sut;
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<GetAvailabilityCreatedEventsRequest>> _validator = new();
-    private readonly Mock<IAvailabilityService> availabilityService = new();
+    private readonly Mock<IAvailabilityQueryService> _availabilityQueryService = new();
 
     public GetAvailabilityCreatedEventsFunctionTests()
     {
         _sut = new GetAvailabilityCreatedEventsFunction(
-            availabilityService.Object,
+            _availabilityQueryService.Object,
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
@@ -45,7 +45,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
     [Fact]
     public async Task RunsAsync_Gets_Availability_Created_Events()
     {
-        availabilityService.Setup(
+        _availabilityQueryService.Setup(
                 x => x.GetAvailabilityCreatedEventsAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
                     DateOnly.FromDateTime(new DateTime(2000, 1, 1))))
             .ReturnsAsync([
@@ -68,7 +68,7 @@ public class GetAvailabilityCreatedEventsFunctionTests
         var response = await ReadResponseAsync<IEnumerable<AvailabilityCreatedEvent>>(result.Content);
 
         response.Single().By.Should().Be("test@test.com");
-        availabilityService.Verify(
+        _availabilityQueryService.Verify(
             x => x.GetAvailabilityCreatedEventsAsync("2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
                 DateOnly.FromDateTime(new DateTime(2000, 1, 1))),
             Times.Once);

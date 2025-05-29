@@ -1,3 +1,4 @@
+#pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 namespace Nhs.Appointments.Core.UnitTests;
 
 public class AvailabilityCalculatorTests
@@ -76,7 +77,7 @@ public class AvailabilityCalculatorTests
         {
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "FLU")
-        };
+        };  
         _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 

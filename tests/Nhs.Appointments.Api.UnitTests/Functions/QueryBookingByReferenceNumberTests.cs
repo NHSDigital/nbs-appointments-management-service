@@ -15,7 +15,7 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 
 public class QueryBookingByReferenceNumberTests
 {
-    private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IBookingQueryService> _bookingQueryService = new();
     private readonly Mock<ILogger<QueryBookingByReferenceFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
@@ -26,7 +26,7 @@ public class QueryBookingByReferenceNumberTests
     public QueryBookingByReferenceNumberTests()
     {
         _sut = new QueryBookingByReferenceFunction(
-            _bookingService.Object,
+            _bookingQueryService.Object,
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
@@ -54,7 +54,7 @@ public class QueryBookingByReferenceNumberTests
             Site = site
         };
 
-        _bookingService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
             .ReturnsAsync(booking);
 
         var request = new QueryBookingByReferenceRequest(bookingRef, site);
@@ -85,7 +85,7 @@ public class QueryBookingByReferenceNumberTests
             Site = "TEST01"
         };
 
-        _bookingService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
             .ReturnsAsync(booking);
 
         var request = new QueryBookingByReferenceRequest(bookingRef, "TEST03");

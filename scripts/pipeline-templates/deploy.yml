@@ -259,9 +259,10 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
       
-      -job: ImportFeatureFlags
+      - job: ImportFeatureFlags
         displayName: "Import Feature Flags"
-        dependsOn: UploadCosmosDocuments
+        dependsOn: 
+          - UploadCosmosDocuments
         variables:
           environment: ${{parameters.env}}
         steps:

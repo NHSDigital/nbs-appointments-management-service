@@ -11,18 +11,15 @@ import {
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { SetSiteDetailsRequest, Site } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
 import DecimalFormControl from '@components/form-controls/decimal';
 import PhoneNumberFormControl from '@components/form-controls/phoneNumber';
-
-type FormFields = {
-  name: string;
-  address: string;
-  phoneNumber: string;
-  latitude: string;
-  longitude: string;
-};
+import {
+  editSiteDetailsFormSchema,
+  EditSiteDetailsFormValues,
+} from './edit-site-details-form-schema';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const {
@@ -30,27 +27,30 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
     control,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
-  } = useForm<FormFields>({
+  } = useForm<EditSiteDetailsFormValues>({
     defaultValues: {
       name: site.name,
       //add in line breaks at each comma
       address: site.address.replace(/, /g, ',\n'),
       phoneNumber: site.phoneNumber,
-      latitude: site.location.coordinates[1].toString(),
-      longitude: site.location.coordinates[0].toString(),
+      latitude: site.location.coordinates[1],
+      longitude: site.location.coordinates[0],
     },
+    resolver: yupResolver(editSiteDetailsFormSchema),
   });
 
   const { replace } = useRouter();
 
-  const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
+  const submitForm: SubmitHandler<EditSiteDetailsFormValues> = async (
+    form: EditSiteDetailsFormValues,
+  ) => {
     const payload: SetSiteDetailsRequest = {
       name: form.name.trim(),
       //remove the line breaks and save back
       address: form.address.replace(/\n/g, ' ').trim(),
       phoneNumber: form.phoneNumber.trim(),
-      latitude: form.latitude.trim(),
-      longitude: form.longitude.trim(),
+      latitude: `${form.latitude}`,
+      longitude: `${form.longitude}`,
     };
     await saveSiteDetails(site.id, payload);
 
@@ -63,12 +63,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         <TextInput
           id="name"
           label="Site name"
-          {...register('name', {
-            required: {
-              value: true,
-              message: 'Enter a name',
-            },
-          })}
+          {...register('name')}
         ></TextInput>
       </FormGroup>
 
@@ -76,12 +71,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         <TextArea
           id="address"
           label="Site address"
-          {...register('address', {
-            required: {
-              value: true,
-              message: 'Enter an address',
-            },
-          })}
+          {...register('address')}
         ></TextArea>
       </FormGroup>
 

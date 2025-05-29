@@ -8,11 +8,7 @@ import {
   FieldPath,
   FieldValues,
   Path,
-  PathValue,
 } from 'react-hook-form';
-
-//the string is a valid decimal number
-const VALID_DECIMAL_REGEX = new RegExp(/^(-?\d+(\.\d+)?)$/);
 
 //the string only contains: numbers, '-', '.'; or is empty
 const INPUT_DECIMAL_REGEX = new RegExp(/^[-\d.]*$/);
@@ -39,26 +35,11 @@ const DecimalFormControl = <TFieldValues extends FieldValues, TContext>({
     }
   };
 
-  const validateInput = (
-    value: PathValue<TFieldValues, Path<TFieldValues>>,
-  ) => {
-    if (value.trim().length === 0) {
-      return 'Enter a value';
-    }
-
-    if (!VALID_DECIMAL_REGEX.test(value)) {
-      return 'Enter a valid decimal';
-    }
-  };
-
   return (
     <FormGroup error={(errors[formField]?.message as string) ?? ''}>
       <Controller
         name={formField}
         control={control}
-        rules={{
-          validate: value => validateInput(value),
-        }}
         render={({ field }) => (
           <TextInput
             {...field}

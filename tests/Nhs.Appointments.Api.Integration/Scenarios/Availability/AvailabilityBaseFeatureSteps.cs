@@ -46,7 +46,7 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
         ActualResponse.Should().BeEmpty();
     }
 
-    [When(@"I check ([\w:]+) availability for '([\w:]+)' between '(.+)' and '(.+)'")]
+    [When(@"I check ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)'")]
     public async Task CheckAvailability(string queryType, string service, string from, string until)
     {
         var convertedQueryType = queryType switch

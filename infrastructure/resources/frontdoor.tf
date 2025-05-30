@@ -101,7 +101,7 @@ resource "azurerm_cdn_frontdoor_rule_set" "nbs_mya_origin_group_override_rule_se
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
 }
 
-resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_override_rule" {
+resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_query_override_rule" {
   count = var.create_frontdoor ? 1 : 0
   depends_on = [
     azurerm_cdn_frontdoor_origin_group.nbs_mya_http_function_app_origin_group,
@@ -129,6 +129,39 @@ resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_override_rule" {
       operator         = "EndsWith"
       negate_condition = false
       match_values     = ["/availability/query"]
+      transforms       = ["Lowercase"]
+    }
+  }
+}
+
+resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_bulk_import_override_rule" {
+  count = var.create_frontdoor ? 1 : 0
+  depends_on = [
+    azurerm_cdn_frontdoor_origin_group.nbs_mya_http_function_app_origin_group,
+    azurerm_cdn_frontdoor_origin.nbs_mya_http_function_app_origin,
+    azurerm_cdn_frontdoor_origin_group.nbs_mya_high_load_function_app_origin_group,
+    azurerm_cdn_frontdoor_origin.nbs_mya_high_load_function_app_origin
+  ]
+
+  name                      = "BulkImportRouteOverride"
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.nbs_mya_origin_group_override_rule_set[0].id
+  order                     = 2
+  behavior_on_match         = "Continue"
+
+  actions {
+    route_configuration_override_action {
+      cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_high_load_function_app_origin_group[0].id
+      forwarding_protocol           = "MatchRequest"
+      compression_enabled           = false
+      cache_behavior                = "Disabled"
+    }
+  }
+
+  conditions {
+    url_path_condition {
+      operator         = "EndsWith"
+      negate_condition = false
+      match_values     = ["/user/import", "/site/import"]
       transforms       = ["Lowercase"]
     }
   }

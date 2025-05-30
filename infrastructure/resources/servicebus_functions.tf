@@ -81,17 +81,15 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
     "AzureWebJobs.BulkImportFunction.Disabled"                             = true
-    "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
     "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
     "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
-    "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
+    "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   sticky_settings {
@@ -145,12 +143,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
-    "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
-    "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
-    "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
-    "AzureWebJobs.NotifyBookingRescheduled.Disabled"                       = true
-    "AzureWebJobs.NotifyUserRolesChanged.Disabled"                         = true
-    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = true
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
     "AzureWebJobs.AuthenticateFunction.Disabled"                           = true
@@ -167,6 +159,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
     "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
     "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
+    "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
@@ -179,7 +172,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.RemoveUserFunction.Disabled"                             = true
     "AzureWebJobs.SetAvailabilityFunction.Disabled"                        = true
     "AzureWebJobs.SetBookingStatusFunction.Disabled"                       = true
-    "AzureWebJobs.SetSiteAttributesFunction.Disabled"                      = true
+    "AzureWebJobs.SetSiteAccessibilitiesFunction.Disabled"                 = true
+    "AzureWebJobs.SetSiteInformationForCitizensFunction.Disabled"          = true
     "AzureWebJobs.SetSiteDetailsFunction.Disabled"                         = true
     "AzureWebJobs.SetSiteReferenceDetailsFunction.Disabled"                = true
     "AzureWebJobs.SetUserRoles.Disabled"                                   = true
@@ -187,12 +181,16 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.TriggerUnconfirmedProvisionalBookingsCollector.Disabled" = true
     "AzureWebJobs.SendBookingReminders.Disabled"                           = true
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"           = true
+    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
+    "AzureWebJobs.RenderOAuth2Redirect.Disabled"                           = true
+    "AzureWebJobs.RenderOpenApiDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerDocument.Disabled"                          = true
+    "AzureWebJobs.RenderSwaggerUI.Disabled"                                = true
     "AzureWebJobs.ClearLocalFeatureFlagOverridesFunction.Disabled"         = true
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"            = true
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                             = true
   }
 
   identity {

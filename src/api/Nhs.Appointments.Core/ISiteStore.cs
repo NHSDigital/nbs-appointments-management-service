@@ -6,8 +6,9 @@ public interface ISiteStore
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
 
-    Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal longitude,
-        decimal latitude);
+    Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
+        decimal? longitude,
+        decimal? latitude);
     
     Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region);
     

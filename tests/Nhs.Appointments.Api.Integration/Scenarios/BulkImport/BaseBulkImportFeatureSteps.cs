@@ -17,12 +17,12 @@ public class BaseBulkImportFeatureSteps(string flag, bool enabled) : FeatureTogg
 {
     private HttpResponseMessage Response { get; set; }
 
-    private const string UsersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Site";
-
     [When("I import the following users")]
     public async Task ImportUsers(DataTable dataTable)
     {
-        var csv = BuildInputCsv(dataTable, UsersHeader);
+        const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Site";
+
+        var csv = BuildInputCsv(dataTable, usersHeader);
 
         using var content = new MultipartFormDataContent();
         using var fileContent = new ByteArrayContent(csv);
@@ -31,6 +31,23 @@ public class BaseBulkImportFeatureSteps(string flag, bool enabled) : FeatureTogg
         content.Add(fileContent, "file", "user-upload.csv");
 
         Response = await Http.PostAsync("http://localhost:7071/api/user/import", content);
+    }
+
+    [When("I import the following site")]
+    public async Task ImportSite(DataTable dataTable)
+    {
+        const string sitesHeader =
+            "OdsCode,Name,Address,PhoneNumber,Longitude,Latitude,ICB,Region,Site type,accessible_toilet,braille_translation_service,disabled_car_parking,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access,Id";
+
+        var csv = BuildInputCsv(dataTable, sitesHeader);
+
+        using var content = new MultipartFormDataContent();
+        using var fileContent = new ByteArrayContent(csv);
+
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        content.Add(fileContent, "file", "user-upload.csv");
+
+        Response = await Http.PostAsync("http://localhost:7071/api/site/import", content);
     }
 
     [Then("I receive a report that the import was successful")]
@@ -56,8 +73,6 @@ public class BaseBulkImportFeatureSteps(string flag, bool enabled) : FeatureTogg
         {
             var cells = row.Cells.Select(c => EscapeCsv(c.Value)).ToList();
             cells.Add(EscapeCsv(_testId.ToString()));
-
-            var thing = string.Join(",", cells);
 
             sb.Append($"{string.Join(",", cells)}\r\n");
         }

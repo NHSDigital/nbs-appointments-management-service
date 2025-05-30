@@ -11,15 +11,15 @@ parameters:
     values: ["dev", "int", "perf"]
   - name: numberOfClinicalServices
     displayName: "Number of Clinical Services"
-    type: int
+    type: number
     default: 5
   - name: monthsBack
     displayName: "How many months back to generate data for"
-    type: int
+    type: number
     default: 6  
   - name: monthsForward
     displayName: "How many months forward to generate data for"
-    type: int
+    type: number
     default: 6
   - name: multipleServices
     displayName: "Run in Multiple Services mode"

@@ -34,7 +34,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
     private const string AppointmentsApiUrl = "http://localhost:7071/api";
 
-    private readonly Guid _testId = Guid.NewGuid();
+    protected readonly Guid _testId = Guid.NewGuid();
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
@@ -95,6 +95,20 @@ public abstract partial class BaseFeatureSteps : Feature
         var site = new SiteDocument
         {
             Id = GetSiteId(),
+            DocumentType = "site",
+            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+        };
+        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+    }
+
+    // TODO: Added for BulkImport tests as it requires a valid Guid
+    // To clean up this method & the one above so all siteId's use only a Guid
+    [Given("a new site is configured for MYA")]
+    public Task SetupNewSite()
+    {
+        var site = new SiteDocument
+        {
+            Id = _testId.ToString(),
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
         };

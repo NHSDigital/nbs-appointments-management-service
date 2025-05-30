@@ -12,8 +12,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
-[FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class CancelSessionBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private Core.Booking _actualResponse;
     private HttpResponseMessage _response;
@@ -26,13 +25,15 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
         var date = DateTime.ParseExact(ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
             "yyyy-MM-dd", null);
 
+        var services = cells.ElementAt(3).Value;
+
         object payload = new
         {
             site = GetSiteId(),
             date = DateOnly.FromDateTime(date),
             until = cells.ElementAt(2).Value,
             from = cells.ElementAt(1).Value,
-            services = new[] { cells.ElementAt(3).Value },
+            services = services.Split(',').Select(s => s.Trim()).ToArray(),
             slotLength = int.Parse(cells.ElementAt(4).Value),
             capacity = int.Parse(cells.ElementAt(5).Value)
         };
@@ -76,10 +77,17 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     }
 }
 
+[FeatureFile("./Scenarios/CancelSession/CancelSession_SingleService.feature")]
 [Collection("MultipleServicesSerialToggle")]
-public class CancelSessionFeatureSteps_MultipleServicesEnabled()
-    : CancelSessionFeatureSteps(Flags.MultipleServices, true);
+public class CancelSessionFeatureSteps_SingleService_MultipleServicesEnabled()
+    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, true);
 
+[FeatureFile("./Scenarios/CancelSession/CancelSession_SingleService.feature")]
 [Collection("MultipleServicesSerialToggle")]
-public class CancelSessionFeatureSteps_MultipleServicesDisabled()
-    : CancelSessionFeatureSteps(Flags.MultipleServices, false);
+public class CancelSessionFeatureSteps_SingleService_MultipleServicesDisabled()
+    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, false);
+
+[FeatureFile("./Scenarios/CancelSession/CancelSession_MultipleServices.feature")]
+[Collection("MultipleServicesSerialToggle")]
+public class CancelSessionFeatureSteps_MultipleServices()
+    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, true);

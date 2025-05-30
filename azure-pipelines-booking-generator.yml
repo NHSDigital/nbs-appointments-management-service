@@ -1,0 +1,72 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "perf"
+    values: ["dev", "int", "perf"]
+  - name: numberOfClinicalServices
+    displayName: "Number of Clinical Services"
+    type: int
+    default: 5
+  - name: monthsBack
+    displayName: "How many months back to generate data for"
+    type: int
+    default: 6  
+  - name: monthsForward
+    displayName: "How many months forward to generate data for"
+    type: int
+    default: 6
+  - name: multipleServices
+    displayName: "Run in Multiple Services mode"
+    type: boolean
+    default: true
+
+variables:
+  - name: cosmosAccountName 
+    value: nbs-mya-cdb-${{parameters.env}}-uks
+  - name: resourceGroupName
+    ${{ if eq(env, 'perf') }}:
+      value: nbs-myaperf-rg-stag-uks
+    ${{ if ne(env, 'perf') }}:
+      value: nbs-mya-rg-${{parameters.env}}-uks
+
+stages:
+  - stage: "GenerateBookings"
+    displayName: "Generate Booking"
+    jobs:
+      - job: "Generate"
+        displayName: "Generate"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create capacity data extract"
+            inputs:
+              command: "run"
+              projects: "data/CapacityDataExtract/CapacityDataExtracts.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to generate bookings"
+            inputs:
+              command: "run"
+              projects: "data/BookingGenerator/BookingGenerator.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              NUMBER_OF_CLINICALSERVICES: ${{ parameters.numberOfClinicalServices }}
+              MONTHS_BACK: ${{ parameters.monthsBack }}
+              MONTHS_FORWARD: ${{ parameters.monthsForward }}
+              FEATURES__MultipleServices: ${{ parameters.multipleServices }}

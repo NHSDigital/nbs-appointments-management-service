@@ -93,6 +93,17 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
             .Single(x => x.date == expectedDate)
             .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
+    
+    [Then(@"no availability is returned for '(.+)'")]
+    [And(@"no availability is returned for '(.+)'")]
+    public void AssertNoAvailability(string date)
+    {
+        _statusCode.Should().Be(HttpStatusCode.OK);
+        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        _actualResponse
+            .Single().availability
+            .Single(x => x.date == expectedDate).blocks.Should().BeEmpty();
+    }
 
     [When(@"I send an invalid availability query request")]
     public async Task SendInvalidAvailabilityQueryRequest()

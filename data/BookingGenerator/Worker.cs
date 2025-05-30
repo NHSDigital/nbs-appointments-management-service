@@ -35,8 +35,6 @@ public class Worker(ISiteStore siteStore, IClinicalServiceStore clinicalServiceS
                 await Task.WhenAll(batch);
             }
             
-            await Task.WhenAll();
-            
             logging.LogInformation($"Finished Seeding for Day {day:dd-MM-yyyy}");
         }
         
@@ -67,14 +65,15 @@ public class Worker(ISiteStore siteStore, IClinicalServiceStore clinicalServiceS
             
             await TryCosmosTask(availabilityService.ApplySingleDateSessionAsync(day, id, sessions, ApplyAvailabilityMode.Overwrite, "BookingGenerator"));
 
-            var bookingTasks = sessions.Select(
+            foreach (var slot in sessions.Select(
                 s => new SessionInstance(day.ToDateTime(s.From),
                     day.ToDateTime(s.Until))
                 {
                     Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
-                }).SelectMany(x => x.ToSlots()).OrderBy(_ => Guid.NewGuid()).Select(slot => AddBookings(id, slot));
-
-            await Task.WhenAll(bookingTasks);
+                }).SelectMany(x => x.ToSlots()).OrderBy(_ => Guid.NewGuid()))
+            {
+                await AddBookings(id, slot);
+            }
     }
 
     private async Task AddBookings(string site, SessionInstance slot)

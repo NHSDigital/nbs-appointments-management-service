@@ -9,6 +9,7 @@ using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
+using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -41,7 +42,13 @@ builder.Services
     .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
     .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
     .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
-    .AddCosmosDataStores()
+    .AddTransient<ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument>, TypeFileStore<AvailabilityCreatedEventDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<DailyAvailabilityDocument>, TypeFileStore<DailyAvailabilityDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<BookingDocument>, TypeFileStore<BookingDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<BookingIndexDocument>, TypeFileStore<BookingIndexDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<ReferenceGroupDocument>, TypedDocumentCosmosStore<ReferenceGroupDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<ClinicalServiceDocument>, TypedDocumentCosmosStore<ClinicalServiceDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<SiteDocument>, TypedDocumentCosmosStore<SiteDocument>>()
     .AddMemoryCache()
     .AddTransient<ISiteService, SiteService>()
     .AddTransient<IBookingsService, BookingsService>()

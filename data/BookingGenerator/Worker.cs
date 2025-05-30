@@ -27,8 +27,15 @@ public class Worker(ISiteStore siteStore, IClinicalServiceStore clinicalServiceS
         foreach (var day in days)
         {
             logging.LogInformation($"Starting Seeding for Day {day:dd-MM-yyyy}");
+
+            var tasks = sites.Result.Select(site => SeedForSite(site.Id, day, clinicalServices.Result));
+
+            foreach (var batch in tasks.Batch(10).Select(batch => batch))
+            {
+                await Task.WhenAll(batch);
+            }
             
-            await Task.WhenAll(sites.Result.Select(site => SeedForSite(site.Id, day, clinicalServices.Result)));
+            await Task.WhenAll();
             
             logging.LogInformation($"Finished Seeding for Day {day:dd-MM-yyyy}");
         }
@@ -170,5 +177,15 @@ public class Worker(ISiteStore siteStore, IClinicalServiceStore clinicalServiceS
         var services = await clinicalServiceStore.Get();
 
         return services.Take(numberOfServices).Select(x => x.Value);
+    }
+}
+
+public static class Extensions
+{
+    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> items, int maxItems)
+    {
+        return items.Select((item, idx) => new { item, idx })
+            .GroupBy(x => x.idx / maxItems)
+            .Select(g => g.Select(x => x.item));
     }
 }

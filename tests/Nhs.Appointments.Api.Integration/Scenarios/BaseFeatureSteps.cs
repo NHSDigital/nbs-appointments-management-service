@@ -586,7 +586,8 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.QueryAvailability,
                         Permissions.SetupAvailability,
                         Permissions.SystemRunProvisionalSweeper,
-                        Permissions.SystemRunReminders
+                        Permissions.SystemRunReminders,
+                        Permissions.SystemDataImporter
                     ]
                 },
                 new Role

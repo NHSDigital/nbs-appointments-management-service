@@ -110,7 +110,10 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             Id = _testId.ToString(),
             DocumentType = "site",
-            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+            OdsCode = "ODS1",
+            IntegratedCareBoard = "ICB1",
+            Region = "R1",
+            Location = new Location("point", [1.41416002128359, 51.77021027939483])
         };
         return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }

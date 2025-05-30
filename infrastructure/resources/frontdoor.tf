@@ -8,14 +8,14 @@ resource "azurerm_cdn_frontdoor_profile" "nbs_mya_frontdoor_profile" {
 
 resource "azurerm_cdn_frontdoor_endpoint" "nbs_mya_endpoint" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "nbs-mya"
+  name                     = "nbs-mya-${var.environment}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
 }
 
 # Http function app origin group and route
 resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_http_function_app_origin_group" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "mya-http-api"
+  name                     = "mya-http-api-${var.environment}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
   session_affinity_enabled = false
 
@@ -30,7 +30,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_http_function_app_origin_
 
 resource "azurerm_cdn_frontdoor_origin" "nbs_mya_http_function_app_origin" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "mya-http-api"
+  name                          = "mya-http-api-${var.environment}"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_http_function_app_origin_group[0].id
   enabled                       = true
 
@@ -46,7 +46,7 @@ resource "azurerm_cdn_frontdoor_origin" "nbs_mya_http_function_app_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "nbs_mya_http_function_route" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "http-api-route"
+  name                          = "http-api-route-${var.environment}"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.nbs_mya_endpoint[0].id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_http_function_app_origin_group[0].id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.nbs_mya_http_function_app_origin[0].id]
@@ -65,7 +65,7 @@ resource "azurerm_cdn_frontdoor_route" "nbs_mya_http_function_route" {
 # High load function app origin group
 resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_high_load_function_app_origin_group" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "mya-high-load-api"
+  name                     = "mya-high-load-api-${var.environment}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
   session_affinity_enabled = false
 
@@ -80,7 +80,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_high_load_function_app_or
 
 resource "azurerm_cdn_frontdoor_origin" "nbs_mya_high_load_function_app_origin" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "mya-high-load-api"
+  name                          = "mya-high-load-api-${var.environment}"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_high_load_function_app_origin_group[0].id
   enabled                       = true
 

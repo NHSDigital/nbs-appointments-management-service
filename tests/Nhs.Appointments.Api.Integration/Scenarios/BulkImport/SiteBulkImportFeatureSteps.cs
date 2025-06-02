@@ -14,4 +14,4 @@ public class SiteBulkImport_BulkImportEnabled() : SiteBulkImportEnabledFeatureSt
 public class SiteBulkImport_BulkImportDisabled() : SiteBulkImportDisabledFeatureSteps(Flags.BulkImport, false);
 
 [FeatureFile("./Scenarios/BulkImport/SiteBulkImport_Disabled.feature")]
-public class SiteBulkImportDisabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);
+public abstract class SiteBulkImportDisabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);

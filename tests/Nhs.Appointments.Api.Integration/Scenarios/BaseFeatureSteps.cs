@@ -623,6 +623,18 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata
                     ]
                 },
+                new Role
+                {
+                    Id = "canned:user-manager",
+                    Name = "User manager",
+                    Description = "A user can view and manage user role assignments.",
+                    Permissions =
+                    [
+                        Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
+                        Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata,
+                        Permissions.ViewUsers, Permissions.ManageUsers
+                    ]
+                },
             ]
         };
         await Client.GetContainer("appts", "core_data").UpsertItemAsync(roles);

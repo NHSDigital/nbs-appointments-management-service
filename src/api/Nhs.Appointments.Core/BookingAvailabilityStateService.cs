@@ -4,6 +4,17 @@ public class BookingAvailabilityStateService(
     IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IBookingAvailabilityStateService
 {
+    private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
+
+    public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
+    {
+        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = from.AddDays(7).ToDateTime(new TimeOnly(23, 59, 59));
+
+        return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.WeekSummary))
+            .WeekSummary;
+    }
+
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
         DateTime to)
     {
@@ -16,32 +27,91 @@ public class BookingAvailabilityStateService(
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
     }
 
-    private async Task<(IEnumerable<Booking> bookings, IEnumerable<SessionInstance> slots)> FetchData(string site,
-        DateTime from, DateTime to)
+    private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site,
+        DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
-        var bookingsTask = bookingQueryService.GetOrderedLiveBookings(site, from, to);
-        var slotsTask = availabilityQueryService.GetSlots(site, DateOnly.FromDateTime(from), DateOnly.FromDateTime(to));
-        await Task.WhenAll(bookingsTask, slotsTask);
-        return (bookingsTask.Result, slotsTask.Result);
+        var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
+
+        var statuses = new List<AppointmentStatus> { AppointmentStatus.Booked, AppointmentStatus.Provisional };
+
+        if (isWeekSummary)
+        {
+            statuses.Add(AppointmentStatus.Cancelled);
+        }
+
+        var bookingsTask = bookingQueryService.GetOrderedBookings(site, from, to, statuses);
+        var sessionsTask = availabilityQueryService.GetSessions(site, DateOnly.FromDateTime(from),
+            DateOnly.FromDateTime(to), generateSessionId: isWeekSummary);
+        await Task.WhenAll(bookingsTask, sessionsTask);
+        return (bookingsTask.Result.ToList(), sessionsTask.Result.ToList());
+    }
+
+    private IEnumerable<SessionSummary> GetDailySessionSummaries(DateOnly date,
+        IEnumerable<SessionInstance> sessionInstances)
+    {
+        return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
+        {
+            Id = x.InternalSessionId,
+            From = x.From,
+            Until = x.Until,
+            MaximumCapacity = x.Capacity,
+            ServiceBookings = x.Services.ToDictionary(key => key, _ => 0)
+        });
     }
 
     private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
         BookingAvailabilityStateReturnType returnType)
     {
-        var (bookings, slots) = await FetchData(site, from, to);
+        var (bookings, sessions) =
+            await FetchData(site, from, to, BookingAvailabilityStateReturnType.WeekSummary);
         var state = new BookingAvailabilityState();
-        var slotsList = slots.ToList();
 
-        foreach (var booking in bookings)
+        var slotsList = sessions.SelectMany(session => session.ToSlots()).ToList();
+        var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status)).ToList();
+
+        List<DaySummary> daySummaries = [];
+
+        if (returnType == BookingAvailabilityStateReturnType.WeekSummary)
+        {
+            daySummaries =
+            [
+                new DaySummary(DateOnly.FromDateTime(from.Date),
+                    GetDailySessionSummaries(DateOnly.FromDateTime(from.Date), sessions))
+            ];
+
+            var dayDate = from.Date;
+            while (dayDate <= to.Date)
+            {
+                dayDate = dayDate.AddDays(1);
+                daySummaries.Add(new DaySummary(DateOnly.FromDateTime(dayDate),
+                    GetDailySessionSummaries(DateOnly.FromDateTime(dayDate), sessions)));
+            }
+        }
+
+        foreach (var booking in liveBookings)
         {
             var targetSlot = ChooseHighestPrioritySlot(slotsList, booking);
             var bookingIsSupportedByAvailability = targetSlot is not null;
 
             if (bookingIsSupportedByAvailability)
             {
-                if (returnType == BookingAvailabilityStateReturnType.Recalculations)
+                switch (returnType)
                 {
-                    state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
+                    case BookingAvailabilityStateReturnType.AvailableSlots:
+                        break;
+                    case BookingAvailabilityStateReturnType.Recalculations:
+                        state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
+                        break;
+                    case BookingAvailabilityStateReturnType.WeekSummary:
+                        var fromDate = DateOnly.FromDateTime(targetSlot.From);
+                        var sessionToUpdate = daySummaries.Where(x => x.Date == fromDate)
+                            .SelectMany(x => x.SessionSummaries)
+                            .Single(x => x.Id == targetSlot.InternalSessionId);
+
+                        sessionToUpdate.ServiceBookings[booking.Service]++;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
                 }
 
                 targetSlot.Capacity--;
@@ -51,6 +121,7 @@ public class BookingAvailabilityStateService(
             switch (returnType)
             {
                 case BookingAvailabilityStateReturnType.AvailableSlots:
+                case BookingAvailabilityStateReturnType.WeekSummary:
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
                     state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
@@ -61,10 +132,42 @@ public class BookingAvailabilityStateService(
             }
         }
 
-        //we only need to do this calculation if we want to return the available slots
-        if (returnType == BookingAvailabilityStateReturnType.AvailableSlots)
+        switch (returnType)
         {
-            state.AvailableSlots = slotsList.Where(s => s.Capacity > 0).ToList();
+            case BookingAvailabilityStateReturnType.AvailableSlots:
+                //we only need to do this calculation if we want to return the available slots
+                state.AvailableSlots = slotsList.Where(s => s.Capacity > 0).ToList();
+                break;
+            case BookingAvailabilityStateReturnType.Recalculations:
+                break;
+            case BookingAvailabilityStateReturnType.WeekSummary:
+
+                var cancelledBookings = bookings.Where(x => _liveStatuses.Contains(x.Status)).ToList();
+
+                foreach (var daySummary in daySummaries)
+                {
+                    daySummary.MaximumCapacity = daySummary.SessionSummaries.Sum(x => x.MaximumCapacity);
+                    daySummary.RemainingCapacity = daySummary.SessionSummaries.Sum(x => x.RemainingCapacity);
+                    daySummary.TotalBooked = daySummary.SessionSummaries.Sum(x => x.TotalBooked);
+                    daySummary.TotalCancelled =
+                        cancelledBookings.Count(x => DateOnly.FromDateTime(x.From) == daySummary.Date);
+                    daySummary.TotalOrphaned = liveBookings.Count(x =>
+                        x.AvailabilityStatus == AvailabilityStatus.Orphaned &&
+                        DateOnly.FromDateTime(x.From) == daySummary.Date);
+                }
+
+                state.WeekSummary = new WeekSummary(daySummaries)
+                {
+                    MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
+                    RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
+                    TotalBooked = daySummaries.Sum(x => x.TotalBooked),
+                    TotalCancelled = daySummaries.Sum(x => x.TotalCancelled),
+                    TotalOrphaned = daySummaries.Sum(x => x.TotalOrphaned)
+                };
+
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
         }
 
         return state;
@@ -123,6 +226,8 @@ public class BookingAvailabilityState
     public readonly List<BookingAvailabilityUpdate> BookingAvailabilityUpdates = [];
 
     public List<SessionInstance> AvailableSlots { get; set; } = [];
+
+    public WeekSummary WeekSummary { get; set; }
 }
 
 public enum BookingAvailabilityStateReturnType
@@ -135,7 +240,12 @@ public enum BookingAvailabilityStateReturnType
     /// <summary>
     ///     Return a list of bookings that need an update
     /// </summary>
-    Recalculations = 1
+    Recalculations = 1,
+
+    /// <summary>
+    ///     Return a summary of booking/availability for a week period
+    /// </summary>
+    WeekSummary = 2
 }
 
 public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)

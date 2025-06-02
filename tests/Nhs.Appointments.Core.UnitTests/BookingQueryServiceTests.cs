@@ -107,7 +107,7 @@ public class BookingQueryServiceTests
             .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
             .ReturnsAsync(bookings);
 
-        var response = await _bookingQueryService.GetOrderedLiveBookings(site, new DateTime(), new DateTime());
+        var response = await _bookingQueryService.GetOrderedBookings(site, new DateTime(), new DateTime(), [AppointmentStatus.Booked, AppointmentStatus.Provisional]);
 
         response.Should().HaveCount(2);
 
@@ -187,7 +187,7 @@ public class BookingQueryServiceTests
             .Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), site))
             .ReturnsAsync(bookings);
 
-        var response = await _bookingQueryService.GetOrderedLiveBookings(site, new DateTime(), new DateTime());
+        var response = await _bookingQueryService.GetOrderedBookings(site, new DateTime(), new DateTime(), [AppointmentStatus.Booked, AppointmentStatus.Provisional]);
 
         response.Should().HaveCount(3);
 

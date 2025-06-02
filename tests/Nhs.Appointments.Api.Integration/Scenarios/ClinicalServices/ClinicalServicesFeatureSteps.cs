@@ -8,12 +8,13 @@ using Xunit.Gherkin.Quick;
 using Nhs.Appointments.Api.Json;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
 {
-    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices.feature")]
-    public class ClinicalServicesFeatureSteps : BaseFeatureSteps
+    public abstract class ClinicalServicesBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
     {
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
@@ -68,4 +69,14 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [Then(@"the request should be Not Implemented")]
         public async Task AssertHttpNotImplemented() => _statusCode.Should().Be(HttpStatusCode.NotImplemented);
     }
+    
+    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices_MultipleServicesEnabled.feature")]
+    [Collection("MultipleServicesSerialToggle")]
+    public class ClinicalServices_MultipleServicesEnabled()
+        : ClinicalServicesBaseFeatureSteps(Flags.MultipleServices, true);
+
+    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices_MultipleServicesDisabled.feature")]
+    [Collection("MultipleServicesSerialToggle")]
+    public class ClinicalServices_MultipleServicesDisabled()
+        : ClinicalServicesBaseFeatureSteps(Flags.MultipleServices, false);
 }

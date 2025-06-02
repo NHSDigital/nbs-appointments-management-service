@@ -1,13 +1,17 @@
-Feature: Get Clinical Services
+Feature: Get Clinical Services for MultipleServices Enabled
 
-  Scenario: Get Clinical Services while Feature disabled
-    Given feature toggle 'MultipleServices' is 'False'
+  Scenario: Get Clinical Services Single Configured
+    And I have Clinical Services
+      | Service |
+      | RSV     |
     When I request Clinical Services
-    Then the request should be Not Implemented
+    Then the request should return Clinical Services
+      | Service |
+      | RSV     |
+    Then the request should be successful
     And feature toggles are cleared
-
-  Scenario: Get Clinical Services while Feature enabled
-    Given feature toggle 'MultipleServices' is 'True'
+  
+  Scenario: Get Clinical Services
     And I have Clinical Services
       | Service |
       | RSV     |
@@ -21,3 +25,5 @@ Feature: Get Clinical Services
       | Flu     |
     Then the request should be successful
     And feature toggles are cleared
+
+  

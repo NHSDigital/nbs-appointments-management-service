@@ -52,17 +52,6 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
     {
         var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
 
-        var odsCodes = wellKnownOdsCodes.Select(x => x.OdsCode.ToLower());
-        var invalidOdsCodes = siteRows
-            .Where(s => !odsCodes.Contains(s.OdsCode.ToLower()))
-            .Select(s => s.OdsCode)
-            .ToList();
-
-        if (invalidOdsCodes.Count > 0)
-        {
-            report.AddRange(invalidOdsCodes.Select(ods => new ReportItem(-1, "Invalid ODS code", false, $"Provided site ODS code: {ods} not found in the well known ODS code list.")));
-        }
-
         var icbCodes = wellKnownOdsCodes.Where(ods => ods.Type.Equals("icb", StringComparison.CurrentCultureIgnoreCase)).Select(ods => ods.OdsCode.ToLower()).ToList();
         var invalidIcbCodes = siteRows
             .Where(s => !icbCodes.Contains(s.ICB.ToLower()))

@@ -133,30 +133,6 @@ public class SiteDataImporterHandlerTests
     }
 
     [Fact]
-    public async Task DataReportsOdsCodesNotFound()
-    {
-        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, ValidInputRows);
-
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
-        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
-
-        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
-            .ReturnsAsync(new List<WellKnownOdsEntry>
-            {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
-                new("site75", "Site 75", "Test75"),
-                new("Yorkshire", "Site 4", "Region"),
-                new("test icb", "Site 5", "ICB")
-            });
-
-        var report = await _sut.ProcessFile(file);
-
-        report.Count().Should().Be(1);
-        report.Last().Message.Should().StartWith($"Provided site ODS code: site3 not found in the well known ODS code list.");
-    }
-
-    [Fact]
     public async Task DataReportsInvalidLongitudeCoordinates_WhenOutOfRange()
     {
         const double invalidLongitudeUpper = 2.32;

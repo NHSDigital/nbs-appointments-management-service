@@ -14,4 +14,4 @@ public class UserBulkImport_BulkImportDisabled() : UserBulkImportDisabledFeature
 public class UserBulkImport_BulkImportEnabled() : UserBulkImportEnabledFeatureSteps(Flags.BulkImport, true);
 
 [FeatureFile("./Scenarios/BulkImport/UserBulkImport_Enabled.feature")]
-public class UserBulkImportEnabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);
+public abstract class UserBulkImportEnabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);

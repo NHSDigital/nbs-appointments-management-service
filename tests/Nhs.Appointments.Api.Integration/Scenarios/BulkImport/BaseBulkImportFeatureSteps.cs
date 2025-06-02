@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.BulkImport;
-public class BaseBulkImportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class BaseBulkImportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
 

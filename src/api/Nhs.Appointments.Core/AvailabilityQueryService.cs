@@ -27,6 +27,6 @@ public class AvailabilityQueryService(
     
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to, bool generateSessionId = false)
     {
-        return await availabilityStore.GetSessions(site, from, to);
+        return await availabilityStore.GetSessions(site, from, to, generateSessionId);
     }
 }

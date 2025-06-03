@@ -18,7 +18,7 @@ public class AvailabilityCalculatorTests
         {
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), "COVID")
         };
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "FLU", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
         results.Should().BeEmpty();
     }
@@ -30,7 +30,7 @@ public class AvailabilityCalculatorTests
         {
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID")
         };
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
         var expectedResults = new[]
@@ -52,7 +52,7 @@ public class AvailabilityCalculatorTests
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
             CreateSessionInstance(new DateTime(2077,1,1,9,30,0), new DateTime(2077,1,1,10,30,0), 15, 1, "COVID")
         };
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
         var expectedResults = new[]
@@ -78,7 +78,7 @@ public class AvailabilityCalculatorTests
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "COVID"),
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "FLU")
         };  
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
         var expectedResults = new[]
@@ -105,7 +105,7 @@ public class AvailabilityCalculatorTests
             CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")
         };
 
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
@@ -134,7 +134,7 @@ public class AvailabilityCalculatorTests
             CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f", AppointmentStatus.Cancelled)
         };
 
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
@@ -165,7 +165,7 @@ public class AvailabilityCalculatorTests
             CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f", AppointmentStatus.Provisional, DateTime.Now.AddMinutes(-6))
         };
 
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
@@ -195,7 +195,7 @@ public class AvailabilityCalculatorTests
             CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")
         };
 
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
@@ -224,7 +224,7 @@ public class AvailabilityCalculatorTests
             CreateTestBooking(new DateTime(2077, 1, 1, 9, 0, 0), 15, "COVID", "2de5bb57-060f-4cb5-b14d-16587d0c2e8f"),
         };
 
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         _bookingDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), "2de5bb57-060f-4cb5-b14d-16587d0c2e8f")).ReturnsAsync(bookings);
 
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
@@ -251,7 +251,7 @@ public class AvailabilityCalculatorTests
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "FLU"),
             CreateSessionInstance(new DateTime(2077,1,1,9,0,0), new DateTime(2077,1,1,10,0,0), 15, 1, "RSV")
         };
-        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>())).ReturnsAsync(sessions);
+        _availabilityDocumentStore.Setup(x => x.GetSessions("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>())).ReturnsAsync(sessions);
         var results = await _sut.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "*", new DateOnly(2077, 1, 1), new DateOnly(2077, 1, 2));
 
         var expectedResults = new[]

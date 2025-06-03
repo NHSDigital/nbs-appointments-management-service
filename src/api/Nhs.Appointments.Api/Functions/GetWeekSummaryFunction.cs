@@ -22,7 +22,7 @@ public class GetWeekSummaryFunction(
     IFeatureToggleHelper featureToggleHelper,
     IValidator<GetWeekSummaryRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<GetDailyAvailabilityFunction> logger,
+    ILogger<GetWeekSummaryFunction> logger,
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<GetWeekSummaryRequest, WeekSummary>(validator, userContextProvider,
         logger, metricsRecorder)
@@ -42,7 +42,7 @@ public class GetWeekSummaryFunction(
     [RequiresPermission(Permissions.QueryAvailability, typeof(SiteFromQueryStringInspector))]
     [Function("GetWeekSummaryFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weekly-availability")] HttpRequest req
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "week-summary")] HttpRequest req
 )
     {
         return base.RunAsync(req);
@@ -56,10 +56,10 @@ public class GetWeekSummaryFunction(
             throw new NotImplementedException();
         }
         
-        // var availability =
-        //     await availabilityQueryService.GetDailyAvailability(request.Site, request.FromDate);
+        var weekSummary =
+            await bookingAvailabilityStateService.GetWeekSummary(request.Site, request.FromDate);
 
-        return Success(null);
+        return Success(weekSummary);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetWeekSummaryRequest request)>

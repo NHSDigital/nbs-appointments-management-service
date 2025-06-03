@@ -110,7 +110,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities)
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -128,6 +128,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 IntegratedCareBoard = icb,
                 Location = location,
                 Region = region,
+                Type = type
             };
             var document = cosmosStore.ConvertToDocument(site);
             await cosmosStore.WriteAsync(document);

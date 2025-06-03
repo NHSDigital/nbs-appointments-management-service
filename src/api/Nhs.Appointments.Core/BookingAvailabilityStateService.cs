@@ -4,7 +4,7 @@ public class BookingAvailabilityStateService(
     IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IBookingAvailabilityStateService
 {
-    private readonly AppointmentStatus[] _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
+    private readonly IReadOnlyList<AppointmentStatus> _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
     public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
     {
@@ -32,7 +32,7 @@ public class BookingAvailabilityStateService(
     {
         var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
 
-        var statuses = new List<AppointmentStatus> { AppointmentStatus.Booked, AppointmentStatus.Provisional };
+        var statuses = _liveStatuses.ToList();
 
         if (isWeekSummary)
         {
@@ -67,7 +67,7 @@ public class BookingAvailabilityStateService(
         var state = new BookingAvailabilityState();
 
         var slotsList = sessions.SelectMany(session => session.ToSlots()).ToList();
-        var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status)).ToList();
+        var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status));
 
         List<DaySummary> daySummaries = [];
 

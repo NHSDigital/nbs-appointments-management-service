@@ -249,7 +249,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'prod', 'perf') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

@@ -32,7 +32,7 @@ public class SessionInstance : TimePeriod
     /// <summary>
     /// Not guaranteed to be generated, only used under certain paths
     /// </summary>
-    internal Guid InternalSessionId { get; set; }
+    internal Guid? InternalSessionId { get; set; }
 
     public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
 

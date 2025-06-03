@@ -9,7 +9,7 @@ public class BookingAvailabilityStateService(
     public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = from.AddDays(7).ToDateTime(new TimeOnly(23, 59, 59));
+        var dayEnd = from.AddDays(6).ToDateTime(new TimeOnly(23, 59, 59));
 
         return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.WeekSummary))
             .WeekSummary;
@@ -46,17 +46,17 @@ public class BookingAvailabilityStateService(
         return (bookingsTask.Result.ToList(), sessionsTask.Result.ToList());
     }
 
-    private IEnumerable<SessionSummary> GetDailySessionSummaries(DateOnly date,
+    private List<SessionSummary> GetDailySessionSummaries(DateOnly date,
         IEnumerable<SessionInstance> sessionInstances)
     {
         return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
         {
-            Id = x.InternalSessionId,
+            Id = x.InternalSessionId!.Value,
             From = x.From,
             Until = x.Until,
-            MaximumCapacity = x.Capacity,
+            MaximumCapacity = x.Capacity * x.ToSlots().Count(),
             ServiceBookings = x.Services.ToDictionary(key => key, _ => 0)
-        });
+        }).ToList();
     }
 
     private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
@@ -91,6 +91,13 @@ public class BookingAvailabilityStateService(
                         state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
                         break;
                     case BookingAvailabilityStateReturnType.WeekSummary:
+
+                        //update status if not already supported
+                        if (booking.AvailabilityStatus != AvailabilityStatus.Supported)
+                        {
+                            booking.AvailabilityStatus = AvailabilityStatus.Supported;
+                        }
+                        
                         var fromDate = DateOnly.FromDateTime(targetSlot.From);
                         var sessionToUpdate = daySummaries.Where(x => x.Date == fromDate)
                             .SelectMany(x => x.SessionSummaries)
@@ -109,7 +116,14 @@ public class BookingAvailabilityStateService(
             switch (returnType)
             {
                 case BookingAvailabilityStateReturnType.AvailableSlots:
+                    continue;
                 case BookingAvailabilityStateReturnType.WeekSummary:
+                    //TODO any reason why we update cancelled Status when no longer supported? does it matter??
+                    if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
+                        booking.Status is not AppointmentStatus.Provisional)
+                    {
+                        booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
+                    }
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
                     state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
@@ -144,21 +158,23 @@ public class BookingAvailabilityStateService(
         {
             daySummary.MaximumCapacity = daySummary.SessionSummaries.Sum(x => x.MaximumCapacity);
             daySummary.RemainingCapacity = daySummary.SessionSummaries.Sum(x => x.RemainingCapacity);
-            daySummary.TotalBooked = daySummary.SessionSummaries.Sum(x => x.TotalBooked);
             
-            daySummary.TotalCancelled =
-                bookings.Count(x => 
-                    x.Status == AppointmentStatus.Cancelled &&
-                    DateOnly.FromDateTime(x.From) == daySummary.Date);
+            var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
             
-            daySummary.TotalOrphaned = bookings.Count(x =>
+            //includes both supported and orphaned bookings
+            daySummary.TotalBooked = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Booked);
+            
+            //...of which X are orphaned
+            daySummary.TotalOrphaned = bookingsOnDay.Count(x =>
                 x.Status == AppointmentStatus.Booked &&
-                x.AvailabilityStatus == AvailabilityStatus.Orphaned &&
-                DateOnly.FromDateTime(x.From) == daySummary.Date);
+                x.AvailabilityStatus == AvailabilityStatus.Orphaned);
+            
+            daySummary.TotalCancelled = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
         }
 
         return new WeekSummary(daySummaries)
         {
+            DaySummaries = daySummaries,
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
             TotalBooked = daySummaries.Sum(x => x.TotalBooked),
@@ -175,7 +191,7 @@ public class BookingAvailabilityStateService(
             new(dayDate, GetDailySessionSummaries(dayDate, sessions))
         ];
 
-        while (dayDate <= DateOnly.FromDateTime(to.Date))
+        while (dayDate < DateOnly.FromDateTime(to.Date))
         {
             dayDate = dayDate.AddDays(1);
             daySummaries.Add(new DaySummary(dayDate, GetDailySessionSummaries(dayDate, sessions)));
@@ -214,6 +230,7 @@ public static class RecalculationExtensions
     public static void AppendNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations,
         Booking booking)
     {
+        //TODO any reason why we update cancelled Status when no longer supported? does it matter??
         if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
             booking.Status is not AppointmentStatus.Provisional)
         {

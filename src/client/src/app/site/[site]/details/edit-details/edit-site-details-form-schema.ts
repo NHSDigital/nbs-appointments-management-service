@@ -3,7 +3,7 @@ import * as yup from 'yup';
 export type EditSiteDetailsFormValues = {
   name: string;
   address: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   latitude: number;
   longitude: number;
 };
@@ -17,8 +17,6 @@ export const editSiteDetailsFormSchema: yup.ObjectSchema<EditSiteDetailsFormValu
       address: yup.string().trim().required('Enter an address'),
       phoneNumber: yup
         .string()
-        .trim()
-        .required('Enter a phone number')
         .test('is-valid-phone-number', 'Enter a valid phone number', value => {
           return value ? PHONE_NUMBER_REGEX.test(value) : true;
         }),

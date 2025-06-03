@@ -72,11 +72,11 @@ describe('Set User Roles Form', () => {
   );
 
   it.each([
-    ['', 'Enter a phone number'],
-    [undefined, 'Enter a phone number'],
+    ['', true],
+    [undefined, true],
     ['01234 567890', true],
     ['123 456 789 0', true],
-    ['     ', 'Enter a phone number'],
+    ['     ', true],
     ['abc', 'Enter a valid phone number'],
     ['123v567', 'Enter a valid phone number'],
     ['e', 'Enter a valid phone number'],

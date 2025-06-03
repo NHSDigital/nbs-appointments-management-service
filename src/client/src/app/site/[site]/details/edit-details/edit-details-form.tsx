@@ -48,7 +48,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
       name: form.name.trim(),
       //remove the line breaks and save back
       address: form.address.replace(/\n/g, ' ').trim(),
-      phoneNumber: form.phoneNumber.trim(),
+      phoneNumber: form.phoneNumber?.trim(),
       latitude: `${form.latitude}`,
       longitude: `${form.longitude}`,
     };

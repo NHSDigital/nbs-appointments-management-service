@@ -41,7 +41,7 @@ type SetInformationForCitizensRequest = {
 type SetSiteDetailsRequest = {
   name: string;
   address: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   latitude: string;
   longitude: string;
 };

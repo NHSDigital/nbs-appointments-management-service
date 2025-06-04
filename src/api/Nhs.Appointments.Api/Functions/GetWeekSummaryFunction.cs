@@ -33,7 +33,7 @@ public class GetWeekSummaryFunction(
         Description = "The id of them site where to get daily availability from")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = true, Type = typeof(double),
         Description = "The start of the week date")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<DailyAvailability>),
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(WeekSummary),
         Description = "A weekly summary for the availability and daily sessions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
@@ -43,7 +43,7 @@ public class GetWeekSummaryFunction(
     [Function("GetWeekSummaryFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "week-summary")] HttpRequest req
-)
+    )
     {
         return base.RunAsync(req);
     }

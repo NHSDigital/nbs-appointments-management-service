@@ -333,6 +333,34 @@ type WeekSummary = {
   remainingCapacity: number;
 };
 
+type WeekSummaryV2 = {
+  daySummaries: DaySummaryV2[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  totalBooked: number;
+  totalOrphaned: number;
+  totalCancelled: number;
+};
+
+type DaySummaryV2 = {
+  date: string;
+  sessionSummaries: SessionSummaryV2[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  totalBooked: number;
+  totalCancelled: number;
+  totalOrphaned: number;
+};
+
+type SessionSummaryV2 = {
+  from: string;
+  until: string;
+  serviceBookings: Record<string, number>;
+  maximumCapacity: number;
+  remainingCapacity: number;
+  totalBooked: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -409,6 +437,9 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  WeekSummaryV2,
+  DaySummaryV2,
+  SessionSummaryV2,
   ClinicalService,
 };
 

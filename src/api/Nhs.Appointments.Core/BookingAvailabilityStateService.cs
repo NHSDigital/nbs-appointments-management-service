@@ -5,7 +5,7 @@ public class BookingAvailabilityStateService(
     IBookingQueryService bookingQueryService) : IBookingAvailabilityStateService
 {
     private readonly IReadOnlyList<AppointmentStatus> _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
-
+    
     public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
@@ -32,11 +32,14 @@ public class BookingAvailabilityStateService(
     {
         var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
 
-        var statuses = _liveStatuses.ToList();
+        //default live bookings (booked and provisional, no need to include cancelled for any slot calculations)
+        var statuses = _liveStatuses;
 
         if (isWeekSummary)
         {
-            statuses.Add(AppointmentStatus.Cancelled);
+            //if summary for , don't include provisional bookings as we don't surface that data anywhere else in frontend.
+            //include cancelled as those totals are needed for summary
+            statuses = [AppointmentStatus.Booked, AppointmentStatus.Cancelled];
         }
 
         var bookingsTask = bookingQueryService.GetOrderedBookings(site, from, to, statuses);

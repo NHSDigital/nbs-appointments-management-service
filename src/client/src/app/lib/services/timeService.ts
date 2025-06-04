@@ -1,4 +1,4 @@
-import { DateComponents, TimeComponents } from '@types';
+import { DateComponents, TimeComponents, WeekSummary } from '@types';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
@@ -342,4 +342,15 @@ export const addHoursAndMinutesToUkDatetime = (
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
   const newHour = addToUkDatetime(ukDatetime, hours, 'hour', dateTimeFormat);
   return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
+};
+
+export const emptyWeekSummary: WeekSummary = {
+  daySummaries: [],
+  maximumCapacity: 0,
+  bookedAppointments: 0,
+  orphanedAppointments: 0,
+  cancelledAppointments: 0,
+  remainingCapacity: 0,
+  startDate: dayjs.utc(),
+  endDate: dayjs.utc(),
 };

@@ -371,43 +371,198 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
     }
 
 
-    //
-    // /// <summary>
-    // /// Prove that greedy model isn't always optimal, and can lead to loss in utilisation
-    // /// </summary>
-    // [Fact]
-    // public async Task MultipleServices_LostUtilisation_1()
-    // {
-    //     var bookings = new List<Booking>
-    //     {
-    //         TestBooking("1", "C", avStatus: "Orphaned", creationOrder: 1),
-    //         TestBooking("2", "C", avStatus: "Orphaned", creationOrder: 2),
-    //         TestBooking("3", "C", avStatus: "Orphaned", creationOrder: 3),
-    //         TestBooking("4", "F", avStatus: "Orphaned", creationOrder: 4),
-    //         TestBooking("5", "G", avStatus: "Orphaned", creationOrder: 5),
-    //         TestBooking("6", "E", avStatus: "Orphaned", creationOrder: 6),
-    //     };
-    //
-    //     var sessions = new List<SessionInstance>
-    //     {
-    //         TestSession("09:00", "09:10", ["B", "C", "D", "E", "F", "G"], capacity: 3),
-    //         TestSession("09:00", "09:10", ["A", "C", "D", "U", "Z", "H", "I", "J"], capacity: 3),
-    //     };
-    //
-    //     SetupAvailabilityAndBookings(bookings, sessions);
-    //         
-    //     var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
-    //
-    //     // Bookings 1, 2, 3 should be supported
-    //     recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
-    //         .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3");
-    //
-    //     // Bookings 4, 5, 6 should not be, due to non-optimal greedy algorithm
-    //     recalculations.Should().NotContain(r => r.Booking.Reference == "4");
-    //     recalculations.Should().NotContain(r => r.Booking.Reference == "5");
-    //     recalculations.Should().NotContain(r => r.Booking.Reference == "6");
-    // }
-    //
+    /// <summary>
+    ///     Prove that greedy model isn't always optimal, and can lead to loss in utilisation
+    /// </summary>
+    [Fact]
+    public async Task MultipleServices_LostUtilisation_1()
+    {
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "C", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 1),
+            TestBooking("2", "C", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 2),
+            TestBooking("3", "C", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 3),
+            TestBooking("4", "F", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "G", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "E", new DateOnly(2025, 1, 14), avStatus: "Orphaned", creationOrder: 6),
+            TestBooking("11", "C", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 11),
+            TestBooking("12", "C", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 12),
+            TestBooking("13", "C", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 13),
+            TestBooking("14", "F", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 14),
+            TestBooking("15", "G", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 15),
+            TestBooking("16", "E", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 16),
+        };
+
+        var sessions = new List<SessionInstance>
+        {
+            TestSession(new DateOnly(2025, 1, 14), "09:00", "09:50", ["B", "C", "D", "E", "F", "G"], capacity: 3,
+                internalSessionId: Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0")),
+            TestSession(new DateOnly(2025, 1, 14), "08:50", "09:30", ["A", "C", "D", "U", "Z", "H", "I", "J"], capacity: 5,
+                internalSessionId: Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95")),
+            TestSession(new DateOnly(2025, 1, 16), "08:00", "10:40", ["B", "C", "D", "E", "F", "G"], capacity: 3,
+                internalSessionId: Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4")),
+            TestSession(new DateOnly(2025, 1, 16), "09:00", "09:40", ["A", "C", "D", "U", "Z", "H", "I", "J"], capacity: 4,
+                internalSessionId: Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742")),
+            
+            //extra unrelated data to pad test result
+            TestSession(new DateOnly(2025, 1, 17), "09:00", "12:00", ["A", "C", "B", "D"], slotLength: 5, capacity: 2,
+                internalSessionId: Guid.Parse("ae907d84-a0e3-41d4-ae49-bed6c23d9776")),
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var weekSummary = await Sut.GetWeekSummary(MockSite, new DateOnly(2025, 1, 13));
+
+        weekSummary.DaySummaries.Should().HaveCount(7);
+        weekSummary.MaximumCapacity.Should().Be(171);
+        weekSummary.RemainingCapacity.Should().Be(165);
+        
+        //lost utilisation shows that 6/12 bookings are orphaned when they could have been allocated
+        weekSummary.TotalBooked.Should().Be(12);
+        weekSummary.TotalOrphaned.Should().Be(6);
+        
+        weekSummary.TotalCancelled.Should().Be(0);
+
+        var expectedSessionSummary1 = new List<SessionSummary>
+        {
+            new()
+            {
+                Id = Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0"),
+                From = new DateTime(2025, 1, 14, 9, 0, 0),
+                Until = new DateTime(2025, 1, 14, 9, 50, 0),
+                MaximumCapacity = 15,
+                SlotLength = 10,
+                Capacity = 3,
+                ServiceBookings = new Dictionary<string, int>
+                {
+                    { "B", 0 },
+                    { "C", 3 },
+                    { "D", 0 },
+                    { "E", 0 },
+                    { "F", 0 },
+                    { "G", 0 },
+                }
+            },
+            new()
+            {
+                Id = Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95"),
+                From = new DateTime(2025, 1, 14, 8, 50, 0),
+                Until = new DateTime(2025, 1, 14, 9, 30, 0),
+                MaximumCapacity = 20,
+                SlotLength = 10,
+                Capacity = 5,
+                ServiceBookings = new Dictionary<string, int>
+                {
+                    { "A", 0 },
+                    { "C", 0 },
+                    { "D", 0 },
+                    { "U", 0 },
+                    { "Z", 0 },
+                    { "H", 0 },
+                    { "I", 0 },
+                    { "J", 0 },
+                }
+            }
+        };
+
+        var daySummaryAffected1 = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 14));
+
+        daySummaryAffected1.Should()
+            .BeEquivalentTo(new DaySummary(new DateOnly(2025, 1, 14), expectedSessionSummary1)
+            {
+                MaximumCapacity = 35,
+                RemainingCapacity = 32,
+                TotalBooked = 6,
+                TotalOrphaned = 3,
+                TotalCancelled = 0
+            });
+
+        weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 13));
+        weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 15));
+        weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 18));
+        weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 19));
+
+        var expectedSessionSummary2 = new List<SessionSummary>
+        {
+            new()
+            {
+                Id = Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4"),
+                From = new DateTime(2025, 1, 16, 8, 0, 0),
+                Until = new DateTime(2025, 1, 16, 10, 40, 0),
+                MaximumCapacity = 48,
+                SlotLength = 10,
+                Capacity = 3,
+                ServiceBookings = new Dictionary<string, int>
+                {
+                    { "B", 0 },
+                    { "C", 3 },
+                    { "D", 0 },
+                    { "E", 0 },
+                    { "F", 0 },
+                    { "G", 0 },
+                }
+            },
+            new()
+            {
+                Id = Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742"),
+                From = new DateTime(2025, 1, 16, 9, 0, 0),
+                Until = new DateTime(2025, 1, 16, 9, 40, 0),
+                MaximumCapacity = 16,
+                SlotLength = 10,
+                Capacity = 4,
+                ServiceBookings = new Dictionary<string, int> { 
+                    { "A", 0 },
+                    { "C", 0 },
+                    { "D", 0 },
+                    { "U", 0 },
+                    { "Z", 0 },
+                    { "H", 0 },
+                    { "I", 0 },
+                    { "J", 0 },}
+            }
+        };
+
+        var daySummaryAffected2 = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 16));
+
+        daySummaryAffected2.Should()
+            .BeEquivalentTo(new DaySummary(new DateOnly(2025, 1, 16), expectedSessionSummary2)
+            {
+                MaximumCapacity = 64,
+                RemainingCapacity = 61,
+                TotalBooked = 6,
+                TotalOrphaned = 3,
+                TotalCancelled = 0
+            });
+        
+        //extra padded data
+        var daySummaryAffected3 = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 17));
+
+        daySummaryAffected3.Should()
+            .BeEquivalentTo(new DaySummary(new DateOnly(2025, 1, 17), [new SessionSummary()
+            {
+                Id = Guid.Parse("ae907d84-a0e3-41d4-ae49-bed6c23d9776"),
+                From = new DateTime(2025, 1, 17, 9, 0, 0),
+                Until = new DateTime(2025, 1, 17, 12, 0, 0),
+                MaximumCapacity = 72,
+                SlotLength = 5,
+                Capacity = 2,
+                ServiceBookings = new Dictionary<string, int> { 
+                    { "A", 0 },
+                    { "B", 0 },
+                    { "C", 0 },
+                    { "D", 0 }
+                }
+            }])
+            {
+                MaximumCapacity = 72,
+                RemainingCapacity = 72,
+                TotalBooked = 0,
+                TotalOrphaned = 0,
+                TotalCancelled = 0
+            });
+    }
+
+
     // /// <summary>
     // /// Prove that greedy model isn't always optimal, and can lead to loss in utilisation
     // /// This test proves a scenario where just selecting the first available slot would actually have been preferable over the alphabetical ordering

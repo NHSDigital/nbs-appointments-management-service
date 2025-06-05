@@ -18,6 +18,10 @@ namespace Nhs.Appointments.Core
         public DateTime Until { get; set; }
         public Dictionary<string, int> ServiceBookings { get; init; }
         
+        public int Capacity { get; init; }
+        
+        public int SlotLength { get; init; }
+        
         public int MaximumCapacity { get; init; }
         
         public int TotalBooked => ServiceBookings.Sum(x => x.Value);

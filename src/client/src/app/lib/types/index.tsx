@@ -357,7 +357,8 @@ type SessionSummaryV2 = {
   until: string;
   serviceBookings: Record<string, number>;
   maximumCapacity: number;
-  remainingCapacity: number;
+  capacity: number;
+  slotLength: number;
   totalBooked: number;
 };
 

@@ -48,6 +48,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 From = new DateTime(2025, 1, 6, 9, 0, 0),
                 Until = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 12,
+                SlotLength = 10,
+                Capacity = 2,
                 ServiceBookings = new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 } }
             },
             new()
@@ -56,6 +58,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 From = new DateTime(2025, 1, 6, 9, 0, 0),
                 Until = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
                 ServiceBookings = new Dictionary<string, int> { { "Green", 1 } }
             },
             new()
@@ -64,6 +68,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 From = new DateTime(2025, 1, 6, 9, 0, 0),
                 Until = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
                 ServiceBookings = new Dictionary<string, int> { { "Blue", 1 } }
             },
             new()
@@ -72,6 +78,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 From = new DateTime(2025, 1, 6, 9, 0, 0),
                 Until = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
                 ServiceBookings = new Dictionary<string, int> { { "Blue", 1 } }
             }
         };

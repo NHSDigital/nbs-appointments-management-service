@@ -58,6 +58,8 @@ public class BookingAvailabilityStateService(
             From = x.From,
             Until = x.Until,
             MaximumCapacity = x.Capacity * x.ToSlots().Count(),
+            Capacity = x.Capacity,
+            SlotLength = x.SlotLength,
             ServiceBookings = x.Services.ToDictionary(key => key, _ => 0)
         }).ToList();
     }

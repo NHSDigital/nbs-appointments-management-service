@@ -68,11 +68,10 @@ const generateSessionSummaries = (
       ukStartDatetime: sessionSummaryV2.from,
       ukEndDatetime: sessionSummaryV2.until,
       maximumCapacity: sessionSummaryV2.maximumCapacity,
-      capacity: sessionSummaryV2.remainingCapacity,
+      capacity: sessionSummaryV2.capacity,
+      slotLength: sessionSummaryV2.slotLength,
       totalBookings: sessionSummaryV2.totalBooked,
       bookings: sessionSummaryV2.serviceBookings,
-      //TODO do we need this??
-      slotLength: 0,
     };
   });
 };

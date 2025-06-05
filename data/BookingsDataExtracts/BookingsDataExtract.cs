@@ -34,7 +34,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.NhsNumber, BookingDataConverter.ExtractNhsNumber),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentDateTime, BookingDataConverter.ExtractAppointmentDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentStatus, BookingDataConverter.ExtractAppointmentStatus),
-            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfRerral, BookingDataConverter.ExtractSelfReferral),
+            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfReferral, BookingDataConverter.ExtractSelfReferral),
             new DataFactory<NbsBookingDocument, string>(BookingDataExtractFields.Source, BookingDataConverter.ExtractSource),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.DateOfBirth, BookingDataConverter.ExtractDateOfBirth),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingReferenceNumber, BookingDataConverter.ExtractBookingReference),

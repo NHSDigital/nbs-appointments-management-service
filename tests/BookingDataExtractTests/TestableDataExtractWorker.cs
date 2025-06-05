@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
+using FileOptions = DataExtract.FileOptions;
 
 namespace BookingDataExtracts.Integration;
 
@@ -14,7 +15,7 @@ public class TestableDataExtractWorker(
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
     BookingDataExtract bookingDataExtract,
-    IOptions<FileNameOptions> fileOptions
+    IOptions<FileOptions> fileOptions
     ) : DataExtractWorker<BookingDataExtract>(hostApplicationLifetime, meshSendOptions, meshAuthOptions, meshFactory, timeProvider,
         bookingDataExtract, fileOptions)
 {

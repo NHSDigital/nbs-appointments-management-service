@@ -13,11 +13,11 @@ variable "environment" {
 }
 
 variable "location" {
-  type    = string
+  type = string
 }
 
 variable "loc" {
-  type    = string
+  type = string
 }
 
 variable "nhs_host_url" {
@@ -224,14 +224,6 @@ variable "app_insights_sampling_percentage" {
   type = number
 }
 
-variable "disable_query_availability_function" {
-  type = bool
-}
-
-variable "create_high_load_function_app" {
-  type = bool
-}
-
 variable "create_autoscale_settings" {
   type = bool
 }
@@ -257,22 +249,34 @@ variable "build_number" {
 }
 
 variable "cosmos_endpoint" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "cosmos_token" {
   type      = string
-  default = ""
+  default   = ""
   sensitive = true
 }
 
 variable "app_config_connection" {
-  type = string
-  default = ""
+  type      = string
+  default   = ""
   sensitive = true
 }
 
-variable "disable_bulk_import_function" {
-  type = bool
+variable "high_load_functions" {
+  type = list(string)
+}
+
+variable "http_functions" {
+  type = list(string)
+}
+
+variable "servicebus_functions" {
+  type = list(string)
+}
+
+variable "timer_functions" {
+  type = list(string)
 }

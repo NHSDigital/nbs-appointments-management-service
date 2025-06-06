@@ -4,14 +4,10 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.BulkImport;
 
+[Collection("BulkImportSerialToggle")]
 [FeatureFile("./Scenarios/BulkImport/SiteBulkImport_Enabled.feature")]
-public abstract class SiteBulkImportEnabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);
+public class SiteBulkImport_BulkImportEnabled() : BaseBulkImportFeatureSteps(Flags.BulkImport, true);
 
-[Collection("BulkImportSeriaToggle")]
-public class SiteBulkImport_BulkImportEnabled() : SiteBulkImportEnabledFeatureSteps(Flags.BulkImport, true);
-
-[Collection("BulkImportSeriaToggle")]
-public class SiteBulkImport_BulkImportDisabled() : SiteBulkImportDisabledFeatureSteps(Flags.BulkImport, false);
-
+[Collection("BulkImportSerialToggle")]
 [FeatureFile("./Scenarios/BulkImport/SiteBulkImport_Disabled.feature")]
-public abstract class SiteBulkImportDisabledFeatureSteps(string flag, bool enabled) : BaseBulkImportFeatureSteps(flag, enabled);
+public class SiteBulkImport_BulkImportDisabled() : BaseBulkImportFeatureSteps(Flags.BulkImport, false);

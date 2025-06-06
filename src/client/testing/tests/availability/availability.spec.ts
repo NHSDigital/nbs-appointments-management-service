@@ -346,8 +346,6 @@ test.describe.configure({ mode: 'serial' });
     test.describe('Add Session', () => {
       let rootPage: RootPage;
       let oAuthPage: OAuthLoginPage;
-      let siteSelectionPage: SiteSelectionPage;
-      let sitePage: SitePage;
       let monthViewAvailabilityPage: MonthViewAvailabilityPage;
       let weekViewAvailabilityPage: WeekViewAvailabilityPage;
       let addSessionPage: AddSessionPage;
@@ -368,8 +366,6 @@ test.describe.configure({ mode: 'serial' });
           test.beforeEach(async ({ page, getTestSite }) => {
             rootPage = new RootPage(page);
             oAuthPage = new OAuthLoginPage(page);
-            siteSelectionPage = new SiteSelectionPage(page);
-            sitePage = new SitePage(page);
             monthViewAvailabilityPage = new MonthViewAvailabilityPage(page);
             weekViewAvailabilityPage = new WeekViewAvailabilityPage(page);
             addSessionPage = new AddSessionPage(page);

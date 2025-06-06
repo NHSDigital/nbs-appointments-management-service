@@ -17,6 +17,7 @@ public interface ISiteService
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
         string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+    Task<IEnumerable<Site>> GetSitesInRegion(string region);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -29,8 +30,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         if (sites == null || ignoreCache)
         {
-            sites = await siteStore.GetAllSites();
-            memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+            sites = await GetAndCacheSites();
         }
 
         var sitesWithDistance = sites
@@ -67,14 +67,13 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return site;
     }
 
+    public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
+        => await siteStore.GetSitesInRegionAsync(region);
+
     public async Task<IEnumerable<SitePreview>> GetSitesPreview()
     {
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        if (sites == null)
-        {
-            sites = await siteStore.GetAllSites();
-            memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
-        }
+        sites ??= await GetAndCacheSites();
 
         return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
     }
@@ -136,4 +135,12 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     private double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
 
     private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
+
+    private async Task<IEnumerable<Site>> GetAndCacheSites()
+    {
+        var sites = await siteStore.GetAllSites();
+        memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+
+        return sites;
+    }
 }

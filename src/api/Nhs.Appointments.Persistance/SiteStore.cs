@@ -145,4 +145,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return new OperationResult(true);
         }
     }
+
+    public Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
+    {
+        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
+    }
 }

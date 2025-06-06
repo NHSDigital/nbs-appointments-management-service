@@ -8,7 +8,6 @@ import {
   FieldPath,
   FieldValues,
   Path,
-  PathValue,
 } from 'react-hook-form';
 
 const PHONE_NUMBER_REGEX = new RegExp(/^[0-9 ]*$/);
@@ -38,26 +37,11 @@ const PhoneNumberFormControl = <TFieldValues extends FieldValues, TContext>({
     }
   };
 
-  const validateInput = (
-    value: PathValue<TFieldValues, Path<TFieldValues>>,
-  ) => {
-    if (value.trim().length === 0) {
-      return 'Enter a value';
-    }
-
-    if (!PHONE_NUMBER_REGEX.test(value)) {
-      return 'Enter a valid phone number';
-    }
-  };
-
   return (
     <FormGroup error={(errors[formField]?.message as string) ?? ''}>
       <Controller
         name={formField}
         control={control}
-        rules={{
-          validate: value => validateInput(value),
-        }}
         render={({ field }) => (
           <TextInput
             {...field}

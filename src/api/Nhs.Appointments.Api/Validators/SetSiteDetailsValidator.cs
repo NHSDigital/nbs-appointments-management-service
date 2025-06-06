@@ -19,8 +19,7 @@ public class SetSiteDetailsValidator : AbstractValidator<SetSiteDetailsRequest>
             .NotEmpty()
             .WithMessage("Provide a valid address");
         RuleFor(x => x.PhoneNumber)
-            .Matches(TelephoneRegex).WithMessage("Phone number must contain numbers and spaces only")
-            .NotEmpty().WithMessage("Provide a valid phone number");
+            .Matches(TelephoneRegex).WithMessage("Phone number must contain numbers and spaces only");
         RuleFor(x => x.Latitude)
             .Must(x => decimal.TryParse(x, out _)).WithMessage("Latitude must be a decimal number")
             .NotEmpty()

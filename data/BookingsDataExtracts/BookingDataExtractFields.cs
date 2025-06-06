@@ -6,7 +6,7 @@ public static class BookingDataExtractFields
     public static string NhsNumber => "NHS_NUMBER";
     public static string AppointmentDateTime => "APPOINTMENT_DATE_TIME";
     public static string AppointmentStatus => "APPOINTMENT_STATUS";
-    public static string SelfRerral => "SELF_REFERRAL";
+    public static string SelfReferral => "SELF_REFERRAL";
     public static string Source => "SOURCE";
     public static string DateOfBirth => "DATE_OF_BIRTH";
     public static string BookingReferenceNumber => "BOOKING_REFERENCE_NUMBER";

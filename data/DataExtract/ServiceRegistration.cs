@@ -1,16 +1,17 @@
+using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using Nhs.Appointments.Api.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Azure.Identity;
-using Microsoft.Extensions.DependencyInjection;
+using Nhs.Appointments.Api.Json;
 
 namespace DataExtract;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, string fileName, IConfigurationBuilder configurationBuilder)
+    public static IServiceCollection AddDataExtractServices(this IServiceCollection services, string fileName,
+        IConfigurationBuilder configurationBuilder, bool createSampleFile = false)
     {
         var configuration = configurationBuilder.Build();
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
@@ -41,9 +42,10 @@ public static class ServiceRegistration
                 opts.DestinationMailboxId = destinationMailbox;
                 opts.WorkflowId = meshWorkflow;
             })
-            .Configure<FileNameOptions>(opts => 
+            .Configure<FileOptions>(opts =>
             { 
                 opts.FileName = fileName;
+                opts.CreateSampleFile = createSampleFile;
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)

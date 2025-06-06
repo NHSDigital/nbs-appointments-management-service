@@ -55,6 +55,26 @@
       "type": "process",
       "args": ["format", "nbs-manage-your-appointments.sln"],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Create Booking Data Extract Sample",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "data/BookingsDataExtracts/"
+      },
+      "args": ["run", "BookingsDataExtracts.csproj", "create-local-sample"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Create Capacity Data Extract Sample",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "data/CapacityDataExtract/"
+      },
+      "args": ["run", "CapacityDataExtracts.csproj", "create-local-sample"],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

@@ -1,4 +1,5 @@
 using CsvHelper.Configuration;
+using Nhs.Appointments.Core.Constants;
 using static Nhs.Appointments.Core.SiteDataImporterHandler;
 
 namespace Nhs.Appointments.Core;
@@ -29,6 +30,18 @@ public class SiteMap : ClassMap<SiteImportRow>
         //validate ID provided is a GUID
         Map(m => m.Id)
             .TypeConverter<GuidStringTypeConverter>();
+        Map(m => m.OdsCode).Convert(x =>
+        {
+            var odsCode = x.Row.GetField<string>("OdsCode");
+
+            if (!CsvFieldValidator.StringHasValue(odsCode))
+                throw new ArgumentException("OdsCode must have a value.");
+
+            if (!RegularExpressionConstants.OdsCodeRegex().IsMatch(odsCode))
+                throw new ArgumentException($"OdsCode: {odsCode} is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
+
+            return odsCode;
+        });
         Map(m => m.OdsCode)
             .Name("OdsCode")
             .Validate(f => CsvFieldValidator.StringHasValue(f.Field));

@@ -11,7 +11,9 @@ public interface ISiteService
     Task<IEnumerable<SitePreview>> GetSitesPreview();
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
-    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber, decimal longitude, decimal latitude);
+
+    Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
+        decimal? longitude, decimal? latitude);
 
     Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 
@@ -102,7 +104,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,  decimal longitude, decimal latitude)
+    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
+        decimal? longitude, decimal? latitude)
     {
         return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
     }

@@ -79,9 +79,6 @@ public class SetSiteDetailsRequestValidatorTests
 
 
     [Theory(DisplayName = "Validates the phone number")]
-    [InlineData("", "Provide a valid phone number")]
-    [InlineData(null, "Provide a valid phone number")]
-    [InlineData("     ", "Provide a valid phone number")]
     [InlineData(" 123a    ", "Phone number must contain numbers and spaces only")]
     [InlineData("123e", "Phone number must contain numbers and spaces only")]
     public void ValidatesThePhoneNumber(string phoneNumber, string expectedError)

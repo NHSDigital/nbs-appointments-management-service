@@ -15,6 +15,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         using (metricsRecorder.BeginScope("GetSessions"))
         {
             var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+
             foreach (var day in documents)
             {
                 results.AddRange(day.Sessions.Select(

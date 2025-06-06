@@ -1,6 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.AvailabilityCalculations;
+﻿namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
-public class SingleServiceTests : AvailabilityCalculationsBase
+public class SingleServiceTests : BookingAvailabilityStateServiceTestBase
 {
     [Fact]
     public async Task MakesNoChangesIfAllAppointmentsAreStillValid()
@@ -16,11 +16,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Recalculations.Should().BeEmpty();
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -37,11 +34,8 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Recalculations.Should().HaveCount(3);
-        resultingAvailabilityState.Bookings.Should().BeEquivalentTo(bookings);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(15);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(15);
     }
 
     [Fact]
@@ -57,37 +51,50 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Recalculations.Should().ContainSingle(s =>
-            s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
-        resultingAvailabilityState.Bookings.Should().HaveCount(1);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(17);
     }
 
     [Fact]
     public async Task DeletesProvisionalAppointments()
     {
+        var utcNow = DateTime.UtcNow;
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Green", avStatus: "Supported", status: "Booked", creationOrder: 1),
-            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2)
+            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-3))
         };
 
         var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Recalculations.Should().Contain(s =>
-            s.Booking.Reference == "1" && s.Action == AvailabilityUpdateAction.SetToOrphaned);
-        resultingAvailabilityState.Recalculations.Should().Contain(s =>
-            s.Booking.Reference == "2" && s.Action == AvailabilityUpdateAction.ProvisionalToDelete);
-        resultingAvailabilityState.Bookings.Should().BeEmpty();
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(12);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        slots.Should().HaveCount(12);
     }
 
+    [Fact]
+    public async Task ExpiredProvisionalAppointments_NotDeleted()
+    {
+        var utcNow = DateTime.UtcNow;
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Green", avStatus: "Supported", status: "Booked", creationOrder: 1),
+            TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-8))
+        };
+
+        var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0));
+        slots.Should().HaveCount(12);
+    }
+    
     [Fact]
     public async Task PrioritisesAppointmentsByCreatedDate()
     {
@@ -102,11 +109,7 @@ public class SingleServiceTests : AvailabilityCalculationsBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var resultingAvailabilityState = await _sut.GetAvailabilityState(MockSite, new DateOnly(2025, 1, 1));
-
-        resultingAvailabilityState.Bookings.Should().ContainSingle(b => b.Reference == "2");
-        resultingAvailabilityState.Recalculations.Should().ContainSingle(r =>
-            r.Booking.Reference == "2" && r.Action == AvailabilityUpdateAction.SetToSupported);
-        resultingAvailabilityState.AvailableSlots.Should().HaveCount(17);
+        var slots = await Sut.GetAvailableSlots(MockSite, new DateTime(2025, 1, 1, 9, 30, 0), new DateTime(2025, 1, 1, 9, 30, 0));
+        slots.Should().HaveCount(17);
     }
 }

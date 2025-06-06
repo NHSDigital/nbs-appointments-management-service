@@ -17,7 +17,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class ApplyAvailabilityTemplateFunction(
-    IAvailabilityService availabilityService,
+    IAvailabilityWriteService availabilityWriteService,
     IValidator<ApplyAvailabilityTemplateRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ApplyAvailabilityTemplateFunction> logger,
@@ -49,7 +49,7 @@ public class ApplyAvailabilityTemplateFunction(
     {
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
-        await availabilityService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until,
+        await availabilityWriteService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until,
             request.Template, request.Mode, user);
         return Success(new EmptyResponse());
     }

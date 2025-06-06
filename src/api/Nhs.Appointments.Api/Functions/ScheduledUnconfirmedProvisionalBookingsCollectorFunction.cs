@@ -5,13 +5,13 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ScheduledUnconfirmedProvisionalBookingsCollectorFunction(IBookingsService bookingsService)
+public class ScheduledUnconfirmedProvisionalBookingsCollectorFunction(IBookingWriteService bookingWriteService)
 {
     [Function("RemoveUnconfirmedProvisionalBookings")]
     [AllowAnonymous]
     public Task RemoveUnconfirmedProvisionalBookings([TimerTrigger("%UnconfirmedProvisionalBookingsCronSchedule%")] TimerInfo timerInfo)
     {
-        return bookingsService.RemoveUnconfirmedProvisionalBookings();
+        return bookingWriteService.RemoveUnconfirmedProvisionalBookings();
     }
 }
 

@@ -283,7 +283,7 @@ type BookedAppointments = {
   count: number;
 };
 
-export type ClinicalService = {
+type ClinicalService = {
   label: string;
   value: string;
 };
@@ -409,6 +409,7 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  ClinicalService,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

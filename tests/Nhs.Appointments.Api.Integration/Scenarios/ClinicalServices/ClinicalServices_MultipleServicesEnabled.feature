@@ -9,7 +9,6 @@ Feature: Get Clinical Services for MultipleServices Enabled
       | Service |
       | RSV     |
     Then the request should be successful
-    And feature toggles are cleared
   
   Scenario: Get Clinical Services
     And I have Clinical Services
@@ -24,6 +23,5 @@ Feature: Get Clinical Services for MultipleServices Enabled
       | Covid   |
       | Flu     |
     Then the request should be successful
-    And feature toggles are cleared
 
   

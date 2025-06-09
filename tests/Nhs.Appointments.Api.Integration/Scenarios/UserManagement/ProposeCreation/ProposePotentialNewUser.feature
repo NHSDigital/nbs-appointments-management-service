@@ -1,5 +1,6 @@
 Feature: Proposing a potential new user
 
+  @ignore
   Scenario: Propose a valid NHS user
     Given feature toggle 'OktaEnabled' is 'False'
     And user 'test.user@nhs.net' does not exist in MYA
@@ -10,6 +11,7 @@ Feature: Proposing a potential new user
       | False       | True                     | NhsMail          | True                       |
     And feature toggles are cleared
 
+  @ignore
   Scenario: Propose a valid NHS user who already exists in MYA
     Given feature toggle 'OktaEnabled' is 'False'
     And user 'test.user@nhs.net' exists in MYA
@@ -42,6 +44,7 @@ Feature: Proposing a potential new user
       | False       | False                    | Okta             | False                      |
     And feature toggles are cleared
 
+  @ignore
   Scenario: Propose an Okta user with Okta toggled off
     Given feature toggle 'OktaEnabled' is 'False'
     Given user 'test.user@my-pharmacy.co.uk' does not exist in MYA

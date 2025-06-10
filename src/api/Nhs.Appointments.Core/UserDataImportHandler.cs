@@ -25,7 +25,11 @@ public class UserDataImportHandler(
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
         var incorrectSiteIds = new List<string>();
-        var sites = userImportRows.Select(usr => usr.SiteId).Distinct().ToList();
+        var sites = userImportRows
+            .Where(usr => !string.IsNullOrEmpty(usr.SiteId))
+            .Select(usr => usr.SiteId)
+            .Distinct()
+            .ToList();
         foreach (var site in sites)
         {
             if (await siteService.GetSiteByIdAsync(site) is null)
@@ -46,7 +50,7 @@ public class UserDataImportHandler(
             return report.Where(r => !r.Success);
         }
 
-        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => new { usr.UserId, usr.SiteId }).SelectMany(usr => usr))
+        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId).SelectMany(usr => usr))
         {
             try
             {
@@ -60,7 +64,11 @@ public class UserDataImportHandler(
                     }
                 }
 
-                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, $"site:{userAssignmentGroup.SiteId}", userAssignmentGroup.RoleAssignments);
+                var scope = string.IsNullOrEmpty(userAssignmentGroup.SiteId)
+                    ? $"region:{userAssignmentGroup.Region}"
+                    : $"site:{userAssignmentGroup.SiteId}";
+
+                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, scope, userAssignmentGroup.RoleAssignments);
                 if (!result.Success)
                 {
                     report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
@@ -95,5 +103,6 @@ public class UserDataImportHandler(
         public string LastName { get; set; }
         public string SiteId { get; set; }
         public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
+        public string Region { get; set; }
     }
 }

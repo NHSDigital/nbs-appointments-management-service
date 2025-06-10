@@ -26,7 +26,7 @@ public class UserDataImportHandlerTests
     }
 
     [Fact]
-    public async Task CanReadUserData()
+    public async Task CanReadUserData_AndSetsSiteScopedPermissions()
     {
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, InputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -360,6 +360,71 @@ public class UserDataImportHandlerTests
         report.First(r => !r.Success).Message.Should().Be("The following email domain: test1@invalid-domain.net is not included in the email domain whitelist.");
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ReportsInvalidFile_WhenSiteAndRegionArePopulated()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,R1",
+            "test2@nhs.net,John,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,R2",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Exactly one of Site or Region must be populated.");
+    }
+
+    [Fact]
+    public async Task ReportsInvalidFile_WhenNeitherSiteNorRegionArePopulated()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,false,true,true,true,",
+            "test2@nhs.net,John,Smith,,true,false,false,true,",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Exactly one of Site or Region must be populated.");
+    }
+
+    [Fact]
+    public async Task CanReadUserData_AndSetsRegionScopedPermissions()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,false,true,true,true,R1",
+            "test2@nhs.net,John,Smith,,true,false,false,true,R2",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
     }
 
     private List<Site> GetSites()

@@ -68,7 +68,7 @@ public class BookingAvailabilityStateService(
         BookingAvailabilityStateReturnType returnType)
     {
         var (bookings, sessions) =
-            await FetchData(site, from, to, BookingAvailabilityStateReturnType.WeekSummary);
+            await FetchData(site, from, to, returnType);
         var state = new BookingAvailabilityState();
 
         var slotsList = sessions.SelectMany(session => session.ToSlots()).ToList();

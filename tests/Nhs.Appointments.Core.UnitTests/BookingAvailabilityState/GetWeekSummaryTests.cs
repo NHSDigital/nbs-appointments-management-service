@@ -36,51 +36,51 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(30);
         weekSummary.RemainingCapacity.Should().Be(25);
-        weekSummary.TotalBooked.Should().Be(7);
-        weekSummary.TotalOrphaned.Should().Be(2);
-        weekSummary.TotalCancelled.Should().Be(0);
+        weekSummary.BookedAppointments.Should().Be(7);
+        weekSummary.OrphanedAppointments.Should().Be(2);
+        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary = new List<SessionSummary>
         {
             new()
             {
                 Id = Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742"),
-                From = new DateTime(2025, 1, 6, 9, 0, 0),
-                Until = new DateTime(2025, 1, 6, 10, 0, 0),
+                UkStartDatetime = new DateTime(2025, 1, 6, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 2,
-                ServiceBookings = new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 } }
+                Bookings = new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 } }
             },
             new()
             {
                 Id = Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0"),
-                From = new DateTime(2025, 1, 6, 9, 0, 0),
-                Until = new DateTime(2025, 1, 6, 10, 0, 0),
+                UkStartDatetime = new DateTime(2025, 1, 6, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                ServiceBookings = new Dictionary<string, int> { { "Green", 1 } }
+                Bookings = new Dictionary<string, int> { { "Green", 1 } }
             },
             new()
             {
                 Id = Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4"),
-                From = new DateTime(2025, 1, 6, 9, 0, 0),
-                Until = new DateTime(2025, 1, 6, 10, 0, 0),
+                UkStartDatetime = new DateTime(2025, 1, 6, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                ServiceBookings = new Dictionary<string, int> { { "Blue", 1 } }
+                Bookings = new Dictionary<string, int> { { "Blue", 1 } }
             },
             new()
             {
                 Id = Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95"),
-                From = new DateTime(2025, 1, 6, 9, 0, 0),
-                Until = new DateTime(2025, 1, 6, 10, 0, 0),
+                UkStartDatetime = new DateTime(2025, 1, 6, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 6, 10, 0, 0),
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                ServiceBookings = new Dictionary<string, int> { { "Blue", 1 } }
+                Bookings = new Dictionary<string, int> { { "Blue", 1 } }
             }
         };
 
@@ -91,9 +91,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 30,
                 RemainingCapacity = 25,
-                TotalBooked = 7,
-                TotalOrphaned = 2,
-                TotalCancelled = 0
+                BookedAppointments = 7,
+                OrphanedAppointments = 2,
+                CancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));
@@ -146,21 +146,21 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(64);
         weekSummary.RemainingCapacity.Should().Be(52);
-        weekSummary.TotalBooked.Should().Be(12);
-        weekSummary.TotalOrphaned.Should().Be(0);
-        weekSummary.TotalCancelled.Should().Be(0);
+        weekSummary.BookedAppointments.Should().Be(12);
+        weekSummary.OrphanedAppointments.Should().Be(0);
+        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
             new()
             {
                 Id = Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0"),
-                From = new DateTime(2025, 1, 13, 9, 0, 0),
-                Until = new DateTime(2025, 1, 13, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 13, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 13, 9, 40, 0),
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int>
+                Bookings = new Dictionary<string, int>
                 {
                     { "B", 0 },
                     { "C", 0 },
@@ -173,12 +173,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95"),
-                From = new DateTime(2025, 1, 13, 9, 0, 0),
-                Until = new DateTime(2025, 1, 13, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 13, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 13, 9, 40, 0),
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                ServiceBookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
             }
         };
 
@@ -189,9 +189,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                TotalBooked = 6,
-                TotalOrphaned = 0,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 0,
+                CancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -205,12 +205,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4"),
-                From = new DateTime(2025, 1, 19, 9, 0, 0),
-                Until = new DateTime(2025, 1, 19, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 19, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 19, 9, 40, 0),
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int>
+                Bookings = new Dictionary<string, int>
                 {
                     { "B", 0 },
                     { "C", 0 },
@@ -223,12 +223,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742"),
-                From = new DateTime(2025, 1, 19, 9, 0, 0),
-                Until = new DateTime(2025, 1, 19, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 19, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 19, 9, 40, 0),
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                ServiceBookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
             }
         };
 
@@ -239,9 +239,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                TotalBooked = 6,
-                TotalOrphaned = 0,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 0,
+                CancelledAppointments = 0
             });
     }
 
@@ -287,31 +287,31 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(64);
         weekSummary.RemainingCapacity.Should().Be(52);
-        weekSummary.TotalBooked.Should().Be(12);
-        weekSummary.TotalOrphaned.Should().Be(0);
-        weekSummary.TotalCancelled.Should().Be(0);
+        weekSummary.BookedAppointments.Should().Be(12);
+        weekSummary.OrphanedAppointments.Should().Be(0);
+        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
             new()
             {
                 Id = Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0"),
-                From = new DateTime(2025, 1, 13, 9, 0, 0),
-                Until = new DateTime(2025, 1, 13, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 13, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 13, 9, 40, 0),
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
             },
             new()
             {
                 Id = Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95"),
-                From = new DateTime(2025, 1, 13, 9, 0, 0),
-                Until = new DateTime(2025, 1, 13, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 13, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 13, 9, 40, 0),
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                ServiceBookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
             }
         };
 
@@ -322,9 +322,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                TotalBooked = 6,
-                TotalOrphaned = 0,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 0,
+                CancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -338,22 +338,22 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4"),
-                From = new DateTime(2025, 1, 19, 9, 0, 0),
-                Until = new DateTime(2025, 1, 19, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 19, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 19, 9, 40, 0),
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
             },
             new()
             {
                 Id = Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742"),
-                From = new DateTime(2025, 1, 19, 9, 0, 0),
-                Until = new DateTime(2025, 1, 19, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 19, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 19, 9, 40, 0),
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                ServiceBookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                Bookings = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
             }
         };
 
@@ -364,9 +364,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                TotalBooked = 6,
-                TotalOrphaned = 0,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 0,
+                CancelledAppointments = 0
             });
     }
 
@@ -418,22 +418,22 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(165);
         
         //lost utilisation shows that 6/12 bookings are orphaned when they could have been allocated
-        weekSummary.TotalBooked.Should().Be(12);
-        weekSummary.TotalOrphaned.Should().Be(6);
+        weekSummary.BookedAppointments.Should().Be(12);
+        weekSummary.OrphanedAppointments.Should().Be(6);
         
-        weekSummary.TotalCancelled.Should().Be(0);
+        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
             new()
             {
                 Id = Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0"),
-                From = new DateTime(2025, 1, 14, 9, 0, 0),
-                Until = new DateTime(2025, 1, 14, 9, 50, 0),
+                UkStartDatetime = new DateTime(2025, 1, 14, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 14, 9, 50, 0),
                 MaximumCapacity = 15,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int>
+                Bookings = new Dictionary<string, int>
                 {
                     { "B", 0 },
                     { "C", 3 },
@@ -446,12 +446,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("028f5107-3972-4a35-bd35-b7476442ad95"),
-                From = new DateTime(2025, 1, 14, 8, 50, 0),
-                Until = new DateTime(2025, 1, 14, 9, 30, 0),
+                UkStartDatetime = new DateTime(2025, 1, 14, 8, 50, 0),
+                UkEndDatetime = new DateTime(2025, 1, 14, 9, 30, 0),
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                ServiceBookings = new Dictionary<string, int>
+                Bookings = new Dictionary<string, int>
                 {
                     { "A", 0 },
                     { "C", 0 },
@@ -472,9 +472,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 35,
                 RemainingCapacity = 32,
-                TotalBooked = 6,
-                TotalOrphaned = 3,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 3,
+                CancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 13));
@@ -487,12 +487,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("2c1b5938-922d-45f0-b301-5f9156bb0de4"),
-                From = new DateTime(2025, 1, 16, 8, 0, 0),
-                Until = new DateTime(2025, 1, 16, 10, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 16, 8, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 16, 10, 40, 0),
                 MaximumCapacity = 48,
                 SlotLength = 10,
                 Capacity = 3,
-                ServiceBookings = new Dictionary<string, int>
+                Bookings = new Dictionary<string, int>
                 {
                     { "B", 0 },
                     { "C", 3 },
@@ -505,12 +505,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             new()
             {
                 Id = Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742"),
-                From = new DateTime(2025, 1, 16, 9, 0, 0),
-                Until = new DateTime(2025, 1, 16, 9, 40, 0),
+                UkStartDatetime = new DateTime(2025, 1, 16, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 16, 9, 40, 0),
                 MaximumCapacity = 16,
                 SlotLength = 10,
                 Capacity = 4,
-                ServiceBookings = new Dictionary<string, int> { 
+                Bookings = new Dictionary<string, int> { 
                     { "A", 0 },
                     { "C", 0 },
                     { "D", 0 },
@@ -529,9 +529,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 64,
                 RemainingCapacity = 61,
-                TotalBooked = 6,
-                TotalOrphaned = 3,
-                TotalCancelled = 0
+                BookedAppointments = 6,
+                OrphanedAppointments = 3,
+                CancelledAppointments = 0
             });
         
         //extra padded data
@@ -541,12 +541,12 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             .BeEquivalentTo(new DaySummary(new DateOnly(2025, 1, 17), [new SessionSummary()
             {
                 Id = Guid.Parse("ae907d84-a0e3-41d4-ae49-bed6c23d9776"),
-                From = new DateTime(2025, 1, 17, 9, 0, 0),
-                Until = new DateTime(2025, 1, 17, 12, 0, 0),
+                UkStartDatetime = new DateTime(2025, 1, 17, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 17, 12, 0, 0),
                 MaximumCapacity = 72,
                 SlotLength = 5,
                 Capacity = 2,
-                ServiceBookings = new Dictionary<string, int> { 
+                Bookings = new Dictionary<string, int> { 
                     { "A", 0 },
                     { "B", 0 },
                     { "C", 0 },
@@ -556,9 +556,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 72,
                 RemainingCapacity = 72,
-                TotalBooked = 0,
-                TotalOrphaned = 0,
-                TotalCancelled = 0
+                BookedAppointments = 0,
+                OrphanedAppointments = 0,
+                CancelledAppointments = 0
             });
     }
 

@@ -3,8 +3,6 @@ import {
   ClinicalService,
   DaySummary,
   DaySummaryV2,
-  SessionSummary,
-  SessionSummaryV2,
   Site,
   WeekSummary,
   WeekSummaryV2,
@@ -29,49 +27,24 @@ type Props = {
   ukWeekEnd: DayJsType;
 };
 
-const generateWeekSummary = (
+const mapWeekSummary = (
   ukWeekStart: DayJsType,
   ukWeekEnd: DayJsType,
   weekSummaryV2: WeekSummaryV2,
 ): WeekSummary => {
   return {
+    ...weekSummaryV2,
     startDate: ukWeekStart,
     endDate: ukWeekEnd,
-    daySummaries: generateDaySummaries(weekSummaryV2.daySummaries),
-    maximumCapacity: weekSummaryV2.maximumCapacity,
-    remainingCapacity: weekSummaryV2.remainingCapacity,
-    bookedAppointments: weekSummaryV2.totalBooked,
-    orphanedAppointments: weekSummaryV2.totalOrphaned,
-    cancelledAppointments: weekSummaryV2.totalCancelled,
+    daySummaries: mapDaySummaries(weekSummaryV2.daySummaries),
   };
 };
 
-const generateDaySummaries = (daySummaries: DaySummaryV2[]): DaySummary[] => {
+const mapDaySummaries = (daySummaries: DaySummaryV2[]): DaySummary[] => {
   return daySummaries.map(daySummaryV2 => {
     return {
+      ...daySummaryV2,
       ukDate: parseToUkDatetime(daySummaryV2.date),
-      maximumCapacity: daySummaryV2.maximumCapacity,
-      remainingCapacity: daySummaryV2.remainingCapacity,
-      bookedAppointments: daySummaryV2.totalBooked,
-      orphanedAppointments: daySummaryV2.totalOrphaned,
-      cancelledAppointments: daySummaryV2.totalCancelled,
-      sessions: generateSessionSummaries(daySummaryV2.sessionSummaries),
-    };
-  });
-};
-
-const generateSessionSummaries = (
-  sessionSummaries: SessionSummaryV2[],
-): SessionSummary[] => {
-  return sessionSummaries.map(sessionSummaryV2 => {
-    return {
-      ukStartDatetime: sessionSummaryV2.from,
-      ukEndDatetime: sessionSummaryV2.until,
-      maximumCapacity: sessionSummaryV2.maximumCapacity,
-      capacity: sessionSummaryV2.capacity,
-      slotLength: sessionSummaryV2.slotLength,
-      totalBookings: sessionSummaryV2.totalBooked,
-      bookings: sessionSummaryV2.serviceBookings,
     };
   });
 };
@@ -91,7 +64,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
         fetchClinicalServices(),
       ]);
 
-    weekSummary = generateWeekSummary(ukWeekStart, ukWeekEnd, weekSummaryV2);
+    weekSummary = mapWeekSummary(ukWeekStart, ukWeekEnd, weekSummaryV2);
     permissions = permissionsV2;
     clinicalServices = clinicalServicesV2;
   } else {

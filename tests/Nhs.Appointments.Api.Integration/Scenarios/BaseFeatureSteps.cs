@@ -127,15 +127,6 @@ public abstract partial class BaseFeatureSteps : Feature
         response.EnsureSuccessStatusCode();
     }
 
-    [And(@"feature toggles are cleared")]
-    public async Task ClearLocalFeatureToggleOverrides()
-    {
-        var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-overrides-clear",
-            null);
-
-        response.EnsureSuccessStatusCode();
-    }
-
     [Given("the following sessions")]
     [And("the following sessions")]
     public Task SetupSessions(DataTable dataTable)

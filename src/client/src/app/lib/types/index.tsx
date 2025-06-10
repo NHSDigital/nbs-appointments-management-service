@@ -337,29 +337,19 @@ type WeekSummaryV2 = {
   daySummaries: DaySummaryV2[];
   maximumCapacity: number;
   remainingCapacity: number;
-  totalBooked: number;
-  totalOrphaned: number;
-  totalCancelled: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
 };
 
 type DaySummaryV2 = {
   date: string;
-  sessionSummaries: SessionSummaryV2[];
+  sessions: SessionSummary[];
   maximumCapacity: number;
   remainingCapacity: number;
-  totalBooked: number;
-  totalCancelled: number;
-  totalOrphaned: number;
-};
-
-type SessionSummaryV2 = {
-  from: string;
-  until: string;
-  serviceBookings: Record<string, number>;
-  maximumCapacity: number;
-  capacity: number;
-  slotLength: number;
-  totalBooked: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
 };
 
 type ServiceInformation = {
@@ -440,7 +430,6 @@ export type {
   FeatureFlag,
   WeekSummaryV2,
   DaySummaryV2,
-  SessionSummaryV2,
   ClinicalService,
 };
 

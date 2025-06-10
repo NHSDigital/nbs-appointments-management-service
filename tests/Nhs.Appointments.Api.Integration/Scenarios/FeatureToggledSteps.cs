@@ -15,6 +15,6 @@ public abstract class FeatureToggledSteps(string flag, bool enabled) : BaseFeatu
 
     public async Task DisposeAsync()
     {
-        await ClearLocalFeatureToggleOverrides();
+        await Task.CompletedTask;
     }
 }

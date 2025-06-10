@@ -34,7 +34,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
     private const string AppointmentsApiUrl = "http://localhost:7071/api";
 
-    private readonly Guid _testId = Guid.NewGuid();
+    protected readonly Guid _testId = Guid.NewGuid();
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
@@ -101,19 +101,27 @@ public abstract partial class BaseFeatureSteps : Feature
         return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
+    // TODO: Added for BulkImport tests as it requires a valid Guid
+    // To clean up this method & the one above so all siteId's use only a Guid
+    [Given("a new site is configured for MYA")]
+    public Task SetupNewSite()
+    {
+        var site = new SiteDocument
+        {
+            Id = _testId.ToString(),
+            DocumentType = "site",
+            OdsCode = "ODS1",
+            IntegratedCareBoard = "ICB1",
+            Region = "R1",
+            Location = new Location("point", [1.41416002128359, 51.77021027939483])
+        };
+        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+    }
+
     [Given(@"feature toggle '(.+)' is '(.+)'")]
     public async Task SetLocalFeatureToggleOverride(string name, string state)
     {
         var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
-            null);
-
-        response.EnsureSuccessStatusCode();
-    }
-
-    [And(@"feature toggles are cleared")]
-    public async Task ClearLocalFeatureToggleOverrides()
-    {
-        var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-overrides-clear",
             null);
 
         response.EnsureSuccessStatusCode();
@@ -569,7 +577,8 @@ public abstract partial class BaseFeatureSteps : Feature
                         Permissions.QueryAvailability,
                         Permissions.SetupAvailability,
                         Permissions.SystemRunProvisionalSweeper,
-                        Permissions.SystemRunReminders
+                        Permissions.SystemRunReminders,
+                        Permissions.SystemDataImporter
                     ]
                 },
                 new Role
@@ -603,6 +612,18 @@ public abstract partial class BaseFeatureSteps : Feature
                     [
                         Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
                         Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata
+                    ]
+                },
+                new Role
+                {
+                    Id = "canned:user-manager",
+                    Name = "User manager",
+                    Description = "A user can view and manage user role assignments.",
+                    Permissions =
+                    [
+                        Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
+                        Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata,
+                        Permissions.ViewUsers, Permissions.ManageUsers
                     ]
                 },
             ]

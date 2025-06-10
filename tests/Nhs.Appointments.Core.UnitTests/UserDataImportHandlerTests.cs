@@ -12,7 +12,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<IEmailWhitelistStore> _emailWhitelistStore = new();
 
     private readonly UserDataImportHandler _sut;
-    private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager";
+    private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager,Region";
 
     public UserDataImportHandlerTests()
     {
@@ -91,8 +91,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -127,10 +127,10 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
-            "test1@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
-            "test2@okta.net,Jane,,d3793464-b421-41f3-9bfa-53b06e7b3d19,,false,true,true,true",
-            "test2@okta.net,,,9a06bacd-e916-4c10-8263-21451ca751b8,false,true,true,true",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            "test1@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test2@okta.net,Jane,,d3793464-b421-41f3-9bfa-53b06e7b3d19,,false,true,true,true,",
+            "test2@okta.net,,,9a06bacd-e916-4c10-8263-21451ca751b8,false,true,true,true,",
         ];
     
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
@@ -216,8 +216,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true",
-            "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true",
+            "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true,",
+            "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -238,8 +238,8 @@ public class UserDataImportHandlerTests
 
         string[] inputRows =
         [
-            "d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true",
-            "308d515c-2002-450e-b248-4ba36f6667bb, true, false, true"
+            "d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true,",
+            "308d515c-2002-450e-b248-4ba36f6667bb, true, false, true,"
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(invalidHeaders, inputRows);
@@ -258,9 +258,9 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
-            "test3@okta-with-trailing-white-space.net ,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test3@okta-with-trailing-white-space.net ,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -295,8 +295,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -332,8 +332,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@invalid-domain.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true",
-            "test2@another-invalid-domain.com,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true",
+            "test1@invalid-domain.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            "test2@another-invalid-domain.com,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -376,9 +376,9 @@ public class UserDataImportHandlerTests
 
     private readonly string[] InputRows =
     [
-        "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
-        "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true",
-        "test2@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true",
-        "test2@nhs.net,,,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true",
+        "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,",
+        "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true,",
+        "test2@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,",
+        "test2@nhs.net,,,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true,",
     ];
 }

@@ -55,12 +55,12 @@ public class BookingAvailabilityStateService(
         return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
         {
             Id = x.InternalSessionId!.Value,
-            From = x.From,
-            Until = x.Until,
+            UkStartDatetime = x.From,
+            UkEndDatetime = x.Until,
             MaximumCapacity = x.Capacity * x.ToSlots().Count(),
             Capacity = x.Capacity,
             SlotLength = x.SlotLength,
-            ServiceBookings = x.Services.ToDictionary(key => key, _ => 0)
+            Bookings = x.Services.ToDictionary(key => key, _ => 0)
         }).ToList();
     }
 
@@ -105,10 +105,10 @@ public class BookingAvailabilityStateService(
                         
                         var fromDate = DateOnly.FromDateTime(targetSlot.From);
                         var sessionToUpdate = daySummaries.Where(x => x.Date == fromDate)
-                            .SelectMany(x => x.SessionSummaries)
+                            .SelectMany(x => x.Sessions)
                             .Single(x => x.Id == targetSlot.InternalSessionId);
 
-                        sessionToUpdate.ServiceBookings[booking.Service]++;
+                        sessionToUpdate.Bookings[booking.Service]++;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
@@ -161,20 +161,20 @@ public class BookingAvailabilityStateService(
     {
         foreach (var daySummary in daySummaries)
         {
-            daySummary.MaximumCapacity = daySummary.SessionSummaries.Sum(x => x.MaximumCapacity);
-            daySummary.RemainingCapacity = daySummary.SessionSummaries.Sum(x => x.RemainingCapacity);
+            daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
+            daySummary.RemainingCapacity = daySummary.Sessions.Sum(x => x.RemainingCapacity);
             
             var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
             
             //includes both supported and orphaned bookings
-            daySummary.TotalBooked = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Booked);
+            daySummary.BookedAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Booked);
             
             //...of which X are orphaned
-            daySummary.TotalOrphaned = bookingsOnDay.Count(x =>
+            daySummary.OrphanedAppointments = bookingsOnDay.Count(x =>
                 x.Status == AppointmentStatus.Booked &&
                 x.AvailabilityStatus == AvailabilityStatus.Orphaned);
             
-            daySummary.TotalCancelled = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
+            daySummary.CancelledAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
         }
 
         return new WeekSummary(daySummaries)
@@ -182,9 +182,9 @@ public class BookingAvailabilityStateService(
             DaySummaries = daySummaries,
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
-            TotalBooked = daySummaries.Sum(x => x.TotalBooked),
-            TotalCancelled = daySummaries.Sum(x => x.TotalCancelled),
-            TotalOrphaned = daySummaries.Sum(x => x.TotalOrphaned)
+            BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
+            CancelledAppointments = daySummaries.Sum(x => x.CancelledAppointments),
+            OrphanedAppointments = daySummaries.Sum(x => x.OrphanedAppointments)
         };
     }
 

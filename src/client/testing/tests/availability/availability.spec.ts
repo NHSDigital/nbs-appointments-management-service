@@ -120,6 +120,48 @@ test.describe.configure({ mode: 'serial' });
             ).toBeVisible();
           });
 
+          test('Create single session of RSV and Covid availability', async ({
+            page,
+          }) => {
+            let dayIncrement = 1;
+
+            //avoid collisions
+            if (multipleServicesEnabled) {
+              dayIncrement += 40;
+            }
+
+            const futureDate = getDateInFuture(dayIncrement);
+            await createAvailabilityPage.createAvailabilityButton.click();
+            await page.waitForURL(
+              `**/site/${site.id}/create-availability/wizard`,
+            );
+
+            await expect(createAvailabilityPage.sessionTitle).toBeVisible();
+            await createAvailabilityPage.selectSession('Single date session');
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.enterSingleDateSessionDate(
+              futureDate.day,
+              futureDate.month,
+              futureDate.year,
+            );
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.enterStartTime('09', '00');
+            await createAvailabilityPage.enterEndTime('10', '00');
+            await createAvailabilityPage.enterNoOfVaccinators('2');
+            await createAvailabilityPage.appointmentLength('6');
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.addService('RSV Adult');
+            if (multipleServicesEnabled) {
+              await createAvailabilityPage.addService('COVID 5-11');
+              await createAvailabilityPage.addService('COVID 18+');
+            }
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.saveSessionButton.click();
+            await expect(
+              createAvailabilityPage.sessionSuccessMsg,
+            ).toBeVisible();
+          });
+
           test('Create weekly session of RSV availability', async ({
             page,
           }) => {
@@ -128,6 +170,56 @@ test.describe.configure({ mode: 'serial' });
             //avoid collisions
             if (multipleServicesEnabled) {
               dayIncrement += 7;
+            }
+
+            const futureDate = getDateInFuture(dayIncrement);
+            const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
+            await createAvailabilityPage.createAvailabilityButton.click();
+            await page.waitForURL(
+              `**/site/${site.id}/create-availability/wizard`,
+            );
+
+            await expect(createAvailabilityPage.sessionTitle).toBeVisible();
+            await createAvailabilityPage.selectSession('Weekly sessions');
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.enterWeeklySessionStartDate(
+              futureDate.day,
+              futureDate.month,
+              futureDate.year,
+            );
+            await createAvailabilityPage.enterWeeklySessionEndDate(
+              dayAfterFutureDate.day,
+              dayAfterFutureDate.month,
+              dayAfterFutureDate.year,
+            );
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.selectDay('Select all days');
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.enterStartTime('09', '00');
+            await createAvailabilityPage.enterEndTime('10', '00');
+            await createAvailabilityPage.enterNoOfVaccinators('1');
+            await createAvailabilityPage.appointmentLength('5');
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.addService('RSV Adult');
+            if (multipleServicesEnabled) {
+              await createAvailabilityPage.addService('COVID 5-11');
+              await createAvailabilityPage.addService('COVID 18+');
+            }
+            await createAvailabilityPage.continueButton.click();
+            await createAvailabilityPage.saveSessionButton.click();
+            await expect(
+              createAvailabilityPage.sessionSuccessMsg,
+            ).toBeVisible();
+          });
+
+          test('Create weekly session of RSV and Covid availability', async ({
+            page,
+          }) => {
+            let dayIncrement = 1;
+
+            //avoid collisions
+            if (multipleServicesEnabled) {
+              dayIncrement += 40;
             }
 
             const futureDate = getDateInFuture(dayIncrement);

@@ -10,6 +10,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelperMock = new();
     private readonly Mock<IOktaService> _oktaServiceMock = new();
     private readonly Mock<IEmailWhitelistStore> _emailWhitelistStore = new();
+    private readonly Mock<IWellKnowOdsCodesService> _wellKnownOdsCodesMock = new();
 
     private readonly UserDataImportHandler _sut;
     private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager,Region";
@@ -21,7 +22,8 @@ public class UserDataImportHandlerTests
             _siteServiceMock.Object,
             _featureToggleHelperMock.Object,
             _oktaServiceMock.Object,
-            _emailWhitelistStore.Object
+            _emailWhitelistStore.Object,
+            _wellKnownOdsCodesMock.Object
         );
     }
 
@@ -405,8 +407,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,,false,true,true,true,R1",
-            "test2@nhs.net,John,Smith,,true,false,false,true,R2",
+            "test1@nhs.net,Jane,Smith,,,,,,R1",
+            "test2@nhs.net,John,Smith,,,,,,R2",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -417,6 +419,8 @@ public class UserDataImportHandlerTests
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
             .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("R1", "Region 1", "Region"), new("R2", "Region 2", "Region") });
 
         var report = await _sut.ProcessFile(file);
 
@@ -425,6 +429,33 @@ public class UserDataImportHandlerTests
 
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+    }
+
+    [Fact]
+    public async Task ReadsUserData_AndReportsInvalidRegionCodes()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,,,,,R1",
+            "test2@nhs.net,John,Smith,,,,,,R66",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("R1", "Region 1", "Region") });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Provided region: R66 not found in the well known Region list.");
     }
 
     private List<Site> GetSites()

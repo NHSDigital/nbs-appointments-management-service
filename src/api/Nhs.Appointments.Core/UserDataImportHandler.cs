@@ -8,7 +8,8 @@ public class UserDataImportHandler(
     ISiteService siteService, 
     IFeatureToggleHelper featureToggleHelper,
     IOktaService oktaService,
-    IEmailWhitelistStore emailWhitelistStore
+    IEmailWhitelistStore emailWhitelistStore,
+    IWellKnowOdsCodesService wellKnowOdsCodesService
 ) : IUserDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
@@ -44,6 +45,7 @@ public class UserDataImportHandler(
         }
 
         await CheckForNonWhitelistedEmailDomains(userImportRows, report);
+        await ValidateRegionCodes([.. userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Region))], report);
 
         if (report.Any(r => !r.Success))
         {
@@ -93,6 +95,25 @@ public class UserDataImportHandler(
         if (invalidEmails.Count > 0)
         {
             report.AddRange(invalidEmails.Select(usr => new ReportItem(-1, "Invalid email domain", false, $"The following email domain: {usr.UserId} is not included in the email domain whitelist.")));
+        }
+    }
+
+    private async Task ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report)
+    {
+        if (userImportRows.Count == 0)
+            return;
+
+        var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
+        var regionCodes = wellKnownOdsCodes.Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase)).Select(x => x.OdsCode.ToLower()).ToList();
+
+        var invalidRegions = userImportRows
+            .Where(usr => !regionCodes.Contains(usr.Region.ToLower()))
+            .Select(usr => usr.Region)
+            .ToList();
+
+        if (invalidRegions.Count > 0)
+        {
+            report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: {reg} not found in the well known Region list.")));
         }
     }
 

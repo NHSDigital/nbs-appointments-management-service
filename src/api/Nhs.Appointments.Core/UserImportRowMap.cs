@@ -63,15 +63,20 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             var regionValue = x.Row.GetField<string>("Region");
 
             // No need to check again whether both or neither fields are populated here as that happens in the site / region mapping
-            var scope = CsvFieldValidator.StringHasValue(siteValue) ? $"site:{x.Row.GetField("Site")}" : $"region:{x.Row.GetField("Region")}";
-
-            foreach (var role in userRoleKeys)
+            if (CsvFieldValidator.StringHasValue(siteValue))
             {
-                if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
+                foreach (var role in userRoleKeys)
                 {
-                    roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = scope });
+                    if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
+                    {
+                        roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
+                    }
                 }
+
+                return roleAssignemnts;
             }
+
+            roleAssignemnts.Add(new RoleAssignment { Role = "system:regional-user", Scope = $"region:{x.Row.GetField("Region")}" });
 
             return roleAssignemnts;
         });

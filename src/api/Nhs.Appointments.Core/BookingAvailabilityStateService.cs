@@ -177,7 +177,7 @@ public class BookingAvailabilityStateService(
             daySummary.CancelledAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
         }
 
-        return new WeekSummary(daySummaries)
+        return new WeekSummary
         {
             DaySummaries = daySummaries,
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),

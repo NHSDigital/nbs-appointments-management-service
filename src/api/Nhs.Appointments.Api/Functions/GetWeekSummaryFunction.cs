@@ -53,7 +53,7 @@ public class GetWeekSummaryFunction(
     {
         if (!await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
-            throw new NotImplementedException();
+            return Failed(HttpStatusCode.NotImplemented, "Endpoint is only available when multiple services is enabled");
         }
         
         var weekSummary =

@@ -62,7 +62,7 @@ module "mya_application_perf" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   disable_query_availability_function            = true
   create_high_load_function_app                  = true
-  create_app_slot                                = true
+  create_app_slot                                = false
   create_autoscale_settings                      = true
   create_frontdoor                               = true
   create_cosmos_db                               = true

@@ -110,7 +110,7 @@ const SelectServicesStep = ({
             <>
               <CheckBoxOrAll />
               <CheckBox
-                label={'Select all'}
+                label={'Select all services'}
                 value={clinicalServices.map(_ => _.value)}
                 id={'allServices'}
                 checked={servicesWatch?.length == clinicalServices.length}

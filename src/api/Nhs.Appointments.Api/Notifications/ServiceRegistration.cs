@@ -75,7 +75,9 @@ public static class ServiceRegistration
 
     private static IServiceCollection AddMassTransit(this IServiceCollection services)
     {
-        services.AddMassTransitForAzureFunctions(cfg =>
+        services
+            .AddScoped<IMessageBus, MassTransitBusWrapper>()
+            .AddMassTransitForAzureFunctions(cfg =>
             {
                 EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
                 EndpointConvention.Map<OktaUserRolesChanged>(

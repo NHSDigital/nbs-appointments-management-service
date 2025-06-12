@@ -18,22 +18,22 @@ public static class NotificationsTestServiceProviderExtensions
 
         services
             .AddLogging()
-            .AddSingleton(cosmosClient)
-            .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
+            .AddSingleton<IMemoryCache, MemoryCache>()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile))
-            .AddTransient<ITypedDocumentCosmosStore<NotificationConfigurationDocument>,
-                TypedDocumentCosmosStore<NotificationConfigurationDocument>>()
-            .AddTransient<ITypedDocumentCosmosStore<RolesDocument>,
-                TypedDocumentCosmosStore<RolesDocument>>()
-            .AddTransient<ITypedDocumentCosmosStore<SiteDocument>,
-                TypedDocumentCosmosStore<SiteDocument>>()
+            .AddSingleton(cosmosClient)
             .AddSingleton(TimeProvider.System)
-            .AddTransient<ISiteService, SiteService>()
-            .AddTransient<ISiteStore, SiteStore>()
-            .AddTransient<IRolesStore, RolesStore>()
-            .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
-            .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
-            .AddSingleton<IMemoryCache, MemoryCache>();
+            .AddSingleton<IMetricsRecorder, InMemoryMetricsRecorder>()
+            .AddSingleton<ITypedDocumentCosmosStore<NotificationConfigurationDocument>,
+                TypedDocumentCosmosStore<NotificationConfigurationDocument>>()
+            .AddSingleton<ITypedDocumentCosmosStore<RolesDocument>,
+                TypedDocumentCosmosStore<RolesDocument>>()
+            .AddSingleton<ITypedDocumentCosmosStore<SiteDocument>,
+                TypedDocumentCosmosStore<SiteDocument>>()
+            .AddSingleton<ISiteStore, SiteStore>()
+            .AddSingleton<IRolesStore, RolesStore>()
+            .AddSingleton<INotificationConfigurationStore, NotificationConfigurationStore>()
+            .AddSingleton<ISiteService, SiteService>()
+            .AddSingleton<INotificationConfigurationService, NotificationConfigurationService>();
 
         return services;
     }

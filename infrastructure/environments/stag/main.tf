@@ -89,4 +89,16 @@ module "mya_application_stag" {
       failover_priority = 1
       zone_redundant    = false
   }]
+  cosmos_booking_autoscale_settings = [{
+  max_throughput = 60000
+  }]
+  cosmos_core_autoscale_settings = [{
+    max_throughput = 25000
+  }]
+  cosmos_index_autoscale_settings = [{
+    max_throughput = 4000
+  }]
+  cosmos_audit_autoscale_settings = [{
+    max_throughput = 2000
+  }]
 }

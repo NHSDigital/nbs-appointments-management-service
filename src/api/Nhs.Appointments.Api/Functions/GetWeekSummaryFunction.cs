@@ -30,7 +30,7 @@ public class GetWeekSummaryFunction(
     [OpenApiOperation(operationId: "GetWeekSummary", tags: ["Availability"],
         Summary = "Get weekly availability summary for a week start date and site")]
     [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(double),
-        Description = "The id of them site where to get daily availability from")]
+        Description = "The ID of the site from which to query bookings and availability")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = true, Type = typeof(double),
         Description = "The start of the week date")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(WeekSummary),

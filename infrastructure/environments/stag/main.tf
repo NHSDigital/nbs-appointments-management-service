@@ -90,7 +90,7 @@ module "mya_application_stag" {
       zone_redundant    = false
   }]
   cosmos_booking_autoscale_settings = [{
-  max_throughput = 60000
+    max_throughput = 60000
   }]
   cosmos_core_autoscale_settings = [{
     max_throughput = 25000

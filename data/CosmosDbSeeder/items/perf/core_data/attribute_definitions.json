@@ -1,0 +1,42 @@
+{
+  "id": "accessibilities",
+  "docType": "system",
+  "accessibilityDefinitions": [
+    {
+      "id": "accessibility/accessible_toilet",
+      "displayName": "Accessible toilet"
+    },
+    {
+      "id": "accessibility/braille_translation_service",
+      "displayName": "Braille translation service"
+    },
+    {
+      "id": "accessibility/disabled_car_parking",
+      "displayName": "Disabled car parking"
+    },
+    {
+      "id": "accessibility/car_parking",
+      "displayName": "Car parking"
+    },
+    {
+      "id": "accessibility/induction_loop",
+      "displayName": "Induction loop"
+    },
+    {
+      "id": "accessibility/sign_language_service",
+      "displayName": "Sign language service"
+    },
+    {
+      "id": "accessibility/step_free_access",
+      "displayName": "Step free access"
+    },
+    {
+      "id": "accessibility/text_relay",
+      "displayName": "Text relay"
+    },
+    {
+      "id": "accessibility/wheelchair_access",
+      "displayName": "Wheelchair access"
+    }
+  ]
+}

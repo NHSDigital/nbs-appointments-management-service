@@ -105,7 +105,7 @@ public static class FunctionConfigurationExtensions
             .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
-            .AddUserNotifications()
+            .AddUserNotifications(configuration)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");

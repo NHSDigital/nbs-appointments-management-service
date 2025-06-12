@@ -4,8 +4,9 @@ public class BookingAvailabilityStateService(
     IAvailabilityQueryService availabilityQueryService,
     IBookingQueryService bookingQueryService) : IBookingAvailabilityStateService
 {
-    private readonly IReadOnlyList<AppointmentStatus> _liveStatuses = [AppointmentStatus.Booked, AppointmentStatus.Provisional];
-    
+    private readonly IReadOnlyList<AppointmentStatus> _liveStatuses =
+        [AppointmentStatus.Booked, AppointmentStatus.Provisional];
+
     public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
@@ -27,30 +28,21 @@ public class BookingAvailabilityStateService(
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
     }
 
-    private async Task<(List<Booking> bookings, List<SessionInstance> slots)> FetchData(string site,
+    private async Task<(List<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
         DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
         var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
 
-        //default live bookings (booked and provisional, no need to include cancelled for any slot calculations)
-        var statuses = _liveStatuses;
-
-        if (isWeekSummary)
-        {
-            //if summary for , don't include provisional bookings as we don't surface that data anywhere else in frontend.
-            //include cancelled as those totals are needed for summary
-            statuses = [AppointmentStatus.Booked, AppointmentStatus.Cancelled];
-        }
-
+        var statuses = isWeekSummary ? [AppointmentStatus.Booked, AppointmentStatus.Cancelled] : _liveStatuses;
         var bookingsTask = bookingQueryService.GetOrderedBookings(site, from, to, statuses);
-        var sessionsTask = availabilityQueryService.GetSessions(site, DateOnly.FromDateTime(from),
-            DateOnly.FromDateTime(to), generateSessionId: isWeekSummary);
+        var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(from),
+            DateOnly.FromDateTime(to), isWeekSummary);
         await Task.WhenAll(bookingsTask, sessionsTask);
         return (bookingsTask.Result.ToList(), sessionsTask.Result.ToList());
     }
 
-    private List<SessionSummary> GetDailySessionSummaries(DateOnly date,
-        IEnumerable<SessionInstance> sessionInstances)
+    private static List<SessionSummary> GetDailySessionSummaries(DateOnly date,
+        IEnumerable<LinkedSessionInstance> sessionInstances)
     {
         return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
         {
@@ -96,13 +88,13 @@ public class BookingAvailabilityStateService(
                         state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
                         break;
                     case BookingAvailabilityStateReturnType.WeekSummary:
-
                         //update status if not already supported
+
                         if (booking.AvailabilityStatus != AvailabilityStatus.Supported)
                         {
                             booking.AvailabilityStatus = AvailabilityStatus.Supported;
                         }
-                        
+
                         var fromDate = DateOnly.FromDateTime(targetSlot.From);
                         var sessionToUpdate = daySummaries.Where(x => x.Date == fromDate)
                             .SelectMany(x => x.Sessions)
@@ -129,6 +121,7 @@ public class BookingAvailabilityStateService(
                     {
                         booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
                     }
+
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
                     state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
@@ -143,7 +136,7 @@ public class BookingAvailabilityStateService(
         {
             case BookingAvailabilityStateReturnType.AvailableSlots:
                 //we only need to do this calculation if we want to return the available slots
-                state.AvailableSlots = slotsList.Where(s => s.Capacity > 0).ToList();
+                state.AvailableSlots = slotsList.Where(s => s.Capacity > 0).ToList<SessionInstance>();
                 break;
             case BookingAvailabilityStateReturnType.WeekSummary:
                 state.WeekSummary = GenerateWeekSummary(bookings, daySummaries);
@@ -157,23 +150,23 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private WeekSummary GenerateWeekSummary(List<Booking> bookings, List<DaySummary> daySummaries)
+    private static WeekSummary GenerateWeekSummary(List<Booking> bookings, List<DaySummary> daySummaries)
     {
         foreach (var daySummary in daySummaries)
         {
             daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
             daySummary.RemainingCapacity = daySummary.Sessions.Sum(x => x.RemainingCapacity);
-            
+
             var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
-            
+
             //includes both supported and orphaned bookings
             daySummary.BookedAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Booked);
-            
+
             //...of which X are orphaned
             daySummary.OrphanedAppointments = bookingsOnDay.Count(x =>
                 x.Status == AppointmentStatus.Booked &&
                 x.AvailabilityStatus == AvailabilityStatus.Orphaned);
-            
+
             daySummary.CancelledAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
         }
 
@@ -188,11 +181,13 @@ public class BookingAvailabilityStateService(
         };
     }
 
-    private List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to, List<SessionInstance> sessions)
+    private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
+        List<LinkedSessionInstance> sessions)
     {
         var dayDate = DateOnly.FromDateTime(from.Date);
-            
-        List<DaySummary> daySummaries = [
+
+        List<DaySummary> daySummaries =
+        [
             new(dayDate, GetDailySessionSummaries(dayDate, sessions))
         ];
 
@@ -211,7 +206,8 @@ public class BookingAvailabilityStateService(
     /// <param name="slots"></param>
     /// <param name="booking"></param>
     /// <returns></returns>
-    private static SessionInstance ChooseHighestPrioritySlot(IEnumerable<SessionInstance> slots, Booking booking) =>
+    private static LinkedSessionInstance ChooseHighestPrioritySlot(IEnumerable<LinkedSessionInstance> slots,
+        Booking booking) =>
         slots.Where(sl => sl.Capacity > 0
                           && sl.From == booking.From
                           && (int)sl.Duration.TotalMinutes == booking.Duration

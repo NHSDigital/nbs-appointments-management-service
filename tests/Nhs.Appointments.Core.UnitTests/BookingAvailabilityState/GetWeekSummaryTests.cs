@@ -16,7 +16,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("7", "Blue", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 5)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession(new DateOnly(2025, 1, 6), "09:00", "10:00", ["Green", "Blue"], capacity: 2,
                 internalSessionId: Guid.Parse("d9907d84-a0e3-41d4-ae49-bed6c23d9742")),
@@ -126,7 +126,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("16", "E", new DateOnly(2025, 1, 19), "09:30", avStatus: "Orphaned", creationOrder: 16),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession(new DateOnly(2025, 1, 13), "09:00", "09:40", ["B", "C", "D", "E", "F", "G"], capacity: 3,
                 internalSessionId: Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0")),
@@ -267,7 +267,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("16", "B", new DateOnly(2025, 1, 19), avStatus: "Orphaned", creationOrder: 16),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession(new DateOnly(2025, 1, 13), "09:00", "09:40", ["B", "C", "D"], capacity: 3,
                 internalSessionId: Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0")),
@@ -393,7 +393,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("16", "E", new DateOnly(2025, 1, 16), "09:30", avStatus: "Orphaned", creationOrder: 16),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession(new DateOnly(2025, 1, 14), "09:00", "09:50", ["B", "C", "D", "E", "F", "G"], capacity: 3,
                 internalSessionId: Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0")),
@@ -586,7 +586,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("16", "B", new DateOnly(2025, 1, 19), avStatus: "Orphaned", creationOrder: 16),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession(new DateOnly(2025, 1, 13), "09:00", "09:40", ["A", "C", "D"], capacity: 5,
                 internalSessionId: Guid.Parse("fcff90d1-fe20-477e-af02-dac209dd86c0")),

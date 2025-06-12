@@ -5,13 +5,12 @@ public class BookingAvailabilityStateServiceTestBase
     protected readonly BookingAvailabilityStateService Sut;
     protected readonly Mock<TimeProvider> TimeProvider = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
-    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
-    private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+    private readonly Mock<IAvailabilityQueryService> _availabilityQueryService = new();
     
     protected const string MockSite = "some-site";
 
     protected BookingAvailabilityStateServiceTestBase() => Sut =
-        new BookingAvailabilityStateService(new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object), new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.Object));
+        new BookingAvailabilityStateService(_availabilityQueryService.Object, new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.Object));
 
     private static DateTime TestDateAt(string time)
     {
@@ -58,21 +57,21 @@ public class BookingAvailabilityStateServiceTestBase
             Created = creationDate ?? new DateTime(2024, 11, 15, 9, 45, creationOrder)
         };
 
-    protected static SessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
+    protected static LinkedSessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
         int capacity = 1) =>
         new(TestDateAt(start), TestDateAt(end)) { Services = services, SlotLength = slotLength, Capacity = capacity };
     
-    protected static SessionInstance TestSession(DateOnly date, string start, string end, string[] services, int slotLength = 10,
+    protected static LinkedSessionInstance TestSession(DateOnly date, string start, string end, string[] services, int slotLength = 10,
         int capacity = 1, Guid? internalSessionId = null) =>
         new(TestDateAt(date, start), TestDateAt(date, end)) { InternalSessionId = internalSessionId, Services = services, SlotLength = slotLength, Capacity = capacity };
 
-    protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<SessionInstance> sessions)
+    protected void SetupAvailabilityAndBookings(List<Booking> bookings, List<LinkedSessionInstance> sessions)
     {
         _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
             .ReturnsAsync(bookings);
-
-        _availabilityStore
-            .Setup(x => x.GetSessions(
+        
+        _availabilityQueryService
+            .Setup(x => x.GetLinkedSessions(
                 It.Is<string>(s => s == MockSite),
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>(),

@@ -8,8 +8,7 @@ public class AvailabilityDocumentStore(
     ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore,
     IMetricsRecorder metricsRecorder) : IAvailabilityStore
 {
-    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to,
-        bool generateSessionId = false)
+    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
@@ -21,7 +20,7 @@ public class AvailabilityDocumentStore(
             foreach (var day in documents)
             {
                 results.AddRange(day.Sessions.Select(s =>
-                    new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until), generateSessionId)
+                    new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
                     {
                         Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
                     }

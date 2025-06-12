@@ -574,7 +574,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
                 Times.Once);
             _availabilityStore.Verify(x => x.GetSessions(
-                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>()),
+                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
                 Times.Once);
             
             //multiService code path
@@ -626,7 +626,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.GetSessions(
                     It.Is<string>(s => s == MockSite),
                     It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>(), It.IsAny<bool>()))
+                    It.IsAny<DateOnly>()))
                 .ReturnsAsync(sessions);
 
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -683,7 +683,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.GetSessions(
                     It.Is<string>(s => s == MockSite),
                     It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>(), It.IsAny<bool>()))
+                    It.IsAny<DateOnly>()))
                 .ReturnsAsync(sessions);
 
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -744,7 +744,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.GetSessions(
                     It.Is<string>(s => s == MockSite),
                     It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>(), It.IsAny<bool>()))
+                    It.IsAny<DateOnly>()))
                 .ReturnsAsync(sessions);
 
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -807,7 +807,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.GetSessions(
                     It.Is<string>(s => s == MockSite),
                     It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>(), It.IsAny<bool>()))
+                    It.IsAny<DateOnly>()))
                 .ReturnsAsync(sessions);
 
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
@@ -882,13 +882,13 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.GetSessions(
                     It.Is<string>(s => s == MockSite),
                     It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>(), It.IsAny<bool>()))
+                    It.IsAny<DateOnly>()))
                 .ReturnsAsync(sessions);
             
             await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
             _availabilityStore.Verify(a =>
-                a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1), It.IsAny<bool>()));
+                a.GetSessions(MockSite, new DateOnly(2025, 1, 1), new DateOnly(2025, 1, 1)));
 
             var expectedFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var expectedTo = new DateTime(2025, 1, 1, 23, 59, 0, DateTimeKind.Utc);
@@ -1115,7 +1115,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
                 Times.Never);
             _availabilityStore.Verify(x => x.GetSessions(
-                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<bool>()),
+                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
                 Times.Never);
         }
     }

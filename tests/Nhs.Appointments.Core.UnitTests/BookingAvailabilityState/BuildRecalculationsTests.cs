@@ -16,7 +16,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("7", "Blue", avStatus: "Orphaned", creationOrder: 5)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 2),
             TestSession("09:00", "10:00", ["Green"], capacity: 1),
@@ -56,7 +56,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("6", "E", avStatus: "Orphaned", creationOrder: 6),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["B", "C", "D", "E", "F", "G"], capacity: 3),
             TestSession("09:00", "09:10", ["A", "C", "D"], capacity: 3),
@@ -86,7 +86,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("6", "B", avStatus: "Orphaned", creationOrder: 6),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 3),
             TestSession("09:00", "09:10", ["A", "C", "D"], capacity: 3),
@@ -116,7 +116,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("6", "E", avStatus: "Orphaned", creationOrder: 6),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["B", "C", "D", "E", "F", "G"], capacity: 3),
             TestSession("09:00", "09:10", ["A", "C", "D", "U", "Z", "H", "I", "J"], capacity: 3),
@@ -153,7 +153,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("6", "B", avStatus: "Orphaned", creationOrder: 6),
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["D", "C", "E"], capacity: 3),
             TestSession("09:00", "09:10", ["B", "C", "D"], capacity: 3),
@@ -185,7 +185,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("3", "Blue", avStatus: "Orphaned", creationOrder: 3)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
             TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
@@ -234,7 +234,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("21", "Blue", "09:50", creationOrder: 21)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "10:00", ["Green", "Blue", "Orange"], capacity: 2),
             TestSession("09:00", "09:40", ["Blue", "Green"], capacity: 1),

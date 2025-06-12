@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -188,6 +189,14 @@ public abstract partial class BaseFeatureSteps : Feature
 
     public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
     {
+        //try and match to exact date string first
+        var exactMatch = DateTime.TryParseExact(dateString, "dd-MM-yyyy", null, DateTimeStyles.None, out var exactDate);
+
+        if (exactMatch)
+        {
+            return DateOnly.FromDateTime(exactDate);
+        }
+        
         var match = NaturalLanguageRelativeDate().Match(dateString);
         if (!match.Success)
         {

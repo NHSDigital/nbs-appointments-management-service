@@ -12,7 +12,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("3", "Green", "09:30", avStatus: "Supported")
         };
 
-        var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -30,7 +30,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("3", "Green", "09:30")
         };
 
-        var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -47,7 +47,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("2", "Green", "09:10", avStatus: "Supported", creationOrder: 2)
         };
 
-        var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -67,7 +67,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-3))
         };
 
-        var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -87,7 +87,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("2", "Green", "09:10", status: "Provisional", creationOrder: 2, creationDate: utcNow.AddMinutes(-8))
         };
 
-        var sessions = new List<SessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("10:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -105,7 +105,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("3", "Green", "09:30", creationOrder: 2)
         };
 
-        var sessions = new List<SessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
+        var sessions = new List<LinkedSessionInstance> { TestSession("09:00", "12:00", ["Green"]) };
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
@@ -123,7 +123,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
             TestSession("09:00", "09:10", ["Black", "Blue", "Lilac", "Purple"], capacity: 1),
@@ -157,7 +157,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
             TestSession("09:00", "09:10", ["Black", "Blue", "Lilac", "Purple"], capacity: 1),
@@ -188,7 +188,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             //prove this slot is taken, will just use the first in the list when all else equal
             TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
@@ -220,7 +220,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),
             TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
@@ -252,7 +252,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             //prove this slot is taken
             TestSession("09:00", "09:10", ["Blue"], capacity: 1),
@@ -287,7 +287,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             TestSession("09:00", "09:10", ["Green", "Blue", "Orange"], capacity: 1),
             TestSession("09:00", "09:10", ["White", "Blue", "Yellow"], capacity: 1),
@@ -320,7 +320,7 @@ public class GetAvailableSlotsTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", avStatus: "Orphaned", creationOrder: 1)
         };
 
-        var sessions = new List<SessionInstance>
+        var sessions = new List<LinkedSessionInstance>
         {
             //prove this slot is taken
             TestSession("09:00", "09:10", ["Blue", "Black", "Yellow"], capacity: 1),

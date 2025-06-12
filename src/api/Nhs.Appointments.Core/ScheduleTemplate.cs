@@ -27,28 +27,48 @@ public class Session
     
 }
 
-public class SessionInstance : TimePeriod
+public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, until)
 {
-    /// <summary>
-    /// Not guaranteed to be generated, only used under certain paths
-    /// </summary>
-    internal Guid? InternalSessionId { get; set; }
+    public SessionInstance(TimePeriod timePeriod) : this(timePeriod.From, timePeriod.Until) { }
 
-    public SessionInstance(TimePeriod timePeriod) : base(timePeriod.From, timePeriod.Until) { }
+    public string[] Services { get; set; }
+    public int SlotLength { get; set; }
+    public int Capacity { get; set; }
+    public virtual IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
+                new SessionInstance(sl) { Services = Services, Capacity = Capacity });
+}
 
-    public SessionInstance(DateTime from, DateTime until, bool generateSessionId = false) : base(from, until)
+/// <summary>
+/// A session instance that has the capability to generate an internal sessionId to help link slots with sessions
+/// </summary>
+public class LinkedSessionInstance : SessionInstance
+{
+    private LinkedSessionInstance(TimePeriod timePeriod) : base(timePeriod) { }
+    
+    public LinkedSessionInstance(DateTime from, DateTime until) : base(from, until) { }
+    
+    public LinkedSessionInstance(SessionInstance sessionInstance, bool generateSessionId) : base(sessionInstance)
     {
         if (generateSessionId)
         {
             InternalSessionId = Guid.NewGuid();
         }
+        
+        Services = sessionInstance.Services;
+        Capacity = sessionInstance.Capacity;
+        SlotLength = sessionInstance.SlotLength;
     }
-
-    public string[] Services { get; set; }
-    public int SlotLength { get; set; }
-    public int Capacity { get; set; }
-    public IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
-                new SessionInstance(sl) { InternalSessionId = InternalSessionId, Services = Services, Capacity = Capacity });
+    
+    public Guid? InternalSessionId { get; init; }
+    
+    public override IEnumerable<LinkedSessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(slot =>
+        new LinkedSessionInstance(slot)
+        {
+            InternalSessionId = InternalSessionId, 
+            Services = Services, 
+            Capacity = Capacity, 
+            SlotLength = SlotLength
+        });
 }
 
 public class Template

@@ -19,8 +19,9 @@ public class AvailabilityQueryService(
         return await availabilityStore.GetDailyAvailability(site, from, to);
     }
     
-    public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to, bool generateSessionId = false)
+    public async Task<IEnumerable<LinkedSessionInstance>> GetLinkedSessions(string site, DateOnly from, DateOnly to, bool generateInternalSessionId = false)
     {
-        return await availabilityStore.GetSessions(site, from, to, generateSessionId);
+        var sessions = await availabilityStore.GetSessions(site, from, to);
+        return sessions.Select(x => new LinkedSessionInstance(x, generateInternalSessionId));
     }
 }

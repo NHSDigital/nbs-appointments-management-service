@@ -1,28 +1,17 @@
 using FluentAssertions;
-using Newtonsoft.Json;
 
 namespace CosmosDbSeederTests;
 
-public class ClinicalServicesTests
+public class ClinicalServicesTests : BaseCosmosDbSeederTest
 {
-    private static ClinicalServicesDocument ReadClinicalServices(string environment)
-    {
-        var ClinicalServices = JsonConvert.DeserializeObject<ClinicalServicesDocument>(File.ReadAllText(Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            $"items/{environment}/core_data/clinical_services.json")));
-
-        return ClinicalServices ??
-               throw new Exception($"Could not read clinical_services.json from {environment} environment");
-    }
-
     [Fact]
     public void ClinicalServicesShouldBeTheSameInEachEnvironment()
     {
-        var localClinicalServices = ReadClinicalServices("local");
-        var devClinicalServices = ReadClinicalServices("dev");
-        var intClinicalServices = ReadClinicalServices("int");
-        var stagClinicalServices = ReadClinicalServices("stag");
-        var prodClinicalServices = ReadClinicalServices("prod");
+        var localClinicalServices = ReadDocument<ClinicalServicesDocument>("local");
+        var devClinicalServices = ReadDocument<ClinicalServicesDocument>("dev");
+        var intClinicalServices = ReadDocument<ClinicalServicesDocument>("int");
+        var stagClinicalServices = ReadDocument<ClinicalServicesDocument>("stag");
+        var prodClinicalServices = ReadDocument<ClinicalServicesDocument>("prod");
 
         localClinicalServices.Should().BeEquivalentTo(devClinicalServices);
         devClinicalServices.Should().BeEquivalentTo(intClinicalServices);
@@ -33,7 +22,7 @@ public class ClinicalServicesTests
     [Fact(DisplayName = "APPT-740: Define Autumn/Winter Clinical Services")]
     public void ClinicalRolesShouldBeCorrect()
     {
-        var clinicalServices = ReadClinicalServices("local").Services;
+        var clinicalServices = ReadDocument<ClinicalServicesDocument>("local").Services;
 
         clinicalServices.Should().Contain(service => service.Id == "RSV:Adult" && service.Label == "RSV Adult");
         clinicalServices.Should().Contain(service => service.Id == "COVID:5_11" && service.Label == "COVID 5-11");

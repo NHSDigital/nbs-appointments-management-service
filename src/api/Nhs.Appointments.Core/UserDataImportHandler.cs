@@ -45,7 +45,13 @@ public class UserDataImportHandler(
         }
 
         await CheckForNonWhitelistedEmailDomains(userImportRows, report);
-        await ValidateRegionCodes([.. userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Region))], report);
+
+        var regionalUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Region)).ToList();
+        if (regionalUsers.Count > 0)
+        {
+            await ValidateRegionCodes(regionalUsers, report);
+            CheckForDuplicateRegionPermissions(userImportRows, report);
+        }
 
         if (report.Any(r => !r.Success))
         {
@@ -100,9 +106,6 @@ public class UserDataImportHandler(
 
     private async Task ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report)
     {
-        if (userImportRows.Count == 0)
-            return;
-
         var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
         var regionCodes = wellKnownOdsCodes.Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase)).Select(x => x.OdsCode.ToLower()).ToList();
 
@@ -114,6 +117,23 @@ public class UserDataImportHandler(
         if (invalidRegions.Count > 0)
         {
             report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: {reg} not found in the well known Region list.")));
+        }
+    }
+
+    private static void CheckForDuplicateRegionPermissions(List<UserImportRow> userImportRows, List<ReportItem> report)
+    {
+        var duplicateUsers = userImportRows
+            .GroupBy(usr => usr.UserId)
+            .Where(usr => usr.Count() > 1)
+            .ToList();
+
+        if (duplicateUsers.Count > 0)
+        {
+            report.AddRange(duplicateUsers.Select(usr => new ReportItem(
+                -1,
+                "User added to multiple regions",
+                false,
+                $"Users can only be added to one region per upload. User: {usr.Key} has been added multiple times for region scoped permissions.")));
         }
     }
 

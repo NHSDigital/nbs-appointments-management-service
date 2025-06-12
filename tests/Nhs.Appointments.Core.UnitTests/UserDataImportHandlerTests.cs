@@ -458,6 +458,52 @@ public class UserDataImportHandlerTests
         report.First(r => !r.Success).Message.Should().Be("Provided region: R66 not found in the well known Region list.");
     }
 
+    [Theory]
+    [InlineData("invalid email@test.com")]
+    [InlineData("another invalid email")]
+    public async Task ReadsUserData_AndReportsInvalidEmailAddress(string email)
+    {
+        string[] inputRows =
+        [
+            $"{email},Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be($"User: {email} is not a valid email address");
+    }
+
+    [Fact]
+    public async Task ReadUserData_AndReportDuplicateRegionScopedPermissionsAdded()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,false,true,true,true,R1",
+            "test1@nhs.net,John,Smith,,true,false,false,true,R2",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("R1", "Region 1", "Region"), new("R2", "Region 2", "Region") });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Users can only be added to one region per upload. User: test1@nhs.net has been added multiple times for region scoped permissions.");
+    }
+
     private List<Site> GetSites()
     {
         var sites = new List<Site>();

@@ -1,5 +1,6 @@
 using CsvHelper;
 using CsvHelper.Configuration;
+using Nhs.Appointments.Core.Constants;
 using static Nhs.Appointments.Core.UserDataImportHandler;
 
 namespace Nhs.Appointments.Core;
@@ -109,7 +110,10 @@ public class UserImportRowMap : ClassMap<UserImportRow>
 
         if (!_oktaEnabled && IsOktaUser(row))
             throw new ArgumentException($"User: {user} is an OKTA user and OKTA is not enabled.");
-        
+
+        if (!RegularExpressionConstants.EmailAddressRegex().IsMatch(user))
+            throw new ArgumentException($"User: {user} is not a valid email address");
+
         return true;
     }
 

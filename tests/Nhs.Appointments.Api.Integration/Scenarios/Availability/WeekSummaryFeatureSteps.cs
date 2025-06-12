@@ -27,9 +27,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         public async Task QueryWeekSummary(string from)
         {
             var siteId = GetSiteId();
-            var fromDate = ParseNaturalLanguageDateOnly(from).ToString("yyyy-MM-dd");
-
-            var requestUrl = $"http://localhost:7071/api/week-summary?site={siteId}&from={fromDate}";
+            var requestUrl = $"http://localhost:7071/api/week-summary?site={siteId}&from={ParseNaturalLanguageDateOnly(from).ToString("yyyy-MM-dd")}";
 
             _response = await Http.GetAsync(requestUrl);
             _statusCode = _response.StatusCode;
@@ -46,12 +44,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             var expectedSessionSummaries = expectedSessionSummaryTable.Rows.Skip(1).Select(row =>
                 new SessionSummary
                 {
-                    UkStartDatetime = DateTime.ParseExact(
-                        ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
-                        "yyyy-MM-dd", null).Add(TimeOnly.Parse(row.Cells.ElementAt(1).Value).ToTimeSpan()),
-                    UkEndDatetime = DateTime.ParseExact(
-                        ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
-                        "yyyy-MM-dd", null).Add(TimeOnly.Parse(row.Cells.ElementAt(2).Value).ToTimeSpan()),
+                    UkStartDatetime = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(1).Value)),
+                    UkEndDatetime = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(2).Value)),
                     Bookings = GetServiceBookings(row.Cells.ElementAt(3).Value),
                     Capacity = int.Parse(row.Cells.ElementAt(4).Value),
                     SlotLength = int.Parse(row.Cells.ElementAt(5).Value),
@@ -105,6 +99,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             _actualResponse.Should().BeEquivalentTo(expectedWeekSummary, 
                 //exclude DaySummaries as should be asserted elsewhere
                 options => options.Excluding(x => x.DaySummaries));
+        }
+        
+        [Then(@"a bad request error is returned")]
+        public void Assert()
+        {
+            _response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         private static Dictionary<string, int> GetServiceBookings(string cellValue)

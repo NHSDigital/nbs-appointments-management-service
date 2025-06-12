@@ -178,7 +178,9 @@ describe('Select Services Step', () => {
     it('selects all services when Select All is checked', async () => {
       const { user } = renderStep(mockClinicalServices);
 
-      await user.click(screen.getByRole('checkbox', { name: 'Select all' }));
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all services' }),
+      );
       expect(screen.getByRole('checkbox', { name: 'RSV Adult' })).toBeChecked();
       expect(
         screen.getByRole('checkbox', { name: 'COVID 5-11' }),
@@ -189,7 +191,7 @@ describe('Select Services Step', () => {
       expect(screen.getByRole('checkbox', { name: 'COVID 18+' })).toBeChecked();
     });
 
-    it('deselects all services when Select All is checked', async () => {
+    it('deselects all services when Select All Services is checked', async () => {
       const { user } = renderStep(mockClinicalServices, [
         'RSV:Adult',
         'COVID:5_11',
@@ -205,10 +207,12 @@ describe('Select Services Step', () => {
       ).toBeChecked();
       expect(screen.getByRole('checkbox', { name: 'COVID 18+' })).toBeChecked();
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).toBeChecked();
 
-      await user.click(screen.getByRole('checkbox', { name: 'Select all' }));
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all services' }),
+      );
 
       expect(
         screen.getByRole('checkbox', { name: 'RSV Adult' }),
@@ -223,15 +227,15 @@ describe('Select Services Step', () => {
         screen.getByRole('checkbox', { name: 'COVID 18+' }),
       ).not.toBeChecked();
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).not.toBeChecked();
     });
 
-    it('automatically checks Select All when each service is checked individually', async () => {
+    it('automatically checks Select All Services when each service is checked individually', async () => {
       const { user } = renderStep(mockClinicalServices);
 
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).not.toBeChecked();
 
       await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
@@ -240,11 +244,11 @@ describe('Select Services Step', () => {
       await user.click(screen.getByRole('checkbox', { name: 'COVID 18+' }));
 
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).toBeChecked();
     });
 
-    it('automatically unchecks Select All when a service is unchecked individually', async () => {
+    it('automatically unchecks Select All Services when a service is unchecked individually', async () => {
       const { user } = renderStep(mockClinicalServices, [
         'RSV:Adult',
         'COVID:5_11',
@@ -253,13 +257,13 @@ describe('Select Services Step', () => {
       ]);
 
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).toBeChecked();
 
       await user.click(screen.getByRole('checkbox', { name: 'COVID 18+' }));
 
       expect(
-        screen.getByRole('checkbox', { name: 'Select all' }),
+        screen.getByRole('checkbox', { name: 'Select all services' }),
       ).not.toBeChecked();
     });
   });

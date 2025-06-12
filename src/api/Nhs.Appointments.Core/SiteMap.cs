@@ -110,7 +110,6 @@ public class SiteMap : ClassMap<SiteImportRow>
                     CsvFieldValidator.ParseUserEnteredBoolean(x.Row[key]).ToString()))
                 .ToArray();
         });
-        Map(m => m.Type).Name("Site type");
         Map(m => m.Type).Convert(x => x.Row.GetField<string>("Site type"));
     }
 }

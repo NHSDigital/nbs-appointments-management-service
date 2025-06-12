@@ -182,7 +182,7 @@ class Program
 
     private static bool IsProtectedEnvironment(string environment)
     {
-        var protectedEnvironments = new [] { "dev", "int", "stag", "prod" };
+        var protectedEnvironments = new [] { "dev", "int", "perf", "stag", "prod" };
         return protectedEnvironments.Contains(environment);
     }
 }

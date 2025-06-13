@@ -333,6 +333,25 @@ type WeekSummary = {
   remainingCapacity: number;
 };
 
+type WeekSummaryV2 = {
+  daySummaries: DaySummaryV2[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
+};
+
+type DaySummaryV2 = {
+  date: string;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -409,6 +428,8 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  WeekSummaryV2,
+  DaySummaryV2,
   ClinicalService,
 };
 

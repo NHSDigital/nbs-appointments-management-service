@@ -21,7 +21,14 @@ public static class JsonResponseWriter
         var serializerSettings = new JsonSerializerSettings
         {
             Converters = { new ShortTimeOnlyJsonConverter(), new ShortDateOnlyJsonConverter(), new DayOfWeekJsonConverter(), new Newtonsoft.Json.Converters.StringEnumConverter { AllowIntegerValues = false } },
-            ContractResolver = new CamelCasePropertyNamesContractResolver() 
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy
+                {
+                    ProcessDictionaryKeys = false,
+                    OverrideSpecifiedNames = true
+                }
+            }
         };
         return JsonConvert.SerializeObject(result, serializerSettings);
     }

@@ -8,6 +8,7 @@ import {
   SmallSpinnerWithText,
   TextInput,
   TextArea,
+  Expander,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -75,6 +76,14 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         ></TextArea>
       </FormGroup>
 
+      <Expander summary={'View the latitude and longitude ranges'}>
+        <ul>
+          <li>the minimum latitude is 49.8 and the maximum latitude is 60.9</li>
+          <li>
+            the minimum longitude is -8.1 and the maximum longitude is 1.8
+          </li>
+        </ul>
+      </Expander>
       <DecimalFormControl
         formField="latitude"
         label="Latitude"

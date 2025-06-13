@@ -20,7 +20,7 @@ public abstract class BaseBulkImportFeatureSteps(string flag, bool enabled) : Fe
     [When("I import the following users")]
     public async Task ImportUsers(DataTable dataTable)
     {
-        const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Site";
+        const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Region,Site";
 
         var csv = BuildInputCsv(dataTable, usersHeader);
 

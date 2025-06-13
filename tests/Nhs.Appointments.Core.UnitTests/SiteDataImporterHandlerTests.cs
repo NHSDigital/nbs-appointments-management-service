@@ -198,8 +198,8 @@ public class SiteDataImporterHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(1);
-        report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'PhoneNumber'[0] was not found");
+        report.Count().Should().Be(2);
+        report.First().Message.Should().Contain("Field with name 'PhoneNumber' does not exist");
     }
 
     [Fact]

@@ -98,12 +98,15 @@ describe('Set User Roles Form', () => {
 
   it.each([
     [undefined, 'Enter a latitude'],
-    [-10, true],
-    [10, true],
-    [-49.8, true],
-    [-49.9, 'Enter a valid latitude'],
+    [-5, 'Enter a valid latitude'],
+    [10.1, 'Enter a valid latitude'],
+    [49.7, 'Enter a valid latitude'],
+    [49.8, true],
+    [54.1, true],
+    [60, true],
     [60.9, true],
     [61.0, 'Enter a valid latitude'],
+    [65.3, 'Enter a valid latitude'],
   ])(
     'validates the site latitude',
     async (

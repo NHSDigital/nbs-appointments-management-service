@@ -24,7 +24,7 @@ export const editSiteDetailsFormSchema: yup.ObjectSchema<EditSiteDetailsFormValu
         .number()
         .transform(value => (isNaN(value) ? undefined : value))
         .required('Enter a latitude')
-        .min(-49.8, 'Enter a valid latitude')
+        .min(49.8, 'Enter a valid latitude')
         .max(60.9, 'Enter a valid latitude'),
       longitude: yup
         .number()

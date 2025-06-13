@@ -72,11 +72,14 @@ public class UserDataImportHandler(
                     }
                 }
 
-                var scope = string.IsNullOrEmpty(userAssignmentGroup.SiteId)
-                    ? $"region:{userAssignmentGroup.Region}"
-                    : $"site:{userAssignmentGroup.SiteId}";
+                var isRegionPermission = !string.IsNullOrEmpty(userAssignmentGroup.Region);
+                if (isRegionPermission)
+                {
+                    await UpdateRegionPermissionsForUser(userAssignmentGroup, report);
+                    continue;
+                }
 
-                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, scope, userAssignmentGroup.RoleAssignments);
+                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, $"site:{userAssignmentGroup.SiteId}", userAssignmentGroup.RoleAssignments);
                 if (!result.Success)
                 {
                     report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
@@ -135,6 +138,11 @@ public class UserDataImportHandler(
                 false,
                 $"Users can only be added to one region per upload. User: {usr.Key} has been added multiple times for region scoped permissions.")));
         }
+    }
+
+    private async Task UpdateRegionPermissionsForUser(UserImportRow userAssignmentGroup, List<ReportItem> report)
+    {
+        var scope = $"region:{userAssignmentGroup.Region}";
     }
 
     public class UserImportRow

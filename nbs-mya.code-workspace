@@ -27,7 +27,10 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.endOfLine": "crlf"
+    "prettier.endOfLine": "crlf",
+    "[terraform]": {
+      "editor.defaultFormatter": "hashicorp.terraform"
+    }
   },
   "extensions": {
     "recommendations": [

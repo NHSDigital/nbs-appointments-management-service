@@ -7,6 +7,7 @@ import CheckBox from './checkbox';
 import CheckBoxes, { CheckBoxOrAll } from './checkboxes';
 import DateInput from './date-input';
 import Header, { NavigationLink } from './header';
+import Expander from './expander';
 import Fieldset from './fieldset';
 import Footer from './footer';
 import FormGroup from './form-group';
@@ -47,6 +48,7 @@ export type {
   LinkActionProps,
   OnClickActionProps,
 };
+
 export {
   BackLink,
   Breadcrumbs,
@@ -57,10 +59,11 @@ export {
   CheckBoxes,
   CheckBoxOrAll,
   DateInput,
-  Header,
+  Expander,
   Fieldset,
   Footer,
   FormGroup,
+  Header,
   InsetText,
   NhsLogo,
   Pagination,
@@ -71,7 +74,6 @@ export {
   Spinner,
   SpinnerWithText,
   SmallSpinnerWithText,
-  WhiteSpinnerWithText,
   SummaryList,
   Table,
   Tabs,
@@ -80,4 +82,5 @@ export {
   TextArea,
   TextInput,
   WarningCallout,
+  WhiteSpinnerWithText,
 };

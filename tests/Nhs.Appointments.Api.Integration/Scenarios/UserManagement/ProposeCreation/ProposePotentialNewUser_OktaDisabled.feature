@@ -16,7 +16,6 @@ Feature: Proposing a potential new user - Okta Disabled
       | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | True        | True                     | NhsMail          | True                       |
     
-#  TODO why does this succeed?
   Scenario: Propose an Okta user
     Given user 'test.user@my-pharmacy.co.uk' does not exist in MYA
     When I propose creating user 'test.user@my-pharmacy.co.uk'

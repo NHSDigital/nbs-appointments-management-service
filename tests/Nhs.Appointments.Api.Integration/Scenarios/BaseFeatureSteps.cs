@@ -118,8 +118,7 @@ public abstract partial class BaseFeatureSteps : Feature
         return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
-    [Given(@"feature toggle '(.+)' is '(.+)'")]
-    public async Task SetLocalFeatureToggleOverride(string name, string state)
+    protected async Task SetLocalFeatureToggleOverride(string name, string state)
     {
         var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
             null);

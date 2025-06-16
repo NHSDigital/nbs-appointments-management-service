@@ -98,6 +98,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 RoleAssignments = roleAssignments.ToArray()
             };
             await InsertAsync(user);
+            return;
         }
 
         const string regionalUserRole = "system:regional-user";

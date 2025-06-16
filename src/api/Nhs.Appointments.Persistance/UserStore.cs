@@ -87,6 +87,47 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return new OperationResult(true);
     }
 
+    public async Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    {
+        var originalDocument = await GetOrDefaultAsync(userId);
+        if (originalDocument is null)
+        {
+            var user = new User
+            {
+                Id = userId,
+                RoleAssignments = roleAssignments.ToArray()
+            };
+            await InsertAsync(user);
+        }
+
+        const string regionalUserRole = "system:regional-user";
+        var updatedRoleAssignments = originalDocument.RoleAssignments.AsEnumerable();
+
+        var hasRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Scope == scope);
+        var hasOtherRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == regionalUserRole && ra.Scope != scope);
+
+        // User already has this regional permission - therefore this is treated as a removal
+        if (hasRegionScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
+        }
+        // Update the user's regional permission - they're only allowed one at a time
+        else if (hasOtherRegionScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments
+                .Where(ra => ra.Role != regionalUserRole)
+                .Concat(roleAssignments);
+        }
+        // No existing regional permission - add it
+        else
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
+        }
+
+        var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
+    }
+
     public async Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate)
     {
         var user = await GetOrDefaultAsync(userId);
@@ -110,7 +151,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         var document = cosmosStore.ConvertToDocument(user);
         return cosmosStore.WriteAsync(document);
     }
-    
+
     public async Task<User> GetOrDefaultAsync(string userId)
     {
         return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);

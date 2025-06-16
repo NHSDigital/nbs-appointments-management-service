@@ -56,22 +56,9 @@ public class UserService(
         return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
     }
 
-    public async Task<UpdateUserRoleAssignmentsResult> UpdateRegionalUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    public async Task UpdateRegionalUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var userRoles = await GetUserRoleAssignments(userId);
-        if (!userRoles.Any() || !userRoles.Any(r => r.Role == "system:regional-user"))
-        {
-            return await UpdateUserRoleAssignmentsAsync(userId, scope, roleAssignments);
-        }
-
-        if (userRoles.Any(r => r.Scope == scope))
-        {
-            // Remove permission and return
-        }
-
-        // Remove existing region permissions and replace with the new one
-
-        return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
+        await userStore.UpdateUserRegionPermissionsAsync(userId, scope, roleAssignments);
     }
 
     private async Task NotifyRoleAssignmentChanged(string userId, string site, IEnumerable<RoleAssignment> oldAssignments, IEnumerable<RoleAssignment> newAssignments) 

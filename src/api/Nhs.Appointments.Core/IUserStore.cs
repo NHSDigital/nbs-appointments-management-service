@@ -11,4 +11,5 @@ public interface IUserStore
     Task<OperationResult> RemoveUserAsync(string userId, string siteId);
 
     Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate);
+    Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
 }

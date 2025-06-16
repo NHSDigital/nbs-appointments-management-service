@@ -50,7 +50,7 @@ public class UserDataImportHandler(
         if (regionalUsers.Count > 0)
         {
             await ValidateRegionCodes(regionalUsers, report);
-            CheckForDuplicateRegionPermissions(userImportRows, report);
+            CheckForDuplicateRegionPermissions(regionalUsers, report);
         }
 
         if (report.Any(r => !r.Success))
@@ -75,7 +75,8 @@ public class UserDataImportHandler(
                 var isRegionPermission = !string.IsNullOrEmpty(userAssignmentGroup.Region);
                 if (isRegionPermission)
                 {
-                    await UpdateRegionPermissionsForUser(userAssignmentGroup, report);
+                    var scope = $"region:{userAssignmentGroup.Region}";
+                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userAssignmentGroup.UserId, scope, userAssignmentGroup.RoleAssignments);
                     continue;
                 }
 
@@ -138,11 +139,6 @@ public class UserDataImportHandler(
                 false,
                 $"Users can only be added to one region per upload. User: {usr.Key} has been added multiple times for region scoped permissions.")));
         }
-    }
-
-    private async Task UpdateRegionPermissionsForUser(UserImportRow userAssignmentGroup, List<ReportItem> report)
-    {
-        var scope = $"region:{userAssignmentGroup.Region}";
     }
 
     public class UserImportRow

@@ -36,8 +36,21 @@ stages:
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
+      - job: EnterChangeRequest
+        displayName: "Enter Change Request Number (CFG)"
+        pool: server
+        condition: and(succeeded(), eq('${{parameters.env}}', 'int'))
+        steps:
+          - task: ManualValidation@0
+            displayName: "Enter Change Request Number (CFG)"
+            inputs:
+              notifyUsers: ""
+              instructions: Enter a valid CFG
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
+        dependsOn:
+          - ${{ if eq(parameters.env, 'int') }}:
+              - EnterChangeRequest
         steps:
           - checkout: none
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0

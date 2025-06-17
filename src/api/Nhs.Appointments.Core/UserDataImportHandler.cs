@@ -50,7 +50,7 @@ public class UserDataImportHandler(
         if (regionalUsers.Count > 0)
         {
             await ValidateRegionCodes(regionalUsers, report);
-            CheckForDuplicateRegionPermissions(userImportRows, report);
+            CheckForDuplicateRegionPermissions(regionalUsers, report);
         }
 
         if (report.Any(r => !r.Success))
@@ -58,33 +58,37 @@ public class UserDataImportHandler(
             return report.Where(r => !r.Success);
         }
 
-        foreach (var userAssignmentGroup in userImportRows.GroupBy(usr => usr.UserId).SelectMany(usr => usr))
+        foreach (var userRow in userImportRows)
         {
             try
             {
-                if (!userAssignmentGroup.UserId.ToLower().EndsWith("@nhs.net"))
+                if (!userRow.UserId.EndsWith("@nhs.net", StringComparison.OrdinalIgnoreCase))
                 {
-                    var status = await oktaService.CreateIfNotExists(userAssignmentGroup.UserId, userAssignmentGroup.FirstName, userAssignmentGroup.LastName);
+                    var status = await oktaService.CreateIfNotExists(userRow.UserId, userRow.FirstName, userRow.LastName);
                     if (!status.Success)
                     {
-                        report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to create or update OKTA user. Failure reason: {status.FailureReason}"));
+                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to create or update OKTA user. Failure reason: {status.FailureReason}"));
                         continue;
                     }
                 }
 
-                var scope = string.IsNullOrEmpty(userAssignmentGroup.SiteId)
-                    ? $"region:{userAssignmentGroup.Region}"
-                    : $"site:{userAssignmentGroup.SiteId}";
-
-                var result = await userService.UpdateUserRoleAssignmentsAsync(userAssignmentGroup.UserId, scope, userAssignmentGroup.RoleAssignments);
-                if (!result.Success)
+                var isRegionPermission = !string.IsNullOrEmpty(userRow.Region);
+                if (isRegionPermission)
                 {
-                    report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
+                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId, $"region:{userRow.Region}", userRow.RoleAssignments);
+                }
+                else
+                {
+                    var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments);
+                    if (!result.Success)
+                    {
+                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
+                    }
                 }
             }
             catch (Exception ex)
             {
-                report.Add(new ReportItem(-1, userAssignmentGroup.UserId, false, ex.Message));
+                report.Add(new ReportItem(-1, userRow.UserId, false, ex.Message));
             }
         }
 

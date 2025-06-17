@@ -56,6 +56,11 @@ public class UserService(
         return new UpdateUserRoleAssignmentsResult(true, string.Empty, []);
     }
 
+    public async Task UpdateRegionalUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    {
+        await userStore.UpdateUserRegionPermissionsAsync(userId, scope, roleAssignments);
+    }
+
     private async Task NotifyRoleAssignmentChanged(string userId, string site, IEnumerable<RoleAssignment> oldAssignments, IEnumerable<RoleAssignment> newAssignments) 
     {
         IEnumerable<RoleAssignment> rolesRemoved = [];

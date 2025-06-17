@@ -10,12 +10,13 @@ using Xunit.Gherkin.Quick;
 using System.Text;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
-public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
+public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;

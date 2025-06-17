@@ -27,7 +27,7 @@ public class UserService(
         return userStore.GetApiUserSigningKey(clientId);
     }
 
-    public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments, bool sendNotifications = true)
     {
         var invalidRolesForScope = roleAssignments.Where(x => !x.Scope.Equals(scope));
         if (invalidRolesForScope.Any()) 
@@ -48,7 +48,7 @@ public class UserService(
 
         await userStore.UpdateUserRoleAssignments(lowerUserId, scope, roleAssignments);
 
-        if (!scope.Equals("*"))
+        if (!scope.Equals("*") && sendNotifications)
         {
             await NotifyRoleAssignmentChanged(lowerUserId, Scope.GetValue("site", scope), user?.RoleAssignments.Where(x => x.Scope.Equals(scope)) ?? [], roleAssignments);
         }

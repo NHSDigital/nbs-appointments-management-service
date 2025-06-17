@@ -40,7 +40,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[1])
             .ReturnsAsync(sites[2])
             .ReturnsAsync(sites[3]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
@@ -51,10 +51,10 @@ public class UserDataImportHandlerTests
         report.Count().Should().Be(4);
         report.All(r => r.Success).Should().BeTrue();
 
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[2].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[3].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[2].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", $"site:{sites[3].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Exactly(1));
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class UserDataImportHandlerTests
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(sites[0])
             .ReturnsAsync(sites[1]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
 
         var report = await _sut.ProcessFile(file);
@@ -84,8 +84,8 @@ public class UserDataImportHandlerTests
         report.Count().Should().Be(2);
         report.First().Success.Should().BeFalse();
 
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class UserDataImportHandlerTests
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(sites[0])
             .ReturnsAsync(sites[1]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = true });
@@ -119,8 +119,8 @@ public class UserDataImportHandlerTests
         report.Count().Should().Be(2);
         report.All(x => x.Success).Should().BeTrue();
 
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Once);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@okta.net", $"site:{sites[0].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Once);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@okta.net", $"site:{sites[1].Id}", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Once);
         _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
     }
 
@@ -148,7 +148,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[1])
             .ReturnsAsync(sites[2])
             .ReturnsAsync(sites[3]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
@@ -196,7 +196,7 @@ public class UserDataImportHandlerTests
             .ReturnsAsync(sites[1])
             .ReturnsAsync(sites[2])
             .ReturnsAsync(sites[3]);
-        _userServiceMock.SetupSequence(u => u.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.SetupSequence(u => u.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()))
@@ -275,7 +275,7 @@ public class UserDataImportHandlerTests
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(sites[0])
             .ReturnsAsync(sites[1]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = true });
@@ -311,7 +311,7 @@ public class UserDataImportHandlerTests
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(sites[0])
             .ReturnsAsync(sites[1]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = false, FailureReason = "Test failure reason." });
@@ -325,7 +325,7 @@ public class UserDataImportHandlerTests
         report.First(r => !r.Success).Message.Should().Be("Failed to create or update OKTA user. Failure reason: Test failure reason.");
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
-        _userServiceMock.Verify(s => s.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+        _userServiceMock.Verify(s => s.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
         _emailWhitelistStore.Verify(e => e.GetWhitelistedEmails(), Times.Once);
     }
 
@@ -348,7 +348,7 @@ public class UserDataImportHandlerTests
         _siteServiceMock.SetupSequence(s => s.GetSiteByIdAsync(It.IsAny<string>(), "*"))
             .ReturnsAsync(sites[0])
             .ReturnsAsync(sites[1]);
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _oktaServiceMock.Setup(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserProvisioningStatus { Success = false, FailureReason = "Test failure reason." });
@@ -414,7 +414,7 @@ public class UserDataImportHandlerTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
 
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
@@ -430,8 +430,8 @@ public class UserDataImportHandlerTests
         _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
 
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
-        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
     }
 
     [Fact]
@@ -446,7 +446,7 @@ public class UserDataImportHandlerTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
         var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
 
-        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()))
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
             .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
         _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
         _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())

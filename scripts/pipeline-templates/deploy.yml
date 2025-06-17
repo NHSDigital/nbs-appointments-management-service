@@ -39,7 +39,7 @@ stages:
       - job: EnterChangeRequest
         displayName: "Enter Change Request Number (CFG)"
         pool: server
-        condition: and(succeeded(), eq('${{parameters.env}}', 'int'))
+        condition: and(succeeded(), eq('${{parameters.env}}', 'prod'))
         steps:
           - task: ManualValidation@0
             displayName: "Enter Change Request Number (CFG)"
@@ -49,7 +49,7 @@ stages:
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
         dependsOn:
-          - ${{ if eq(parameters.env, 'int') }}:
+          - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
         steps:
           - checkout: none

@@ -15,9 +15,9 @@ namespace Nhs.Appointments.Core
     {
         public Guid Id { get; init; }
         
-        public DateTimeOffset UkStartDatetime { get; set; }
+        public DateTime UkStartDatetime { get; set; }
         
-        public DateTimeOffset UkEndDatetime { get; set; }
+        public DateTime UkEndDatetime { get; set; }
         public Dictionary<string, int> Bookings { get; init; }
         
         public int Capacity { get; init; }

@@ -1,12 +1,8 @@
-import { summariseWeek } from '@services/availabilityCalculatorService';
 import {
-  ClinicalService,
-  DaySummary,
-  DaySummaryV2,
-  Site,
-  WeekSummary,
-  WeekSummaryV2,
-} from '@types';
+  mapWeekSummary,
+  summariseWeek,
+} from '@services/availabilityCalculatorService';
+import { ClinicalService, Site, WeekSummary } from '@types';
 import { DaySummaryCard } from './day-summary-card';
 import {
   fetchClinicalServices,
@@ -14,12 +10,7 @@ import {
   fetchPermissions,
   fetchWeekSummaryV2,
 } from '@services/appointmentsService';
-import {
-  dateFormat,
-  DayJsType,
-  emptyWeekSummary,
-  parseToUkDatetime,
-} from '@services/timeService';
+import { dateFormat, DayJsType } from '@services/timeService';
 
 type Props = {
   site: Site;
@@ -27,26 +18,15 @@ type Props = {
   ukWeekEnd: DayJsType;
 };
 
-const mapWeekSummary = (
-  ukWeekStart: DayJsType,
-  ukWeekEnd: DayJsType,
-  weekSummaryV2: WeekSummaryV2,
-): WeekSummary => {
-  return {
-    ...weekSummaryV2,
-    startDate: ukWeekStart,
-    endDate: ukWeekEnd,
-    daySummaries: mapDaySummaries(weekSummaryV2.daySummaries),
-  };
-};
-
-const mapDaySummaries = (daySummaries: DaySummaryV2[]): DaySummary[] => {
-  return daySummaries.map(daySummaryV2 => {
-    return {
-      ...daySummaryV2,
-      ukDate: parseToUkDatetime(daySummaryV2.date),
-    };
-  });
+const emptyWeekSummary: WeekSummary = {
+  daySummaries: [],
+  maximumCapacity: 0,
+  bookedAppointments: 0,
+  orphanedAppointments: 0,
+  cancelledAppointments: 0,
+  remainingCapacity: 0,
+  startDate: {} as DayJsType,
+  endDate: {} as DayJsType,
 };
 
 export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {

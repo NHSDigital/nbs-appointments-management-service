@@ -343,14 +343,3 @@ export const addHoursAndMinutesToUkDatetime = (
   const newHour = addToUkDatetime(ukDatetime, hours, 'hour', dateTimeFormat);
   return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
 };
-
-export const emptyWeekSummary: WeekSummary = {
-  daySummaries: [],
-  maximumCapacity: 0,
-  bookedAppointments: 0,
-  orphanedAppointments: 0,
-  cancelledAppointments: 0,
-  remainingCapacity: 0,
-  startDate: dayjs.utc(),
-  endDate: dayjs.utc(),
-};

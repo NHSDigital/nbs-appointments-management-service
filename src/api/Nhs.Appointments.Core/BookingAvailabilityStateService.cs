@@ -115,9 +115,8 @@ public class BookingAvailabilityStateService(
                 case BookingAvailabilityStateReturnType.AvailableSlots:
                     continue;
                 case BookingAvailabilityStateReturnType.WeekSummary:
-                    //TODO any reason why we update cancelled Status when no longer supported? does it matter??
                     if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-                        booking.Status is not AppointmentStatus.Provisional)
+                        booking.Status is AppointmentStatus.Booked)
                     {
                         booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
                     }
@@ -231,9 +230,8 @@ public static class RecalculationExtensions
     public static void AppendNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations,
         Booking booking)
     {
-        //TODO any reason why we update cancelled Status when no longer supported? does it matter??
         if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-            booking.Status is not AppointmentStatus.Provisional)
+            booking.Status is AppointmentStatus.Booked)
         {
             recalculations.Add(
                 new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned));

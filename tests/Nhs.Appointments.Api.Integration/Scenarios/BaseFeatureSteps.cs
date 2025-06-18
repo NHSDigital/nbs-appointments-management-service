@@ -189,14 +189,6 @@ public abstract partial class BaseFeatureSteps : Feature
 
     public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
     {
-        //try and match to exact date string first
-        var exactMatch = DateTime.TryParseExact(dateString, "dd-MM-yyyy", null, DateTimeStyles.None, out var exactDate);
-
-        if (exactMatch)
-        {
-            return DateOnly.FromDateTime(exactDate);
-        }
-        
         var match = NaturalLanguageRelativeDate().Match(dateString);
         if (!match.Success)
         {
@@ -215,6 +207,20 @@ public abstract partial class BaseFeatureSteps : Feature
             case "Today":
             case "today":
                 return DateOnly.FromDateTime(DateTime.UtcNow);
+            case "Next Monday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Monday));
+            case "Next Tuesday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Tuesday));
+            case "Next Wednesday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Wednesday));
+            case "Next Thursday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Thursday));
+            case "Next Friday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Friday));
+            case "Next Saturday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Saturday));
+            case "Next Sunday":
+                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Sunday));
         }
 
         var period = match.Groups["period"].Value;
@@ -234,6 +240,28 @@ public abstract partial class BaseFeatureSteps : Feature
             "year" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
             _ => throw new FormatException("Error parsing natural language date regex")
         };
+    }
+
+    /// <summary>
+    /// Want to return a day of the week in the next week.
+    /// </summary>
+    /// <param name="targetDay"></param>
+    /// <returns></returns>
+    private static DateTime GetDayInNextWeek(DayOfWeek targetDay)
+    {
+        var today = DateTime.UtcNow;
+
+        // Get this week's Monday
+        var daysSinceMonday = ((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+        var thisWeeksMonday = today.AddDays(-daysSinceMonday);
+
+        // Get next week's Monday
+        var nextWeeksMonday = thisWeeksMonday.AddDays(7);
+
+        // Calculate days to target day from next Monday
+        var daysToTarget = ((int)targetDay - (int)DayOfWeek.Monday + 7) % 7;
+
+        return nextWeeksMonday.AddDays(daysToTarget);
     }
 
     protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly? endDate)
@@ -700,7 +728,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [GeneratedRegex(
-        "^(?<format>Today|today|Tomorrow|tomorrow|Yesterday|yesterday|(((?<magnitude>[0-9]+) (?<period>days|day|weeks|week|months|month|years|year) (?<direction>from|before) (now|today))))$")]
+        "^(?<format>Today|today|Tomorrow|tomorrow|Yesterday|yesterday|Next Monday|Next Tuesday|Next Wednesday|Next Thursday|Next Friday|Next Saturday|Next Sunday|(((?<magnitude>[0-9]+) (?<period>days|day|weeks|week|months|month|years|year) (?<direction>from|before) (now|today))))$")]
     private static partial Regex NaturalLanguageRelativeDate();
 }
 

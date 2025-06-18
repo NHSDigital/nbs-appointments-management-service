@@ -116,6 +116,10 @@ variable "okta_pem" {
   sensitive = true
 }
 
+variable "okta_enabled" {
+  type      = bool
+}
+
 variable "gov_notify_base_uri" {
   type = string
 }

@@ -30,3 +30,9 @@ resource "azurerm_servicebus_queue" "nbs_mya_sbq_booking_rescheduled" {
   name         = "booking-rescheduled"
   namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
 }
+
+resource "azurerm_servicebus_queue" "nbs_mya_sbq_okta_user_roles" {
+  count        = var.okta_enabled ? 1 : 0  
+  name         = "okta-user-roles-changed"
+  namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
+}

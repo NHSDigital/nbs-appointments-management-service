@@ -90,6 +90,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"                     = var.okta_enabled ? false : true
   }
 
   sticky_settings {

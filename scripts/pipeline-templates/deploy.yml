@@ -52,6 +52,16 @@ stages:
               downloadType: "single"
               artifactName: "drop_terraform"
               downloadPath: $(Pipeline.Workspace)
+
+          - task: AzureCLI@2
+            displayName: "Get Okta Feature Flag"
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-feature-flag-value.ps1"
+              arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -featureFlagName oktaEnabled -featureFlagPipelineVariableName OKTA_ENABLED"
+
           - task: AzureCLI@2
             displayName: "Run Terraform Plan"
             inputs:
@@ -66,7 +76,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="OKTA_ENABLED=$(OKTA_ENABLED)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         displayName: "Approve Terraform Plan"

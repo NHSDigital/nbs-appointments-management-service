@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Notify.Client;
@@ -17,7 +16,6 @@ public static class ServiceRegistration
         IConfigurationRoot configuration)
     {
         var notificationsConfig = configuration.Get<NotificationsConfig>();
-        var oktaEnabled = configuration.GetValue<bool>($"FeatureManagement:{Flags.OktaEnabled}");
 
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingNotifier, BookingNotifier>()
@@ -44,7 +42,7 @@ public static class ServiceRegistration
                 services
                     .AddScoped<ISendNotifications, FakeNotificationClient>()
                     .AddNotificationFunctions()
-                    .AddMassTransit(oktaEnabled);
+                    .AddMassTransit();
                 break;
             case "azure":
                 services
@@ -53,7 +51,7 @@ public static class ServiceRegistration
                             notificationsConfig.GovNotifyApiKey))
                     .AddScoped<ISendNotifications, GovNotifyClient>()
                     .AddNotificationFunctions()
-                    .AddMassTransit(oktaEnabled);
+                    .AddMassTransit();
                 break;
             default:
                 throw new NotSupportedException(
@@ -75,30 +73,26 @@ public static class ServiceRegistration
         return services;
     }
 
-    private static IServiceCollection AddMassTransit(this IServiceCollection services, bool oktaEnabled)
+    private static IServiceCollection AddMassTransit(this IServiceCollection services)
     {
         services
             .AddScoped<IMessageBus, MassTransitBusWrapper>()
             .AddMassTransitForAzureFunctions(cfg =>
             {
                 EndpointConvention.Map<UserRolesChanged>(new Uri($"queue:{NotifyUserRolesChangedFunction.QueueName}"));
+                EndpointConvention.Map<OktaUserRolesChanged>(
+                    new Uri($"queue:{NotifyOktaUserRolesChangedFunction.QueueName}"));
                 EndpointConvention.Map<BookingMade>(new Uri($"queue:{NotifyBookingMadeFunction.QueueName}"));
-                EndpointConvention.Map<BookingRescheduled>(new Uri($"queue:{NotifyBookingRescheduledFunction.QueueName}"));
+                EndpointConvention.Map<BookingRescheduled>(
+                    new Uri($"queue:{NotifyBookingRescheduledFunction.QueueName}"));
                 EndpointConvention.Map<BookingCancelled>(new Uri($"queue:{NotifyBookingCancelledFunction.QueueName}"));
                 EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
-
                 cfg.AddConsumer<UserRolesChangedConsumer>();
+                cfg.AddConsumer<OktaUserRolesChangedConsumer>();
                 cfg.AddConsumer<BookingReminderConsumer>();
                 cfg.AddConsumer<BookingMadeConsumer>();
                 cfg.AddConsumer<BookingCancelledConsumer>();
                 cfg.AddConsumer<BookingRescheduledConsumer>();
-
-                if (oktaEnabled)
-                {
-                    EndpointConvention.Map<OktaUserRolesChanged>(
-                        new Uri($"queue:{NotifyOktaUserRolesChangedFunction.QueueName}"));
-                    cfg.AddConsumer<OktaUserRolesChangedConsumer>();
-                }
             },
             "ServiceBusConnectionString");
         return services;

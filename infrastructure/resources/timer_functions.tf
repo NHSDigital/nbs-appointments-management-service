@@ -70,6 +70,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
+    "AzureWebJobs.GetWeekSummaryFunction.Disabled"                         = true
     "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = true
     "AzureWebJobs.MakeBookingFunction.Disabled"                            = true
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"                      = true

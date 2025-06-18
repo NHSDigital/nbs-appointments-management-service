@@ -21,9 +21,16 @@ import {
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
 
-jest.mock('@services/availabilityCalculatorService', () => ({
-  summariseWeek: jest.fn(),
-}));
+jest.mock('@services/availabilityCalculatorService', () => {
+  const originalModule = jest.requireActual(
+    '@services/availabilityCalculatorService',
+  );
+  return {
+    ...originalModule,
+    summariseWeek: jest.fn(),
+  };
+});
+
 jest.mock('@services/appointmentsService', () => ({
   fetchPermissions: jest.fn(),
   fetchClinicalServices: jest.fn(),

@@ -28,7 +28,7 @@ public class BookingAvailabilityStateService(
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
     }
 
-    private async Task<(IEnumerable<Booking> bookings, IEnumerable<LinkedSessionInstance> sessions)> FetchData(string site,
+    private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
         DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
         var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
@@ -38,11 +38,11 @@ public class BookingAvailabilityStateService(
         var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(from),
             DateOnly.FromDateTime(to), isWeekSummary);
         await Task.WhenAll(bookingsTask, sessionsTask);
-        return (bookingsTask.Result, sessionsTask.Result);
+        return (bookingsTask.Result, sessionsTask.Result.ToList());
     }
 
     private static IEnumerable<SessionSummary> GetDailySessionSummaries(DateOnly date,
-        IEnumerable<LinkedSessionInstance> sessionInstances)
+        List<LinkedSessionInstance> sessionInstances)
     {
         return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
         {
@@ -191,7 +191,7 @@ public class BookingAvailabilityStateService(
     }
 
     private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
-        IEnumerable<LinkedSessionInstance> sessions)
+        List<LinkedSessionInstance> sessions)
     {
         var dayDate = DateOnly.FromDateTime(from.Date);
 

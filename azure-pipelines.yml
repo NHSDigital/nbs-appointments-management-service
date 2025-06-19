@@ -7,7 +7,8 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    default: ["dev"]
+    values: ["dev", "int", "perf", "stag", "prod"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
@@ -337,7 +338,11 @@ stages:
           timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-          resourceGroup: nbs-mya-rg-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          ${{ if ne(env, 'perf') }}:
+            resourceGroup: nbs-mya-rg-${{env}}-uks
+            serviceConnectionName: nbs-mya-rg-${{env}}
+          ${{ if eq(env, 'perf') }}:
+            resourceGroup: nbs-mya${{env}}-rg-stag-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-stag  
+          isMain: true
           buildNumber: "$(Build.BuildNumber)"

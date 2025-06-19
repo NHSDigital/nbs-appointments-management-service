@@ -175,7 +175,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod', 'perf') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -194,8 +194,9 @@ stages:
               appName: ${{parameters.highLoadFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              deployToSlotOrASE: true
-              slotName: "preview"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: DeployServiceBusFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy service bus function app"
@@ -249,7 +250,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'prod', 'perf') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

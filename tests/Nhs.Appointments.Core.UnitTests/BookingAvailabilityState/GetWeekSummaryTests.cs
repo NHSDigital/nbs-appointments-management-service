@@ -13,7 +13,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("4", "Green", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 6),
             TestBooking("5", "Blue", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 7),
             TestBooking("6", "Green", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 4),
-            TestBooking("7", "Blue", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 5)
+            TestBooking("7", "Blue", new DateOnly(2025, 1, 6), avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("8", "Blue", new DateOnly(2025, 1, 6), status: "Cancelled", creationOrder: 8),
+            TestBooking("9", "Green", new DateOnly(2025, 1, 6), status: "Cancelled", creationOrder: 9),
         };
 
         var sessions = new List<LinkedSessionInstance>
@@ -38,7 +40,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(25);
         weekSummary.BookedAppointments.Should().Be(7);
         weekSummary.OrphanedAppointments.Should().Be(2);
-        weekSummary.CancelledAppointments.Should().Be(0);
+        weekSummary.CancelledAppointments.Should().Be(2);
 
         var expectedSessionSummary = new List<SessionSummary>
         {
@@ -93,7 +95,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 25,
                 BookedAppointments = 7,
                 OrphanedAppointments = 2,
-                CancelledAppointments = 0
+                CancelledAppointments = 2
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));

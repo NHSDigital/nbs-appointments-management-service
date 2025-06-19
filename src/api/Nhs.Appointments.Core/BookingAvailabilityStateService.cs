@@ -158,15 +158,23 @@ public class BookingAvailabilityStateService(
 
             var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
 
-            //includes both supported and orphaned bookings
-            daySummary.BookedAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Booked);
+            foreach (var booking in bookingsOnDay)
+            {
+                if (booking.Status == AppointmentStatus.Booked)
+                {
+                    daySummary.BookedAppointments++;
+                }
 
-            //...of which X are orphaned
-            daySummary.OrphanedAppointments = bookingsOnDay.Count(x =>
-                x.Status == AppointmentStatus.Booked &&
-                x.AvailabilityStatus == AvailabilityStatus.Orphaned);
+                if (booking.Status == AppointmentStatus.Booked && booking.AvailabilityStatus == AvailabilityStatus.Orphaned)
+                {
+                    daySummary.OrphanedAppointments++;
+                }
 
-            daySummary.CancelledAppointments = bookingsOnDay.Count(x => x.Status == AppointmentStatus.Cancelled);
+                if (booking.Status == AppointmentStatus.Cancelled)
+                {
+                    daySummary.CancelledAppointments++;
+                }
+            }
         }
 
         return new WeekSummary

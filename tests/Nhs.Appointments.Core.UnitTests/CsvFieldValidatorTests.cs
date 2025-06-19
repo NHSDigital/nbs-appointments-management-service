@@ -27,7 +27,7 @@ public class CsvFieldValidatorTests
         const string value = "test";
         var action = () => CsvFieldValidator.ParseUserEnteredBoolean(value);
 
-        action.Should().Throw<FormatException>().WithMessage($"Invalid bool string format: {value}");
+        action.Should().Throw<FormatException>().WithMessage($"Invalid bool string format: '{value}'");
     }
 
     [Theory]

@@ -27,7 +27,7 @@ stages:
             inputs:
               ${{ if ne(env, 'perf') }}:
                 azureSubscription: "nbs-mya-rg-${{parameters.env}}"
-              ${{ if ne(env, 'perf') }}:
+              ${{ if eq(env, 'perf') }}:
                 azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
               scriptType: pscore
               scriptLocation: scriptPath

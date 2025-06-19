@@ -41,7 +41,7 @@ public class UserDataImportHandler(
 
         if (incorrectSiteIds.Count > 0)
         {
-            report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: {id}.")));
+            report.AddRange(incorrectSiteIds.Select(id => new ReportItem(-1, "Incorrect Site ID", false, $"The following site ID doesn't currently exist in the system: '{id}'.")));
         }
 
         await CheckForNonWhitelistedEmailDomains(userImportRows, report);
@@ -67,7 +67,7 @@ public class UserDataImportHandler(
                     var status = await oktaService.CreateIfNotExists(userRow.UserId, userRow.FirstName, userRow.LastName);
                     if (!status.Success)
                     {
-                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to create or update OKTA user. Failure reason: {status.FailureReason}"));
+                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to create or update OKTA user. Failure reason: '{status.FailureReason}'"));
                         continue;
                     }
                 }
@@ -82,7 +82,7 @@ public class UserDataImportHandler(
                     var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments, false);
                     if (!result.Success)
                     {
-                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: {string.Join('|', result.errorRoles)}"));
+                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
                     }
                 }
             }
@@ -104,7 +104,7 @@ public class UserDataImportHandler(
 
         if (invalidEmails.Count > 0)
         {
-            report.AddRange(invalidEmails.Select(usr => new ReportItem(-1, "Invalid email domain", false, $"The following email domain: {usr.UserId} is not included in the email domain whitelist.")));
+            report.AddRange(invalidEmails.Select(usr => new ReportItem(-1, "Invalid email domain", false, $"The following email domain: '{usr.UserId}' is not included in the email domain whitelist.")));
         }
     }
 
@@ -120,7 +120,7 @@ public class UserDataImportHandler(
 
         if (invalidRegions.Count > 0)
         {
-            report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: {reg} not found in the well known Region list.")));
+            report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: '{reg}' not found in the well known Region list.")));
         }
     }
 
@@ -137,7 +137,7 @@ public class UserDataImportHandler(
                 -1,
                 "User added to multiple regions",
                 false,
-                $"Users can only be added to one region per upload. User: {usr.Key} has been added multiple times for region scoped permissions.")));
+                $"Users can only be added to one region per upload. User: '{usr.Key}' has been added multiple times for region scoped permissions.")));
         }
     }
 

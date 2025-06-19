@@ -178,7 +178,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(3);
         report.All(r => r.Success).Should().BeFalse();
-        report.First().Message.Should().Be("The following site ID doesn't currently exist in the system: d3793464-b421-41f3-9bfa-53b06e7b3d19.");
+        report.First().Message.Should().Be("The following site ID doesn't currently exist in the system: 'd3793464-b421-41f3-9bfa-53b06e7b3d19'.");
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public class UserDataImportHandlerTests
         report.Count().Should().Be(5);
         report.All(r => r.Success).Should().BeFalse();
         report.Last().Success.Should().BeFalse();
-        report.Last().Message.Should().Be("Failed to update user roles. The following roles are not valid: test-role:one|test-role:two");
+        report.Last().Message.Should().Be("Failed to update user roles. The following roles are not valid: 'test-role:one|test-role:two'");
     }
 
     [Fact]
@@ -230,7 +230,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
-        report.First().Message.Should().Contain("Invalid bool string format: test");
+        report.First().Message.Should().Contain("Invalid bool string format: 'test'");
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(4);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("Failed to create or update OKTA user. Failure reason: Test failure reason.");
+        report.First(r => !r.Success).Message.Should().Be("Failed to create or update OKTA user. Failure reason: 'Test failure reason.'");
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
         _userServiceMock.Verify(s => s.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
@@ -359,7 +359,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("The following email domain: test1@invalid-domain.net is not included in the email domain whitelist.");
+        report.First(r => !r.Success).Message.Should().Be("The following email domain: 'test1@invalid-domain.net' is not included in the email domain whitelist.");
 
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
@@ -458,7 +458,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(1);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("Provided region: R66 not found in the well known Region list.");
+        report.First(r => !r.Success).Message.Should().Be("Provided region: 'R66' not found in the well known Region list.");
     }
 
     [Theory]
@@ -480,7 +480,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(1);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be($"User: {email} is not a valid email address");
+        report.First(r => !r.Success).Message.Should().Be($"User: '{email}' is not a valid email address");
     }
 
     [Fact]
@@ -504,7 +504,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(1);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("Users can only be added to one region per upload. User: test1@nhs.net has been added multiple times for region scoped permissions.");
+        report.First(r => !r.Success).Message.Should().Be("Users can only be added to one region per upload. User: 'test1@nhs.net' has been added multiple times for region scoped permissions.");
     }
 
     private List<Site> GetSites()

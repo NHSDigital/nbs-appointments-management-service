@@ -40,7 +40,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
                 if (CsvFieldValidator.StringHasValue(siteValue))
                 {
                     return !Guid.TryParse(siteValue, out _)
-                        ? throw new ArgumentException($"Invalid Guid string format for Site field: {siteValue}")
+                        ? throw new ArgumentException($"Invalid Guid string format for Site field: '{siteValue}'")
                         : siteValue;
                 }
 
@@ -109,10 +109,10 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             throw new ArgumentNullException("User must have a value.");
 
         if (!_oktaEnabled && IsOktaUser(row))
-            throw new ArgumentException($"User: {user} is an OKTA user and OKTA is not enabled.");
+            throw new ArgumentException($"User: '{user}' is an OKTA user and OKTA is not enabled.");
 
         if (!RegularExpressionConstants.EmailAddressRegex().IsMatch(user))
-            throw new ArgumentException($"User: {user} is not a valid email address");
+            throw new ArgumentException($"User: '{user}' is not a valid email address");
 
         return true;
     }

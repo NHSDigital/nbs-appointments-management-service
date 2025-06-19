@@ -78,24 +78,23 @@ public class QueryAvailabilityFunction(
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
 
-        List<SessionInstance> slots;
+        IEnumerable<SessionInstance> slots;
         
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
         {
             slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd))
-                .Where(x => x.Services.Contains(service))
-                .ToList();
+                .Where(x => x.Services.Contains(service));
         }
         else
         {
             #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
-            slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until)).ToList();
+            slots = (await availabilityCalculator.CalculateAvailability(site, service, from, until));
             #pragma warning restore CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
         }
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {
-            slots = hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive).ToList();
+            slots = hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive);
         }
 
         var availability = new List<QueryAvailabilityResponseInfo>();

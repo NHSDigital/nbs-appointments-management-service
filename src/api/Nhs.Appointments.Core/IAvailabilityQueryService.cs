@@ -4,6 +4,5 @@ public interface IAvailabilityQueryService
 {
     Task<IEnumerable<AvailabilityCreatedEvent>> GetAvailabilityCreatedEventsAsync(string site, DateOnly from);
     Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
-
-    Task<IEnumerable<SessionInstance>> GetSlots(string site, DateOnly from, DateOnly to);
+    Task<IEnumerable<LinkedSessionInstance>> GetLinkedSessions(string site, DateOnly from, DateOnly to, bool generateInternalSessionId = false);
 }

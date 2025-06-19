@@ -165,7 +165,7 @@ public class BookingWriteService(
         var from = booking.From;
         var to = booking.From.AddMinutes(booking.Duration);
 
-        var availableSlots = (await bookingAvailabilityStateService.GetAvailableSlots(booking.Site, from, to));
+        var availableSlots = await bookingAvailabilityStateService.GetAvailableSlots(booking.Site, from, to);
 
         //duration totalMinutes should always be an integer until we allow slot lengths that aren't integer minutes
         var canBook = availableSlots.Any(sl => sl.Services.Contains(booking.Service) && sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);

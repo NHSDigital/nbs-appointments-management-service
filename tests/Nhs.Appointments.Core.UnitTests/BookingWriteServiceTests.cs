@@ -1090,7 +1090,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _bookingAvailabilityStateService
                 .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .Returns(Task.FromResult(new List<SessionInstance>()));
+                .ReturnsAsync(new List<SessionInstance>());
             await _sut.MakeBooking(booking);
             _bookingAvailabilityStateService.Verify(x =>
                 x.GetAvailableSlots(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));

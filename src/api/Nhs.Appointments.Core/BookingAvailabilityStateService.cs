@@ -23,12 +23,12 @@ public class BookingAvailabilityStateService(
             .BookingAvailabilityUpdates;
     }
 
-    public async Task<List<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)
+    public async Task<IEnumerable<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)
     {
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
     }
 
-    private async Task<(List<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
+    private async Task<(IEnumerable<Booking> bookings, IEnumerable<LinkedSessionInstance> sessions)> FetchData(string site,
         DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
         var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
@@ -38,10 +38,10 @@ public class BookingAvailabilityStateService(
         var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(from),
             DateOnly.FromDateTime(to), isWeekSummary);
         await Task.WhenAll(bookingsTask, sessionsTask);
-        return (bookingsTask.Result.ToList(), sessionsTask.Result.ToList());
+        return (bookingsTask.Result, sessionsTask.Result);
     }
 
-    private static List<SessionSummary> GetDailySessionSummaries(DateOnly date,
+    private static IEnumerable<SessionSummary> GetDailySessionSummaries(DateOnly date,
         IEnumerable<LinkedSessionInstance> sessionInstances)
     {
         return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
@@ -63,7 +63,9 @@ public class BookingAvailabilityStateService(
             await FetchData(site, from, to, returnType);
         var state = new BookingAvailabilityState();
 
+        //have to materialise to a list as we transform the data within
         var slotsList = sessions.SelectMany(session => session.ToSlots()).ToList();
+        
         var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status));
 
         List<DaySummary> daySummaries = [];
@@ -135,7 +137,7 @@ public class BookingAvailabilityStateService(
         {
             case BookingAvailabilityStateReturnType.AvailableSlots:
                 //we only need to do this calculation if we want to return the available slots
-                state.AvailableSlots = slotsList.Where(s => s.Capacity > 0).ToList<SessionInstance>();
+                state.AvailableSlots = slotsList.Where(s => s.Capacity > 0);
                 break;
             case BookingAvailabilityStateReturnType.WeekSummary:
                 state.WeekSummary = GenerateWeekSummary(bookings, daySummaries);
@@ -149,7 +151,7 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static WeekSummary GenerateWeekSummary(List<Booking> bookings, List<DaySummary> daySummaries)
+    private static WeekSummary GenerateWeekSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries)
     {
         foreach (var daySummary in daySummaries)
         {
@@ -189,7 +191,7 @@ public class BookingAvailabilityStateService(
     }
 
     private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
-        List<LinkedSessionInstance> sessions)
+        IEnumerable<LinkedSessionInstance> sessions)
     {
         var dayDate = DateOnly.FromDateTime(from.Date);
 
@@ -260,7 +262,7 @@ public class BookingAvailabilityState
 {
     public readonly List<BookingAvailabilityUpdate> BookingAvailabilityUpdates = [];
 
-    public List<SessionInstance> AvailableSlots { get; set; } = [];
+    public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
 
     public WeekSummary WeekSummary { get; set; }
 }

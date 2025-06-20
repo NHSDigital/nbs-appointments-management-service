@@ -5,7 +5,7 @@ type ServiceOverview = {
 
 export type WeekOverview = {
   header: string;
-  services: ServiceOverview[];
+  sessions: ServiceOverview[];
   totalAppointments: number;
   booked: number;
   unbooked: number;
@@ -13,16 +13,16 @@ export type WeekOverview = {
 
 export type DayOverview = {
   header: string;
-  services: DayServiceOverview[];
+  sessions: DaySessionOverview[];
   totalAppointments: number;
   booked: number;
   unbooked: number;
 };
 
-type DayServiceOverview = {
+export type DaySessionOverview = {
   sessionTimeInterval: string;
   serviceName: string;
-  booked: number;
+  booked: string;
   unbooked: number;
 };
 
@@ -370,45 +370,45 @@ export const weekTestCases: WeekViewTestCase[] = [
     dayOverviews: [
       {
         header: 'Monday 20 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Tuesday 21 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Wednesday 22 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Thursday 23 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Friday 24 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Saturday 25 October',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
           },
@@ -419,10 +419,10 @@ export const weekTestCases: WeekViewTestCase[] = [
       },
       {
         header: 'Sunday 26 October',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
           },
@@ -441,10 +441,10 @@ export const weekTestCases: WeekViewTestCase[] = [
     dayOverviews: [
       {
         header: 'Monday 27 October',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 418,
             sessionTimeInterval: '10:00 - 17:00',
           },
@@ -455,42 +455,42 @@ export const weekTestCases: WeekViewTestCase[] = [
       },
       {
         header: 'Tuesday 28 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Wednesday 29 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Thursday 30 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Friday 31 October',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Saturday 1 November',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Sunday 2 November',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
@@ -505,45 +505,45 @@ export const weekTestCases: WeekViewTestCase[] = [
     dayOverviews: [
       {
         header: 'Monday 23 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Tuesday 24 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Wednesday 25 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Thursday 26 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Friday 27 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Saturday 28 March',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',
           },
@@ -554,10 +554,10 @@ export const weekTestCases: WeekViewTestCase[] = [
       },
       {
         header: 'Sunday 29 March',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',
           },
@@ -576,10 +576,10 @@ export const weekTestCases: WeekViewTestCase[] = [
     dayOverviews: [
       {
         header: 'Monday 30 March',
-        services: [
+        sessions: [
           {
             serviceName: 'RSV Adult',
-            booked: 2,
+            booked: '2 booked',
             unbooked: 238,
             sessionTimeInterval: '08:00 - 14:00',
           },
@@ -590,42 +590,42 @@ export const weekTestCases: WeekViewTestCase[] = [
       },
       {
         header: 'Tuesday 31 March',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Wednesday 1 April',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Thursday 2 April',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Friday 3 April',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Saturday 4 April',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
       },
       {
         header: 'Sunday 5 April',
-        services: [],
+        sessions: [],
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,

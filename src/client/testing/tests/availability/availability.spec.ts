@@ -32,7 +32,11 @@ import {
   getDateInFuture,
 } from '../../utils/date-utility';
 import { parseToUkDatetime } from '@services/timeService';
-import { sessionTestCases, weekTestCases } from '../../availability';
+import {
+  DayOverview,
+  sessionTestCases,
+  weekTestCases,
+} from '../../availability';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 test.describe.configure({ mode: 'serial' });
@@ -997,35 +1001,35 @@ test.describe.configure({ mode: 'serial' });
             const expectedWeekOverviews = [
               {
                 header: '29 September to 5 October',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '6 October to 12 October',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '13 October to 19 October',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '20 October to 26 October',
-                services: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
+                sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
                 totalAppointments: 840,
                 booked: 4,
                 unbooked: 836,
               },
               {
                 header: '27 October to 2 November',
-                services: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
+                sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
                 totalAppointments: 420,
                 booked: 2,
                 unbooked: 418,
@@ -1059,42 +1063,42 @@ test.describe.configure({ mode: 'serial' });
             const expectedWeekOverviews = [
               {
                 header: '23 February to 1 March',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '2 March to 8 March',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '9 March to 15 March',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '16 March to 22 March',
-                services: [],
+                sessions: [],
                 totalAppointments: 0,
                 booked: 0,
                 unbooked: 0,
               },
               {
                 header: '23 March to 29 March',
-                services: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
+                sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
                 totalAppointments: 480,
                 booked: 4,
                 unbooked: 476,
               },
               {
                 header: '30 March to 5 April',
-                services: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
+                sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
                 totalAppointments: 240,
                 booked: 2,
                 unbooked: 238,
@@ -1122,6 +1126,9 @@ test.describe.configure({ mode: 'serial' });
       let cancelAppointmentDetailsPage: CancelAppointmentDetailsPage;
       let site: Site;
 
+      let addServicesPage: AddServicesPage;
+      let checkSessionDetailsPage: CheckSessionDetailsPage;
+
       let context: BrowserContext;
       let page: Page;
 
@@ -1135,9 +1142,11 @@ test.describe.configure({ mode: 'serial' });
         weekViewAvailabilityPage = new WeekViewAvailabilityPage(page);
         changeAvailabilityPage = new ChangeAvailabilityPage(page);
         addSessionPage = new AddSessionPage(page);
+        checkSessionDetailsPage = new CheckSessionDetailsPage(page);
         cancelSessionDetailsPage = new CancelSessionDetailsPage(page);
         dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
         cancelAppointmentDetailsPage = new CancelAppointmentDetailsPage(page);
+        addServicesPage = new AddServicesPage(page);
 
         await rootPage.goto();
         await rootPage.pageContentLogInButton.click();
@@ -1146,6 +1155,193 @@ test.describe.configure({ mode: 'serial' });
 
       test.afterAll(async () => {
         await context.close();
+      });
+
+      test(`View week page data is arranged according to greedy model allocation, and the data shuffles on session changes`, async () => {
+        //this test only applied for Multiple Services enabled
+        if (!multipleServicesEnabled) {
+          test.skip();
+        }
+
+        await page.goto(
+          `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+        await page.waitForURL(
+          `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+        await page.waitForSelector('.nhsuk-loader', {
+          state: 'detached',
+        });
+
+        await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
+          'Wednesday 20 August',
+          [
+            {
+              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+              booked: '0 booked0 booked0 booked0 booked',
+              unbooked: 24,
+              sessionTimeInterval: '11:00 - 12:00',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+              booked: '1 booked1 booked0 booked',
+              unbooked: 12,
+              sessionTimeInterval: '11:15 - 11:50',
+            },
+          ],
+        );
+
+        //create some new availability to show shuffling
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+        );
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+        );
+
+        await addSessionPage.addSession('10', '00', '12', '00', '2', '5');
+        await addServicesPage.addService('Flu 18-64');
+        await checkSessionDetailsPage.saveSession();
+
+        await page.waitForURL(
+          `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+
+        await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
+          'Wednesday 20 August',
+          [
+            {
+              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+              booked: '0 booked0 booked0 booked0 booked',
+              unbooked: 24,
+              sessionTimeInterval: '11:00 - 12:00',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+              booked: '1 booked0 booked0 booked',
+              unbooked: 13,
+              sessionTimeInterval: '11:15 - 11:50',
+            },
+            {
+              serviceName: 'Flu 18-64',
+              booked: '1 booked',
+              unbooked: 47,
+              sessionTimeInterval: '10:00 - 12:00',
+            },
+          ],
+        );
+
+        //create some new availability to show shuffling
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+        );
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+        );
+
+        await addSessionPage.addSession('11', '05', '11', '55', '2', '5');
+        await addServicesPage.addServices(['COVID 5-11', 'Flu 18-64']);
+        await checkSessionDetailsPage.saveSession();
+
+        await page.waitForURL(
+          `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+
+        await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
+          'Wednesday 20 August',
+          [
+            {
+              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+              booked: '0 booked0 booked0 booked0 booked',
+              unbooked: 24,
+              sessionTimeInterval: '11:00 - 12:00',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+              booked: '0 booked0 booked0 booked',
+              unbooked: 14,
+              sessionTimeInterval: '11:15 - 11:50',
+            },
+            {
+              serviceName: 'Flu 18-64',
+              booked: '1 booked',
+              unbooked: 47,
+              sessionTimeInterval: '10:00 - 12:00',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64',
+              booked: '1 booked0 booked',
+              unbooked: 19,
+              sessionTimeInterval: '11:05 - 11:55',
+            },
+          ],
+        );
+
+        //remove the single Flu session
+        const dayCard = page
+          .getByRole('heading', {
+            name: 'Wednesday 20 August',
+          })
+          .locator('..');
+
+        //select the third session (flu only)
+        const fluSessionRow = (
+          await dayCard.getByRole('table').getByRole('row').all()
+        )[3];
+
+        const changeButton = fluSessionRow.getByRole('link', {
+          name: 'Change',
+        });
+
+        await changeButton.click();
+
+        await page.waitForURL(
+          `**/site/${site.id}/view-availability/week/edit-session?date=2025-08-20&session**`,
+        );
+
+        await changeAvailabilityPage.selectChangeType('CancelSession');
+        await changeAvailabilityPage.saveChanges();
+
+        await page.waitForURL(
+          `**/site/${site.id}/availability/cancel?session**`,
+        );
+
+        await changeAvailabilityPage.confirmCancelRadioOption.click();
+        await changeAvailabilityPage.saveChanges();
+
+        await page.goto(
+          `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+        await page.waitForURL(
+          `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+        );
+        await page.waitForSelector('.nhsuk-loader', {
+          state: 'detached',
+        });
+
+        await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
+          'Wednesday 20 August',
+          [
+            {
+              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+              booked: '0 booked0 booked0 booked0 booked',
+              unbooked: 24,
+              sessionTimeInterval: '11:00 - 12:00',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+              booked: '0 booked0 booked0 booked',
+              unbooked: 14,
+              sessionTimeInterval: '11:15 - 11:50',
+            },
+            {
+              serviceName: 'COVID 5-11Flu 18-64',
+              booked: '1 booked1 booked',
+              unbooked: 18,
+              sessionTimeInterval: '11:05 - 11:55',
+            },
+          ],
+        );
       });
 
       // ['Europe/London', 'UTC', 'Pacific/Kiritimati', 'Etc/GMT+12']

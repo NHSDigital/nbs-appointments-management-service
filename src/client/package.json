@@ -32,12 +32,12 @@
     "nhsuk-frontend": "^8.3.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-hook-form": "^7.57.0",
+    "react-hook-form": "^7.58.1",
     "yup": "^1.6.1"
   },
   "devDependencies": {
     "@azure/cosmos": "^4.4.1",
-    "@playwright/test": "^1.53.0",
+    "@playwright/test": "^1.53.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -50,7 +50,7 @@
     "@typescript-eslint/parser": "^5.61.0",
     "dotenv": "^16.5.0",
     "eslint": "^8",
-    "eslint-config-next": "14.2.29",
+    "eslint-config-next": "14.2.30",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-import": "^2.31.0",

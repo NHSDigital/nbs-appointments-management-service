@@ -32,11 +32,7 @@ import {
   getDateInFuture,
 } from '../../utils/date-utility';
 import { parseToUkDatetime } from '@services/timeService';
-import {
-  DayOverview,
-  sessionTestCases,
-  weekTestCases,
-} from '../../availability';
+import { sessionTestCases, weekTestCases } from '../../availability';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 test.describe.configure({ mode: 'serial' });

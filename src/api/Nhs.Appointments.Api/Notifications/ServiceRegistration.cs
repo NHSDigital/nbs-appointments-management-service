@@ -20,6 +20,7 @@ public static class ServiceRegistration
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingNotifier, BookingNotifier>()
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
+                .AddSingleton<IVaccineServiceHelper, VaccineServiceHelper>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
         switch (notificationsConfig.NotificationsProvider)

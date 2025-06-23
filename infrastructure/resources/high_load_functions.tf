@@ -90,6 +90,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
+    "AzureWebJobs.GetWeekSummaryFunction.Disabled"                         = true
     "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = true
     "AzureWebJobs.MakeBookingFunction.Disabled"                            = true
     "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = true
@@ -209,6 +210,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
     "AzureWebJobs.GetUserRoleAssignmentsFunction.Disabled"                 = true
+    "AzureWebJobs.GetWeekSummaryFunction.Disabled"                         = true
     "AzureWebJobs.GetWellKnownOdsCodeEntriesFunction.Disabled"             = true
     "AzureWebJobs.MakeBookingFunction.Disabled"                            = true
     "AzureWebJobs.QueryBookingByNhsNumberReference.Disabled"               = true

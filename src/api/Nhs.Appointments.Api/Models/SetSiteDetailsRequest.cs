@@ -17,12 +17,10 @@ public sealed class SetSiteDetailsRequest
         Address = address;
         PhoneNumber = phoneNumber;
 
-        TryParse(longitude, out var longDecimal);
-        LongitudeDecimal = longDecimal;
+        LongitudeDecimal = TryParse(longitude, out var longDecimal) ? longDecimal : null;
         Longitude = longitude;
 
-        TryParse(latitude, out var latDecimal);
-        LatitudeDecimal = latDecimal;
+        LatitudeDecimal = TryParse(latitude, out var latDecimal) ? latDecimal : null;
         Latitude = latitude;
     }
 
@@ -31,9 +29,9 @@ public sealed class SetSiteDetailsRequest
     public string Address { get; }
     public string PhoneNumber { get; }
 
-    public decimal LatitudeDecimal { get; }
+    public decimal? LatitudeDecimal { get; }
     public string Latitude { get; }
 
-    public decimal LongitudeDecimal { get; }
+    public decimal? LongitudeDecimal { get; }
     public string Longitude { get; }
 }

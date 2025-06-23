@@ -34,7 +34,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.NhsNumber, BookingDataConverter.ExtractNhsNumber),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentDateTime, BookingDataConverter.ExtractAppointmentDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentStatus, BookingDataConverter.ExtractAppointmentStatus),
-            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfRerral, BookingDataConverter.ExtractSelfReferral),
+            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfReferral, BookingDataConverter.ExtractSelfReferral),
             new DataFactory<NbsBookingDocument, string>(BookingDataExtractFields.Source, BookingDataConverter.ExtractSource),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.DateOfBirth, BookingDataConverter.ExtractDateOfBirth),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingReferenceNumber, BookingDataConverter.ExtractBookingReference),
@@ -47,7 +47,6 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, doc => null),
         };
            
         Console.WriteLine("Preparing to write");

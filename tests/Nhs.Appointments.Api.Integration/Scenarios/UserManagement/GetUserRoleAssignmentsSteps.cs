@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 [FeatureFile("./Scenarios/UserManagement/GetUserRoleAssignments.feature")]
-public sealed class GetUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
+public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
     private  HttpResponseMessage _response;
     private HttpStatusCode _statusCode;

@@ -3,13 +3,14 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
-public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
+public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
     private  HttpResponseMessage _response;
 

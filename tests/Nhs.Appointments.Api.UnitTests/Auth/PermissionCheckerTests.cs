@@ -2,7 +2,6 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Core;
@@ -16,10 +15,16 @@ public class PermissionCheckerTests
     private readonly Mock<IRolesService> _roleService = new();
     private readonly Mock<IMemoryCache> _cache = new();
     private readonly Mock<ICacheEntry> _cacheEntry = new();
+    private readonly Mock<ISiteService> _siteService = new();
 
     public PermissionCheckerTests()
     {
-        _sut = new PermissionChecker(_userAssignmentService.Object, _roleService.Object, _cache.Object);
+        _sut = new PermissionChecker(
+            _userAssignmentService.Object,
+            _roleService.Object,
+            _cache.Object,
+            _siteService.Object);
+
         _cache.Setup(x => x.CreateEntry(It.IsAny<string>())).Returns(_cacheEntry.Object);
     }
 
@@ -433,5 +438,87 @@ public class PermissionCheckerTests
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetPermissionsAsync(userId, "1");
         result.Should().Equal(expectedResult);
-    }    
+    }
+
+    [Fact]
+    public async Task HasPermissionAsync_ReturnsTrue_WhenUserHasRegionOnlyLevelPermission()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "region:R1" }
+        };
+
+        _roleService.Setup(x => x.GetRoles())
+            .ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId))
+            .ReturnsAsync(userAssignments);
+        _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new("1", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]))
+            });
+
+        var result = await _sut.HasPermissionAsync(userId, ["1"], "TestPermission");
+
+        result.Should().BeTrue();
+
+        _siteService.Verify(s => s.GetSitesInRegion(It.IsAny<string>()), Times.Once());
+    }
+
+    [Fact]
+    public async Task GetPermissionsAsync_FiltersPermissionsOnRegion()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "region:R1" },
+        };
+
+        _roleService.Setup(x => x.GetRoles())
+            .ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId))
+            .ReturnsAsync(userAssignments);
+        _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]))
+            });
+
+        var result = await _sut.GetPermissionsAsync(userId, "2");
+
+        result.Count().Should().Be(1);
+        result.First().Should().Be("TestPermission");
+
+        _siteService.Verify(s => s.GetSitesInRegion(It.IsAny<string>()), Times.Once());
+    }
+
+    [Fact]
+    public async Task GetRegionPermissionsAsync_ShouldReturnRegionOnlyPermissions_AndFilterDuplicates()
+    {
+        const string userId = "test@test.com";
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "region:R1" },
+            new() { Role = "Role1", Scope = "region:R1" },
+            new() { Role = "Role2", Scope = "site:1" },
+            new() { Role = "Role3", Scope = "global" }
+        };
+
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId))
+            .ReturnsAsync(userAssignments);
+
+        var result = await _sut.GetRegionPermissionsAsync(userId);
+
+        result.Count(r => r == "region:R1").Should().Be(1);
+        result.First().Should().Be("region:R1");
+    }
 }

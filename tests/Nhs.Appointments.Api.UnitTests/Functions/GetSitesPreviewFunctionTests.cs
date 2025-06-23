@@ -178,6 +178,82 @@ public class GetSitesPreviewFunctionTests
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task RunAsync_IsNotAdmin_AddsRegionalSitesToUserSites()
+    {
+        var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
+        var context = new DefaultHttpContext();
+        var request = context.Request;
+        var roleAssignments = new RoleAssignment[] { new() { Role = "Role1", Scope = "site:1" } };
+        var site1 = new Site(
+            Id: "1",
+            Name: "Alpha",
+            Address: "somewhere",
+            PhoneNumber: "0113 1111111",
+            OdsCode: "odsCode1",
+            Region: "R1",
+            IntegratedCareBoard: "ICB1",
+            InformationForCitizens: "Information For Citizens 123456",
+            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
+            Location: new Location("point", [0.1, 10])
+        );
+
+        var site2 = new Site(
+            Id: "2",
+            Name: "Beta",
+            Address: "somewhere",
+            PhoneNumber: "0113 22222222",
+            OdsCode: "odsCode2",
+            Region: "R1",
+            IntegratedCareBoard: "ICB1",
+            InformationForCitizens: "Information For Citizens 123456",
+            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
+            Location: new Location("point", [0.1, 10])
+        );
+
+        var regionalSite = new Site(
+            Id: "R1",
+            Name: "RegionSite",
+            Address: "Some region",
+            PhoneNumber: "0113 3333333",
+            OdsCode: "odsCode3",
+            Region: "R2",
+            IntegratedCareBoard: "ICB2",
+            InformationForCitizens: "Information For Citizens 654321",
+            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
+            Location: new Location("point", [0.1, 10])
+        );
+
+        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
+        {
+            Id = "test@test.com",
+            RoleAssignments = roleAssignments
+        });
+
+        _siteService.Setup(x => x.GetSiteByIdAsync(site1.Id, It.IsAny<string>())).ReturnsAsync(site1);
+        _siteService.Setup(x => x.GetSiteByIdAsync(site2.Id, It.IsAny<string>())).ReturnsAsync(site2);
+        _siteService.Setup(x => x.GetSitesInRegion(regionalSite.Region)).ReturnsAsync(new [] { regionalSite });
+
+        _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
+            .ReturnsAsync(new List<string> { site1.Id, site2.Id });
+        _permissionChecker.Setup(x => x.GetRegionPermissionsAsync("test@test.com"))
+            .ReturnsAsync(new List<string>(["R2"]));
+
+        var response = await _sut.RunAsync(request) as ContentResult;
+        var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
+
+        actualResponse.Count().Should().Be(3);
+        actualResponse.First().Id.Should().Be("1");
+        actualResponse.First().Name.Should().Be("Alpha");
+        actualResponse.Last().Id.Should().Be("R1");
+        actualResponse.Last().Name.Should().Be("RegionSite");
+
+        _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
+        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _siteService.Verify(x => x.GetSitesInRegion(It.IsAny<string>()), Times.Once);
+    }
+
     private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)
     {
         var body = await new StringReader(response).ReadToEndAsync();

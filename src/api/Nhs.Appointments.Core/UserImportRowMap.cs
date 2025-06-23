@@ -1,5 +1,6 @@
 using CsvHelper;
 using CsvHelper.Configuration;
+using Nhs.Appointments.Core.Constants;
 using static Nhs.Appointments.Core.UserDataImportHandler;
 
 namespace Nhs.Appointments.Core;
@@ -29,18 +30,54 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             .Name("LastName")
             .Validate(f => ValidateName(f.Row, "LastName"));
         Map(m => m.SiteId)
-            .Name("Site")
-            .TypeConverter<GuidStringTypeConverter>();
+            .Convert(x =>
+            {
+                var siteValue = x.Row.GetField<string>("Site");
+                var regionValue = x.Row.GetField<string>("Region");
+
+                ValidateSiteAndRegionFields(siteValue, regionValue);
+
+                if (CsvFieldValidator.StringHasValue(siteValue))
+                {
+                    return !Guid.TryParse(siteValue, out _)
+                        ? throw new ArgumentException($"Invalid Guid string format for Site field: '{siteValue}'")
+                        : siteValue;
+                }
+
+                return string.Empty;
+            });
+        Map(m => m.Region)
+            .Convert(x =>
+            {
+                var siteValue = x.Row.GetField<string>("Site");
+                var regionValue = x.Row.GetField<string>("Region");
+
+                ValidateSiteAndRegionFields(siteValue, regionValue);
+
+                return regionValue;
+            });
         Map(m => m.RoleAssignments).Convert(x =>
         {
             var roleAssignemnts = new List<RoleAssignment>();
-            foreach (var role in userRoleKeys)
+
+            var siteValue = x.Row.GetField<string>("Site");
+            var regionValue = x.Row.GetField<string>("Region");
+
+            // No need to check again whether both or neither fields are populated here as that happens in the site / region mapping
+            if (CsvFieldValidator.StringHasValue(siteValue))
             {
-                if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
+                foreach (var role in userRoleKeys)
                 {
-                    roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
+                    if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
+                    {
+                        roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
+                    }
                 }
+
+                return roleAssignemnts;
             }
+
+            roleAssignemnts.Add(new RoleAssignment { Role = "system:regional-user", Scope = $"region:{x.Row.GetField("Region")}" });
 
             return roleAssignemnts;
         });
@@ -72,8 +109,21 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             throw new ArgumentNullException("User must have a value.");
 
         if (!_oktaEnabled && IsOktaUser(row))
-            throw new ArgumentException($"User: {user} is an OKTA user and OKTA is not enabled.");
-        
+            throw new ArgumentException($"User: '{user}' is an OKTA user and OKTA is not enabled.");
+
+        if (!RegularExpressionConstants.EmailAddressRegex().IsMatch(user))
+            throw new ArgumentException($"User: '{user}' is not a valid email address");
+
         return true;
+    }
+
+    // Only one of the Site or Region fields can be populated
+    private static void ValidateSiteAndRegionFields(string siteValue, string regionValue)
+    {
+        var siteHasValue = CsvFieldValidator.StringHasValue(siteValue);
+        var regionHasValue = CsvFieldValidator.StringHasValue(regionValue);
+
+        if ((siteHasValue && regionHasValue) || (!siteHasValue && !regionHasValue))
+            throw new ArgumentException("Exactly one of Site or Region must be populated.");
     }
 }

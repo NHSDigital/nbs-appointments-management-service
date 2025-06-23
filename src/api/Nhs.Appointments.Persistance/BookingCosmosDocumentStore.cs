@@ -31,11 +31,11 @@ public class BookingCosmosDocumentStore(
             throw new ArgumentException("You must specify one or more statuses");
 
         var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.From >= from && i.From <= to);
-        var grouped = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
+        var siteGroupedBookings = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
 
-        await Parallel.ForEachAsync(grouped, async (group, _) =>
+        await Parallel.ForEachAsync(siteGroupedBookings, async (group, _) =>
         {
             var bookings = await GetInDateRangeAsync(group.Min(g => g.From), group.Max(g => g.From), group.Key);
             concurrentResults.Add(bookings);

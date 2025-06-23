@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -15,7 +15,7 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class QueryBookingsFunction(
-    IBookingsService bookingsService,
+    IBookingQueryService bookingQueryService,
     IValidator<QueryBookingsRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingsFunction> logger,
@@ -46,7 +46,7 @@ public class QueryBookingsFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
         ILogger logger)
     {
-        var booking = await bookingsService.GetBookings(request.from, request.to, request.site);
+        var booking = await bookingQueryService.GetBookings(request.from, request.to, request.site);
         return Success(booking);
     }
 }

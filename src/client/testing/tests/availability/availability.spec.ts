@@ -534,7 +534,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify add availability option displayed for future date', async ({
             page,
           }) => {
-            let dayIncrement = 2;
+            let dayIncrement = 340;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -868,7 +868,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 240;
 
             //avoid collisions
             if (multipleServicesEnabled) {

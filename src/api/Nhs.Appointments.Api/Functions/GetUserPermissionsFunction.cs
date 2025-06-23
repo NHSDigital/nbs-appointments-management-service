@@ -46,6 +46,7 @@ public class GetUserPermissionsFunction(
     {
         var user = Principal.Claims.GetUserEmail();
         var permissions = await permissionChecker.GetPermissionsAsync(user, request.Site);
+        var foo = 5;
         return ApiResult<PermissionsResponse>.Success(new PermissionsResponse { Permissions = permissions.ToArray() });
-    }
+    } 
 }

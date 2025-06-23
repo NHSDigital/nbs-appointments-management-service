@@ -49,16 +49,16 @@ export default class MonthViewAvailabilityPage extends RootPage {
     //assert header
     await expect(header).toBeVisible();
 
-    if (weekOverview.services.length > 0) {
+    if (weekOverview.sessions.length > 0) {
       //assert no availability not visible
       expect(cardDiv.getByText('No availability')).not.toBeVisible();
 
       //only do for a single service for now!!
       const serviceCell = cardDiv.getByRole('cell', {
-        name: weekOverview.services[0].serviceName,
+        name: weekOverview.sessions[0].serviceName,
       });
       const bookedAppointmentsCell = cardDiv.getByRole('cell', {
-        name: weekOverview.services[0].bookedAppointments.toString(),
+        name: weekOverview.sessions[0].bookedAppointments.toString(),
       });
 
       await expect(serviceCell).toBeVisible();

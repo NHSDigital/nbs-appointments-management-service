@@ -5,7 +5,7 @@ import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.s
 import { ReadonlyURLSearchParams } from 'next/navigation';
 
 const mockClinicalServices = [
-  { value: 'RSV:Adult', label: 'RSV (Adult)' },
+  { value: 'RSV:Adult', label: 'RSV Adult' },
   { value: 'FLU:18_64', label: 'Flu 18-64+' },
 ];
 
@@ -31,7 +31,7 @@ describe('View Daily Appointments', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '14:05 John Smith 9999999990 1 February 1979 RSV (Adult) Cancel',
+        name: '14:05 John Smith 9999999990 1 February 1979 RSV Adult Cancel',
       }),
     ).toBeInTheDocument();
     expect(

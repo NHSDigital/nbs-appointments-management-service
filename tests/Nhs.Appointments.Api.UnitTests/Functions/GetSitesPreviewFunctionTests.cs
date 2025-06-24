@@ -89,7 +89,7 @@ public class GetSitesPreviewFunctionTests
         {
             new() { Role = "Role1", Scope = "site:1" }, new() { Role = "system:admin-user", Scope = "global" }
         };
-        var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1", "ICB1"), new("2", "Site2", "ODS2", "ICB1"), };
+        var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1", "ICB1"), new("2", "Site2", "ODS2", "ICB2"), };
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
         {
@@ -205,7 +205,7 @@ public class GetSitesPreviewFunctionTests
             PhoneNumber: "0113 22222222",
             OdsCode: "odsCode2",
             Region: "R1",
-            IntegratedCareBoard: "ICB1",
+            IntegratedCareBoard: "ICB2",
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
@@ -218,7 +218,7 @@ public class GetSitesPreviewFunctionTests
             PhoneNumber: "0113 3333333",
             OdsCode: "odsCode3",
             Region: "R2",
-            IntegratedCareBoard: "ICB2",
+            IntegratedCareBoard: "RegionICB",
             InformationForCitizens: "Information For Citizens 654321",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
@@ -246,8 +246,10 @@ public class GetSitesPreviewFunctionTests
         actualResponse.Count().Should().Be(3);
         actualResponse.First().Id.Should().Be("1");
         actualResponse.First().Name.Should().Be("Alpha");
+        actualResponse.First().IntegratedCareBoard.Should().Be("ICB1");
         actualResponse.Last().Id.Should().Be("R1");
         actualResponse.Last().Name.Should().Be("RegionSite");
+        actualResponse.Last().IntegratedCareBoard.Should().Be("RegionICB");
 
         _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));

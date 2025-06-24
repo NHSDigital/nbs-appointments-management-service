@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import render from '@testing/render';
 import SiteList from '@components/site-list';
 import { Site } from '@types';
@@ -38,8 +38,8 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    expect(screen.queryByRole('cell', { name: 'Site Alpha' })).toBeVisible();
-    expect(screen.queryByRole('cell', { name: 'Site Beta' })).toBeVisible();
+    expect(screen.getByRole('link', { name: /site alpha/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: /site beta/i })).toBeVisible();
   });
 
   it('renders sites in ascending alphabetical order', async () => {
@@ -107,19 +107,11 @@ describe('<SiteList>', () => {
     ];
     render(<SiteList sites={testSites} />);
     const rows = screen.getAllByRole('row');
-    const dataRows = rows.slice(1);
-
-    const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
-    expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
-
-    const secondCell = within(dataRows[1]).getAllByRole('cell')[0];
-    expect(within(secondCell).getByText('Site Lima')).toBeInTheDocument();
-
-    const thirdCell = within(dataRows[2]).getAllByRole('cell')[0];
-    expect(within(thirdCell).getByText('Site November')).toBeInTheDocument();
-
-    const fourthCell = within(dataRows[3]).getAllByRole('cell')[0];
-    expect(within(fourthCell).getByText('Site Zulu')).toBeInTheDocument();
+    expect(rows).toHaveLength(5); // 1 header + 4 sites
+    expect(rows[1]?.textContent).toContain('Site Beta');
+    expect(rows[2]?.textContent).toContain('Site Lima');
+    expect(rows[3]?.textContent).toContain('Site November');
+    expect(rows[4]?.textContent).toContain('Site Zulu');
   });
 
   it('links to the correct page', async () => {
@@ -141,7 +133,8 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    expect(screen.getByRole('link', { name: 'View' })).toHaveAttribute(
+    const link = screen.getByRole('link', { name: /site alpha/i });
+    expect(link).toHaveAttribute(
       'href',
       '/site/95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
     );
@@ -212,27 +205,21 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    expect(screen.getAllByRole('row')).toHaveLength(5);
-    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', { name: 'Site November' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
+    const initialRows = screen.getAllByRole('row');
+    expect(initialRows.length).toBe(5); // 4 sites + header
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
     });
     await user.type(searchInput, 'Beta');
 
-    await waitFor(() => {
-      const rows = screen.getAllByRole('row');
-      // Skip header row
-      const dataRows = rows.slice(1);
-      expect(dataRows).toHaveLength(1);
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
 
-      const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
-      expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
+    await waitFor(() => {
+      const rowsAfterSearch = screen.getAllByRole('row');
+      expect(rowsAfterSearch.length).toBe(2);
+      expect(screen.getByText('Site Beta')).toBeInTheDocument();
     });
   });
 
@@ -301,13 +288,8 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    expect(screen.getAllByRole('row')).toHaveLength(5);
-    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', { name: 'Site November' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(5); // 4 sites + 1 header
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
@@ -315,10 +297,8 @@ describe('<SiteList>', () => {
     await user.type(searchInput, 'Be');
 
     await waitFor(() => {
-      const rows = screen.getAllByRole('row');
-      // Skip header row
-      const dataRows = rows.slice(1);
-      expect(dataRows).toHaveLength(4);
+      const filteredRows = screen.getAllByRole('row');
+      expect(filteredRows).toHaveLength(5); // 4 sites + header
     });
   });
 
@@ -387,27 +367,21 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    expect(screen.getAllByRole('row')).toHaveLength(5);
-    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', { name: 'Site November' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(5);
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
     });
     await user.type(searchInput, '1004');
 
-    await waitFor(() => {
-      const rows = screen.getAllByRole('row');
-      // Skip header row
-      const dataRows = rows.slice(1);
-      expect(dataRows).toHaveLength(1);
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
 
-      const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
-      expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
+    await waitFor(() => {
+      const filteredRows = screen.getAllByRole('row');
+      expect(filteredRows).toHaveLength(2); // header + 1 match
+      expect(screen.getByText('Site Beta')).toBeInTheDocument();
     });
   });
 
@@ -476,21 +450,20 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    expect(screen.getAllByRole('row')).toHaveLength(5);
-    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', { name: 'Site November' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(5);
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
     });
     await user.type(searchInput, '1005');
 
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
+
     await waitFor(() => {
-      expect(screen.getAllByRole('row')).toHaveLength(1);
+      const filteredRows = screen.queryAllByRole('row');
+      expect(filteredRows).toHaveLength(1); // only header remains
     });
   });
 });

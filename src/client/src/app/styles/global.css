@@ -290,3 +290,16 @@
   list-style-type: none;
   padding-left: 0;
 }
+
+.search-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px;
+  background-color: #d8dde0;
+  margin-bottom: 50px;
+}
+
+.search-bar .nhsuk-button {
+  margin-bottom: 0px !important;
+}

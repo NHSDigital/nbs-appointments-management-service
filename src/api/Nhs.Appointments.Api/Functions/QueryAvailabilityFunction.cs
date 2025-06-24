@@ -114,18 +114,16 @@ public class QueryAvailabilityFunction(
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QueryAvailabilityRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        var request = default(QueryAvailabilityRequest);
-        var service = string.Empty;
-        if (req.Body != null && req.Body.Length > 0)
+        if (req.Body.Length > 0)
         {
             var (errors, payload) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityRequest>(req.Body, true);
             if (errors.Any())
                 return (errors, null);
-
-            request = payload;
+            
+            return (ErrorMessageResponseItem.None,
+                payload with { Consecutive = payload.Consecutive ?? 1 });
         }
-        var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
-
-        return (ErrorMessageResponseItem.None, new QueryAvailabilityRequest(request.Sites, request.Service, request.From, request.Until, request.QueryType, request.Consecutive ?? 1));
+        
+        return (new[] { new ErrorMessageResponseItem { Message = "Request is empty"}}, null);
     }
 }

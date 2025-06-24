@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Site } from '@types';
-import { Card, TextInput } from '@nhsuk-frontend-components';
+import { Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import { debounce } from '../utils/debounce';
@@ -32,27 +32,27 @@ const SiteList = ({ sites }: Props) => {
   const debounceSearchHandler = debounce(handleInputChange, 300);
 
   return (
-    <Card title="Choose a site">
+    <>
       <TextInput
         id="site-search"
         aria-label="site-search"
         placeholder="Search"
         onChange={debounceSearchHandler}
       ></TextInput>
-      <ul className="nhsuk-list nhsuk-list--border">
-        {filteredSites.map(s => (
-          <li key={s.id}>
-            <Link
-              aria-label={s.name}
-              className="nhsuk-back-link__link"
-              href={`/site/${s.id}`}
-            >
-              {s.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Card>
+      <Table
+        headers={['Name', 'ICB', 'ODS', 'Action']}
+        rows={filteredSites.map(site => {
+          return [
+            site.name,
+            site.integratedCareBoard,
+            site.odsCode,
+            <Link key={site.id} href={`/site/${site.id}`}>
+              View
+            </Link>,
+          ];
+        })}
+      />
+    </>
   );
 };
 

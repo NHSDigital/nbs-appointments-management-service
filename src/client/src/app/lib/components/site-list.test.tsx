@@ -38,8 +38,8 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    expect(screen.queryByRole('link', { name: 'Site Alpha' })).toBeVisible();
-    expect(screen.queryByRole('link', { name: 'Site Beta' })).toBeVisible();
+    expect(screen.queryByRole('cell', { name: 'Site Alpha' })).toBeVisible();
+    expect(screen.queryByRole('cell', { name: 'Site Beta' })).toBeVisible();
   });
 
   it('renders sites in ascending alphabetical order', async () => {
@@ -106,12 +106,20 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames).toHaveLength(4);
-    expect(siteNames[0]?.textContent).toEqual('Site Beta');
-    expect(siteNames[1]?.textContent).toEqual('Site Lima');
-    expect(siteNames[2]?.textContent).toEqual('Site November');
-    expect(siteNames[3]?.textContent).toEqual('Site Zulu');
+    const rows = screen.getAllByRole('row');
+    const dataRows = rows.slice(1);
+
+    const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
+    expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
+
+    const secondCell = within(dataRows[1]).getAllByRole('cell')[0];
+    expect(within(secondCell).getByText('Site Lima')).toBeInTheDocument();
+
+    const thirdCell = within(dataRows[2]).getAllByRole('cell')[0];
+    expect(within(thirdCell).getByText('Site November')).toBeInTheDocument();
+
+    const fourthCell = within(dataRows[3]).getAllByRole('cell')[0];
+    expect(within(fourthCell).getByText('Site Zulu')).toBeInTheDocument();
   });
 
   it('links to the correct page', async () => {
@@ -133,7 +141,7 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    expect(screen.getByRole('link', { name: 'Site Alpha' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'View' })).toHaveAttribute(
       'href',
       '/site/95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
     );
@@ -204,8 +212,13 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames).toHaveLength(4);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Site November' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
@@ -213,11 +226,13 @@ describe('<SiteList>', () => {
     await user.type(searchInput, 'Beta');
 
     await waitFor(() => {
-      const filteredSites = within(screen.getByRole('list')).getAllByRole(
-        'listitem',
-      );
-      expect(filteredSites).toHaveLength(1);
-      expect(filteredSites[0]?.textContent).toBe('Site Beta');
+      const rows = screen.getAllByRole('row');
+      // Skip header row
+      const dataRows = rows.slice(1);
+      expect(dataRows).toHaveLength(1);
+
+      const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
+      expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
     });
   });
 
@@ -286,8 +301,13 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames).toHaveLength(4);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Site November' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
@@ -295,10 +315,10 @@ describe('<SiteList>', () => {
     await user.type(searchInput, 'Be');
 
     await waitFor(() => {
-      const filteredSites = within(screen.getByRole('list')).getAllByRole(
-        'listitem',
-      );
-      expect(filteredSites).toHaveLength(4);
+      const rows = screen.getAllByRole('row');
+      // Skip header row
+      const dataRows = rows.slice(1);
+      expect(dataRows).toHaveLength(4);
     });
   });
 
@@ -367,8 +387,13 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames).toHaveLength(4);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Site November' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
@@ -376,11 +401,13 @@ describe('<SiteList>', () => {
     await user.type(searchInput, '1004');
 
     await waitFor(() => {
-      const filteredSites = within(screen.getByRole('list')).getAllByRole(
-        'listitem',
-      );
-      expect(filteredSites).toHaveLength(1);
-      expect(filteredSites[0]?.textContent).toBe('Site Beta');
+      const rows = screen.getAllByRole('row');
+      // Skip header row
+      const dataRows = rows.slice(1);
+      expect(dataRows).toHaveLength(1);
+
+      const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
+      expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
     });
   });
 
@@ -449,8 +476,13 @@ describe('<SiteList>', () => {
     ];
     const { user } = render(<SiteList sites={testSites} />);
 
-    const siteNames = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(siteNames).toHaveLength(4);
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Site November' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
       name: 'site-search',
@@ -458,10 +490,7 @@ describe('<SiteList>', () => {
     await user.type(searchInput, '1005');
 
     await waitFor(() => {
-      const filteredSites = within(screen.getByRole('list')).queryAllByRole(
-        'listitem',
-      );
-      expect(filteredSites).toHaveLength(0);
+      expect(screen.getAllByRole('row')).toHaveLength(1);
     });
   });
 });

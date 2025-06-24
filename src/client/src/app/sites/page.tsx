@@ -13,7 +13,7 @@ const Page = async () => {
 
   return (
     <NhsPage
-      title="Manage your appointments"
+      title="Viewing all sites"
       omitTitleFromBreadcrumbs
       originPage="choose-site"
     >

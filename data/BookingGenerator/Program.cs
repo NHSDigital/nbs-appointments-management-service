@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance;
@@ -27,7 +26,8 @@ CosmosClientOptions cosmosOptions = new()
     }),
     Serializer = new CosmosJsonSerializer(),
     ConnectionMode = ConnectionMode.Gateway,
-    LimitToEndpoint = true
+    LimitToEndpoint = true,
+    AllowBulkExecution = true,
 };
 
 var cosmosClient = new CosmosClient(
@@ -42,18 +42,22 @@ builder.Services
     .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
     .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
     .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+    .AddTransient<IReferenceNumberWriteStore, ReferenceGroupCosmosDocumentStore>()
     .AddTransient<ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument>, TypeFileStore<AvailabilityCreatedEventDocument>>()
     .AddTransient<ITypedDocumentCosmosStore<DailyAvailabilityDocument>, TypeFileStore<DailyAvailabilityDocument>>()
     .AddTransient<ITypedDocumentCosmosStore<BookingDocument>, TypeFileStore<BookingDocument>>()
     .AddTransient<ITypedDocumentCosmosStore<BookingIndexDocument>, TypeFileStore<BookingIndexDocument>>()
-    .AddTransient<ITypedDocumentCosmosStore<ReferenceGroupDocument>, TypedDocumentCosmosStore<ReferenceGroupDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<ReferenceGroupDocument>, TypeFileStore<ReferenceGroupDocument>>()
     .AddTransient<ITypedDocumentCosmosStore<ClinicalServiceDocument>, TypedDocumentCosmosStore<ClinicalServiceDocument>>()
     .AddTransient<ITypedDocumentCosmosStore<SiteDocument>, TypedDocumentCosmosStore<SiteDocument>>()
     .AddMemoryCache()
     .AddTransient<ISiteService, SiteService>()
-    .AddTransient<IBookingsService, BookingsService>()
+    .AddTransient<IBookingWriteService, BookingWriteService>()
+    .AddTransient<IBookingQueryService, BookingQueryService>()
     .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
-    .AddTransient<IAvailabilityService, AvailabilityService>()
+    .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
+    .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()
+    .AddTransient<IBookingAvailabilityStateService, BookingAvailabilityStateService>()
     .AddTransient<IAvailabilityCalculator, AvailabilityCalculator>()
     .AddTransient<IBookingEventFactory, EventFactory>()
     .AddTransient<IMessageBus, NullMessageBus>()
@@ -65,6 +69,11 @@ builder.Services
     .AddSingleton(cosmosClient)
     .AddAutoMapper(typeof(CosmosAutoMapperProfile))
     .AddTransient<IMetricsRecorder, InMemoryMetricsRecorder>()
+    .AddSingleton<IPartitionKeyResolver<AvailabilityCreatedEventDocument>, AvailabilityCreateEventPartitionKeyResolver>()
+    .AddSingleton<IPartitionKeyResolver<BookingIndexDocument>, BookingIndexPartitionKeyResolver>()
+    .AddSingleton<IPartitionKeyResolver<BookingDocument>, BookingPartitionKeyResolver>()
+    .AddSingleton<IPartitionKeyResolver<DailyAvailabilityDocument>, DailyAvailabilityPartitionKeyResolver>()
+    .AddSingleton<IPartitionKeyResolver<ReferenceGroupDocument>, ReferenceGroupPartitionKeyResolver>()
     .AddHostedService<Worker>();
 
 var host = builder.Build();

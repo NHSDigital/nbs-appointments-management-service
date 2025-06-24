@@ -9,31 +9,33 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace BookingGenerator;
 
-public class TypeFileStore<TDocument> : ITypedDocumentCosmosStore<TDocument>
+public class TypeFileStore<TDocument>: ITypedDocumentCosmosStore<TDocument>
     where TDocument : TypedCosmosDocument
 {
-    public TypeFileStore(IMapper mapper)
+    public TypeFileStore(IMapper mapper, IPartitionKeyResolver<TDocument> partitionKeyResolver)
     {
         _documentType = new Lazy<string>(GetDocumentType);
         _mapper = mapper;
+        _partitionKeyResolver = partitionKeyResolver;
         var cosmosDocumentAttribute = typeof(TDocument).GetCustomAttribute<CosmosDocumentAttribute>(true);
         if (cosmosDocumentAttribute == null)
         {
             throw new NotSupportedException("Document type must have a CosmosDocument attribute");
         }
 
-        _containerName = $"output/{cosmosDocumentAttribute.ContainerName}";
+        _containerName = Path.Combine(AppContext.BaseDirectory, $"output/{cosmosDocumentAttribute.ContainerName}");
     }
     
     private readonly Lazy<string> _documentType;
     internal readonly string _containerName;
     private readonly IMapper _mapper;
+    private readonly IPartitionKeyResolver<TDocument> _partitionKeyResolver;
     
     public async Task<TModel> GetByIdAsync<TModel>(string documentId) => await GetDocument<TModel>(documentId);
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
     {
-        if (File.Exists($"{partitionKey}/{documentId}.json"))
+        if (File.Exists(Path.Combine(_containerName, $"{partitionKey}_{documentId}.json")))
         {
             var document = await GetDocument<TDocument>(documentId, partitionKey);
             return _mapper.Map<TModel>(document);
@@ -67,11 +69,11 @@ public class TypeFileStore<TDocument> : ITypedDocumentCosmosStore<TDocument>
 
     public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query) => throw new NotImplementedException();
 
-    public async Task<TModel> GetDocument<TModel>(string documentId) => await GetDocument<TModel>(_containerName, documentId);
+    public async Task<TModel> GetDocument<TModel>(string documentId) => (await RunQueryAsync<TModel>(x => x.Id == documentId)).Single();
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
     {
-        var text = await File.ReadAllTextAsync($"{partitionKey}/{documentId}.json");
+        var text = await File.ReadAllTextAsync(Path.Combine(_containerName, $"{partitionKey}_{documentId}.json"));
 
         var document = JsonConvert.DeserializeObject<TDocument>(text);
 
@@ -92,7 +94,7 @@ public class TypeFileStore<TDocument> : ITypedDocumentCosmosStore<TDocument>
             Directory.CreateDirectory(_containerName);
         }
 
-        File.WriteAllText($"{_containerName}/{document.Id}.json", JsonConvert.SerializeObject(document, Formatting.Indented, 
+        File.WriteAllText(Path.Combine(_containerName, $"{_partitionKeyResolver.ResolvePartitionKey(document)}_{document.Id}.json"), JsonConvert.SerializeObject(document, Formatting.Indented, 
             new JsonSerializerSettings()
             {
                 ContractResolver = new DefaultContractResolver()
@@ -114,26 +116,12 @@ public class TypeFileStore<TDocument> : ITypedDocumentCosmosStore<TDocument>
         return document;
     }
 
-    public Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches) => throw new NotImplementedException();
+    public Task<TDocument>
+        PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches) =>
+        throw new NotImplementedException();
 
     public string GetDocumentType()
     {
         return typeof(TDocument).GetCustomAttribute<CosmosDocumentTypeAttribute>()!.Value;
-    }
-    
-    private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
-        Func<TSource, TOutput> map)
-    {
-        var results = new List<TOutput>();
-        using (queryFeed)
-        {
-            while (queryFeed.HasMoreResults)
-            {
-                var resultSet = await queryFeed.ReadNextAsync();
-                results.AddRange(resultSet.Select(map));
-            }
-        }
-        
-        return results;
     }
 }

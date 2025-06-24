@@ -42,7 +42,8 @@ namespace Nhs.Appointments.Persistance
                 await _cosmosStore.WriteAsync(referenceGroupDocument);
             }
             
-            var target = referenceGroupDocument!.Groups.Where(g => g.Prefix > 0).OrderBy(g => g.SiteCount).ThenBy(g => g.Prefix).First();
+            var target = referenceGroupDocument!.Groups.Where(g => g.Prefix > 0)
+                .OrderBy(g => g.SiteCount).ThenBy(g => g.Prefix).First();
             var siteCountIncrement = PatchOperation.Increment($"/Groups/{target.Prefix}/SiteCount", 1);
             
             await _cosmosStore.PatchDocument(docType, DocumentId, siteCountIncrement);

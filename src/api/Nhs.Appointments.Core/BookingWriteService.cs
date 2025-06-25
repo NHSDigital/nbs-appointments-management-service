@@ -135,7 +135,7 @@ public class BookingWriteService(
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             // Existing live code behaviour, no desire to alter for the release.
             // Has been 'fixed' in the MakeBooking_MultipleServices method
-            var canBook = slots.Exists(sl => sl.From == booking.From && (int)sl.Duration.TotalMinutes == booking.Duration);
+            var canBook = slots.Exists(sl => sl.From == booking.From && sl.Duration.TotalMinutes == booking.Duration);
 
             if (canBook)
             {

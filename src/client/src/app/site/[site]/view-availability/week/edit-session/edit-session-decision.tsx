@@ -17,17 +17,19 @@ type EditSessionDecisionProps = {
   site: Site;
   sessionSummary: string;
   date: string;
+  multipleServicesEnabled: boolean;
   clinicalServices: ClinicalService[];
 };
 
 type EditSessionDecisionFormData = {
-  action?: 'edit-session' | 'cancel-session';
+  action?: 'edit-session' | 'edit-services' | 'cancel-session';
 };
 
 export const EditSessionDecision = ({
   site,
   sessionSummary,
   date,
+  multipleServicesEnabled,
   clinicalServices,
 }: EditSessionDecisionProps) => {
   const router = useRouter();
@@ -40,15 +42,23 @@ export const EditSessionDecision = ({
   const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
     form: EditSessionDecisionFormData,
   ) => {
-    if (form.action === 'edit-session') {
-      router.push(
-        `/site/${site.id}/availability/edit?session=${sessionSummary}&date=${date}`,
-      );
-    } else {
-      router.push(
-        `/site/${site.id}/availability/cancel?session=${sessionSummary}&date=${date}`,
-      );
+    let reroute = `/site/${site.id}/availability/`;
+    switch (form.action) {
+      case 'edit-session':
+        reroute += `edit?session=${sessionSummary}&date=${date}`;
+        break;
+      case 'edit-services':
+        reroute += `edit-services?session=${sessionSummary}&date=${date}`;
+        break;
+      case 'cancel-session':
+        reroute += `cancel?session=${sessionSummary}&date=${date}`;
+        break;
+
+      default:
+        throw new Error('Invalid form action');
     }
+
+    router.push(reroute);
   };
 
   const session: SessionSummary = JSON.parse(atob(sessionSummary));
@@ -80,6 +90,17 @@ export const EditSessionDecision = ({
                 required: { value: true, message: 'Select an option' },
               })}
             />
+            {multipleServicesEnabled && (
+              <Radio
+                label="Remove services from this session"
+                hint="Remove booked appointments for individual services"
+                id="edit-services"
+                value="edit-services"
+                {...register('action', {
+                  required: { value: true, message: 'Select an option' },
+                })}
+              />
+            )}
             <Radio
               label="Cancel this session"
               hint="Cancel all booked appointments, and remove this session"

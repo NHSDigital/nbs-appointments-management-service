@@ -80,7 +80,6 @@ module "mya_application_prod_ukw" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
-  cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = false
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000

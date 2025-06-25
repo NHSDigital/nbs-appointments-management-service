@@ -28,6 +28,11 @@ const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
           text: 'Cookies Policy',
           href: '/cookies-policy',
         },
+        {
+          text: 'Accessibility Statement',
+          href: 'https://www.nhs.uk/our-policies/manage-your-appointment-accessibility-statement',
+          target: '_blank',
+        },
       ]}
     >
       <span aria-hidden style={{ display: 'none' }}>

@@ -4,6 +4,11 @@ import { mockBookings } from '@testing/data';
 import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 
+const mockClinicalServices = [
+  { value: 'RSV:Adult', label: 'RSV Adult' },
+  { value: 'FLU:18_64', label: 'Flu 18-64+' },
+];
+
 describe('View Daily Appointments', () => {
   it('renders appointments', () => {
     render(
@@ -14,6 +19,7 @@ describe('View Daily Appointments', () => {
           bookings={mockBookings}
           site="TEST01"
           displayAction={true}
+          clinicalServices={mockClinicalServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -25,9 +31,15 @@ describe('View Daily Appointments', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '14:05 John Smith 9999999990 1 February 1979 RSV Cancel',
+        name: '14:05 John Smith 9999999990 1 February 1979 RSV Adult Cancel',
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('row', {
+        name: '09:34 Ian Goldsmith 9999999995 3 March 1973 Flu 18-64+ Cancel',
+      }),
+    ).toBeInTheDocument();
+
     expect(screen.getAllByRole('row').length).toBe(6);
   });
 
@@ -41,6 +53,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={true}
           message="Test message"
+          clinicalServices={mockClinicalServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -58,6 +71,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={true}
           message="Test message"
+          clinicalServices={mockClinicalServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -77,6 +91,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={false}
           message="Test message"
+          clinicalServices={mockClinicalServices}
         />
       </SearchParamsContext.Provider>,
     );

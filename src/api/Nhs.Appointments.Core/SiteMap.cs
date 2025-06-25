@@ -28,8 +28,17 @@ public class SiteMap : ClassMap<SiteImportRow>
         };
 
         //validate ID provided is a GUID
-        Map(m => m.Id)
-            .TypeConverter<GuidStringTypeConverter>();
+        Map(m => m.Id).Convert(x =>
+            {
+                var site = x.Row.GetField<string>("Id");
+
+                if (!CsvFieldValidator.StringHasValue(site))
+                    throw new ArgumentException("Site ID must have a value.");
+
+                return !Guid.TryParse(site, out _)
+                        ? throw new ArgumentException($"Invalid GUID string format for Site field: '{site}'")
+                        : site;
+            });
         Map(m => m.OdsCode).Convert(x =>
         {
             var odsCode = x.Row.GetField<string>("OdsCode");
@@ -38,7 +47,7 @@ public class SiteMap : ClassMap<SiteImportRow>
                 throw new ArgumentException("OdsCode must have a value.");
 
             if (!RegularExpressionConstants.OdsCodeRegex().IsMatch(odsCode))
-                throw new ArgumentException($"OdsCode: {odsCode} is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
+                throw new ArgumentException($"OdsCode: '{odsCode}' is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
 
             return odsCode;
         });
@@ -68,7 +77,7 @@ public class SiteMap : ClassMap<SiteImportRow>
                 throw new ArgumentException("Phone number must have a value.");
 
             if (!CsvFieldValidator.IsValidPhoneNumber(phoneNumber))
-                throw new ArgumentException($"Phone number must be a valid phone number or 'N'. Current phone number: {phoneNumber}");
+                throw new ArgumentException($"Phone number must be a valid phone number or 'N'. Current phone number: '{phoneNumber}'");
 
             return phoneNumber;
         });
@@ -78,10 +87,10 @@ public class SiteMap : ClassMap<SiteImportRow>
             var latitude = x.Row.GetField<double>("Latitude");
 
             if (longitude is > MaxLongitude or < MinLongitude)
-                throw new ArgumentOutOfRangeException($"Longitude: {longitude} is not a valid UK longitude.");
+                throw new ArgumentOutOfRangeException($"Longitude: '{longitude}' is not a valid UK longitude.");
 
             if (latitude is > MaxLatitude or < MinLatitude)
-                throw new ArgumentOutOfRangeException($"Latitude: {latitude} is not a valid UK latitude.");
+                throw new ArgumentOutOfRangeException($"Latitude: '{latitude}' is not a valid UK latitude.");
 
             return new Location("Point", [longitude, latitude]);
         });

@@ -62,8 +62,8 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: ferfgsd");
-        report.Last().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: sadfsdafsdf");
+        report.First().Message.Should().Be($"Invalid GUID string format for Site field: 'ferfgsd'");
+        report.Last().Message.Should().Be($"Invalid GUID string format for Site field: 'sadfsdafsdf'");
         report.All(r => r.Success).Should().BeFalse();
     }
 
@@ -128,7 +128,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Duplicate site Id provided: {id}. SiteIds must be unique.");
+        report.First().Message.Should().StartWith($"Duplicate site Id provided: '{id}'. SiteIds must be unique.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -152,8 +152,8 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().Contain($"Longitude: {invalidLongitudeUpper} is not a valid UK longitude.");
-        report.Last().Message.Should().Contain($"Longitude: {invalidLongitudeLower} is not a valid UK longitude.");
+        report.First().Message.Should().Contain($"Longitude: '{invalidLongitudeUpper}' is not a valid UK longitude.");
+        report.Last().Message.Should().Contain($"Longitude: '{invalidLongitudeLower}' is not a valid UK longitude.");
     }
 
     [Fact]
@@ -176,8 +176,8 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().Contain($"Latitude: {invalidLatitudeUpper} is not a valid UK latitude.");
-        report.Last().Message.Should().Contain($"Latitude: {invalidLatitudeLower} is not a valid UK latitude.");
+        report.First().Message.Should().Contain($"Latitude: '{invalidLatitudeUpper}' is not a valid UK latitude.");
+        report.Last().Message.Should().Contain($"Latitude: '{invalidLatitudeLower}' is not a valid UK latitude.");
     }
 
     [Fact]
@@ -230,7 +230,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Duplicate site name provided: {site}. Site names must be unique.");
+        report.First().Message.Should().StartWith($"Duplicate site name provided: '{site}'. Site names must be unique.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -262,7 +262,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Provided site ICB code: {icb} not found in the well known ICB code list.");
+        report.First().Message.Should().StartWith($"Provided site ICB code: '{icb}' not found in the well known ICB code list.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -294,7 +294,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Provided region: {region} not found in the well known Region list.");
+        report.First().Message.Should().StartWith($"Provided region: '{region}' not found in the well known Region list.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -328,7 +328,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().Be($"Site with ID: {siteId} already exists in the system.");
+        report.First().Message.Should().Be($"Site with ID: '{siteId}' already exists in the system.");
         report.All(r => r.Success).Should().BeFalse();
 
         _siteServiceMock.Verify(s => s.SaveSiteAsync(
@@ -386,7 +386,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().Be($"OdsCode: {odsCode} is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
+        report.First().Message.Should().Be($"OdsCode: '{odsCode}' is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
     }
 
     private readonly string[] ValidInputRows =

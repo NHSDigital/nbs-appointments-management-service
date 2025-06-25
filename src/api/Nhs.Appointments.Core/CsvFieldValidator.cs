@@ -9,7 +9,7 @@ public static class CsvFieldValidator
     public static bool ParseUserEnteredBoolean(string possibleBool)
     {
         return !bool.TryParse(possibleBool, out var result)
-            ? throw new FormatException($"Invalid bool string format: {possibleBool}")
+            ? throw new FormatException($"Invalid bool string format: '{possibleBool}'")
             : result;
     }
 

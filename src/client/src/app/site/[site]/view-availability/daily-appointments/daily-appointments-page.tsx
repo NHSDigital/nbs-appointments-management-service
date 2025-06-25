@@ -1,6 +1,6 @@
 'use client';
 import { Table, Pagination } from '@nhsuk-frontend-components';
-import { AttendeeDetails, ContactItem, Booking } from '@types';
+import { AttendeeDetails, ContactItem, Booking, ClinicalService } from '@types';
 import { toTimeFormat, jsDateFormat } from '@services/timeService';
 import { ReactNode } from 'react';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ type Props = {
   site: string;
   displayAction: boolean;
   message?: string;
+  clinicalServices: ClinicalService[];
 };
 
 export const DailyAppointmentsPage = ({
@@ -20,10 +21,10 @@ export const DailyAppointmentsPage = ({
   site,
   displayAction,
   message,
+  clinicalServices,
 }: Props) => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
-
   const page = Number(params.get('page')) ?? 1;
 
   const hasNextPage = (): boolean => {
@@ -83,7 +84,8 @@ export const DailyAppointmentsPage = ({
         booking.contactDetails
           ? mapContactDetails(booking.contactDetails)
           : null,
-        booking.service.split(':')[0],
+        clinicalServices.find(c => c.value === booking.service)?.label ??
+          booking.service,
       ];
 
       if (displayAction) {

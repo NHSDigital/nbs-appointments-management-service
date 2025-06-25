@@ -1,0 +1,22 @@
+{
+  "date": "2025-08-20",
+  "sessions": [
+    {
+      "from": "11:00",
+      "until": "12:00",
+      "services": ["COVID:5_11", "RSV:Adult", "FLU:18_64", "COVID:18+"],
+      "slotLength": 5,
+      "capacity": 2
+    },
+    {
+      "from": "11:15",
+      "until": "11:50",
+      "services": ["COVID:5_11", "FLU:18_64", "RSV:Adult"],
+      "slotLength": 5,
+      "capacity": 2
+    }
+  ],
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "id": "20250820",
+  "docType": "daily_availability"
+}

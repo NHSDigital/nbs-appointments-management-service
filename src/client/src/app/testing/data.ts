@@ -511,7 +511,7 @@ const mockBookings: Booking[] = [
     reference: '6823',
     from: '2024-12-05T09:34:00',
     duration: 5,
-    service: 'RSV:Adult',
+    service: 'FLU:18_64',
     site: 'TEST01',
     attendeeDetails: {
       nhsNumber: '9999999995',

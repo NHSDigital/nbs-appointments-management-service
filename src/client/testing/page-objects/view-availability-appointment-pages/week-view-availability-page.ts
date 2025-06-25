@@ -1,6 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
-import { DayOverview } from '../../availability';
+import { DayOverview, DaySessionOverview } from '../../availability';
 
 export default class WeekViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
@@ -69,7 +69,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
       await expect(viewDailyAppointmentsButton).not.toBeVisible();
     }
 
-    if (dayOverview.services.length > 0) {
+    if (dayOverview.sessions.length > 0) {
       //assert no availability not visible
       expect(cardDiv.getByText('No availability')).not.toBeVisible();
 
@@ -98,7 +98,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
       ).toBeVisible();
 
       //only do for a single service for now!!
-      const singleService = dayOverview.services[0];
+      const singleService = dayOverview.sessions[0];
 
       const timeCell = cardDiv.getByRole('cell', {
         name: singleService.sessionTimeInterval,
@@ -107,7 +107,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
         name: singleService.serviceName,
       });
       const bookedCell = cardDiv.getByRole('cell', {
-        name: `${singleService.booked} booked`,
+        name: `${singleService.booked}`,
       });
       const unbookedCell = cardDiv.getByRole('cell', {
         name: `${singleService.unbooked} unbooked`,
@@ -170,6 +170,42 @@ export default class WeekViewAvailabilityPage extends RootPage {
       await expect(
         cardDiv.getByText('Unbooked: 0', { exact: true }),
       ).toBeVisible();
+    }
+  }
+
+  async verifySessionDataDisplayedInTheCorrectOrder(
+    header: string,
+    sessions: DaySessionOverview[],
+  ) {
+    const cardDiv = this.page
+      .getByRole('heading', {
+        name: header,
+      })
+      .locator('..');
+
+    const sessionTable = cardDiv.getByRole('table');
+
+    //single table
+    await expect(sessionTable).toBeVisible();
+
+    const allTableRows = await sessionTable.getByRole('row').all();
+
+    //assert the session data is formed in the correct order and with the right data
+    for (let index = 0; index < sessions.length; index++) {
+      const expectedSession = sessions[index];
+
+      //start at 1 to ignore table header row
+      const tableRow = allTableRows[index + 1];
+      const allCells = await tableRow.getByRole('cell').all();
+
+      await expect(allCells[0]).toContainText(
+        expectedSession.sessionTimeInterval,
+      );
+      await expect(allCells[1]).toContainText(expectedSession.serviceName);
+      await expect(allCells[2]).toContainText(expectedSession.booked);
+      await expect(allCells[3]).toContainText(
+        `${expectedSession.unbooked} unbooked`,
+      );
     }
   }
 

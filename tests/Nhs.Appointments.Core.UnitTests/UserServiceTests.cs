@@ -1,3 +1,4 @@
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Okta;
@@ -12,13 +13,16 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IRolesStore> _rolesStore = new();
         private readonly Mock<IOktaUserDirectory> _oktaUserDirectory = new();
         private readonly Mock<IEmailWhitelistStore> _emailWhitelistStore = new();
+        private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
         public UserServiceTests() => _sut = new UserService(
             _userStore.Object,
             _rolesStore.Object,
             _messageBus.Object,
             _oktaUserDirectory.Object,
-            _emailWhitelistStore.Object);
+            _emailWhitelistStore.Object,
+            _featureToggleHelper.Object
+        );
 
         [Fact]
         public async Task RaisesEventWhenRolesAreAdded()
@@ -392,6 +396,46 @@ namespace Nhs.Appointments.Core.UnitTests
             identityStatus.ExtantInSite.Should().BeFalse();
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task GetUserIdentityStatus_DoesNotCallOktaWhenOktaIsDisabled()
+        {
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.OktaEnabled))))
+                .ReturnsAsync(false);
+
+
+            _userStore
+                .Setup(userStore => userStore.GetOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(new User
+                {
+                    RoleAssignments =
+                    [
+                        new RoleAssignment { Scope = "site:some-OTHER-site" }
+                    ]
+                });
+            _oktaUserDirectory.Setup(oktaUserDirectory => oktaUserDirectory.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new OktaUserResponse());
+
+            var whiteListedEmails = new List<string> { "@nhs.net" };
+            _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
+                .ReturnsAsync(whiteListedEmails);
+
+            var userServiceWithStubOktaStore = new UserService(
+                _userStore.Object,
+                _rolesStore.Object,
+                _messageBus.Object,
+                new OktaUnimplementedUserDirectory(),
+                _emailWhitelistStore.Object,
+                _featureToggleHelper.Object
+            );
+
+            var identityStatus =
+                await userServiceWithStubOktaStore.GetUserIdentityStatusAsync("some-site", "some.user@not-nhs.net");
+
+            identityStatus.IdentityProvider.Should().Be(IdentityProvider.Okta);
+            identityStatus.ExtantInSite.Should().BeFalse();
+            identityStatus.ExtantInIdentityProvider.Should().BeFalse();
+            identityStatus.MeetsWhitelistRequirements.Should().BeFalse();
         }
 
         [Fact]

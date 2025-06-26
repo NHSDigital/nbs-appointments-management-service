@@ -175,7 +175,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'pen', 'prod') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -249,7 +249,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'pen', 'prod') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

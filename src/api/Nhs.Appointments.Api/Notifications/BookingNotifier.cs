@@ -15,7 +15,7 @@ public class BookingNotifier(
     ISiteService siteService, 
     IPrivacyUtil privacy,
     ILogger<BookingNotifier> logger,
-    IVaccineServiceHelper vaccineHelper) : IBookingNotifier
+    IClinicalServiceProvider clinicalServiceProvider) : IBookingNotifier
 {
     public async Task Notify(
         string eventType, 
@@ -64,8 +64,8 @@ public class BookingNotifier(
             {"reference", bookingRef},
             {"address", site.Address },
             {"siteLocation", GetSiteLocation(site.InformationForCitizens) },
-            {"vaccine", vaccineHelper.GetVaccineType(service) },
-            {"serviceURL", vaccineHelper.GetServiceUrl(service) }
+            {"vaccine", await clinicalServiceProvider.GetVaccineType(service) },
+            {"serviceURL", await clinicalServiceProvider.GetServiceUrl(service) }
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);

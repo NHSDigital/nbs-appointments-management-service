@@ -21,7 +21,7 @@ public class BookingNotifierTests
     private readonly Mock<ISendNotifications> _notificationClient = new();
     private readonly Mock<INotificationConfigurationService> _notificationConfigurationService = new();
     private readonly Mock<ISiteService> _siteService = new();
-    private readonly Mock<IVaccineServiceHelper> _vaccineHelperMock = new();
+    private readonly Mock<IClinicalServiceProvider> _clinicalServiceProviderMock = new();
     private readonly BookingNotifier _sut;
     private readonly DateOnly date = new(2050, 1, 1);
     private readonly TimeOnly time = new(12, 15);
@@ -29,7 +29,7 @@ public class BookingNotifierTests
     public BookingNotifierTests()
     {
         _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationService.Object,
-            _siteService.Object, new PrivacyUtil(), _logger.Object, _vaccineHelperMock.Object);
+            _siteService.Object, new PrivacyUtil(), _logger.Object, _clinicalServiceProviderMock.Object);
     }
 
     [Fact]
@@ -72,8 +72,8 @@ public class BookingNotifierTests
         _siteService.Setup(x => x.GetSiteByIdAsync(It.Is<string>(s => s == Site), It.IsAny<string>()))
             .Returns(Task.FromResult(new Site(Site, "A Clinical Site", "123 Surgery Street", "0113 1111111", "15N",
                 "R1", "ICB1", "Information For Citizens 123", null, null)));
-        _vaccineHelperMock.Setup(x => x.GetVaccineType(Service)).Returns(vaccine);
-        _vaccineHelperMock.Setup(x => x.GetServiceUrl(Service)).Returns(serviceUrl);
+        _clinicalServiceProviderMock.Setup(x => x.GetVaccineType(Service)).ReturnsAsync(vaccine);
+        _clinicalServiceProviderMock.Setup(x => x.GetServiceUrl(Service)).ReturnsAsync(serviceUrl);
         _notificationClient.Setup(x => x.SendSmsAsync(PhoneNumber, SmsTemplateId, It.Is<Dictionary<string, dynamic>>(
             dic =>
                 dic.ContainsKey("firstName") &&

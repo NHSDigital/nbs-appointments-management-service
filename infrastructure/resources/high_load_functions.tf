@@ -6,7 +6,7 @@
 resource "azurerm_service_plan" "nbs_mya_high_load_func_service_plan" {
   count               = var.create_high_load_function_app ? 1 : 0
   name                = "${var.application}-hlfsp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
   os_type             = "Windows"
   sku_name            = "Y1"
@@ -15,7 +15,7 @@ resource "azurerm_service_plan" "nbs_mya_high_load_func_service_plan" {
 resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
   count               = var.create_high_load_function_app ? 1 : 0
   name                = "${var.application}-hlfunc-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
 
   storage_account_name       = azurerm_storage_account.nbs_mya_high_load_func_storage_account[0].name

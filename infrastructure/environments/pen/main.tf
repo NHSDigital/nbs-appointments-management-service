@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-pen-uks"
+    // resource_group_name  = "nbs-mya-rg-pen-uks"
     storage_account_name = "myatfpenuks"
     container_name       = "tfstate"
     key                  = "pen.tfstate"

@@ -14,7 +14,6 @@ import {
   CheckBox,
   CheckBoxes,
   FormGroup,
-  InsetText,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import {
@@ -23,12 +22,11 @@ import {
   parseToTimeComponents,
   toTimeFormat,
 } from '@services/timeService';
-import { Fragment } from 'react';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;
   newSession: Session;
-  servicesToRemove: ClinicalService[];
+  servicesToRemove: string[];
 };
 
 type Props = {
@@ -83,8 +81,7 @@ const EditServicesForm = ({
     form: RemoveServicesFormValues,
   ) => {
     const remainingServices = form.newSession.services.filter(
-      service =>
-        form.servicesToRemove.findIndex(x => x.value === service) === -1,
+      service => form.servicesToRemove.findIndex(x => x === service) === -1,
     );
 
     const updatedSession: AvailabilitySession = {
@@ -110,23 +107,22 @@ const EditServicesForm = ({
     });
 
     router.push(
-      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+      `edit-services/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
   };
 
+  const clinicalServicesInSession = clinicalServices.filter(
+    service =>
+      Object.keys(existingSession.bookings).findIndex(
+        x => x === service.value,
+      ) !== -1,
+  );
+
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      <FormGroup error={errors.newSession?.services?.message}>
+      <FormGroup error={errors.servicesToRemove?.message}>
         <CheckBoxes>
-          {clinicalServices.map(clinicalService => {
-            if (
-              Object.keys(existingSession.bookings)
-                .map(service => service)
-                .findIndex(x => x === clinicalService.value) === -1
-            ) {
-              // eslint-disable-next-line react/jsx-key, react/jsx-no-useless-fragment
-              return <Fragment />;
-            }
+          {clinicalServicesInSession.map(clinicalService => {
             return (
               <CheckBox
                 id={`checkbox-${clinicalService.value}`}
@@ -136,7 +132,10 @@ const EditServicesForm = ({
                 {...register('servicesToRemove', {
                   validate: value => {
                     if (value === undefined || value.length < 1) {
-                      return 'Select a service';
+                      return 'Select a service to remove';
+                    }
+                    if (value.length === clinicalServicesInSession.length) {
+                      return 'Cannot remove all services, cancel the session instead';
                     }
                   },
                 })}

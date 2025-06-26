@@ -24,7 +24,7 @@ type PageProps = {
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  await assertPermission(params.site, 'availability:query');
+  await assertPermission(params.site, 'booking:list-view');
 
   const fromDate = parseToUkDatetime(searchParams.date);
   const toDate = fromDate.endOf('day');

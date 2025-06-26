@@ -7,7 +7,7 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    default: ["dev", "int", "stag", "pen", "prod"]
 
 stages:
   - ${{ each env in parameters.environments }}:

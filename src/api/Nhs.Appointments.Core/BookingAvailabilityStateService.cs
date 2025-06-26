@@ -162,19 +162,23 @@ public class BookingAvailabilityStateService(
 
             foreach (var booking in bookingsOnDay)
             {
-                if (booking.Status == AppointmentStatus.Booked)
+                switch (booking.Status)
                 {
-                    daySummary.BookedAppointments++;
-                }
+                    case AppointmentStatus.Booked:
+                        switch (booking.AvailabilityStatus)
+                        {
+                            case AvailabilityStatus.Supported:
+                                daySummary.BookedAppointments++;
+                                break;
+                            case AvailabilityStatus.Orphaned:
+                                daySummary.OrphanedAppointments++;
+                                break;
+                        }
 
-                if (booking.Status == AppointmentStatus.Booked && booking.AvailabilityStatus == AvailabilityStatus.Orphaned)
-                {
-                    daySummary.OrphanedAppointments++;
-                }
-
-                if (booking.Status == AppointmentStatus.Cancelled)
-                {
-                    daySummary.CancelledAppointments++;
+                        break;
+                    case AppointmentStatus.Cancelled:
+                        daySummary.CancelledAppointments++;
+                        break;
                 }
             }
         }

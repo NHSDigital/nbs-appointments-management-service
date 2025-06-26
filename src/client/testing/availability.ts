@@ -17,6 +17,7 @@ export type DayOverview = {
   totalAppointments: number;
   booked: number;
   unbooked: number;
+  orphaned: number;
 };
 
 export type DaySessionOverview = {
@@ -374,6 +375,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Tuesday 21 October',
@@ -381,6 +383,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Wednesday 22 October',
@@ -388,6 +391,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Thursday 23 October',
@@ -395,6 +399,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Friday 24 October',
@@ -402,6 +407,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Saturday 25 October',
@@ -416,6 +422,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 420,
         booked: 2,
         unbooked: 418,
+        orphaned: 0,
       },
       {
         header: 'Sunday 26 October',
@@ -430,6 +437,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 420,
         booked: 2,
         unbooked: 418,
+        orphaned: 0,
       },
     ],
   },
@@ -452,6 +460,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 420,
         booked: 2,
         unbooked: 418,
+        orphaned: 0,
       },
       {
         header: 'Tuesday 28 October',
@@ -459,6 +468,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Wednesday 29 October',
@@ -466,6 +476,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Thursday 30 October',
@@ -473,6 +484,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Friday 31 October',
@@ -480,6 +492,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Saturday 1 November',
@@ -487,6 +500,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Sunday 2 November',
@@ -494,6 +508,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
     ],
   },
@@ -509,6 +524,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Tuesday 24 March',
@@ -516,6 +532,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Wednesday 25 March',
@@ -523,6 +540,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Thursday 26 March',
@@ -530,6 +548,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Friday 27 March',
@@ -537,6 +556,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Saturday 28 March',
@@ -551,6 +571,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 240,
         booked: 2,
         unbooked: 238,
+        orphaned: 0,
       },
       {
         header: 'Sunday 29 March',
@@ -565,6 +586,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 240,
         booked: 2,
         unbooked: 238,
+        orphaned: 0,
       },
     ],
   },
@@ -587,6 +609,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 240,
         booked: 2,
         unbooked: 238,
+        orphaned: 0,
       },
       {
         header: 'Tuesday 31 March',
@@ -594,6 +617,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Wednesday 1 April',
@@ -601,6 +625,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Thursday 2 April',
@@ -608,6 +633,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Friday 3 April',
@@ -615,6 +641,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Saturday 4 April',
@@ -622,6 +649,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
       {
         header: 'Sunday 5 April',
@@ -629,6 +657,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         totalAppointments: 0,
         booked: 0,
         unbooked: 0,
+        orphaned: 0,
       },
     ],
   },

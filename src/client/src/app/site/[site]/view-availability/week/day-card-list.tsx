@@ -61,6 +61,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   }
 
   const canManageAvailability = permissions.includes('availability:setup');
+  const canViewDailyAppointments = permissions.includes('booking:list-view');
 
   return (
     <ol className="card-list">
@@ -72,6 +73,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
               siteId={site.id}
               canManageAvailability={canManageAvailability}
               clinicalServices={clinicalServices}
+              canViewDailyAppointments={canViewDailyAppointments}
             />
           </li>
         );

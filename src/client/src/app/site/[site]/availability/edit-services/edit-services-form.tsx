@@ -14,6 +14,7 @@ import {
   CheckBox,
   CheckBoxes,
   FormGroup,
+  InsetText,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import {
@@ -106,8 +107,16 @@ const EditServicesForm = ({
       },
     });
 
+    const servicesRemovedSession: AvailabilitySession = {
+      from: toTimeFormat(form.newSession.startTime) ?? '',
+      until: toTimeFormat(form.newSession.endTime) ?? '',
+      slotLength: form.newSession.slotLength,
+      capacity: form.newSession.capacity,
+      services: form.servicesToRemove,
+    };
+
     router.push(
-      `edit-services/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+      `edit-services/confirmed?removedServicesSession=${btoa(JSON.stringify(servicesRemovedSession))}&date=${date}`,
     );
   };
 
@@ -120,6 +129,9 @@ const EditServicesForm = ({
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
+      <InsetText>
+        <p>If you need to remove all services, cancel the session instead.</p>
+      </InsetText>
       <FormGroup error={errors.servicesToRemove?.message}>
         <CheckBoxes>
           {clinicalServicesInSession.map(clinicalService => {
@@ -132,10 +144,10 @@ const EditServicesForm = ({
                 {...register('servicesToRemove', {
                   validate: value => {
                     if (value === undefined || value.length < 1) {
-                      return 'Select a service to remove';
+                      return 'Select service(s) to remove';
                     }
                     if (value.length === clinicalServicesInSession.length) {
-                      return 'Cannot remove all services, cancel the session instead';
+                      return 'Cannot select all services';
                     }
                   },
                 })}

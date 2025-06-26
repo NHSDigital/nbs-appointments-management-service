@@ -8,7 +8,7 @@ describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {
     render(
       <EditServicesConfirmed
-        updatedSession={{
+        removedServicesSession={{
           from: '09:00',
           until: '12:00',
           services: ['RSV:Adult'],
@@ -29,7 +29,7 @@ describe('Cancellation Confirmed Page', () => {
   it('renders a link back to the cancel appointments page', () => {
     render(
       <EditServicesConfirmed
-        updatedSession={{
+        removedServicesSession={{
           from: '09:00',
           until: '12:00',
           services: ['RSV:Adult'],

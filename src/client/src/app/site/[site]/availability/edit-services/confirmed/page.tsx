@@ -11,7 +11,7 @@ import EditServicesConfirmed from './edit-services-confirmed';
 type PageProps = {
   searchParams: {
     date: string;
-    updatedSession: string;
+    removedServicesSession: string;
   };
   params: {
     site: string;
@@ -27,14 +27,14 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const date = parseToUkDatetime(searchParams.date);
 
-  const updatedSession: AvailabilitySession = JSON.parse(
-    atob(searchParams.updatedSession),
+  const removedServicesSession: AvailabilitySession = JSON.parse(
+    atob(searchParams.removedServicesSession),
   );
 
   return (
     <NhsPage
       originPage="edit-session"
-      title={`Services for ${date.format('DD MMMM YYYY')}`}
+      title={`Services removed for ${date.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
         href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
@@ -43,7 +43,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditServicesConfirmed
-        updatedSession={updatedSession}
+        removedServicesSession={removedServicesSession}
         site={site}
         date={searchParams.date}
         clinicalServices={clinicalServices}

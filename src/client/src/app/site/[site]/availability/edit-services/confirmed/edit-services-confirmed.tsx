@@ -3,14 +3,14 @@ import { AvailabilitySession, ClinicalService, Site } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
-  updatedSession: AvailabilitySession;
+  removedServicesSession: AvailabilitySession;
   clinicalServices: ClinicalService[];
   site: Site;
   date: string;
 };
 
 const EditServicesConfirmed = ({
-  updatedSession,
+  removedServicesSession,
   clinicalServices,
   site,
   date,
@@ -22,10 +22,10 @@ const EditServicesConfirmed = ({
         rows={[
           [
             <strong key={`session-0-start-and-end-time`}>
-              {`${updatedSession.from} - ${updatedSession.until}`}
+              {`${removedServicesSession.from} - ${removedServicesSession.until}`}
             </strong>,
             <>
-              {updatedSession.services.map((service, serviceIndex) => {
+              {removedServicesSession.services.map((service, serviceIndex) => {
                 return (
                   <span key={`service-name-${serviceIndex}`}>
                     {clinicalServices.find(c => c.value === service)?.label ??

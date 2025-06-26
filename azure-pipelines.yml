@@ -168,6 +168,10 @@ stages:
 
       - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"
+
+        # Temporarily prevent this step from running so I can test the creation of the pen environment more quickly
+        condition: false
+
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"
@@ -340,5 +344,9 @@ stages:
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+
+          # TODO: Replace this check once testing the creation of the pen environment is complete.
+          # isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isMain: true
+
           buildNumber: "$(Build.BuildNumber)"

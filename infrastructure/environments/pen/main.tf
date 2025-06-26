@@ -9,7 +9,7 @@ terraform {
   backend "azurerm" {
     use_azuread_auth = true
     // resource_group_name  = "nbs-mya-rg-pen-uks"
-    storage_account_name = "myatfpenuks"
+    storage_account_name = "myatfstnonproduks"
     container_name       = "tfstate"
     key                  = "pen.tfstate"
   }

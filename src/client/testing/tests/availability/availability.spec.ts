@@ -1170,21 +1170,27 @@ test.describe.configure({ mode: 'serial' });
         });
 
         await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
-          'Wednesday 20 August',
-          [
-            {
-              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
-              booked: '0 booked0 booked0 booked0 booked',
-              unbooked: 24,
-              sessionTimeInterval: '11:00 - 12:00',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
-              booked: '1 booked1 booked0 booked',
-              unbooked: 12,
-              sessionTimeInterval: '11:15 - 11:50',
-            },
-          ],
+          {
+            header: 'Wednesday 20 August',
+            booked: 3,
+            unbooked: 36,
+            orphaned: 1,
+            totalAppointments: 38,
+            sessions: [
+              {
+                serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+                booked: '0 booked0 booked0 booked0 booked',
+                unbooked: 24,
+                sessionTimeInterval: '11:00 - 12:00',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+                booked: '1 booked1 booked0 booked',
+                unbooked: 12,
+                sessionTimeInterval: '11:15 - 11:50',
+              },
+            ],
+          },
         );
 
         //create some new availability to show shuffling
@@ -1204,27 +1210,33 @@ test.describe.configure({ mode: 'serial' });
         );
 
         await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
-          'Wednesday 20 August',
-          [
-            {
-              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
-              booked: '0 booked0 booked0 booked0 booked',
-              unbooked: 24,
-              sessionTimeInterval: '11:00 - 12:00',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
-              booked: '1 booked0 booked0 booked',
-              unbooked: 13,
-              sessionTimeInterval: '11:15 - 11:50',
-            },
-            {
-              serviceName: 'Flu 18-64',
-              booked: '1 booked',
-              unbooked: 47,
-              sessionTimeInterval: '10:00 - 12:00',
-            },
-          ],
+          {
+            header: 'Wednesday 20 August',
+            booked: 3,
+            unbooked: 84,
+            orphaned: 1,
+            totalAppointments: 86,
+            sessions: [
+              {
+                serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+                booked: '0 booked0 booked0 booked0 booked',
+                unbooked: 24,
+                sessionTimeInterval: '11:00 - 12:00',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+                booked: '1 booked0 booked0 booked',
+                unbooked: 13,
+                sessionTimeInterval: '11:15 - 11:50',
+              },
+              {
+                serviceName: 'Flu 18-64',
+                booked: '1 booked',
+                unbooked: 47,
+                sessionTimeInterval: '10:00 - 12:00',
+              },
+            ],
+          },
         );
 
         //create some new availability to show shuffling
@@ -1244,33 +1256,39 @@ test.describe.configure({ mode: 'serial' });
         );
 
         await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
-          'Wednesday 20 August',
-          [
-            {
-              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
-              booked: '0 booked0 booked0 booked0 booked',
-              unbooked: 24,
-              sessionTimeInterval: '11:00 - 12:00',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
-              booked: '0 booked0 booked0 booked',
-              unbooked: 14,
-              sessionTimeInterval: '11:15 - 11:50',
-            },
-            {
-              serviceName: 'Flu 18-64',
-              booked: '1 booked',
-              unbooked: 47,
-              sessionTimeInterval: '10:00 - 12:00',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64',
-              booked: '1 booked0 booked',
-              unbooked: 19,
-              sessionTimeInterval: '11:05 - 11:55',
-            },
-          ],
+          {
+            header: 'Wednesday 20 August',
+            booked: 3,
+            unbooked: 104,
+            orphaned: 1,
+            totalAppointments: 106,
+            sessions: [
+              {
+                serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+                booked: '0 booked0 booked0 booked0 booked',
+                unbooked: 24,
+                sessionTimeInterval: '11:00 - 12:00',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+                booked: '0 booked0 booked0 booked',
+                unbooked: 14,
+                sessionTimeInterval: '11:15 - 11:50',
+              },
+              {
+                serviceName: 'Flu 18-64',
+                booked: '1 booked',
+                unbooked: 47,
+                sessionTimeInterval: '10:00 - 12:00',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64',
+                booked: '1 booked0 booked',
+                unbooked: 19,
+                sessionTimeInterval: '11:05 - 11:55',
+              },
+            ],
+          },
         );
 
         //remove the single Flu session
@@ -1316,27 +1334,33 @@ test.describe.configure({ mode: 'serial' });
         });
 
         await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder(
-          'Wednesday 20 August',
-          [
-            {
-              serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
-              booked: '0 booked0 booked0 booked0 booked',
-              unbooked: 24,
-              sessionTimeInterval: '11:00 - 12:00',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64RSV Adult',
-              booked: '0 booked0 booked0 booked',
-              unbooked: 14,
-              sessionTimeInterval: '11:15 - 11:50',
-            },
-            {
-              serviceName: 'COVID 5-11Flu 18-64',
-              booked: '1 booked1 booked',
-              unbooked: 18,
-              sessionTimeInterval: '11:05 - 11:55',
-            },
-          ],
+          {
+            header: 'Wednesday 20 August',
+            booked: 3,
+            unbooked: 56,
+            orphaned: 1,
+            totalAppointments: 58,
+            sessions: [
+              {
+                serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
+                booked: '0 booked0 booked0 booked0 booked',
+                unbooked: 24,
+                sessionTimeInterval: '11:00 - 12:00',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64RSV Adult',
+                booked: '0 booked0 booked0 booked',
+                unbooked: 14,
+                sessionTimeInterval: '11:15 - 11:50',
+              },
+              {
+                serviceName: 'COVID 5-11Flu 18-64',
+                booked: '1 booked1 booked',
+                unbooked: 18,
+                sessionTimeInterval: '11:05 - 11:55',
+              },
+            ],
+          },
         );
       });
 

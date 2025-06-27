@@ -1,6 +1,6 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import RootPage from '../root';
-import { DayOverview, DaySessionOverview } from '../../availability';
+import { DayOverview } from '../../availability';
 
 export default class WeekViewAvailabilityPage extends RootPage {
   readonly nextButton: Locator;
@@ -173,13 +173,10 @@ export default class WeekViewAvailabilityPage extends RootPage {
     }
   }
 
-  async verifySessionDataDisplayedInTheCorrectOrder(
-    header: string,
-    sessions: DaySessionOverview[],
-  ) {
+  async verifySessionDataDisplayedInTheCorrectOrder(dayOverview: DayOverview) {
     const cardDiv = this.page
       .getByRole('heading', {
-        name: header,
+        name: dayOverview.header,
       })
       .locator('..');
 
@@ -191,8 +188,8 @@ export default class WeekViewAvailabilityPage extends RootPage {
     const allTableRows = await sessionTable.getByRole('row').all();
 
     //assert the session data is formed in the correct order and with the right data
-    for (let index = 0; index < sessions.length; index++) {
-      const expectedSession = sessions[index];
+    for (let index = 0; index < dayOverview.sessions.length; index++) {
+      const expectedSession = dayOverview.sessions[index];
 
       //start at 1 to ignore table header row
       const tableRow = allTableRows[index + 1];
@@ -207,6 +204,39 @@ export default class WeekViewAvailabilityPage extends RootPage {
         `${expectedSession.unbooked} unbooked`,
       );
     }
+
+    //totals
+    if (dayOverview.orphaned === 0) {
+      await expect(cardDiv.getByText('manual cancellation')).not.toBeVisible();
+    }
+
+    if (dayOverview.orphaned === 1) {
+      await expect(
+        cardDiv.getByText('There is 1 manual cancellation on this day'),
+      ).toBeVisible();
+    }
+
+    if (dayOverview.orphaned > 1) {
+      await expect(
+        cardDiv.getByText(
+          `There are ${dayOverview.orphaned} manual cancellations on this day.`,
+        ),
+      ).toBeVisible();
+    }
+
+    await expect(
+      cardDiv.getByText(`Total appointments: ${dayOverview.totalAppointments}`),
+    ).toBeVisible();
+    await expect(
+      cardDiv.getByText(`Booked: ${dayOverview.booked}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      cardDiv.getByText(`Unbooked: ${dayOverview.unbooked}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
   }
 
   async verifyDateCardDisplayed(requiredDate: string) {

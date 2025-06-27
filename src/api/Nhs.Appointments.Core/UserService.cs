@@ -1,3 +1,4 @@
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Okta;
@@ -9,7 +10,8 @@ public class UserService(
     IRolesStore rolesStore,
     IMessageBus bus,
     IOktaUserDirectory oktaStore,
-    IEmailWhitelistStore whiteListStore)
+    IEmailWhitelistStore whiteListStore,
+    IFeatureToggleHelper featureToggleHelper)
     : IUserService
 {
     public Task<User> GetUserAsync(string userId)
@@ -133,6 +135,11 @@ public class UserService(
                 return true;
             case IdentityProvider.Okta:
                 {
+                    if (!await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled))
+                    {
+                        return false;
+                    }
+
                     var userExistsInOkta = await oktaStore.GetUserAsync(userId);
                     return userExistsInOkta != null;
                 }

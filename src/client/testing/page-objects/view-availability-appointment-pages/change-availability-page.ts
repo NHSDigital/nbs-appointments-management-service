@@ -5,6 +5,7 @@ export default class ChangeAvailabilityPage extends RootPage {
   readonly goBackButton: Locator;
   readonly continueButton: Locator;
   readonly editLengthCapacityRadioOption: Locator;
+  readonly editServicesRadioOption: Locator;
   readonly cancelRadioOption: Locator;
   readonly confirmCancelRadioOption: Locator;
   readonly changeHeader: Locator;
@@ -21,6 +22,9 @@ export default class ChangeAvailabilityPage extends RootPage {
     this.editLengthCapacityRadioOption = page.getByRole('radio', {
       name: 'Change the length or capacity of this session',
     });
+    this.editServicesRadioOption = page.getByRole('radio', {
+      name: 'Remove services from this session',
+    });
     this.cancelRadioOption = page.getByRole('radio', {
       name: 'Cancel this session',
     });
@@ -29,12 +33,17 @@ export default class ChangeAvailabilityPage extends RootPage {
     });
   }
 
-  async selectChangeType(changeType: 'ChangeLengthCapacity' | 'CancelSession') {
+  async selectChangeType(
+    changeType: 'ChangeLengthCapacity' | 'CancelSession' | 'ReduceServices',
+  ) {
     if (changeType == 'ChangeLengthCapacity') {
       await this.editLengthCapacityRadioOption.click();
     }
     if (changeType == 'CancelSession') {
       await this.cancelRadioOption.click();
+    }
+    if (changeType == 'ReduceServices') {
+      await this.editServicesRadioOption.click();
     }
   }
 

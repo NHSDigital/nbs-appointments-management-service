@@ -100,8 +100,8 @@ public class GetSitesPreviewFunctionTests
         };
         var icbs = new List<WellKnownOdsEntry>
         {
-            new("ODS1", "ICB One", "icb"),
-            new("ODS2", "ICB Two", "icb")
+            new("ICB1", "ICB One", "icb"),
+            new("ICB2", "ICB Two", "icb")
         };  
         var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1", "ICB1"), new("2", "Site2", "ODS2", "ICB2"), };
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
@@ -164,7 +164,7 @@ public class GetSitesPreviewFunctionTests
             PhoneNumber: "0113 333333",
             OdsCode: "odsCode3",
             Region: "R1",
-            IntegratedCareBoard: "ICB1",
+            IntegratedCareBoard: "ICB3",
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
@@ -172,8 +172,8 @@ public class GetSitesPreviewFunctionTests
 
         var icbs = new List<WellKnownOdsEntry>
         {
-            new("odsCode1", "ICB One", "icb"),
-            new("odsCode3", "ICB Three", "icb")
+            new("ICB1", "ICB One", "icb"),
+            new("ICB3", "ICB Three", "icb")
         };
 
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
@@ -252,9 +252,9 @@ public class GetSitesPreviewFunctionTests
         );
         var icbs = new List<WellKnownOdsEntry>
         {
-            new("odsCode1", "ICB One", "icb"),
-            new("odsCode2", "ICB Two", "icb"),
-            new("odsCode3", "ICB Three", "icb")
+            new("ICB1", "ICB One", "icb"),
+            new("ICB2", "ICB Two", "icb"),
+            new("RegionICB", "ICB Three", "icb")
         };
 
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);

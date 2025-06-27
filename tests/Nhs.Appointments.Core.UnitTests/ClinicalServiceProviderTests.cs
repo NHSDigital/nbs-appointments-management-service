@@ -11,6 +11,7 @@ public class ClinicalServiceProviderTests
         new ClinicalServiceType { Value = "COVID:5_11", Vaccine = "COVID-19", Url = "https://www.nhs.uk/bookcovid" },
         new ClinicalServiceType { Value = "FLU:18_64", Vaccine = "flu", Url = "https://www.nhs.uk/bookflu" }
     };
+    private const string _cacheKey = "clinical-service";
 
     public ClinicalServiceProviderTests()
     {
@@ -20,14 +21,37 @@ public class ClinicalServiceProviderTests
     }
 
     [Fact]
-    public async Task Get_ReturnsFromCache_WhenPresent()
+    public async Task Get_ReturnsClinicalServiceTypes()
     {
         // Arrange
-        object cached = _sampleServices;
-        _memoryCacheMock.Setup(mc => mc.TryGetValue("clinical-service", out cached)).Returns(true);
+        _storeMock.Setup(x => x.Get()).ReturnsAsync(_sampleServices);
 
         // Act
         var result = await _sut.Get();
+
+        // Assert
+        var resultArray = result.ToArray();
+
+        Assert.NotNull(result);
+        Assert.Equal(2, resultArray.Count());
+        Assert.Equal(_sampleServices[0].Value, resultArray[0].Value);
+        Assert.Equal(_sampleServices[0].Vaccine, resultArray[0].Vaccine);
+        Assert.Equal(_sampleServices[0].Url, resultArray[0].Url);
+        Assert.Equal(_sampleServices[1].Value, resultArray[1].Value);
+        Assert.Equal(_sampleServices[1].Vaccine, resultArray[1].Vaccine);
+        Assert.Equal(_sampleServices[1].Url, resultArray[1].Url);
+    }
+
+
+    [Fact]
+    public async Task GetFromCache_ReturnsFromCache_WhenPresent()
+    {
+        // Arrange
+        object cached = _sampleServices;
+        _memoryCacheMock.Setup(mc => mc.TryGetValue(_cacheKey, out cached)).Returns(true);
+
+        // Act
+        var result = await _sut.GetFromCache();
 
         // Assert
         Assert.Equal(_sampleServices, result);
@@ -35,18 +59,18 @@ public class ClinicalServiceProviderTests
     }
 
     [Fact]
-    public async Task Get_ReturnsFromStore_WhenCacheIsEmpty()
+    public async Task GetFromCache_ReturnsFromStore_WhenCacheIsEmpty()
     {
         // Arrange
         object cached;
-        _memoryCacheMock.Setup(mc => mc.TryGetValue("clinical-service", out cached)).Returns(false);
+        _memoryCacheMock.Setup(mc => mc.TryGetValue(_cacheKey, out cached)).Returns(false);
         _storeMock.Setup(s => s.Get()).ReturnsAsync(_sampleServices);
 
         var cacheEntryMock = new Mock<ICacheEntry>();
         _memoryCacheMock.Setup(mc => mc.CreateEntry(It.IsAny<object>())).Returns(cacheEntryMock.Object);
 
         // Act
-        var result = await _sut.Get();
+        var result = await _sut.GetFromCache();
 
         // Assert
         Assert.Equal(_sampleServices, result);
@@ -57,8 +81,7 @@ public class ClinicalServiceProviderTests
     public async Task GetVaccineType_ReturnsCorrectValue()
     {
         // Arrange
-        object cached = _sampleServices;
-        _memoryCacheMock.Setup(mc => mc.TryGetValue("clinical-service", out cached)).Returns(true);
+        _storeMock.Setup(s => s.Get()).ReturnsAsync(_sampleServices);
 
         // Act
         var result = await _sut.GetVaccineType("COVID:5_11");
@@ -71,8 +94,7 @@ public class ClinicalServiceProviderTests
     public async Task GetServiceUrl_ReturnsCorrectUrl()
     {
         // Arrange
-        object cached = _sampleServices;
-        _memoryCacheMock.Setup(mc => mc.TryGetValue("clinical-service", out cached)).Returns(true);
+        _storeMock.Setup(s => s.Get()).ReturnsAsync(_sampleServices);
 
         // Act
         var result = await _sut.GetServiceUrl("FLU:18_64");
@@ -85,11 +107,11 @@ public class ClinicalServiceProviderTests
     public async Task GetVaccineType_ReturnsNull_WhenServiceNotFound()
     {
         // Arrange
-        object cached = _sampleServices;
-        _memoryCacheMock.Setup(mc => mc.TryGetValue("clinical-service", out cached)).Returns(true);
+        _storeMock.Setup(s => s.Get()).ReturnsAsync(Array.Empty<ClinicalServiceType>);
 
         // Act
         var result = await _sut.GetVaccineType("nonexistent");
+
 
         // Assert
         Assert.Null(result);

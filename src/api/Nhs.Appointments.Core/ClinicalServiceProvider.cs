@@ -15,11 +15,18 @@ public class ClinicalServiceProvider(IClinicalServiceStore store, IMemoryCache m
 
     public async Task<IEnumerable<ClinicalServiceType>> Get()
     {
+        var clinicalServices = await store.Get();
+
+        return clinicalServices;
+    }    
+    
+    public async Task<IEnumerable<ClinicalServiceType>> GetFromCache()
+    {
         var cacheKey = "clinical-service";
         var clinicalServices = memoryCache.Get<IEnumerable<ClinicalServiceType>>(cacheKey);
         if (clinicalServices == null)
         {
-            clinicalServices = await store.Get();
+            clinicalServices = await Get();
             memoryCache.Set(cacheKey, clinicalServices, DateTimeOffset.UtcNow.AddMinutes(60));
         }
 

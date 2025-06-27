@@ -22,6 +22,7 @@ stages:
       - job: ApplyFeatureToggles
         dependsOn: ApproveFeatureToggles
         displayName: "Apply Feature Toggles"
+        environment: nbs-mya-${{parameters.env}}
         steps:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"

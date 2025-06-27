@@ -39,10 +39,10 @@ describe('Edit Session Decision Page', () => {
   });
 
   it.each([false, true])(
-    'renders the radio buttons',
+    'renders 3 radio buttons when multiple services',
     (multipleServicesEnabled: boolean) => {
       const session = btoa(
-        JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+        JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
       );
       render(
         <EditSessionDecision
@@ -79,11 +79,41 @@ describe('Edit Session Decision Page', () => {
     },
   );
 
+  it('does not render the reduce services radio button when only one service in the session, despite MultipleServices enabled', () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+    );
+    render(
+      <EditSessionDecision
+        sessionSummary={session}
+        date="2025-01-15"
+        site={mockSite}
+        clinicalServices={clinicalServices}
+        multipleServicesEnabled
+      />,
+    );
+
+    expect(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   it.each([false, true])(
     'toggles between the radio buttons',
     async (multipleServicesEnabled: boolean) => {
       const session = btoa(
-        JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+        JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
       );
       const { user } = render(
         <EditSessionDecision

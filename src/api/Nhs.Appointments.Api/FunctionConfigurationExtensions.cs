@@ -97,6 +97,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
+            .AddTransient<ISiteReportService, SiteReportService>()
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()

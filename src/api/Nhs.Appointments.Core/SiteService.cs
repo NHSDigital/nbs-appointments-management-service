@@ -9,6 +9,7 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
+    Task<IEnumerable<Site>> GetAllSites();
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
 
@@ -71,11 +72,18 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
 
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
         => await siteStore.GetSitesInRegionAsync(region);
-
-    public async Task<IEnumerable<SitePreview>> GetSitesPreview()
+    
+    public async Task<IEnumerable<Site>> GetAllSites()
     {
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
         sites ??= await GetAndCacheSites();
+
+        return sites;
+    }
+    
+    public async Task<IEnumerable<SitePreview>> GetSitesPreview()
+    {
+        var sites = await GetAllSites();
 
         return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
     }

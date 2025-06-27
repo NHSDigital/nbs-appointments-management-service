@@ -15,6 +15,7 @@ public static class Permissions
     public const string ViewSitePreview = "site:view:preview";
     public const string ViewSiteMetadata = "site:get-meta-data";
     public const string QuerySites = "sites:query";
+    public const string ReportSites = "sites:report";
     
     public const string SetupAvailability = "availability:setup";
     public const string QueryAvailability = "availability:query";

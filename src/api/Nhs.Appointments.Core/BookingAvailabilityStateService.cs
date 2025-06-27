@@ -56,6 +56,13 @@ public class BookingAvailabilityStateService(
         }).ToList();
     }
 
+
+    public async Task<IEnumerable<DaySummary>> GetSummaries(string site, DateTime from, DateTime to)
+    {
+        return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.WeekSummary))
+            .WeekSummary.DaySummaries;
+    }
+
     private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
         BookingAvailabilityStateReturnType returnType)
     {

@@ -685,7 +685,7 @@ public class SiteServiceTests
                     PhoneNumber: "0113 1111111",
                     OdsCode: "odsCode2",
                     Region: "R1",
-                    IntegratedCareBoard: "ICB1",
+                    IntegratedCareBoard: "ICB2",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")})
@@ -697,6 +697,7 @@ public class SiteServiceTests
         var result = await _sut.GetSitesPreview();
 
         result.Count().Should().Be(2);
+        result.First().IntegratedCareBoard.Should().Be("ICB1");
         _siteStore.Verify(x => x.GetAllSites(), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
     }

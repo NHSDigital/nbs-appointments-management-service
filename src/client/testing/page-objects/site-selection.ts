@@ -9,7 +9,7 @@ export default class SiteSelectionPage extends RootPage {
   constructor(page: Page) {
     super(page);
     this.title = page.getByRole('heading', {
-      name: 'Manage your appointments',
+      name: 'Viewing all sites',
     });
     this.noSitesMessage = page.getByText(
       'You have not been assigned to any sites.',

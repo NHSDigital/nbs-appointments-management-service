@@ -141,10 +141,9 @@ describe('<SiteList>', () => {
       },
     ];
     render(<SiteList sites={testSites} />);
-    expect(screen.getByRole('link', { name: 'View' })).toHaveAttribute(
-      'href',
-      '/site/95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
-    );
+    expect(
+      screen.getByRole('link', { name: 'View Site Alpha' }),
+    ).toHaveAttribute('href', '/site/95e4ca69-da15-45f5-9ec7-6b2ea50f07c8');
   });
 
   it('filters sites on search input', async () => {
@@ -224,6 +223,9 @@ describe('<SiteList>', () => {
       name: 'site-search',
     });
     await user.type(searchInput, 'Beta');
+
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
 
     await waitFor(() => {
       const rows = screen.getAllByRole('row');
@@ -400,6 +402,9 @@ describe('<SiteList>', () => {
     });
     await user.type(searchInput, '1004');
 
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
+
     await waitFor(() => {
       const rows = screen.getAllByRole('row');
       // Skip header row
@@ -488,6 +493,9 @@ describe('<SiteList>', () => {
       name: 'site-search',
     });
     await user.type(searchInput, '1005');
+
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
 
     await waitFor(() => {
       expect(screen.getAllByRole('row')).toHaveLength(1);

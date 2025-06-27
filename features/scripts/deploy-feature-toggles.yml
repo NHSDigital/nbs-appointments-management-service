@@ -10,25 +10,19 @@ stages:
     condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     dependsOn: []
     jobs:
-      - job: ApproveFeatureToggles
-        displayName: "Approve Feature Toggles"
-        pool: server
-        steps:
-          - task: ManualValidation@0
-            displayName: "Review Feature Toggles"
-            inputs:
-              notifyUsers: ""
-              instructions: Approve Toggles to ${{parameters.env}}
-      - job: ApplyFeatureToggles
-        dependsOn: ApproveFeatureToggles
+      - deployment: ApplyFeatureToggles
         displayName: "Apply Feature Toggles"
         environment: nbs-mya-${{parameters.env}}
-        steps:
-          - task: AzureCLI@2
-            displayName: "Apply Feature Toggles"
-            inputs:
-              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-              arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: "Apply Feature Toggles"
+                  inputs:
+                    azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
+                    arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"

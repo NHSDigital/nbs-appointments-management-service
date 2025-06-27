@@ -144,10 +144,10 @@ const EditServicesForm = ({
                 {...register('servicesToRemove', {
                   validate: value => {
                     if (value === undefined || value.length < 1) {
-                      return 'Select service(s) to remove';
+                      return 'Select a service to remove';
                     }
                     if (value.length === clinicalServicesInSession.length) {
-                      return 'Cannot select all services';
+                      return 'Cancel this session if you need to remove all services';
                     }
                   },
                 })}

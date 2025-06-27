@@ -27,6 +27,12 @@ export type DaySessionOverview = {
   unbooked: number;
 };
 
+export type RemovedServicesOverview = {
+  date: string;
+  sessionTimeInterval: string;
+  serviceNames: string;
+};
+
 type SessionTestCase = {
   week: string;
   day: string;

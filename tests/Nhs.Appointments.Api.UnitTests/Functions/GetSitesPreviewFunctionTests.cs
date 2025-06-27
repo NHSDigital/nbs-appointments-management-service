@@ -22,11 +22,20 @@ public class GetSitesPreviewFunctionTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IUserService> _userSiteAssignmentService = new();
     private readonly Mock<IValidator<EmptyRequest>> _validator = new();
+    private readonly Mock<IWellKnowOdsCodesService> _wellKnowOdsCodesService = new();
 
     public GetSitesPreviewFunctionTests()
     {
-        _sut = new GetSitesPreviewFunction(_siteService.Object, _userSiteAssignmentService.Object, _validator.Object,
-            _userContextProvider.Object, _logger.Object, _metricsRecorder.Object, _permissionChecker.Object);
+        _sut = new GetSitesPreviewFunction(
+            _siteService.Object, 
+            _userSiteAssignmentService.Object, 
+            _validator.Object,
+            _userContextProvider.Object, 
+            _logger.Object, 
+            _metricsRecorder.Object, 
+            _permissionChecker.Object, 
+            _wellKnowOdsCodesService.Object
+        );
     }
 
     [Fact]
@@ -89,6 +98,11 @@ public class GetSitesPreviewFunctionTests
         {
             new() { Role = "Role1", Scope = "site:1" }, new() { Role = "system:admin-user", Scope = "global" }
         };
+        var icbs = new List<WellKnownOdsEntry>
+        {
+            new("ODS1", "ICB One", "icb"),
+            new("ODS2", "ICB Two", "icb")
+        };  
         var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1", "ICB1"), new("2", "Site2", "ODS2", "ICB2"), };
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
@@ -98,6 +112,7 @@ public class GetSitesPreviewFunctionTests
         _siteService.Setup(x => x.GetSitesPreview()).ReturnsAsync(sitesPreview);
         _permissionChecker.Setup(x => x.HasGlobalPermissionAsync("test@test.com", Permissions.ViewSitePreview))
             .ReturnsAsync(true);
+        _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
 
         var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
@@ -105,6 +120,8 @@ public class GetSitesPreviewFunctionTests
         actualResponse.Count().Should().Be(2);
         _siteService.Verify(x => x.GetSitesPreview(), Times.Once);
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        actualResponse.First().IntegratedCareBoard.Should().Be("ICB One");
+        actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Two");
     }
 
     [Fact]
@@ -153,6 +170,12 @@ public class GetSitesPreviewFunctionTests
             Location: new Location("point", [0.1, 10])
         );
 
+        var icbs = new List<WellKnownOdsEntry>
+        {
+            new("odsCode1", "ICB One", "icb"),
+            new("odsCode3", "ICB Three", "icb")
+        };
+
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
         {
@@ -165,6 +188,7 @@ public class GetSitesPreviewFunctionTests
 
         _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
             .ReturnsAsync(new List<string> { site1.Id, site3.Id });
+        _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
 
         var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
@@ -172,8 +196,11 @@ public class GetSitesPreviewFunctionTests
         actualResponse.Count().Should().Be(2);
         actualResponse.First().Id.Should().Be("1");
         actualResponse.First().Name.Should().Be("Alpha");
+        actualResponse.First().IntegratedCareBoard.Should().Be("ICB One");
+
         actualResponse.Last().Id.Should().Be("3");
         actualResponse.Last().Name.Should().Be("Gamma");
+        actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Three");
         _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
@@ -223,6 +250,12 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10])
         );
+        var icbs = new List<WellKnownOdsEntry>
+        {
+            new("odsCode1", "ICB One", "icb"),
+            new("odsCode2", "ICB Two", "icb"),
+            new("odsCode3", "ICB Three", "icb")
+        };
 
         _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
@@ -239,6 +272,7 @@ public class GetSitesPreviewFunctionTests
             .ReturnsAsync(new List<string> { site1.Id, site2.Id });
         _permissionChecker.Setup(x => x.GetRegionPermissionsAsync("test@test.com"))
             .ReturnsAsync(new List<string>(["R2"]));
+        _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
 
         var response = await _sut.RunAsync(request) as ContentResult;
         var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
@@ -246,10 +280,10 @@ public class GetSitesPreviewFunctionTests
         actualResponse.Count().Should().Be(3);
         actualResponse.First().Id.Should().Be("1");
         actualResponse.First().Name.Should().Be("Alpha");
-        actualResponse.First().IntegratedCareBoard.Should().Be("ICB1");
+        actualResponse.First().IntegratedCareBoard.Should().Be("ICB One");
         actualResponse.Last().Id.Should().Be("R1");
         actualResponse.Last().Name.Should().Be("RegionSite");
-        actualResponse.Last().IntegratedCareBoard.Should().Be("RegionICB");
+        actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Three");
 
         _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
         _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));

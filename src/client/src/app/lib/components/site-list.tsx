@@ -20,7 +20,8 @@ const SiteList = ({ sites }: Props) => {
         sortedSites.filter(
           s =>
             s.name.toLowerCase().includes(searchQuery) ||
-            s.odsCode.toLowerCase() === searchQuery,
+            s.odsCode.toLowerCase() === searchQuery ||
+            s.integratedCareBoard.toLowerCase().includes(searchQuery),
         ),
       );
     } else {

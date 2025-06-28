@@ -16,7 +16,11 @@ public class SiteReportService(
             report.Add(await Generate(site, clinicalServices, startDate, endDate));
         }
 
-        return report;
+        return report
+            .OrderBy(x => x.Region)
+            .ThenBy(x => x.ICB)
+            .ThenBy(x => x.OdsCode)
+            .ThenBy(x => x.SiteName);
     }
 
     private async Task<SiteReport> Generate(Site site, string[] clinicalServices, DateOnly startDate, DateOnly endDate)

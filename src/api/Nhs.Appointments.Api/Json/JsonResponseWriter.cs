@@ -33,4 +33,3 @@ public static class JsonResponseWriter
         return JsonConvert.SerializeObject(result, serializerSettings);
     }
 }
-

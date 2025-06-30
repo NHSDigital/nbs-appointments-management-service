@@ -43,6 +43,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   count          = var.create_app_slot ? 1 : 0
   name           = "preview"
   app_service_id = azurerm_linux_web_app.nbs_mya_web_app_service.id
+  https_only     = true
 
   site_config {
     app_command_line = "node standalone/server.js"

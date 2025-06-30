@@ -24,7 +24,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 {
     protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
 
-    protected virtual string ResponseType => "JSON";
+    protected virtual string ResponseType => ApiResponseType.Json;
 
     public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
@@ -59,12 +59,12 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 
                 switch (ResponseType)
                 {
-                    case "JSON": 
+                    case ApiResponseType.Json: 
                         return JsonResponseWriter.WriteResult(response.ResponseObject);
-                    case "FILE":
+                    case ApiResponseType.File:
                         if (response.ResponseObject.GetType() != typeof(FileResponse))
                         {
-                            throw new InvalidOperationException("Response object must be a MemoryStream");
+                            throw new InvalidCastException("Response object must be a FileResponse");
                         }
 
                         return FileResponseWriter.WriteResult(response.ResponseObject as FileResponse);

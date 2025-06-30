@@ -45,7 +45,7 @@ public class GetSiteReportFunction(
         return base.RunAsync(req);
     }
 
-    protected override string ResponseType => "FILE";
+    protected override string ResponseType => ApiResponseType.File;
 
     private async Task<IEnumerable<Site>> GetSites(User user)
     {
@@ -79,10 +79,10 @@ public class GetSiteReportFunction(
         var sites = await GetSites(user);
         var report = await siteReportService.Generate(sites.ToArray(), request.StartDate, request.EndDate);
         
-        return ApiResult<FileResponse>.Success(new FileResponse(fileName, await ReportToCSV(report.ToArray())));
+        return ApiResult<FileResponse>.Success(new FileResponse(fileName, await ReportToCsv(report.ToArray())));
     }
 
-    private async Task<MemoryStream> ReportToCSV(SiteReport[] rows)
+    private async Task<MemoryStream> ReportToCsv(SiteReport[] rows)
     {
         var memoryStream = new MemoryStream();
         await using var streamWriter = new StreamWriter(memoryStream);
@@ -95,10 +95,21 @@ public class GetSiteReportFunction(
         var distinctServices = rows.SelectMany(x => x.Bookings.Keys).Union(rows.SelectMany(x => x.RemainingCapacity.Keys))
             .Distinct().ToArray();
         
-        await csvWriter.WriteLineAsync($"Site Name,ICB,Region,ODS Code,{string.Join(',', distinctServices.Select(x => $"{x} Booked"))},Total Bookings,Cancelled,Orphaned,{string.Join(',', distinctServices.Select(x => $"{x} Capacity"))}");
+        await csvWriter.WriteLineAsync(string.Join(',', SiteReportMap.Headers(distinctServices)));
         foreach (var row in rows)
         {
-            await csvWriter.WriteLineAsync($"{row.SiteName},{row.ICB},{row.Region},{row.OdsCode},{string.Join(',', distinctServices.Select(x => $"{(row.Bookings.TryGetValue(x, out var booked) ? booked : 0)}"))},{row.TotalBookings},{row.Cancelled},{row.Orphaned},{string.Join(',', distinctServices.Select(x => $"{(row.RemainingCapacity.TryGetValue(x, out var capacity) ? capacity : 0)}"))}");
+            await csvWriter.WriteLineAsync(string.Join(',', new[]
+            {
+                SiteReportMap.SiteName(row),
+                SiteReportMap.ICB(row),
+                SiteReportMap.Region(row),
+                SiteReportMap.OdsCode(row),
+                string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
+                SiteReportMap.TotalBookings(row).ToString(),
+                SiteReportMap.Cancelled(row).ToString(),
+                SiteReportMap.Orphaned(row).ToString(),
+                string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
+            }));
         }
     }
 
@@ -132,4 +143,30 @@ public class GetSiteReportFunction(
             .FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SiteReportRequest
                 request)>((errors, new SiteReportRequest(startDate, endDate)));
     }
+}
+
+public static class SiteReportMap
+{
+    public static string[] Headers(string[] services)
+    {
+        var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code" };
+        var statHeaders = new[] { "Total Bookings", "Cancelled", "Orphaned" };
+        var bookingsHeaders = services.Select(service => $"{service} Booked");
+        var capacityHeaders = services.Select(service => $"{service} Capacity");
+
+        return siteHeaders
+            .Union(bookingsHeaders
+            .Union(statHeaders))
+            .Union(capacityHeaders)
+            .ToArray();
+    } 
+    public static string SiteName(SiteReport report) => report.SiteName;
+    public static string ICB(SiteReport report) => report.ICB;
+    public static string Region(SiteReport report) => report.Region;
+    public static string OdsCode(SiteReport report) => report.OdsCode;
+    public static int TotalBookings(SiteReport report) => report.TotalBookings;
+    public static int Cancelled(SiteReport report) => report.Cancelled;
+    public static int Orphaned(SiteReport report) => report.Orphaned;
+    public static int BookingsCount(SiteReport report, string key) => report.Bookings.TryGetValue(key, out var booking) ? booking : 0;
+    public static int CapacityCount(SiteReport report, string key) => report.RemainingCapacity.TryGetValue(key, out var capacity) ? capacity : 0;
 }

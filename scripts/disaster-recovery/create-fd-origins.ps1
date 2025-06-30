@@ -8,6 +8,9 @@ param (
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
+# These hostnames will be wrong if this is ever ran on perf, as perf follows a different naming convention.
+# This isn't worth correcting, because we should never need to run this on perf and the addition of 
+# -ukw on the end of each name will continue to ensure the names are unique.
 $origins=@(
     @{originName="mya-http-api-ukw"; originGroupName="mya-http-api-ukw"; hostName="nbs-mya-func-$environment-ukw.azurewebsites.net"; originHostHeader="nbs-mya-func-$environment-ukw.azurewebsites.net"},
     @{originName="mya-high-load-api-ukw"; originGroupName="mya-high-load-api-ukw"; hostName="nbs-mya-hlfunc-$environment-ukw.azurewebsites.net"; originHostHeader="nbs-mya-hlfunc-$environment-ukw.azurewebsites.net"},

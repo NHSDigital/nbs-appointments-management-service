@@ -98,8 +98,7 @@ public class GetSiteReportFunction(
         await csvWriter.WriteLineAsync(string.Join(',', SiteReportMap.Headers(distinctServices)));
         foreach (var row in rows)
         {
-            await csvWriter.WriteLineAsync(string.Join(',', new[]
-            {
+            await csvWriter.WriteLineAsync(string.Join(',', [
                 SiteReportMap.SiteName(row),
                 SiteReportMap.ICB(row),
                 SiteReportMap.Region(row),
@@ -110,7 +109,7 @@ public class GetSiteReportFunction(
                 SiteReportMap.Orphaned(row).ToString(),
                 SiteReportMap.MaximumCapacity(row).ToString(),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
-            }));
+            ]));
         }
     }
 

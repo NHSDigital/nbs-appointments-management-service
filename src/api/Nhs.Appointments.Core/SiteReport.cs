@@ -15,7 +15,7 @@ public class SiteReport
         Orphaned = days.Sum(day => day.OrphanedAppointments);
         RemainingCapacity = clinicalServices.ToDictionary(
             service => service, 
-            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0))));
+            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0)));
         MaximumCapacity = days.Sum(day => day.MaximumCapacity);
     }
     

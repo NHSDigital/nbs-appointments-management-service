@@ -108,6 +108,7 @@ public class GetSiteReportFunction(
                 SiteReportMap.TotalBookings(row).ToString(),
                 SiteReportMap.Cancelled(row).ToString(),
                 SiteReportMap.Orphaned(row).ToString(),
+                SiteReportMap.MaximumCapacity(row).ToString(),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
             }));
         }
@@ -150,7 +151,7 @@ public static class SiteReportMap
     public static string[] Headers(string[] services)
     {
         var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code" };
-        var statHeaders = new[] { "Total Bookings", "Cancelled", "Orphaned" };
+        var statHeaders = new[] { "Total Bookings", "Cancelled", "Orphaned", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
         var capacityHeaders = services.Select(service => $"{service} Capacity");
 
@@ -167,6 +168,7 @@ public static class SiteReportMap
     public static int TotalBookings(SiteReport report) => report.TotalBookings;
     public static int Cancelled(SiteReport report) => report.Cancelled;
     public static int Orphaned(SiteReport report) => report.Orphaned;
+    public static int MaximumCapacity(SiteReport report) => report.MaximumCapacity;
     public static int BookingsCount(SiteReport report, string key) => report.Bookings.TryGetValue(key, out var booking) ? booking : 0;
     public static int CapacityCount(SiteReport report, string key) => report.RemainingCapacity.TryGetValue(key, out var capacity) ? capacity : 0;
 }

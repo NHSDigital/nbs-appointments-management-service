@@ -10,21 +10,23 @@ public class SiteReport
         OdsCode = site.OdsCode;
         Bookings = clinicalServices.ToDictionary(
             service => service, 
-            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.TryGetValue(service, out var serviceBookings) ? serviceBookings : 0)));
+            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0))));
         Cancelled = days.Sum(day => day.CancelledAppointments);
         Orphaned = days.Sum(day => day.OrphanedAppointments);
         RemainingCapacity = clinicalServices.ToDictionary(
             service => service, 
-            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0)));
+            service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0))));
+        MaximumCapacity = days.Sum(day => day.MaximumCapacity);
     }
     
-    public string SiteName { get; set; }
-    public string ICB { get; set; }
-    public string Region { get; set; }
-    public string OdsCode { get; set; }
-    public Dictionary<string, int> Bookings { get; set; }
+    public string SiteName { get; }
+    public string ICB { get; }
+    public string Region { get; }
+    public string OdsCode { get; }
+    public Dictionary<string, int> Bookings { get; }
     public int TotalBookings => Bookings.Sum(x => x.Value);
-    public int Cancelled { get; set; }
-    public int Orphaned { get; set; }
-    public Dictionary<string, int> RemainingCapacity { get; set; }
+    public int Cancelled { get; }
+    public int Orphaned { get; }
+    public Dictionary<string, int> RemainingCapacity { get; }
+    public int MaximumCapacity { get; }
 }

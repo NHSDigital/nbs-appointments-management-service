@@ -194,8 +194,9 @@ stages:
               appName: ${{parameters.highLoadFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              deployToSlotOrASE: true
-              slotName: "preview"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: DeployServiceBusFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy service bus function app"

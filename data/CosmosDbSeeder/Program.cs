@@ -31,6 +31,8 @@ class Program
         var containers = configuration.GetSection("CosmosSettings:Containers").Get<List<ContainerConfig>>();
         _report = new Report();
 
+        Console.WriteLine(
+            $"Seeding ${databaseName} database for the ${environment} environment in write mode {_writeMode}");
         var cosmosOptions = GetCosmosOptions();
 
         _cosmosClient = new CosmosClient(
@@ -142,9 +144,13 @@ class Program
     {
         var container = await CreateContainerAsync(containerName, partitionKeyPath);
         var folderPath = Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}");
+        Console.WriteLine(
+            $"Reading items from {folderPath}");
         if(Directory.Exists(folderPath))
         {
-            var jsonFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, $"items/{environment}/{containerName}"), "*.json");
+            var jsonFiles = Directory.GetFiles(folderPath, "*.json");
+            Console.WriteLine(
+                $"Found ${jsonFiles.Length} items in {folderPath}");
 
             foreach (var file in jsonFiles)
             {
@@ -163,6 +169,11 @@ class Program
                     _report.DocumentErrors.Add((fileName, ex.Message));
                 }
             }
+        }
+        else
+        {
+            Console.WriteLine(
+                $"Could not locate a folder at {folderPath}");
         }
     }
 

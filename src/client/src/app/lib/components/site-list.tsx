@@ -29,6 +29,7 @@ const SiteList = ({ sites }: Props) => {
       setShowSearchMsg(true);
     } else {
       setFilteredSites(sortedSites);
+      setShowSearchMsg(false);
     }
   };
   const handleClearClick = () => {
@@ -38,6 +39,7 @@ const SiteList = ({ sites }: Props) => {
   };
   const handleSearchValueChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
+    setShowSearchMsg(false);
   };
 
   return (

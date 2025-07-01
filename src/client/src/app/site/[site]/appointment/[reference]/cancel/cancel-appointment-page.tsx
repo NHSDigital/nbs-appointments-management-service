@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type CancelFormValue = {
-  cancelAppointment: 'yes' | 'no';
+  cancellationReason: 'CancelledByCitizen' | 'CancelledBySite' | '';
 };
 
 const CancelAppointmentPage = ({
@@ -35,10 +35,10 @@ const CancelAppointmentPage = ({
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful },
+    formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CancelFormValue>({
     defaultValues: {
-      cancelAppointment: 'yes',
+      cancellationReason: '',
     },
   });
   const summaryItems = mapSummaryData(booking, clinicalServices);
@@ -46,9 +46,8 @@ const CancelAppointmentPage = ({
   const submitForm: SubmitHandler<CancelFormValue> = async (
     form: CancelFormValue,
   ) => {
-    if (form.cancelAppointment === 'yes') {
-      await cancelAppointment(booking.reference, site);
-    }
+    if (form.cancellationReason !== '') {
+      await cancelAppointment(booking.reference, site, form.cancellationReason);
 
     const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
     const tabNumber = form.cancelAppointment === 'yes' ? 1 : 0;
@@ -62,19 +61,26 @@ const CancelAppointmentPage = ({
     <>
       {summaryItems && <SummaryList {...summaryItems} />}
       <form onSubmit={handleSubmit(submitForm)}>
-        <FormGroup>
+        <FormGroup error={errors.cancellationReason?.message}>
+          <legend className="nhsuk-fieldset__legend nhsuk-label--m">
+            <h1 className="nhsuk-fieldset__heading">Select a reason</h1>
+          </legend>
           <RadioGroup>
             <Radio
-              label="Yes, I want to cancel this appointment"
-              id="cancelOperation-yes"
-              value="yes"
-              {...register('cancelAppointment')}
+              label="Cancelled by the citizen"
+              id="cancelOperation-citizen"
+              value="CancelledByCitizen"
+              {...register('cancellationReason', {
+                required: 'Select a reason for cancelling the appointment',
+              })}
             />
             <Radio
-              label="No, I do not want to cancel this appointment"
-              id="cancelOperation-no"
-              value="no"
-              {...register('cancelAppointment')}
+              label="Cancelled by the site"
+              id="cancelOperation-site"
+              value="CancelledBySite"
+              {...register('cancellationReason', {
+                required: 'Select a reason for cancelling the appointment',
+              })}
             />
           </RadioGroup>
         </FormGroup>
@@ -82,7 +88,7 @@ const CancelAppointmentPage = ({
         {isSubmitting || isSubmitSuccessful ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <Button type="submit">Continue</Button>
+          <Button type="submit">Cancel appointment</Button>
         )}
       </form>
     </>

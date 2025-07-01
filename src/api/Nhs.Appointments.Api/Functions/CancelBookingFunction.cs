@@ -53,7 +53,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site);
+        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, request.cancellationReason);
 
         switch (result)
         {
@@ -72,7 +72,24 @@ public class CancelBookingFunction(
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
+        var queryCancellationReason = req.Query.ContainsKey("cancellationReason") ? req.Query["cancellationReason"].ToString() : null;
 
-        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site)));
+        var cancellationReason = CancellationReason.CancelledByCitizen;
+
+        if (!string.IsNullOrWhiteSpace(queryCancellationReason))
+        {
+            if (!Enum.TryParse<CancellationReason>(queryCancellationReason, ignoreCase: true, out cancellationReason))
+            {
+                var error = new ErrorMessageResponseItem
+                {
+                    Property = "cancellationReason",
+                    Message = $"Invalid cancellation reason '{queryCancellationReason}'."
+                };
+                return (new[] { error }, null);
+            }
+        }
+
+        var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason);
+        return await Task.FromResult((ErrorMessageResponseItem.None, requestModel));
     }
 }

@@ -518,6 +518,14 @@ public abstract partial class BaseFeatureSteps : Feature
         indexDocument.Resource.Status.Should().Be(status);
     }
 
+    public async Task AssertCancellationReasonByReference(string bookingReference, CancellationReason cancellationReason)
+    {
+        var siteId = GetSiteId();
+        var bookingDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        bookingDocument.Resource.CancellationReason.Should().Be(cancellationReason);
+    }
+
     protected static DateTime GetCreationDateTime(BookingType type) => type switch
     {
         BookingType.Recent => DateTime.UtcNow.AddHours(-18),

@@ -507,4 +507,93 @@ describe('<SiteList>', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('filters sites on ICB name', async () => {
+    const testSites: Site[] = [
+      {
+        id: '34e990af-5dc9-43a6-8895-b9123216d699',
+        name: 'Site Zulu',
+        address: 'Zulu Street',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
+        odsCode: '1001',
+        integratedCareBoard: 'North Yorkshire',
+        region: 'R1',
+        accessibilities: [],
+        informationForCitizens: '',
+      },
+      {
+        id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
+        name: 'Site Lima',
+        address: 'Lima Street',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
+        odsCode: '1002',
+        integratedCareBoard: 'East Midlands',
+        region: 'R2',
+        accessibilities: [],
+        informationForCitizens: '',
+      },
+      {
+        id: 'd79bec60-8968-4101-b553-67dec04e1019',
+        name: 'Site November',
+        address: 'November Street',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
+        odsCode: '1003',
+        integratedCareBoard: 'Lancashire',
+        region: 'R3',
+        accessibilities: [],
+        informationForCitizens: '',
+      },
+      {
+        id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
+        name: 'Site Beta',
+        address: 'Beta Street',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [],
+          type: 'point',
+        },
+        odsCode: '1004',
+        integratedCareBoard: 'Northumberland',
+        region: 'R4',
+        accessibilities: [],
+        informationForCitizens: '',
+      },
+    ];
+    const { user } = render(<SiteList sites={testSites} />);
+
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    expect(screen.getByRole('cell', { name: 'Site Zulu' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Lima' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'Site November' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
+
+    const searchInput = screen.getByRole('textbox', {
+      name: 'site-search',
+    });
+    await user.type(searchInput, 'Northumberland');
+
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    await user.click(searchButton);
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+      expect(
+        screen.getByText('Found 1 site(s) matching "Northumberland".'),
+      ).toBeInTheDocument();
+    });
+  });
 });

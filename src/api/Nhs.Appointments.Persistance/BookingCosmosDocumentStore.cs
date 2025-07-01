@@ -96,7 +96,7 @@ public class BookingCosmosDocumentStore(
     }
 
     public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status,
-        AvailabilityStatus availabilityStatus)
+        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
@@ -104,7 +104,7 @@ public class BookingCosmosDocumentStore(
             return false;
         }
 
-        await UpdateStatus(bookingIndexDocument, status, availabilityStatus);
+        await UpdateStatus(bookingIndexDocument, status, availabilityStatus, cancellationReason);
         return true;
     }
 
@@ -121,7 +121,7 @@ public class BookingCosmosDocumentStore(
     }
 
     private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status,
-        AvailabilityStatus availabilityStatus)
+        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
@@ -129,8 +129,20 @@ public class BookingCosmosDocumentStore(
             PatchOperation.Replace("/availabilityStatus", availabilityStatus);
 
         await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(booking.Site, booking.Reference, updateStatusPatch, statusUpdatedPatch,
-            updateAvailabilityStatusPatch);
+
+        var patchOperations = new List<PatchOperation>
+        {
+            updateStatusPatch,
+            statusUpdatedPatch,
+            updateAvailabilityStatusPatch
+        };
+
+        if (cancellationReason != null)
+        {
+            patchOperations.Add(PatchOperation.Add("/cancellationReason", cancellationReason));
+        }
+
+        await bookingStore.PatchDocument(booking.Site, booking.Reference, patchOperations.ToArray());
     }
 
     private async Task UpdateAvailabilityStatus(BookingIndexDocument booking, AvailabilityStatus status)
@@ -204,7 +216,7 @@ public class BookingCosmosDocumentStore(
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown);
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, cancellationReason: null);
         }
         
         return BookingConfirmationResult.Success;

@@ -413,6 +413,9 @@ describe('<SiteList>', () => {
 
       const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
       expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
+      expect(
+        screen.getByText('Found 1 site(s) matching "1004".'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -499,6 +502,9 @@ describe('<SiteList>', () => {
 
     await waitFor(() => {
       expect(screen.getAllByRole('row')).toHaveLength(1);
+      expect(
+        screen.getByText('No sites found matching "1005"'),
+      ).toBeInTheDocument();
     });
   });
 });

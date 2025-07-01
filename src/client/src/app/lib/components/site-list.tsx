@@ -67,16 +67,13 @@ const SiteList = ({ sites }: Props) => {
           Clear
         </Button>
       </div>
-      {showSearchMsg && filteredSites.length > 0 && searchValue.length > 0 && (
+      {showSearchMsg && searchValue.length > 0 && (
         <p>
-          Found {filteredSites.length} site(s) matching "{searchValue}".
+          {filteredSites.length > 0
+            ? `Found ${filteredSites.length} site(s) matching "${searchValue}".`
+            : `No sites found matching "${searchValue}"`}
         </p>
       )}
-      {showSearchMsg &&
-        filteredSites.length === 0 &&
-        searchValue.length > 0 && (
-          <p>No sites found matching "{searchValue}"</p>
-        )}
       <Table
         headers={['Name', 'ICB', 'ODS', 'Action']}
         rows={filteredSites.map(site => {

@@ -52,7 +52,8 @@ public class CancelSessionFunction(
             request.Until,
             request.Services,
             request.SlotLength,
-            request.Capacity);
+            request.Capacity
+        );
 
         return Success(new EmptyResponse());
     }

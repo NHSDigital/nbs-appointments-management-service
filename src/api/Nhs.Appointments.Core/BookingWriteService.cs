@@ -9,7 +9,7 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string cancellationReason);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -50,14 +50,19 @@ public class BookingWriteService(
         return await MakeBooking_SingleService(booking);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string cancellationReason)
     {
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
+        if (!Enum.TryParse<CancellationReason>(cancellationReason, ignoreCase: true, out var reason))
         {
-            return await CancelBooking_MultipleServices(bookingReference, site);
+            return BookingCancellationResult.NotFound;
         }
 
-        return await CancelBooking_SingleService(bookingReference, site);
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
+        {
+            return await CancelBooking_MultipleServices(bookingReference, site, reason);
+        }
+
+        return await CancelBooking_SingleService(bookingReference, site, reason);
     }
 
 
@@ -197,7 +202,7 @@ public class BookingWriteService(
 
     private Task DeleteBooking(string reference, string site) => bookingDocumentStore.DeleteBooking(reference, site);
 
-    private async Task<BookingCancellationResult> CancelBooking_SingleService(string bookingReference, string siteId)
+    private async Task<BookingCancellationResult> CancelBooking_SingleService(string bookingReference, string siteId, CancellationReason cancellationReason)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -206,8 +211,12 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown);
+        await bookingDocumentStore.UpdateStatus(
+            bookingReference, 
+            AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown, 
+            cancellationReason
+        );
 
         await RecalculateAppointmentStatuses_SingleService(booking.Site, DateOnly.FromDateTime(booking.From));
 
@@ -220,7 +229,7 @@ public class BookingWriteService(
         return BookingCancellationResult.Success;
     }
 
-    private async Task<BookingCancellationResult> CancelBooking_MultipleServices(string bookingReference, string siteId)
+    private async Task<BookingCancellationResult> CancelBooking_MultipleServices(string bookingReference, string siteId, CancellationReason cancellationReason)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -229,8 +238,12 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
-        await bookingDocumentStore.UpdateStatus(bookingReference, AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown);
+        await bookingDocumentStore.UpdateStatus(
+            bookingReference, 
+            AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown, 
+            cancellationReason
+        );
 
         await RecalculateAppointmentStatuses_MultipleServices(booking.Site, DateOnly.FromDateTime(booking.From));
 

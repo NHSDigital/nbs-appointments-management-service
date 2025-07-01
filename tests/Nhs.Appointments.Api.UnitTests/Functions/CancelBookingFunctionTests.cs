@@ -28,7 +28,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
             _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _bookingWriteService.Setup(x => x.CancelBooking(null, string.Empty))
+        _bookingWriteService.Setup(x => x.CancelBooking(null, string.Empty, "cancellationReason"))  
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
     }
 
@@ -37,7 +37,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site))
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, "cancellationReason")) 
             .Returns(Task.FromResult(BookingCancellationResult.Success));
 
         var request = BuildRequest(bookingRef, site);
@@ -52,7 +52,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site))
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, "cancellationReason")) 
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
         var request = BuildRequest(bookingRef, site);
@@ -67,7 +67,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
         var request = BuildRequest(bookingRef, site);
@@ -83,7 +83,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         var bookingRef = "some-booking";
         var site = "TEST01";
         var invalidResultCode = 99;
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
         var request = BuildRequest(bookingRef, site);

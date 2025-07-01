@@ -486,7 +486,7 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult<Booking>(null));
-            var result = await _sut.CancelBooking("some-reference", "TEST01");
+            var result = await _sut.CancelBooking("some-reference", "TEST01", "cancellationReason");
             Assert.Equal(BookingCancellationResult.NotFound, result);
         }
 
@@ -499,10 +499,10 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null))
                 .ReturnsAsync(true).Verifiable();
 
-            await _sut.CancelBooking(bookingRef, site);
+            await _sut.CancelBooking(bookingRef, site, "cancellationReason");
 
             _bookingsDocumentStore.VerifyAll();
         }
@@ -530,7 +530,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
                 e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
 
-            await _sut.CancelBooking(bookingRef, site);
+            await _sut.CancelBooking(bookingRef, site, ""); //TODO
 
             _messageBus.VerifyAll();
         }
@@ -544,10 +544,10 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown))
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.Site))       //TODO null or empty
                 .ReturnsAsync(true).Verifiable();
 
-            var result = await _sut.CancelBooking(bookingRef, "some-other-site");
+            var result = await _sut.CancelBooking(bookingRef, "some-other-site", "");   //TODO
 
             result.Should().Be(BookingCancellationResult.NotFound);
         }
@@ -897,7 +897,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
-                    It.IsAny<AvailabilityStatus>()),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>()),
                 Times.Never);
         }
 
@@ -1078,7 +1078,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
-                    It.IsAny<AvailabilityStatus>()),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>()),
                 Times.Never);
         }
 

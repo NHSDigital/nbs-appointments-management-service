@@ -13,6 +13,8 @@ const SiteList = ({ sites }: Props) => {
   const sortedSites = sites.toSorted(sortSitesByName);
   const [filteredSites, setFilteredSites] = useState(sortedSites);
   const [searchValue, setSearchValue] = useState('');
+  const [showSearchMsg, setShowSearchMsg] = useState(false);
+
   const handleSearchClick = () => {
     const searchQuery = searchValue.toLowerCase();
     if (searchQuery.length >= 3) {
@@ -24,6 +26,7 @@ const SiteList = ({ sites }: Props) => {
             s.integratedCareBoard.toLowerCase().includes(searchQuery),
         ),
       );
+      setShowSearchMsg(true);
     } else {
       setFilteredSites(sortedSites);
     }
@@ -31,6 +34,7 @@ const SiteList = ({ sites }: Props) => {
   const handleClearClick = () => {
     setSearchValue('');
     setFilteredSites(sortedSites);
+    setShowSearchMsg(false);
   };
   const handleSearchValueChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
@@ -48,13 +52,31 @@ const SiteList = ({ sites }: Props) => {
             onChange={handleSearchValueChange}
           ></TextInput>
         </div>
-        <Button styleType="secondary" onClick={handleSearchClick}>
+        <Button
+          styleType="secondary"
+          onClick={handleSearchClick}
+          additionalClasses="search-button"
+        >
           Search
         </Button>
-        <Button styleType="secondary" onClick={handleClearClick}>
+        <Button
+          styleType="secondary"
+          onClick={handleClearClick}
+          additionalClasses="search-button"
+        >
           Clear
         </Button>
       </div>
+      {showSearchMsg && filteredSites.length > 0 && searchValue.length > 0 && (
+        <p>
+          Found {filteredSites.length} site(s) matching "{searchValue}".
+        </p>
+      )}
+      {showSearchMsg &&
+        filteredSites.length === 0 &&
+        searchValue.length > 0 && (
+          <p>No sites found matching "{searchValue}"</p>
+        )}
       <Table
         headers={['Name', 'ICB', 'ODS', 'Action']}
         rows={filteredSites.map(site => {

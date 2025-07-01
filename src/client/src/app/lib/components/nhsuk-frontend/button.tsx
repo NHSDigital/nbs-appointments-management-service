@@ -5,6 +5,7 @@ type ButtonStyleType = 'primary' | 'secondary' | 'reverse' | 'warning';
 type Props = HTMLProps<HTMLButtonElement> & {
   styleType?: ButtonStyleType;
   type?: 'submit' | 'reset' | 'button';
+  additionalClasses?: string;
 };
 
 /**
@@ -17,11 +18,12 @@ const Button = ({
   onClick,
   children,
   type = 'button',
+  additionalClasses,
   ...rest
 }: Props) => {
   return (
     <button
-      className={getClassForType(styleType)}
+      className={`${getClassForType(styleType)} ${additionalClasses ?? ''}`.trim()}
       data-module="nhsuk-button"
       onClick={onClick}
       type={type}

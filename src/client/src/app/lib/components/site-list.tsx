@@ -22,8 +22,7 @@ const SiteList = ({ sites }: Props) => {
         sortedSites.filter(
           s =>
             s.name.toLowerCase().includes(searchQuery) ||
-            s.odsCode.toLowerCase() === searchQuery ||
-            s.integratedCareBoard.toLowerCase().includes(searchQuery),
+            s.odsCode.toLowerCase() === searchQuery,
         ),
       );
       setShowSearchMsg(true);
@@ -48,7 +47,7 @@ const SiteList = ({ sites }: Props) => {
         <div>
           <TextInput
             id="site-search"
-            label="Search active sites by name, ICB or ODS code"
+            label="Search active sites by name or ODS code"
             aria-label="site-search"
             value={searchValue}
             onChange={handleSearchValueChange}

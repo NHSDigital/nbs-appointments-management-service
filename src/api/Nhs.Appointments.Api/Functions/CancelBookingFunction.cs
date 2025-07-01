@@ -54,7 +54,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site);
+        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, request.cancellationReason);
 
         switch (result)
         {
@@ -73,7 +73,8 @@ public class CancelBookingFunction(
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
+        var cancellationReason = req.Query.ContainsKey("cancellationReason") ? req.Query["cancellationReason"].ToString() : string.Empty;
 
-        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site)));
+        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site, cancellationReason)));
     }
 }

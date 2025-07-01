@@ -6,6 +6,7 @@
   "created": "2025-07-03T12:58:28.701582+00:00",
   "status": "Booked",
   "statusUpdated": "0001-01-01T00:00:00+00:00",
+  "cancellationReason": null,
   "attendeeDetails": {
     "nhsNumber": "9513125169",
     "firstName": "Maureen",

@@ -44,9 +44,7 @@ public class BulkImportFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")]
         HttpRequest req)
     {
-        return !await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport)
-            ? ProblemResponse(HttpStatusCode.NotImplemented, null)
-            : await base.RunAsync(req);
+        return await base.RunAsync(req);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>

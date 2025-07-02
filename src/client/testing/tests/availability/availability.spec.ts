@@ -907,7 +907,9 @@ test.describe.configure({ mode: 'serial' });
             await page.waitForURL('**/site/**/availability/cancel?session=**');
 
             await cancelSessionDetailsPage.confirmSessionCancellation('No');
-            await changeAvailabilityPage.verifyChangeAavailabilityPageDisplayed();
+            await changeAvailabilityPage.verifyChangeAvailabilityPageDisplayed(
+              daysFromToday(dayIncrement, 'DD MMMM YYYY'),
+            );
             await changeAvailabilityPage.backToWeekView();
 
             await page.waitForURL('**/site/**/view-availability/week?date=**');

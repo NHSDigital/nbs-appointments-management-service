@@ -36,8 +36,7 @@ public class BulkImportFunctionTests
             _mockValidator.Object,
             _mockUserContextProvider.Object,
             _mockLogger.Object,
-            _mockMetricsRecorder.Object,
-            _mockFeatureToggleHelper.Object);
+            _mockMetricsRecorder.Object);
 
         _mockValidator.Setup(x => x.ValidateAsync(It.IsAny<BulkImportRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -131,19 +130,6 @@ public class BulkImportFunctionTests
         response.StatusCode.Should().Be(200);
 
         _mockUserDataImporter.Verify(x => x.ProcessFile(It.IsAny<IFormFile>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnsFeatureNotEnabled()
-    {
-        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled("BulkImport"))
-            .ReturnsAsync(false);
-
-        var request = CreateDefaultRequest();
-
-        var response = await _sut.RunAsync(request) as ContentResult;
-
-        response.StatusCode.Should().Be(501);
     }
 
     private static HttpRequest CreateBadRequest_MultipleFiles()

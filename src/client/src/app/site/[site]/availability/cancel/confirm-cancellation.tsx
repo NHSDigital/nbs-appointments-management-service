@@ -45,7 +45,7 @@ const ConfirmCancellation = ({
       router.push(`cancel/confirmed?session=${session}&date=${date}`);
     } else {
       router.push(
-        `/site/${site}/view-availability/daily-appointments?date=${date}&page=1&tab=0`,
+        `/site/${site}/view-availability/week/edit-session?session=${session}&date=${date}`,
       );
     }
   };

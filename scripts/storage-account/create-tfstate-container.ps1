@@ -17,9 +17,8 @@ $storageAccountName = "${workloadName}tfst${workloadType}${workloadRegion}"
 ## e.g. for the pen env: nhsuk-mya-platform-rg-nonprod-uks
 $resourceGroupName = "nhsuk-${workloadName}-platform-rg-${workloadType}-${workloadRegion}"
 
-Write-Host "Creating storage account: $storageAccountName in resource group: $resourceGroupName"
+Write-Host "Creating container $tfstateContainerName in storage account $storageAccountName in resource group: $resourceGroupName"
 
 az storage container create `
     --name $tfstateContainerName `
-    --account-name $storageAccountName `
-    --fail-on-exist false
+    --account-name $storageAccountName

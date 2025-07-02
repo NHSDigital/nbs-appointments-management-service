@@ -24,8 +24,7 @@ public class BulkImportFunction(
     IValidator<BulkImportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<BulkImportFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger,
         metricsRecorder)
 {

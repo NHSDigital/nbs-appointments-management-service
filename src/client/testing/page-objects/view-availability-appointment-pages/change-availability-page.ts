@@ -50,4 +50,12 @@ export default class ChangeAvailabilityPage extends RootPage {
   async saveChanges() {
     await this.continueButton.click();
   }
+
+  async verifyChangeAavailabilityPageDisplayed() {
+    await expect(this.page.getByText('Change availability for')).toBeVisible();
+  }
+
+  async backToWeekView() {
+    await this.goBackButton.click();
+  }
 }

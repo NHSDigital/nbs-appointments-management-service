@@ -1,6 +1,6 @@
 {
   "reference": "seed-booking-reference-05",
-  "from": "2025-07-01T09:50:00",
+  "from": "2026-07-01T09:50:00",
   "duration": 10,
   "service": "RSV:Adult",
   "created": "2025-05-20T16:45:12.345678+00:00",

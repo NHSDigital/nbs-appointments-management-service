@@ -1,5 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
+import { expect } from '@playwright/test';
 
 export default class ChangeAvailabilityPage extends RootPage {
   readonly goBackButton: Locator;
@@ -51,8 +52,12 @@ export default class ChangeAvailabilityPage extends RootPage {
     await this.continueButton.click();
   }
 
-  async verifyChangeAavailabilityPageDisplayed() {
-    await expect(this.page.getByText('Change availability for')).toBeVisible();
+  async verifyChangeAvailabilityPageDisplayed(expectedDate: string) {
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Change availability for ${expectedDate}`,
+      }),
+    ).toBeVisible();
   }
 
   async backToWeekView() {

@@ -79,7 +79,7 @@ stages:
             inputs:
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "$(Build.SourcesDirectory)/scripts/create-tfstate-container.ps1"
+              scriptPath: "$(Pipeline.Workspace)/drop_scripts/storage-account/create-tfstate-container.ps1"
               ## TODO: When we create our 2nd sandbox onwards, we need to derive workloadType from the environment
               arguments: "-workloadName 'mya' -workloadType 'nonprod' -workloadRegion 'uks' -tfstateContainerName 'tfstate'"
 

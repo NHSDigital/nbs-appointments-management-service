@@ -81,6 +81,7 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Pipeline.Workspace)/drop_scripts/storage-account/create-tfstate-container.ps1"
               addSpnToEnvironment: true
+              azureSubscription: ${{parameters.serviceConnectionName}}
               ## TODO: When we create our 2nd sandbox onwards, we need to derive workloadType from the environment
               arguments: "-workloadName 'mya' -workloadType 'nonprod' -workloadRegion 'uks' -tfstateContainerName 'tfstate'"
 

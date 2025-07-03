@@ -245,3 +245,8 @@ data/CosmosDbSeeder/data_import_summary.md
 # Extract files
 **/*.parquet
 !**-sample.parquet
+
+# Bulk Upload data reports
+data/CsvDataTool/ExampleReports/*
+data/CsvDataTool/csv_conversion_report.md
+data/CsvDataTool/csv_conversion_report_summary.md

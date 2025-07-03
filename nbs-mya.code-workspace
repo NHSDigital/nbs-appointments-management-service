@@ -27,7 +27,8 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.endOfLine": "crlf"
+    "prettier.endOfLine": "crlf",
+    "powershell.cwd": "Root"
   },
   "extensions": {
     "recommendations": [

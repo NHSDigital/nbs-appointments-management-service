@@ -42,6 +42,7 @@ test.beforeEach(async ({ page, getTestSite }) => {
 });
 
 test('Clicking back mid-form does not save the changes', async ({ page }) => {
+  await editDetailsPage.nameInput.fill('Test site');
   await editDetailsPage.addressInput.fill('One House,\nOne Road,\nOne Town');
   await editDetailsPage.latitudeInput.fill('0.32445345');
   await editDetailsPage.longitudeInput.fill('53.742');
@@ -91,6 +92,7 @@ test('Update details for a site, and then reset', async ({ page }) => {
   await siteDetailsPage.verifyDetailsNotificationVisibility(true);
 
   await siteDetailsPage.verifyCoreDetailsContent(
+    'Church Lane Pharmacy',
     'One House, One Road, One Town',
     '0.32445345',
     '53.742',

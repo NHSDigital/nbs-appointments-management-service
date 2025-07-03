@@ -7,6 +7,7 @@ using Nhs.Appointments.Core;
 namespace SiteReportExtract;
 
 public class Worker(
+    IHostApplicationLifetime hostApplicationLifetime,
     IConfiguration configuration, 
     ISiteService siteService, 
     ISiteReportService siteReportService,
@@ -15,15 +16,28 @@ public class Worker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var startDate = configuration.GetValue<DateOnly>("StartDate");
-        var endDate = configuration.GetValue<DateOnly>("EndDate");
-        var sites = await siteService.GetAllSites();
-        var fileName =
-            $"SiteReport_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}_{timeProvider.GetUtcNow():yyyyMMddhhmmss}.csv";
+        try
+        {
+            var startDate = configuration.GetValue<DateOnly>("StartDate");
+            var endDate = configuration.GetValue<DateOnly>("EndDate");
+            var sites = await siteService.GetAllSites();
+            var fileName =
+                $"SiteReport_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}_{timeProvider.GetUtcNow():yyyyMMddhhmmss}.csv";
         
-        var report = await siteReportService.Generate(sites.ToArray(), startDate, endDate);
+            var report = await siteReportService.Generate(sites.ToArray(), startDate, endDate);
 
-        await SendReport(fileName, report.ToArray());
+            await SendReport(fileName, report.ToArray());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            Environment.ExitCode = -1;
+        }
+        finally
+        {
+            hostApplicationLifetime.StopApplication();
+        }
+        
     }
     
     private async Task SendReport(string fileName, SiteReport[] rows)

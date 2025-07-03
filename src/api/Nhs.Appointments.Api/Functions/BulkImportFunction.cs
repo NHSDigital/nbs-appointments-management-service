@@ -24,8 +24,7 @@ public class BulkImportFunction(
     IValidator<BulkImportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<BulkImportFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<BulkImportRequest, IEnumerable<ReportItem>>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -44,9 +43,7 @@ public class BulkImportFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{type}/import")]
         HttpRequest req)
     {
-        return !await featureToggleHelper.IsFeatureEnabled(Flags.BulkImport)
-            ? ProblemResponse(HttpStatusCode.NotImplemented, null)
-            : await base.RunAsync(req);
+        return await base.RunAsync(req);
     }
 
     protected override Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, BulkImportRequest request)>

@@ -75,6 +75,46 @@
       },
       "args": ["run", "CapacityDataExtracts.csproj", "create-local-sample"],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Create User Bulk Data Upload Sample",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "data/CsvDataTool/"
+      },
+      "args": [
+        "run",
+        "--project",
+        "CsvDataTool.csproj",
+        "--in",
+        "ExampleData/users.csv",
+        "--out",
+        "ExampleReports/users",
+        "--itemType",
+        "user"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Create Site Bulk Data Upload Sample",
+      "command": "dotnet",
+      "type": "process",
+      "options": {
+        "cwd": "data/CsvDataTool/"
+      },
+      "args": [
+        "run",
+        "--project",
+        "CsvDataTool.csproj",
+        "--in",
+        "ExampleData/sites.csv",
+        "--out",
+        "ExampleReports/sites",
+        "--itemType",
+        "site"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

@@ -42,6 +42,10 @@ export const mapCoreSiteSummaryData = (site: Site) => {
 
   const items: SummaryListItem[] = [
     {
+      title: 'Name',
+      value: site.name,
+    },
+    {
       title: 'Address',
       value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
     },

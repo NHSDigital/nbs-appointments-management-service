@@ -7,16 +7,16 @@ namespace Nhs.Appointments.Persistance.Models;
 public class AvailabilityCreatedEventDocument : BookingDataCosmosDocument
 {
     [JsonProperty("created")]
-    public required DateTime Created { get; set; }
+    public  DateTime Created { get; set; }
 
     [JsonProperty("by")]
-    public required string By { get; set; }
+    public  string By { get; set; }
 
     [JsonProperty("template")]
     public Template Template { get; set; }
 
     [JsonProperty("from")]
-    public required DateOnly From { get; set; }
+    public  DateOnly From { get; set; }
 
     [JsonProperty("to")]
     public DateOnly? To { get; set; }

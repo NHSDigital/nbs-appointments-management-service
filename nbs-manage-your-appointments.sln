@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDbSeederTests", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingGenerator", "data\BookingGenerator\BookingGenerator.csproj", "{237239D8-3B23-42E6-BF95-17FA68967C7C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiteReportExtract", "data\SiteReportExtract\SiteReportExtract.csproj", "{C35033CE-55CB-4B67-BAD3-0707313370C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +176,10 @@ Global
 		{237239D8-3B23-42E6-BF95-17FA68967C7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{237239D8-3B23-42E6-BF95-17FA68967C7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{237239D8-3B23-42E6-BF95-17FA68967C7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C35033CE-55CB-4B67-BAD3-0707313370C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35033CE-55CB-4B67-BAD3-0707313370C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35033CE-55CB-4B67-BAD3-0707313370C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35033CE-55CB-4B67-BAD3-0707313370C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,6 +212,7 @@ Global
 		{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{237239D8-3B23-42E6-BF95-17FA68967C7C} = {0AC295FA-EAA0-473D-8A38-0C5CAB7612E4}
+		{C35033CE-55CB-4B67-BAD3-0707313370C7} = {22B97405-2671-42B1-BE08-E1D0E18A2F1F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

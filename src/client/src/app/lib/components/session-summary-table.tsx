@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { UrlObject } from 'url';
 import {
   dateTimeFormat,
-  isAfter,
+  isAfterCalendarDateUk,
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
@@ -72,7 +72,8 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-unbooked`}
         sessionSummary={sessionSummary}
       />,
-      ...(showChangeSessionLinkProps && isAfter(ukStartDatetime, ukNow())
+      ...(showChangeSessionLinkProps &&
+      isAfterCalendarDateUk(ukStartDatetime, ukNow())
         ? [
             <Link
               key={`session-${sessionIndex}-action-link`}

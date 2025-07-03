@@ -49,6 +49,8 @@ builder.Services
     .AddTransient<ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument>, TypedDocumentCosmosStore<AvailabilityCreatedEventDocument>>()
     .AddTransient<IBookingQueryService, BookingQueryService>()
     .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
+    .AddTransient<ITypedDocumentCosmosStore<BookingDocument>, TypedDocumentCosmosStore<BookingDocument>>()
+    .AddTransient<ITypedDocumentCosmosStore<BookingIndexDocument>, TypedDocumentCosmosStore<BookingIndexDocument>>()
     .AddTransient<ISiteReportService, SiteReportService>()
     .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
     .AddTransient<ITypedDocumentCosmosStore<ClinicalServiceDocument>, TypedDocumentCosmosStore<ClinicalServiceDocument>>()
@@ -56,6 +58,8 @@ builder.Services
     .AddTransient<ISiteStore, SiteStore>()
     .AddTransient<ITypedDocumentCosmosStore<SiteDocument>, TypedDocumentCosmosStore<SiteDocument>>()
     .AddHostedService<Worker>()
+    .AddMemoryCache()
+    .AddAutoMapper(typeof(CosmosAutoMapperProfile))
     .AddAzureClients(x =>
     {
         x.AddBlobServiceClient(builder.Configuration["BlobStorageConnectionString"]);

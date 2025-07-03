@@ -71,8 +71,9 @@ export const EditSessionDecision = ({
       />
       <InsetText>
         <p>
-          You can only reduce time and/or capacity from this screen. If you want
-          to increase availability for this day, you must create a new session.
+          You can only reduce time, capacity or services from this screen. If
+          you want to increase availability for this day, you must create a new
+          session.
         </p>
       </InsetText>
       <form onSubmit={handleSubmit(submitForm)}>

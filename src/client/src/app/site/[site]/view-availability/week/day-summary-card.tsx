@@ -13,6 +13,7 @@ type DaySummaryCardProps = {
   siteId: string;
   canManageAvailability: boolean;
   clinicalServices: ClinicalService[];
+  canViewDailyAppointments: boolean;
 };
 
 export const DaySummaryCard = ({
@@ -20,6 +21,7 @@ export const DaySummaryCard = ({
   siteId,
   canManageAvailability,
   clinicalServices,
+  canViewDailyAppointments,
 }: DaySummaryCardProps) => {
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
@@ -53,7 +55,7 @@ export const DaySummaryCard = ({
   }
 
   const actionLinks: ActionLink[] = [
-    {
+    canViewDailyAppointments && {
       text: 'View daily appointments',
       href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1`,
     },

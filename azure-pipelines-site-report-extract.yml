@@ -1,0 +1,53 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "int"
+    values: ["dev", "int", "stag", "prod"]
+  - name: startDate
+    displayName: "Start Date"
+    type: string
+    default: "YYYY-MM-DD"
+  - name: endDate
+    displayName: "End Date"
+    type: string
+    default: "YYYY-MM-DD"
+    
+variables:
+  - group: mya-extract-blob-sitereport
+  - name: cosmosAccountName 
+    value: nbs-mya-cdb-${{parameters.env}}-uks
+  - name: resourceGroupName
+    value: nbs-mya-rg-${{parameters.env}}-uks
+
+stages:
+  - stage: "CreateSiteReportExtract"
+    displayName: "Create Site Report extract"
+    jobs:
+      - job: "GenerateSiteReportDailyExtract"
+        displayName: "Generate and send Site Report extract"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create site report extract"
+            inputs:
+              command: "run"
+              projects: "data/SiteReportExtract/SiteReportExtract.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              StartDate: ${{ parameters.startDate }}
+              EndDate: ${{ parameters.endDate }}
+              BlobStorageConnectionString: $(SiteReportBlobConnectionString)

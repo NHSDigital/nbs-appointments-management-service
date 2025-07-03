@@ -156,7 +156,38 @@ describe('Confirm Cancellation Page', () => {
 
     waitFor(() => {
       expect(mockCancelSession).toHaveBeenCalled();
-      expect(mockPush).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith(
+        `/site/TEST01/view-availability/week/edit-session?session=${session}&date=2025-01-15`,
+      );
+    });
+  });
+
+  it('navigates to the change session route when user decides not to cancel the session', async () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+    );
+    const { user } = render(
+      <ConfirmCancellation
+        session={session}
+        date="2025-01-15"
+        site="TEST01"
+        clinicalServices={clinicalServices}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: "No, I don't want to cancel this session",
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    waitFor(() => {
+      expect(mockCancelSession).not.toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith(
+        `/site/TEST01/view-availability/week/edit-session?session=${session}&date=2025-01-15`,
+      );
     });
   });
 });

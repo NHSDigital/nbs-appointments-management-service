@@ -16,6 +16,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly accessNeedsheaderMsg = 'Access needs';
   readonly informationForCitizensheaderMsg = 'Information for citizens';
 
+  readonly siteNameLabel = 'Name';
   readonly addressLabel = 'Address';
   readonly latitudeLabel = 'Latitude';
   readonly longitudeLabel = 'Longitude';
@@ -108,11 +109,13 @@ export default class SiteDetailsPage extends RootPage {
   }
 
   async verifyCoreDetailsContent(
+    name: string,
     address: string,
     long: string,
     lat: string,
     phoneNumber: string,
   ) {
+    await this.verifySummaryListItemContentValue(this.siteNameLabel, name);
     await this.verifySummaryListItemContentValue(this.addressLabel, address);
     await this.verifySummaryListItemContentValue(this.latitudeLabel, lat);
     await this.verifySummaryListItemContentValue(this.longitudeLabel, long);
@@ -213,6 +216,7 @@ export default class SiteDetailsPage extends RootPage {
     ).toBeVisible();
 
     await this.verifyCoreDetailsContent(
+      this.siteDetails.name,
       this.siteDetails.address,
       this.siteDetails.location.coordinates[0].toString(),
       this.siteDetails.location.coordinates[1].toString(),

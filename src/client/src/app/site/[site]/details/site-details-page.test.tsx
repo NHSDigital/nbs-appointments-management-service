@@ -53,6 +53,7 @@ describe('Site Details Page', () => {
       screen.getByRole('heading', { level: 2, name: 'Site details' }),
     ).toBeVisible();
 
+    verifySummaryListItem('Name', mockSite.name);
     verifySummaryListItem('Address', mockSite.address);
     verifySummaryListItem(
       'Latitude',

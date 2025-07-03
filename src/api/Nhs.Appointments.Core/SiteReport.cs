@@ -8,6 +8,8 @@ public class SiteReport
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
         OdsCode = site.OdsCode;
+        Longitude = site.Location.Coordinates[0];
+        Latitude = site.Location.Coordinates[1];
         Bookings = clinicalServices.ToDictionary(
             service => service, 
             service => days.Sum(day => day.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0))));
@@ -23,6 +25,8 @@ public class SiteReport
     public string ICB { get; }
     public string Region { get; }
     public string OdsCode { get; }
+    public double Longitude { get; }
+    public double Latitude { get; }
     public Dictionary<string, int> Bookings { get; }
     public int TotalBookings => Bookings.Sum(x => x.Value);
     public int Cancelled { get; }

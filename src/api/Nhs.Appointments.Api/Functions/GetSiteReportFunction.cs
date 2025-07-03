@@ -103,6 +103,8 @@ public class GetSiteReportFunction(
                 SiteReportMap.ICB(row),
                 SiteReportMap.Region(row),
                 SiteReportMap.OdsCode(row),
+                SiteReportMap.Longitude(row),
+                SiteReportMap.Latitude(row),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
                 SiteReportMap.TotalBookings(row).ToString(),
                 SiteReportMap.Cancelled(row).ToString(),
@@ -149,7 +151,7 @@ public static class SiteReportMap
 {
     public static string[] Headers(string[] services)
     {
-        var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code" };
+        var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code", "Longitude", "Latitude" };
         var statHeaders = new[] { "Total Bookings", "Cancelled", "Orphaned", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
         var capacityHeaders = services.Select(service => $"{service} Capacity");
@@ -164,6 +166,8 @@ public static class SiteReportMap
     public static string ICB(SiteReport report) => report.ICB;
     public static string Region(SiteReport report) => report.Region;
     public static string OdsCode(SiteReport report) => report.OdsCode;
+    public static double Longitude(SiteReport report) => report.Longitude;
+    public static double Latitude(SiteReport report) => report.Latitude;
     public static int TotalBookings(SiteReport report) => report.TotalBookings;
     public static int Cancelled(SiteReport report) => report.Cancelled;
     public static int Orphaned(SiteReport report) => report.Orphaned;

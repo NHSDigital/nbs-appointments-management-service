@@ -10,7 +10,7 @@ public class UserDataImportHandler(IFileOperations fileOperations) : IDataImport
     {
         var userImportRows = new List<UserImportRow>();
         var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(ui => Task.Run(() => userImportRows.Add(ui)),
-            ui => ui.UserId, new UserImportRowValidator());
+            ui => ui.UserId, new UserImportFileValidator());
         using var fileReader = fileOperations.OpenText(inputFile);
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
@@ -46,12 +46,6 @@ public class UserDataImportHandler(IFileOperations fileOperations) : IDataImport
         fileOperations.CreateFolder(outputDirectory);
         var filePath = Path.Combine(outputDirectory.FullName, $"user_{userDocument.Id.Replace('@', '_').Replace('.', '_')}.json");
         return fileOperations.WriteDocument(userDocument, filePath);
-    }
-
-    public class UserImportRow
-    {
-        public string UserId { get; set; }
-        public string SiteId { get; set; }
     }
 
     private class UserImportRowMap : ClassMap<UserImportRow>

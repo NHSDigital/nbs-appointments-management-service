@@ -2,13 +2,14 @@ using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace CsvDataTool;
 
 public class CsvProcessor<TDocument, TMap>(
     Func<TDocument, Task> processRow,
     Func<TDocument, string> getItemName,
-    IValidator<TDocument> validator)
+    IValidator<List<TDocument>> validator)
     where TMap : ClassMap
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
@@ -38,51 +39,72 @@ public class CsvProcessor<TDocument, TMap>(
             Quote = '"'
         };
 
-        using (var csv = new CsvReader(csvReader, config))
+        var importFile = ReadCsv(csvReader, config);
+        if (report.Any(r => r.Success == false))
         {
-            csv.Context.RegisterClassMap<TMap>();
+            Console.WriteLine("There were errors while reading the file. No rows will be written.");
+            return report.ToArray();
+        }
 
-            var imported = csv.GetRecords<TDocument>().ToList();
+        var validatedFile = await validator.ValidateAsync(importFile);
 
-            var hasLineError = false;
-            foreach (var row in imported.Select((rowDocument, rowIndex) => new { rowDocument, rowIndex }))
+        if (!validatedFile.IsValid)
+        {
+            foreach (var error in validatedFile.Errors)
             {
-                var validationResult = await validator.ValidateAsync(row.rowDocument);
-                if (validationResult.IsValid)
-                {
-                    continue;
-                }
+                var errorInfo = ExtractReportInfo(error);
 
-                // Account for the header row and the loop indexing from 0
-                var fileLine = row.rowIndex + 2;
+                Console.WriteLine($"Original error message: {error.ErrorMessage}");
+                Console.WriteLine(
+                    $"Line: {errorInfo.lineNumber}, Property {errorInfo.propertyName}, {errorInfo.errorMessageForLine}");
 
-                report.AddRange(validationResult.Errors
-                    .Select(error => $"Line {fileLine}: {error.ErrorMessage}")
-                    .Select(errorMessage =>
-                        new ReportItem(fileLine, getItemName(row.rowDocument), false, errorMessage)));
-                hasLineError = true;
+                report.Add(new ReportItem(errorInfo.lineNumber, errorInfo.propertyName, false,
+                    errorInfo.errorMessageForLine));
             }
 
-            // Prevent any data being written if there's an error anywhere in the file
-            if (hasLineError)
-            {
-                return report.ToArray();
-            }
+            Console.WriteLine("There were validation errors within the file. No rows will be written.");
+            return report.ToArray();
+        }
 
-            foreach (var item in imported)
+        foreach (var item in importFile)
+        {
+            try
             {
-                try
-                {
-                    await processRow(item);
-                    report.Add(new ReportItem(index, getItemName(item), true, ""));
-                }
-                catch (Exception ex)
-                {
-                    report.Add(new ReportItem(index, getItemName(item), false, ex.Message));
-                }
+                await processRow(item);
+                report.Add(new ReportItem(index, getItemName(item), true, ""));
+            }
+            catch (Exception ex)
+            {
+                report.Add(new ReportItem(index, getItemName(item), false, ex.Message));
             }
         }
 
         return report.ToArray();
+    }
+
+    private List<TDocument> ReadCsv(TextReader csvReader, CsvConfiguration config)
+    {
+        using var csv = new CsvReader(csvReader, config);
+        csv.Context.RegisterClassMap<TMap>();
+        return csv.GetRecords<TDocument>().ToList();
+    }
+
+    private (int lineNumber, string propertyName, string errorMessageForLine)
+        ExtractReportInfo(ValidationFailure error)
+    {
+        var extractedPropertyName =
+            error.PropertyName.Contains('.') ? error.PropertyName.Split('.').Last() : error.PropertyName;
+        if (!error.ErrorMessage.Contains(':'))
+        {
+            return (-1, extractedPropertyName, error.ErrorMessage);
+        }
+
+        var lineNumber =
+            int.TryParse(error.ErrorMessage.Split(':')[0], out var result)
+                ? result + 2
+                : -1; // + 2 to account for the header line and indexing from 0
+        var errorMessageForLine = error.ErrorMessage.Split(':')[1];
+
+        return (lineNumber, extractedPropertyName, errorMessageForLine);
     }
 }

@@ -23,23 +23,28 @@ public class ReportWriter(FileInfo output)
             if (includeErrors && report.Any(r => r.Success == false))
             {
                 reportWriter.WriteHeading2("Conversion errors");
-                var errors = report.Where(r => r.Success == false).GroupBy(r => r.Index);
-            
-                foreach (var errorGroup in errors)
+                var errorsGroupedByLine = report.Where(r => r.Success == false).GroupBy(r => r.Index);
+
+                foreach (var errorsOnLine in errorsGroupedByLine)
                 {
-                    
-                    reportWriter.WriteHeading3(GetItemName(errorGroup.ElementAt(0)));
-                    foreach (var error in errorGroup)
+                    var errorsGroupedByProperty = errorsOnLine.GroupBy(r => r.Name);
+
+                    foreach (var errorsForProperty in errorsGroupedByProperty)
                     {
-                        reportWriter.WriteBulletItem(error.Message);
+                        reportWriter.WriteHeading3(GetItemName(errorsForProperty.ElementAt(0)));
+                        foreach (var error in errorsForProperty)
+                        {
+                            reportWriter.WriteBulletItem(error.Message);
+                        }
                     }
-                    
                     reportWriter.WriteLine();
                     reportWriter.WriteLine();
                 }
             }
         }
     }
-    
-    private string GetItemName(ReportItem item) => String.IsNullOrEmpty(item.Name) ? $"Row {item.Index+1} (no name)" : item.Name;
+
+    private string GetItemName(ReportItem item) => string.IsNullOrEmpty(item.Name)
+        ? $"Row {item.Index + 1} (no name)"
+        : $"Row {item.Index}: {item.Name}";
 }

@@ -4,54 +4,63 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool.Validators;
 
-public class SiteDocumentValidator : AbstractValidator<SiteDocument>
+public class SiteImportRowValidator : AbstractValidator<SiteDocument>
 {
     private readonly string[] _validSiteTypes = ["Pharmacy"];
 
-    public SiteDocumentValidator()
+    public SiteImportRowValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .MustNotContainWhitespace()
             .IsGuid();
         RuleFor(x => x.OdsCode)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .IsUppercase()
             .MinimumLength(3)
+            .WithMessage("{CollectionIndex}: {PropertyName} must be at least 3 characters")
             .MaximumLength(10)
+            .WithMessage("{CollectionIndex}: {PropertyName} must not exceed 10 characters")
             .MustNotContainWhitespace();
         RuleFor(x => x.Name)
-            .NotEmpty();
+            .MustNotBeEmpty();
         RuleFor(x => x.Address)
-            .NotEmpty();
+            .MustNotBeEmpty();
         RuleFor(x => x.PhoneNumber)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .PhoneNumber();
         RuleFor(x => x.Longitude)
             .NotEmpty()
+            .WithMessage("{CollectionIndex}: {PropertyName} must be provided")
             .GreaterThanOrEqualTo(-8.1)
-            .WithMessage("Longitude must be greater than or equal to -8.1")
+            .WithMessage("{CollectionIndex}: Longitude must be greater than or equal to -8.1")
             .LessThanOrEqualTo(1.8)
-            .WithMessage("Longitude must be less than or equal to 1.8");
+            .WithMessage("{CollectionIndex}: Longitude must be less than or equal to 1.8");
         RuleFor(x => x.Latitude)
             .NotEmpty()
+            .WithMessage("{CollectionIndex}: {PropertyName} must be provided")
             .GreaterThanOrEqualTo(49.8)
-            .WithMessage("Latitude must be greater than or equal to 49.8")
+            .WithMessage("{CollectionIndex}: {PropertyName} must be greater than or equal to 49.8")
             .LessThanOrEqualTo(60.9)
-            .WithMessage("Latitude must be less than or equal to 60.9");
+            .WithMessage("{CollectionIndex}: {PropertyName} must be less than or equal to 60.9");
         RuleFor(x => x.IntegratedCareBoard)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .IsUppercase()
             .MinimumLength(3)
+            .WithMessage("{CollectionIndex}: {PropertyName} must be at least 3 characters")
             .MaximumLength(10)
+            .WithMessage("{CollectionIndex}: {PropertyName} must not exceed 10 characters")
             .MustNotContainWhitespace();
         RuleFor(x => x.Region)
-            .NotEmpty();
+            .MustNotBeEmpty();
         RuleFor(x => x.Type)
-            .NotEmpty()
-            .Must(value => _validSiteTypes.Contains(value));
+            .MustNotBeEmpty()
+            .Must(value => _validSiteTypes.Contains(value))
+            .WithMessage("{CollectionIndex}: {PropertyName} must be Pharmacy");
+
         RuleFor(x => x.Accessibilities)
-            .SetValidator(new AccessibilityAttributesValidator());
+            .SetValidator(new AccessibilityAttributesValidator())
+            .WithMessage("{CollectionIndex}: All 9 accessibility attributes must be provided");
     }
 }
 

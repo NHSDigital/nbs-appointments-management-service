@@ -11,7 +11,6 @@ export const AppointmentCountsSummary = ({
     bookedAppointments,
     orphanedAppointments,
     remainingCapacity,
-    cancelledAppointments,
   },
 }: AppointmentCountsSummaryProps) => {
   const periodLength = 'daySummaries' in period ? 'week' : 'day';
@@ -21,10 +20,6 @@ export const AppointmentCountsSummary = ({
       <div style={{ marginTop: 10, marginBottom: 10 }}>
         <OrphanedAppointmentsMessage
           orphanedAppointments={orphanedAppointments}
-          periodLength={periodLength}
-        />
-        <CancelledAppointmentsMessage
-          cancelledAppointments={cancelledAppointments}
           periodLength={periodLength}
         />
       </div>
@@ -75,49 +70,6 @@ const OrphanedAppointmentsMessage = ({
         <div>
           There are <strong>{orphanedAppointments}</strong> manual cancellations
           on this day.
-        </div>
-      );
-    default:
-      return null;
-  }
-};
-
-const CancelledAppointmentsMessage = ({
-  cancelledAppointments,
-  periodLength,
-}: {
-  cancelledAppointments: number;
-  periodLength: 'week' | 'day';
-}) => {
-  switch (true) {
-    case periodLength === 'week' && cancelledAppointments === 0:
-      return null;
-    case periodLength === 'week' && cancelledAppointments === 1:
-      return (
-        <div>
-          There is <strong>1</strong> cancelled appointment in this week.
-        </div>
-      );
-    case periodLength === 'week' && cancelledAppointments > 1:
-      return (
-        <div>
-          There are <strong>{cancelledAppointments}</strong> cancelled
-          appointments in this week.
-        </div>
-      );
-    case periodLength === 'day' && cancelledAppointments === 0:
-      return null;
-    case periodLength === 'day' && cancelledAppointments === 1:
-      return (
-        <div>
-          There is <strong>1</strong> cancelled appointment on this day.
-        </div>
-      );
-    case periodLength === 'day' && cancelledAppointments > 1:
-      return (
-        <div>
-          There are <strong>{cancelledAppointments}</strong> cancelled
-          appointments on this day.
         </div>
       );
     default:

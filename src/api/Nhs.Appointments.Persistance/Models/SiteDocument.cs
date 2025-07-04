@@ -20,6 +20,18 @@ public class SiteDocument : CoreDataCosmosDocument
 
     [JsonProperty("location")] public Location Location { get; set; }
 
+    /// <summary>
+    ///     Temporary field used to validate site data in the CsvDataTool.
+    ///     Will be replaced by the outcome of https://nhsd-jira.digital.nhs.uk/browse/APPT-1043
+    /// </summary>
+    public double Longitude => Location.Coordinates[0];
+
+    /// <summary>
+    ///     Temporary field used to validate site data in the CsvDataTool.
+    ///     Will be replaced by the outcome of https://nhsd-jira.digital.nhs.uk/browse/APPT-1043
+    /// </summary>
+    public double Latitude => Location.Coordinates[1];
+
     [JsonProperty("informationForCitizens")] public string InformationForCitizens { get; set; }
 
     [JsonProperty("accessibilities")] public Accessibility[] Accessibilities { get; set; }

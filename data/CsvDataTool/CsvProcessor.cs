@@ -1,12 +1,14 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using FluentValidation;
 
 namespace CsvDataTool;
 
 public class CsvProcessor<TDocument, TMap>(
     Func<TDocument, Task> processRow,
-    Func<TDocument, string> getItemName)
+    Func<TDocument, string> getItemName,
+    IValidator<TDocument> validator)
     where TMap : ClassMap
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(TextReader csvReader)
@@ -40,7 +42,32 @@ public class CsvProcessor<TDocument, TMap>(
         {
             csv.Context.RegisterClassMap<TMap>();
 
-            var imported = csv.GetRecords<TDocument>();
+            var imported = csv.GetRecords<TDocument>().ToList();
+
+            var hasLineError = false;
+            foreach (var row in imported.Select((rowDocument, rowIndex) => new { rowDocument, rowIndex }))
+            {
+                var validationResult = await validator.ValidateAsync(row.rowDocument);
+                if (validationResult.IsValid)
+                {
+                    continue;
+                }
+
+                // Account for the header row and the loop indexing from 0
+                var fileLine = row.rowIndex + 2;
+
+                report.AddRange(validationResult.Errors
+                    .Select(error => $"Line {fileLine}: {error.ErrorMessage}")
+                    .Select(errorMessage =>
+                        new ReportItem(fileLine, getItemName(row.rowDocument), false, errorMessage)));
+                hasLineError = true;
+            }
+
+            // Prevent any data being written if there's an error anywhere in the file
+            if (hasLineError)
+            {
+                return report.ToArray();
+            }
 
             foreach (var item in imported)
             {

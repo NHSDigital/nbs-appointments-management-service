@@ -1,3 +1,4 @@
+using CsvDataTool.Validators;
 using CsvHelper.Configuration;
 using Nhs.Appointments.Persistance.Models;
 
@@ -7,7 +8,8 @@ public class ApiUserDataImportHandler(IFileOperations fileOperations) : IDataImp
 {
     public Task<IEnumerable<ReportItem>> ProcessFile(FileInfo inputFile, DirectoryInfo outputFolder)
     {
-        var processor = new CsvProcessor<ApiUserImportRow, ApiUserImportRowMap>(ai => WriteApiUserDocument(ai, outputFolder), ui => ui.ClientId);
+        var processor = new CsvProcessor<ApiUserImportRow, ApiUserImportRowMap>(
+            ai => WriteApiUserDocument(ai, outputFolder), ui => ui.ClientId, new ApiUserImportRowValidator());
         using var fileReader = fileOperations.OpenText(inputFile);
         return processor.ProcessFile(fileReader);
     }
@@ -30,7 +32,7 @@ public class ApiUserDataImportHandler(IFileOperations fileOperations) : IDataImp
         return fileOperations.WriteDocument(userDocument, filePath);
     }
 
-    private class ApiUserImportRow
+    public class ApiUserImportRow
     {
         public string ClientId { get; set; }
         public string ApiSigningKey { get; set; }

@@ -1,3 +1,4 @@
+using CsvDataTool.Validators;
 using Nhs.Appointments.Persistance.Models;
 
 namespace CsvDataTool;
@@ -6,7 +7,8 @@ public class SiteDataImportHandler(IFileOperations fileOperations) : IDataImport
 {
     public Task<IEnumerable<ReportItem>> ProcessFile(FileInfo inputFile, DirectoryInfo outputFolder)
     {
-        var processor = new CsvProcessor<SiteDocument, SiteMap>(s => WriteSiteDocument(s, outputFolder), s => s.Name);
+        var processor = new CsvProcessor<SiteDocument, SiteMap>(s => WriteSiteDocument(s, outputFolder), s => s.Name,
+            new SiteDocumentValidator());
         using var fileReader = fileOperations.OpenText(inputFile);
         return processor.ProcessFile(fileReader);
     }

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -137,6 +138,21 @@ public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabl
         _response = await Http.PostAsync("http://localhost:7071/api/availability/apply-template",
             new StringContent(payload));
         _statusCode = _response.StatusCode;
+    }
+    
+    [Then("I confirm the booking with reference '(.+)'")]
+    [When("I confirm the booking with reference '(.+)'")]
+    public async Task ConfirmBookingWithReference(string bookingReference)
+    {
+        var customId = CreateCustomBookingReference(bookingReference);
+        
+        var payload = new ConfirmBookingRequestPayload(
+            contactDetails: [],
+            relatedBookings: [],
+            ""
+        );
+        
+        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{customId}/confirm", payload);
     }
 
     [When(@"I apply the following availability")]

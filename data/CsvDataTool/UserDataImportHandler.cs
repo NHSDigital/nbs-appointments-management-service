@@ -1,3 +1,4 @@
+using CsvDataTool.Validators;
 using CsvHelper.Configuration;
 using Nhs.Appointments.Persistance.Models;
 
@@ -8,7 +9,8 @@ public class UserDataImportHandler(IFileOperations fileOperations) : IDataImport
     public async Task<IEnumerable<ReportItem>> ProcessFile(FileInfo inputFile, DirectoryInfo outputFolder)
     {
         var userImportRows = new List<UserImportRow>();
-        var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(ui => Task.Run(() => userImportRows.Add(ui)), ui => ui.UserId);
+        var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(ui => Task.Run(() => userImportRows.Add(ui)),
+            ui => ui.UserId, new UserImportRowValidator());
         using var fileReader = fileOperations.OpenText(inputFile);
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
@@ -46,7 +48,7 @@ public class UserDataImportHandler(IFileOperations fileOperations) : IDataImport
         return fileOperations.WriteDocument(userDocument, filePath);
     }
 
-    private class UserImportRow
+    public class UserImportRow
     {
         public string UserId { get; set; }
         public string SiteId { get; set; }

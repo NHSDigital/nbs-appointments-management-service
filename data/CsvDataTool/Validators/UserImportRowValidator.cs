@@ -2,17 +2,18 @@
 
 namespace CsvDataTool.Validators;
 
-public class UserImportRowValidator : AbstractValidator<UserDataImportHandler.UserImportRow>
+public class UserImportRowValidator : AbstractValidator<UserImportRow>
 {
     public UserImportRowValidator()
     {
         RuleFor(x => x.UserId)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .EmailAddress()
+            .WithMessage("{CollectionIndex}: {PropertyName} must be a valid email address")
             .IsLowercase()
             .MustNotContainWhitespace();
         RuleFor(x => x.SiteId)
-            .NotEmpty()
+            .MustNotBeEmpty()
             .MustNotContainWhitespace()
             .IsGuid();
     }

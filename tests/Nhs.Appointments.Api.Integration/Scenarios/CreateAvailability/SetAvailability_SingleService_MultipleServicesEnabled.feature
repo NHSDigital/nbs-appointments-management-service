@@ -119,7 +119,8 @@
     And the booking with reference '48232-10293' has status 'Provisional'
     And the booking with reference '48232-10293' has availability status 'Supported'
 
-  Scenario: Provisional bookings are still considered live and prevent orphaned appointments taking their place
+  #APPT-999 behaviour different for multiple services enabled vs disabled
+  Scenario: Provisional bookings are still considered live but don't prevent confirmed orphaned appointments taking their place
     Given the following sessions
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
@@ -137,10 +138,41 @@
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking with reference '56923-19232' has status 'Booked'
     And the booking with reference '56923-19232' has availability status 'Supported'
+    And the booking with reference '19283-30492' should be deleted
+    And the booking with reference '45721-10293' has status 'Booked'
+    And the booking with reference '45721-10293' has availability status 'Supported'
+
+  #APPT-999 behaviour different for multiple services enabled vs disabled
+  Scenario: Provisional bookings are still considered live but get allocated after booked appointments, despite being created earlier
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 3        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 56923-19232 |
+    And the following provisional bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 19283-30492 |
+    And the following orphaned bookings exist
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 |
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 3        | COVID    | Overwrite |
+    Then the booking with reference '56923-19232' has status 'Booked'
+    And the booking with reference '56923-19232' has availability status 'Supported'
     And the booking with reference '19283-30492' has status 'Provisional'
     And the booking with reference '19283-30492' has availability status 'Supported'
     And the booking with reference '45721-10293' has status 'Booked'
-    And the booking with reference '45721-10293' has availability status 'Orphaned'
+    And the booking with reference '45721-10293' has availability status 'Supported'
+    When I apply the following availability
+      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
+      | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
+    Then the booking with reference '56923-19232' has status 'Booked'
+    And the booking with reference '56923-19232' has availability status 'Supported'
+    And the booking with reference '19283-30492' should be deleted
+    And the booking with reference '45721-10293' has status 'Booked'
+    And the booking with reference '45721-10293' has availability status 'Supported'
 
   Scenario: Provisional bookings that are unsupported are deleted from the DB
     Given the following sessions

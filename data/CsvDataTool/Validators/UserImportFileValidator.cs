@@ -13,7 +13,9 @@ public class UserImportFileValidator : AbstractValidator<List<UserImportRow>>
             .WithMessage("Must upload at least one row")
             .Must(lines =>
             {
-                return lines.All(line => lines.GroupBy(l => l == line).Count() <= 1);
+                return lines
+                    .GroupBy(line => new { line.UserId, line.SiteId })
+                    .All(g => g.Count() == 1);
             })
             .WithMessage("File contains duplicate rows");
     }

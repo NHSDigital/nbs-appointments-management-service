@@ -13,7 +13,9 @@ public class ApiUserImportFileValidator : AbstractValidator<List<ApiUserImportRo
             .WithMessage("Must upload at least one row")
             .Must(lines =>
             {
-                return lines.All(line => lines.GroupBy(l => l == line).Count() <= 1);
+                return lines
+                    .GroupBy(line => new { line.ClientId, line.ApiSigningKey })
+                    .All(g => g.Count() == 1);
             })
             .WithMessage("File contains duplicate rows");
     }

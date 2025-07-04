@@ -4,8 +4,9 @@ namespace CsvDataTool;
 
 public class ReportWriter(FileInfo output)
 {
-    public void Write(IEnumerable<ReportItem> report, bool includeErrors)
+    public void Write(IEnumerable<ReportItem> _report, bool includeErrors)
     {
+        var report = _report.ToList();
         var totalRowCount = report.GroupBy(r => r.Index).Count();
         
         using (var reportWriter = MarkdownWriter.Create(output.OpenWrite()))
@@ -24,7 +25,7 @@ public class ReportWriter(FileInfo output)
             {
                 reportWriter.WriteHeading2("Conversion errors");
 
-                var fullFileErrors = report.Where(r => r.Success == false && r.Index == -1);
+                var fullFileErrors = report.Where(r => r.Success == false && r.Index == -1).ToList();
                 if (fullFileErrors.Any())
                 {
                     reportWriter.WriteHeading3("Errors across multiple rows");

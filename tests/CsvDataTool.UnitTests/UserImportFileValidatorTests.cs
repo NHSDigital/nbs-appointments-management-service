@@ -6,7 +6,6 @@ namespace CsvDataTool.UnitTests;
 public class UserImportFileValidatorTests
 {
     private readonly UserImportFileValidator _sut = new();
-    private readonly string validSiteId = "874fa3f0-b15b-48f4-8fe5-ef96e85484db";
 
     private readonly List<UserImportRow> _validFile = new()
     {

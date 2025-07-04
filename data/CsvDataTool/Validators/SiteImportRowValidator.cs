@@ -73,15 +73,15 @@ public class AccessibilityAttributesValidator : AbstractValidator<Accessibility[
         {
             var accessibilityAttributeIds = x.Select(a => a.Id).ToArray();
             return
-                accessibilityAttributeIds.Contains("accessible_toilet") &&
-                accessibilityAttributeIds.Contains("braille_translation_service") &&
-                accessibilityAttributeIds.Contains("disabled_car_parking") &&
-                accessibilityAttributeIds.Contains("car_parking") &&
-                accessibilityAttributeIds.Contains("induction_loop") &&
-                accessibilityAttributeIds.Contains("sign_language_service") &&
-                accessibilityAttributeIds.Contains("step_free_access") &&
-                accessibilityAttributeIds.Contains("text_relay") &&
-                accessibilityAttributeIds.Contains("wheelchair_access");
+                accessibilityAttributeIds.Contains("accessibility/accessible_toilet") &&
+                accessibilityAttributeIds.Contains("accessibility/braille_translation_service") &&
+                accessibilityAttributeIds.Contains("accessibility/disabled_car_parking") &&
+                accessibilityAttributeIds.Contains("accessibility/car_parking") &&
+                accessibilityAttributeIds.Contains("accessibility/induction_loop") &&
+                accessibilityAttributeIds.Contains("accessibility/sign_language_service") &&
+                accessibilityAttributeIds.Contains("accessibility/step_free_access") &&
+                accessibilityAttributeIds.Contains("accessibility/text_relay") &&
+                accessibilityAttributeIds.Contains("accessibility/wheelchair_access");
         });
 
         RuleForEach(x => x).Must(y => bool.TryParse(y.Value, out _));

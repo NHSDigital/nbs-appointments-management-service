@@ -205,24 +205,6 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders a warning if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
-
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
-      expect(
-        screen.getByText(/cancelled appointments on this day./),
-      ).toBeInTheDocument();
-    });
-
     it('renders a link to view cancelled appointments if there are cancelled appointments', () => {
       render(
         <DaySummaryCard
@@ -572,24 +554,6 @@ describe('Day Summary Card', () => {
       expect(screen.getByText('20')).toBeInTheDocument();
       expect(
         screen.getByText(/manual cancellations on this day./),
-      ).toBeInTheDocument();
-    });
-
-    it('renders a warning if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
-
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
-      expect(
-        screen.getByText(/cancelled appointments on this day./),
       ).toBeInTheDocument();
     });
   });

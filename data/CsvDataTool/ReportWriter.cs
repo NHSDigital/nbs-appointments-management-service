@@ -23,7 +23,21 @@ public class ReportWriter(FileInfo output)
             if (includeErrors && report.Any(r => r.Success == false))
             {
                 reportWriter.WriteHeading2("Conversion errors");
-                var errorsGroupedByLine = report.Where(r => r.Success == false).GroupBy(r => r.Index);
+
+                var fullFileErrors = report.Where(r => r.Success == false && r.Index == -1);
+                if (fullFileErrors.Any())
+                {
+                    reportWriter.WriteHeading3("Errors across multiple rows");
+                    foreach (var error in fullFileErrors)
+                    {
+                        reportWriter.WriteBulletItem(error.Message);
+                    }
+
+                    reportWriter.WriteLine();
+                    reportWriter.WriteLine();
+                }
+
+                var errorsGroupedByLine = report.Where(r => r.Success == false && r.Index != -1).GroupBy(r => r.Index);
 
                 foreach (var errorsOnLine in errorsGroupedByLine)
                 {

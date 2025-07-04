@@ -14,7 +14,21 @@ public class SiteImportFileValidator : AbstractValidator<List<SiteDocument>>
             .WithMessage("Must upload at least one row")
             .Must(lines =>
             {
-                return lines.All(line => lines.GroupBy(l => l == line).Count() <= 1);
+                return lines
+                    .GroupBy(line => new
+                    {
+                        line.Name,
+                        line.Address,
+                        line.PhoneNumber,
+                        line.OdsCode,
+                        line.Region,
+                        line.Longitude,
+                        line.Latitude,
+                        line.InformationForCitizens,
+                        line.Accessibilities,
+                        line.Type
+                    })
+                    .All(g => g.Count() == 1);
             })
             .WithMessage("File contains duplicate rows");
     }

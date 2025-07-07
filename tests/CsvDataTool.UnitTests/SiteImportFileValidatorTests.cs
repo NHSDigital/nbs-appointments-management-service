@@ -92,6 +92,17 @@ public class SiteImportFileValidatorTests
         result.Errors.Single().ErrorMessage.Should().Be(expectedError);
     }
 
+    [Fact(DisplayName = "Validates the invalid coordinates")]
+    public void ValidatesTheLatitude_CouldNotParse()
+    {
+        var invalidSite = validSite;
+        invalidSite.Location = null;
+
+        var result = _sut.Validate([invalidSite]);
+        result.Errors.Should().Contain(error => error.ErrorMessage == "0: Longitude must be provided");
+        result.Errors.Should().Contain(error => error.ErrorMessage == "0: Latitude must be provided");
+    }
+
     [Theory(DisplayName = "Validates the phone number")]
     [InlineData("", "0: Phone Number must be provided")]
     [InlineData(" 123a    ", "0: Phone Number must be a valid phone number")]

@@ -61,7 +61,6 @@ public class SiteImportRowValidator : AbstractValidator<SiteDocument>
 
         RuleFor(x => x.Accessibilities)
             .SetValidator(new AccessibilityAttributesValidator());
-
     }
 }
 

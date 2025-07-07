@@ -54,10 +54,6 @@ public class CsvProcessor<TDocument, TMap>(
             {
                 var errorInfo = ExtractReportInfo(error);
 
-                Console.WriteLine($"Original error message: {error.ErrorMessage}");
-                Console.WriteLine(
-                    $"Line: {errorInfo.lineNumber}, Property {errorInfo.propertyName}, {errorInfo.errorMessageForLine}");
-
                 report.Add(new ReportItem(errorInfo.lineNumber, errorInfo.propertyName, false,
                     errorInfo.errorMessageForLine));
             }
@@ -101,9 +97,9 @@ public class CsvProcessor<TDocument, TMap>(
 
         var lineNumber =
             int.TryParse(error.ErrorMessage.Split(':')[0], out var result)
-                ? result + 2
-                : -1; // + 2 to account for the header line and indexing from 0
-        var errorMessageForLine = error.ErrorMessage.Split(':')[1];
+                ? result + 2 // + 2 to account for the header line and indexing from 0
+                : -1;
+        var errorMessageForLine = error.ErrorMessage.Split(':')[1][1..];
 
         return (lineNumber, extractedPropertyName, errorMessageForLine);
     }

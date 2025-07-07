@@ -24,13 +24,13 @@ public class SiteDocument : CoreDataCosmosDocument
     /// Temporary field used to validate site data in the CsvDataTool.
     /// Will be replaced by the outcome of https://nhsd-jira.digital.nhs.uk/browse/APPT-1043
     /// </summary>
-    public double Longitude => Location.Coordinates[0];
+    public double? Longitude => Location?.Coordinates[0];
 
     /// <summary>
     /// Temporary field used to validate site data in the CsvDataTool.
     /// Will be replaced by the outcome of https://nhsd-jira.digital.nhs.uk/browse/APPT-1043
     /// </summary>
-    public double Latitude => Location.Coordinates[1];
+    public double? Latitude => Location?.Coordinates[1];
 
     [JsonProperty("informationForCitizens")] public string InformationForCitizens { get; set; }
 

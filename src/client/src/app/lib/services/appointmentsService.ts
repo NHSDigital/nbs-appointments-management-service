@@ -122,12 +122,8 @@ export const fetchClinicalServices = async () => {
   const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
 
   if (canUseMultipleServices.enabled) {
-    const response = await appointmentsApi.get<ClinicalService[]>(
-      `clinical-services`,
-      {
-        cache: 'force-cache',
-      },
-    );
+    const response =
+      await appointmentsApi.get<ClinicalService[]>(`clinical-services`);
     return handleBodyResponse(response);
   }
 
@@ -143,9 +139,6 @@ export const fetchSiteAccessibilities = async (siteId: string) => {
 export async function fetchAccessibilityDefinitions() {
   const response = await appointmentsApi.get<AccessibilityDefinition[]>(
     'accessibilityDefinitions',
-    {
-      cache: 'force-cache',
-    },
   );
 
   return handleBodyResponse(response);
@@ -154,9 +147,6 @@ export async function fetchAccessibilityDefinitions() {
 export async function fetchWellKnownOdsCodeEntries() {
   const response = await appointmentsApi.get<WellKnownOdsEntry[]>(
     'wellKnownOdsCodeEntries',
-    {
-      cache: 'force-cache',
-    },
   );
   return handleBodyResponse(response);
 }

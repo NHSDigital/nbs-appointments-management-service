@@ -31,7 +31,7 @@ public static class CustomValidators
 
     public static IRuleBuilderOptions<T, string>
         PhoneNumber<T>(this IRuleBuilder<T, string> ruleBuilder) => ruleBuilder
-        .Matches(@"^\+?[\d\s]{7,}$")
+        .Matches(@"^(?:\+?[\d\s]{7,}|N)$")
         .WithMessage("{CollectionIndex}: {PropertyName} must be a valid phone number");
 
     public static IRuleBuilderOptions<T, string>

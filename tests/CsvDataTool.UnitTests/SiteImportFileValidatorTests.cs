@@ -109,6 +109,9 @@ public class SiteImportFileValidatorTests
     [InlineData("123e", "0: Phone Number must be a valid phone number")]
     [InlineData(" 12345 678901", "0: Phone Number must not begin or end with whitespace")]
     [InlineData("12345 678901 ", "0: Phone Number must not begin or end with whitespace")]
+    [InlineData("NN", "0: Phone Number must be a valid phone number")]
+    [InlineData("12345 678901N", "0: Phone Number must be a valid phone number")]
+    [InlineData("12345N678901", "0: Phone Number must be a valid phone number")]
     public void ValidatesThePhoneNumber(string phoneNumber, string expectedError)
     {
         var invalidSite = validSite;
@@ -116,6 +119,17 @@ public class SiteImportFileValidatorTests
 
         var result = _sut.Validate([invalidSite]);
         result.Errors.Should().Contain(error => error.ErrorMessage == expectedError);
+    }
+
+    [Fact(DisplayName = "Simply the letter 'N' for Phone Number")]
+    public void ValidatesNForPhoneNumber()
+    {
+        var validSiteWithNForPhoneNumber = validSite;
+        validSiteWithNForPhoneNumber.PhoneNumber = "N";
+
+        var result = _sut.Validate([validSite]);
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
     }
 
     [Theory(DisplayName = "Validates the site ID")]

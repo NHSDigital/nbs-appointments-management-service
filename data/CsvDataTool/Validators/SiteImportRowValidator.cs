@@ -23,11 +23,14 @@ public class SiteImportRowValidator : AbstractValidator<SiteDocument>
             .WithMessage("{CollectionIndex}: {PropertyName} must not exceed 10 characters")
             .MustNotContainWhitespace();
         RuleFor(x => x.Name)
-            .MustNotBeEmpty();
+            .MustNotBeEmpty()
+            .NoLeadingOrTrailingWhitespace();
         RuleFor(x => x.Address)
-            .MustNotBeEmpty();
+            .MustNotBeEmpty()
+            .NoLeadingOrTrailingWhitespace();
         RuleFor(x => x.PhoneNumber)
             .MustNotBeEmpty()
+            .NoLeadingOrTrailingWhitespace()
             .PhoneNumber();
         RuleFor(x => x.Longitude)
             .NotEmpty()
@@ -52,7 +55,9 @@ public class SiteImportRowValidator : AbstractValidator<SiteDocument>
             .WithMessage("{CollectionIndex}: {PropertyName} must not exceed 10 characters")
             .MustNotContainWhitespace();
         RuleFor(x => x.Region)
-            .MustNotBeEmpty();
+            .MustNotBeEmpty()
+            .NoLeadingOrTrailingWhitespace();
+        ;
         RuleFor(x => x.Type)
             .MustNotBeEmpty()
             .Must(value => _validSiteTypes.Contains(value))

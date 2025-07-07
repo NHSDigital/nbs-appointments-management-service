@@ -11,7 +11,7 @@ public static class CustomValidators
 
     public static IRuleBuilderOptions<T, string>
         NoLeadingOrTrailingWhitespace<T>(this IRuleBuilder<T, string> ruleBuilder) => ruleBuilder
-        .Must(value => !(value.StartsWith(' ') || value.EndsWith(' ')))
+        .Must(value => value.Trim() == value)
         .WithMessage("{CollectionIndex}: {PropertyName} must not begin or end with whitespace");
 
     public static IRuleBuilderOptions<T, string>

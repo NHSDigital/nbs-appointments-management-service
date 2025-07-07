@@ -107,6 +107,8 @@ public class SiteImportFileValidatorTests
     [InlineData("", "0: Phone Number must be provided")]
     [InlineData(" 123a    ", "0: Phone Number must be a valid phone number")]
     [InlineData("123e", "0: Phone Number must be a valid phone number")]
+    [InlineData(" 12345 678901", "0: Phone Number must not begin or end with whitespace")]
+    [InlineData("12345 678901 ", "0: Phone Number must not begin or end with whitespace")]
     public void ValidatesThePhoneNumber(string phoneNumber, string expectedError)
     {
         var invalidSite = validSite;
@@ -167,6 +169,8 @@ public class SiteImportFileValidatorTests
 
     [Theory(DisplayName = "Validates the site name")]
     [InlineData("", "0: Name must be provided")]
+    [InlineData(" Some Site Name", "0: Name must not begin or end with whitespace")]
+    [InlineData("Some Site Name ", "0: Name must not begin or end with whitespace")]
     public void ValidatesTheName(string name, string expectedError)
     {
         var invalidSite = validSite;
@@ -178,6 +182,8 @@ public class SiteImportFileValidatorTests
 
     [Theory(DisplayName = "Validates the site address")]
     [InlineData("", "0: Address must be provided")]
+    [InlineData(" Some Site Address", "0: Address must not begin or end with whitespace")]
+    [InlineData("Some Site Address ", "0: Address must not begin or end with whitespace")]
     public void ValidatesTheAddress(string address, string expectedError)
     {
         var invalidSite = validSite;
@@ -189,6 +195,8 @@ public class SiteImportFileValidatorTests
 
     [Theory(DisplayName = "Validates the site region")]
     [InlineData("", "0: Region must be provided")]
+    [InlineData(" Some Site Region", "0: Region must not begin or end with whitespace")]
+    [InlineData("Some Site Region ", "0: Region must not begin or end with whitespace")]
     public void ValidatesTheRegion(string region, string expectedError)
     {
         var invalidSite = validSite;

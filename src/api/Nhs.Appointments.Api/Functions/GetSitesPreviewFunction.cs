@@ -57,7 +57,7 @@ public class GetSitesPreviewFunction(
             
             foreach (var site in allSites)
             {
-                var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == site.OdsCode);
+                var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == site.IntegratedCareBoard);
                 sitesResult.Add(new SitePreview(site.Id, site.Name, site.OdsCode, siteIcb?.DisplayName));
             }
         }
@@ -70,7 +70,7 @@ public class GetSitesPreviewFunction(
                 var siteInfo = await siteService.GetSiteByIdAsync(siteId);
                 if (siteInfo != null)
                 {
-                    var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == siteInfo.OdsCode);
+                    var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == siteInfo.IntegratedCareBoard);
                     sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode, siteIcb?.DisplayName));
                 }
             }
@@ -84,7 +84,7 @@ public class GetSitesPreviewFunction(
 
                     sitesResult.AddRange(sites.Select(s =>
                     {
-                        var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == s.OdsCode);
+                        var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == s.IntegratedCareBoard);
                         return new SitePreview(s.Id, s.Name, s.OdsCode, siteIcb?.DisplayName);
                     }));
                 }

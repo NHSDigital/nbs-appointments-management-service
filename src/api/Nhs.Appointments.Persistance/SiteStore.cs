@@ -1,4 +1,4 @@
-using AutoMapper;
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -74,10 +74,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }
-    
-    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber, decimal longitude, decimal latitude)
+
+    public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
+        decimal? longitude, decimal? latitude)
     {
-        decimal[] coords = [longitude, latitude];
+        decimal?[] coords = (longitude != null) & (latitude != null) ? [longitude, latitude] : [];
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null)
@@ -103,14 +104,14 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         {
             return await cosmosStore.GetDocument<Site>(siteId);
         }
-        catch (CosmosException ex) when ( ex.StatusCode == System.Net.HttpStatusCode.NotFound )
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             return default;
         }
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities)
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -128,6 +129,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 IntegratedCareBoard = icb,
                 Location = location,
                 Region = region,
+                Type = type
             };
             var document = cosmosStore.ConvertToDocument(site);
             await cosmosStore.WriteAsync(document);
@@ -143,5 +145,10 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
             return new OperationResult(true);
         }
+    }
+
+    public Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
+    {
+        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
     }
 }

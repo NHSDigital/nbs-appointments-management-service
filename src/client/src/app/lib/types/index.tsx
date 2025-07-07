@@ -41,7 +41,7 @@ type SetInformationForCitizensRequest = {
 type SetSiteDetailsRequest = {
   name: string;
   address: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   latitude: string;
   longitude: string;
 };
@@ -283,7 +283,7 @@ type BookedAppointments = {
   count: number;
 };
 
-export type ClinicalService = {
+type ClinicalService = {
   label: string;
   value: string;
 };
@@ -331,6 +331,25 @@ type WeekSummary = {
   orphanedAppointments: number;
   cancelledAppointments: number;
   remainingCapacity: number;
+};
+
+type WeekSummaryV2 = {
+  daySummaries: DaySummaryV2[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
+};
+
+type DaySummaryV2 = {
+  date: string;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
 };
 
 type ServiceInformation = {
@@ -409,6 +428,9 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  WeekSummaryV2,
+  DaySummaryV2,
+  ClinicalService,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

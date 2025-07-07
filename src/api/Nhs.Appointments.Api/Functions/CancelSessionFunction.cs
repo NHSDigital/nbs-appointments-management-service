@@ -16,13 +16,11 @@ using Nhs.Appointments.Core.Inspectors;
 namespace Nhs.Appointments.Api.Functions;
 
 public class CancelSessionFunction(
-    IAvailabilityService availabilityService,
-    IBookingsService bookingService,
+    IAvailabilityWriteService availabilityWriteService,
     IValidator<CancelSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelSessionFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<CancelSessionRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]
@@ -45,10 +43,9 @@ public class CancelSessionFunction(
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger
-)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger)
     {
-        await availabilityService.CancelSession(
+        await availabilityWriteService.CancelSession(
             request.Site,
             request.Date,
             request.From,
@@ -56,15 +53,6 @@ public class CancelSessionFunction(
             request.Services,
             request.SlotLength,
             request.Capacity);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-        {
-            await availabilityService.RecalculateAppointmentStatuses(request.Site, request.Date);
-        }
-        else
-        {
-            await bookingService.RecalculateAppointmentStatuses(request.Site, request.Date);
-        }
 
         return Success(new EmptyResponse());
     }

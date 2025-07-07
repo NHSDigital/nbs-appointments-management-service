@@ -46,7 +46,8 @@ public class SetUserRolesFunctionTests
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
                 It.Is<string>(x => x == User), It.Is<string>(x => x == scope),
-                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])),
+                true))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
@@ -70,7 +71,8 @@ public class SetUserRolesFunctionTests
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
                 It.Is<string>(x => x == User), It.Is<string>(x => x == scope),
-                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+                It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])),
+                true))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
@@ -93,7 +95,7 @@ public class SetUserRolesFunctionTests
         var oktaDirectoryResult = new UserProvisioningStatus { Success = false };
 
         _userService.Setup(s => s.UpdateUserRoleAssignmentsAsync(
-            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0]))))
+            It.Is<string>(x => x == User), It.Is<string>(x => x == scope), It.Is<IEnumerable<RoleAssignment>>(x => x.Any(role => role.Role == roles[0])), true))
             .Returns(Task.FromResult(new UpdateUserRoleAssignmentsResult(true, null, null)));
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
@@ -129,7 +131,7 @@ public class SetUserRolesFunctionTests
             () => _userService.Verify(),
             () => _oktaService.Verify(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never),
             () => _userService.Verify(s => s.UpdateUserRoleAssignmentsAsync(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never)
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), true), Times.Never)
         );
     }
 

@@ -36,8 +36,21 @@ stages:
     variables:
       - group: ${{parameters.variable_group}}
     jobs:
+      - job: EnterChangeRequest
+        displayName: "Enter Change Request Number (CFG)"
+        pool: server
+        condition: and(succeeded(), eq('${{parameters.env}}', 'prod'))
+        steps:
+          - task: ManualValidation@0
+            displayName: "Enter Change Request Number (CFG)"
+            inputs:
+              notifyUsers: ""
+              instructions: Enter a valid CFG
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
+        dependsOn:
+          - ${{ if eq(parameters.env, 'prod') }}:
+              - EnterChangeRequest
         steps:
           - checkout: none
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -162,7 +175,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod', 'perf') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -181,8 +194,9 @@ stages:
               appName: ${{parameters.highLoadFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              deployToSlotOrASE: true
-              slotName: "preview"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: DeployServiceBusFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy service bus function app"
@@ -236,7 +250,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'prod', 'perf') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

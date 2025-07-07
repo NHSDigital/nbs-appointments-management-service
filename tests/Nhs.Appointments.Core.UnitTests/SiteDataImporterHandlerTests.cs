@@ -50,8 +50,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            "ferfgsd,site1,\"test site 1\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            "sadfsdafsdf,site2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false"
+            "ferfgsd,SITE1,\"test site 1\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            "sadfsdafsdf,SITE2,\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false"
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -62,8 +62,8 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: ferfgsd");
-        report.Last().Message.Should().StartWith($"CsvHelper.TypeConversion.TypeConverterException: Invalid GUID string format: sadfsdafsdf");
+        report.First().Message.Should().Be($"Invalid GUID string format for Site field: 'ferfgsd'");
+        report.Last().Message.Should().Be($"Invalid GUID string format for Site field: 'sadfsdafsdf'");
         report.All(r => r.Success).Should().BeFalse();
     }
 
@@ -75,8 +75,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"True\",false,true,true,false"
+            $"\"{id1}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id2}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"True\",false,true,true,false"
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -87,8 +87,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
             });
@@ -107,8 +107,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{id}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{id}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{id}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -119,8 +119,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
             });
@@ -128,7 +128,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Duplicate site Id provided: {id}. SiteIds must be unique.");
+        report.First().Message.Should().StartWith($"Duplicate site Id provided: '{id}'. SiteIds must be unique.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -140,8 +140,8 @@ public class SiteDataImporterHandlerTests
 
         var inputRows = new string[]
         {
-            $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"{invalidLongitudeUpper}\",\"54.12\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",{invalidLongitudeLower},52.43,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"{invalidLongitudeUpper}\",\"54.12\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",{invalidLongitudeLower},52.43,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         };
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -152,8 +152,8 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().Contain($"Longitude: {invalidLongitudeUpper} is not a valid UK longitude.");
-        report.Last().Message.Should().Contain($"Longitude: {invalidLongitudeLower} is not a valid UK longitude.");
+        report.First().Message.Should().Contain($"Longitude: '{invalidLongitudeUpper}' is not a valid UK longitude.");
+        report.Last().Message.Should().Contain($"Longitude: '{invalidLongitudeLower}' is not a valid UK longitude.");
     }
 
     [Fact]
@@ -164,8 +164,8 @@ public class SiteDataImporterHandlerTests
 
         var inputRows = new string[]
         {
-            $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"0.50\",\"{invalidLatitudeUpper}\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",-1.75,{invalidLatitudeLower},\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"0.50\",\"{invalidLatitudeUpper}\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",-1.75,{invalidLatitudeLower},\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         };
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -176,19 +176,19 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(2);
-        report.First().Message.Should().Contain($"Latitude: {invalidLatitudeUpper} is not a valid UK latitude.");
-        report.Last().Message.Should().Contain($"Latitude: {invalidLatitudeLower} is not a valid UK latitude.");
+        report.First().Message.Should().Contain($"Latitude: '{invalidLatitudeUpper}' is not a valid UK latitude.");
+        report.Last().Message.Should().Contain($"Latitude: '{invalidLatitudeLower}' is not a valid UK latitude.");
     }
 
     [Fact]
     public async Task DataReportsMissingColumns()
     {
-        const string invalidHeaders = "Id,Name,Address,Longitude,Latitude,ICB,Region,accessible_toilet,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
+        const string invalidHeaders = "Id,OdsCode,Name,Address,Longitude,Latitude,ICB,Region,accessible_toilet,car_parking,induction_loop,sign_language_service,step_free_access,text_relay,wheelchair_access";
 
         string[] inputRows =
         [
-            $"\"{Guid.NewGuid()}\",\"site1\",\"123 test street\",\"0.50\",\"60.0\",\"test icb\",\"Yorkshire\",true,True,False,false,true,false,true",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"321 test street\",\"0.75\",\"59.5\",\"test icb\",\"Yorkshire\",true,True,False,false,true,false,true"
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"site1\",\"123 test street\",\"0.50\",\"60.0\",\"test icb\",\"Yorkshire\",true,True,False,false,true,false,true",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"site2\",\"321 test street\",\"0.75\",\"59.5\",\"test icb\",\"Yorkshire\",true,True,False,false,true,false,true"
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(invalidHeaders, inputRows);
@@ -198,8 +198,8 @@ public class SiteDataImporterHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(1);
-        report.First().Message.Should().Contain("Error trying to parse CSV file: Header with name 'OdsCode'[0] was not found");
+        report.Count().Should().Be(2);
+        report.First().Message.Should().Contain("Field with name 'PhoneNumber' does not exist");
     }
 
     [Fact]
@@ -209,8 +209,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{Guid.NewGuid()}\",\"site1\",\"{site}\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"{site}\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"{site}\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"{site}\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -221,8 +221,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
             });
@@ -230,7 +230,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Duplicate site name provided: {site}. Site names must be unique.");
+        report.First().Message.Should().StartWith($"Duplicate site name provided: '{site}'. Site names must be unique.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -241,8 +241,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{Guid.NewGuid()}\",\"site1\",\"Test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"{icb}\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"Test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"Test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"{icb}\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"Test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -253,8 +253,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
             });
@@ -262,7 +262,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Provided site ICB code: {icb} not found in the well known ICB code list.");
+        report.First().Message.Should().StartWith($"Provided site ICB code: '{icb}' not found in the well known ICB code list.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -273,8 +273,8 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{Guid.NewGuid()}\",\"site1\",\"Test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"{region}\",,true,True,False,false,\"true\",false,true,true,false",
-            $"\"{Guid.NewGuid()}\",\"site2\",\"Test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"Test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"{region}\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"Test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -285,8 +285,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
             });
@@ -294,7 +294,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().StartWith($"Provided region: {region} not found in the well known Region list.");
+        report.First().Message.Should().StartWith($"Provided region: '{region}' not found in the well known Region list.");
         report.Count(r => !r.Success).Should().Be(1);
     }
 
@@ -305,7 +305,7 @@ public class SiteDataImporterHandlerTests
 
         string[] inputRows =
         [
-            $"\"{siteId}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+            $"\"{siteId}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
@@ -316,8 +316,8 @@ public class SiteDataImporterHandlerTests
         _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
             .ReturnsAsync(new List<WellKnownOdsEntry>
             {
-                new("site1", "Site 1", "Test1"),
-                new("site2", "Site 2", "Test2"),
+                new("SITE1", "Site 1", "Test1"),
+                new("SITE2", "Site 2", "Test2"),
                 new("site3", "Site 3", "Test3"),
                 new("Yorkshire", "Site 4", "Region"),
                 new("test icb", "Site 5", "ICB")
@@ -328,7 +328,7 @@ public class SiteDataImporterHandlerTests
         var report = await _sut.ProcessFile(file);
 
         report.Count().Should().Be(1);
-        report.First().Message.Should().Be($"Site with ID: {siteId} already exists in the system.");
+        report.First().Message.Should().Be($"Site with ID: '{siteId}' already exists in the system.");
         report.All(r => r.Success).Should().BeFalse();
 
         _siteServiceMock.Verify(s => s.SaveSiteAsync(
@@ -340,13 +340,59 @@ public class SiteDataImporterHandlerTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<Location>(),
-            It.IsAny<List<Accessibility>>()), Times.Never);
+            It.IsAny<List<Accessibility>>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ReportsMissingOdsCodeValue()
+    {
+        var siteId = Guid.NewGuid();
+
+        string[] inputRows =
+        [
+            $"\"{siteId}\",\" \",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.First().Message.Should().Be("OdsCode must have a value.");
+    }
+
+    [Theory]
+    [InlineData("SITE_123")]
+    [InlineData("lowercase")]
+    [InlineData("ODSCODEIST00L0NG")]
+    public async Task ReportsInvalidOdsCode(string odsCode)
+    {
+        var siteId = Guid.NewGuid();
+
+        string[] inputRows =
+        [
+            $"\"{siteId}\",\"{odsCode}\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        ];
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.First().Message.Should().Be($"OdsCode: '{odsCode}' is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
     }
 
     private readonly string[] ValidInputRows =
     [
-        $"\"{Guid.NewGuid()}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-        $"\"{Guid.NewGuid()}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-        $"\"{Guid.NewGuid()}\",\"site3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,true,False,\"false\",\"true\",false,true,true,false",
+        $"\"{Guid.NewGuid()}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        $"\"{Guid.NewGuid()}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
+        $"\"{Guid.NewGuid()}\",\"SITE3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,true,true,False,\"false\",\"true\",false,true,true,false",
     ];
 }

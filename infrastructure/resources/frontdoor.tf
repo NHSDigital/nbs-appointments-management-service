@@ -170,7 +170,7 @@ resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_bulk_import_override
 # Web app
 resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_web_origin_group" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "mya-web"
+  name                     = "mya-web-${var.environment}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
   session_affinity_enabled = false
 
@@ -185,7 +185,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "nbs_mya_web_origin_group" {
 
 resource "azurerm_cdn_frontdoor_origin" "nbs_mya_web_origin" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "mya-web"
+  name                          = "mya-web-${var.environment}"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_web_origin_group[0].id
   enabled                       = true
 
@@ -201,7 +201,7 @@ resource "azurerm_cdn_frontdoor_origin" "nbs_mya_web_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "nbs_mya_web_route" {
   count                         = var.create_frontdoor ? 1 : 0
-  name                          = "web-route"
+  name                          = "web-route-${var.environment}"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.nbs_mya_endpoint[0].id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.nbs_mya_web_origin_group[0].id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.nbs_mya_web_origin[0].id]

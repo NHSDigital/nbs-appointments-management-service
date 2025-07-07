@@ -1,12 +1,12 @@
 using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Persistance.Models;
 using Nhs.Appointments.Core;
-using AutoMapper;
-using System.Globalization;
+using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore, IMetricsRecorder metricsRecorder) : IAvailabilityStore
+public class AvailabilityDocumentStore(
+    ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore,
+    IMetricsRecorder metricsRecorder) : IAvailabilityStore
 {
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
@@ -14,19 +14,20 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         var docType = documentStore.GetDocumentType();
         using (metricsRecorder.BeginScope("GetSessions"))
         {
-            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
+                b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+
             foreach (var day in documents)
             {
-                results.AddRange(day.Sessions.Select(
-                    s => new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
+                results.AddRange(day.Sessions.Select(s =>
+                    new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
                     {
-                        Services = s.Services,
-                        SlotLength = s.SlotLength,
-                        Capacity = s.Capacity
+                        Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
                     }
-                    ));
+                ));
             }
         }
+
         return results;
     }
 
@@ -35,7 +36,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
     {
         var documentType = documentStore.GetDocumentType();
         var documentId = date.ToString("yyyyMMdd");
-        
+
         switch (mode)
         {
             case ApplyAvailabilityMode.Overwrite:
@@ -44,9 +45,14 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
             case ApplyAvailabilityMode.Additive:
                 var originalDocument = await GetOrDefaultAsync(documentId, site);
                 if (originalDocument == null)
+                {
                     await WriteDocument(date, documentType, documentId, sessions, site);
-                else 
+                }
+                else
+                {
                     await PatchAvailabilityDocument(documentId, sessions, site, originalDocument);
+                }
+
                 break;
             case ApplyAvailabilityMode.Edit:
                 await EditExistingSession(documentId, site, sessions.Single(), sessionToEdit);
@@ -54,6 +60,37 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
+    {
+        var docType = documentStore.GetDocumentType();
+        return await documentStore.RunQueryAsync<DailyAvailability>(b =>
+            b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+    }
+
+    public async Task<SessionInstance> CancelSession(string site, DateOnly date, Session session)
+    {
+        var documentId = date.ToString("yyyyMMdd");
+        var dayDocument = await GetOrDefaultAsync(documentId, site);
+        var extantSessions = dayDocument.Sessions.ToList();
+
+        var firstMatchingSession = FindMatchingSession(extantSessions, session);
+        if (firstMatchingSession is null)
+        {
+            throw new InvalidOperationException(
+                "The requested Session to cancel could not be found in the sessions for that day.");
+        }
+
+        extantSessions.Remove(firstMatchingSession);
+
+        await PatchAvailabilityDocument(documentId, [.. extantSessions], site, dayDocument, false);
+
+        return new SessionInstance(dayDocument.Date.ToDateTime(session.From),
+            dayDocument.Date.ToDateTime(session.Until))
+        {
+            Services = session.Services, SlotLength = session.SlotLength, Capacity = session.Capacity,
+        };
     }
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
@@ -77,40 +114,10 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
         await PatchAvailabilityDocument(documentId, patchedSessions, site, dayDocument, false);
     }
 
-    public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
+    private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions,
+        string site)
     {
-        var docType = documentStore.GetDocumentType();
-        return await documentStore.RunQueryAsync<DailyAvailability>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
-    }
-
-    public async Task<SessionInstance> CancelSession(string site, DateOnly date, Session session)
-    {
-        var documentId = date.ToString("yyyyMMdd");
-        var dayDocument = await GetOrDefaultAsync(documentId, site);
-        var extantSessions = dayDocument.Sessions.ToList();
-
-        var firstMatchingSession = FindMatchingSession(extantSessions, session);
-        if (firstMatchingSession is null)
-        {
-            throw new InvalidOperationException(
-                "The requested Session to cancel could not be found in the sessions for that day.");
-        }
-
-        extantSessions.Remove(firstMatchingSession);
-
-        await PatchAvailabilityDocument(documentId, [.. extantSessions], site, dayDocument, false);
-
-        return new SessionInstance(dayDocument.Date.ToDateTime(session.From), dayDocument.Date.ToDateTime(session.Until))
-        {
-            Services = session.Services,
-            SlotLength = session.SlotLength,
-            Capacity = session.Capacity,
-        };
-    }
-
-    private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions, string site)
-    {
-        var document = new DailyAvailabilityDocument()
+        var document = new DailyAvailabilityDocument
         {
             Date = date,
             DocumentType = documentType,
@@ -137,7 +144,7 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
             await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
         }
     }
-    
+
     private async Task<DailyAvailabilityDocument> GetOrDefaultAsync(string documentId, string partitionKey)
     {
         return await documentStore.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(documentId, partitionKey);
@@ -146,10 +153,10 @@ public class AvailabilityDocumentStore(ITypedDocumentCosmosStore<DailyAvailabili
     private static Session FindMatchingSession(List<Session> sessions, Session sessionToMatch)
     {
         return sessions.FirstOrDefault(session =>
-                session.From == sessionToMatch.From
-                && session.Until == sessionToMatch.Until
-                && session.Services.SequenceEqual(sessionToMatch.Services)
-                && session.SlotLength == sessionToMatch.SlotLength
-                && session.Capacity == sessionToMatch.Capacity);
+            session.From == sessionToMatch.From
+            && session.Until == sessionToMatch.Until
+            && session.Services.SequenceEqual(sessionToMatch.Services)
+            && session.SlotLength == sessionToMatch.SlotLength
+            && session.Capacity == sessionToMatch.Capacity);
     }
 }

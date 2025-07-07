@@ -1,19 +1,9 @@
 using FluentAssertions;
-using Newtonsoft.Json;
 
 namespace CosmosDbSeederTests;
 
-public class GlobalRolesTests
+public class GlobalRolesTests : BaseCosmosDbSeederTest
 {
-    private static GlobalRolesDocument ReadGlobalRoles(string environment)
-    {
-        var globalRoles = JsonConvert.DeserializeObject<GlobalRolesDocument>(File.ReadAllText(Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            $"items/{environment}/core_data/global_roles.json")));
-
-        return globalRoles ?? throw new Exception($"Could not read global_roles.json from {environment} environment");
-    }
-
     [Fact]
     public void GlobalRolesShouldBeTheSameInEachEnvironment()
     {
@@ -37,7 +27,8 @@ public class GlobalRolesTests
     [Fact(DisplayName = "APPT-802: Admin User roles should include user manager")]
     public void AdminUserRolesShouldIncludeManageUsers()
     {
-        var adminRoles = ReadGlobalRoles("local").Roles.Single(role => role.Id == "system:admin-user");
+        var adminRoles = ReadDocument<GlobalRolesDocument>("local").Roles
+            .Single(role => role.Id == "system:admin-user");
 
         adminRoles.Permissions.Should().Contain("users:manage");
     }

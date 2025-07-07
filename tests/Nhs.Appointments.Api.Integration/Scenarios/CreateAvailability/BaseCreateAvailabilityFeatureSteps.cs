@@ -13,7 +13,7 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
+public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabled) : AuditFeatureSteps(flag, enabled)
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
@@ -34,8 +34,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         var actualAvailabilityCreatedEvents = await GetActualAvailabilityCreatedEvents();
 
         actualAvailabilityCreatedEvents.Should().BeEquivalentTo(_expectedAvailabilityCreatedEvents,
-            options => options.Excluding(
-                x => x.Created));
+            options => options.Excluding(x => x.Created));
     }
 
     private void PopulateExpectedAvailabilityCreatedEventsFromTable(DataTable dataTable)
@@ -51,7 +50,9 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             var type = cells.ElementAt(0).Value;
             var by = cells.ElementAt(1).Value;
             var fromDate = ParseNaturalLanguageDateOnly(cells.ElementAt(2).Value);
-            var toDate = string.IsNullOrWhiteSpace(cells.ElementAt(3).Value) ? default : ParseNaturalLanguageDateOnly(cells.ElementAt(3).Value);
+            var toDate = string.IsNullOrWhiteSpace(cells.ElementAt(3).Value)
+                ? default
+                : ParseNaturalLanguageDateOnly(cells.ElementAt(3).Value);
             var templateDays = DeriveWeekDaysInRange(fromDate, toDate);
             var fromTime = cells.ElementAt(5).Value;
             var untilTime = cells.ElementAt(6).Value;
@@ -59,7 +60,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             var capacity = cells.ElementAt(8).Value;
             var services = cells.ElementAt(9).Value;
 
-            var session = new Session()
+            var session = new Session
             {
                 From = TimeOnly.Parse(fromTime),
                 Until = TimeOnly.Parse(untilTime),
@@ -69,13 +70,10 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             };
 
             var template = type == "Template"
-                ? new Template()
-                {
-                    Days = ParseDays(templateDays),
-                    Sessions = [session]
-                } : null;
+                ? new Template { Days = ParseDays(templateDays), Sessions = [session] }
+                : null;
 
-            var expectedEvent = new AvailabilityCreatedEvent()
+            var expectedEvent = new AvailabilityCreatedEvent
             {
                 Created = DateTime.UtcNow,
                 By = by,
@@ -122,7 +120,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
                 days = ParseDays(days),
                 sessions = new[]
                 {
-                    new {
+                    new
+                    {
                         from = cells.ElementAt(3).Value,
                         until = cells.ElementAt(4).Value,
                         slotLength = int.Parse(cells.ElementAt(5).Value),
@@ -135,7 +134,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         };
 
         var payload = JsonResponseWriter.Serialize(request);
-        _response = await Http.PostAsync($"http://localhost:7071/api/availability/apply-template", new StringContent(payload));
+        _response = await Http.PostAsync("http://localhost:7071/api/availability/apply-template",
+            new StringContent(payload));
         _statusCode = _response.StatusCode;
     }
 
@@ -152,7 +152,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             site = GetSiteId(),
             sessions = new[]
             {
-                new {
+                new
+                {
                     from = cells.ElementAt(1).Value,
                     until = cells.ElementAt(2).Value,
                     slotLength = int.Parse(cells.ElementAt(3).Value),
@@ -203,7 +204,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
         _statusCode = _response.StatusCode;
     }
-    
+
     [Then("the request is successful and the following daily availability sessions are created")]
     public async Task AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
     {
@@ -211,7 +212,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         var site = GetSiteId();
         var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
         var container = Client.GetContainer("appts", "booking_data");
-        var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container, d => d.DocumentType == "daily_availability" && d.Site == site);
+        var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container,
+            d => d.DocumentType == "daily_availability" && d.Site == site);
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }

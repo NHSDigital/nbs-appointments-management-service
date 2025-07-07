@@ -56,5 +56,35 @@ namespace Nhs.Appointments.Persistance.UnitTests
             _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.Is<string>(d => d.Equals("user")), It.IsAny<string>(), It.IsAny<PatchOperation[]>()));
         }
+
+        [Fact]
+        public async Task UpdateUserRegionPermissions_UpdatesUserDocument()
+        {
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [new() { Role = "system:regional-user", Scope = "region:Test" }]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = "system:regional-user", Scope = "region:Test" }]);
+
+            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>("test.user@nhs.net"), Times.Once);
+            _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), "test.user@nhs.net", It.IsAny<PatchOperation[]>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateUserRegionPermissions_AddNewUser()
+        {
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()))
+                .ReturnsAsync(null as Core.User);
+
+            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = "system:regional-user", Scope = "region:Test" }]);
+
+            _cosmosStore.Verify(x => x.WriteAsync(It.IsAny<UserDocument>()), Times.Once);
+            _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+        }
     }
 }

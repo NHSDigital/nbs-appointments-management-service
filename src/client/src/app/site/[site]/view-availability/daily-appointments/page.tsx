@@ -3,6 +3,7 @@ import {
   assertPermission,
   fetchPermissions,
   fetchSite,
+  fetchClinicalServices,
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
@@ -34,9 +35,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: params.site,
   };
 
-  const [site, bookings] = await Promise.all([
+  const [site, bookings, clinicalServices] = await Promise.all([
     fetchSite(params.site),
     fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled']),
+    fetchClinicalServices(),
   ]);
 
   const scheduledBookings = bookings.filter(
@@ -75,6 +77,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
             bookings={scheduledBookings}
             site={site.id}
             displayAction={canCancelBookings}
+            clinicalServices={clinicalServices}
           />
         </Tab>
         <Tab title="Cancelled">
@@ -82,6 +85,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
             bookings={cancelledBookings}
             site={site.id}
             displayAction={false}
+            clinicalServices={clinicalServices}
           />
         </Tab>
         <Tab title="Manual Cancellations">
@@ -90,6 +94,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
             site={site.id}
             displayAction={canCancelBookings}
             message={orphanedMessage}
+            clinicalServices={clinicalServices}
           />
         </Tab>
       </Tabs>

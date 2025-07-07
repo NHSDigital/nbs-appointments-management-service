@@ -1,7 +1,7 @@
-using Nbs.MeshClient;
-using Microsoft.Extensions.Options;
-using Nbs.MeshClient.Auth;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Nbs.MeshClient;
+using Nbs.MeshClient.Auth;
 
 namespace DataExtract;
 public class DataExtractWorker<TExtractor>(
@@ -11,7 +11,7 @@ public class DataExtractWorker<TExtractor>(
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
     TExtractor dataExtract,
-    IOptions<FileNameOptions> fileOptions
+    IOptions<FileOptions> fileOptions
     ) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -20,6 +20,12 @@ public class DataExtractWorker<TExtractor>(
         {
             var outputFile = new FileInfo(GenerateFileName());
             await dataExtract.RunAsync(outputFile);
+
+            if (fileOptions.Value.CreateSampleFile)
+            {
+                WriteFileLocally(outputFile);
+            }
+
             await SendViaMesh(outputFile);
         }
         catch (Exception ex)
@@ -32,6 +38,9 @@ public class DataExtractWorker<TExtractor>(
             hostApplicationLifetime.StopApplication();
         }
     }
+
+    private void WriteFileLocally(FileInfo outputFile) =>
+        outputFile.CopyTo($"{fileOptions.Value.FileName}-sample.parquet", true);
 
     private async Task SendViaMesh(FileInfo fileToSend)
     {

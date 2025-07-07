@@ -393,5 +393,24 @@ namespace Nhs.Appointments.Core.UnitTests
             identityStatus.ExtantInIdentityProvider.Should().BeTrue();
             identityStatus.MeetsWhitelistRequirements.Should().BeTrue();
         }
+
+        [Fact]
+        public async Task UpdateUserRoles_DoesNotCallMessageBus_WhenSendNotificationsIsFalse()
+        {
+            const string userId = "user1";
+            const string scope = "site:some-site";
+            RoleAssignment[] newRoles = [new RoleAssignment { Role = "role1", Scope = scope }];
+            IEnumerable<Role> databaseRoles = [new Role { Id = "role1" }];
+
+            _userStore.Setup(x => x.GetOrDefaultAsync(userId)).Returns(Task.FromResult<User>(new User { Id = userId }));
+            _userStore.Setup(x => x.UpdateUserRoleAssignments(userId, scope, It.IsAny<IEnumerable<RoleAssignment>>()))
+                .Returns(Task.FromResult<RoleAssignment[]>([new RoleAssignment { Role = "someoldrole", Scope = scope }]));
+            _rolesStore.Setup(x => x.GetRoles()).Returns(Task.FromResult(databaseRoles));
+            _messageBus.Setup(x => x.Send(It.Is<UserRolesChanged>(e => e.AddedRoleIds.Contains(newRoles[0].Role)))).Verifiable();
+
+            await _sut.UpdateUserRoleAssignmentsAsync(userId, scope, newRoles, false);
+
+            _messageBus.Verify(x => x.Send(It.IsAny<object>()), Times.Never);
+        }
     }
 }

@@ -37,7 +37,8 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                     site.ICB,
                     site.Region,
                     site.Location,
-                    site.Accessibilities);
+                    site.Accessibilities,
+                    site.Type);
             }
             catch (Exception ex)
             {
@@ -60,7 +61,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 
         if (invalidIcbCodes.Count > 0)
         {
-            report.AddRange(invalidIcbCodes.Select(icb => new ReportItem(-1, "Invalid ICB code", false, $"Provided site ICB code: {icb} not found in the well known ICB code list.")));
+            report.AddRange(invalidIcbCodes.Select(icb => new ReportItem(-1, "Invalid ICB code", false, $"Provided site ICB code: '{icb}' not found in the well known ICB code list.")));
         }
 
         var regions = wellKnownOdsCodes.Where(x => x.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase)).Select(x => x.OdsCode.ToLower()).ToList();
@@ -71,7 +72,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 
         if (invalidRegions.Count > 0)
         {
-            report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: {reg} not found in the well known Region list.")));
+            report.AddRange(invalidRegions.Select(reg => new ReportItem(-1, "Invalid Region", false, $"Provided region: '{reg}' not found in the well known Region list.")));
         }
     }
 
@@ -83,7 +84,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 
         if (duplicateIds.Count > 0)
         {
-            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: {dup}. SiteIds must be unique.")));
+            report.AddRange(duplicateIds.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site Id provided: '{dup}'. SiteIds must be unique.")));
         }
 
         var duplicateSiteNames = siteRows.GroupBy(s => s.Name)
@@ -92,7 +93,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 
         if (duplicateSiteNames.Count > 0)
         {
-            report.AddRange(duplicateSiteNames.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site name provided: {dup}. Site names must be unique.")));
+            report.AddRange(duplicateSiteNames.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site name provided: '{dup}'. Site names must be unique.")));
         }
     }
 
@@ -110,7 +111,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 
         if (existingSiteIds.Count > 0)
         {
-            report.AddRange(existingSiteIds.Select(id => new ReportItem(-1, "Site already exists", false, $"Site with ID: {id} already exists in the system.")));
+            report.AddRange(existingSiteIds.Select(id => new ReportItem(-1, "Site already exists", false, $"Site with ID: '{id}' already exists in the system.")));
         }
     }
 
@@ -123,6 +124,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         public string OdsCode { get; set; }
         public string Region { get; set; }
         public string ICB { get; set; }
+        public string Type { get; set; }
         public Location Location { get; set; }
         public IEnumerable<Accessibility> Accessibilities { get; set; }
     }

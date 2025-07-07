@@ -5,13 +5,13 @@ using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class ScheduledBookingRemindersFunction(IBookingsService bookingService)
+public class ScheduledBookingRemindersFunction(IBookingWriteService bookingWriteService)
 {
     [Function("SendBookingReminders")]
     [AllowAnonymous]
     public Task SendBookingRemindersAsync([TimerTrigger("%BookingRemindersCronSchedule%")] TimerInfo timerInfo)
     {
-        return bookingService.SendBookingReminders();
+        return bookingWriteService.SendBookingReminders();
     }     
 }
 

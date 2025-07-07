@@ -8,7 +8,7 @@ parameters:
     displayName: "Environment to import data into"
     type: string
     default: ""
-    values: ["dev", "int", "stag"]
+    values: ["dev", "int", "stag", "prod"]
   - name: csvFileName
     displayName: "Filename of the CSV file to import"
     type: string
@@ -88,4 +88,3 @@ stages:
           - pwsh: |
               Write-Host "##vso[task.uploadsummary]$(Build.SourcesDirectory)/data_import_summary.md"
             displayName: "Attach data import summary report"
-            

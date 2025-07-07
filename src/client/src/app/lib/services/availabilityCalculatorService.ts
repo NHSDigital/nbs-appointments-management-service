@@ -22,9 +22,11 @@ import {
   Booking,
   DailyAvailability,
   DaySummary,
+  DaySummaryV2,
   SessionSummary,
   TimeComponents,
   WeekSummary,
+  WeekSummaryV2,
 } from '@types';
 
 export const summariseWeek = async (
@@ -94,6 +96,28 @@ export const summariseWeek = async (
   );
 
   return weekSummary;
+};
+
+export const mapWeekSummary = (
+  ukWeekStart: DayJsType,
+  ukWeekEnd: DayJsType,
+  weekSummaryV2: WeekSummaryV2,
+): WeekSummary => {
+  return {
+    ...weekSummaryV2,
+    startDate: ukWeekStart,
+    endDate: ukWeekEnd,
+    daySummaries: mapDaySummaries(weekSummaryV2.daySummaries),
+  };
+};
+
+const mapDaySummaries = (daySummaries: DaySummaryV2[]): DaySummary[] => {
+  return daySummaries.map(daySummaryV2 => {
+    return {
+      ...daySummaryV2,
+      ukDate: parseToUkDatetime(daySummaryV2.date),
+    };
+  });
 };
 
 const summariseDay = (

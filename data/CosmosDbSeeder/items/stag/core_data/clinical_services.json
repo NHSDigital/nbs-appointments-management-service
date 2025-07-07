@@ -1,50 +1,42 @@
 {
-    "id": "clinical_services",
-    "docType": "system",
-    "services": [
-        {
-            "id": "RSV:Adult",
-            "label": "RSV Adult"
-        },
-        {
-            "id": "COVID:5_11",
-            "label": "COVID 5-11"
-        },
-        {
-            "id": "COVID:12_17",
-            "label": "COVID 12-17"
-        },
-        {
-            "id": "COVID:18_74",
-            "label": "COVID 18-74"
-        },
-        {
-            "id": "COVID:75",
-            "label": "COVID 75+"
-        },
-        {
-            "id": "FLU:2_3",
-            "label": "Flu 2-3"
-        },
-        {
-            "id": "FLU:18_64",
-            "label": "Flu 18-64"
-        },
-        {
-            "id": "FLU:65",
-            "label": "Flu 65+"
-        },
-        {
-            "id": "COVID_FLU:18_64",
-            "label": "Flu and COVID 18-64"
-        },
-        {
-            "id": "COVID_FLU:65_74",
-            "label": "Flu and COVID 65-74"
-        },
-        {
-            "id": "COVID_FLU:75",
-            "label": "Flu and COVID 75+"
-        }
-    ]
+  "id": "clinical_services",
+  "docType": "system",
+  "services": [
+    {
+      "id": "RSV:Adult",
+      "label": "RSV Adult"
+    },
+    {
+      "id": "COVID:5_11",
+      "label": "COVID 5-11"
+    },
+    {
+      "id": "COVID:12_17",
+      "label": "COVID 12-17"
+    },
+    {
+      "id": "COVID:18+",
+      "label": "COVID 18+"
+    },
+    {
+      "id": "FLU:18_64",
+      "label": "Flu 18-64"
+    },
+    {
+      "id": "FLU:65+",
+      "label": "Flu 65+"
+    },
+    {
+      "id": "COVID_FLU:18_64",
+      "label": "Flu and COVID 18-64"
+    },
+    {
+      "id": "COVID_FLU:65+",
+      "label": "Flu and COVID 65+"
+    },
+    {
+      "id": "FLU:2_3",
+      "label": "Flu 2-3"
+    }
+  ]
 }

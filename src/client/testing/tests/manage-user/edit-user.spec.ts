@@ -89,7 +89,6 @@ test('Verify all roles cannot be removed from existing account', async ({
   // TODO: Use seed data instead!
   await usersPage.addUserButton.click();
 
-  await usersPage.addUserButton.click();
   await page.waitForURL(`**/site/${getTestSite().id}/users/manage`);
 
   await expect(manageUserPage.emailStep.title).toBeVisible();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,17 +11,42 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 
-public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
+public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private QueryAvailabilityResponse _actualResponse;
 
-    protected HttpResponseMessage Response => _response;
-    protected HttpStatusCode StatusCode => _statusCode;
-    protected QueryAvailabilityResponse ActualReponse => _actualResponse;
+    private HttpStatusCode StatusCode => _statusCode;
+    private QueryAvailabilityResponse ActualResponse => _actualResponse;
+    
+    [Then(@"the following daily availability is returned")]
+    public void AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
+    {
+        var expectedAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
+        (
+            ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
+            new List<QueryAvailabilityResponseBlock>()
+            {
+                new (new TimeOnly(0,0), new TimeOnly(12,00), int.Parse(row.Cells.ElementAt(1).Value)),
+                new (new TimeOnly(12,0), new TimeOnly(00,00), int.Parse(row.Cells.ElementAt(2).Value)),
+            }
+        ));
 
-    [When(@"I check ([\w:]+) availability for '([\w:]+)' between '(.+)' and '(.+)'")]
+        StatusCode.Should().Be(HttpStatusCode.OK);
+        ActualResponse
+            .First().availability
+            .Should().BeEquivalentTo(expectedAvailability);
+    }
+
+    [Then(@"the request is successful and no availability is returned")]
+    public void AssertNoAvailability()
+    {
+        StatusCode.Should().Be(HttpStatusCode.OK);
+        ActualResponse.Should().BeEmpty();
+    }
+
+    [When(@"I check ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)'")]
     public async Task CheckAvailability(string queryType, string service, string from, string until)
     {
         var convertedQueryType = queryType switch
@@ -62,10 +88,21 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             expectedHourBlocks);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
-        var actualBlocks = _actualResponse
+        _actualResponse
             .Single().availability
             .Single(x => x.date == expectedDate)
             .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
+    }
+    
+    [Then(@"no availability is returned for '(.+)'")]
+    [And(@"no availability is returned for '(.+)'")]
+    public void AssertNoAvailability(string date)
+    {
+        _statusCode.Should().Be(HttpStatusCode.OK);
+        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        _actualResponse
+            .Single().availability
+            .Single(x => x.date == expectedDate).blocks.Should().BeEmpty();
     }
 
     [When(@"I send an invalid availability query request")]

@@ -14,11 +14,10 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle("MultiServiceAvailabilityCalculations", false)]
+[MockedFeatureToggle(Flags.MultipleServices, false)]
 public class CancelSessionFunctionTests : FeatureToggledTests
 {
-    private readonly Mock<IAvailabilityService> _availabilityService = new();
-    private readonly Mock<IBookingsService> _bookingService = new();
+    private readonly Mock<IAvailabilityWriteService> _availabilityWriteService = new();
     private readonly Mock<ILogger<CancelSessionFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
@@ -29,13 +28,11 @@ public class CancelSessionFunctionTests : FeatureToggledTests
     public CancelSessionFunctionTests() : base(typeof(CancelSessionFunctionTests))
     {
         _sut = new CancelSessionFunction(
-            _availabilityService.Object,
-            _bookingService.Object,
+            _availabilityWriteService.Object,
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object);
+            _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelSessionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
@@ -54,7 +51,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
-        _availabilityService.Verify(x => x.CancelSession(
+        _availabilityWriteService.Verify(x => x.CancelSession(
             cancelSessionRequest.Site,
             It.IsAny<DateOnly>(),
             It.IsAny<string>(),
@@ -62,51 +59,6 @@ public class CancelSessionFunctionTests : FeatureToggledTests
             cancelSessionRequest.Services,
             cancelSessionRequest.SlotLength,
             cancelSessionRequest.Capacity), Times.Once());
-        _bookingService.Verify(x => x.RecalculateAppointmentStatuses(
-            cancelSessionRequest.Site,
-            cancelSessionRequest.Date), Times.Once());
-    }
-
-    [Fact]
-    public async Task RunAsync_UsesOldMethodIfMultiServiceAvailabilityCalculationsAreDisabled()
-    {
-        var cancelSessionRequest = new CancelSessionRequest(
-            "TEST01",
-            new DateOnly(2025, 1, 10),
-            "09:00",
-            "12:00",
-            ["RSV:Adult"], 5, 2);
-
-        var request = BuildRequest(cancelSessionRequest);
-
-        _ = await _sut.RunAsync(request) as ContentResult;
-
-        _bookingService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
-        _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
-    }
-
-    [Fact]
-    public async Task RunAsync_UsesNewMethodIfMultiServiceAvailabilityCalculationsAreEnabled()
-    {
-        Toggle(Flags.MultipleServices, true);
-
-        var cancelSessionRequest = new CancelSessionRequest(
-            "TEST01",
-            new DateOnly(2025, 1, 10),
-            "09:00",
-            "12:00",
-            ["RSV:Adult"], 5, 2);
-
-        var request = BuildRequest(cancelSessionRequest);
-
-        _ = await _sut.RunAsync(request) as ContentResult;
-
-        _bookingService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Never);
-        _availabilityService.Verify(
-            x => x.RecalculateAppointmentStatuses(cancelSessionRequest.Site, cancelSessionRequest.Date), Times.Once);
     }
 
     private static HttpRequest BuildRequest(CancelSessionRequest requestBody)

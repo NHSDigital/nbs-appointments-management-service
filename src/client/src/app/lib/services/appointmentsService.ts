@@ -26,6 +26,7 @@ import {
   clinicalServices,
   BookingStatus,
   UserIdentityStatus,
+  WeekSummaryV2,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -429,6 +430,14 @@ export const fetchDailyAvailability = async (
 ) => {
   const response = await appointmentsApi.get<DailyAvailability[]>(
     `daily-availability?site=${site}&from=${from}&until=${until}`,
+  );
+
+  return handleBodyResponse(response);
+};
+
+export const fetchWeekSummaryV2 = async (site: string, from: string) => {
+  const response = await appointmentsApi.get<WeekSummaryV2>(
+    `week-summary?site=${site}&from=${from}`,
   );
 
   return handleBodyResponse(response);

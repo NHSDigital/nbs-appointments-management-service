@@ -4,6 +4,7 @@ import {
   Button,
   CheckBox,
   CheckBoxes,
+  CheckBoxOrAll,
   FormGroup,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
@@ -74,12 +75,12 @@ const SelectServicesStep = ({
 
       <FormGroup error={errors.session?.services?.message}>
         <CheckBoxes>
-          {clinicalServices.map(service => (
+          {clinicalServices.map(clinicalService => (
             <CheckBox
-              id={`checkbox-${service.value.toLowerCase()}`}
-              label={service.label}
-              value={[service.value]}
-              key={`checkbox-${service.value.toLowerCase()}`}
+              id={`checkbox-${clinicalService.value}`}
+              label={clinicalService.label}
+              value={clinicalService.value}
+              key={`checkbox-${clinicalService.value}`}
               {...register('session.services', {
                 validate: value => {
                   if (value === undefined || value.length < 1) {
@@ -88,16 +89,14 @@ const SelectServicesStep = ({
                 },
               })}
               onChange={() => {
-                if ((servicesWatch ?? []).includes(service.value)) {
+                if ((servicesWatch ?? []).includes(clinicalService.value)) {
                   setValue(
                     'session.services',
-                    clinicalServices
-                      .filter(s => s.value !== service.value)
-                      .map(_ => _.value),
+                    servicesWatch.filter(d => d !== clinicalService.value),
                   );
                 } else {
                   setValue('session.services', [
-                    service.value,
+                    clinicalService.value,
                     ...(servicesWatch ?? []),
                   ]);
                 }
@@ -107,6 +106,30 @@ const SelectServicesStep = ({
               }}
             />
           ))}
+          {clinicalServices.length > 1 && (
+            <>
+              <CheckBoxOrAll />
+              <CheckBox
+                label={'Select all services'}
+                value={clinicalServices.map(_ => _.value)}
+                id={'allServices'}
+                checked={servicesWatch?.length == clinicalServices.length}
+                onChange={() => {
+                  if (servicesWatch?.length == clinicalServices.length) {
+                    setValue('session.services', []);
+                  } else {
+                    setValue(
+                      'session.services',
+                      clinicalServices.map(_ => _.value),
+                    );
+                  }
+                  if (errors.session?.services) {
+                    trigger('session.services');
+                  }
+                }}
+              />
+            </>
+          )}
         </CheckBoxes>
       </FormGroup>
       <Button

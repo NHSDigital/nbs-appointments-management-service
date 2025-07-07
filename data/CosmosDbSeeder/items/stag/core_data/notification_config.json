@@ -9,97 +9,97 @@
       "eventType": "UserRolesChanged"
     },
     {
-      "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
+      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
       "emailTemplate": "d34d6234-27ce-4e27-829c-b41d6d2eead4",
       "smsTemplate": "b0d985f8-a068-4bb5-9f26-d2520d3c809e",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "FLU:18_64", "FLU:65" ],
+      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
       "emailTemplate": "5c95148c-d665-4f47-92a0-4548e4b114ab",
       "smsTemplate": "6bb0d711-ea4e-49a9-9b69-25af30ad4074",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID_FLU:18_64", "COVID_FLU:65_74", "COVID_FLU:75" ],
+      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
       "emailTemplate": "cdfe56d9-8478-4b06-809e-5e75ace569c1",
       "smsTemplate": "87f81bd0-7860-4424-82f3-6ec8e5e04c37",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "RSV:Adult" ],
+      "services": ["RSV:Adult"],
       "emailTemplate": "a89c6a69-2c7f-422a-9420-db581517c823",
       "smsTemplate": "3f493a78-0ee9-44f1-aff6-fd484f94d1ff",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
+      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
       "emailTemplate": "0d3126b2-1db2-4f7c-9ea7-f734dc699b42",
       "smsTemplate": "acc62fb6-389f-4786-b685-b8ed126a3ea5",
       "eventType": "BookingReminder"
     },
     {
-      "services": [ "FLU:18_64", "FLU:65" ],
+      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
       "emailTemplate": "61371ce6-59ae-4d53-8c2d-18c0b92cc592",
       "smsTemplate": "1be8b191-3de5-4205-9028-7814864ad887",
       "eventType": "BookingReminder"
     },
     {
-      "services": [ "COVID_FLU:18_64", "COVID_FLU:65_74", "COVID_FLU:75" ],
+      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
       "emailTemplate": "005c6708-e82e-4eb2-b806-3a7fd951164a",
       "smsTemplate": "e6934c4b-9fb5-403b-b4be-efeb1dcedc7d",
       "eventType": "BookingReminder"
     },
     {
-      "services": [ "RSV:Adult" ],
+      "services": ["RSV:Adult"],
       "emailTemplate": "c51af46c-bd1d-448d-8d3e-7abe8f2e6ca8",
       "smsTemplate": "338c19e6-d9c8-4e85-910b-e81b7b6ff8b5",
       "eventType": "BookingReminder"
     },
     {
-      "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
+      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
       "emailTemplate": "bd0e95d1-8adf-4b5e-8abd-d02f11281b18",
       "smsTemplate": "0c08601c-e42d-4b0e-b23e-262b7ca9c793",
       "eventType": "BookingCancelled"
     },
     {
-      "services": [ "FLU:18_64", "FLU:65" ],
+      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
       "emailTemplate": "eb4a32c1-0839-47bf-878a-5b8ae77d6560",
       "smsTemplate": "5320797b-3f5e-4dc0-afe1-d7613c721939",
       "eventType": "BookingCancelled"
     },
     {
-      "services": [ "COVID_FLU:18_64", "COVID_FLU:65_74", "COVID_FLU:75" ],
+      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
       "emailTemplate": "5de858aa-3c15-48a8-845e-57e9f41ddac4",
       "smsTemplate": "1b57a890-2953-4c3a-a13e-dd35da9f406f",
       "eventType": "BookingCancelled"
     },
     {
-      "services": [ "RSV:Adult" ],
+      "services": ["RSV:Adult"],
       "emailTemplate": "c2176f0f-21f9-4094-86d6-c592fb685015",
       "smsTemplate": "5cddbebe-0905-41ab-acc6-1c8011e496c7",
       "eventType": "BookingCancelled"
     },
     {
-      "services": [ "COVID:12_15", "COVID:16_17", "COVID:18_74", "COVID:5_11", "COVID:75" ],
+      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
       "emailTemplate": "88aa1820-ffb5-41c5-b997-f2e566f50c6e",
       "smsTemplate": "deeaddb6-3255-46fd-a5a1-3c98af05e6d8",
       "eventType": "BookingRescheduled"
     },
     {
-      "services": [ "FLU:18_64", "FLU:65" ],
+      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
       "emailTemplate": "413d1010-095b-4c33-b2bc-c44ea554765e",
       "smsTemplate": "f17ce7a1-84f3-4458-9748-ff68945b750c",
       "eventType": "BookingRescheduled"
     },
     {
-      "services": [ "COVID_FLU:18_64", "COVID_FLU:65_74", "COVID_FLU:75" ],
+      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
       "emailTemplate": "3bcd14e5-f9f7-4b3d-901b-5fb4c40fc789",
       "smsTemplate": "8293edf5-6a91-4458-b374-6d9970773b01",
       "eventType": "BookingRescheduled"
     },
     {
-      "services": [ "RSV:Adult" ],
+      "services": ["RSV:Adult"],
       "emailTemplate": "6fc813a9-1c8e-40a1-adab-e207719887dd",
       "smsTemplate": "dd254efe-2d1a-4b1a-84b5-ebd8a56127b0",
       "eventType": "BookingRescheduled"

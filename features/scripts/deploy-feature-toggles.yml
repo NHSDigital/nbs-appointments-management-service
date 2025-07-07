@@ -25,9 +25,9 @@ stages:
           - task: AzureCLI@2
             displayName: "Apply Feature Toggles"
             inputs:
-              ${{ if ne(env, 'perf') }}:
+              ${{ if ne(parameters.env, 'perf') }}:
                 azureSubscription: "nbs-mya-rg-${{parameters.env}}"
-              ${{ if ne(env, 'perf') }}:
+              ${{ if eq(parameters.env, 'perf') }}:
                 azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
               scriptType: pscore
               scriptLocation: scriptPath

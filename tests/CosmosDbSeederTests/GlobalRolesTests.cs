@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Newtonsoft.Json;
 
 namespace CosmosDbSeederTests;
 
@@ -22,6 +23,15 @@ public class GlobalRolesTests : BaseCosmosDbSeederTest
         localGlobalRoles.Roles =
             localGlobalRoles.Roles.Where(role => role.Id != "system:integration-test-user").ToArray();
         localGlobalRoles.Should().BeEquivalentTo(devGlobalRoles);
+    }
+    
+    private static GlobalRolesDocument ReadGlobalRoles(string environment)
+    {
+        var globalRoles = JsonConvert.DeserializeObject<GlobalRolesDocument>(File.ReadAllText(Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            $"items/{environment}/core_data/global_roles.json")));
+
+        return globalRoles ?? throw new Exception($"Could not read global_roles.json from {environment} environment");
     }
 
     [Fact(DisplayName = "APPT-802: Admin User roles should include user manager")]

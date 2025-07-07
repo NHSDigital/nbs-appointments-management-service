@@ -92,7 +92,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
                 RemainingCapacity = int.Parse(row.Cells.ElementAt(1).Value),
                 BookedAppointments = int.Parse(row.Cells.ElementAt(2).Value),
                 OrphanedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
-                CancelledAppointments = int.Parse(row.Cells.ElementAt(4).Value),
             };
 
             _statusCode.Should().Be(HttpStatusCode.OK);

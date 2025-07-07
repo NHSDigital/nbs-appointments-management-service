@@ -531,7 +531,6 @@ const mockWeekSummary: WeekSummary = {
   daySummaries: mockWeekAvailability__Summary,
   maximumCapacity: 480,
   bookedAppointments: 4,
-  cancelledAppointments: 1,
   orphanedAppointments: 1,
   remainingCapacity: 476,
 };
@@ -540,7 +539,6 @@ const mockWeekSummaryV2: WeekSummaryV2 = {
   daySummaries: mockWeekAvailability__Summary__V2,
   maximumCapacity: 480,
   bookedAppointments: 4,
-  cancelledAppointments: 1,
   orphanedAppointments: 1,
   remainingCapacity: 476,
 };

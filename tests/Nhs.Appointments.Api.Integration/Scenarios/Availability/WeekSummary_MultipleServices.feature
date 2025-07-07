@@ -63,8 +63,8 @@
       | Next Sunday    | 09:20 | 10        | FLU-B   |
     When I query week summary for the current site on 'Next Monday'
     Then the following week summary metrics are returned
-      | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
-      | 168              | 147                | 21                  | 7                     | 0                      |
+      | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments |
+      | 168              | 147                | 21                  | 7                     |
     And the following day summary metrics are returned
       | Date             | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
       | Next Monday      | 24               | 21                 | 3                   | 1                     | 0                      |

@@ -23,7 +23,6 @@ const emptyWeekSummary: WeekSummary = {
   maximumCapacity: 0,
   bookedAppointments: 0,
   orphanedAppointments: 0,
-  cancelledAppointments: 0,
   remainingCapacity: 0,
   startDate: {} as DayJsType,
   endDate: {} as DayJsType,

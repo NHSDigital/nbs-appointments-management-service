@@ -56,11 +56,12 @@ public class SiteImportRowValidator : AbstractValidator<SiteDocument>
         RuleFor(x => x.Type)
             .MustNotBeEmpty()
             .Must(value => _validSiteTypes.Contains(value))
-            .WithMessage("{CollectionIndex}: {PropertyName} must be Pharmacy");
+            .WithMessage(
+                $"{{CollectionIndex}}: {{PropertyName}} must be one of the following: {string.Join(", ", _validSiteTypes)}");
 
         RuleFor(x => x.Accessibilities)
-            .SetValidator(new AccessibilityAttributesValidator())
-            .WithMessage("{CollectionIndex}: All 9 accessibility attributes must be provided");
+            .SetValidator(new AccessibilityAttributesValidator());
+
     }
 }
 
@@ -68,7 +69,8 @@ public class AccessibilityAttributesValidator : AbstractValidator<Accessibility[
 {
     public AccessibilityAttributesValidator()
     {
-        RuleFor(x => x.Length).Equal(9);
+        RuleFor(x => x.Length).Equal(9)
+            .WithMessage("{CollectionIndex}: All 9 accessibility attributes must be provided");
         RuleFor(x => x).Must(x =>
         {
             var accessibilityAttributeIds = x.Select(a => a.Id).ToArray();
@@ -82,8 +84,9 @@ public class AccessibilityAttributesValidator : AbstractValidator<Accessibility[
                 accessibilityAttributeIds.Contains("accessibility/step_free_access") &&
                 accessibilityAttributeIds.Contains("accessibility/text_relay") &&
                 accessibilityAttributeIds.Contains("accessibility/wheelchair_access");
-        });
+        }).WithMessage("{CollectionIndex}: All 9 accessibility attributes must be provided");
 
-        RuleForEach(x => x).Must(y => bool.TryParse(y.Value, out _));
+        RuleForEach(x => x).Must(y => bool.TryParse(y.Value, out _))
+            .WithMessage("{CollectionIndex}: Accessibility attributes must hold the value True or False");
     }
 }

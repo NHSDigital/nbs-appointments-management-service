@@ -47,7 +47,7 @@ test.describe.configure({ mode: 'serial' });
         await oAuthPage.signIn();
 
         await expect(rootPage.logOutButton).toBeVisible();
-        await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
+        await expect(siteSelectionPage.title).toBeVisible();
       });
 
       test('User visits the site origin, signs in, then signs out again', async ({
@@ -62,7 +62,7 @@ test.describe.configure({ mode: 'serial' });
         await oAuthPage.signIn();
 
         await expect(rootPage.logOutButton).toBeVisible();
-        await expect(siteSelectionPage.siteSelectionCardHeading).toBeVisible();
+        await expect(siteSelectionPage.title).toBeVisible();
 
         await expect(siteSelectionPage.logOutButton).toBeVisible();
         await siteSelectionPage.logOutButton.click();

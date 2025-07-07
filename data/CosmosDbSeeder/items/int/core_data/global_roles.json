@@ -9,7 +9,7 @@
       "permissions": [
         "availability:setup",
         "availability:query",
-        "booking:list-view",
+        "booking:view-detail",
         "booking:query",
         "site:view",
         "site:view:preview",
@@ -23,7 +23,7 @@
       "permissions": [
         "availability:query",
         "booking:cancel",
-        "booking:list-view",
+        "booking:view-detail",
         "booking:query",
         "site:view",
         "site:view:preview",
@@ -37,7 +37,7 @@
       "permissions": [
         "availability:query",
         "booking:query",
-        "booking:list-view",
+        "booking:view-detail",
         "site:view",
         "site:view:preview",
         "site:manage",
@@ -50,7 +50,7 @@
       "description": "A user can view and manage user role assignments.",
       "permissions": [
         "availability:query",
-        "booking:list-view",
+        "booking:view-detail",
         "booking:query",
         "site:view",
         "site:view:preview",
@@ -65,7 +65,7 @@
       "description": "Admin user can view all areas that exist in MYA.",
       "permissions": [
         "availability:query",
-        "booking:list-view",
+        "booking:view-detail",
         "booking:query",
         "site:view",
         "site:view:preview",
@@ -100,7 +100,7 @@
         "site:get-meta-data",
         "availability:setup",
         "availability:query",
-        "booking:list-view",
+        "booking:view-detail",
         "booking:make",
         "booking:query",
         "booking:cancel",

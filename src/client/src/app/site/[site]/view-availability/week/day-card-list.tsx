@@ -61,7 +61,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   }
 
   const canManageAvailability = permissions.includes('availability:setup');
-  const canViewDailyAppointments = permissions.includes('booking:list-view');
+  const canViewDailyAppointments = permissions.includes('booking:view-detail');
 
   return (
     <ol className="card-list">

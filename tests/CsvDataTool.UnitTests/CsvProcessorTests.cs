@@ -82,19 +82,22 @@ public class CsvProcessorTests
     [Fact]
     public async Task CanReadApiUserData()
     {
+        var mockApiSigningKey =
+            "thisisn'tarealapisigningkeybuttheoftenbe88characterslongandincludesomesymbols@=/=EAfoer2";
+
         string[] inputRows =
         [
-            "test1,ABC123",
-            "test2,DEF345"
+            $"local,{mockApiSigningKey}",
+            $"dev,{mockApiSigningKey}"
         ];
 
         var expectedUserDocuments = new UserDocument[]
         {
             new()
             {
-                Id = "api@test1",
+                Id = "api@local",
                 DocumentType = "user",
-                ApiSigningKey = "ABC123",
+                ApiSigningKey = mockApiSigningKey,
                 LatestAcceptedEulaVersion = DateOnly.MinValue,
                 RoleAssignments =
                 [
@@ -103,9 +106,9 @@ public class CsvProcessorTests
             },
             new()
             {
-                Id = "api@test2",
+                Id = "api@dev",
                 DocumentType = "user",
-                ApiSigningKey = "DEF345",
+                ApiSigningKey = mockApiSigningKey,
                 LatestAcceptedEulaVersion = DateOnly.MinValue,
                 RoleAssignments =
                 [
@@ -139,9 +142,9 @@ public class CsvProcessorTests
         
         string[] inputRows =
         [
-            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
-            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
-            $"\"{id3}\",\"site3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb3\",\"Yorkshire\",,true,,False,\"oranges\",\"YES\",no,true,true,NO",
+            $"\"{id1}\",\"ODS1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"ICB1\",\"Yorkshire\",Pharmacy,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id2}\",\"ODS2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"ICB2\",\"Yorkshire\",Pharmacy,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id3}\",\"ODS3\",\"test site 3\",\"123 test street\",\"01234 567890\",1.0,60.0,\"ICB3\",\"Yorkshire\",Pharmacy,true,,False,\"oranges\",\"YES\",no,true,true,NO"
         ];
 
         var expectedSites = new SiteDocument[]
@@ -149,14 +152,15 @@ public class CsvProcessorTests
             new()
             {
                 Id = id1,
-                OdsCode = "site1",
+                OdsCode = "ODS1",
                 Name = "test site 1",
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
+                Type = "Pharmacy",
                 ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb1",
+                IntegratedCareBoard = "ICB1",
                 Region = "Yorkshire",
                 Accessibilities =
                 [
@@ -174,14 +178,15 @@ public class CsvProcessorTests
             new()
             {
                 Id = id2,
-                OdsCode = "site2",
+                OdsCode = "ODS2",
                 Name = "test site 2",
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
+                Type = "Pharmacy",
                 ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb2",
+                IntegratedCareBoard = "ICB2",
                 Region = "Yorkshire",
                 Accessibilities =
                 [
@@ -199,14 +204,15 @@ public class CsvProcessorTests
             new()
             {
                 Id = id3,
-                OdsCode = "site3",
+                OdsCode = "ODS3",
                 Name = "test site 3",
                 Address = "123 test street",
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
+                Type = "Pharmacy",
                 ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb3",
+                IntegratedCareBoard = "ICB3",
                 Region = "Yorkshire",
                 Accessibilities =
                 [
@@ -353,85 +359,9 @@ public class CsvProcessorTests
         
         string[] inputRows =
         [
-            $"\"{id1}\",\"site1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"test icb1\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO",
-            $"\"{id2}\",\"site2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb2\",\"Yorkshire\",,true,True,False,false,\"YES\",no,true,true,NO"
+            $"\"{id1}\",\"ODS1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"foo\",\"bar\",\"ICB1\",\"Yorkshire\",Pharmacy,true,True,False,false,\"YES\",no,true,true,NO",
+            $"\"{id2}\",\"ODS2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"ICB2\",\"Yorkshire\",Pharmacy,true,True,False,false,\"YES\",no,true,true,NO"
         ];
-
-        var expectedSites = new SiteDocument[]
-        {
-            new()
-            {
-                OdsCode = "site1",
-                Name = "test site 1",
-                Address = "123 test street",
-                PhoneNumber = "01234 567890",
-                Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb1",
-                Region = "Yorkshire",
-                Accessibilities =
-                [
-                    new Accessibility("accessibility/accessible_toilet", "True"),
-                    new Accessibility("accessibility/braille_translation_service", "True"),
-                    new Accessibility("accessibility/disabled_car_parking", "False"),
-                    new Accessibility("accessibility/car_parking", "False"),
-                    new Accessibility("accessibility/induction_loop", "True"),
-                    new Accessibility("accessibility/sign_language_service", "False"),
-                    new Accessibility("accessibility/step_free_access", "True"),
-                    new Accessibility("accessibility/text_relay", "True"),
-                    new Accessibility("accessibility/wheelchair_access", "False")
-                ]
-            },
-            new()
-            {
-                OdsCode = "site2",
-                Name = "test site 2",
-                Address = "123 test street",
-                PhoneNumber = "01234 567890",
-                Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb2",
-                Region = "Yorkshire",
-                Accessibilities =
-                [
-                    new Accessibility("accessibility/accessible_toilet", "True"),
-                    new Accessibility("accessibility/braille_translation_service", "True"),
-                    new Accessibility("accessibility/disabled_car_parking", "False"),
-                    new Accessibility("accessibility/car_parking", "False"),
-                    new Accessibility("accessibility/induction_loop", "True"),
-                    new Accessibility("accessibility/sign_language_service", "False"),
-                    new Accessibility("accessibility/step_free_access", "True"),
-                    new Accessibility("accessibility/text_relay", "True"),
-                    new Accessibility("accessibility/wheelchair_access", "False")
-                ]
-            },
-            new()
-            {
-                OdsCode = "site3",
-                Name = "test site 3",
-                Address = "123 test street",
-                PhoneNumber = "01234 567890",
-                Location = new Location("Point", [1.0, 60.0]),
-                DocumentType = "site",
-                ReferenceNumberGroup = 0,
-                IntegratedCareBoard = "test icb3",
-                Region = "Yorkshire",
-                Accessibilities =
-                [
-                    new Accessibility("accessibility/accessible_toilet", "True"),
-                    new Accessibility("accessibility/braille_translation_service", "False"),
-                    new Accessibility("accessibility/disabled_car_parking", "False"),
-                    new Accessibility("accessibility/car_parking", "False"),
-                    new Accessibility("accessibility/induction_loop", "True"),
-                    new Accessibility("accessibility/sign_language_service", "False"),
-                    new Accessibility("accessibility/step_free_access", "True"),
-                    new Accessibility("accessibility/text_relay", "True"),
-                    new Accessibility("accessibility/wheelchair_access", "False")
-                ]
-            }
-        };
 
         var input = BuildInputCsv(SitesHeader, inputRows);
         var actualSiteDocuments = new List<SiteDocument>();
@@ -441,16 +371,14 @@ public class CsvProcessorTests
             .Callback<SiteDocument, string>((doc, path) => actualSiteDocuments.Add(doc));
 
         var sut = new SiteDataImportHandler(mockFileOperations.Object);
-        var report = await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("out"));
+        var report = (await sut.ProcessFile(new FileInfo("test.csv"), new DirectoryInfo("out"))).ToList();
 
-        actualSiteDocuments.Should().HaveCount(1);
-
-        report.Count().Should().Be(2);
-        report.First().Message
-            .Should().Contain($"CsvHelper.TypeConversion.TypeConverterException: The conversion cannot be performed.")
-            .And.Contain("Text: 'foo'");
-        report.Count(r => r.Success).Should().Be(1);
-        report.Count(r => !r.Success).Should().Be(1);
+        actualSiteDocuments.Should().HaveCount(0);
+        report.Count.Should().Be(2);
+        report.Should()
+            .Contain(reportItem => reportItem.Index == 2 && reportItem.Message == "Latitude must be provided");
+        report.Should()
+            .Contain(reportItem => reportItem.Index == 2 && reportItem.Message == "Longitude must be provided");
     }
     
     private string BuildInputCsv(string header, IEnumerable<string> dataLines)

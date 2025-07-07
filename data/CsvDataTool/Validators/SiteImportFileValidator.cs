@@ -24,7 +24,7 @@ public class SiteImportFileValidator : AbstractValidator<List<SiteDocument>>
                         line.Region,
                         line.Longitude,
                         line.Latitude,
-                        line.InformationForCitizens,
+                        line.IntegratedCareBoard,
                         line.Accessibilities,
                         line.Type
                     })

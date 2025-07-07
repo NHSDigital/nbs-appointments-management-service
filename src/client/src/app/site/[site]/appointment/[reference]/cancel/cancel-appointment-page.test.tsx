@@ -63,8 +63,38 @@ describe('Cancel Appointment Page', () => {
       />,
     );
 
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Yes, I want to cancel this appointment',
+      }),
+    );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(mockCancelBooking).toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/TEST01/view-availability/daily-appointments?date=2024-11-10&tab=1&page=1',
+    );
+  });
+
+  it('does not call the cancel endpoint when a user selects no', async () => {
+    const { user } = render(
+      <CancelAppointmentPage
+        site="TEST01"
+        booking={mockBookings[0]}
+        clinicalServices={clinicalServices}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'No, I do not want to cancel this appointment',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(mockCancelBooking).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/site/TEST01/view-availability/daily-appointments?date=2024-11-10&tab=0&page=1',
+    );
   });
 });

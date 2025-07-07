@@ -7,7 +7,6 @@
 stages:
   - stage: DeployFeatures${{parameters.env}}
     displayName: Deploy Features ${{parameters.env}}
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
     dependsOn: []
     jobs:
       - deployment: ApplyFeatureToggles
@@ -21,8 +20,13 @@ stages:
                 - task: AzureCLI@2
                   displayName: "Apply Feature Toggles"
                   inputs:
-                    azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+                    ${{ if ne(parameters.env, 'dev') }}:
+                      azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+                    ${{ if eq(parameters.env, 'dev') }}:
+                      azureSubscription: "nbs-mya${{parameters.env}}-rg-int"
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-                    arguments: "-appConfigName nbs-mya-config-${{parameters.env}}-uks -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json"
+                    arguments: >
+                      -appConfigName nbs-mya-config-${{parameters.env}}-uks 
+                      -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json

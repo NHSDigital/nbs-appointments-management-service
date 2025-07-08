@@ -243,7 +243,7 @@
 
 .feedback-banner__container {
   margin: 0 16px; /* [1] */
-  max-width: 960px; /* [2] */
+  max-width: 1100px; /* [2] */
   /* [4] */
   padding: 16px 0;
 }

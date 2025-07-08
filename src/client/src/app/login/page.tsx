@@ -5,9 +5,9 @@ import { fetchFeatureFlag } from '@services/appointmentsService';
 import LogInLink from './log-in-link';
 
 export type LoginPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     redirectUrl?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -17,7 +17,9 @@ export const metadata: Metadata = {
 
 const Page = async ({ searchParams }: LoginPageProps) => {
   const oktaEnabledFlag = await fetchFeatureFlag('OktaEnabled');
-  const redirectUrl = searchParams?.redirectUrl ?? '/sites';
+  const params = await searchParams;
+  const redirectUrl = params?.redirectUrl ?? '/sites';
+
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>

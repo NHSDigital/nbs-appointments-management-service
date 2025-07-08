@@ -9,30 +9,32 @@ import NhsPage from '@components/nhs-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     date: string;
     session: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
+  const [search, props] = await Promise.all([searchParams, params]);
+
+  await assertPermission(props.site, 'availability:setup');
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(params.site),
+    fetchSite(props.site),
     fetchClinicalServices(),
   ]);
 
-  if (searchParams.session === undefined || searchParams.date === undefined) {
+  if (search.session === undefined || search.date === undefined) {
     notFound();
   }
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/week/edit-session?session=${searchParams.session}&date=${searchParams.date}`,
+    href: `/site/${site.id}/view-availability/week/edit-session?session=${search.session}&date=${search.date}`,
     text: 'Go back',
   };
 
@@ -44,9 +46,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
       backLink={backLink}
     >
       <ConfirmCancellation
-        date={searchParams.date}
-        session={searchParams.session}
-        site={params.site}
+        date={search.date}
+        session={search.session}
+        site={props.site}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

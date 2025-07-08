@@ -3,18 +3,25 @@ import { AvailabilitySession, ClinicalService, Site } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
-  removedServicesSession: AvailabilitySession;
-  clinicalServices: ClinicalService[];
-  site: Site;
-  date: string;
+  removedServicesSession: Promise<AvailabilitySession>;
+  clinicalServices: Promise<ClinicalService[]>;
+  site: Promise<Site>;
+  date: Promise<string>;
 };
 
-const EditServicesConfirmed = ({
+const EditServicesConfirmed = async ({
   removedServicesSession,
   clinicalServices,
   site,
   date,
 }: PageProps) => {
+  const [removed, services, siteData, dateData] = await Promise.all([
+    removedServicesSession,
+    clinicalServices,
+    site,
+    date,
+  ]);
+
   return (
     <>
       <Table
@@ -22,14 +29,13 @@ const EditServicesConfirmed = ({
         rows={[
           [
             <strong key={`session-0-start-and-end-time`}>
-              {`${removedServicesSession.from} - ${removedServicesSession.until}`}
+              {`${removed.from} - ${removed.until}`}
             </strong>,
             <>
-              {removedServicesSession.services.map((service, serviceIndex) => {
+              {removed.services.map((service, serviceIndex) => {
                 return (
                   <span key={`service-name-${serviceIndex}`}>
-                    {clinicalServices.find(c => c.value === service)?.label ??
-                      service}
+                    {services.find(c => c.value === service)?.label ?? service}
                     <br />
                   </span>
                 );
@@ -44,7 +50,7 @@ const EditServicesConfirmed = ({
           need to cancel these appointments manually.
         </p>
         <Link
-          href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
+          href={`/site/${siteData.id}/view-availability/daily-appointments?date=${dateData}&page=1&tab=2`}
         >
           Cancel appointments
         </Link>

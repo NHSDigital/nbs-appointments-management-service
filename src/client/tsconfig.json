@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,17 +22,32 @@
       }
     ],
     "paths": {
-      "@components/*": ["./src/app/lib/components/*"],
+      "@components/*": [
+        "./src/app/lib/components/*"
+      ],
       "@nhsuk-frontend-components": [
         "./src/app/lib/components/nhsuk-frontend/index"
       ],
-      "@types": ["./src/app/lib/types/index"],
-      "@services/*": ["./src/app/lib/services/*"],
-      "@testing/*": ["./src/app/testing/*"],
-      "@sorting": ["./src/app/lib/sorting/index"],
-      "@constants": ["./src/constants"],
-      "@testing-page-objects": ["./testing/page-objects/index"]
-    }
+      "@types": [
+        "./src/app/lib/types/index"
+      ],
+      "@services/*": [
+        "./src/app/lib/services/*"
+      ],
+      "@testing/*": [
+        "./src/app/testing/*"
+      ],
+      "@sorting": [
+        "./src/app/lib/sorting/index"
+      ],
+      "@constants": [
+        "./src/constants"
+      ],
+      "@testing-page-objects": [
+        "./testing/page-objects/index"
+      ]
+    },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -37,6 +56,7 @@
     ".next/types/**/*.ts",
     "src"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
-

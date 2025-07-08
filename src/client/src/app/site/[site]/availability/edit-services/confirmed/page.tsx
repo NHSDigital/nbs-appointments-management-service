@@ -3,32 +3,30 @@ import {
   fetchClinicalServices,
   fetchSite,
 } from '@services/appointmentsService';
-import { AvailabilitySession } from '@types';
+import { AvailabilitySession, Site } from '@types';
 import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditServicesConfirmed from './edit-services-confirmed';
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     date: string;
     removedServicesSession: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
-  const [site, clinicalServices] = await Promise.all([
-    fetchSite(params.site),
-    fetchClinicalServices(),
-  ]);
+  const [search, props] = await Promise.all([searchParams, params]);
 
-  const date = parseToUkDatetime(searchParams.date);
+  await assertPermission(props.site, 'availability:setup');
+  const site = await fetchSite(props.site);
+  const date = parseToUkDatetime(search.date);
 
   const removedServicesSession: AvailabilitySession = JSON.parse(
-    atob(searchParams.removedServicesSession),
+    atob(search.removedServicesSession),
   );
 
   return (
@@ -37,16 +35,18 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`Services removed for ${date.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
-        href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${search.date}`,
         renderingStrategy: 'server',
         text: 'Back to week view',
       }}
     >
       <EditServicesConfirmed
-        removedServicesSession={removedServicesSession}
-        site={site}
-        date={searchParams.date}
-        clinicalServices={clinicalServices}
+        removedServicesSession={
+          new Promise<AvailabilitySession>(() => removedServicesSession)
+        }
+        site={new Promise<Site>(() => site)}
+        date={new Promise<string>(() => search.date)}
+        clinicalServices={fetchClinicalServices()}
       />
     </NhsPage>
   );

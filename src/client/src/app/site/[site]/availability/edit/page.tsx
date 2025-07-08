@@ -5,20 +5,22 @@ import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     date: string;
     session: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
-  const site = await fetchSite(params.site);
-  const date = parseToUkDatetime(searchParams.date);
-  const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
+  const [search, props] = await Promise.all([searchParams, params]);
+
+  await assertPermission(props.site, 'availability:setup');
+  const site = await fetchSite(props.site);
+  const date = parseToUkDatetime(search.date);
+  const sessionSummary: SessionSummary = JSON.parse(atob(search.session));
 
   return (
     <NhsPage
@@ -26,13 +28,13 @@ const Page = async ({ searchParams, params }: PageProps) => {
       caption={'Edit session'}
       originPage="edit-session"
       backLink={{
-        href: `/site/${site.id}/view-availability/week/edit-session?session=${searchParams.session}&date=${searchParams.date}`,
+        href: `/site/${site.id}/view-availability/week/edit-session?session=${search.session}&date=${search.date}`,
         renderingStrategy: 'server',
         text: 'Go back',
       }}
     >
       <EditSessionTimeAndCapacityForm
-        date={searchParams.date}
+        date={search.date}
         site={site}
         existingSession={sessionSummary}
       />

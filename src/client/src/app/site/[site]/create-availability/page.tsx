@@ -3,14 +3,15 @@ import { CreateAvailabilityPage } from './create-availability-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
-  const site = await fetchSite(params.site);
+  const props = await params;
+  await assertPermission(props.site, 'availability:setup');
+  const site = await fetchSite(props.site);
 
   return (
     <NhsPage

@@ -9,26 +9,28 @@ import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     date: string;
     updatedSession: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
+  const [search, props] = await Promise.all([searchParams, params]);
+
+  await assertPermission(props.site, 'availability:setup');
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(params.site),
+    fetchSite(props.site),
     fetchClinicalServices(),
   ]);
 
-  const date = parseToUkDatetime(searchParams.date);
+  const date = parseToUkDatetime(search.date);
 
   const updatedSession: AvailabilitySession = JSON.parse(
-    atob(searchParams.updatedSession),
+    atob(search.updatedSession),
   );
 
   return (
@@ -37,7 +39,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`Edit time and capacity for ${date.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
-        href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${search.date}`,
         renderingStrategy: 'server',
         text: 'Back to week view',
       }}
@@ -45,7 +47,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <EditSessionConfirmed
         updatedSession={updatedSession}
         site={site}
-        date={searchParams.date}
+        date={search.date}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

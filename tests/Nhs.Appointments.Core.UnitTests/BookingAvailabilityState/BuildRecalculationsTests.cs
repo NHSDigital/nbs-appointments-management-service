@@ -39,6 +39,82 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
         recalculations.Should().HaveCount(5);
         recalculations.Select(b => b.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "6", "7");
     }
+    
+    [Fact]
+    public async Task MultipleServicesAllocatesByStatusThenByCreatedDate()
+    {
+        var utcNow = DateTime.UtcNow;
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-4)),
+            TestBooking("2", "Blue", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("3", "Green", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-3)),
+            TestBooking("4", "Green", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("5", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-1)),
+            TestBooking("6", "Green", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("7", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-2))
+        };
+
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 2),
+            TestSession("09:00", "10:00", ["Green"], capacity: 1),
+            TestSession("09:00", "10:00", ["Blue"], capacity: 1),
+            TestSession("09:00", "10:00", ["Blue"], capacity: 1)
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+
+        // Bookings 7 and 5 are no longer supported and should be removed
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.ProvisionalToDelete)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("7", "5");
+
+        recalculations.Should().NotContain(r => r.Booking.Reference == "2");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "6");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "4");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "1");
+        recalculations.Should().NotContain(r => r.Booking.Reference == "3");
+    }
+    
+    [Fact]
+    public async Task MultipleServicesAllocatesByStatusThenByCreatedDate_IgnoresExpiredProvisional()
+    {
+        var utcNow = DateTime.UtcNow;
+        base.TimeProvider.Setup(x => x.GetUtcNow()).Returns(utcNow);
+        
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-7)),
+            TestBooking("2", "Blue", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("3", "Green", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-6)),
+            TestBooking("4", "Green", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("5", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-3)),
+            TestBooking("6", "Green", avStatus: "Supported", creationDate: utcNow.AddMinutes(-1.5)),
+            TestBooking("7", "Blue", avStatus: "Supported", status: "Provisional", creationDate: utcNow.AddMinutes(-4))
+        };
+
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "10:00", ["Green"], capacity: 1),
+            TestSession("09:00", "10:00", ["Blue"], capacity: 1),
+            TestSession("09:00", "10:00", ["Blue"], capacity: 1)
+        };
+
+        SetupAvailabilityAndBookings(bookings, sessions);
+            
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        
+        // Booking 5 is no longer supported and should be removed
+        recalculations.Count.Should().Be(1);
+        
+        recalculations.Where(r => r.Action == AvailabilityUpdateAction.ProvisionalToDelete)
+            .Select(r => r.Booking.Reference).Should().BeEquivalentTo("5");
+    }
 
     /// <summary>
     /// Prove that greedy model can in some cases increase utilisation where the SingleService code would not

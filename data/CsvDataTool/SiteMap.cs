@@ -30,12 +30,20 @@ public class SiteMap : ClassMap<SiteDocument>
         Map(m => m.Address).Name("Address");
         Map(m => m.PhoneNumber).Name("PhoneNumber");
         Map(m => m.Location).Convert(x =>
-            new Location(
+        {
+            var canParseLong = double.TryParse(x.Row.GetField("Longitude"), out var longitude);
+            var canParseLat = double.TryParse(x.Row.GetField("Latitude"), out var latitude);
+
+            return canParseLong && canParseLat
+                ? new Location(
                 "Point",
-                [x.Row.GetField<double>("Longitude"), x.Row.GetField<double>("Latitude")]
-            ));
+                [longitude, latitude]
+                )
+                : null;
+        });
         Map(m => m.IntegratedCareBoard).Name("ICB");
         Map(m => m.Region).Name("Region");
+        Map(m => m.Type).Name("Site type");
         Map(m => m.DocumentType).Constant("site");
         Map(m => m.Accessibilities).Convert(x =>
         {

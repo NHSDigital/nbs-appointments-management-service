@@ -1,5 +1,6 @@
 import 'nhsuk-frontend/dist/nhsuk.css';
 import './styles/global.css';
+import './styles/nhsuk-frontend-settings.scss';
 import './styles/cookie-banner.css';
 import { Inter } from 'next/font/google';
 import CookieBanner from '@components/cookie-banner';

@@ -78,4 +78,18 @@ public class BookingAvailabilityStateServiceTestBase
                 It.IsAny<bool>()))
             .ReturnsAsync(sessions);
     }
+    
+    protected void SetupHasAvailabilityData(List<Booking> bookings, List<SessionInstance> sessions)
+    {
+        _availabilityQueryService
+            .Setup(x => x.GetSessionsForServiceDescending(
+                It.Is<string>(s => s == MockSite),
+                It.IsAny<string>(),
+                It.IsAny<DateOnly>(),
+                It.IsAny<DateOnly>()))
+            .ReturnsAsync(sessions);
+        
+        _bookingsDocumentStore.Setup(x => x.GetInDateRangeForServicesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string[]>()))
+            .ReturnsAsync(bookings);
+    }
 }

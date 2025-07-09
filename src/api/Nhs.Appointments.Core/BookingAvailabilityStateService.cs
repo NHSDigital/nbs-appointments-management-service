@@ -32,6 +32,94 @@ public class BookingAvailabilityStateService(
             .BookingAvailabilityUpdates;
     }
 
+    /// <summary>
+    /// Use short-circuit logic to try and return a truthy as quick as possible without building up the full state
+    /// Includes existence checks, empty checks and an inverse pigeonhole principle check.
+    /// </summary>
+    public async Task<bool> HasAvailability(string service, string site, DateTime from, DateTime to)
+    {
+        //we want to order slots and bookings DESCENDING as likely to have more availability in the future (bookings tend to occur closer to the present based on real data)
+        //we're more likely to find an empty/available slot sooner if we start from the furthest point in the future
+        var sessionsForService = (await availabilityQueryService.GetSessionsForServiceDescending(site, service, DateOnly.FromDateTime(from),
+            DateOnly.FromDateTime(to))).ToList();
+
+        //fetch sessions first and check there exists documents that support it, else has no capacity for that service
+        if (sessionsForService.Count == 0)
+        {
+            return false;
+        }
+
+        var allSupportedServices = sessionsForService.SelectMany(x => x.Services).Distinct().ToArray();
+        
+        //we only need to fetch bookings for services that are supported for any sessions that also support our queried service
+        var liveBookings = (await bookingQueryService.GetLiveBookingsForServices(site, from, to, allSupportedServices)).ToList();
+        
+        //only care about short-circuiting for slots that can support our queried service
+        var slotsForService = sessionsForService
+            .SelectMany(session => session.ToSlots())
+            .Where(x => x.Services.Contains(service))
+            .OrderByDescending(x => x.From).ToList();
+
+        var distinctBookingTimes = liveBookings
+            .Select(x => new DateRange(x.From, x.From.AddMinutes(x.Duration)))
+            .Distinct();
+        
+        //does a slot exist where no bookings exist in the DB at that time?
+        var emptySlotExists = slotsForService.Any(slot => !distinctBookingTimes.Contains(new DateRange(slot.From, slot.Until)));
+
+        if (emptySlotExists)
+        {
+            return true;
+        }
+        
+        //we have ascertained no empty slots exist, now to populate our dictionary with metrics for the inverse pigeonhole check
+        var bookingTimeDictionary = new Dictionary<DateRange, Dictionary<string,int>>();
+        
+        foreach (var group in liveBookings.GroupBy(x => new DateRange(x.From, x.From.AddMinutes(x.Duration))))
+        {
+            var serviceCounts = group
+                .GroupBy(b => b.Service)
+                .ToDictionary(
+                    sg => sg.Key,
+                    sg => sg.Count()
+                );
+
+            bookingTimeDictionary[group.Key] = serviceCounts;
+        }
+        
+        //want to group equivalent slots together for total capacity at that time-range and supported services
+        var groupedSlotsForService = slotsForService
+            .GroupBy(x => new SessionInstanceKey(x.From, x.Until, x.Services))
+            .Select(g => new SessionInstance(g.Key.From, g.Key.Until)
+            {
+                Services = g.Key.Services,
+                //Total capacity
+                Capacity = g.Sum(x => x.Capacity)
+            })
+            .ToList();
+        
+        //does a slot exist where the number of total bookings for the services in that session is less than the total capacity for that slot?
+        //i.e, even if ALL the available bookings that slot can support are allocated to that slot, there is still > 0 capacity remaining
+        //i.e, the current allocation algorithm used in BuildState is irrelevant, it is impossible to fill the slot based on the current live bookings
+        var guaranteedSpaceSlotExists = groupedSlotsForService.Any(slotGrouping =>
+        {
+            var bookingsForThatSlot = bookingTimeDictionary[new DateRange(slotGrouping.From, slotGrouping.Until)];
+            
+            //only total the bookings that the slot can support
+            var bookingServiceTotal = bookingsForThatSlot.Where(x => slotGrouping.Services.Contains(x.Key)).Sum(x => x.Value);
+            
+            return slotGrouping.Capacity > bookingServiceTotal;
+        });
+
+        if (guaranteedSpaceSlotExists)
+        {
+            return true;
+        }
+        
+        //TODO as a last resort, we have to build up the expensive full state of allocation if none of the simpler checks have returned
+        return false;
+    }
+
     public async Task<IEnumerable<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)
     {
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
@@ -239,6 +327,42 @@ public class BookingAvailabilityStateService(
             .OrderBy(slot => slot.Services.Length)
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
+}
+
+public readonly record struct DateRange(DateTime From, DateTime To);
+
+public sealed class SessionInstanceKey : IEquatable<SessionInstanceKey>
+{
+    public DateTime From { get; }
+    public DateTime Until { get; }
+    public string[] Services { get; }
+
+    public SessionInstanceKey(DateTime from, DateTime until, IEnumerable<string> services)
+    {
+        From = from;
+        Until = until;
+        Services = services.OrderBy(s => s).ToArray();
+    }
+
+    public bool Equals(SessionInstanceKey? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return From == other.From &&
+               Until == other.Until &&
+               Services.SequenceEqual(other.Services);
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as SessionInstanceKey);
+
+    public override int GetHashCode()
+    {
+        var hash = HashCode.Combine(From, Until);
+        return Services.Aggregate(hash, HashCode.Combine);
+    }
 }
 
 public static class RecalculationExtensions

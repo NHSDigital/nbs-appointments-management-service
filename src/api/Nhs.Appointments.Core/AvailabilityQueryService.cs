@@ -24,4 +24,12 @@ public class AvailabilityQueryService(
         var sessions = await availabilityStore.GetSessions(site, from, to);
         return sessions.Select(x => new LinkedSessionInstance(x, generateInternalSessionId));
     }
+
+    /// <summary>
+    /// Fetch all sessions that support the service, and order them 'from' descending
+    /// </summary>
+    public async Task<IEnumerable<SessionInstance>> GetSessionsForServiceDescending(string site, string service, DateOnly from, DateOnly to)
+    {
+        return (await availabilityStore.GetSessionsForService(site, service, from, to)).OrderByDescending(x => x.From);
+    }
 }

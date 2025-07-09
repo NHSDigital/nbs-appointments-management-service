@@ -8,12 +8,16 @@ public interface IBookingQueryService
     Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to);
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<IEnumerable<Booking>> GetOrderedBookings(string site, DateTime from, DateTime to, IEnumerable<AppointmentStatus> statuses);
+    Task<IEnumerable<Booking>> GetLiveBookingsForServices(string site, DateTime from, DateTime to, string[] services);
 }
 
 public class BookingQueryService(
     IBookingsDocumentStore bookingDocumentStore,
     TimeProvider time) : IBookingQueryService
 {
+    private readonly IReadOnlyList<AppointmentStatus> _liveStatuses =
+        [AppointmentStatus.Booked, AppointmentStatus.Provisional];
+    
     public Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to)
     {
         return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
@@ -44,6 +48,18 @@ public class BookingQueryService(
             .Where(b => !IsExpiredProvisional(b))
             .OrderByDescending(b => b.Status)
             .ThenBy(b => b.Created);
+
+        return bookings;
+    }
+    
+    /// <summary>
+    /// Fetch live bookings that are for the services listed
+    /// </summary>
+    public async Task<IEnumerable<Booking>> GetLiveBookingsForServices(string site, DateTime from, DateTime to, string[] services)
+    {
+        var bookings = (await bookingDocumentStore.GetInDateRangeForServicesAsync(from, to, site, services))
+            .Where(b => _liveStatuses.Contains(b.Status))
+            .Where(b => !IsExpiredProvisional(b));
 
         return bookings;
     }

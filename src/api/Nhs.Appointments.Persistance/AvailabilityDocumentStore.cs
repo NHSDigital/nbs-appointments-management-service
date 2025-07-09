@@ -31,6 +31,30 @@ public class AvailabilityDocumentStore(
 
         return results;
     }
+    
+    public async Task<IEnumerable<SessionInstance>> GetSessionsForService(string site, string service, DateOnly from, DateOnly to)
+    {
+        var results = new List<SessionInstance>();
+        var docType = documentStore.GetDocumentType();
+        using (metricsRecorder.BeginScope("GetSessionsForService"))
+        {
+            //only return daily documents that contain a session that supports the service
+            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
+                b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to && b.Sessions.SelectMany(x => x.Services).Contains(service));
+
+            foreach (var day in documents)
+            {
+                results.AddRange(day.Sessions.Select(s =>
+                    new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
+                    {
+                        Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
+                    }
+                ));
+            }
+        }
+
+        return results;
+    }
 
     public async Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions,
         ApplyAvailabilityMode mode, Session sessionToEdit = null)

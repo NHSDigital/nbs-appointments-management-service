@@ -19,9 +19,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   await assertPermission(siteFromPath, 'availability:query');
   const site = await fetchSite(siteFromPath);
 
-  const searchMonth = date
-    ? parseToUkDatetime(date, dateFormat)
-    : ukNow();
+  const searchMonth = date ? parseToUkDatetime(date, dateFormat) : ukNow();
 
   return (
     <NhsPage

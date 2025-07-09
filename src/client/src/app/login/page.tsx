@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 const Page = async ({ searchParams }: LoginPageProps) => {
   const oktaEnabledFlag = await fetchFeatureFlag('OktaEnabled');
   const { redirectUrl } = { redirectUrl: '/', ...(await searchParams) };
-  
+
   return (
     <NhsAnonymousPage title="Manage your appointments" originPage="login">
       <p>

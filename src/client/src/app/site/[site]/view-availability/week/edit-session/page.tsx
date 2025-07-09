@@ -36,8 +36,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const parsedDate = parseToUkDatetime(date);
 
-  await assertPermission(siteFromPath, 'availability:setup');
-
   return (
     <NhsPage
       title={`Change availability for ${parsedDate.format('DD MMMM YYYY')}`}

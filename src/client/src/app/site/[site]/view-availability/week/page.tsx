@@ -17,13 +17,13 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'availability:query');
-  const site = await fetchSite(siteFromPath);
-
   const { date } = { ...(await searchParams) };
   if (date === undefined) {
     notFound();
   }
+
+  await assertPermission(siteFromPath, 'availability:query');
+  const site = await fetchSite(siteFromPath);
 
   const ukWeekStart = startOfUkWeek(date);
   const ukWeekEnd = endOfUkWeek(date);

@@ -34,11 +34,11 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
     fetchUserProfile(),
   ]);
 
-  if (users === undefined || !users.some(u => u.id === user)) {
+  if (users === undefined || !users.some(u => u.id === user.toLowerCase())) {
     notFound();
   }
 
-  if (userProfile.emailAddress === user) {
+  if (userProfile.emailAddress === user.toLowerCase()) {
     notAuthorized();
   }
 

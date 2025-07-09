@@ -19,8 +19,7 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
 
     public ISiteLeaseContext Acquire(string fileName)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(_options.ContainerName);
-        containerClient.CreateIfNotExists();
+        var containerClient = ResolveContainerClient();
 
         var blobClient = containerClient.GetBlobClient(fileName);
         if (blobClient.Exists() == false)
@@ -28,11 +27,18 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
 
         var leaseClient = blobClient.GetBlobLeaseClient();
         var leasePipeline = CreateResiliencePipeline();
-        leasePipeline.Execute(() => {
-            return leaseClient.Acquire(TimeSpan.FromSeconds(20));
-        });
+        leasePipeline.Execute(() => leaseClient.Acquire(TimeSpan.FromSeconds(20)));
 
         return new SiteLeaseContext(() => leaseClient.Release());
+    }
+
+    private BlobContainerClient ResolveContainerClient()
+    {
+        var containers = _blobServiceClient.GetBlobContainers();
+        
+        return containers.Any(x => x.Name.Equals(_options.ContainerName)) 
+            ? _blobServiceClient.GetBlobContainerClient(_options.ContainerName) 
+            : _blobServiceClient.CreateBlobContainer(_options.ContainerName);
     }
 
     private ResiliencePipeline<Azure.Response<BlobLease>> CreateResiliencePipeline()

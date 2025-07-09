@@ -220,7 +220,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'site-search',
+      name: 'Search active sites by name, ICB or ODS code',
     });
     await user.type(searchInput, 'Beta');
 
@@ -312,7 +312,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'site-search',
+      name: 'Search active sites by name, ICB or ODS code',
     });
     await user.type(searchInput, 'Be');
 
@@ -398,7 +398,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'site-search',
+      name: 'Search active sites by name, ICB or ODS code',
     });
     await user.type(searchInput, '1004');
 
@@ -490,7 +490,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'site-search',
+      name: 'Search active sites by name, ICB or ODS code',
     });
     await user.type(searchInput, '1005');
 

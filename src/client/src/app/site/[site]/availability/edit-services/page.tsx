@@ -34,7 +34,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchClinicalServices(),
   ]);
 
-  const parsedDate = parseToUkDatetime(siteFromPath);
+  const parsedDate = parseToUkDatetime(date);
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
   return (

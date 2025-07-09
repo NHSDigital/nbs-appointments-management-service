@@ -430,9 +430,9 @@ export const fetchBookings = async (
     JSON.stringify(payload),
   );
 
-  const boookings = handleBodyResponse(response);
+  const bookings = await handleBodyResponse(response);
 
-  return boookings.filter(b => statuses.includes(b.status));
+  return bookings.filter(b => statuses.includes(b.status));
 };
 
 export const fetchDailyAvailability = async (

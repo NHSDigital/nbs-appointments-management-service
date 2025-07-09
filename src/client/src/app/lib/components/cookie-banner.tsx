@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const CookieBanner = async () => {
   const consentCookie = await getCookieConsent();
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const recentlyUpdatedConsent = cookieStore.get(
     'nhsuk-mya-cookie-consent-updated',
   );

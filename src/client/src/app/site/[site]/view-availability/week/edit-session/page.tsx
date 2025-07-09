@@ -26,7 +26,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(site, 'availability:setup');
+  await assertPermission(siteFromPath, 'availability:setup');
 
   const [site, multipleServicesFlag, clinicalServices] = await Promise.all([
     fetchSite(siteFromPath),
@@ -53,7 +53,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <EditSessionDecision
         site={site}
         sessionSummary={session}
-        date={parsedDate}
+        date={date}
         multipleServicesEnabled={multipleServicesFlag.enabled}
         clinicalServices={clinicalServices}
       ></EditSessionDecision>

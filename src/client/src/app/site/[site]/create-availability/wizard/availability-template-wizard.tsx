@@ -30,6 +30,7 @@ export type CreateAvailabilityFormValues = {
 
 type Props = {
   site: Site;
+  clinicalServices: ClinicalService[];
   date?: string;
 };
 

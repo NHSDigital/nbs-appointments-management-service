@@ -23,6 +23,8 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { user: userFromParams } = { ...(await searchParams) };
 
+  await assertPermission(siteFromPath, 'users:manage');
+
   const email = userFromParams?.toLowerCase();
 
   const [site, userProfile, roleOptions, userToEdit, oktaEnabled] =

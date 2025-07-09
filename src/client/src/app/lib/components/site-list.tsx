@@ -42,7 +42,7 @@ const SiteList = ({ sites }: Props) => {
           <TextInput
             id="site-search"
             label="Search active sites by name, ICB or ODS code"
-            aria-label="site-search"
+            aria-label="Search active sites by name, ICB or ODS code"
             value={searchValue}
             onChange={handleSearchValueChange}
           ></TextInput>

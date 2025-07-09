@@ -1,5 +1,14 @@
 User,Site
-vincent1@nhs.net,FD63
-vincent1@nhs.net,FD62
-kim4@nhs.net,FD63
-kim4@nhs.net,FD64
+vincent1@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+vincent1@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+kim4@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+kim4@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+user-with-space @nhs.net ,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+ user-with-leading-space@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+user-with-trailing-space@nhs.net ,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+UPPERCASE-EMAIL@nhs.net,874fa3f0-b15b-48f4-8fe5-ef96e85484db
+samuel.biram1@nhs.net, 874fa3f0-b15b-48f4-8fe5-ef96e85484db
+samuel.biram1@nhs.net, 8 74f a3f0 -b15b-48f4-8fe5-ef96e85484db
+samuel.biram1@nhs.net, 8 74f a3f0 -b15b-48f4-8fe5-ef96e85484db 
+samuel.biram1@ nhs.net, not-a-guid

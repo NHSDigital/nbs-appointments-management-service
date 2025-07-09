@@ -1,4 +1,4 @@
-import 'nhsuk-frontend/dist/nhsuk.css';
+import './styles/custom-nhsuk.scss';
 import './styles/global.css';
 import './styles/cookie-banner.css';
 import { Inter } from 'next/font/google';

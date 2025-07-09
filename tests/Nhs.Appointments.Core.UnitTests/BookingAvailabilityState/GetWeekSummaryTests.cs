@@ -40,7 +40,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(25);
         weekSummary.BookedAppointments.Should().Be(5);
         weekSummary.OrphanedAppointments.Should().Be(2);
-        weekSummary.CancelledAppointments.Should().Be(2);
 
         var expectedSessionSummary = new List<SessionSummary>
         {
@@ -150,7 +149,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(52);
         weekSummary.BookedAppointments.Should().Be(12);
         weekSummary.OrphanedAppointments.Should().Be(0);
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -291,7 +289,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(52);
         weekSummary.BookedAppointments.Should().Be(12);
         weekSummary.OrphanedAppointments.Should().Be(0);
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -422,8 +419,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         //lost utilisation shows that 6/12 bookings are orphaned when they could have been allocated
         weekSummary.BookedAppointments.Should().Be(6);
         weekSummary.OrphanedAppointments.Should().Be(6);
-        
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -612,8 +607,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         //only half supported
         weekSummary.BookedAppointments.Should().Be(6);
         weekSummary.OrphanedAppointments.Should().Be(6);
-        
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {

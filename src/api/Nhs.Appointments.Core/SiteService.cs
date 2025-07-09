@@ -85,7 +85,14 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     {
         var sites = await GetAllSites();
 
-        return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode));
+        return sites;
+    }
+    
+    public async Task<IEnumerable<SitePreview>> GetSitesPreview()
+    {
+        var sites = await GetAllSites();
+
+        return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode, s.IntegratedCareBoard));
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,

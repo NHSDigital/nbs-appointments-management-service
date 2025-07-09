@@ -25,11 +25,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
-    "manage-your-appointments": "file:",
-    "nhsuk-frontend": "^9.6.3",
     "@next/env": "^15.1.6",
     "dayjs": "^1.11.13",
+    "manage-your-appointments": "file:",
     "next": "^15.1.6",
+    "nhsuk-frontend": "^9.6.3",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.57.0",

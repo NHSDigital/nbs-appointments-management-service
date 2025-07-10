@@ -2,10 +2,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
-public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
+public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 {
-    private const string SuccessLogMessage = "HasAvailability short circuit success";
-    private const string UnsuccessfulLogMessage = "HasAvailability short circuit attempt unsuccessful";
+    private const string SuccessLogMessage = "HasAnyAvailableSlot short circuit success";
+    private const string UnsuccessfulLogMessage = "HasAnyAvailableSlot short circuit attempt unsuccessful";
 
     /// <summary>
     ///     There exist no sessions in the date-range for the queried service, therefore cannot support the service
@@ -21,7 +21,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, []);
 
         var hasAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.False(hasAvailability);
 
         _logger.Verify(x =>
@@ -65,7 +65,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
 
         //blue has availability due to the greedy allocation assigning green bookings to the second session
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -82,7 +82,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         
         //green has availability but still has to use allocation to confirm
         var hasGreenAvailability =
-            await Sut.HasAvailability("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasGreenAvailability);
 
         _logger.Verify(x =>
@@ -126,7 +126,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
 
         //blue has no availability due to the greedy allocation assigning green bookings to the second session
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.False(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -143,7 +143,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         
         //green has availability but still has to use allocation to confirm
         var hasGreenAvailability =
-            await Sut.HasAvailability("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasGreenAvailability);
 
         _logger.Verify(x =>
@@ -189,7 +189,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasAvailability);
 
         _logger.Verify(x =>
@@ -235,7 +235,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasGreenAvailability =
-            await Sut.HasAvailability("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.False(hasGreenAvailability);
 
         _logger.Verify(x =>
@@ -251,7 +251,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
             Times.Never);
 
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -294,7 +294,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -310,7 +310,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
 
         var hasGreenAvailability =
-            await Sut.HasAvailability("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasGreenAvailability);
 
         _logger.Verify(x =>
@@ -357,7 +357,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -373,7 +373,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
 
         var hasPurpleAvailability =
-            await Sut.HasAvailability("Purple", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.False(hasPurpleAvailability);
 
         _logger.Verify(x =>
@@ -430,7 +430,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasAvailability);
 
         _logger.Verify(x =>
@@ -484,7 +484,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         //it should find the 11:50-12:00 slot having capacity first
 
         var hasBlueAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasBlueAvailability);
 
         _logger.Verify(x =>
@@ -500,7 +500,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
 
         var hasGreenAvailability =
-            await Sut.HasAvailability("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasGreenAvailability);
 
         _logger.Verify(x =>
@@ -543,7 +543,7 @@ public class HasAvailabilityTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var hasAvailability =
-            await Sut.HasAvailability("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
         Assert.True(hasAvailability);
 
         _logger.Verify(x =>

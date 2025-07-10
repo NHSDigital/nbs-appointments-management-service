@@ -92,7 +92,7 @@ public class BookingAvailabilityStateServiceTestBase
                 It.IsAny<DateOnly>()))
             .ReturnsAsync(sessions);
         
-        _bookingsDocumentStore.Setup(x => x.GetInDateRangeForServicesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite, It.IsAny<string[]>()))
+        _bookingsDocumentStore.Setup(x => x.GetInDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite))
             .ReturnsAsync(bookings);
     }
 }

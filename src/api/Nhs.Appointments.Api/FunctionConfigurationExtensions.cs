@@ -26,6 +26,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api;
@@ -67,6 +68,11 @@ public static class FunctionConfigurationExtensions
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
+            .Configure<SiteSummaryOptions>(opts =>
+            {
+                opts.DaysForward = 30;
+                opts.ReportName = "daily-site-summary";
+            })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
@@ -104,6 +110,9 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
+            .AddTransient<IDailySiteSummaryStore, DailySiteSummaryStore>()
+            .AddTransient<ISitesSummaryTrigger, SiteSummaryTrigger>()
+            .AddTransient<ISiteSummaryAggregator, SiteSummaryAggregator>()
             .AddSingleton(TimeProvider.System)
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
@@ -148,6 +157,7 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "core_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "audit_data", partitionKeyPath: "/user");
+        await database.Database.CreateContainerIfNotExistsAsync(id: "aggregated_data", partitionKeyPath: "/date");
     }
 
     private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)

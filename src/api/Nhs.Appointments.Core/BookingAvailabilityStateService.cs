@@ -7,13 +7,22 @@ public class BookingAvailabilityStateService(
     private readonly IReadOnlyList<AppointmentStatus> _liveStatuses =
         [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
-    public async Task<WeekSummary> GetWeekSummary(string site, DateOnly from)
+    public async Task<Summary> GetWeekSummary(string site, DateOnly from)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = from.AddDays(6).ToDateTime(new TimeOnly(23, 59, 59));
 
-        return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.WeekSummary))
-            .WeekSummary;
+        return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.Summary))
+            .Summary;
+    }
+
+    public async Task<Summary> GetDaySummary(string site, DateOnly day)
+    {
+        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = day.ToDateTime(new TimeOnly(23, 59, 59));
+        
+        return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.Summary))
+            .Summary;
     }
 
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
@@ -31,12 +40,12 @@ public class BookingAvailabilityStateService(
     private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
         DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
-        var isWeekSummary = returnType == BookingAvailabilityStateReturnType.WeekSummary;
+        var isSummary = returnType == BookingAvailabilityStateReturnType.Summary;
 
-        var statuses = isWeekSummary ? [AppointmentStatus.Booked, AppointmentStatus.Cancelled] : _liveStatuses;
+        var statuses = isSummary ? [AppointmentStatus.Booked, AppointmentStatus.Cancelled] : _liveStatuses;
         var bookingsTask = bookingQueryService.GetOrderedBookings(site, from, to, statuses);
         var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(from),
-            DateOnly.FromDateTime(to), isWeekSummary);
+            DateOnly.FromDateTime(to), isSummary);
         await Task.WhenAll(bookingsTask, sessionsTask);
         return (bookingsTask.Result, sessionsTask.Result.ToList());
     }
@@ -56,13 +65,6 @@ public class BookingAvailabilityStateService(
         }).ToList();
     }
 
-
-    public async Task<IEnumerable<DaySummary>> GetSummaries(string site, DateTime from, DateTime to)
-    {
-        return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.WeekSummary))
-            .WeekSummary.DaySummaries;
-    }
-
     private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
         BookingAvailabilityStateReturnType returnType)
     {
@@ -77,7 +79,7 @@ public class BookingAvailabilityStateService(
 
         List<DaySummary> daySummaries = [];
 
-        if (returnType == BookingAvailabilityStateReturnType.WeekSummary)
+        if (returnType == BookingAvailabilityStateReturnType.Summary)
         {
             daySummaries = InitialiseDaySummaries(from, to, sessions);
         }
@@ -96,7 +98,7 @@ public class BookingAvailabilityStateService(
                     case BookingAvailabilityStateReturnType.Recalculations:
                         state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
                         break;
-                    case BookingAvailabilityStateReturnType.WeekSummary:
+                    case BookingAvailabilityStateReturnType.Summary:
                         //update status if not already supported
 
                         if (booking.AvailabilityStatus != AvailabilityStatus.Supported)
@@ -123,7 +125,7 @@ public class BookingAvailabilityStateService(
             {
                 case BookingAvailabilityStateReturnType.AvailableSlots:
                     continue;
-                case BookingAvailabilityStateReturnType.WeekSummary:
+                case BookingAvailabilityStateReturnType.Summary:
                     if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                         booking.Status is AppointmentStatus.Booked)
                     {
@@ -146,8 +148,8 @@ public class BookingAvailabilityStateService(
                 //we only need to do this calculation if we want to return the available slots
                 state.AvailableSlots = slotsList.Where(s => s.Capacity > 0);
                 break;
-            case BookingAvailabilityStateReturnType.WeekSummary:
-                state.WeekSummary = GenerateWeekSummary(bookings, daySummaries);
+            case BookingAvailabilityStateReturnType.Summary:
+                state.Summary = GenerateSummary(bookings, daySummaries);
                 break;
             case BookingAvailabilityStateReturnType.Recalculations:
                 break;
@@ -158,8 +160,9 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static WeekSummary GenerateWeekSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries)
+    private static Summary GenerateSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries)
     {
+        var orphaned = new Dictionary<string, int>();
         foreach (var daySummary in daySummaries)
         {
             daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
@@ -178,7 +181,7 @@ public class BookingAvailabilityStateService(
                                 daySummary.BookedAppointments++;
                                 break;
                             case AvailabilityStatus.Orphaned:
-                                daySummary.OrphanedAppointments++;
+                                orphaned[booking.Service] = orphaned.GetValueOrDefault(booking.Service, 0) + 1;
                                 break;
                         }
 
@@ -190,13 +193,14 @@ public class BookingAvailabilityStateService(
             }
         }
 
-        return new WeekSummary
+        return new Summary
         {
             DaySummaries = daySummaries,
+            Orphaned = orphaned,
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
             BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
-            OrphanedAppointments = daySummaries.Sum(x => x.OrphanedAppointments)
+            OrphanedAppointments = orphaned.Sum(x => x.Value)
         };
     }
 
@@ -274,7 +278,7 @@ public class BookingAvailabilityState
 
     public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
 
-    public WeekSummary WeekSummary { get; set; }
+    public Summary Summary { get; set; }
 }
 
 public enum BookingAvailabilityStateReturnType
@@ -290,9 +294,9 @@ public enum BookingAvailabilityStateReturnType
     Recalculations = 1,
 
     /// <summary>
-    ///     Return a summary of booking/availability for a week period
+    ///     Return a summary of booking/availability for a period
     /// </summary>
-    WeekSummary = 2
+    Summary = 2
 }
 
 public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)

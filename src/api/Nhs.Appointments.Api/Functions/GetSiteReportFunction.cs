@@ -14,6 +14,7 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -26,7 +27,8 @@ public class GetSiteReportFunction(
     IValidator<SiteReportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetAccessibilityDefinitionsFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    ISiteSummaryAggregator siteSummaryAggregator)
     : BaseApiFunction<SiteReportRequest, FileResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -77,6 +79,12 @@ public class GetSiteReportFunction(
         }
 
         var sites = await GetSites(user);
+
+        foreach (var site in sites)
+        {
+            await siteSummaryAggregator.AggregateForSite(site.Id, new DateOnly(2025, 2, 1), new DateOnly(2025, 7, 31));
+        }
+        
         var report = await siteReportService.Generate(sites.ToArray(), request.StartDate, request.EndDate);
         
         return ApiResult<FileResponse>.Success(new FileResponse(fileName, await ReportToCsv(report.ToArray())));
@@ -108,7 +116,6 @@ public class GetSiteReportFunction(
                 string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
                 SiteReportMap.TotalBookings(row).ToString(),
                 SiteReportMap.Cancelled(row).ToString(),
-                SiteReportMap.Orphaned(row).ToString(),
                 SiteReportMap.MaximumCapacity(row).ToString(),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
             ]));
@@ -152,7 +159,7 @@ public static class SiteReportMap
     public static string[] Headers(string[] services)
     {
         var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code", "Longitude", "Latitude" };
-        var statHeaders = new[] { "Total Bookings", "Cancelled", "Orphaned", "Maximum Capacity" };
+        var statHeaders = new[] { "Total Bookings", "Cancelled", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
         var capacityHeaders = services.Select(service => $"{service} Capacity");
 
@@ -170,7 +177,6 @@ public static class SiteReportMap
     public static double Latitude(SiteReport report) => report.Latitude;
     public static int TotalBookings(SiteReport report) => report.TotalBookings;
     public static int Cancelled(SiteReport report) => report.Cancelled;
-    public static int Orphaned(SiteReport report) => report.Orphaned;
     public static int MaximumCapacity(SiteReport report) => report.MaximumCapacity;
     public static int BookingsCount(SiteReport report, string key) => report.Bookings.TryGetValue(key, out var booking) ? booking : 0;
     public static int CapacityCount(SiteReport report, string key) => report.RemainingCapacity.TryGetValue(key, out var capacity) ? capacity : 0;

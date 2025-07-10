@@ -1,8 +1,9 @@
 namespace Nhs.Appointments.Core
 {
-    public class WeekSummary : AvailabilityMetrics
+    public class Summary : AvailabilityMetrics
     {
         public IEnumerable<DaySummary> DaySummaries { get; init; }
+        public Dictionary<string, int> Orphaned { get; init; }
     }
     
     public class DaySummary(DateOnly date, IEnumerable<SessionSummary> sessions) : AvailabilityMetrics

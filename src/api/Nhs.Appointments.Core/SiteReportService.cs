@@ -1,7 +1,9 @@
+using Nhs.Appointments.Core.Reports.SiteSummary;
+
 namespace Nhs.Appointments.Core;
 
 public class SiteReportService(
-    IBookingAvailabilityStateService bookingAvailabilityStateService,
+    IDailySiteSummaryStore dailySiteSummaryStore,
     IClinicalServiceStore clinicalServiceStore) : ISiteReportService
 {
     public async Task<IEnumerable<SiteReport>> Generate(Site[] sites, DateOnly startDate, DateOnly endDate)
@@ -25,10 +27,10 @@ public class SiteReportService(
 
     private async Task<SiteReport> Generate(Site site, string[] clinicalServices, DateOnly startDate, DateOnly endDate)
     {
-        var siteReport = await bookingAvailabilityStateService.GetSummaries(
+        var siteReport = await dailySiteSummaryStore.GetSiteSummarys(
             site.Id, 
-            startDate.ToDateTime(new TimeOnly(0, 0)), 
-            endDate.ToDateTime(new TimeOnly(23, 59, 59)));
+            startDate, 
+            endDate);
         return new SiteReport(site, siteReport.ToArray(), clinicalServices);
     }
 }

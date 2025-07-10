@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
 {
     public abstract class WeekSummaryFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
     {
-        private WeekSummary _actualResponse;
+        private Summary _actualResponse;
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
 
@@ -33,7 +33,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             _statusCode = _response.StatusCode;
 
             var (_, result) =
-                await JsonRequestReader.ReadRequestAsync<WeekSummary>(await _response.Content.ReadAsStreamAsync());
+                await JsonRequestReader.ReadRequestAsync<Summary>(await _response.Content.ReadAsStreamAsync());
             _actualResponse = result;
         }
 
@@ -86,7 +86,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         {
             var row = expectedWeekSummaryTable.Rows.Last();
 
-            var expectedWeekSummary = new WeekSummary
+            var expectedWeekSummary = new Summary
             {
                 MaximumCapacity = int.Parse(row.Cells.ElementAt(0).Value),
                 RemainingCapacity = int.Parse(row.Cells.ElementAt(1).Value),

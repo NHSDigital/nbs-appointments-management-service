@@ -24,6 +24,14 @@ public class CoreDataCosmosDocument : TypedCosmosDocument
 
 }
 
+[CosmosDocument("aggregated_data", "date")]
+public class AggregatedDataCosmosDocument : TypedCosmosDocument
+{
+    [JsonProperty("date")]
+    public DateOnly Date { get; set; }
+}
+
+
 [CosmosDocument("index_data", "docType")]
 public class IndexDataCosmosDocument : TypedCosmosDocument
 {

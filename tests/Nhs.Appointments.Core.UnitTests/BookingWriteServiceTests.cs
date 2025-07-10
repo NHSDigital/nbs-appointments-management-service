@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
@@ -15,6 +16,7 @@ namespace Nhs.Appointments.Core.UnitTests
         protected readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
         protected readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
         protected readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        protected readonly Mock<ILogger<BookingAvailabilityStateService>> _logger = new();
 
         protected readonly Mock<IBookingQueryService> _bookingQueryService = new();
         protected readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
@@ -67,7 +69,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
                 _referenceNumberProvider.Object,
                 leaseManager, _availabilityStore.Object, _availabilityCalculator.Object,
-                new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService, _logger.Object),
                 new EventFactory(), _messageBus.Object, TimeProvider.System, _featureToggleHelper.Object);
 
             var task = Task.Run(() => bookingService.MakeBooking(booking));

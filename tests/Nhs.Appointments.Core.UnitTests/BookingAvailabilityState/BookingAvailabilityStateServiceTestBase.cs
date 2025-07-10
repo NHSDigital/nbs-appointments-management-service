@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
 public class BookingAvailabilityStateServiceTestBase
@@ -6,11 +8,12 @@ public class BookingAvailabilityStateServiceTestBase
     protected readonly Mock<TimeProvider> TimeProvider = new();
     private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
     private readonly Mock<IAvailabilityQueryService> _availabilityQueryService = new();
+    protected readonly Mock<ILogger<BookingAvailabilityStateService>> _logger = new();
     
     protected const string MockSite = "some-site";
 
     protected BookingAvailabilityStateServiceTestBase() => Sut =
-        new BookingAvailabilityStateService(_availabilityQueryService.Object, new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.Object));
+        new BookingAvailabilityStateService(_availabilityQueryService.Object, new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.Object), _logger.Object);
 
     private static DateTime TestDateAt(string time)
     {
@@ -79,7 +82,7 @@ public class BookingAvailabilityStateServiceTestBase
             .ReturnsAsync(sessions);
     }
     
-    protected void SetupHasAvailabilityData(List<Booking> bookings, List<SessionInstance> sessions)
+    protected void SetupHasAvailabilityData(List<Booking> bookings, List<LinkedSessionInstance> sessions)
     {
         _availabilityQueryService
             .Setup(x => x.GetSessionsForServiceDescending(

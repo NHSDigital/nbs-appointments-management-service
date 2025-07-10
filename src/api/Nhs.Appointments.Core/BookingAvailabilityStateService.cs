@@ -43,6 +43,9 @@ public class BookingAvailabilityStateService(
     /// </summary>
     public async Task<bool> HasAnyAvailableSlot(string service, string site, DateTime from, DateTime to)
     {
+        //kick off fetch bookings asynchronously as its likely needed
+        var liveBookingsTask = bookingQueryService.GetLiveBookings(site, from, to);
+        
         //we want to order slots and bookings DESCENDING as likely to have more availability in the future (bookings tend to occur closer to the present based on real data)
         //we're more likely to find an empty/available slot quicker if we start from the furthest point in the future
         var sessionsForService = (await availabilityQueryService.GetSessionsForServiceDescending(
@@ -62,15 +65,13 @@ public class BookingAvailabilityStateService(
 
         var allSupportedServices = sessionsForService.SelectMany(x => x.Services).Distinct().ToArray();
 
-        //we only need to fetch bookings for services that are supported for any sessions that also support our queried service
-        var liveRelevantBookings = (await bookingQueryService.GetLiveBookingsForServices(site, from, to, allSupportedServices))
-            .ToList();
+        var liveRelevantBookings = (await liveBookingsTask).Where(x => allSupportedServices.Contains(x.Service));
 
         //only care about short-circuiting for slots that can support our queried service
         var slotsForService = sessionsForService
             .SelectMany(session => session.ToSlots())
             .Where(x => x.Services.Contains(service))
-            .OrderByDescending(x => x.From).ToList();
+            .OrderByDescending(x => x.From);
 
         var distinctBookingTimes = liveRelevantBookings
             .Select(x => new DateRange(x.From, x.From.AddMinutes(x.Duration)))

@@ -56,7 +56,7 @@ test('A user loads home page and searches for a site, site list is filtered', as
   await expect(page.getByText(/Robin Lane Medical Centre/)).toBeVisible();
 
   const searchInput = page.getByRole('textbox', {
-    name: 'Search active sites by name, ICB or ODS code',
+    name: 'Search active sites by name or ODS code',
   });
   await searchInput.fill('Church');
 

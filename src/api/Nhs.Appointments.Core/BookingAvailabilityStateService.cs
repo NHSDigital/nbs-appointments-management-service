@@ -37,11 +37,11 @@ public class BookingAvailabilityStateService(
     }
 
     /// <summary>
-    ///     Use short-circuit logic to try and return a truthy as quick as possible without building up the full state
-    ///     Expectation that it will return a result much more often than needing to build up the full state model
+    ///     Use short-circuit logic to try and return a truthy as quick as possible
+    ///     Expectation that the majority of cases will return a result instead of needing to build up the full state model
     ///     Includes service session existence check, an empty slot existence check and finally an inverse-pigeonhole principle check.
     /// </summary>
-    public async Task<bool> HasAvailability(string service, string site, DateTime from, DateTime to)
+    public async Task<bool> HasAnyAvailableSlot(string service, string site, DateTime from, DateTime to)
     {
         //we want to order slots and bookings DESCENDING as likely to have more availability in the future (bookings tend to occur closer to the present based on real data)
         //we're more likely to find an empty/available slot quicker if we start from the furthest point in the future
@@ -55,7 +55,7 @@ public class BookingAvailabilityStateService(
         if (sessionsForService.Count == 0)
         {
             logger.LogInformation(
-                "HasAvailability short circuit success - No sessions for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                "HasAnyAvailableSlot short circuit success - No sessions for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
             return false;
         }
@@ -83,7 +83,7 @@ public class BookingAvailabilityStateService(
         if (emptySlotExists)
         {
             logger.LogInformation(
-                "HasAvailability short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                "HasAnyAvailableSlot short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
             return true;
         }
@@ -131,13 +131,13 @@ public class BookingAvailabilityStateService(
         if (guaranteedSpaceSlotExists)
         {
             logger.LogInformation(
-                "HasAvailability short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                "HasAnyAvailableSlot short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
             return true;
         }
 
         logger.LogInformation(
-            "HasAvailability short circuit attempt unsuccessful - falling back to building the full state to ascertain the availability for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+            "HasAnyAvailableSlot short circuit attempt unsuccessful - falling back to building the full state to ascertain the availability for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
             service, site, from, to);
 
         //fallback to building up full state to get a definite decision

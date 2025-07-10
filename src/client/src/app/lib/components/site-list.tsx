@@ -4,6 +4,7 @@ import { Button, Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import Link from 'next/link';
+import SearchButton from './search-button';
 
 type Props = {
   sites: Site[];
@@ -53,20 +54,8 @@ const SiteList = ({ sites }: Props) => {
             onChange={handleSearchValueChange}
           ></TextInput>
         </div>
-        <Button
-          styleType="secondary"
-          onClick={handleSearchClick}
-          additionalClasses="search-button"
-        >
-          Search
-        </Button>
-        <Button
-          styleType="secondary"
-          onClick={handleClearClick}
-          additionalClasses="search-button"
-        >
-          Clear
-        </Button>
+        <SearchButton onClick={handleSearchClick}>Search</SearchButton>
+        <SearchButton onClick={handleClearClick}>Clear</SearchButton>
       </div>
       {showSearchMsg && searchValue.length > 0 && (
         <p>

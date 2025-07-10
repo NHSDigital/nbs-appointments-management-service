@@ -24,14 +24,6 @@ public class BookingCosmosDocumentStore(
             return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
         }
     }
-    
-    public async Task<IEnumerable<Booking>> GetInDateRangeForServicesAsync(DateTime from, DateTime to, string site, string[] services)
-    {
-        using (metricsRecorder.BeginScope("GetBookingsInDateRangeForServices"))
-        {
-            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to && services.Contains(b.Service));
-        }
-    }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
     {

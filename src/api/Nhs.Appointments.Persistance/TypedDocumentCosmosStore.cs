@@ -162,6 +162,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             while (queryFeed.HasMoreResults)
             {
+                //TODO extend this to pass a cancellation token in for the fire and forget version
                 var resultSet = await queryFeed.ReadNextAsync();
                 results.AddRange(resultSet.Select(map));
                 requestCharge += resultSet.RequestCharge;

@@ -12,32 +12,35 @@ public class SiteSummaryTrigger(
     : ISitesSummaryTrigger
 {
     private IOptions<SiteSummaryOptions> Options { get; } = options;
-    private TimeProvider TimeProvider { get;  } = timeProvider;
-    private IAggregationStore Store { get;  } = store;
-    private ISiteService SiteService { get;  } = siteService;
+    private TimeProvider TimeProvider { get; } = timeProvider;
+    private IAggregationStore Store { get; } = store;
+    private ISiteService SiteService { get; } = siteService;
 
     public async Task Trigger()
     {
+        var triggeredTime = TimeProvider.GetUtcNow();
         var lastRunDate = await Store.GetLastRunDate(Options.Value.ReportName);
         var startDate = lastRunDate is null
-            ? (DateOnly?)null
+            ? Options.Value.FirstRunDate
             : DateTimeToDate(lastRunDate.Value); 
-        var endDate = DateTimeToDate(TimeProvider.GetUtcNow().AddDays(Options.Value.DaysForward));
+        var endDate = DateTimeToDate(triggeredTime.AddDays(Options.Value.DaysForward));
         var sites = await SiteService.GetAllSites();
 
         foreach (var site in sites)
         {
             await TriggerForSite(site.Id, startDate, endDate);
         }
+
+        await Store.SetLastRunDate(Options.Value.ReportName, triggeredTime);
     }
 
+    private async Task TriggerForSite(string site, DateOnly startDate, DateOnly endDate)
+    {
+        await bus.Send(new AggregateSiteSummaryEvent { Site = site, From = startDate, To = endDate });
+    }
+    
     private static DateOnly DateTimeToDate(DateTimeOffset dateTime)
     {
         return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
-    }
-
-    public async Task TriggerForSite(string site, DateOnly? startDate, DateOnly endDate)
-    {
-        await bus.Send(new AggregateSiteSummaryEvent() { Site = site, From = startDate, To = endDate });
     }
 }

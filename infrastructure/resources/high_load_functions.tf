@@ -117,6 +117,9 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.GetSiteReportFunction.Disabled"                          = true
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
   }
 
   sticky_settings {
@@ -237,6 +240,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.GetSiteReportFunction.Disabled"                          = true
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
   }
 
   identity {

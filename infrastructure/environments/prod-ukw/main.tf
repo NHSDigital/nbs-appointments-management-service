@@ -82,6 +82,7 @@ module "mya_application_prod_ukw" {
   cosmos_automatic_failover_enabled              = false
   cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = false
+  disable_aggregate_daily_site_summary           = true
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

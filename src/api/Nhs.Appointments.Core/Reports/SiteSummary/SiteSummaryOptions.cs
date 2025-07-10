@@ -4,4 +4,6 @@ public class SiteSummaryOptions
 {
     public int DaysForward { get; set; }
     public string ReportName { get; set; }
+
+    public DateOnly FirstRunDate { get; set; }
 }

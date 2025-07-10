@@ -37,8 +37,8 @@ public static class ServiceRegistration
                     .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
                     .AddScoped<IConsumer<BookingRescheduled>, BookingRescheduledConsumer>()
                     .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
-                    .AddScoped<ISendNotifications, CosmosNotificationClient>();
-                    //.AddScoped<IConsumer<AggregateSiteSummaryEvent>, AggregateSiteSummaryConsumer>();
+                    .AddScoped<ISendNotifications, CosmosNotificationClient>()
+                    .AddScoped<IConsumer<AggregateSiteSummaryEvent>, AggregateSiteSummaryConsumer>();
                 break;
             case "azure-throttled":
                 services

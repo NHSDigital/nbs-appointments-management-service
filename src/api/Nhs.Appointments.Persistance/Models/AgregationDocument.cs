@@ -6,5 +6,5 @@ namespace Nhs.Appointments.Persistance.Models;
 public class AggregationDocument : CoreDataCosmosDocument
 {
     [JsonProperty("lastTriggerUtcDate")]
-    public DateTime LastTriggeredUtcDate { get; set; }
+    public DateTimeOffset LastTriggeredUtcDate { get; set; }
 }

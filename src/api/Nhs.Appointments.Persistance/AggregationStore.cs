@@ -1,3 +1,4 @@
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Persistance.Models;
 
@@ -7,17 +8,24 @@ public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> sto
 {
     private ITypedDocumentCosmosStore<AggregationDocument> Store { get; } = store;
 
-    public async Task<DateTime?> GetLastRunDate(string id)
+    public async Task<DateTimeOffset?> GetLastRunDate(string id)
     {
         var document = await Store.GetDocument<AggregationDocument>(id);
 
         return document?.LastTriggeredUtcDate;
     }
 
-    public async Task GetLastRunDate(string id, DateTime lastRunDateUtc)
+    public async Task SetLastRunDate(string id, DateTimeOffset lastTriggerUtcDate)
     {
-        var document = new AggregationDocument() { Id = id, LastTriggeredUtcDate = lastRunDateUtc };
+        var document = await Store.GetDocument<AggregationDocument>(id);
 
-        await Store.WriteAsync(document);
+        if (document is null)
+        {
+            await Store.PatchDocument(Store.GetDocumentType(), id,
+                PatchOperation.Set("/lastTriggerUtcDate", lastTriggerUtcDate));
+            return;
+        }
+
+        await Store.WriteAsync(new AggregationDocument { Id = id, LastTriggeredUtcDate = lastTriggerUtcDate });
     }
 }

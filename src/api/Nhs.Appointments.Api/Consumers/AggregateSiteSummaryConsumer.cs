@@ -14,11 +14,8 @@ public abstract class AggregateSiteSummaryConsumer(ISiteSummaryAggregator siteSu
             throw new InvalidOperationException($"{typeof(AggregateSiteSummaryEvent)} is not valid");
         }
 
-        var from = context.Message.From ?? new DateOnly(2025, 02, 1);
-        var to = context.Message.To;
-
-        await siteSummaryAggregator.AggregateForSite(context.Message.Site, from, to);
+        await siteSummaryAggregator.AggregateForSite(context.Message.Site, context.Message.From , context.Message.To);
     }
 
-    private bool NotificationIsValid(AggregateSiteSummaryEvent e) => (e.From is null || e.From <= e.To) && !string.IsNullOrWhiteSpace(e.Site);
+    private bool NotificationIsValid(AggregateSiteSummaryEvent e) => e.From <= e.To && !string.IsNullOrWhiteSpace(e.Site);
 }

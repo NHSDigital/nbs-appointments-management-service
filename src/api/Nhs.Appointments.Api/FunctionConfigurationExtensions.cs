@@ -70,8 +70,9 @@ public static class FunctionConfigurationExtensions
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {
-                opts.DaysForward = 30;
-                opts.ReportName = "daily-site-summary";
+                opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
+                opts.ReportName = configuration.GetValue<string>("SITE_SUMMARY_REPORT_NAME");
+                opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()

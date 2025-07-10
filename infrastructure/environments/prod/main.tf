@@ -79,6 +79,7 @@ module "mya_application_prod" {
   cosmos_automatic_failover_enabled              = true
   cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = true
+  disable_aggregate_daily_site_summary           = true
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

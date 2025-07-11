@@ -17,6 +17,7 @@
         "name": "next"
       }
     ],
+    "types": ["@testing-library/jest-dom"],
     "paths": {
       "@components/*": ["./src/app/lib/components/*"],
       "@nhsuk-frontend-components": [
@@ -28,15 +29,10 @@
       "@sorting": ["./src/app/lib/sorting/index"],
       "@constants": ["./src/constants"],
       "@testing-page-objects": ["./testing/page-objects/index"]
-    }
+    },
+    "target": "ES2017"
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "src"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src"],
   "exclude": ["node_modules"]
 }
 

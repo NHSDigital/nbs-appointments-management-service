@@ -7,8 +7,10 @@ const notAuthorized = () => {
   throw new UnauthorizedError();
 };
 
-const notAuthenticated = () => {
-  const lastRequestedPath = headers().get('mya-last-requested-path');
+const notAuthenticated = async () => {
+  const headersList = await headers();
+
+  const lastRequestedPath = headersList.get('mya-last-requested-path');
 
   redirect(
     lastRequestedPath ? `/login?redirectUrl=${lastRequestedPath}` : '/login',

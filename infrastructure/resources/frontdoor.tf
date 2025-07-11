@@ -1,14 +1,14 @@
 resource "azurerm_cdn_frontdoor_profile" "nbs_mya_frontdoor_profile" {
   count                    = var.create_frontdoor ? 1 : 0
   name                     = "${var.application}-fd-${var.environment}-${var.loc}"
-  resource_group_name      = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name      = local.resource_group_name
   sku_name                 = "Standard_AzureFrontDoor"
   response_timeout_seconds = 60
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "nbs_mya_endpoint" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = "nbs-mya"
+  name                     = "nbs-mya-${var.environment}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
 }
 

@@ -2,7 +2,7 @@
 resource "azurerm_servicebus_namespace" "nbs_mya_service_bus" {
   name                = "${var.application}-sb-${var.environment}-${var.loc}"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   sku                 = "Standard"
 }
 

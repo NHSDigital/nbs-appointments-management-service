@@ -20,9 +20,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, []);
 
-        var hasAvailability =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.False(hasAvailability);
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -64,9 +63,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
 
         //blue has availability due to the greedy allocation assigning green bookings to the second session
-        var hasBlueAvailability =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasBlueAvailability);
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -81,9 +79,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
         
         //green has availability but still has to use allocation to confirm
-        var hasGreenAvailability =
+        var green =
             await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasGreenAvailability);
+        Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -125,9 +123,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
 
         //blue has no availability due to the greedy allocation assigning green bookings to the second session
-        var hasBlueAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.False(hasBlueAvailability);
+        Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -142,9 +140,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
         
         //green has availability but still has to use allocation to confirm
-        var hasGreenAvailability =
+        var green =
             await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasGreenAvailability);
+        Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -188,9 +186,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -234,9 +232,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasGreenAvailability =
+        var green =
             await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.False(hasGreenAvailability);
+        Assert.False(green.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -250,9 +248,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Never);
 
-        var hasBlueAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasBlueAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -293,9 +291,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasBlueAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasBlueAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -309,9 +307,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var hasGreenAvailability =
+        var green =
             await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasGreenAvailability);
+        Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -356,9 +354,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasBlueAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasBlueAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -372,9 +370,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var hasPurpleAvailability =
-            await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.False(hasPurpleAvailability);
+        var purple = await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        Assert.False(purple.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -429,9 +426,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -483,9 +480,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         //it should find the 11:50-12:00 slot having capacity first
 
-        var hasBlueAvailability =
+        var blue =
             await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasBlueAvailability);
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -499,9 +496,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var hasGreenAvailability =
+        var green =
             await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasGreenAvailability);
+        Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(
@@ -542,9 +539,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var hasAvailability =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
-        Assert.True(hasAvailability);
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
                 x.Log(

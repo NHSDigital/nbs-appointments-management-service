@@ -61,10 +61,19 @@ public class HasAnyAvailableSlotFunction(
 
         await Parallel.ForEachAsync(request.Sites, async (site, _) =>
         {
-            var hasAnyAvailableSlot =
+            var (hasAnyAvailableSlot, shortCircuited) =
                 await bookingAvailabilityStateService.HasAnyAvailableSlot(request.Service, site, dayStart, dayEnd);
-            concurrentResults.Add(new HasAnyAvailableSlotResponseItem(site, hasAnyAvailableSlot));
+            concurrentResults.Add(new HasAnyAvailableSlotResponseItem(site, hasAnyAvailableSlot, shortCircuited));
         });
+
+        if (concurrentResults.All(x => x.shortCircuited))
+        {
+            logger.LogInformation("HasAnyAvailableSlot - short-circuited successfully for all {SitesLength} sites", request.Sites.Length);
+        }
+        else
+        {
+            logger.LogInformation("HasAnyAvailableSlot - At least one site did not short-circuit");
+        }
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

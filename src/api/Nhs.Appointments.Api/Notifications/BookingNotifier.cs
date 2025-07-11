@@ -54,6 +54,7 @@ public class BookingNotifier(
             logger.LogWarning($"Unable to send notification for {eventType}:{bookingRef} to {notificationType}:{destination} because the specified site does not exist");
             return;
         }
+        var clinicalService = await clinicalServiceProvider.Get(service);
 
         var templateValues = new Dictionary<string, dynamic>
         {
@@ -64,8 +65,8 @@ public class BookingNotifier(
             {"reference", bookingRef},
             {"address", site.Address },
             {"siteLocation", GetSiteLocation(site.InformationForCitizens) },
-            {"vaccine", await clinicalServiceProvider.GetServiceType(service) },
-            {"serviceURL", await clinicalServiceProvider.GetServiceUrl(service) }
+            {"vaccine", clinicalService.ServiceType },
+            {"serviceURL", clinicalService.Url }
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);

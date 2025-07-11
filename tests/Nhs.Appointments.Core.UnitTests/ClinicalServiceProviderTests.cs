@@ -42,6 +42,26 @@ public class ClinicalServiceProviderTests
         Assert.Equal(_sampleServices[1].Url, resultArray[1].Url);
     }
 
+    [Fact]
+    public async Task Get_ReturnsClinicalServiceType()
+    {
+        // Arrange
+        var service = "COVID:5_11";
+
+        _storeMock.Setup(x => x.Get()).ReturnsAsync(_sampleServices);
+
+        // Act
+        var result = await _sut.Get(service);
+
+        // Assert
+        Assert.Multiple(
+            () => Assert.NotNull(result),
+            () => Assert.Equal(_sampleServices[0].Value, result.Value),
+            () => Assert.Equal(_sampleServices[0].ServiceType, result.ServiceType),
+            () => Assert.Equal(_sampleServices[0].Url, result.Url)
+        );
+    }
+
 
     [Fact]
     public async Task GetFromCache_ReturnsFromCache_WhenPresent()
@@ -75,45 +95,5 @@ public class ClinicalServiceProviderTests
         // Assert
         Assert.Equal(_sampleServices, result);
         _storeMock.Verify(s => s.Get(), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetServiceType_ReturnsCorrectValue()
-    {
-        // Arrange
-        _storeMock.Setup(s => s.Get()).ReturnsAsync(_sampleServices);
-
-        // Act
-        var result = await _sut.GetServiceType("COVID:5_11");
-
-        // Assert
-        Assert.Equal("COVID-19", result);
-    }
-
-    [Fact]
-    public async Task GetServiceUrl_ReturnsCorrectUrl()
-    {
-        // Arrange
-        _storeMock.Setup(s => s.Get()).ReturnsAsync(_sampleServices);
-
-        // Act
-        var result = await _sut.GetServiceUrl("FLU:18_64");
-
-        // Assert
-        Assert.Equal("https://www.nhs.uk/bookflu", result);
-    }
-
-    [Fact]
-    public async Task GetServiceType_ReturnsNull_WhenServiceNotFound()
-    {
-        // Arrange
-        _storeMock.Setup(s => s.Get()).ReturnsAsync(Array.Empty<ClinicalServiceType>);
-
-        // Act
-        var result = await _sut.GetServiceType("nonexistent");
-
-
-        // Assert
-        Assert.Null(result);
     }
 }

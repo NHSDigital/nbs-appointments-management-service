@@ -77,7 +77,6 @@ module "mya_application_stag" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
-  cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = true
   cosmos_geo_locations = [{
     location          = "uksouth"

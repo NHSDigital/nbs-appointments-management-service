@@ -6,4 +6,4 @@ public class HasAnyAvailableSlotResponse : List<HasAnyAvailableSlotResponseItem>
 {
 }
 
-public record HasAnyAvailableSlotResponseItem(string site, bool hasAnyAvailableSlot);
+public record HasAnyAvailableSlotResponseItem(string site, bool hasAnyAvailableSlot, bool shortCircuited);

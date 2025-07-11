@@ -6,5 +6,5 @@ namespace Nhs.Appointments.Api.Notifications;
 
 public interface IBookingNotifier
 {
-    Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, NotificationType type, string destination);
+    Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, NotificationType notificationType, string destination);
 }

@@ -15,5 +15,11 @@ public class ClinicalServiceTypeDocument
     public string Id { get; set; }
 
     [JsonProperty("label")]
-    public string Label { get; set; }
+    public string Label { get; set; }    
+    
+    [JsonProperty("serviceType")]
+    public string ServiceType { get; set; }    
+    
+    [JsonProperty("url")]
+    public string Url { get; set; }
 }

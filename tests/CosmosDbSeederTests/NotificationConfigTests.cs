@@ -8,6 +8,7 @@ public class NotificationConfigTests : BaseCosmosDbSeederTest
     [InlineData("local")]
     [InlineData("dev")]
     [InlineData("int")]
+    [InlineData("pen")]
     [InlineData("stag")]
     [InlineData("prod")]
     public void AllConfigsAreForValidServices(string environment)

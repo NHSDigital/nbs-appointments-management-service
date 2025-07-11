@@ -4,13 +4,14 @@ param (
   [string][Parameter(Mandatory)]$profileName,
   [string][Parameter(Mandatory)]$ruleSetName,
   [string][Parameter(Mandatory)]$apiOriginGroupName,
-  [string][Parameter(Mandatory)]$webOriginGroupName
+  [string][Parameter(Mandatory)]$webOriginGroupName,
+  [string][Parameter(Mandatory)]$env
 )
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$endpointName = "nbs-mya"
+$endpointName = "nbs-mya-$env"
 
 # Update route to use ruleset
 az afd route update `

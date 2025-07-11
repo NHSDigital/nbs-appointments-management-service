@@ -41,7 +41,7 @@ public class BookingAvailabilityStateService(
     ///     Expectation that the majority of cases will return a result instead of needing to build up the full state model
     ///     Includes service session existence check, an empty slot existence check and finally an inverse-pigeonhole principle check.
     /// </summary>
-    public async Task<bool> HasAnyAvailableSlot(string service, string site, DateTime from, DateTime to)
+    public async Task<(bool hasSlot, bool shortCircuited)> HasAnyAvailableSlot(string service, string site, DateTime from, DateTime to)
     {
         //kick off fetch bookings asynchronously as its likely needed
         var liveBookingsTask = bookingQueryService.GetLiveBookings(site, from, to);
@@ -53,18 +53,19 @@ public class BookingAvailabilityStateService(
             service,
             DateOnly.FromDateTime(from),
             DateOnly.FromDateTime(to))).ToList();
-
+        
         //fetch sessions first and check there exists documents that support it, else has no capacity for that service
         if (sessionsForService.Count == 0)
         {
             logger.LogInformation(
                 "HasAnyAvailableSlot short circuit success - No sessions for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
-            return false;
+            return (false, true);
         }
-
+        
+        //at least one session in daterange supports our service
+        //TODO work through each session day backwards??
         var allSupportedServices = sessionsForService.SelectMany(x => x.Services).Distinct().ToArray();
-
         var liveRelevantBookings = (await liveBookingsTask).Where(x => allSupportedServices.Contains(x.Service));
 
         //only care about short-circuiting for slots that can support our queried service
@@ -86,7 +87,7 @@ public class BookingAvailabilityStateService(
             logger.LogInformation(
                 "HasAnyAvailableSlot short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
-            return true;
+            return (true, true);
         }
 
         //we have ascertained no empty slots exist, now to populate our dictionary with metrics for the inverse pigeonhole check
@@ -134,7 +135,7 @@ public class BookingAvailabilityStateService(
             logger.LogInformation(
                 "HasAnyAvailableSlot short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
                 service, site, from, to);
-            return true;
+            return (true, true);
         }
 
         logger.LogInformation(
@@ -145,7 +146,7 @@ public class BookingAvailabilityStateService(
         var availableSlots = await GetAvailableSlots(site, from, to);
 
         //return if any of the available slots for the full state model can support our queried service
-        return availableSlots.Any(sl => sl.Services.Contains(service));
+        return (availableSlots.Any(sl => sl.Services.Contains(service)), false);
     }
 
     public async Task<IEnumerable<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)

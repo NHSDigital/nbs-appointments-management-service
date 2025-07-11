@@ -11,7 +11,7 @@ describe('Search Button', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Click me!' })).toHaveAttribute(
       'class',
-      'nhsuk-button nhsuk-button--secondary-solid search-button',
+      'nhsuk-button nhsuk-button--secondary-solid app-button--small',
     );
   });
 });

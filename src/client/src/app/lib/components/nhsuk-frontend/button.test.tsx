@@ -22,7 +22,7 @@ describe('Button', () => {
 
   it.each([
     { type: 'primary', expectedClass: 'nhsuk-button' },
-    { type: 'secondary', expectedClass: 'nhsuk-button--secondary' },
+    { type: 'secondary', expectedClass: 'nhsuk-button--secondary-solid' },
     { type: 'reverse', expectedClass: 'nhsuk-button--reverse' },
     { type: 'warning', expectedClass: 'nhsuk-button--warning' },
   ])(

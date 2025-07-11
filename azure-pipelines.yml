@@ -174,10 +174,6 @@ stages:
 
       - job: RunIntegrationAndE2ETests
         displayName: "Run integration and E2E tests"
-
-        # Temporarily prevent this step from running so I can test the creation of the pen environment more quickly
-        condition: false
-
         variables:
           PFX_CERT_PATH: "$(Build.SourcesDirectory)/.aspnet/https"
           integrationTestProjectPath: "tests/Nhs.Appointments.Api.Integration/Nhs.Appointments.Api.Integration.csproj"

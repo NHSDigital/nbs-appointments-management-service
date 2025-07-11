@@ -349,9 +349,5 @@ stages:
             serviceConnectionName: nhsuk-mya-nonprod
           ${{ else }}:
             serviceConnectionName: nbs-mya-rg-${{env}}
-
-          # TODO: Replace this check once testing the creation of the pen environment is complete.
-          # isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
-          isMain: true
-
+          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
           buildNumber: "$(Build.BuildNumber)"

@@ -9,7 +9,7 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string cancellationReason);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string? cancellationReason = null);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -50,11 +50,14 @@ public class BookingWriteService(
         return await MakeBooking_SingleService(booking);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string cancellationReason)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, string? cancellationReason = null)
     {
-        if (!Enum.TryParse<CancellationReason>(cancellationReason, ignoreCase: true, out var reason))
+        var reason = CancellationReason.CancelledByCitizen;
+
+        if (!string.IsNullOrWhiteSpace(cancellationReason) &&
+            Enum.TryParse<CancellationReason>(cancellationReason, ignoreCase: true, out var parsedReason))
         {
-            return BookingCancellationResult.NotFound;
+            reason = parsedReason;
         }
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))

@@ -530,7 +530,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
                 e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
 
-            await _sut.CancelBooking(bookingRef, site, ""); //TODO
+            await _sut.CancelBooking(bookingRef, site, cancellationReason: null);
 
             _messageBus.VerifyAll();
         }
@@ -544,13 +544,93 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.Site))       //TODO null or empty
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null))
                 .ReturnsAsync(true).Verifiable();
 
-            var result = await _sut.CancelBooking(bookingRef, "some-other-site", "");   //TODO
+            var result = await _sut.CancelBooking(bookingRef, "some-other-site", cancellationReason: null);
 
             result.Should().Be(BookingCancellationResult.NotFound);
         }
+
+        //[Fact]
+        //public async Task CancelBooking_UsesDefaultCancellationReason_WhenReasonIsNull()
+        //{
+        //    var reference = "BOOK-123";
+        //    var site = "SITE01";
+
+        //    var booking = new Booking
+        //    {
+        //        Reference = reference,
+        //        Site = site,
+        //        From = DateTime.UtcNow,
+        //        Status = AppointmentStatus.Booked
+        //    };
+
+        //    _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
+        //    _bookingsDocumentStore.Setup(x =>
+        //            x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen))
+        //        .Returns(Task.CompletedTask)
+        //        .Verifiable();
+
+        //    var result = await _sut.CancelBooking(reference, site);
+
+        //    result.Should().Be(BookingCancellationResult.Success);
+        //    _bookingsDocumentStore.Verify();
+        //}
+
+        //[Fact]
+        //public async Task CancelBooking_ParsesCancellationReason_WhenValidEnumPassed()
+        //{
+        //    var reference = "BOOK-456";
+        //    var site = "SITE02";
+        //    var reasonStr = "CancelledByAdmin";
+
+        //    var booking = new Booking
+        //    {
+        //        Reference = reference,
+        //        Site = site,
+        //        From = DateTime.UtcNow,
+        //        Status = AppointmentStatus.Booked
+        //    };
+
+        //    _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
+        //    _bookingsDocumentStore.Setup(x =>
+        //            x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledByAdmin))
+        //        .Returns(Task.CompletedTask)
+        //        .Verifiable();
+
+        //    var result = await _sut.CancelBooking(reference, site, reasonStr);
+
+        //    result.Should().Be(BookingCancellationResult.Success);
+        //    _bookingsDocumentStore.Verify();
+        //}
+
+        //[Fact]
+        //public async Task CancelBooking_UsesDefaultReason_WhenEnumParseFails()
+        //{
+        //    var reference = "BOOK-789";
+        //    var site = "SITE03";
+        //    var reasonStr = "NonExistentReason";
+
+        //    var booking = new Booking
+        //    {
+        //        Reference = reference,
+        //        Site = site,
+        //        From = DateTime.UtcNow,
+        //        Status = AppointmentStatus.Booked
+        //    };
+
+        //    _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
+        //    _bookingsDocumentStore.Setup(x =>
+        //            x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen))
+        //        .Returns(Task.CompletedTask)
+        //        .Verifiable();
+
+        //    var result = await _sut.CancelBooking(reference, site, reasonStr);
+
+        //    result.Should().Be(BookingCancellationResult.Success);
+        //    _bookingsDocumentStore.Verify();
+        //}
     }
 
     /// <summary>

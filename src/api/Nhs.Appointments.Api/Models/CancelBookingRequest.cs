@@ -1,3 +1,3 @@
 namespace Nhs.Appointments.Api.Models;
 
-public record CancelBookingRequest(string bookingReference, string site, string cancellationReason);
+public record CancelBookingRequest(string bookingReference, string site, string? cancellationReason = null);

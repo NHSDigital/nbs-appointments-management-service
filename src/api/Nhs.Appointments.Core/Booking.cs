@@ -93,6 +93,7 @@ public enum AvailabilityStatus
 
 public enum CancellationReason
 {
-    Citizen,
-    Site
+    CancelledByCitizen,
+    CancelledBySite,
+    RescheduledByCitizen,   //TODO
 }

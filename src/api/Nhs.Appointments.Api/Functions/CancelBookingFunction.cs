@@ -73,7 +73,7 @@ public class CancelBookingFunction(
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
-        var cancellationReason = req.Query.ContainsKey("cancellationReason") ? req.Query["cancellationReason"].ToString() : string.Empty;
+        var cancellationReason = req.Query.ContainsKey("cancellationReason") ? req.Query["cancellationReason"].ToString() : null;
 
         return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site, cancellationReason)));
     }

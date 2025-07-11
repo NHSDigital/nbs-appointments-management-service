@@ -216,7 +216,7 @@ public class BookingCosmosDocumentStore(
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.Site);   //TODO null or empty string
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, cancellationReason: null);   //TODO null or empty string
         }
         
         return BookingConfirmationResult.Success;

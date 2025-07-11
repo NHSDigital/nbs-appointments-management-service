@@ -1,4 +1,3 @@
-using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +9,7 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.UnitTests;
+using System.Web.Http;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -48,11 +48,11 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     }
 
     [Fact]
-    public async Task RunAsync_CallsBookingServiceOnce_WhenBookingCancelled()
+    public async Task RunAsync_CallsBookingServiceOnce_WhenCancellationReasonIsNull()
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, "cancellationReason")) 
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, null)) 
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
         var request = BuildRequest(bookingRef, site);
@@ -94,12 +94,37 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         Assert.Equal(500, response.StatusCode);
     }
 
-    private static HttpRequest BuildRequest(string reference, string site)
+    [Fact]
+    public async Task RunAsync_PassesCancellationReasonToService()
+    {
+        var bookingRef = "some-booking";
+        var site = "TEST01";
+        var cancellationReason = "CancelledByCitizen";
+
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, cancellationReason))
+            .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable();
+
+        var request = BuildRequest(bookingRef, site, cancellationReason);
+
+        var response = await _sut.RunAsync(request) as ContentResult;
+
+        Assert.Equal(200, response.StatusCode.Value);
+        _bookingWriteService.Verify();
+    }
+
+    private static HttpRequest BuildRequest(string reference, string site, string? cancellationReason = null)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;
         request.RouteValues = new RouteValueDictionary { { "bookingReference", reference } };
-        request.QueryString = new QueryString($"?site={site}");
+
+        var query = $"?site={site}";
+        if (!string.IsNullOrWhiteSpace(cancellationReason))
+        {
+            query += $"&cancellationReason={Uri.EscapeDataString(cancellationReason)}";
+        }
+
+        request.QueryString = new QueryString(query);
         request.Headers.Append("Authorization", "Test 123");
 
         return request;

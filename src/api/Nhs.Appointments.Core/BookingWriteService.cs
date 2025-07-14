@@ -79,8 +79,8 @@ public class BookingWriteService(
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result = cancellationReason != null
-            ? await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule, Enum.Parse<CancellationReason>(cancellationReason))
+        var result = !string.IsNullOrEmpty(cancellationReason) && Enum.TryParse<CancellationReason>(cancellationReason, ignoreCase: true, out var parsedReason)
+            ? await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule, parsedReason)
             : await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
         await SendConfirmNotification(bookingReference, result, isRescheduleOperation);

@@ -73,7 +73,6 @@ public abstract partial class BaseFeatureSteps : Feature
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles().GetAwaiter().GetResult();
         SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
-        SetUpNotificationConfiguration().GetAwaiter().GetResult();
     }
 
     protected string NhsNumber { get; private set; } = CreateRandomTenCharacterString();

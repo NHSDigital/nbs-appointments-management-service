@@ -80,7 +80,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
-            .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
+            .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()

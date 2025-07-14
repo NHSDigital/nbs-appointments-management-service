@@ -182,6 +182,7 @@ public class BookingAvailabilityStateService(
                                 break;
                             case AvailabilityStatus.Orphaned:
                                 orphaned[booking.Service] = orphaned.GetValueOrDefault(booking.Service, 0) + 1;
+                                daySummary.OrphanedAppointments++;
                                 break;
                         }
 

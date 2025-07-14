@@ -71,7 +71,6 @@ public static class FunctionConfigurationExtensions
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
-                opts.ReportName = configuration.GetValue<string>("SITE_SUMMARY_REPORT_NAME");
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()

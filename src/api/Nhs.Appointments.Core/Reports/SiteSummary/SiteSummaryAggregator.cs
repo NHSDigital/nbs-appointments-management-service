@@ -20,12 +20,13 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
         
         if (summary.MaximumCapacity <= 0 && summary.Orphaned.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.CancelledAppointments <= 0))
         {
+            await store.IfExistsDelete(site, day);
             return;
         }
 
         var clinicalServices = summary.DaySummaries.SelectMany(daySummary => daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key))).Distinct().ToArray();
         
-        await store.CreateDailySiteSummary(new DailySiteSummary()
+        await store.CreateDailySiteSummary(new DailySiteSummary
         {
             Site = site,
             Date = day,

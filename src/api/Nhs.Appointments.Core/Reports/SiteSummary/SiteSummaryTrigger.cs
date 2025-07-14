@@ -19,7 +19,7 @@ public class SiteSummaryTrigger(
     public async Task Trigger()
     {
         var triggeredTime = TimeProvider.GetUtcNow();
-        var lastRunDate = await Store.GetLastRunDate(Options.Value.ReportName);
+        var lastRunDate = await Store.GetLastRunDate();
         var startDate = lastRunDate is null
             ? Options.Value.FirstRunDate
             : DateTimeToDate(lastRunDate.Value); 
@@ -31,7 +31,7 @@ public class SiteSummaryTrigger(
             await TriggerForSite(site.Id, startDate, endDate);
         }
 
-        await Store.SetLastRunDate(Options.Value.ReportName, triggeredTime);
+        await Store.SetLastRunDate(triggeredTime);
     }
 
     private async Task TriggerForSite(string site, DateOnly startDate, DateOnly endDate)

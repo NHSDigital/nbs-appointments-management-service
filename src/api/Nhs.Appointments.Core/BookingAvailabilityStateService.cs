@@ -39,13 +39,12 @@ public class BookingAvailabilityStateService(
     /// <summary>
     ///     Use short-circuit logic to try and return a truthy as quick as possible
     ///     Expectation that the majority of cases will return a result instead of needing to build up the full state model
-    ///     Includes service session existence check, an empty slot existence check and finally an inverse-pigeonhole principle check.
+    ///     Includes service session existence check, an empty slot existence check and finally an inverse-pigeonhole principle
+    ///     check.
     /// </summary>
-    public async Task<(bool hasSlot, bool shortCircuited)> HasAnyAvailableSlot(string service, string site, DateTime from, DateTime to)
+    public async Task<(bool hasSlot, bool shortCircuited)> HasAnyAvailableSlot(string service, string site,
+        DateTime from, DateTime to)
     {
-        //kick off fetch bookings asynchronously as its likely needed
-        var liveBookingsTask = bookingQueryService.GetLiveBookings(site, from, to);
-        
         //we want to order slots and bookings DESCENDING as likely to have more availability in the future (bookings tend to occur closer to the present based on real data)
         //we're more likely to find an empty/available slot quicker if we start from the furthest point in the future
         var sessionsForService = (await availabilityQueryService.GetSessionsForServiceDescending(
@@ -53,7 +52,7 @@ public class BookingAvailabilityStateService(
             service,
             DateOnly.FromDateTime(from),
             DateOnly.FromDateTime(to))).ToList();
-        
+
         //fetch sessions first and check there exists documents that support it, else has no capacity for that service
         if (sessionsForService.Count == 0)
         {
@@ -62,82 +61,89 @@ public class BookingAvailabilityStateService(
                 service, site, from, to);
             return (false, true);
         }
-        
-        //at least one session in daterange supports our service
-        //TODO work through each session day backwards??
-        var allSupportedServices = sessionsForService.SelectMany(x => x.Services).Distinct().ToArray();
-        var liveRelevantBookings = (await liveBookingsTask).Where(x => allSupportedServices.Contains(x.Service));
 
         //only care about short-circuiting for slots that can support our queried service
         var slotsForService = sessionsForService
             .SelectMany(session => session.ToSlots())
-            .Where(x => x.Services.Contains(service))
-            .OrderByDescending(x => x.From);
-
-        var distinctBookingTimes = liveRelevantBookings
-            .Select(x => new DateRange(x.From, x.From.AddMinutes(x.Duration)))
-            .Distinct();
-
-        //does a slot exist where no bookings exist in the DB at that time?
-        var emptySlotExists =
-            slotsForService.Any(slot => !distinctBookingTimes.Contains(new DateRange(slot.From, slot.Until)));
-
-        if (emptySlotExists)
+            .Where(x => x.Services.Contains(service));
+        
+        //group by day?
+        var dayGroupedSlots = slotsForService
+            .GroupBy(x => DateOnly.FromDateTime(x.From))
+            .OrderByDescending(x => x.Key);
+        
+        //possible multiple DB calls but expecting early result?
+        foreach (var dayGroup in dayGroupedSlots)
         {
-            logger.LogInformation(
-                "HasAnyAvailableSlot short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
-                service, site, from, to);
-            return (true, true);
-        }
+            var slotsInDay = dayGroup.Select(x => x);
+            var allSupportedServices = slotsInDay.SelectMany(x => x.Services).Distinct().ToArray();
+            
+            var bookingsOnDay = (await bookingQueryService.GetLiveBookings(site, dayGroup.Key.ToDateTime(new TimeOnly(0)), dayGroup.Key.ToDateTime(new TimeOnly(23, 59, 59)))).Where(x => allSupportedServices.Contains(x.Service));
 
-        //we have ascertained no empty slots exist, now to populate our dictionary with metrics for the inverse pigeonhole check
-        var bookingTimeDictionary = new Dictionary<DateRange, Dictionary<string, int>>();
+            var distinctBookingTimes = bookingsOnDay
+                .Select(x => new DateRange(x.From, x.From.AddMinutes(x.Duration)))
+                .Distinct();
 
-        foreach (var group in liveRelevantBookings.GroupBy(x => new DateRange(x.From, x.From.AddMinutes(x.Duration))))
-        {
-            var serviceCounts = group
-                .GroupBy(b => b.Service)
-                .ToDictionary(
-                    sg => sg.Key,
-                    sg => sg.Count()
-                );
+            //does a slot exist where no bookings exist in the DB at that time?
+            var emptySlotExists = slotsInDay.Any(slot => !distinctBookingTimes.Contains(new DateRange(slot.From, slot.Until)));
 
-            bookingTimeDictionary[group.Key] = serviceCounts;
-        }
-
-        //want to group equivalent slots together for total capacity at that time-range and supported services
-        var groupedSlotsForService = slotsForService
-            .GroupBy(x => new SessionInstanceKey(x.From, x.Until, x.Services))
-            .Select(g => new SessionInstance(g.Key.From, g.Key.Until)
+            if (emptySlotExists)
             {
-                Services = g.Key.Services,
-                //Total capacity
-                Capacity = g.Sum(x => x.Capacity)
-            })
-            .ToList();
+                logger.LogInformation(
+                    "HasAnyAvailableSlot short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                    service, site, from, to);
+                return (true, true);
+            }
 
-        //does a slot exist where the number of total bookings for the services in that session is less than the total capacity for that slot?
-        //even if ALL the available bookings that slot can support are allocated to that slot, there is still > 0 capacity remaining
-        //if this is true, then the allocation algorithm used in BuildState is irrelevant, it is impossible to fill the slot based on the current live bookings
-        var guaranteedSpaceSlotExists = groupedSlotsForService.Any(slotGrouping =>
-        {
-            var bookingsForThatSlot = bookingTimeDictionary[new DateRange(slotGrouping.From, slotGrouping.Until)];
+            //we have ascertained no empty slots exist, now to populate our dictionary with metrics for the inverse pigeonhole check
+            var bookingTimeDictionary = new Dictionary<DateRange, Dictionary<string, int>>();
 
-            //only total the bookings that the slot can support
-            var bookingServiceTotal =
-                bookingsForThatSlot.Where(x => slotGrouping.Services.Contains(x.Key)).Sum(x => x.Value);
+            foreach (var group in bookingsOnDay.GroupBy(x => new DateRange(x.From, x.From.AddMinutes(x.Duration))))
+            {
+                var serviceCounts = group
+                    .GroupBy(b => b.Service)
+                    .ToDictionary(
+                        sg => sg.Key,
+                        sg => sg.Count()
+                    );
 
-            return slotGrouping.Capacity > bookingServiceTotal;
-        });
+                bookingTimeDictionary[group.Key] = serviceCounts;
+            }
 
-        if (guaranteedSpaceSlotExists)
-        {
-            logger.LogInformation(
-                "HasAnyAvailableSlot short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
-                service, site, from, to);
-            return (true, true);
+            //want to group equivalent slots together for total capacity at that time-range and supported services
+            var groupedSlotsForService = slotsInDay
+                .GroupBy(x => new SessionInstanceKey(x.From, x.Until, x.Services))
+                .Select(g => new SessionInstance(g.Key.From, g.Key.Until)
+                {
+                    Services = g.Key.Services,
+                    //Total capacity
+                    Capacity = g.Sum(x => x.Capacity)
+                })
+                .ToList();
+
+            //does a slot exist where the number of total bookings for the services in that session is less than the total capacity for that slot?
+            //even if ALL the available bookings that slot can support are allocated to that slot, there is still > 0 capacity remaining
+            //if this is true, then the allocation algorithm used in BuildState is irrelevant, it is impossible to fill the slot based on the current live bookings
+            var guaranteedSpaceSlotExists = groupedSlotsForService.Any(slotGrouping =>
+            {
+                var bookingsForThatSlot = bookingTimeDictionary[new DateRange(slotGrouping.From, slotGrouping.Until)];
+
+                //only total the bookings that the slot can support
+                var bookingServiceTotal =
+                    bookingsForThatSlot.Where(x => slotGrouping.Services.Contains(x.Key)).Sum(x => x.Value);
+
+                return slotGrouping.Capacity > bookingServiceTotal;
+            });
+
+            if (guaranteedSpaceSlotExists)
+            {
+                logger.LogInformation(
+                    "HasAnyAvailableSlot short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                    service, site, from, to);
+                return (true, true);
+            }
         }
-
+        
         logger.LogInformation(
             "HasAnyAvailableSlot short circuit attempt unsuccessful - falling back to building the full state to ascertain the availability for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
             service, site, from, to);

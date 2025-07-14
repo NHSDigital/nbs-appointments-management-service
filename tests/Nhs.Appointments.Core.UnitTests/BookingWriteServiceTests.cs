@@ -221,7 +221,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
+                .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",
@@ -320,7 +321,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
+                .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",

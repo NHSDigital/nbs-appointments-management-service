@@ -14,9 +14,20 @@ public class BookingNotifier(
     INotificationConfigurationService notificationConfigurationService,
     ISiteService siteService, 
     IPrivacyUtil privacy,
-    ILogger<BookingNotifier> logger) : IBookingNotifier
+    ILogger<BookingNotifier> logger,
+    IClinicalServiceProvider clinicalServiceProvider) : IBookingNotifier
 {
-    public async Task Notify(string eventType, string service, string bookingRef, string siteId, string firstName, DateOnly date, TimeOnly time, NotificationType notificationType, string destination)
+    public async Task Notify(
+        string eventType, 
+        string service, 
+        string bookingRef, 
+        string siteId, 
+        string firstName, 
+        DateOnly date, 
+        TimeOnly time, 
+        NotificationType notificationType, 
+        string destination
+    )
     {
         if(notificationType == NotificationType.Unknown)
         {
@@ -43,6 +54,13 @@ public class BookingNotifier(
             logger.LogWarning($"Unable to send notification for {eventType}:{bookingRef} to {notificationType}:{destination} because the specified site does not exist");
             return;
         }
+        var clinicalService = await clinicalServiceProvider.Get(service);
+        
+        if(clinicalService == null)
+        {
+            logger.LogWarning($"Unable to send notification for {eventType}:{bookingRef} to {notificationType}:{destination} because the specified clinical service does not exist");
+            return;
+        }
 
         var templateValues = new Dictionary<string, dynamic>
         {
@@ -52,7 +70,9 @@ public class BookingNotifier(
             {"time", time.ToString("HH:mm") },
             {"reference", bookingRef},
             {"address", site.Address },
-            {"siteLocation", GetSiteLocation(site.InformationForCitizens) }
+            {"siteLocation", GetSiteLocation(site.InformationForCitizens) },
+            {"vaccine", clinicalService.ServiceType },
+            {"serviceURL", clinicalService.Url }
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);

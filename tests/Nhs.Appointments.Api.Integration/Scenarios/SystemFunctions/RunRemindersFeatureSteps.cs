@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -83,6 +83,27 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Landline)));
 
         allNotifications.Count().Should().Be(0);
+    }
+
+    [And("I have Clinical Services")]
+    public async Task SetUpClinicalServices(DataTable dataTable)
+    {
+        var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()
+        {
+            Id = x.Cells.ElementAt(0).Value,
+            Label = x.Cells.ElementAt(0).Value,
+            ServiceType = x.Cells.ElementAt(1).Value,
+            Url = x.Cells.ElementAt(2).Value
+        });
+
+        var clinicalServicesDocument = new ClinicalServiceDocument()
+        {
+            Id = "clinical_services",
+            DocumentType = "system",
+            Services = clinicalServices.ToArray()
+        };
+
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(clinicalServicesDocument);
     }
 
     private Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)

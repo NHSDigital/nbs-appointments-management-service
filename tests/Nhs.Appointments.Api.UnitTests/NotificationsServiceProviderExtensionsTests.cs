@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests;
 
@@ -47,6 +49,9 @@ public class NotificationsServiceProviderExtensionsTests
         var serviceProvider = _serviceCollection
             .AddDependenciesNotUnderTest()
             .AddUserNotifications(configuration)
+            .AddCosmosDataStores()
+            .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
+            .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .BuildServiceProvider();
 
         var messageBus = serviceProvider.GetService(typeof(IMessageBus));

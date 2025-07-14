@@ -14,7 +14,6 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -27,8 +26,7 @@ public class GetSiteReportFunction(
     IValidator<SiteReportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetAccessibilityDefinitionsFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    ISiteSummaryAggregator siteSummaryAggregator)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SiteReportRequest, FileResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -79,11 +77,6 @@ public class GetSiteReportFunction(
         }
 
         var sites = await GetSites(user);
-
-        foreach (var site in sites)
-        {
-            await siteSummaryAggregator.AggregateForSite(site.Id, new DateOnly(2025, 2, 1), new DateOnly(2025, 7, 31));
-        }
         
         var report = await siteReportService.Generate(sites.ToArray(), request.StartDate, request.EndDate);
         

@@ -69,6 +69,7 @@ services:
       - Notifications_Provider=local
       - BookingRemindersCronSchedule=0 0 8 * * *
       - UnconfirmedProvisionalBookingsCronSchedule=*/5 * * * *
+      - DailySiteSummaryAggregationCronSchedule=*/5 * * * *
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
       - SITE_SUMMARY_DAYS_FORWARD=30,

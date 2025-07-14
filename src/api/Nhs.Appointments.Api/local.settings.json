@@ -44,6 +44,7 @@
     "GovNotifyApiKey": "test",
     "BookingRemindersCronSchedule": "0 0 8 * * *",
     "UnconfirmedProvisionalBookingsCronSchedule": "0 */5 * * * *",
+    "DailySiteSummaryAggregationCronSchedule": "0 */5 * * * *",
     "SITE_SUMMARY_DAYS_FORWARD": 30,
     "SITE_SUMMARY_FIRST_RUN_DATE": "2025-02-01"
   },

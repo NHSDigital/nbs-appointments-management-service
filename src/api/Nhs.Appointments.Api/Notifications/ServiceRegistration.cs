@@ -22,8 +22,6 @@ public static class ServiceRegistration
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingNotifier, BookingNotifier>()
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
-                .AddScoped<IClinicalServiceProvider, ClinicalServiceProvider>()
-                .AddScoped<IClinicalServiceStore, ClinicalServiceStore>()
                 .AddScoped<NotifyBookingReminderFunction>();
 
         switch (notificationsConfig.NotificationsProvider)

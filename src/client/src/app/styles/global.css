@@ -301,5 +301,12 @@
 }
 
 .search-bar .nhsuk-button {
-  margin-bottom: 0px !important;
+  margin-bottom: 4px !important;
+}
+
+.app-button--small {
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 1.71429;
+  padding: 4px 12px;
 }

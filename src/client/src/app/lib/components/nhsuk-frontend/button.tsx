@@ -36,7 +36,7 @@ const Button = ({
 const getClassForType = (type: ButtonStyleType): string => {
   switch (type) {
     case 'secondary':
-      return 'nhsuk-button nhsuk-button--secondary';
+      return 'nhsuk-button nhsuk-button--secondary-solid';
     case 'reverse':
       return 'nhsuk-button nhsuk-button--reverse';
     case 'warning':

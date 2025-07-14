@@ -220,7 +220,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'Search active sites by name, ICB or ODS code',
+      name: 'Search active sites by name or ODS code',
     });
     await user.type(searchInput, 'Beta');
 
@@ -312,7 +312,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'Search active sites by name, ICB or ODS code',
+      name: 'Search active sites by name or ODS code',
     });
     await user.type(searchInput, 'Be');
 
@@ -398,7 +398,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'Search active sites by name, ICB or ODS code',
+      name: 'Search active sites by name or ODS code',
     });
     await user.type(searchInput, '1004');
 
@@ -413,6 +413,9 @@ describe('<SiteList>', () => {
 
       const firstCell = within(dataRows[0]).getAllByRole('cell')[0];
       expect(within(firstCell).getByText('Site Beta')).toBeInTheDocument();
+      expect(
+        screen.getByText('Found 1 site(s) matching "1004".'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -490,7 +493,7 @@ describe('<SiteList>', () => {
     expect(screen.getByRole('cell', { name: 'Site Beta' })).toBeInTheDocument();
 
     const searchInput = screen.getByRole('textbox', {
-      name: 'Search active sites by name, ICB or ODS code',
+      name: 'Search active sites by name or ODS code',
     });
     await user.type(searchInput, '1005');
 
@@ -499,6 +502,9 @@ describe('<SiteList>', () => {
 
     await waitFor(() => {
       expect(screen.getAllByRole('row')).toHaveLength(1);
+      expect(
+        screen.getByText('No sites found matching "1005"'),
+      ).toBeInTheDocument();
     });
   });
 });

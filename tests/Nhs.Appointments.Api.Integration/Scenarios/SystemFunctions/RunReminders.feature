@@ -1,4 +1,4 @@
-﻿Feature: RunReminders
+Feature: RunReminders
 
     @ignore
     Scenario: Running reminders sends reminders for upcoming appointments	
@@ -40,9 +40,14 @@
 
     Scenario: Running reminders does not send reminders for future appointments outside the reminder window
         Given the site is configured for MYA
+        And I have Clinical Services
+          | Service     | ServiceType | Url                          |
+          | RSV:Adult   | RSV         | https://www.nhs.uk/book-rsv  |
+          | COVID:12_17 | COVID-19    | https://www.nhs.uk/bookcovid |
+          | FLU:2_3     | flu         | https://www.nhs.uk/bookflu   |
         And the following bookings have been made
             | Date              | Time  | Duration | Service |
-            | 4 days from today | 09:20 | 5        | COVID   |
+            | 4 days from today | 09:20 | 5        | COVID:12_17   |
         When the reminders job runs
         Then no notifications are sent out
     

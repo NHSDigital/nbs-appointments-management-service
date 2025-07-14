@@ -61,16 +61,29 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     [Then("the following notifications are sent out")]
     public async Task AssertNotifications(DataTable dataTable)
     {
-        var data = dataTable.Rows.Skip(1).Select(r => (r.Cells.ElementAt(0).Value, r.Cells.ElementAt(1).Value));
+        var data = dataTable.Rows.Skip(1).Select(r => (
+            r.Cells.ElementAt(0).Value, 
+            r.Cells.ElementAt(1).Value, 
+            r.Cells.ElementAt(2).Value, 
+            r.Cells.ElementAt(3).Value, 
+            r.Cells.ElementAt(4).Value
+            )
+        );
         foreach (var item in data)
         {
             var contactItemType = Enum.Parse<ContactItemType>(item.Item1, true);
 
             var contactDetails = GetContactInfo(contactItemType);
             var notifications = await GetNotificationsForRecipient(contactDetails);
+            
+            var customId = CreateCustomBookingReference(item.Item5);
 
-            notifications.Count().Should().Be(1);
-            notifications.ElementAt(0).templateId.Should().Be(item.Item2);
+            var notification = notifications.Single();
+            notification.templateId.Should().Be(item.Item2);
+            notification.templateValues["firstName"].Should().Be("FirstName");
+            notification.templateValues["vaccine"].Should().Be(item.Item3);
+            notification.templateValues["serviceURL"].Should().Be(item.Item4);
+            notification.templateValues["reference"].Should().Be(customId);
         }
     }
 

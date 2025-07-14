@@ -4,7 +4,7 @@ import { Button, Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import Link from 'next/link';
-import SearchButton from './search-button';
+import SearchButton from './nhsuk-frontend/search-button';
 
 type Props = {
   sites: Site[];

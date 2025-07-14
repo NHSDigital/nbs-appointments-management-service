@@ -1,4 +1,4 @@
-import SearchButton from '@components/search-button';
+import SearchButton from '@components/nhsuk-frontend/search-button';
 import { render } from '@testing-library/react';
 import { screen } from '@testing-library/react';
 

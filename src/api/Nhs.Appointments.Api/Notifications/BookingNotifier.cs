@@ -55,6 +55,12 @@ public class BookingNotifier(
             return;
         }
         var clinicalService = await clinicalServiceProvider.Get(service);
+        
+        if(clinicalService == null)
+        {
+            logger.LogWarning($"Unable to send notification for {eventType}:{bookingRef} to {notificationType}:{destination} because the specified clinical service does not exist");
+            return;
+        }
 
         var templateValues = new Dictionary<string, dynamic>
         {

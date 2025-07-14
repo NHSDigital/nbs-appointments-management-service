@@ -104,7 +104,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
             .AddSingleton(TimeProvider.System)
-            .AddScoped<IClinicalServiceProvider, ClinicalServiceProvider>()
+            .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));

@@ -76,6 +76,7 @@ stages:
 
           - task: AzureCLI@2
             displayName: "Create Terraform State Container"
+            condition: eq('${{parameters.env}}', 'pen')
             inputs:
               scriptType: pscore
               scriptLocation: scriptPath

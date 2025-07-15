@@ -3,13 +3,12 @@ trigger:
     include:
       - release/*
 
-      # dont kick anything off if the branch isn't a release branch
-      - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')}}:
-          - template: "scripts/pipeline-templates/build.yml"
-            parameters:
-              environments: ["int", "stag", "prod"]
-
 stages:
+  # dont kick anything off if the branch isn't a release branch
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')}}:
+      - template: "scripts/pipeline-templates/build.yml"
+        parameters:
+          environments: ["int", "stag", "prod"]
   - ${{ each env in fromJson('["int", "stag", "prod"]') }}:
       - template: "scripts/pipeline-templates/deploy.yml"
         parameters:

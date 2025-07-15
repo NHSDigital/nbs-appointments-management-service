@@ -3,12 +3,12 @@ trigger:
     include:
       - main
 
-      # dont kick anything off if the branch isn't main
-      - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
-          - template: "scripts/pipeline-templates/build.yml"
-            parameters:
-              environments: ["dev"]
 stages:
+  # dont kick anything off if the branch isn't main
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
+      - template: "scripts/pipeline-templates/build.yml"
+        parameters:
+          environments: ["dev"]
   - ${{ each env in fromJson('["dev"]') }}:
       - template: "scripts/pipeline-templates/deploy.yml"
         parameters:

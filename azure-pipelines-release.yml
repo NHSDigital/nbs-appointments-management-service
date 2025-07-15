@@ -4,22 +4,33 @@ trigger:
       - release/*
 
 stages:
-  # dont kick anything off if the branch isn't a release branch
-  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')}}:
-      - template: "scripts/pipeline-templates/build.yml"
-        parameters:
-          environments: ["int", "stag", "prod"]
-  - ${{ each env in fromJson('["int", "stag", "prod"]') }}:
-      - template: "scripts/pipeline-templates/deploy.yml"
-        parameters:
-          env: ${{env}}
-          variable_group: nbs-mya-${{env}}
-          httpFunctionAppName: nbs-mya-func-${{env}}-uks
-          highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-          serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-          timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-          webServerName: nbs-mya-app-${{env}}-uks
-          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-          resourceGroup: nbs-mya-rg-${{env}}-uks
-          serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: "$(Build.BuildNumber)"
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
+      - stage: Build
+        displayName: "Build for release branch"
+        jobs:
+          - job: BuildJob
+            steps:
+              - template: scripts/pipeline-templates/build.yml
+                parameters:
+                  environments: ["int", "stag", "prod"]
+      - stage: DeployAll
+        displayName: "Deploy to all release environments"
+        dependsOn: Build
+        jobs:
+          - job: Deploy
+            displayName: DeployJob
+            steps:
+              - ${{ each env in ['int', 'stag', 'prod'] }}:
+                  - template: scripts/pipeline-templates/deploy.yml
+                    parameters:
+                      env: ${{env}}
+                      variable_group: nbs-mya-${{env}}
+                      httpFunctionAppName: nbs-mya-func-${{env}}-uks
+                      highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+                      serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+                      timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+                      webServerName: nbs-mya-app-${{env}}-uks
+                      cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+                      resourceGroup: nbs-mya-rg-${{env}}-uks
+                      serviceConnectionName: nbs-mya-rg-${{env}}
+                      buildNumber: "$(Build.BuildNumber)"

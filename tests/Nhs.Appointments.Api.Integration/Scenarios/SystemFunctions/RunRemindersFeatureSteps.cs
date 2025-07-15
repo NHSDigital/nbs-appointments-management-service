@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -61,16 +61,29 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     [Then("the following notifications are sent out")]
     public async Task AssertNotifications(DataTable dataTable)
     {
-        var data = dataTable.Rows.Skip(1).Select(r => (r.Cells.ElementAt(0).Value, r.Cells.ElementAt(1).Value));
+        var data = dataTable.Rows.Skip(1).Select(r => (
+            r.Cells.ElementAt(0).Value, 
+            r.Cells.ElementAt(1).Value, 
+            r.Cells.ElementAt(2).Value, 
+            r.Cells.ElementAt(3).Value, 
+            r.Cells.ElementAt(4).Value
+            )
+        );
         foreach (var item in data)
         {
             var contactItemType = Enum.Parse<ContactItemType>(item.Item1, true);
 
             var contactDetails = GetContactInfo(contactItemType);
             var notifications = await GetNotificationsForRecipient(contactDetails);
+            
+            var customId = CreateCustomBookingReference(item.Item5);
 
-            notifications.Count().Should().Be(1);
-            notifications.ElementAt(0).templateId.Should().Be(item.Item2);
+            var notification = notifications.Single();
+            notification.templateId.Should().Be(item.Item2);
+            notification.templateValues["firstName"].Should().Be("FirstName");
+            notification.templateValues["vaccine"].Should().Be(item.Item3);
+            notification.templateValues["serviceURL"].Should().Be(item.Item4);
+            notification.templateValues["reference"].Should().Be(customId);
         }
     }
 
@@ -83,6 +96,27 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Landline)));
 
         allNotifications.Count().Should().Be(0);
+    }
+
+    [And("I have Clinical Services")]
+    public async Task SetUpClinicalServices(DataTable dataTable)
+    {
+        var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()
+        {
+            Id = x.Cells.ElementAt(0).Value,
+            Label = x.Cells.ElementAt(0).Value,
+            ServiceType = x.Cells.ElementAt(1).Value,
+            Url = x.Cells.ElementAt(2).Value
+        });
+
+        var clinicalServicesDocument = new ClinicalServiceDocument()
+        {
+            Id = "clinical_services",
+            DocumentType = "system",
+            Services = clinicalServices.ToArray()
+        };
+
+        await Client.GetContainer("appts", "core_data").UpsertItemAsync(clinicalServicesDocument);
     }
 
     private Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)

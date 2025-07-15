@@ -7,45 +7,52 @@ import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
+import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams: {
+  searchParams?: Promise<{
     date: string;
     updatedSession: string;
-  };
-  params: {
+  }>;
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  await assertPermission(params.site, 'availability:setup');
+  const { site: siteFromPath } = { ...(await params) };
+  const { updatedSession, date } = { ...(await searchParams) };
+  if (updatedSession === undefined || date === undefined) {
+    return notFound();
+  }
+
+  await assertPermission(siteFromPath, 'availability:setup');
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(params.site),
+    fetchSite(siteFromPath),
     fetchClinicalServices(),
   ]);
 
-  const date = parseToUkDatetime(searchParams.date);
+  const parsedDate = parseToUkDatetime(date);
 
-  const updatedSession: AvailabilitySession = JSON.parse(
-    atob(searchParams.updatedSession),
+  const updatedAvailabilitySession: AvailabilitySession = JSON.parse(
+    atob(updatedSession),
   );
 
   return (
     <NhsPage
       originPage="edit-session"
-      title={`Edit time and capacity for ${date.format('DD MMMM YYYY')}`}
+      title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
-        href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${date}`,
         renderingStrategy: 'server',
         text: 'Back to week view',
       }}
     >
       <EditSessionConfirmed
-        updatedSession={updatedSession}
+        updatedSession={updatedAvailabilitySession}
         site={site}
-        date={searchParams.date}
+        date={date}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

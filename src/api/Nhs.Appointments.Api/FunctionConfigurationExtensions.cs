@@ -86,7 +86,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
-            .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
+            .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
@@ -114,6 +114,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<ISitesSummaryTrigger, SiteSummaryTrigger>()
             .AddTransient<ISiteSummaryAggregator, SiteSummaryAggregator>()
             .AddSingleton(TimeProvider.System)
+            .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));

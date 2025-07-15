@@ -5,7 +5,7 @@
 
 resource "azurerm_service_plan" "nbs_mya_http_func_service_plan" {
   name                = "${var.application}-fsp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
   os_type             = "Windows"
   sku_name            = "Y1"
@@ -13,8 +13,9 @@ resource "azurerm_service_plan" "nbs_mya_http_func_service_plan" {
 
 resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
   name                = "${var.application}-func-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
+  https_only          = true
 
   storage_account_name       = azurerm_storage_account.nbs_mya_http_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_http_func_storage_account.primary_access_key
@@ -106,6 +107,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
   function_app_id            = azurerm_windows_function_app.nbs_mya_http_func_app.id
   storage_account_name       = azurerm_storage_account.nbs_mya_http_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_http_func_storage_account.primary_access_key
+  https_only                 = true
 
   site_config {
     cors {

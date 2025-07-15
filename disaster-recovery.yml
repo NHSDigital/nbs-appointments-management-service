@@ -218,7 +218,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
-              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUkw) -apiOriginGroupName $(apiOriginGroupNameUkw) -webOriginGroupName $(webOriginGroupNameUkw)"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUkw) -apiOriginGroupName $(apiOriginGroupNameUkw) -webOriginGroupName $(webOriginGroupNameUkw) -env $(env)"
 
       - job: ConfirmFailBackToUkSouth
         dependsOn: FailOverToUkw

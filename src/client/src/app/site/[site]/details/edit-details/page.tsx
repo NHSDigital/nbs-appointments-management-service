@@ -4,23 +4,25 @@ import { EditDetailsPage } from './edit-details-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 
 export type PageProps = {
-  params: {
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 const Page = async ({ params }: PageProps) => {
-  await assertPermission(params.site, 'site:manage');
+  const { site: siteFromPath } = { ...(await params) };
+
+  await assertPermission(siteFromPath, 'site:manage');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${params.site}/details`,
+    href: `/site/${siteFromPath}/details`,
     text: 'Go back',
   };
 
   return (
     <NhsPage backLink={backLink} title="" originPage="edit">
-      <EditDetailsPage siteId={params.site} />
+      <EditDetailsPage siteId={siteFromPath} />
     </NhsPage>
   );
 };

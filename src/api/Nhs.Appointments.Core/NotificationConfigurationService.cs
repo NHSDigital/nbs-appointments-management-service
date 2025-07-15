@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core;
 
@@ -13,7 +13,23 @@ public class NotificationConfigurationService(IMemoryCache memoryCache, INotific
     public async Task<NotificationConfiguration> GetNotificationConfigurationsAsync(string eventType, string service)
     {
         var config = await LoadNotificationConfiguration();
-        return config.SingleOrDefault(x => x.EventType == eventType && x.Services.Contains(service));
+
+        var matchingConfigs = config
+            .Where(x => x.EventType == eventType && x.Services.Contains(service))
+            .ToList();
+
+        if (matchingConfigs.Count == 0)
+            return null;
+
+        var combinedConfig = new NotificationConfiguration
+        {
+            EventType = eventType,
+            Services = [ service ],
+            EmailTemplateId = matchingConfigs.Select(x => x.EmailTemplateId).FirstOrDefault(t => !string.IsNullOrWhiteSpace(t)),
+            SmsTemplateId = matchingConfigs.Select(x => x.SmsTemplateId).FirstOrDefault(t => !string.IsNullOrWhiteSpace(t))
+        };
+
+        return combinedConfig;
     }
 
     private async Task<IEnumerable<NotificationConfiguration>> LoadNotificationConfiguration()

@@ -7,7 +7,7 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "nbs_mya_synapse_workspace_
 resource "azurerm_synapse_workspace" "nbs_mya_synapse_workspace" {
   count                                = var.cosmos_synapse_enabled ? 1 : 0
   name                                 = "${var.application_short}synw${var.environment}${var.loc}"
-  resource_group_name                  = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name                  = local.resource_group_name
   location                             = var.location
   storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.nbs_mya_synapse_workspace_gen2_filesystem[0].id
   sql_administrator_login              = "sqladminuser"

@@ -4,22 +4,22 @@ trigger:
       - main
 
       # dont kick anything off if the branch isn't main
-      - ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
+      - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
           - template: "scripts/pipeline-templates/build.yml"
             parameters:
               environments: ["dev"]
-
-      - ${{ each env in fromJson('["dev"]') }}:
-          - template: "scripts/pipeline-templates/deploy.yml"
-            parameters:
-              env: ${{env}}
-              variable_group: nbs-mya-${{env}}
-              httpFunctionAppName: nbs-mya-func-${{env}}-uks
-              highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-              serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-              timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-              webServerName: nbs-mya-app-${{env}}-uks
-              cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-              resourceGroup: nbs-mya-rg-${{env}}-uks
-              serviceConnectionName: nbs-mya-rg-${{env}}
-              buildNumber: "$(Build.BuildNumber)"
+stages:
+  - ${{ each env in fromJson('["dev"]') }}:
+      - template: "scripts/pipeline-templates/deploy.yml"
+        parameters:
+          env: ${{env}}
+          variable_group: nbs-mya-${{env}}
+          httpFunctionAppName: nbs-mya-func-${{env}}-uks
+          highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+          serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+          timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+          webServerName: nbs-mya-app-${{env}}-uks
+          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+          resourceGroup: nbs-mya-rg-${{env}}-uks
+          serviceConnectionName: nbs-mya-rg-${{env}}
+          buildNumber: "$(Build.BuildNumber)"

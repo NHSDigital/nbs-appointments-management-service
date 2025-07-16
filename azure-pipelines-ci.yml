@@ -1,4 +1,9 @@
 # this pipeline should be restricted so that it can't be run manually
+trigger:
+  branches:
+    include:
+      - main
+
 pool:
   vmImage: "ubuntu-latest"
 

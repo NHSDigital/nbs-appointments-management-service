@@ -20,19 +20,21 @@ parameters:
     type: string
   - name: serviceConnectionName
     type: string
-  - name: isMain
-    type: string
   - name: buildNumber
     type: string
+  - name: isHotfix
+    type: boolean
 
 stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn:
       - Build
+      - ${{ if and(eq(parameters.env, 'stag'), not(parameters.isHotfix)) }}:
+          - DeployInt
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: succeeded()
     variables:
       - group: ${{parameters.variable_group}}
     jobs:

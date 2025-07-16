@@ -1,0 +1,18 @@
+# this pipeline should be restricted so that it can't be run manually
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+      - hotfix/*
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+
+stages:
+  - template: scripts/pipeline-templates/build.yml
+    parameters:
+      prBuildServiceConnectionName: $(prBuildServiceConnectionName)

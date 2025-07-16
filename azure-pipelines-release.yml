@@ -31,10 +31,14 @@ stages:
           timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-          resourceGroup: nbs-mya-rg-${{env}}-uks
           ${{ if eq(env, 'pen') }}:
+            resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nhsuk-mya-nonprod
+          ${{ elseif eq(env, 'perf') }}:
+            resourceGroup: nbs-mya${{env}}-rg-stag-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-stag
           ${{ else }}:
+            resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
           buildNumber: "$(Build.BuildNumber)"
           isHotfix: false

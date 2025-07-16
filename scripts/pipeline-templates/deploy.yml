@@ -22,13 +22,15 @@ parameters:
     type: string
   - name: buildNumber
     type: string
+  - name: isHotfix
+    type: boolean
 
 stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn:
       - Build
-      - ${{ if eq(parameters.env, 'stag') }}:
+      - ${{ if and(eq(parameters.env, 'stag'), not(parameters.isHotfix)) }}:
           - DeployInt
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag

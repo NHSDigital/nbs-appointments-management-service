@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - release/*
+      - hotfix/*
 
 pool:
   vmImage: "ubuntu-latest"
@@ -12,8 +12,8 @@ variables:
 parameters:
   - name: environments
     type: object
-    default: ["int", "stag", "prod"]
-    values: ["int", "stag", "prod", "pen", "perf"]
+    default: ["stag", "prod"]
+    values: ["stag", "prod"]
 
 stages:
   - template: scripts/pipeline-templates/build.yml
@@ -34,4 +34,4 @@ stages:
           resourceGroup: nbs-mya-rg-${{env}}-uks
           serviceConnectionName: nbs-mya-rg-${{env}}
           buildNumber: "$(Build.BuildNumber)"
-          isHotfix: false
+          isHotfix: true

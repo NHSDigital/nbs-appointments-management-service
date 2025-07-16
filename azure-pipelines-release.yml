@@ -14,8 +14,8 @@ stages:
                 parameters:
                   environments: ["int", "stag", "prod"]
 
+  - ${{ each env in ['int', 'stag', 'prod'] }}:
   - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
-    ${{ each env in ['int', 'stag', 'prod'] }}:
       - template: scripts/pipeline-templates/deploy.yml
         parameters:
           env: ${{env}}

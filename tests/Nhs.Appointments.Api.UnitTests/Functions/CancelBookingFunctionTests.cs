@@ -102,7 +102,6 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        var cancellationReason = "CancelledByCitizen";
 
         _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason))
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable();

@@ -76,17 +76,15 @@ public class CancelBookingFunction(
 
         var cancellationReason = CancellationReason.CancelledByCitizen;
 
-        if (!string.IsNullOrWhiteSpace(queryCancellationReason))
+        if (!string.IsNullOrWhiteSpace(queryCancellationReason) &&
+            !Enum.TryParse<CancellationReason>(queryCancellationReason, ignoreCase: true, out cancellationReason))
         {
-            if (!Enum.TryParse<CancellationReason>(queryCancellationReason, ignoreCase: true, out cancellationReason))
+            var error = new ErrorMessageResponseItem
             {
-                var error = new ErrorMessageResponseItem
-                {
-                    Property = "cancellationReason",
-                    Message = $"Invalid cancellation reason '{queryCancellationReason}'."
-                };
-                return (new[] { error }, null);
-            }
+                Property = "cancellationReason",
+                Message = $"Invalid cancellation reason '{queryCancellationReason}'."
+            };
+            return (new[] { error }, null);
         }
 
         var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason);

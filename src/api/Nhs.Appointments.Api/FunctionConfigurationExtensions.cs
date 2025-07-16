@@ -26,6 +26,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
 
@@ -88,6 +89,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
             .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
+            .AddTransient<IAggregationStore, AggregationStore>()
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()

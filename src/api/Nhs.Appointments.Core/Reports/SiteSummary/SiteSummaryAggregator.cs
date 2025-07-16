@@ -38,7 +38,8 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             RemainingCapacity = clinicalServices.ToDictionary(
                 service => service, 
                 service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0))),
-            GeneratedAtUtc = generatedAt
+            GeneratedAtUtc = generatedAt,
+            MaximumCapacity = summary.MaximumCapacity
         });
     }
 }

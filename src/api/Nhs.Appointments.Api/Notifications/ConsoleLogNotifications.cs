@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -38,8 +39,8 @@ public class ConsoleLogWithMessageDelivery(
     IConsumer<BookingMade> bookingMadeConsumer, 
     IConsumer<BookingReminder> bookingReminderConsumer, 
     IConsumer<BookingCancelled> bookingCancelledConsumer, 
-    IConsumer<BookingRescheduled> bookingRescheduledConsumer
-) : ConsoleLogNotifications
+    IConsumer<BookingRescheduled> bookingRescheduledConsumer,
+    IConsumer<AggregateSiteSummaryEvent> aggregateSiteSummaryConsumer) : ConsoleLogNotifications
 {
     protected override void ProcessMessage<T>(T message)
     {
@@ -72,6 +73,11 @@ public class ConsoleLogWithMessageDelivery(
         if(message is BookingCancelled bookingCancelled)
         {
             bookingCancelledConsumer.Consume(new DummyConsumeContext<BookingCancelled>() {  Message = bookingCancelled });
+        }
+        
+        if(message is AggregateSiteSummaryEvent aggregateSiteSummaryEvent)
+        {
+            aggregateSiteSummaryConsumer.Consume(new DummyConsumeContext<AggregateSiteSummaryEvent>() {  Message = aggregateSiteSummaryEvent });
         }
     }
 

@@ -8,6 +8,6 @@ public class DailySiteSummary
     public int Cancelled { get; set; }
     public Dictionary<string, int> Orphaned { set; get; }
     public Dictionary<string, int> RemainingCapacity { set; get; }
-    public int MaximumCapacity { get; }
+    public int MaximumCapacity { get; set; }
     public DateTimeOffset GeneratedAtUtc { get; set; }
 }

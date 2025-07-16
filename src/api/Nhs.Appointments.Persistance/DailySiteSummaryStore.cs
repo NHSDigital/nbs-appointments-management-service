@@ -14,6 +14,7 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
             Bookings = summary.Bookings,
             Orphaned = summary.Orphaned,
             RemainingCapacity = summary.RemainingCapacity,
+            MaximumCapacity = summary.MaximumCapacity,
             GeneratedAtUtc = summary.GeneratedAtUtc,
             DocumentType = store.GetDocumentType()
         });
@@ -26,6 +27,6 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
     
     public async Task IfExistsDelete(string site, DateOnly date)
     {
-        var document = store.DeleteDocument(site, date.ToString());
+        await store.DeleteDocument(site, date.ToString("yyyy-MM-dd"));
     }
 }

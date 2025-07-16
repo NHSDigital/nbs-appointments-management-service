@@ -11,22 +11,22 @@ public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> sto
 
     public async Task<DateTimeOffset?> GetLastRunDate()
     {
-        var document = await Store.GetDocument<AggregationDocument>(AggregationDocumentId);
+        var document = await Store.GetByIdOrDefaultAsync<AggregationDocument>(AggregationDocumentId);
 
         return document?.LastTriggeredUtcDate;
     }
 
     public async Task SetLastRunDate(DateTimeOffset lastTriggerUtcDate)
     {
-        var document = await Store.GetDocument<AggregationDocument>(AggregationDocumentId);
+        var document = await Store.GetByIdOrDefaultAsync<AggregationDocument>(AggregationDocumentId);
 
-        if (document is null)
+        if (document is not null)
         {
             await Store.PatchDocument(Store.GetDocumentType(), AggregationDocumentId,
                 PatchOperation.Set("/lastTriggerUtcDate", lastTriggerUtcDate));
             return;
         }
 
-        await Store.WriteAsync(new AggregationDocument { Id = AggregationDocumentId, LastTriggeredUtcDate = lastTriggerUtcDate });
+        await Store.WriteAsync(new AggregationDocument { Id = AggregationDocumentId, LastTriggeredUtcDate = lastTriggerUtcDate, DocumentType = Store.GetDocumentType() });
     }
 }

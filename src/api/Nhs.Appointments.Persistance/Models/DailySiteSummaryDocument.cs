@@ -14,7 +14,7 @@ public class DailySiteSummaryDocument : AggregatedDataCosmosDocument
     [JsonProperty("remainingCapacity")]
     public Dictionary<string, int> RemainingCapacity { set; get; }
     [JsonProperty("maximumCapacity")]
-    public int MaximumCapacity { get; }
+    public int MaximumCapacity { get; set; }
     [JsonProperty("generatedAtUtc")] 
     public DateTimeOffset GeneratedAtUtc { get; set; }
 }

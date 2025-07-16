@@ -5,7 +5,7 @@ using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Consumers;
 
-public abstract class AggregateSiteSummaryConsumer(ISiteSummaryAggregator siteSummaryAggregator) : IConsumer<AggregateSiteSummaryEvent>
+public class AggregateSiteSummaryConsumer(ISiteSummaryAggregator siteSummaryAggregator) : IConsumer<AggregateSiteSummaryEvent>
 {
     public async Task Consume(ConsumeContext<AggregateSiteSummaryEvent> context)
     {

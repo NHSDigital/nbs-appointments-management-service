@@ -73,6 +73,7 @@ public class GetSiteReportFunction(
         
         if (user is null)
         {
+            //ToDo what the chuff? 401?
             return Success(new FileResponse(fileName, new MemoryStream()));
         }
 

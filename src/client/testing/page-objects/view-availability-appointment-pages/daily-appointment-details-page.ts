@@ -12,6 +12,7 @@ type Appointment = {
 export default class DailyAppointmentDetailsPage extends RootPage {
   readonly backToWeekViewButton: Locator;
   readonly continueButton: Locator;
+  readonly cancelAppointmentButton: Locator;
   readonly appointmentsTable: Locator;
 
   constructor(page: Page) {
@@ -21,6 +22,9 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     });
     this.continueButton = page.getByRole('button', {
       name: 'Continue',
+    });
+    this.cancelAppointmentButton = page.getByRole('button', {
+      name: 'Cancel appointment',
     });
     this.appointmentsTable = page.getByRole('table');
   }
@@ -84,20 +88,6 @@ export default class DailyAppointmentDetailsPage extends RootPage {
       .filter({ hasText: `${appointmentDetail}` })
       .getByRole('link', { name: 'Cancel' })
       .click();
-  }
-
-  async confirmAppointmentCancellation(option: 'Yes' | 'No') {
-    if (option == 'Yes') {
-      await this.page
-        .getByLabel('Yes, I want to cancel this appointment')
-        .click();
-    }
-    if (option == 'No') {
-      await this.page
-        .getByLabel(`No, I do not want to cancel this appointment`)
-        .click();
-    }
-    await this.continueButton.click();
   }
 
   async verifyAppointmentNotCancelled(appointmentDetail: string) {

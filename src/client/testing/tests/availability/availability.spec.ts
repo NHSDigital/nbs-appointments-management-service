@@ -1003,9 +1003,14 @@ test.describe.configure({ mode: 'serial' });
 
             await dailyAppointmentDetailsPage.verifyDailyAppointmentDetailsPageDisplayed();
             await dailyAppointmentDetailsPage.cancelAppointment('5932817282');
-            await dailyAppointmentDetailsPage.confirmAppointmentCancellation(
-              'No',
+            await dailyAppointmentDetailsPage.cancelAppointmentButton.click();
+
+            const errorMessage = page.locator('.nhsuk-error-message');
+            await expect(errorMessage).toBeVisible();
+            await expect(errorMessage).toContainText(
+              'Select a reason for cancelling the appointment',
             );
+
             await dailyAppointmentDetailsPage.verifyAppointmentNotCancelled(
               '5932817282',
             );

@@ -8,7 +8,7 @@ parameters:
   - name: environments
     type: object
     default: ["dev"]
-    values: ["dev", "int", "stag", "pen", "prod"]
+    values: ["dev", "int", "stag", "pen", "perf", "prod"]
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"

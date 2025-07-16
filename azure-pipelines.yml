@@ -354,5 +354,5 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-
+          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
           buildNumber: "$(Build.BuildNumber)"

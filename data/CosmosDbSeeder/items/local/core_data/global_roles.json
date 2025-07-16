@@ -13,7 +13,8 @@
         "booking:query",
         "site:view",
         "site:view:preview",
-        "site:get-meta-data"
+        "site:get-meta-data",
+        "reports:sitesummary"
       ]
     },
     {
@@ -74,7 +75,8 @@
         "site:manage:admin",
         "users:view",
         "users:manage",
-        "system:data-importer"
+        "system:data-importer",
+        "reports:sitesummary"
       ]
     },
     {
@@ -113,7 +115,8 @@
         "site:manage",
         "site:manage:admin",
         "system:run-reminders",
-        "system:run-provisional-sweep"
+        "system:run-provisional-sweep",
+        "reports:sitesummary"
       ]
     },
     {
@@ -152,7 +155,8 @@
         "site:manage:admin",
         "site:get-meta-data",
         "users:view",
-        "users:manage"
+        "users:manage",
+        "reports:sitesummary"
       ]
     }
   ]

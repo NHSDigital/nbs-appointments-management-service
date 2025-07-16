@@ -49,12 +49,12 @@ const CancelAppointmentPage = ({
     if (form.cancellationReason !== '') {
       await cancelAppointment(booking.reference, site, form.cancellationReason);
 
-    const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
-    const tabNumber = form.cancelAppointment === 'yes' ? 1 : 0;
+      const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
 
-    replace(
-      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=${tabNumber}&page=1`,
-    );
+      replace(
+        `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
+      );
+    }
   };
 
   return (
@@ -121,7 +121,10 @@ const mapSummaryData = (
     title: 'Name',
     value: `${booking.attendeeDetails.firstName} ${booking.attendeeDetails.lastName}`,
   });
-  items.push({ title: 'NHS number', value: booking.attendeeDetails.nhsNumber });
+  items.push({
+    title: 'NHS number',
+    value: booking.attendeeDetails.nhsNumber,
+  });
   items.push({
     title: 'Date of birth',
     value: parseToUkDatetime(booking.attendeeDetails.dateOfBirth).format(

@@ -1,12 +1,6 @@
-pool:
-  vmImage: "ubuntu-latest"
-
 parameters:
-  - name: environments
-    type: object
-
-variables:
-  prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+  - name: prBuildServiceConnectionName
+    type: string
 
 stages:
   - stage: Build
@@ -186,7 +180,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
             inputs:
-              azureSubscription: $(prBuildServiceConnectionName)
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
@@ -194,7 +188,7 @@ stages:
           - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
-              azureSubscription: $(prBuildServiceConnectionName)
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
@@ -322,7 +316,7 @@ stages:
             displayName: "Delete Cosmos DB account"
             condition: or(succeeded(), canceled())
             inputs:
-              azureSubscription: $(prBuildServiceConnectionName)
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"

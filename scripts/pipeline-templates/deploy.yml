@@ -20,8 +20,6 @@ parameters:
     type: string
   - name: serviceConnectionName
     type: string
-  - name: isMain
-    type: string
   - name: buildNumber
     type: string
 
@@ -30,9 +28,11 @@ stages:
     displayName: Deploy ${{parameters.env}}
     dependsOn:
       - Build
+      - ${{ if eq(parameters.env, 'stag') }}:
+          - DeployInt
       - ${{ if eq(parameters.env, 'prod') }}:
           - DeployStag
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: succeeded()
     variables:
       - group: ${{parameters.variable_group}}
     jobs:

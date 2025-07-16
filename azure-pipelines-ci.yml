@@ -1,0 +1,4 @@
+# this pipeline should be restricted so that it can't be run manually
+- template: "scripts/pipeline-templates/build.yml"
+  parameters:
+    environments: []

@@ -499,7 +499,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null))
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen))
                 .ReturnsAsync(true).Verifiable();
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
@@ -916,10 +916,9 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Theory]
-        [InlineData(null, CancellationReason.CancelledByCitizen)]
-        [InlineData("CancelledByCitizen", CancellationReason.CancelledByCitizen)]
-        [InlineData("CancelledBySite", CancellationReason.CancelledBySite)]
-        public async Task CancelBooking_ValidCancellationReasonIsUsed(string? reason, CancellationReason expectedReason)
+        [InlineData(CancellationReason.CancelledByCitizen, CancellationReason.CancelledByCitizen)]
+        [InlineData(CancellationReason.CancelledBySite, CancellationReason.CancelledBySite)]
+        public async Task CancelBooking_ValidCancellationReasonIsUsed(CancellationReason reason, CancellationReason expectedReason)
         {
             var reference = "BOOK-123";
             var site = "SITE01";
@@ -937,7 +936,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .ReturnsAsync(true)
                 .Verifiable();
 
-            var result = await _sut.CancelBooking(reference, site, CancellationReason.CancelledByCitizen);
+            var result = await _sut.CancelBooking(reference, site, reason);
 
             result.Should().Be(BookingCancellationResult.Success);
             _bookingsDocumentStore.Verify();

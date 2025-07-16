@@ -3,6 +3,7 @@
     "OktaEnabled": true,
     "JointBookings": false,
     "BulkImport": true,
-    "MultipleServices": false
+    "MultipleServices": false,
+    "SiteSummaryReport": false
   }
 }

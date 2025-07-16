@@ -6,6 +6,7 @@ public static class Flags
     public const string OktaEnabled = "OktaEnabled";
     public const string JointBookings = "JointBookings";
     public const string MultipleServices = "MultipleServices";
+    public const string SiteSummaryReport = "SiteSummaryReport";
 
     #region TestFlags
     //a simple on/off global flag

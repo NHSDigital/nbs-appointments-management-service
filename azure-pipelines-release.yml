@@ -4,18 +4,16 @@ trigger:
       - release/*
 
 stages:
-  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
-      - stage: Build
-        displayName: "Build for release branch"
-        jobs:
-          - job: BuildJob
-            steps:
-              - template: scripts/pipeline-templates/build.yml
-                parameters:
-                  environments: ["int", "stag", "prod"]
+  - stage: Build
+    displayName: "Build for release branch"
+    jobs:
+      - job: BuildJob
+        steps:
+          - template: scripts/pipeline-templates/build.yml
+            parameters:
+              environments: ["int", "stag", "prod"]
 
   - ${{ each env in ['int', 'stag', 'prod'] }}:
-  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/release/') }}:
       - template: scripts/pipeline-templates/deploy.yml
         parameters:
           env: ${{env}}

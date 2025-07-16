@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-prod-ukw"
-    storage_account_name = "myatfprodukw"
+    resource_group_name  = "nbs-myaperf-rg-stag-uks"
+    storage_account_name = "myaperftfstaguks"
     container_name       = "tfstate"
-    key                  = "produkw.tfstate"
+    key                  = "perf.tfstate"
   }
 
   required_version = ">= 1.6.5"
@@ -20,15 +20,15 @@ provider "azurerm" {
   features {
     app_configuration {
       purge_soft_delete_on_destroy = false
-      recover_soft_deleted         = true
+      recover_soft_deleted         = false
     }
   }
 }
 
-module "mya_application_prod_ukw" {
-  environment                                    = "prod"
-  location                                       = "ukwest"
-  loc                                            = "ukw"
+module "mya_application_perf" {
+  environment                                    = "perf"
+  location                                       = "uksouth"
+  loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER
   source                                         = "../../resources"
   nhs_mail_issuer                                = var.NHS_MAIL_ISSUER
@@ -60,27 +60,34 @@ module "mya_application_prod_ukw" {
   splunk_hec_token                               = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                = var.SPLUNK_HOST_URL
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
-  cosmos_endpoint                                = var.COSMOS_ENDPOINT
-  cosmos_token                                   = var.COSMOS_TOKEN
-  app_config_connection                          = var.APP_CONFIG_CONNECTION
-  disable_query_availability_function            = false
+  disable_query_availability_function            = true
   create_high_load_function_app                  = true
   create_app_slot                                = false
-  create_autoscale_settings                      = false
-  create_frontdoor                               = false
-  create_cosmos_db                               = false
-  create_app_config                              = false
+  create_autoscale_settings                      = true
+  create_frontdoor                               = true
+  create_cosmos_db                               = true
+  create_app_config                              = true
   web_app_service_sku                            = "P1v3"
   web_app_service_plan_default_worker_count      = 3
-  app_service_plan_zone_redundancy_enabled       = false
+  app_service_plan_zone_redundancy_enabled       = true
   web_app_service_plan_min_worker_count          = 1
   web_app_service_plan_max_worker_count          = 20
   web_app_service_plan_scale_out_worker_count    = 1
   web_app_service_plan_scale_in_worker_count     = 1
   app_insights_sampling_percentage               = 12.5
-  storage_account_replication_type               = "LRS"
-  cosmos_automatic_failover_enabled              = false
-  disable_bulk_import_function                   = false
+  storage_account_replication_type               = "ZRS"
+  cosmos_automatic_failover_enabled              = true
+  disable_bulk_import_function                   = true
+  cosmos_geo_locations = [{
+    location          = "uksouth"
+    failover_priority = 0
+    zone_redundant    = true
+    },
+    {
+      location          = "ukwest"
+      failover_priority = 1
+      zone_redundant    = false
+  }]
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

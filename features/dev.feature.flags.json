@@ -5,6 +5,7 @@
     "JointBookings": false,
     "BulkImport": true,
     "MultipleServices": true,
+    "SiteSummaryReport": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

@@ -69,7 +69,6 @@ module "mya_application_int" {
   app_insights_sampling_percentage               = 100
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
-  cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = false
   cosmos_geo_locations = [{
     location          = "uksouth"

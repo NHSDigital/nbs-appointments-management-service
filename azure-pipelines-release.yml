@@ -3,6 +3,14 @@ trigger:
     include:
       - release/*
 
+parameters:
+  - name: environments
+    type: object
+    default:
+      - int
+      - stag
+      - prod
+
 stages:
   - stage: Build
     displayName: "Build for release branch"
@@ -13,7 +21,7 @@ stages:
             parameters:
               environments: ["int", "stag", "prod"]
 
-  - ${{ each env in ['int', 'stag', 'prod'] }}:
+  - ${{ each env in parameters.environments }}:
       - template: scripts/pipeline-templates/deploy.yml
         parameters:
           env: ${{env}}

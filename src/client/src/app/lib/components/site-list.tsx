@@ -1,6 +1,6 @@
 'use client';
 import { Site } from '@types';
-import { Button, Table, TextInput } from '@nhsuk-frontend-components';
+import { Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const SiteList = ({ sites }: Props) => {
         sortedSites.filter(
           s =>
             s.name.toLowerCase().includes(searchQuery) ||
-            s.odsCode.toLowerCase() === searchQuery,
+            s.odsCode.toLowerCase().includes(searchQuery),
         ),
       );
       setShowSearchMsg(true);

@@ -11,13 +11,15 @@ public class ClinicalServicesTests : BaseCosmosDbSeederTest
         var devClinicalServices = ReadDocument<ClinicalServicesDocument>("dev");
         var intClinicalServices = ReadDocument<ClinicalServicesDocument>("int");
         var penClinicalService = ReadDocument<ClinicalServicesDocument>("pen");
+        var perfClinicalService = ReadDocument<ClinicalServicesDocument>("perf");
         var stagClinicalServices = ReadDocument<ClinicalServicesDocument>("stag");
         var prodClinicalServices = ReadDocument<ClinicalServicesDocument>("prod");
 
         localClinicalServices.Should().BeEquivalentTo(devClinicalServices);
         devClinicalServices.Should().BeEquivalentTo(intClinicalServices);
         intClinicalServices.Should().BeEquivalentTo(penClinicalService);
-        penClinicalService.Should().BeEquivalentTo(stagClinicalServices);
+        penClinicalService.Should().BeEquivalentTo(perfClinicalService);
+        perfClinicalService.Should().BeEquivalentTo(stagClinicalServices);
         stagClinicalServices.Should().BeEquivalentTo(prodClinicalServices);
     }
 

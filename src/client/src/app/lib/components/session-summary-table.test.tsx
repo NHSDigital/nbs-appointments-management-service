@@ -79,7 +79,7 @@ describe('Session summary table', () => {
 
   it('renders action column when showChangeSessionLink is provided', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T08:34:00', dateTimeFormat),
+      parseToUkDatetime('2024-06-09T08:34:00', dateTimeFormat),
     );
 
     render(
@@ -121,9 +121,9 @@ describe('Session summary table', () => {
     ).toBe(true);
   });
 
-  it('only renders action column for sessions in the future', () => {
+  it('doesnt render action column for sessions in the future on the same day', () => {
     mockUkNow.mockReturnValue(
-      parseToUkDatetime('2024-06-10T09:34:00', dateTimeFormat),
+      parseToUkDatetime('2024-06-10T00:00:00', dateTimeFormat),
     );
 
     render(
@@ -142,6 +142,54 @@ describe('Session summary table', () => {
         name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('row', {
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked Change',
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('row', {
+        name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('row', {
+        name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked Change',
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('only renders action column for sessions in a future calendar date', () => {
+    mockUkNow.mockReturnValue(
+      parseToUkDatetime('2024-06-09T23:59:59', dateTimeFormat),
+    );
+
+    render(
+      <SessionSummaryTable
+        sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        showChangeSessionLink={{
+          siteId: 'TEST01',
+          ukDate: mockWeekAvailability__Summary[0].ukDate.format(dateFormat),
+        }}
+        clinicalServices={clinicalServices}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('row', {
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('row', {
+        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked Change',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('row', {
+        name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked',
+      }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('row', {
         name: '13:00 - 17:30 RSV Adult 0 booked 54 unbooked Change',

@@ -38,9 +38,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(30);
         weekSummary.RemainingCapacity.Should().Be(25);
-        weekSummary.BookedAppointments.Should().Be(7);
+        weekSummary.BookedAppointments.Should().Be(5);
         weekSummary.OrphanedAppointments.Should().Be(2);
-        weekSummary.CancelledAppointments.Should().Be(2);
 
         var expectedSessionSummary = new List<SessionSummary>
         {
@@ -93,7 +92,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 30,
                 RemainingCapacity = 25,
-                BookedAppointments = 7,
+                BookedAppointments = 5,
                 OrphanedAppointments = 2,
                 CancelledAppointments = 2
             });
@@ -150,7 +149,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(52);
         weekSummary.BookedAppointments.Should().Be(12);
         weekSummary.OrphanedAppointments.Should().Be(0);
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -291,7 +289,6 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(52);
         weekSummary.BookedAppointments.Should().Be(12);
         weekSummary.OrphanedAppointments.Should().Be(0);
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -420,10 +417,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(165);
         
         //lost utilisation shows that 6/12 bookings are orphaned when they could have been allocated
-        weekSummary.BookedAppointments.Should().Be(12);
+        weekSummary.BookedAppointments.Should().Be(6);
         weekSummary.OrphanedAppointments.Should().Be(6);
-        
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -474,7 +469,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 35,
                 RemainingCapacity = 32,
-                BookedAppointments = 6,
+                BookedAppointments = 3,
                 OrphanedAppointments = 3,
                 CancelledAppointments = 0
             });
@@ -531,7 +526,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 64,
                 RemainingCapacity = 61,
-                BookedAppointments = 6,
+                BookedAppointments = 3,
                 OrphanedAppointments = 3,
                 CancelledAppointments = 0
             });
@@ -610,10 +605,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(58);
         
         //only half supported
-        weekSummary.BookedAppointments.Should().Be(12);
+        weekSummary.BookedAppointments.Should().Be(6);
         weekSummary.OrphanedAppointments.Should().Be(6);
-        
-        weekSummary.CancelledAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -646,7 +639,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 29,
-                BookedAppointments = 6,
+                BookedAppointments = 3,
                 OrphanedAppointments = 3,
                 CancelledAppointments = 0
             });
@@ -688,7 +681,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 29,
-                BookedAppointments = 6,
+                BookedAppointments = 3,
                 OrphanedAppointments = 3,
                 CancelledAppointments = 0
             });

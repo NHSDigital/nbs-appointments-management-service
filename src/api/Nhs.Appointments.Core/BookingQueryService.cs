@@ -42,7 +42,8 @@ public class BookingQueryService(
         var bookings = (await GetBookings(from, to, site))
             .Where(b => statuses.Contains(b.Status))
             .Where(b => !IsExpiredProvisional(b))
-            .OrderBy(b => b.Created);
+            .OrderByDescending(b => b.Status)
+            .ThenBy(b => b.Created);
 
         return bookings;
     }

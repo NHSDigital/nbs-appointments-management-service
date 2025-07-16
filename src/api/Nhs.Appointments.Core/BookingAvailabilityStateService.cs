@@ -162,19 +162,23 @@ public class BookingAvailabilityStateService(
 
             foreach (var booking in bookingsOnDay)
             {
-                if (booking.Status == AppointmentStatus.Booked)
+                switch (booking.Status)
                 {
-                    daySummary.BookedAppointments++;
-                }
+                    case AppointmentStatus.Booked:
+                        switch (booking.AvailabilityStatus)
+                        {
+                            case AvailabilityStatus.Supported:
+                                daySummary.BookedAppointments++;
+                                break;
+                            case AvailabilityStatus.Orphaned:
+                                daySummary.OrphanedAppointments++;
+                                break;
+                        }
 
-                if (booking.Status == AppointmentStatus.Booked && booking.AvailabilityStatus == AvailabilityStatus.Orphaned)
-                {
-                    daySummary.OrphanedAppointments++;
-                }
-
-                if (booking.Status == AppointmentStatus.Cancelled)
-                {
-                    daySummary.CancelledAppointments++;
+                        break;
+                    case AppointmentStatus.Cancelled:
+                        daySummary.CancelledAppointments++;
+                        break;
                 }
             }
         }
@@ -185,7 +189,6 @@ public class BookingAvailabilityStateService(
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
             BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
-            CancelledAppointments = daySummaries.Sum(x => x.CancelledAppointments),
             OrphanedAppointments = daySummaries.Sum(x => x.OrphanedAppointments)
         };
     }

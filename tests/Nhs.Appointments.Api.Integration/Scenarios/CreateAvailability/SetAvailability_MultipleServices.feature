@@ -28,6 +28,21 @@
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | COVID, RSV      |
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
+  Scenario: Edit existing availability for a single day, remove a service
+    Given the following sessions
+      | Date     | From  | Until | Services        | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
+    When I edit the following availability
+      | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services     | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
+      | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID, FLU, RSV  | 09:00    | 17:00     | 5              | 2            | COVID, RSV   | Edit |
+    Then the request is successful and the following daily availability sessions are created
+      | Date     | From  | Until | Services        | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID, RSV      | 5           | 2        |
+    And the following availability created events are created
+      | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services        |
+      | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 2        | COVID, RSV      |
+    And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
+    
   Scenario: Overwrite existing availability for a single day, add services
     Given the following sessions
       | Date     | From  | Until | Services        | Slot Length | Capacity |

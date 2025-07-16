@@ -63,17 +63,17 @@
       | Next Sunday    | 09:20 | 10        | FLU-B   |
     When I query week summary for the current site on 'Next Monday'
     Then the following week summary metrics are returned
-      | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
-      | 168              | 147                | 28                  | 7                     | 0                      |
+      | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments |
+      | 168              | 147                | 21                  | 7                     |
     And the following day summary metrics are returned
       | Date             | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
-      | Next Monday      | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Tuesday     | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Wednesday   | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Thursday    | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Friday      | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Saturday    | 24               | 21                 | 4                   | 1                     | 0                      |
-      | Next Sunday      | 24               | 21                 | 4                   | 1                     | 0                      |
+      | Next Monday      | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Tuesday     | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Wednesday   | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Thursday    | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Friday      | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Saturday    | 24               | 21                 | 3                   | 1                     | 0                      |
+      | Next Sunday      | 24               | 21                 | 3                   | 1                     | 0                      |
     And the following session summaries on day 'Next Monday' are returned
       | StartDate      | Start Time | End Time | Bookings                                          | Capacity | Slot Length | Maximum Capacity |
       | Next Monday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |

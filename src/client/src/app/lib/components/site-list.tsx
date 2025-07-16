@@ -1,10 +1,10 @@
 'use client';
-import Link from 'next/link';
 import { Site } from '@types';
-import { Card, TextInput } from '@nhsuk-frontend-components';
+import { Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
-import { debounce } from '../utils/debounce';
+import Link from 'next/link';
+import SearchButton from './nhsuk-frontend/search-button';
 
 type Props = {
   sites: Site[];
@@ -13,46 +13,75 @@ type Props = {
 const SiteList = ({ sites }: Props) => {
   const sortedSites = sites.toSorted(sortSitesByName);
   const [filteredSites, setFilteredSites] = useState(sortedSites);
+  const [searchValue, setSearchValue] = useState('');
+  const [showSearchMsg, setShowSearchMsg] = useState(false);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const searchInput = e.target.value.toLowerCase();
-    if (searchInput.length >= 3) {
+  const handleSearchClick = () => {
+    const searchQuery = searchValue.toLowerCase();
+    if (searchQuery.length >= 3) {
       setFilteredSites(
         sortedSites.filter(
           s =>
-            s.name.toLowerCase().includes(searchInput) ||
-            s.odsCode.toLowerCase() === searchInput,
+            s.name.toLowerCase().includes(searchQuery) ||
+            s.odsCode.toLowerCase().includes(searchQuery),
         ),
       );
+      setShowSearchMsg(true);
     } else {
       setFilteredSites(sortedSites);
+      setShowSearchMsg(false);
     }
   };
-
-  const debounceSearchHandler = debounce(handleInputChange, 300);
+  const handleClearClick = () => {
+    setSearchValue('');
+    setFilteredSites(sortedSites);
+    setShowSearchMsg(false);
+  };
+  const handleSearchValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+    setShowSearchMsg(false);
+  };
 
   return (
-    <Card title="Choose a site">
-      <TextInput
-        id="site-search"
-        aria-label="site-search"
-        placeholder="Search"
-        onChange={debounceSearchHandler}
-      ></TextInput>
-      <ul className="nhsuk-list nhsuk-list--border">
-        {filteredSites.map(s => (
-          <li key={s.id}>
+    <>
+      <div className="search-bar">
+        <div>
+          <TextInput
+            id="site-search"
+            label="Search active sites by name or ODS code"
+            aria-label="Search active sites by name or ODS code"
+            value={searchValue}
+            onChange={handleSearchValueChange}
+          ></TextInput>
+        </div>
+        <SearchButton onClick={handleSearchClick}>Search</SearchButton>
+        <SearchButton onClick={handleClearClick}>Clear</SearchButton>
+      </div>
+      {showSearchMsg && searchValue.length > 0 && (
+        <p>
+          {filteredSites.length > 0
+            ? `Found ${filteredSites.length} site(s) matching "${searchValue}".`
+            : `No sites found matching "${searchValue}"`}
+        </p>
+      )}
+      <Table
+        headers={['Name', 'ICB', 'ODS', 'Action']}
+        rows={filteredSites.map(site => {
+          return [
+            site.name,
+            site.integratedCareBoard,
+            site.odsCode,
             <Link
-              aria-label={s.name}
-              className="nhsuk-back-link__link"
-              href={`/site/${s.id}`}
+              key={site.id}
+              aria-label={`View ${site.name}`}
+              href={`/site/${site.id}`}
             >
-              {s.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Card>
+              View
+            </Link>,
+          ];
+        })}
+      />
+    </>
   );
 };
 

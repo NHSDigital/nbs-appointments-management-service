@@ -9,6 +9,7 @@ namespace Nhs.Appointments.Core
     {
         public DateOnly Date { get; set; } = date;
         public readonly IEnumerable<SessionSummary> Sessions = sessions;
+        public int CancelledAppointments { get; set; }
     }
     
     public class SessionSummary
@@ -36,7 +37,6 @@ namespace Nhs.Appointments.Core
         public int MaximumCapacity { get; set; }
         public int RemainingCapacity { get; set; }
         public int BookedAppointments { get; set; }
-        public int CancelledAppointments { get; set; }
         public int OrphanedAppointments { get; set; }
     }
 }

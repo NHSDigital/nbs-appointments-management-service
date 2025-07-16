@@ -65,6 +65,27 @@ stages:
               downloadType: "single"
               artifactName: "drop_terraform"
               downloadPath: $(Pipeline.Workspace)
+
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Scripts Artifact
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "drop_scripts"
+              downloadPath: $(Pipeline.Workspace)
+
+          - task: AzureCLI@2
+            displayName: "Create Terraform State Container"
+            condition: eq('${{parameters.env}}', 'pen')
+            inputs:
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Pipeline.Workspace)/drop_scripts/storage-account/create-tfstate-container.ps1"
+              addSpnToEnvironment: true
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              ## TODO: When we create our 2nd sandbox onwards, we need to derive workloadType from the environment
+              arguments: "-workloadName 'mya' -workloadType 'nonprod' -workloadRegion 'uks' -tfstateContainerName 'tfstate'"
+
           - task: AzureCLI@2
             displayName: "Run Terraform Plan"
             inputs:
@@ -175,7 +196,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'pen', 'prod') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -194,8 +215,9 @@ stages:
               appName: ${{parameters.highLoadFunctionAppName}}
               package: "$(Pipeline.Workspace)/drop_api/*.zip"
               deploymentMethod: "auto"
-              deployToSlotOrASE: true
-              slotName: "preview"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
       - job: DeployServiceBusFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy service bus function app"
@@ -249,7 +271,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'pen', 'prod') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

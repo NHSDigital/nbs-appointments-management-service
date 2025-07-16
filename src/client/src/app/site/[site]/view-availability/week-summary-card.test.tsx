@@ -65,21 +65,6 @@ describe('Week Summary Card', () => {
     expect(screen.getByText('Unbooked: 476')).toBeInTheDocument();
   });
 
-  it('renders a warning if there are cancelled appointments', () => {
-    render(
-      <WeekSummaryCard
-        ukWeekSummary={{ ...mockWeekSummary, cancelledAppointments: 20 }}
-        clinicalServices={clinicalServices}
-      />,
-    );
-
-    expect(screen.getByText(/There are/)).toBeInTheDocument();
-    expect(screen.getByText('20')).toBeInTheDocument();
-    expect(
-      screen.getByText(/cancelled appointments in this week./),
-    ).toBeInTheDocument();
-  });
-
   it('renders a warning if there are orphaned appointments', () => {
     render(
       <WeekSummaryCard

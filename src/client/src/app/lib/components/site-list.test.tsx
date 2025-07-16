@@ -419,7 +419,7 @@ describe('<SiteList>', () => {
     });
   });
 
-  it('cannot find site on partial ODS code search', async () => {
+  it('can find site on partial ODS code search', async () => {
     const testSites: Site[] = [
       {
         id: '34e990af-5dc9-43a6-8895-b9123216d699',
@@ -495,15 +495,15 @@ describe('<SiteList>', () => {
     const searchInput = screen.getByRole('textbox', {
       name: 'Search active sites by name or ODS code',
     });
-    await user.type(searchInput, '1005');
+    await user.type(searchInput, '004');
 
     const searchButton = screen.getByRole('button', { name: /search/i });
     await user.click(searchButton);
 
     await waitFor(() => {
-      expect(screen.getAllByRole('row')).toHaveLength(1);
+      expect(screen.getAllByRole('row')).toHaveLength(2);
       expect(
-        screen.getByText('No sites found matching "1005"'),
+        screen.getByText('Found 1 site(s) matching "004".'),
       ).toBeInTheDocument();
     });
   });

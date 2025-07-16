@@ -16,14 +16,9 @@ parameters:
     values: ["int", "stag", "prod", "pen", "perf"]
 
 stages:
-  - stage: Build
-    displayName: "Build for release branch"
-    jobs:
-      - job: BuildJob
-        steps:
-          - template: scripts/pipeline-templates/build.yml
-            parameters:
-              prBuildServiceConnectionName: $(prBuildServiceConnectionName)
+  - template: scripts/pipeline-templates/build.yml
+    parameters:
+      prBuildServiceConnectionName: $(prBuildServiceConnectionName)
 
   - ${{ each env in parameters.environments }}:
       - template: scripts/pipeline-templates/deploy.yml

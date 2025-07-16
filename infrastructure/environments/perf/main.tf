@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "azurerm" {
-    use_azuread_auth = true
-    storage_account_name = "myatfstnonproduks"
+    resource_group_name  = "nbs-myaperf-rg-stag-uks"
+    storage_account_name = "myaperftfstaguks"
     container_name       = "tfstate"
-    key                  = "pen.tfstate"
+    key                  = "perf.tfstate"
   }
 
   required_version = ">= 1.6.5"
@@ -25,8 +25,8 @@ provider "azurerm" {
   }
 }
 
-module "mya_application_pen" {
-  environment                                    = "pen"
+module "mya_application_perf" {
+  environment                                    = "perf"
   location                                       = "uksouth"
   loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER

@@ -262,7 +262,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/update-fd-routes.ps1"
-              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)"
+              arguments: "-resourceGroup $(uksResourceGroup) -profileName $(frontdoorProfileName) -ruleSetName $(frontdoorRuleSetNameUks) -apiOriginGroupName $(apiOriginGroupNameUks) -webOriginGroupName $(webOriginGroupNameUks)  -env $(env)"
 
           - task: AzureCLI@2
             displayName: "Get Cosmos DB connection string"

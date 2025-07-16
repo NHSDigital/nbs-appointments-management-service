@@ -355,5 +355,4 @@ stages:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
 
-          isMain: true
           buildNumber: "$(Build.BuildNumber)"

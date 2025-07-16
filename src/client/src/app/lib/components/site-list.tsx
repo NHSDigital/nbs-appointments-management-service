@@ -1,6 +1,6 @@
 'use client';
 import { Site } from '@types';
-import { Button, Table, TextInput } from '@nhsuk-frontend-components';
+import { Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import Link from 'next/link';

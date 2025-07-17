@@ -15,6 +15,7 @@ import {
   DownloadReportFormValues,
   REPORT_DATE_EARLIEST_ALLOWED,
 } from './download-report-form-schema';
+import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 
 interface ReportsPageProps {
   site: Site;
@@ -54,68 +55,40 @@ export const ReportsPage = ({ site }: ReportsPageProps) => {
       />
       <NhsHeading title="Select the dates and create a report" />
       <form onSubmit={handleSubmit(submitForm)}>
+        {errors.root && (
+          <span className="nhsuk-error-message">
+            <span className="nhsuk-u-visually-hidden">Error: </span>
+            {errors.root.message}
+          </span>
+        )}
         <Controller
           name="startDate"
           control={control}
           render={({ field }) => (
-            <div className="nhsuk-form-group">
-              <label className="nhsuk-label" htmlFor="startDate">
-                Start date
-              </label>
-              <div id="startDate-hint" className="nhsuk-hint">
-                For example, 17/05/2024.
-              </div>
-              {errors.startDate && (
-                <span className="nhsuk-error-message">
-                  <span className="nhsuk-u-visually-hidden">Error: </span>
-                  {errors.startDate.message}
-                </span>
-              )}
-
-              <input
-                className="nhsuk-input nhsuk-date-input__input nhsuk-input--width-8"
-                id="startDate"
-                type="date"
-                min={REPORT_DATE_EARLIEST_ALLOWED}
-                max={today.add(3, 'month').format(RFC3339Format)}
-                inputMode="numeric"
-                aria-describedby="startDate-hint"
-                autoComplete="off"
-                {...field}
-              />
-            </div>
+            <Datepicker
+              id="startDate"
+              label="Start date"
+              hint="For example, 17/05/2024."
+              min={REPORT_DATE_EARLIEST_ALLOWED}
+              max={today.add(3, 'month').format(RFC3339Format)}
+              error={errors.startDate?.message}
+              {...field}
+            />
           )}
         />
         <Controller
           name="endDate"
           control={control}
           render={({ field }) => (
-            <div className="nhsuk-form-group">
-              <label className="nhsuk-label" htmlFor="endDate">
-                End date
-              </label>
-              <div id="endDate-hint" className="nhsuk-hint">
-                For example, 17/05/2024.
-              </div>
-              {errors.endDate && (
-                <span className="nhsuk-error-message">
-                  <span className="nhsuk-u-visually-hidden">Error: </span>
-                  {errors.endDate.message}
-                </span>
-              )}
-
-              <input
-                className="nhsuk-input nhsuk-date-input__input nhsuk-input--width-8"
-                id="endDate"
-                type="date"
-                min={REPORT_DATE_EARLIEST_ALLOWED}
-                max={today.add(3, 'month').format(RFC3339Format)}
-                inputMode="numeric"
-                aria-describedby="endDate-hint"
-                autoComplete="off"
-                {...field}
-              />
-            </div>
+            <Datepicker
+              id="endDate"
+              label="End date"
+              hint="For example, 17/05/2024."
+              min={REPORT_DATE_EARLIEST_ALLOWED}
+              max={today.add(3, 'month').format(RFC3339Format)}
+              error={errors.endDate?.message}
+              {...field}
+            />
           )}
         />
         <ButtonGroup>

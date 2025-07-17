@@ -112,7 +112,7 @@ describe('Site Page', () => {
     ['reports:sitesummary', 'Download reports', 'reports'],
   ])(
     'displays the correct cards when permissions are present',
-    async (permission: string, cardTitle: string, path: string) => {
+    (permission: string, cardTitle: string, path: string) => {
       const mockSite = mockSites[0];
 
       render(
@@ -145,7 +145,7 @@ describe('Site Page', () => {
     [['reports:sitesummary'], 'Download reports'],
   ])(
     'hides the correct cards when permissions are lacking',
-    async (permissions: string[], cardTitle: string) => {
+    (permissions: string[], cardTitle: string) => {
       const mockSite = mockSites[0];
 
       render(

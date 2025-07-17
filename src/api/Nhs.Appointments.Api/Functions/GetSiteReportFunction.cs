@@ -51,12 +51,12 @@ public class GetSiteReportFunction(
     {
         var sites = await siteService.GetAllSites();
         
-        if (await permissionChecker.HasGlobalPermissionAsync(user.Id, Permissions.ReportSites))
+        if (await permissionChecker.HasGlobalPermissionAsync(user.Id, Permissions.ReportsSiteSummary))
         {
             return sites;
         }
         
-        var siteIds = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ReportSites);
+        var siteIds = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ReportsSiteSummary);
         var regionPermissions = (await permissionChecker.GetRegionPermissionsAsync(user.Id)).Select(r => r.Replace("region:", ""));
             
         return sites.Where(x => siteIds.Contains(x.Id) || regionPermissions.Contains(x.Region));

@@ -92,7 +92,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 75
+        threshold          = 50
         metric_namespace   = "microsoft.web/serverfarms"
       }
 
@@ -135,7 +135,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 70
+        threshold          = 60
         metric_namespace   = "microsoft.web/serverfarms"
       }
 

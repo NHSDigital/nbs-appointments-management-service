@@ -216,10 +216,6 @@ variable "cosmos_automatic_failover_enabled" {
   type = bool
 }
 
-variable "cosmos_synapse_enabled" {
-  type = bool
-}
-
 variable "app_insights_sampling_percentage" {
   type = number
 }

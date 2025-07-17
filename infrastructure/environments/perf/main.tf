@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-mya-rg-prod-uks"
-    storage_account_name = "myatfproduks"
+    resource_group_name  = "nbs-myaperf-rg-stag-uks"
+    storage_account_name = "myaperftfstaguks"
     container_name       = "tfstate"
-    key                  = "prod.tfstate"
+    key                  = "perf.tfstate"
   }
 
   required_version = ">= 1.6.5"
@@ -25,8 +25,8 @@ provider "azurerm" {
   }
 }
 
-module "mya_application_prod" {
-  environment                                    = "prod"
+module "mya_application_perf" {
+  environment                                    = "perf"
   location                                       = "uksouth"
   loc                                            = "uks"
   build_number                                   = var.BUILD_NUMBER
@@ -62,7 +62,7 @@ module "mya_application_prod" {
   autoscale_notification_email_address           = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   disable_query_availability_function            = true
   create_high_load_function_app                  = true
-  create_app_slot                                = true
+  create_app_slot                                = false
   create_autoscale_settings                      = true
   create_frontdoor                               = true
   create_cosmos_db                               = true
@@ -78,7 +78,6 @@ module "mya_application_prod" {
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
   disable_bulk_import_function                   = true
-  disable_aggregate_daily_site_summary           = true
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

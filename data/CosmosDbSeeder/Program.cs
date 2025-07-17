@@ -41,7 +41,7 @@ class Program
         _database = await CreateDatabaseAsync(databaseName);
         foreach (var container in containers)
         {
-            var knownEnvironments = new [] { "local", "dev", "int", "stag", "pen", "prod" };
+            var knownEnvironments = new [] { "local", "dev", "int", "stag", "pen", "perf", "prod" };
             
             if (string.IsNullOrWhiteSpace(environment))
                 throw new ArgumentException("Environment must be provided");
@@ -182,7 +182,7 @@ class Program
 
     private static bool IsProtectedEnvironment(string environment)
     {
-        var protectedEnvironments = new [] { "dev", "int", "stag", "pen", "prod" };
+        var protectedEnvironments = new [] { "dev", "int", "stag", "pen", "perf", "prod" };
         return protectedEnvironments.Contains(environment);
     }
 }

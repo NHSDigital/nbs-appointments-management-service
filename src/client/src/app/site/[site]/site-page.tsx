@@ -19,7 +19,8 @@ export const SitePage = ({
       p === 'site:manage' ||
       p === 'site:view' ||
       p === 'availability:setup' ||
-      p === 'availability:query',
+      p === 'availability:query' ||
+      p === 'reports:sitesummary',
   );
 
   const overviewData = mapSiteOverviewSummaryData(
@@ -61,6 +62,14 @@ export const SitePage = ({
           {permissionsRelevantToCards.includes('users:view') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card href={`/site/${site.id}/users`} title="Manage users" />
+            </li>
+          )}
+          {permissionsRelevantToCards.includes('reports:sitesummary') && (
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+              <Card
+                href={`/site/${site.id}/reports`}
+                title="Download reports"
+              />
             </li>
           )}
         </ul>

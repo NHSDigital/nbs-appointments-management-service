@@ -206,14 +206,21 @@ const mockAllPermissions = [
   'site:get-meta-data',
   'availability:setup',
   'availability:query',
+  'booking:view-detail',
   'booking:make',
   'booking:query',
   'booking:cancel',
   'booking:set-status',
   'users:manage',
   'users:view',
+  'sites:query',
   'site:view',
+  'site:view:preview',
   'site:manage',
+  'site:manage:admin',
+  'system:run-reminders',
+  'system:run-provisional-sweep',
+  'reports:sitesummary',
 ];
 
 const mockAuditerPermissions = [

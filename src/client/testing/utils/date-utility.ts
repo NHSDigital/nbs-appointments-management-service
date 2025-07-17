@@ -1,6 +1,6 @@
 import {
   addToUkDatetime,
-  dateFormat,
+  RFC3339Format,
   endOfUkWeek,
   parseToUkDatetime,
   startOfUkWeek,
@@ -22,7 +22,7 @@ export const getDateInFuture = (
 
 export const daysFromToday = (
   numberOfDaysFromToday = 1,
-  requiredformat = dateFormat,
+  requiredformat = RFC3339Format,
 ) =>
   addToUkDatetime(ukNow(), numberOfDaysFromToday, 'day').format(requiredformat);
 

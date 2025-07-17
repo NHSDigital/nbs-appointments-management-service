@@ -8,7 +8,7 @@ import {
 import CancelAppointmentPage from './cancel-appointment-page';
 import { notFound } from 'next/navigation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { dateFormat, parseToUkDatetime } from '@services/timeService';
+import { RFC3339Format, parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
   params: Promise<{
@@ -32,7 +32,7 @@ const Page = async ({ params }: PageProps) => {
     notFound();
   }
 
-  const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
+  const returnDate = parseToUkDatetime(booking.from).format(RFC3339Format);
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
     href: `/site/${site.id}/view-availability/daily-appointments?date=${returnDate}&page=1`,

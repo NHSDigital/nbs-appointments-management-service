@@ -20,7 +20,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, []);
 
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -30,21 +30,22 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - No sessions for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - No sessions for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
-    
+
     /// <summary>
-    /// When none of the short-circuit checks return, have to default to using the build state approach that uses allocation algorithm
+    ///     When none of the short-circuit checks return, have to default to using the build state approach that uses
+    ///     allocation algorithm
     /// </summary>
     [Fact]
     public async Task FallbackToBuildState_1()
     {
         var bookings = new List<Booking>();
         var startTime = new TimeOnly(9, 0);
-        
+
         //add 6 green bookings in from 9am-10am
         for (var i = 0; i < 6; i++)
         {
@@ -63,7 +64,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
 
         //blue has availability due to the greedy allocation assigning green bookings to the second session
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -73,14 +74,14 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
-        
+
         //green has availability but still has to use allocation to confirm
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -90,21 +91,21 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Green', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     /// <summary>
-    /// Prove greedy model inefficient behaviour still occurs
+    ///     Prove greedy model inefficient behaviour still occurs
     /// </summary>
     [Fact]
     public async Task FallbackToBuildState_2()
     {
         var bookings = new List<Booking>();
         var startTime = new TimeOnly(9, 0);
-        
+
         //add 6 green bookings in from 9am-10am
         for (var i = 0; i < 6; i++)
         {
@@ -124,7 +125,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         //blue has no availability due to the greedy allocation assigning green bookings to the second session
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -134,14 +135,14 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
-        
+
         //green has availability but still has to use allocation to confirm
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -151,12 +152,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Green', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
-    
+
     /// <summary>
     ///     There exist slots in the date-range with no bookings in, therefore must support the service
     /// </summary>
@@ -187,7 +188,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -197,7 +198,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -233,7 +234,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.False(green.hasSlot);
 
         _logger.Verify(x =>
@@ -243,13 +244,13 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Green', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Empty slot exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Never);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -259,7 +260,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -292,7 +293,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -302,13 +303,13 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -318,7 +319,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -355,7 +356,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -365,12 +366,13 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var purple = await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        var purple =
+            await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.False(purple.hasSlot);
 
         _logger.Verify(x =>
@@ -380,7 +382,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Purple', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Purple', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Never);
@@ -392,7 +394,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Purple', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{UnsuccessfulLogMessage} - falling back to building the full state to ascertain the availability for service: 'Purple', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -427,7 +429,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         SetupHasAvailabilityData(bookings, sessions);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -437,7 +439,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -481,7 +483,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
         //it should find the 11:50-12:00 slot having capacity first
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -491,13 +493,13 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -507,7 +509,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -539,7 +541,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         SetupHasAvailabilityData(bookings, sessions);
 
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateTime(2025, 1, 6), new DateTime(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -549,9 +551,112 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025 00:00:00', to : '01/07/2025 00:00:00'.")),
+                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+    }
+    
+    [Fact]
+    public void ReturnsSingleRange_WhenRangeIsExactly7Days()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 7);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Single(result);
+        Assert.Equal(from, result[0].From);
+        Assert.Equal(to, result[0].To);
+    }
+
+    [Fact]
+    public void ReturnsSingleRange_WhenRangeIsSameDay()
+    {
+        var from = new DateOnly(2025, 7, 5);
+        var to = new DateOnly(2025, 7, 5);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Single(result);
+        Assert.Equal(from, result[0].From);
+        Assert.Equal(to, result[0].To);
+    }
+
+    [Fact]
+    public void ReturnsSingleRange_WhenRangeIsLessThan7Days()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 3);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Single(result);
+        Assert.Equal(from, result[0].From);
+        Assert.Equal(to, result[0].To);
+    }
+
+    [Fact]
+    public void ReturnsTwoRanges_WhenRangeIs9Days()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 10);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new DateOnly(2025, 7, 1), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 7), result[0].To);
+
+        Assert.Equal(new DateOnly(2025, 7, 8), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 10), result[1].To);
+    }
+
+    [Fact]
+    public void ReturnsFourFullWeeks_WhenRangeIs28Days()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 28);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Equal(4, result.Count);
+        for (var i = 0; i < 4; i++)
+        {
+            var expectedStart = from.AddDays(i * 7);
+            var expectedEnd = expectedStart.AddDays(6);
+            Assert.Equal(expectedStart, result[i].From);
+            Assert.Equal(expectedEnd, result[i].To);
+        }
+    }
+
+    [Fact]
+    public void LastRangeEndsExactlyOnToDate()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 17); // 17 days
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(new DateOnly(2025, 7, 1), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 7), result[0].To);
+
+        Assert.Equal(new DateOnly(2025, 7, 8), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 14), result[1].To);
+
+        Assert.Equal(new DateOnly(2025, 7, 15), result[2].From);
+        Assert.Equal(new DateOnly(2025, 7, 17), result[2].To);
+    }
+
+    [Fact]
+    public void ReturnsEmptyList_WhenFromIsAfterTo()
+    {
+        var from = new DateOnly(2025, 7, 10);
+        var to = new DateOnly(2025, 7, 1);
+
+        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+
+        Assert.Empty(result);
     }
 }

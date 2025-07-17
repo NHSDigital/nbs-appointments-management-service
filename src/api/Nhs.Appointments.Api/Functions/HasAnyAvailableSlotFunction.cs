@@ -56,13 +56,10 @@ public class HasAnyAvailableSlotFunction(
         var concurrentResults = new ConcurrentBag<HasAnyAvailableSlotResponseItem>();
         var response = new HasAnyAvailableSlotResponse();
 
-        var dayStart = request.From.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = request.Until.ToDateTime(new TimeOnly(23, 59, 59));
-
         await Parallel.ForEachAsync(request.Sites, async (site, _) =>
         {
             var (hasAnyAvailableSlot, shortCircuited) =
-                await bookingAvailabilityStateService.HasAnyAvailableSlot(request.Service, site, dayStart, dayEnd);
+                await bookingAvailabilityStateService.HasAnyAvailableSlot(request.Service, site, request.From, request.Until);
             concurrentResults.Add(new HasAnyAvailableSlotResponseItem(site, hasAnyAvailableSlot, shortCircuited));
         });
 

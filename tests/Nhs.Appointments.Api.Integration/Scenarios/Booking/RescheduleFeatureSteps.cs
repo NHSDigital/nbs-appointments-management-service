@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
@@ -31,7 +31,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                         new { type = "email", value = "test@test.com" },
                         new { type = "phone", value = "07777777777" }
                     },
-                bookingToReschedule
+                bookingToReschedule,
+                cancellationReason = CancellationReason.CancelledByCitizen.ToString()
             };
             Response = await Http.PostAsJsonAsync(
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);

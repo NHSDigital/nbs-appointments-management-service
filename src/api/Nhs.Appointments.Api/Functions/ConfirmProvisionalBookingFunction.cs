@@ -72,7 +72,8 @@ public class ConfirmProvisionalBookingFunction(
         {
             result = await bookingWriteService.ConfirmProvisionalBooking(bookingRequest.bookingReference,
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }),
-            bookingRequest.bookingToReschedule);
+            bookingRequest.bookingToReschedule,
+            bookingRequest.cancellationReason);
         }
 
         switch (result)
@@ -106,6 +107,7 @@ public class ConfirmProvisionalBookingFunction(
         var contactDetails = new ContactItem[] { };
         var bookingToReschedule = string.Empty;
         var relatedBookings = Array.Empty<string>();
+        var cancellationReason = string.Empty;
         if (req.Body != null && req.Body.Length > 0)
         {
             var (errors, payload) =
@@ -118,6 +120,7 @@ public class ConfirmProvisionalBookingFunction(
             contactDetails = payload?.contactDetails ?? Array.Empty<ContactItem>();
             bookingToReschedule = payload.bookingToReschedule ?? string.Empty;
             relatedBookings = payload.relatedBookings ?? Array.Empty<string>();
+            cancellationReason = payload?.cancellationReason ?? string.Empty;
 
             var payloadErrors = new List<ErrorMessageResponseItem>();
             if (payload?.contactDetails == null && payload.bookingToReschedule == null)
@@ -130,6 +133,6 @@ public class ConfirmProvisionalBookingFunction(
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
 
         return (ErrorMessageResponseItem.None,
-            new ConfirmBookingRequest(bookingReference, contactDetails, relatedBookings, bookingToReschedule));
+            new ConfirmBookingRequest(bookingReference, contactDetails, relatedBookings, bookingToReschedule, cancellationReason));
     }
 }

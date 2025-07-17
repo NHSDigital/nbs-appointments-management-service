@@ -221,7 +221,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+                    It.IsAny<string>(), null))
+                .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",
@@ -320,7 +321,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>())).ReturnsAsync(BookingConfirmationResult.Success);
+                    It.IsAny<string>(), null))
+                .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",
@@ -940,6 +942,34 @@ namespace Nhs.Appointments.Core.UnitTests
 
             result.Should().Be(BookingCancellationResult.Success);
             _bookingsDocumentStore.Verify();
+        }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("CancelledByCitizen", CancellationReason.CancelledByCitizen)]
+        [InlineData("CancelledBySite", CancellationReason.CancelledBySite)]
+        public async Task ConfirmProvisional_CancellationReasonIsUsed(string reason, CancellationReason? expectedCancellationReason)
+        {
+            var contactDetails = new List<ContactItem> { new() { Type = ContactItemType.Email, Value = "test.email@domain.com" } };
+
+            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), expectedCancellationReason))
+                .ReturnsAsync(BookingConfirmationResult.Success);
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("test-booking-ref")).ReturnsAsync(new Booking
+            {
+                Reference = "test-booking-ref",
+                Site = MockSite,
+                Service = "TSERV",
+                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                Duration = 10,
+                ContactDetails = contactDetails.ToArray(),
+                Status = AppointmentStatus.Booked,
+                AttendeeDetails = new AttendeeDetails()
+            });
+
+            var result = await _sut.ConfirmProvisionalBooking("test-booking-ref", contactDetails, null, reason);
+
+            result.Should().Be(BookingConfirmationResult.Success);
+            _bookingsDocumentStore.Verify(x => x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(), null, expectedCancellationReason), Times.Once);
         }
     }
 

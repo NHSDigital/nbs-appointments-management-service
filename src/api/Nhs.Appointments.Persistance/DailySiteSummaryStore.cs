@@ -27,6 +27,11 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
     
     public async Task IfExistsDelete(string site, DateOnly date)
     {
-        await store.DeleteDocument(site, date.ToString("yyyy-MM-dd"));
+        var document = await store.GetByIdOrDefaultAsync<DailySiteSummaryDocument>(site, date.ToString("yyyy-MM-dd"));
+
+        if (document is not null)
+        {
+            await store.DeleteDocument(site, date.ToString("yyyy-MM-dd"));
+        }
     }
 }

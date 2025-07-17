@@ -14,4 +14,4 @@ stages:
       - template: "features/scripts/deploy-feature-toggles.yml"
         parameters:
           env: ${{env}}
-          isValidBranch: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isValidBranch: ${{ or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')) }}

@@ -15,26 +15,26 @@
       "eventType": "OktaUserRolesChanged"
     },
     {
-      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
+      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+" ],
       "emailTemplate": "013bf1ab-b9af-4358-8f41-83b573c9b121",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
+      "services": [ "FLU:2_3", "FLU:18_64", "FLU:65+" ],
       "emailTemplate": "47a7f432-ec7e-4e23-bbb3-105ac134ac73",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
+      "services": [ "COVID_FLU:18_64", "COVID_FLU:65+" ],
       "emailTemplate": "357d32fc-b8d5-4e63-aef3-87dc6ddd9ce8",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
       "services": [ "RSV:Adult" ],
-      "emailTemplate": "c096719c-5aef-4803-9a05-099c136e1c73",
+      "emailTemplate": "f8ea99be-a78d-42a6-bf81-a6233a7987cf",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },

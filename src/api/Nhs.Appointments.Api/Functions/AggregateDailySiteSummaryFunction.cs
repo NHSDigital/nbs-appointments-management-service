@@ -19,5 +19,3 @@ public class AggregateDailySiteSummaryFunction(IMessageReceiver receiver)
         return receiver.HandleConsumer<AggregateSiteSummaryConsumer>(QueueName, message, cancellationToken);
     }
 }
-
-

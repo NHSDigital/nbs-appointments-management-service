@@ -11,10 +11,7 @@ export interface DownloadReportFormValues {
   endDate: string;
 }
 
-const REPORT_DATE_EARLIEST_ALLOWED = parseToUkDatetime(
-  '2025-03-01',
-  RFC3339Format,
-);
+export const REPORT_DATE_EARLIEST_ALLOWED = '2025-03-01';
 
 export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues> =
   yup
@@ -27,7 +24,7 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
           'Select a date on or after 1 March 2025 and within 3 months from today',
           value =>
             occurInOrder([
-              REPORT_DATE_EARLIEST_ALLOWED,
+              parseToUkDatetime(REPORT_DATE_EARLIEST_ALLOWED, RFC3339Format),
               parseToUkDatetime(value, RFC3339Format),
               ukNow().add(3, 'month'),
             ]),
@@ -40,7 +37,7 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
           'Select a date on or after 1 March 2025 and within 3 months from today',
           value =>
             occurInOrder([
-              REPORT_DATE_EARLIEST_ALLOWED,
+              parseToUkDatetime(REPORT_DATE_EARLIEST_ALLOWED, RFC3339Format),
               parseToUkDatetime(value, RFC3339Format),
               ukNow().add(3, 'month'),
             ]),

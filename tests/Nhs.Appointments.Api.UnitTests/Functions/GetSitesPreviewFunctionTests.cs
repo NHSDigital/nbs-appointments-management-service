@@ -17,7 +17,6 @@ public class GetSitesPreviewFunctionTests
     private readonly Mock<ILogger<GetSitesPreviewFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IPermissionChecker> _permissionChecker = new();
-    private readonly Mock<ISiteService> _siteService = new();
     private readonly GetSitesPreviewFunction _sut;
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IUserService> _userSiteAssignmentService = new();
@@ -27,7 +26,6 @@ public class GetSitesPreviewFunctionTests
     public GetSitesPreviewFunctionTests()
     {
         _sut = new GetSitesPreviewFunction(
-            _siteService.Object, 
             _userSiteAssignmentService.Object, 
             _validator.Object,
             _userContextProvider.Object, 
@@ -84,48 +82,10 @@ public class GetSitesPreviewFunctionTests
 
         response.StatusCode.Should().Be(200);
         actualResponse.Count().Should().Be(0);
-        _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
-        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task RunsAsync_IsAdminUser_GetsAllSitesPreview()
-    {
-        var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
-        var context = new DefaultHttpContext();
-        var request = context.Request;
-        var roleAssignments = new RoleAssignment[]
-        {
-            new() { Role = "Role1", Scope = "site:1" }, new() { Role = "system:admin-user", Scope = "global" }
-        };
-        var icbs = new List<WellKnownOdsEntry>
-        {
-            new("ICB1", "ICB One", "icb"),
-            new("ICB2", "ICB Two", "icb")
-        };  
-        var sitesPreview = new SitePreview[] { new("1", "Site1", "ODS1", "ICB1"), new("2", "Site2", "ODS2", "ICB2"), };
-        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
-        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
-        {
-            Id = "test@test.com", RoleAssignments = roleAssignments
-        });
-        _siteService.Setup(x => x.GetSitesPreview()).ReturnsAsync(sitesPreview);
-        _permissionChecker.Setup(x => x.HasGlobalPermissionAsync("test@test.com", Permissions.ViewSitePreview))
-            .ReturnsAsync(true);
-        _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
-
-        var response = await _sut.RunAsync(request) as ContentResult;
-        var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
-
-        actualResponse.Count().Should().Be(2);
-        _siteService.Verify(x => x.GetSitesPreview(), Times.Once);
-        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        actualResponse.First().IntegratedCareBoard.Should().Be("ICB One");
-        actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Two");
-    }
-
-    [Fact]
-    public async Task RunsAsync_IsNotAdmin_GetsUsersSites()
+    public async Task RunsAsync_UserFound_GetsUsersSites()
     {
         var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
         var context = new DefaultHttpContext();
@@ -145,19 +105,6 @@ public class GetSitesPreviewFunctionTests
         );
 
         var site2 = new Site(
-            Id: "2",
-            Name: "Beta",
-            Address: "somewhere",
-            PhoneNumber: "0113 22222222",
-            OdsCode: "odsCode2",
-            Region: "R1",
-            IntegratedCareBoard: "ICB1",
-            InformationForCitizens: "Information For Citizens 123456",
-            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10])
-        );
-
-        var site3 = new Site(
             Id: "3",
             Name: "Gamma",
             Address: "somewhere",
@@ -175,19 +122,14 @@ public class GetSitesPreviewFunctionTests
             new("ICB1", "ICB One", "icb"),
             new("ICB3", "ICB Three", "icb")
         };
-
-        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
+        
         _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
         {
             Id = "test@test.com", RoleAssignments = roleAssignments
         });
-
-        _siteService.Setup(x => x.GetSiteByIdAsync(site1.Id, It.IsAny<string>())).ReturnsAsync(site1);
-        _siteService.Setup(x => x.GetSiteByIdAsync(site2.Id, It.IsAny<string>())).ReturnsAsync(site2);
-        _siteService.Setup(x => x.GetSiteByIdAsync(site3.Id, It.IsAny<string>())).ReturnsAsync(site3);
-
+        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
         _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
-            .ReturnsAsync(new List<string> { site1.Id, site3.Id });
+            .ReturnsAsync(new List<Site> { site1, site2});
         _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
 
         var response = await _sut.RunAsync(request) as ContentResult;
@@ -201,93 +143,6 @@ public class GetSitesPreviewFunctionTests
         actualResponse.Last().Id.Should().Be("3");
         actualResponse.Last().Name.Should().Be("Gamma");
         actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Three");
-        _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
-        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
-    }
-
-    [Fact]
-    public async Task RunAsync_IsNotAdmin_AddsRegionalSitesToUserSites()
-    {
-        var testPrincipal = UserDataGenerator.CreateUserPrincipal("test@test.com");
-        var context = new DefaultHttpContext();
-        var request = context.Request;
-        var roleAssignments = new RoleAssignment[] { new() { Role = "Role1", Scope = "site:1" } };
-        var site1 = new Site(
-            Id: "1",
-            Name: "Alpha",
-            Address: "somewhere",
-            PhoneNumber: "0113 1111111",
-            OdsCode: "odsCode1",
-            Region: "R1",
-            IntegratedCareBoard: "ICB1",
-            InformationForCitizens: "Information For Citizens 123456",
-            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10])
-        );
-
-        var site2 = new Site(
-            Id: "2",
-            Name: "Beta",
-            Address: "somewhere",
-            PhoneNumber: "0113 22222222",
-            OdsCode: "odsCode2",
-            Region: "R1",
-            IntegratedCareBoard: "ICB2",
-            InformationForCitizens: "Information For Citizens 123456",
-            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10])
-        );
-
-        var regionalSite = new Site(
-            Id: "R1",
-            Name: "RegionSite",
-            Address: "Some region",
-            PhoneNumber: "0113 3333333",
-            OdsCode: "odsCode3",
-            Region: "R2",
-            IntegratedCareBoard: "RegionICB",
-            InformationForCitizens: "Information For Citizens 654321",
-            Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10])
-        );
-        var icbs = new List<WellKnownOdsEntry>
-        {
-            new("ICB1", "ICB One", "icb"),
-            new("ICB2", "ICB Two", "icb"),
-            new("RegionICB", "ICB Three", "icb")
-        };
-
-        _userContextProvider.Setup(x => x.UserPrincipal).Returns(testPrincipal);
-        _userSiteAssignmentService.Setup(x => x.GetUserAsync("test@test.com")).ReturnsAsync(new User
-        {
-            Id = "test@test.com",
-            RoleAssignments = roleAssignments
-        });
-
-        _siteService.Setup(x => x.GetSiteByIdAsync(site1.Id, It.IsAny<string>())).ReturnsAsync(site1);
-        _siteService.Setup(x => x.GetSiteByIdAsync(site2.Id, It.IsAny<string>())).ReturnsAsync(site2);
-        _siteService.Setup(x => x.GetSitesInRegion(regionalSite.Region)).ReturnsAsync(new [] { regionalSite });
-
-        _permissionChecker.Setup(x => x.GetSitesWithPermissionAsync("test@test.com", Permissions.ViewSitePreview))
-            .ReturnsAsync(new List<string> { site1.Id, site2.Id });
-        _permissionChecker.Setup(x => x.GetRegionPermissionsAsync("test@test.com"))
-            .ReturnsAsync(new List<string>(["R2"]));
-        _wellKnowOdsCodesService.Setup(x => x.GetWellKnownOdsCodeEntries()).ReturnsAsync(icbs);
-
-        var response = await _sut.RunAsync(request) as ContentResult;
-        var actualResponse = await ReadResponseAsync<IEnumerable<SitePreview>>(response.Content);
-
-        actualResponse.Count().Should().Be(3);
-        actualResponse.First().Id.Should().Be("1");
-        actualResponse.First().Name.Should().Be("Alpha");
-        actualResponse.First().IntegratedCareBoard.Should().Be("ICB One");
-        actualResponse.Last().Id.Should().Be("R1");
-        actualResponse.Last().Name.Should().Be("RegionSite");
-        actualResponse.Last().IntegratedCareBoard.Should().Be("ICB Three");
-
-        _siteService.Verify(x => x.GetSitesPreview(), Times.Never);
-        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
-        _siteService.Verify(x => x.GetSitesInRegion(It.IsAny<string>()), Times.Once);
     }
 
     private static async Task<TRequest> ReadResponseAsync<TRequest>(string response)

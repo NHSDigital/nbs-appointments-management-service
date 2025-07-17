@@ -14,7 +14,7 @@ public class AggregateDailySiteSummaryFunction(IMessageReceiver receiver)
 
     [Function("AggregateDailySiteSummary")]
     [AllowAnonymous]
-    public Task NotifyUserRolesChangedAsync([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+    public Task AggregateDailySiteSummary([ServiceBusTrigger(QueueName, Connection = "ServiceBusConnectionString")] ServiceBusReceivedMessage message, CancellationToken cancellationToken)
     {
         return receiver.HandleConsumer<AggregateSiteSummaryConsumer>(QueueName, message, cancellationToken);
     }

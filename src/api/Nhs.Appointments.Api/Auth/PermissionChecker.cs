@@ -62,27 +62,6 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return globalPermissions.Contains(requiredPermission);
     }
 
-    public async Task<IEnumerable<string>> GetSitesWithPermissionAsync(string userId, string requiredPermission)
-    {
-        var siteIds = new HashSet<string>();
-        
-        var (roleAssignments, roles) = await GetUserPermissionsAsync(userId);
-
-        var distinctSiteRoles = roleAssignments.Where(ra => ra.Scope.StartsWith(SiteScopePrefix));
-
-        foreach (var siteRole in distinctSiteRoles)
-        {
-            var usersPermissions = FilteredPermissions(roleAssignments, roles, ra => ra.Scope == siteRole.Scope && ra.Role == siteRole.Role);
-
-            if (usersPermissions.Contains(requiredPermission))
-            {
-                siteIds.Add(siteRole.Scope.Replace(SiteScopePrefix, ""));
-            }
-        }
-
-        return siteIds;
-    }
-
     public async Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId)
     {
         var filter = GlobalOrSiteFilter(siteId);
@@ -114,6 +93,30 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
             .Where(ra => ra.Scope.StartsWith(RegionScopePrefix))
             .Select(ra => ra.Scope)
             .Distinct();
+    }
+    
+    public async Task<IEnumerable<Site>> GetSitesWithPermissionAsync(string userId, string requiredPermission)
+    {
+        var scopes = await GetScopesWithPermissionsAsync(userId, requiredPermission);
+        var sites = await siteService.GetAllSites();
+
+        return sites.Where(site => ScopesAssignedToSite(scopes, site));
+    }
+
+    private bool ScopesAssignedToSite(IEnumerable<(string Scope, string Value)> scopes, Site site)
+    {
+        return scopes.Any(scope => ScopeAssignedToSite(scope, site));
+    }
+
+    private bool ScopeAssignedToSite((string Scope, string Value) scope, Site site)
+    {
+        return scope.Scope switch
+        {
+            GlobalScope => true,
+            RegionScopePrefix => site.Region.Equals(scope.Value),
+            SiteScopePrefix => site.Id.Equals(scope.Value),
+            _ => false
+        };
     }
 
     private async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignmentsAsync(string userId)
@@ -153,6 +156,16 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return roles;
     }
 
+    private async Task<IEnumerable<(string Scope, string Value)>> GetScopesWithPermissionsAsync(string userId, string permission)
+    {
+        var (roleAssignments, roles) = await GetUserPermissionsAsync(userId);
+        var rolesWithPermission = roles.Where(x => x.Permissions.Contains(permission)).Select(x => x.Id);
+        
+        return roleAssignments.Where(x => rolesWithPermission.Contains(x.Role))
+            .Select(x => x.Scope.Split(':'))
+            .Select(x => (Scope: x[0], Value: x[1]));
+    }
+    
     private async Task<(IEnumerable<RoleAssignment> roleAssignments, IEnumerable<Role> roles)> GetUserPermissionsAsync(string userId)
     {
         var roleAssignmentsTask = GetUserRoleAssignmentsAsync(userId);

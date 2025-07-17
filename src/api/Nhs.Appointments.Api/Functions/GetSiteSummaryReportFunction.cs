@@ -14,15 +14,17 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteReportFunction(
+public class GetSiteSummaryReportFunction(
     IUserService userService,
     IPermissionChecker permissionChecker,
-    ISiteService siteService,
     ISiteReportService siteReportService,
     TimeProvider timeProvider,
+    IFeatureToggleHelper featureToggleHelper,
     IValidator<SiteReportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetAccessibilityDefinitionsFunction> logger,
@@ -37,30 +39,18 @@ public class GetSiteReportFunction(
         Description = "Report for all Sites based on a Date Range")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [Function("GetSiteReportFunction")]
-    public override Task<IActionResult> RunAsync(
+    [RequiresPermission(Permissions.ReportsSiteSummary, typeof(NoSiteRequestInspector))]
+    [Function("GetSiteSummaryReportFunction")]
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "SiteReport")]
         HttpRequest req)
     {
-        return base.RunAsync(req);
+        return !await featureToggleHelper.IsFeatureEnabled(Flags.SiteSummaryReport)
+            ? ProblemResponse(HttpStatusCode.NotImplemented, null)
+            : await base.RunAsync(req);
     }
 
     protected override string ResponseType => ApiResponseType.File;
-
-    private async Task<IEnumerable<Site>> GetSites(User user)
-    {
-        var sites = await siteService.GetAllSites();
-        
-        if (await permissionChecker.HasGlobalPermissionAsync(user.Id, Permissions.ReportsSiteSummary))
-        {
-            return sites;
-        }
-        
-        var siteIds = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ReportsSiteSummary);
-        var regionPermissions = (await permissionChecker.GetRegionPermissionsAsync(user.Id)).Select(r => r.Replace("region:", ""));
-            
-        return sites.Where(x => siteIds.Contains(x.Id) || regionPermissions.Contains(x.Region));
-    }
 
     protected override async Task<ApiResult<FileResponse>> HandleRequest(SiteReportRequest request,
         ILogger logger)
@@ -70,14 +60,8 @@ public class GetSiteReportFunction(
         var user = await userService.GetUserAsync(userEmail);
         var fileName =
             $"SiteReport_{request.StartDate:yyyy-MM-dd}_{request.EndDate:yyyy-MM-dd}_{timeProvider.GetUtcNow():yyyyMMddhhmmss}.csv";
-        
-        if (user is null)
-        {
-            //ToDo what the chuff? 401?
-            return Success(new FileResponse(fileName, new MemoryStream()));
-        }
 
-        var sites = await GetSites(user);
+        var sites = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ReportsSiteSummary);
         
         var report = await siteReportService.Generate(sites.ToArray(), request.StartDate, request.EndDate);
         

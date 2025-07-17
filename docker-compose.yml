@@ -35,6 +35,7 @@ services:
       - AzureWebJobs.SendBookingReminders.Disabled=true
       - AzureWebJobs.NotifyBookingReminder.Disabled=true
       - AzureWebJobs.DailySiteSummaryAggregation.Disabled=true
+      - AzureWebJobs.AggregateDailySiteSummary.Disabled=true
       - AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled=true
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
       - COSMOS_ENDPOINT=${COSMOS_ENDPOINT:-https://host.docker.internal:8081}

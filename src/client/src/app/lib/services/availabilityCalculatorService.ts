@@ -3,7 +3,7 @@ import {
   addHoursAndMinutesToUkDatetime,
   dateTimeFormat,
   DayJsType,
-  dateFormat,
+  RFC3339Format,
   getWeek,
   isBefore,
   isBeforeOrEqual,
@@ -37,8 +37,8 @@ export const summariseWeek = async (
   const [dailyAvailability, dailyBookings] = await Promise.all([
     fetchDailyAvailability(
       siteId,
-      ukWeekStart.format(dateFormat),
-      ukWeekEnd.format(dateFormat),
+      ukWeekStart.format(RFC3339Format),
+      ukWeekEnd.format(RFC3339Format),
     ),
     fetchBookings(
       {

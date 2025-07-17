@@ -12,7 +12,7 @@ import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import {
   dateTimeFormat,
-  dateFormat,
+  RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
 import { useRouter } from 'next/navigation';
@@ -53,6 +53,13 @@ const CancelAppointmentPage = ({
         `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
       );
     }
+
+    const returnDate = parseToUkDatetime(booking.from).format(RFC3339Format);
+    const tabNumber = form.cancelAppointment === 'yes' ? 1 : 0;
+
+    replace(
+      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=${tabNumber}&page=1`,
+    );
   };
 
   return (

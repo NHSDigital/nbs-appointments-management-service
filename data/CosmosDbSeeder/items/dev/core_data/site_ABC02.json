@@ -1,15 +1,15 @@
 {
-  "id": "e1a9f96e-b86c-49ef-9ca5-613d596c09ad",
+  "id": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
   "docType": "site",
-  "name": "Lloyds Pharmacy",
-  "address": "Batley, Leeds, LS34 7AG",
-  "phoneNumber": "0113 333333",
+  "name": "Church Lane Pharmacy",
+  "address": "Pudsey, Leeds, LS28 7LD",
+  "phoneNumber": "0113 2222222",
   "odsCode": "ABC02",
-  "region": "R3",
-  "integratedCareBoard": "ICB3",
+  "region": "R2",
+  "integratedCareBoard": "ICB2",
   "location": {
     "type": "Point",
-    "coordinates": [-1.67382134, 55.79628754]
+    "coordinates": [ -1.66382134, 53.79628754 ]
   },
   "accessibilities": [
     {
@@ -48,5 +48,6 @@
       "id": "accessibility/wheelchair_access",
       "value": "false"
     }
-  ]
+  ],
+  "informationForCitizens": ""
 }

@@ -105,6 +105,7 @@ stages:
                 terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
+        condition: not('${{parameters.env}}', 'dev')
         displayName: "Approve Terraform Plan"
         pool: server
         steps:
@@ -114,7 +115,11 @@ stages:
               notifyUsers: ""
               instructions: Review plan and approve
       - deployment: ApplyTerraform
-        dependsOn: ApproveTerraformPlan
+        dependsOn:
+          - ${{ if eq(parameters.env, 'dev') }}:
+              - RunTerraformPlan
+          - ${{ if not(parameters.env, 'dev') }}:
+              - ApproveTerraformPlan
         displayName: "Apply Terraform"
         environment: nbs-mya-${{parameters.env}}
         strategy:

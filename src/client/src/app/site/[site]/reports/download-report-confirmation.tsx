@@ -2,6 +2,7 @@ import { parseToUkDatetime } from '@services/timeService';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
 import { Button, ButtonGroup } from '@components/nhsuk-frontend';
+import NhsHeading from '@components/nhs-heading';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -21,20 +22,20 @@ const DownloadReportConfirmation = ({
   return (
     <>
       <BackLink renderingStrategy={'client'} onClick={goBack} text={'Back'} />
+      <br />
+      <NhsHeading title="Download the report" />
       <p>
-        Download all data between
-        {parseToUkDatetime(reportRequest.startDate).format('dddd, D MMMM YYYY')}
-        and
+        Download all data between{' '}
+        {parseToUkDatetime(reportRequest.startDate).format('dddd, D MMMM YYYY')}{' '}
+        and{' '}
         {parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY')}
       </p>
       <ButtonGroup>
-        <Button
-          type="button"
-          styleType="secondary"
-          action={requestFileDownload}
-        >
-          Create report
-        </Button>
+        <form action={requestFileDownload}>
+          <Button type="submit" styleType="secondary">
+            Export data
+          </Button>
+        </form>
       </ButtonGroup>
     </>
   );

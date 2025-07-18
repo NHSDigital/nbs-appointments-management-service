@@ -55,7 +55,7 @@ public class BookingAvailabilityStateService(
 
         //try and find a result as quickly as possible, lets look at bookings and slots in the latest week first
         //this means fetching less data from the DB, and less processing to do
-        var weekPartitionsDesc = GetWeekPartitions(from, to).OrderByDescending(x => x.To);
+        var weekPartitionsDesc = GetWeekPartitions(from, to).OrderByDescending(x => x.To).ToList();
         
         //fetch sessions first and check there exists documents that support it, else has no capacity for that service
         if (sessionsForService.Count == 0)
@@ -73,8 +73,11 @@ public class BookingAvailabilityStateService(
         
         //loop through each weekly partition
         //possible multiple DB calls if first loop doesn't work - but we are expecting an early result
-        foreach (var weekPartition in weekPartitionsDesc)
+
+        for (var i = 0; i < weekPartitionsDesc.Count; i++)
         {
+            var weekPartition = weekPartitionsDesc[i];
+            var iterationCount = i + 1;
             var weekStart = weekPartition.From.ToDateTime(new TimeOnly(0, 0, 0));
             var weekEnd = weekPartition.To.ToDateTime(new TimeOnly(23, 59, 59));
 
@@ -90,8 +93,8 @@ public class BookingAvailabilityStateService(
             if (emptySlotExists)
             {
                 logger.LogInformation(
-                    "HasAnyAvailableSlot short circuit success - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
-                    service, site, from, to);
+                    "HasAnyAvailableSlot short circuit success after {iterationCount} iteration(s) - Empty slot exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                    iterationCount, service, site, from, to);
                 return (true, true);
             }
             
@@ -99,8 +102,8 @@ public class BookingAvailabilityStateService(
             if (slotMustExist)
             {
                 logger.LogInformation(
-                    "HasAnyAvailableSlot short circuit success - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
-                    service, site, from, to);
+                    "HasAnyAvailableSlot short circuit success after {iterationCount} iteration(s) - Guaranteed slot with capacity exists for service: '{Service}', site : '{Site}', from : '{From}', to : '{To}'.",
+                    iterationCount, service, site, from, to);
                 return (true, true);
             }
         }

@@ -198,7 +198,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -243,8 +243,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
-                            .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                            .Contains("Empty slot exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Never);
@@ -260,7 +259,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -303,7 +302,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -319,7 +318,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -366,7 +365,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -439,7 +438,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -493,7 +492,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -509,7 +508,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Guaranteed slot with capacity exists for service: 'Green', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -551,7 +550,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.Is<It.IsAnyType>((v, t) =>
                         v.ToString()
                             .Contains(
-                                $"{SuccessLogMessage} - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
+                                $"{SuccessLogMessage} after 1 iteration(s) - Empty slot exists for service: 'Blue', site : 'some-site', from : '01/06/2025', to : '01/07/2025'.")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);

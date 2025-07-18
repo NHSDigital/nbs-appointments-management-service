@@ -557,12 +557,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     }
     
     [Fact]
-    public void ReturnsSingleRange_WhenRangeIsExactly7Days()
+    public void GetReversedWeekPartitions_ReturnsSingleRange_WhenRangeIsExactly7Days()
     {
         var from = new DateOnly(2025, 7, 1);
         var to = new DateOnly(2025, 7, 7);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Single(result);
         Assert.Equal(from, result[0].From);
@@ -570,12 +570,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     }
 
     [Fact]
-    public void ReturnsSingleRange_WhenRangeIsSameDay()
+    public void GetReversedWeekPartitions_ReturnsSingleRange_WhenRangeIsSameDay()
     {
         var from = new DateOnly(2025, 7, 5);
         var to = new DateOnly(2025, 7, 5);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Single(result);
         Assert.Equal(from, result[0].From);
@@ -583,12 +583,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     }
 
     [Fact]
-    public void ReturnsSingleRange_WhenRangeIsLessThan7Days()
+    public void GetReversedWeekPartitions_ReturnsSingleRange_WhenRangeIsLessThan7Days()
     {
         var from = new DateOnly(2025, 7, 1);
         var to = new DateOnly(2025, 7, 3);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Single(result);
         Assert.Equal(from, result[0].From);
@@ -596,65 +596,93 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     }
 
     [Fact]
-    public void ReturnsTwoRanges_WhenRangeIs9Days()
+    public void GetReversedWeekPartitions_ReturnsTwoRanges_WhenRangeIs9Days()
     {
         var from = new DateOnly(2025, 7, 1);
         var to = new DateOnly(2025, 7, 10);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Equal(2, result.Count);
-        Assert.Equal(new DateOnly(2025, 7, 1), result[0].From);
-        Assert.Equal(new DateOnly(2025, 7, 7), result[0].To);
+        Assert.Equal(new DateOnly(2025, 7, 4), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 10), result[0].To);
 
-        Assert.Equal(new DateOnly(2025, 7, 8), result[1].From);
-        Assert.Equal(new DateOnly(2025, 7, 10), result[1].To);
+        Assert.Equal(new DateOnly(2025, 7, 1), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 3), result[1].To);
     }
 
     [Fact]
-    public void ReturnsFourFullWeeks_WhenRangeIs28Days()
+    public void GetReversedWeekPartitions_ReturnsFourFullWeeks_WhenRangeIs28Days()
     {
         var from = new DateOnly(2025, 7, 1);
         var to = new DateOnly(2025, 7, 28);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Equal(4, result.Count);
-        for (var i = 0; i < 4; i++)
-        {
-            var expectedStart = from.AddDays(i * 7);
-            var expectedEnd = expectedStart.AddDays(6);
-            Assert.Equal(expectedStart, result[i].From);
-            Assert.Equal(expectedEnd, result[i].To);
-        }
+        
+        Assert.Equal(new DateOnly(2025, 7, 22), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 28), result[0].To);
+
+        Assert.Equal(new DateOnly(2025, 7, 15), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 21), result[1].To);
+        
+        Assert.Equal(new DateOnly(2025, 7, 8), result[2].From);
+        Assert.Equal(new DateOnly(2025, 7, 14), result[2].To);
+        
+        Assert.Equal(new DateOnly(2025, 7, 1), result[3].From);
+        Assert.Equal(new DateOnly(2025, 7, 7), result[3].To);
+    }
+    
+    [Fact]
+    public void GetReversedWeekPartitions_ReturnsThreeAndABitFullWeeks_WhenRangeIs25Days()
+    {
+        var from = new DateOnly(2025, 7, 1);
+        var to = new DateOnly(2025, 7, 25);
+
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
+
+        Assert.Equal(4, result.Count);
+        
+        Assert.Equal(new DateOnly(2025, 7, 19), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 25), result[0].To);
+
+        Assert.Equal(new DateOnly(2025, 7, 12), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 18), result[1].To);
+        
+        Assert.Equal(new DateOnly(2025, 7, 5), result[2].From);
+        Assert.Equal(new DateOnly(2025, 7, 11), result[2].To);
+        
+        Assert.Equal(new DateOnly(2025, 7, 1), result[3].From);
+        Assert.Equal(new DateOnly(2025, 7, 4), result[3].To);
     }
 
     [Fact]
-    public void LastRangeEndsExactlyOnToDate()
+    public void GetReversedWeekPartitions_LastRangeEndsExactlyOnFromDate()
     {
         var from = new DateOnly(2025, 7, 1);
         var to = new DateOnly(2025, 7, 17); // 17 days
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Equal(3, result.Count);
-        Assert.Equal(new DateOnly(2025, 7, 1), result[0].From);
-        Assert.Equal(new DateOnly(2025, 7, 7), result[0].To);
+        Assert.Equal(new DateOnly(2025, 7, 11), result[0].From);
+        Assert.Equal(new DateOnly(2025, 7, 17), result[0].To);
 
-        Assert.Equal(new DateOnly(2025, 7, 8), result[1].From);
-        Assert.Equal(new DateOnly(2025, 7, 14), result[1].To);
+        Assert.Equal(new DateOnly(2025, 7, 4), result[1].From);
+        Assert.Equal(new DateOnly(2025, 7, 10), result[1].To);
 
-        Assert.Equal(new DateOnly(2025, 7, 15), result[2].From);
-        Assert.Equal(new DateOnly(2025, 7, 17), result[2].To);
+        Assert.Equal(new DateOnly(2025, 7, 1), result[2].From);
+        Assert.Equal(new DateOnly(2025, 7, 3), result[2].To);
     }
 
     [Fact]
-    public void ReturnsEmptyList_WhenFromIsAfterTo()
+    public void GetReversedWeekPartitions_ReturnsEmptyList_WhenFromIsAfterTo()
     {
         var from = new DateOnly(2025, 7, 10);
         var to = new DateOnly(2025, 7, 1);
 
-        var result = BookingAvailabilityStateService.GetWeekPartitions(from, to);
+        var result = BookingAvailabilityStateService.GetReversedWeekPartitions(from, to);
 
         Assert.Empty(result);
     }

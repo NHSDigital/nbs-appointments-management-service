@@ -29,7 +29,6 @@ export const ReportsPage = ({ site }: ReportsPageProps) => {
         <DownloadReportConfirmation
           reportRequest={reportRequest}
           goBack={() => setReportRequest(undefined)}
-          site={site}
         />
       )}
     </>

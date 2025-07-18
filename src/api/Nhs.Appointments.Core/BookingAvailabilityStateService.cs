@@ -55,7 +55,7 @@ public class BookingAvailabilityStateService(
 
         //try and find a result as quickly as possible, lets look at bookings and slots in the latest week first
         //this means fetching less data from the DB, and less processing to do
-        var weekPartitionsDesc = GetWeekPartitions(from, to).OrderByDescending(x => x.To).ToList();
+        var weekPartitionsDesc = GetReversedWeekPartitions(from, to).ToList();
         
         //fetch sessions first and check there exists documents that support it, else has no capacity for that service
         if (sessionsForService.Count == 0)
@@ -81,15 +81,22 @@ public class BookingAvailabilityStateService(
             var weekStart = weekPartition.From.ToDateTime(new TimeOnly(0, 0, 0));
             var weekEnd = weekPartition.To.ToDateTime(new TimeOnly(23, 59, 59));
 
-            var slotsInWeek = slotsForService
+            var slotsForServiceInWeek = slotsForService
                 .Where(x => x.From >= weekStart && x.From.Add(x.Duration) <= weekEnd).ToList();
+
+            //TODO add unit tests for this
+            //no need to fetch any bookings if this date range has no slots for the service
+            if (slotsForServiceInWeek.Count == 0)
+            {
+                continue;
+            }
             
             //only need to return bookings that are also contained in slots that support our queried service
             //i.e we don't need to return bookings for services that can't be allocated to any of our relevant slots
-            var allSupportedServices = slotsInWeek.SelectMany(x => x.Services).Distinct().ToArray();
+            var allSupportedServices = slotsForServiceInWeek.SelectMany(x => x.Services).Distinct().ToArray();
             var bookingsInWeek = (await bookingQueryService.GetLiveBookings(site, weekStart, weekEnd)).Where(x => allSupportedServices.Contains(x.Service)).ToList();
 
-            var emptySlotExists = AnEmptySlotExists(slotsInWeek, bookingsInWeek);
+            var emptySlotExists = AnEmptySlotExists(slotsForServiceInWeek, bookingsInWeek);
             if (emptySlotExists)
             {
                 logger.LogInformation(
@@ -98,7 +105,7 @@ public class BookingAvailabilityStateService(
                 return (true, true);
             }
             
-            var slotMustExist = ASlotWithSpaceMustExist(slotsInWeek, bookingsInWeek);
+            var slotMustExist = ASlotWithSpaceMustExist(slotsForServiceInWeek, bookingsInWeek);
             if (slotMustExist)
             {
                 logger.LogInformation(
@@ -178,7 +185,7 @@ public class BookingAvailabilityStateService(
         return slotsInWeek.Any(slot => !distinctBookingTimes.Contains(new DateRange(slot.From, slot.Until)));
     }
 
-    public static List<DateOnlyRange> GetWeekPartitions(DateOnly from, DateOnly to)
+    public static List<DateOnlyRange> GetReversedWeekPartitions(DateOnly from, DateOnly to)
     {
         var result = new List<DateOnlyRange>();
         
@@ -193,18 +200,17 @@ public class BookingAvailabilityStateService(
                 return result;
         }
 
-        var current = from;
+        var currentEnd = to;
 
-        while (current.AddDays(6) < to)
+        while (currentEnd.AddDays(-6) > from)
         {
-            result.Add(new DateOnlyRange(current, current.AddDays(6)));
-            current = current.AddDays(7);
+            result.Add(new DateOnlyRange(currentEnd.AddDays(-6), currentEnd));
+            currentEnd = currentEnd.AddDays(-7);
         }
-
-        // Add final range for remaining days, ending exactly on 'to'
-        if (current <= to)
+        
+        if (currentEnd >= from)
         {
-            result.Add(new DateOnlyRange(current, to));
+            result.Add(new DateOnlyRange(from, currentEnd));
         }
 
         return result;

@@ -37,6 +37,9 @@ stages:
           ${{ elseif eq(env, 'perf') }}:
             resourceGroup: nbs-mya${{env}}-rg-stag-uks
             serviceConnectionName: nbs-mya${{env}}-rg-stag
+          ${{ elseif eq(env, 'dev') }}:
+            resourceGroup: nbs-mya${{env}}-rg-int-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-int
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}

@@ -3,22 +3,20 @@ import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
 import { Button, ButtonGroup } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
+import { Site } from '@types';
+import Link from 'next/link';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
   goBack: () => void;
+  site: Site;
 };
 
 const DownloadReportConfirmation = ({
   reportRequest,
   goBack,
+  site,
 }: DownloadReportConfirmationProps) => {
-  const requestFileDownload = () => {
-    // TODO: Call the API which responds with a file download rather than JSON
-    // Can we fire this straight to the client without having to implement anything ourselves?
-    console.dir(reportRequest);
-  };
-
   return (
     <>
       <BackLink renderingStrategy={'client'} onClick={goBack} text={'Back'} />
@@ -31,11 +29,18 @@ const DownloadReportConfirmation = ({
         {parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY')}
       </p>
       <ButtonGroup>
-        <form action={requestFileDownload}>
-          <Button type="submit" styleType="secondary">
-            Export data
-          </Button>
-        </form>
+        <Link
+          href={{
+            pathname: 'reports/download',
+            query: {
+              site: site.id,
+              startDate: reportRequest.startDate,
+              endDate: reportRequest.endDate,
+            },
+          }}
+        >
+          <Button styleType="secondary">Export data</Button>
+        </Link>
       </ButtonGroup>
     </>
   );

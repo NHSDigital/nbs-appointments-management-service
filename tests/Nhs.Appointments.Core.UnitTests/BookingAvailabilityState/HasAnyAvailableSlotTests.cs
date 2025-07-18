@@ -13,14 +13,18 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task NoSessionsForService()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
         };
 
-        SetupHasAvailabilityData(bookings, []);
+        MockGetSessionsForServiceDescending(from, to, "Blue", []);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -43,6 +47,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task FallbackToBuildState_1()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>();
         var startTime = new TimeOnly(9, 0);
 
@@ -60,11 +67,13 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "10:00", ["Green"], capacity: 1),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Green", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
         SetupAvailabilityAndBookings(bookings, sessions);
 
         //blue has availability due to the greedy allocation assigning green bookings to the second session
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -81,7 +90,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         //green has availability but still has to use allocation to confirm
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, from, to);
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -103,6 +112,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task FallbackToBuildState_2()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>();
         var startTime = new TimeOnly(9, 0);
 
@@ -120,12 +132,14 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "10:00", ["Green", "Blue"], capacity: 1),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Green", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
         SetupAvailabilityAndBookings(bookings, sessions);
 
         //blue has no availability due to the greedy allocation assigning green bookings to the second session
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.False(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -142,7 +156,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
 
         //green has availability but still has to use allocation to confirm
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, from, to);
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -164,6 +178,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task EmptySlotExists_1()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
@@ -185,10 +202,11 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "10:00", ["Blue"], capacity: 1),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -210,6 +228,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task EmptySlotExists_2()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
@@ -231,10 +252,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "09:10", ["Green"], capacity: 4),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Green", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, from, to);
         Assert.False(green.hasSlot);
 
         _logger.Verify(x =>
@@ -249,7 +272,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             Times.Never);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -271,6 +294,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task GuaranteedCapacityRemaining_1()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
@@ -289,10 +315,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "09:10", ["Green", "Blue"], capacity: 10)
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Green", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -308,7 +336,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             Times.Once);
 
         var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Green", MockSite, from, to);
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -330,6 +358,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task GuaranteedCapacityRemaining_2()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
@@ -352,10 +383,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "09:10", ["Purple"], capacity: 3),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Purple", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
         var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+            await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -370,8 +403,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var purple =
-            await Sut.HasAnyAvailableSlot("Purple", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var purple = await Sut.HasAnyAvailableSlot("Purple", MockSite, from, to);
         Assert.False(purple.hasSlot);
 
         _logger.Verify(x =>
@@ -405,6 +437,9 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task GuaranteedCapacityRemaining_3()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
+        
         var bookings = new List<Booking>
         {
             TestBooking("1", "Blue", new DateOnly(2025, 1, 6), avStatus: "Supported", creationOrder: 1),
@@ -425,10 +460,10 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "09:10", ["Blue", "Green"], capacity: 2),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
-        var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -450,6 +485,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task GuaranteedCapacityRemaining_ReverseOrderingCanExecuteQuicker()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
         var bookings = new List<Booking>();
 
         //all 18 blue bookings are in the slots
@@ -477,12 +514,12 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "12:00", ["Blue", "Green"], capacity: 2),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetSessionsForServiceDescending(from, to, "Green", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
         //it should find the 11:50-12:00 slot having capacity first
-
-        var blue =
-            await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>
@@ -497,8 +534,7 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        var green =
-            await Sut.HasAnyAvailableSlot("Green", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var green = await Sut.HasAnyAvailableSlot("Green", MockSite, from, to);
         Assert.True(green.hasSlot);
 
         _logger.Verify(x =>
@@ -520,6 +556,8 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task EmptySlotExists_ReverseOrderingCanExecuteQuicker()
     {
+        var from = new DateOnly(2025, 1, 6);
+        var to = new DateOnly(2025, 1, 7);
         var bookings = new List<Booking>();
 
         var startTime = new TimeOnly(9, 0);
@@ -538,9 +576,10 @@ public class HasAnyAvailableSlotTests : BookingAvailabilityStateServiceTestBase
             TestSession(new DateOnly(2025, 1, 6), "09:00", "12:00", ["Blue"], capacity: 1),
         };
 
-        SetupHasAvailabilityData(bookings, sessions);
+        MockGetSessionsForServiceDescending(from, to, "Blue", sessions);
+        MockGetBookingsInDateRangeAsync(from, to, bookings);
 
-        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, new DateOnly(2025, 1, 6), new DateOnly(2025, 1, 7));
+        var blue = await Sut.HasAnyAvailableSlot("Blue", MockSite, from, to);
         Assert.True(blue.hasSlot);
 
         _logger.Verify(x =>

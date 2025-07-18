@@ -72,7 +72,7 @@ public class BookingAvailabilityStateService(
             .Where(x => x.Services.Contains(service));
         
         //loop through each weekly partition
-        //possible multiple DB calls but expecting an early result
+        //possible multiple DB calls if first loop doesn't work - but we are expecting an early result
         foreach (var weekPartition in weekPartitionsDesc)
         {
             var weekStart = weekPartition.From.ToDateTime(new TimeOnly(0, 0, 0));
@@ -116,48 +116,55 @@ public class BookingAvailabilityStateService(
         return (availableSlots.Any(sl => sl.Services.Contains(service)), false);
     }
 
+    /// <summary>
+    /// Does a slot exist, where the total number of bookings at that exact from/to is less than the total capacity for that slot
+    /// It means it's impossible to arrange the bookings in any way that the slot is full - ergo it must have a space remaining.
+    /// </summary>
     private bool ASlotWithSpaceMustExist(IEnumerable<SessionInstance> slotsInWeek, IEnumerable<Booking> bookingsInWeek)
     {
         //we have ascertained no empty slots exist, now to populate our dictionary with metrics for the inverse pigeonhole check
-            var bookingTimeDictionary = new Dictionary<DateRange, Dictionary<string, int>>();
+        var bookingTimeDictionary = new Dictionary<DateRange, Dictionary<string, int>>();
 
-            foreach (var group in bookingsInWeek.GroupBy(x => new DateRange(x.From, x.From.AddMinutes(x.Duration))))
+        foreach (var group in bookingsInWeek.GroupBy(x => new DateRange(x.From, x.From.AddMinutes(x.Duration))))
+        {
+            var serviceCounts = group
+                .GroupBy(b => b.Service)
+                .ToDictionary(
+                    sg => sg.Key,
+                    sg => sg.Count()
+                );
+
+            bookingTimeDictionary[group.Key] = serviceCounts;
+        }
+
+        //want to group equivalent slots together for total capacity at that time-range and supported services
+        var groupedSlotsForService = slotsInWeek
+            .GroupBy(x => new SessionInstanceKey(x.From, x.Until, x.Services))
+            .Select(g => new SessionInstance(g.Key.From, g.Key.Until)
             {
-                var serviceCounts = group
-                    .GroupBy(b => b.Service)
-                    .ToDictionary(
-                        sg => sg.Key,
-                        sg => sg.Count()
-                    );
+                Services = g.Key.Services,
+                //Total capacity
+                Capacity = g.Sum(x => x.Capacity)
+            })
+            .ToList();
 
-                bookingTimeDictionary[group.Key] = serviceCounts;
-            }
+        //does a slot exist where the number of total bookings for the services in that session is less than the total capacity for that slot?
+        //even if ALL the available bookings that slot can support are allocated to that slot, there is still > 0 capacity remaining
+        //if this is true, then the allocation algorithm used in BuildState is irrelevant, it is impossible to fill the slot based on the current live bookings
+        return groupedSlotsForService.Any(slotGrouping =>
+        {
+            var bookingsForThatSlot = bookingTimeDictionary[new DateRange(slotGrouping.From, slotGrouping.Until)];
 
-            //want to group equivalent slots together for total capacity at that time-range and supported services
-            var groupedSlotsForService = slotsInWeek
-                .GroupBy(x => new SessionInstanceKey(x.From, x.Until, x.Services))
-                .Select(g => new SessionInstance(g.Key.From, g.Key.Until)
-                {
-                    Services = g.Key.Services,
-                    //Total capacity
-                    Capacity = g.Sum(x => x.Capacity)
-                })
-                .ToList();
+            //only total the bookings that the slot can support
+            var bookingServiceTotal = bookingsForThatSlot.Where(x => slotGrouping.Services.Contains(x.Key)).Sum(x => x.Value);
 
-            //does a slot exist where the number of total bookings for the services in that session is less than the total capacity for that slot?
-            //even if ALL the available bookings that slot can support are allocated to that slot, there is still > 0 capacity remaining
-            //if this is true, then the allocation algorithm used in BuildState is irrelevant, it is impossible to fill the slot based on the current live bookings
-            return groupedSlotsForService.Any(slotGrouping =>
-            {
-                var bookingsForThatSlot = bookingTimeDictionary[new DateRange(slotGrouping.From, slotGrouping.Until)];
-
-                //only total the bookings that the slot can support
-                var bookingServiceTotal = bookingsForThatSlot.Where(x => slotGrouping.Services.Contains(x.Key)).Sum(x => x.Value);
-
-                return slotGrouping.Capacity > bookingServiceTotal;
-            });
+            return slotGrouping.Capacity > bookingServiceTotal;
+        });
     }
 
+    /// <summary>
+    /// Does a slot exist, where there are 0 bookings at that time?
+    /// </summary>
     private bool AnEmptySlotExists(IEnumerable<SessionInstance> slotsInWeek, IEnumerable<Booking> bookingsInWeek)
     {
         var distinctBookingTimes = bookingsInWeek

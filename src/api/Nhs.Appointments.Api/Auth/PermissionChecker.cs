@@ -11,8 +11,10 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     : IPermissionChecker
 {
     private const string GlobalScope = "global";
-    private const string RegionScopePrefix = "region:";
-    private const string SiteScopePrefix = "site:";
+    private const string RegionScope = "region";
+    private const string RegionScopePrefix = $"{RegionScope}:";
+    private const string SiteScope = "site";
+    private const string SiteScopePrefix = $"{SiteScope}:";
 
     public async Task<bool> HasPermissionAsync(string userId, IEnumerable<string> siteIds, string requiredPermission)
     {
@@ -113,8 +115,8 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return scope.Scope switch
         {
             GlobalScope => true,
-            RegionScopePrefix => site.Region.Equals(scope.Value),
-            SiteScopePrefix => site.Id.Equals(scope.Value),
+            RegionScope => site.Region.Equals(scope.Value),
+            SiteScope => site.Id.Equals(scope.Value),
             _ => false
         };
     }

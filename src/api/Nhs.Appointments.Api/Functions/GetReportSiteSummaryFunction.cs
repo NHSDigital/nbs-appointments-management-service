@@ -19,7 +19,7 @@ using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetSiteSummaryReportFunction(
+public class GetReportSiteSummaryFunction(
     IUserService userService,
     IPermissionChecker permissionChecker,
     ISiteReportService siteReportService,
@@ -39,10 +39,10 @@ public class GetSiteSummaryReportFunction(
         Description = "Report for all Sites based on a Date Range")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [RequiresPermission(Permissions.ReportsSiteSummary, typeof(NoSiteRequestInspector))]
-    [Function("GetSiteSummaryReportFunction")]
+    [RequiresPermission(Permissions.ReportsSiteSummary, null)]
+    [Function("GetReportSiteSummaryFunction")]
     public override async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "SiteReport")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/site-summary")]
         HttpRequest req)
     {
         return !await featureToggleHelper.IsFeatureEnabled(Flags.SiteSummaryReport)

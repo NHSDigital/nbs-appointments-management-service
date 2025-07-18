@@ -11,25 +11,28 @@ import { notAuthorized } from '@services/authService';
 import SetUserRolesWizard from './set-user-roles-wizard';
 
 export type UserPageProps = {
-  params: {
-    site: string;
-  };
-  searchParams: {
+  searchParams?: Promise<{
     user?: string;
-  };
+  }>;
+  params: Promise<{
+    site: string;
+  }>;
 };
 
 const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
-  await assertPermission(params.site, 'users:manage');
+  const { site: siteFromPath } = { ...(await params) };
+  const { user: userFromParams } = { ...(await searchParams) };
 
-  const email = searchParams.user?.toLowerCase();
+  await assertPermission(siteFromPath, 'users:manage');
+
+  const email = userFromParams?.toLowerCase();
 
   const [site, userProfile, roleOptions, userToEdit, oktaEnabled] =
     await Promise.all([
-      fetchSite(params.site),
+      fetchSite(siteFromPath),
       fetchUserProfile(),
       fetchRoles(),
-      fetchUsers(params.site).then(users => users.find(u => u.id === email)),
+      fetchUsers(siteFromPath).then(users => users.find(u => u.id === email)),
       fetchFeatureFlag('OktaEnabled'),
     ]);
 

@@ -53,7 +53,9 @@ public record SitePreview
     [JsonProperty("name")]
     string Name,
     [JsonProperty("odsCode")]
-    string OdsCode
+    string OdsCode,
+    [JsonProperty("integratedCareBoard")]
+    string IntegratedCareBoard
 );
 
 public record DetailsRequest(

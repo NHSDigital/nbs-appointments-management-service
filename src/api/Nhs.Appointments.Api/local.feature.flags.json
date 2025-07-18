@@ -5,6 +5,7 @@
     "OktaEnabled": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
+    "SiteSummaryReport": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

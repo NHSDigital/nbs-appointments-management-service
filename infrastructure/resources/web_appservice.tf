@@ -1,7 +1,7 @@
 ## App service plan and app service for web app
 resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
   name                   = "${var.application}-asp-${var.environment}-${var.loc}"
-  resource_group_name    = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name    = local.resource_group_name
   location               = var.location
   os_type                = "Linux"
   sku_name               = var.web_app_service_sku
@@ -11,7 +11,7 @@ resource "azurerm_service_plan" "nbs_mya_web_app_service_plan" {
 
 resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   name                = "${var.application}-app-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
   service_plan_id     = azurerm_service_plan.nbs_mya_web_app_service_plan.id
   https_only          = true
@@ -43,6 +43,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   count          = var.create_app_slot ? 1 : 0
   name           = "preview"
   app_service_id = azurerm_linux_web_app.nbs_mya_web_app_service.id
+  https_only     = true
 
   site_config {
     app_command_line = "node standalone/server.js"
@@ -67,7 +68,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
 resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_settings" {
   count               = var.create_autoscale_settings ? 1 : 0
   name                = "NbsMyaWebAppAutoscaleSetting"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
   target_resource_id  = azurerm_service_plan.nbs_mya_web_app_service_plan.id
 
@@ -91,7 +92,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 75
+        threshold          = 50
         metric_namespace   = "microsoft.web/serverfarms"
       }
 
@@ -134,7 +135,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         time_window        = "PT5M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
-        threshold          = 70
+        threshold          = 60
         metric_namespace   = "microsoft.web/serverfarms"
       }
 

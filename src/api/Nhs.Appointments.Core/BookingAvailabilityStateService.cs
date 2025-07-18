@@ -189,7 +189,6 @@ public class BookingAvailabilityStateService(
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
             BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
-            CancelledAppointments = daySummaries.Sum(x => x.CancelledAppointments),
             OrphanedAppointments = daySummaries.Sum(x => x.OrphanedAppointments)
         };
     }

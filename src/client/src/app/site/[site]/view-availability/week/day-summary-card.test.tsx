@@ -37,11 +37,15 @@ describe('Day Summary Card', () => {
         siteId={'mock-site'}
         canManageAvailability={true}
         clinicalServices={clinicalServices}
+        canViewDailyAppointments={true}
       />,
     );
 
     expect(
       screen.getByRole('heading', { name: 'Monday 2 December' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'View daily appointments' }),
     ).toBeInTheDocument();
   });
 
@@ -53,6 +57,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -75,6 +80,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -97,6 +103,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={false}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -121,6 +128,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -138,6 +146,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={false}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -153,6 +162,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -168,6 +178,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -183,6 +194,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -193,23 +205,6 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders a warning if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-        />,
-      );
-
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
-      expect(
-        screen.getByText(/cancelled appointments on this day./),
-      ).toBeInTheDocument();
-    });
-
     it('renders a link to view cancelled appointments if there are cancelled appointments', () => {
       render(
         <DaySummaryCard
@@ -217,6 +212,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -242,6 +238,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -259,6 +256,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -276,6 +274,25 @@ describe('Day Summary Card', () => {
         'daily-appointments?date=2024-12-02&page=1&tab=2',
       );
     });
+
+    it('hides the View Daily Appointments link when the user does not have permission', () => {
+      render(
+        <DaySummaryCard
+          daySummary={mockDaySummaries[0]}
+          siteId={'mock-site'}
+          canManageAvailability={true}
+          clinicalServices={clinicalServices}
+          canViewDailyAppointments={false}
+        />,
+      );
+
+      expect(
+        screen.getByRole('heading', { name: 'Monday 2 December' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: 'View daily appointments' }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('when there is no availability', () => {
@@ -286,6 +303,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -305,6 +323,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -324,6 +343,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -341,6 +361,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={false}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -358,6 +379,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -373,6 +395,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -388,6 +411,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -403,6 +427,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -418,6 +443,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -433,6 +459,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={false}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -451,6 +478,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={false}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -466,6 +494,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -491,6 +520,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -516,6 +546,7 @@ describe('Day Summary Card', () => {
           siteId={'mock-site'}
           canManageAvailability={true}
           clinicalServices={clinicalServices}
+          canViewDailyAppointments={true}
         />,
       );
 
@@ -523,23 +554,6 @@ describe('Day Summary Card', () => {
       expect(screen.getByText('20')).toBeInTheDocument();
       expect(
         screen.getByText(/manual cancellations on this day./),
-      ).toBeInTheDocument();
-    });
-
-    it('renders a warning if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-        />,
-      );
-
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
-      expect(
-        screen.getByText(/cancelled appointments on this day./),
       ).toBeInTheDocument();
     });
   });

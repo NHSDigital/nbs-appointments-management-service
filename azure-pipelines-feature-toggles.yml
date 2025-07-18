@@ -7,11 +7,11 @@ pool:
 parameters:
   - name: environments
     type: object
-    default: ["dev", "int", "stag", "prod"]
+    default: ["dev", "int", "stag", "pen", "perf", "prod"]
 
 stages:
   - ${{ each env in parameters.environments }}:
       - template: "features/scripts/deploy-feature-toggles.yml"
         parameters:
           env: ${{env}}
-          isMain: ${{eq(variables['Build.SourceBranch'], 'refs/heads/main')}}
+          isValidBranch: ${{ or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')) }}

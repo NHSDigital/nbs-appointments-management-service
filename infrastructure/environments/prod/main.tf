@@ -67,7 +67,7 @@ module "mya_application_prod" {
   create_frontdoor                               = true
   create_cosmos_db                               = true
   create_app_config                              = true
-  web_app_service_sku                            = "P2v3"
+  web_app_service_sku                            = "P1v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = true
   web_app_service_plan_min_worker_count          = 1
@@ -77,7 +77,6 @@ module "mya_application_prod" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "ZRS"
   cosmos_automatic_failover_enabled              = true
-  cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = true
   cosmos_geo_locations = [{
     location          = "uksouth"

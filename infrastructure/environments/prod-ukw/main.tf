@@ -70,7 +70,7 @@ module "mya_application_prod_ukw" {
   create_frontdoor                               = false
   create_cosmos_db                               = false
   create_app_config                              = false
-  web_app_service_sku                            = "P2v3"
+  web_app_service_sku                            = "P1v3"
   web_app_service_plan_default_worker_count      = 3
   app_service_plan_zone_redundancy_enabled       = false
   web_app_service_plan_min_worker_count          = 1
@@ -80,7 +80,6 @@ module "mya_application_prod_ukw" {
   app_insights_sampling_percentage               = 12.5
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
-  cosmos_synapse_enabled                         = false
   disable_bulk_import_function                   = false
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000

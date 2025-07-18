@@ -3,7 +3,7 @@
 
 resource "azurerm_service_plan" "nbs_mya_service_bus_func_service_plan" {
   name                = "${var.application}-sbfsp-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
   os_type             = "Windows"
   sku_name            = "Y1"
@@ -11,8 +11,9 @@ resource "azurerm_service_plan" "nbs_mya_service_bus_func_service_plan" {
 
 resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
   name                = "${var.application}-sbfunc-${var.environment}-${var.loc}"
-  resource_group_name = data.azurerm_resource_group.nbs_mya_resource_group.name
+  resource_group_name = local.resource_group_name
   location            = var.location
+  https_only          = true
 
   storage_account_name       = azurerm_storage_account.nbs_mya_servicebus_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_servicebus_func_storage_account.primary_access_key
@@ -36,7 +37,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     APP_CONFIG_CONNECTION                                                  = var.app_config_connection != "" ? var.app_config_connection : azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
     LEASE_MANAGER_CONNECTION                                               = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
-    Notifications_Provider                                                 = "azure"
+    Notifications_Provider                                                 = var.environment == "perf" ? "azure-throttled" : "azure"
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
@@ -120,6 +121,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
   function_app_id            = azurerm_windows_function_app.nbs_mya_service_bus_func_app.id
   storage_account_name       = azurerm_storage_account.nbs_mya_servicebus_func_storage_account.name
   storage_account_access_key = azurerm_storage_account.nbs_mya_servicebus_func_storage_account.primary_access_key
+  https_only                 = true
 
   site_config {
     cors {

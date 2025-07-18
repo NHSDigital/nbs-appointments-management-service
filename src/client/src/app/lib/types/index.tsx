@@ -329,7 +329,6 @@ type WeekSummary = {
   maximumCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
-  cancelledAppointments: number;
   remainingCapacity: number;
 };
 
@@ -339,7 +338,6 @@ type WeekSummaryV2 = {
   remainingCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
-  cancelledAppointments: number;
 };
 
 type DaySummaryV2 = {

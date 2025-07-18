@@ -17,9 +17,9 @@ public class CapacityDataConverterTests
     [Fact]
     public void ExtractSessionExtractTime_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 14, 00, 00), new DateTime(2025, 01, 02, 14, 05, 00));
         var result = CapacityDataConverter.ExtractTime(testDocument);
-        result.Should().Be("09:00:00");
+        result.Should().Be("14:00:00");
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class CapacityDataConverterTests
     }
 
     private IEnumerable<SiteDocument> TestSites => new[]
-{
+    {
         new SiteDocument
         {
             Id = "1",

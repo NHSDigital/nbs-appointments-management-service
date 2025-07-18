@@ -51,9 +51,10 @@ const CancelAppointmentPage = ({
     }
 
     const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
+    const tabNumber = form.cancelAppointment === 'yes' ? 1 : 0;
 
     replace(
-      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
+      `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=${tabNumber}&page=1`,
     );
   };
 

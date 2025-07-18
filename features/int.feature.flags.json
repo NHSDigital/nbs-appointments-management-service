@@ -1,8 +1,9 @@
 {
   "FeatureManagement": {
-    "OktaEnabled": false,
+    "OktaEnabled": true,
     "JointBookings": false,
     "BulkImport": true,
-    "MultipleServices": true
+    "MultipleServices": true,
+    "SiteSummaryReport": false
   }
 }

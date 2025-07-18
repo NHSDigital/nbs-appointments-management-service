@@ -21,7 +21,8 @@ public class GetSitesPreviewFunction(
     IUserContextProvider userContextProvider,
     ILogger<GetSitesPreviewFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IPermissionChecker permissionChecker)
+    IPermissionChecker permissionChecker,
+    IWellKnowOdsCodesService wellKnowOdsCodesService)
     : BaseApiFunction<EmptyRequest, IEnumerable<SitePreview>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetSitesPreview", tags: ["Site"],
@@ -48,14 +49,16 @@ public class GetSitesPreviewFunction(
         }
 
         var sitesResult = new List<SitePreview>();
+        var ICBs = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries()).Where(x => x.Type == "icb");
 
         if (await permissionChecker.HasGlobalPermissionAsync(user.Id, Permissions.ViewSitePreview))
         {
             var allSites = await siteService.GetSitesPreview();
-
+            
             foreach (var site in allSites)
             {
-                sitesResult.Add(new SitePreview(site.Id, site.Name, site.OdsCode));
+                var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == site.IntegratedCareBoard);
+                sitesResult.Add(new SitePreview(site.Id, site.Name, site.OdsCode, siteIcb?.DisplayName));
             }
         }
         else
@@ -67,7 +70,8 @@ public class GetSitesPreviewFunction(
                 var siteInfo = await siteService.GetSiteByIdAsync(siteId);
                 if (siteInfo != null)
                 {
-                    sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode));
+                    var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == siteInfo.IntegratedCareBoard);
+                    sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode, siteIcb?.DisplayName));
                 }
             }
 
@@ -77,7 +81,12 @@ public class GetSitesPreviewFunction(
                 foreach (var region in regionPermissions.Select(r => r.Replace("region:", "")))
                 {
                     var sites = await siteService.GetSitesInRegion(region);
-                    sitesResult.AddRange(sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode)));
+
+                    sitesResult.AddRange(sites.Select(s =>
+                    {
+                        var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == s.IntegratedCareBoard);
+                        return new SitePreview(s.Id, s.Name, s.OdsCode, siteIcb?.DisplayName);
+                    }));
                 }
             }
         }

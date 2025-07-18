@@ -10,11 +10,15 @@ public class GlobalRolesTests : BaseCosmosDbSeederTest
         var localGlobalRoles = ReadDocument<GlobalRolesDocument>("local");
         var devGlobalRoles = ReadDocument<GlobalRolesDocument>("dev");
         var intGlobalRoles = ReadDocument<GlobalRolesDocument>("int");
+        var penGlobalRoles = ReadDocument<GlobalRolesDocument>("pen");
+        var perfGlobalRoles = ReadDocument<GlobalRolesDocument>("perf");
         var stagGlobalRoles = ReadDocument<GlobalRolesDocument>("stag");
         var prodGlobalRoles = ReadDocument<GlobalRolesDocument>("prod");
 
         devGlobalRoles.Should().BeEquivalentTo(intGlobalRoles);
-        intGlobalRoles.Should().BeEquivalentTo(stagGlobalRoles);
+        intGlobalRoles.Should().BeEquivalentTo(penGlobalRoles);
+        penGlobalRoles.Should().BeEquivalentTo(perfGlobalRoles);
+        perfGlobalRoles.Should().BeEquivalentTo(stagGlobalRoles);
         stagGlobalRoles.Should().BeEquivalentTo(prodGlobalRoles);
 
         localGlobalRoles.Roles =

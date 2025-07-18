@@ -73,7 +73,6 @@ public abstract partial class BaseFeatureSteps : Feature
         Mapper = new Mapper(mapperConfiguration);
         SetUpRoles().GetAwaiter().GetResult();
         SetUpIntegrationTestUserRoleAssignments().GetAwaiter().GetResult();
-        SetUpNotificationConfiguration().GetAwaiter().GetResult();
     }
 
     protected string NhsNumber { get; private set; } = CreateRandomTenCharacterString();
@@ -84,9 +83,9 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected string GetContactInfo(ContactItemType type) => type switch
     {
-        ContactItemType.Landline => $"0113{NhsNumber.Substring(7)}",
+        ContactItemType.Landline => $"0113{NhsNumber.Substring(0, 7)}",
         ContactItemType.Email => $"{NhsNumber}@test.com",
-        ContactItemType.Phone => $"07777{NhsNumber.Substring(6)}",
+        ContactItemType.Phone => $"07777{NhsNumber.Substring(0, 6)}",
         _ => throw new ArgumentOutOfRangeException()
     };
 

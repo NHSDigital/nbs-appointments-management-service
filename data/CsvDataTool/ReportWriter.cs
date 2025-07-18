@@ -4,8 +4,9 @@ namespace CsvDataTool;
 
 public class ReportWriter(FileInfo output)
 {
-    public void Write(IEnumerable<ReportItem> report, bool includeErrors)
+    public void Write(IEnumerable<ReportItem> _report, bool includeErrors)
     {
+        var report = _report.ToList();
         var totalRowCount = report.GroupBy(r => r.Index).Count();
         
         using (var reportWriter = MarkdownWriter.Create(output.OpenWrite()))
@@ -23,23 +24,42 @@ public class ReportWriter(FileInfo output)
             if (includeErrors && report.Any(r => r.Success == false))
             {
                 reportWriter.WriteHeading2("Conversion errors");
-                var errors = report.Where(r => r.Success == false).GroupBy(r => r.Index);
-            
-                foreach (var errorGroup in errors)
+
+                var fullFileErrors = report.Where(r => r.Success == false && r.Index == -1).ToList();
+                if (fullFileErrors.Any())
                 {
-                    
-                    reportWriter.WriteHeading3(GetItemName(errorGroup.ElementAt(0)));
-                    foreach (var error in errorGroup)
+                    reportWriter.WriteHeading3("Errors across multiple rows");
+                    foreach (var error in fullFileErrors)
                     {
                         reportWriter.WriteBulletItem(error.Message);
                     }
-                    
+
+                    reportWriter.WriteLine();
+                    reportWriter.WriteLine();
+                }
+
+                var errorsGroupedByLine = report.Where(r => r.Success == false && r.Index != -1).GroupBy(r => r.Index);
+
+                foreach (var errorsOnLine in errorsGroupedByLine)
+                {
+                    var errorsGroupedByProperty = errorsOnLine.GroupBy(r => r.Name);
+
+                    foreach (var errorsForProperty in errorsGroupedByProperty)
+                    {
+                        reportWriter.WriteHeading3(GetItemName(errorsForProperty.ElementAt(0)));
+                        foreach (var error in errorsForProperty)
+                        {
+                            reportWriter.WriteBulletItem(error.Message);
+                        }
+                    }
                     reportWriter.WriteLine();
                     reportWriter.WriteLine();
                 }
             }
         }
     }
-    
-    private string GetItemName(ReportItem item) => String.IsNullOrEmpty(item.Name) ? $"Row {item.Index+1} (no name)" : item.Name;
+
+    private string GetItemName(ReportItem item) => string.IsNullOrEmpty(item.Name)
+        ? $"Row {item.Index + 1} (no name)"
+        : $"Row {item.Index}: {item.Name}";
 }

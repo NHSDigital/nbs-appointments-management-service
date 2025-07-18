@@ -66,6 +66,7 @@ public class BookingAvailabilityStateService(
             return (false, true);
         }
 
+        //TODO investigate put inside loop
         //only care about short-circuiting for slots that can support our queried service
         var slotsForService = sessionsForService
             .SelectMany(session => session.ToSlots())
@@ -94,6 +95,8 @@ public class BookingAvailabilityStateService(
             //only need to return bookings that are also contained in slots that support our queried service
             //i.e we don't need to return bookings for services that can't be allocated to any of our relevant slots
             var allSupportedServices = slotsForServiceInWeek.SelectMany(x => x.Services).Distinct().ToArray();
+            
+            //TODO move Where clause into DB query
             var bookingsInWeek = (await bookingQueryService.GetLiveBookings(site, weekStart, weekEnd)).Where(x => allSupportedServices.Contains(x.Service)).ToList();
 
             var emptySlotExists = AnEmptySlotExists(slotsForServiceInWeek, bookingsInWeek);

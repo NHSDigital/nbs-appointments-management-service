@@ -2,7 +2,6 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import DownloadReportConfirmation from './download-report-confirmation';
 import { DownloadReportFormValues } from './download-report-form-schema';
-import { mockSite } from '@testing/data';
 
 const mockOnBack = jest.fn();
 const mockReportRequest: DownloadReportFormValues = {
@@ -16,7 +15,6 @@ describe('Download Report Confirmation', () => {
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}
         goBack={mockOnBack}
-        site={mockSite}
       />,
     );
 
@@ -30,7 +28,6 @@ describe('Download Report Confirmation', () => {
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}
         goBack={mockOnBack}
-        site={mockSite}
       />,
     );
 
@@ -46,13 +43,12 @@ describe('Download Report Confirmation', () => {
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}
         goBack={mockOnBack}
-        site={mockSite}
       />,
     );
 
     const exportButton = screen.getByRole('link', { name: 'Export data' });
 
-    const expectedHref = `reports/download?site=${mockSite.id}&startDate=${mockReportRequest.startDate}&endDate=${mockReportRequest.endDate}`;
+    const expectedHref = `reports/download?startDate=${mockReportRequest.startDate}&endDate=${mockReportRequest.endDate}`;
 
     expect(exportButton).toHaveAttribute('href', expectedHref);
   });
@@ -62,7 +58,6 @@ describe('Download Report Confirmation', () => {
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}
         goBack={mockOnBack}
-        site={mockSite}
       />,
     );
 

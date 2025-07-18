@@ -11,7 +11,7 @@
     "type": "Point",
     "coordinates": [-1.67382134, 55.79628754]
   },
-  "attributeValues": [
+  "accessibilities": [
     {
       "id": "accessibility/accessible_toilet",
       "value": "false"

@@ -81,6 +81,7 @@ module "mya_application_stag_ukw" {
   storage_account_replication_type               = "LRS"
   cosmos_automatic_failover_enabled              = false
   disable_bulk_import_function                   = false
+  disable_aggregate_daily_site_summary           = true
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

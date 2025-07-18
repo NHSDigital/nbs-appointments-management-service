@@ -8,8 +8,8 @@ using System.Web.Http;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -23,6 +23,8 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
     IMetricsRecorder metricsRecorder)
 {
     protected ClaimsPrincipal Principal => userContextProvider.UserPrincipal;
+
+    protected virtual string ResponseType => ApiResponseType.Json;
 
     public virtual async Task<IActionResult> RunAsync(HttpRequest req)
     {
@@ -55,7 +57,20 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
                     return new OkResult();
                 }
 
-                return JsonResponseWriter.WriteResult(response.ResponseObject);
+                switch (ResponseType)
+                {
+                    case ApiResponseType.Json: 
+                        return JsonResponseWriter.WriteResult(response.ResponseObject);
+                    case ApiResponseType.File:
+                        if (response.ResponseObject.GetType() != typeof(FileResponse))
+                        {
+                            throw new InvalidCastException("Response object must be a FileResponse");
+                        }
+
+                        return FileResponseWriter.WriteResult(response.ResponseObject as FileResponse);
+                }
+
+                
             }
 
             return ProblemResponse(response.StatusCode, response.Reason);

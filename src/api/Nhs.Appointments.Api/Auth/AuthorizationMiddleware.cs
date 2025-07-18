@@ -42,7 +42,12 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
                 siteIds = await requestInspector.GetSiteIds(request);
             }
         }
-        
+        else
+        {
+            siteIds = (await permissionChecker.GetSitesWithPermissionAsync(
+                userContextProvider.UserPrincipal.Claims.GetUserEmail(), requiredPermission)).Select(site => site.Id);
+        }
+
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();
         return await permissionChecker.HasPermissionAsync(userEmail, siteIds, requiredPermission);
     }

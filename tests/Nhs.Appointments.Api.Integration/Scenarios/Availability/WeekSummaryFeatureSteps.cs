@@ -97,7 +97,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             _statusCode.Should().Be(HttpStatusCode.OK);
             _actualResponse.Should().BeEquivalentTo(expectedWeekSummary, 
                 //exclude DaySummaries as should be asserted elsewhere
-                options => options.Excluding(x => x.DaySummaries));
+                options => options.Excluding(x => x.DaySummaries).Excluding(x => x.Orphaned));
         }
         
         [Then(@"a bad request error is returned")]

@@ -51,7 +51,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddDependenciesNotUnderTest()
             .AddUserNotifications(configuration)
             .AddCosmosDataStores()
-            .AddSingleton<ISiteSummaryAggregator, SiteSummaryAggregator>()
+            .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .BuildServiceProvider();
@@ -111,7 +111,7 @@ public class NotificationsServiceProviderExtensionsTests
 }
 
 
-public class c : ISiteSummaryAggregator
+public class FakeSiteSummaryAggregator : ISiteSummaryAggregator
 {
     public Task AggregateForSite(string site, DateOnly from, DateOnly to) => throw new NotImplementedException();
 }

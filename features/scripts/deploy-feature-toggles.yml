@@ -1,13 +1,13 @@
 ﻿parameters:
   - name: env
     type: string
-  - name: isMain
-    type: string
+  - name: isValidBranch
+    type: boolean
 
 stages:
   - stage: DeployFeatures${{parameters.env}}
     displayName: Deploy Features ${{parameters.env}}
-    condition: and(succeeded(), eq(${{parameters.isMain}}, true))
+    condition: and(succeeded(), eq(${{parameters.isValidBranch}}, true))
     dependsOn: []
     jobs:
       - deployment: ApplyFeatureToggles
@@ -21,10 +21,12 @@ stages:
                 - task: AzureCLI@2
                   displayName: "Apply Feature Toggles"
                   inputs:
-                    ${{ if ne(parameters.env, 'perf') }}:
+                    ${{ if and(ne(parameters.env, 'perf'), ne(parameters.env, 'dev')) }}:
                       azureSubscription: "nbs-mya-rg-${{parameters.env}}"
                     ${{ if eq(parameters.env, 'perf') }}:
                       azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
+                    ${{ if eq(parameters.env, 'dev') }}:
+                      azureSubscription: "nbs-mya${{parameters.env}}-rg-int"
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"

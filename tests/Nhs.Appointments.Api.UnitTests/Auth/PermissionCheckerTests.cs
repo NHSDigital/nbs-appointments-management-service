@@ -28,6 +28,19 @@ public class PermissionCheckerTests
         _cache.Setup(x => x.CreateEntry(It.IsAny<string>())).Returns(_cacheEntry.Object);
     }
 
+    private Site GenerateSite(string id) =>
+        new Site(
+            id,
+            "A",
+            "Address",
+            "PhoneNumber",
+            "OdsCode",
+            "Region",
+            "Icb",
+            "Info",
+            new List<Accessibility>(),
+            new Location("Location", new[] { 0.0 }));
+
     [Fact]
     public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedGloballyAndGeneralRequest()
     {
@@ -292,14 +305,14 @@ public class PermissionCheckerTests
         {
             new() { Role = "Role1", Scope = "site:test" },
         };
+        var expectedSite = GenerateSite("test");
+        var sites = new List<Site>() { expectedSite, GenerateSite("test-A"), GenerateSite("test-B"), GenerateSite("test-C") };
 
+        _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetSitesWithPermissionAsync(userId, "TestPermission");
-        result.Should().BeEquivalentTo(new List<string>()
-        {
-            "test"
-        });
+        result.Should().BeEquivalentTo(new List<Site>() { expectedSite });
     }
     
     [Fact]
@@ -322,16 +335,13 @@ public class PermissionCheckerTests
             new() { Role = "Role4", Scope = "site:test-C" },
             new() { Role = "Role5", Scope = "site:test-D" },
         };
+        var sites = new List<Site>() { GenerateSite("test-A"), GenerateSite("test-B"), GenerateSite("test-C") };
 
+        _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetSitesWithPermissionAsync(userId, "TestPermission");
-        result.Should().BeEquivalentTo(new List<string>()
-        {
-            "test-A",
-            "test-B",
-            "test-C",
-        });
+        result.Should().BeEquivalentTo(sites);
     }
     
     [Fact]

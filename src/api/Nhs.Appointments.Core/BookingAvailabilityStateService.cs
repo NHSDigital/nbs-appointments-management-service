@@ -96,8 +96,7 @@ public class BookingAvailabilityStateService(
             //i.e we don't need to return bookings for services that can't be allocated to any of our relevant slots
             var allSupportedServices = slotsForServiceInWeek.SelectMany(x => x.Services).Distinct().ToArray();
             
-            //TODO move Where clause into DB query
-            var bookingsInWeek = (await bookingQueryService.GetLiveBookings(site, weekStart, weekEnd)).Where(x => allSupportedServices.Contains(x.Service)).ToList();
+            var bookingsInWeek = (await bookingQueryService.GetLiveBookingsForServices(site, allSupportedServices, weekStart, weekEnd)).ToList();
 
             var emptySlotExists = AnEmptySlotExists(slotsForServiceInWeek, bookingsInWeek);
             if (emptySlotExists)

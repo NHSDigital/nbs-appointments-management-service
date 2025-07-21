@@ -35,17 +35,18 @@ public class AuthorizationMiddleware(IPermissionChecker permissionChecker) : IFu
         var siteIds = Enumerable.Empty<string>();
         if(requestInspectorType is not null)
         {
+            if (requestInspectorType == typeof(AnyUserSitesRequestInspector))
+            {
+                return (await permissionChecker.GetSitesWithPermissionAsync(
+                    userContextProvider.UserPrincipal.Claims.GetUserEmail(), requiredPermission)).Any();
+            }
+
             var requestInspector = context.InstanceServices.GetService(requestInspectorType) as IRequestInspector;
             if (requestInspector is not null)
             {
                 var request = await context.GetHttpRequestDataAsync();
                 siteIds = await requestInspector.GetSiteIds(request);
             }
-        }
-        else
-        {
-            siteIds = (await permissionChecker.GetSitesWithPermissionAsync(
-                userContextProvider.UserPrincipal.Claims.GetUserEmail(), requiredPermission)).Select(site => site.Id);
         }
 
         var userEmail = userContextProvider.UserPrincipal.Claims.GetUserEmail();

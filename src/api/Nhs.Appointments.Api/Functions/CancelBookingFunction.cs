@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +7,15 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -53,7 +54,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, request.cancellationReason);
+        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, (CancellationReason)request.cancellationReason);
 
         switch (result)
         {
@@ -72,22 +73,20 @@ public class CancelBookingFunction(
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
-        var queryCancellationReason = req.Query.ContainsKey("cancellationReason") ? req.Query["cancellationReason"].ToString() : null;
-
         var cancellationReason = CancellationReason.CancelledByCitizen;
 
-        if (!string.IsNullOrWhiteSpace(queryCancellationReason) &&
-            !Enum.TryParse<CancellationReason>(queryCancellationReason, ignoreCase: true, out cancellationReason))
+        if (req.Body != null)
         {
-            var error = new ErrorMessageResponseItem
-            {
-                Property = "cancellationReason",
-                Message = $"Invalid cancellation reason '{queryCancellationReason}'."
-            };
-            return (new[] { error }, null);
+            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
+
+            if (payload?.cancellationReason != null) 
+            { 
+                cancellationReason = (CancellationReason)payload.cancellationReason;
+            }
         }
 
         var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason);
+
         return await Task.FromResult((ErrorMessageResponseItem.None, requestModel));
     }
 }

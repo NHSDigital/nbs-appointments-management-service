@@ -26,7 +26,8 @@ describe('Appointments Service', () => {
     await cancelAppointment(reference, site, reason);
 
     expect(appointmentsApi.post).toHaveBeenCalledWith(
-      `booking/${reference}/cancel?site=${site}&cancellationReason=${reason}`,
+      `booking/${reference}/cancel?site=${site}`,
+      JSON.stringify({ cancellationReason: reason }),
     );
   });
 });

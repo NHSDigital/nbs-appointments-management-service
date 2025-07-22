@@ -164,7 +164,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         var rolesWithPermission = roles.Where(x => x.Permissions.Contains(permission)).Select(x => x.Id);
         
         return roleAssignments.Where(x => rolesWithPermission.Contains(x.Role))
-            .Select(x => x.Scope.Contains(':') ? x.Scope.Split(':') : new [] { x.Scope, null })
+            .Select(x => x.Scope.Contains(':') ? x.Scope.Split(':') : [x.Scope, null])
             .Select(x => (Scope: x[0], Value: x[1]));
     }
     

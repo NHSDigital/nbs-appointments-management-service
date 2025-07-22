@@ -24,7 +24,7 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             return;
         }
 
-        var clinicalServices = summary.DaySummaries.SelectMany(daySummary => daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key))).Distinct().ToArray();
+        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
         
         await store.CreateDailySiteSummary(new DailySiteSummary
         {
@@ -42,4 +42,10 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             MaximumCapacity = summary.MaximumCapacity
         });
     }
+
+    private string[] DistinctClinicalServicesFromDaySummaries(Summary summary) =>
+        summary.DaySummaries.SelectMany(daySummary =>
+                daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key)))
+            .Union(summary.Orphaned.Select(x => x.Key))
+            .Distinct().ToArray();
 }

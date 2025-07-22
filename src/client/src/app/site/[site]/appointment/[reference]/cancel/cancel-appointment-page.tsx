@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type CancelFormValue = {
-  cancellationReason: 'CancelledByCitizen' | 'CancelledBySite' | '';
+  cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
 };
 
 const CancelAppointmentPage = ({
@@ -37,16 +37,14 @@ const CancelAppointmentPage = ({
     handleSubmit,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CancelFormValue>({
-    defaultValues: {
-      cancellationReason: '',
-    },
+    defaultValues: {},
   });
   const summaryItems = mapSummaryData(booking, clinicalServices);
 
   const submitForm: SubmitHandler<CancelFormValue> = async (
     form: CancelFormValue,
   ) => {
-    if (form.cancellationReason !== '') {
+    if (form.cancellationReason !== undefined) {
       await cancelAppointment(booking.reference, site, form.cancellationReason);
 
       const returnDate = parseToUkDatetime(booking.from).format(dateFormat);

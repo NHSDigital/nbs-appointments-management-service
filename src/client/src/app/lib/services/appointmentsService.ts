@@ -468,8 +468,13 @@ export const cancelAppointment = async (
   site: string,
   cancellationReason: string,
 ) => {
+  const payload = {
+    cancellationReason,
+  };
+
   const response = await appointmentsApi.post(
-    `booking/${reference}/cancel?site=${site}&cancellationReason=${cancellationReason}`,
+    `booking/${reference}/cancel?site=${site}`,
+    JSON.stringify(payload),
   );
 
   return handleEmptyResponse(response);

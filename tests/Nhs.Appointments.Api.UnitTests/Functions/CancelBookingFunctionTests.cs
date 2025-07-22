@@ -9,6 +9,7 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.UnitTests;
+using System.Text;
 using System.Web.Http;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -98,7 +99,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     [InlineData(null, CancellationReason.CancelledByCitizen)]
     [InlineData("cancelledByCitizen", CancellationReason.CancelledByCitizen)]
     [InlineData("cancelledBySite", CancellationReason.CancelledBySite)]
-    public async Task RunAsync_PassesCancellationReasonToService(string queryReason, CancellationReason expectedCancellationReason)
+    public async Task RunAsync_PassesCancellationReasonToService(string cancellationReason, CancellationReason expectedCancellationReason)
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
@@ -106,7 +107,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason))
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable();
 
-        var request = BuildRequest(bookingRef, site, queryReason);
+        var request = BuildRequest(bookingRef, site, cancellationReason);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
@@ -121,13 +122,17 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         request.RouteValues = new RouteValueDictionary { { "bookingReference", reference } };
 
         var query = $"?site={site}";
-        if (!string.IsNullOrWhiteSpace(cancellationReason))
-        {
-            query += $"&cancellationReason={Uri.EscapeDataString(cancellationReason)}";
-        }
-
         request.QueryString = new QueryString(query);
         request.Headers.Append("Authorization", "Test 123");
+
+        if (!string.IsNullOrWhiteSpace(cancellationReason))
+        {
+            var jsonBody = $"{{ \"cancellationReason\": \"{cancellationReason}\" }}";
+            var bodyBytes = Encoding.UTF8.GetBytes(jsonBody);
+            request.Body = new MemoryStream(bodyBytes);
+            request.ContentLength = bodyBytes.Length;
+            request.ContentType = "application/json";
+        }
 
         return request;
     }

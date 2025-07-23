@@ -11,7 +11,7 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'reports:sitesummary');
+  await assertPermission(siteFromPath ?? '*', 'reports:sitesummary');
 
   const [site] = await Promise.all([fetchSite(siteFromPath)]);
 

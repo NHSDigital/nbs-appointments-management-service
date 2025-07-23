@@ -10,19 +10,19 @@
     },
     {
       "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+" ],
-      "emailTemplate": "d34d6234-27ce-4e27-829c-b41d6d2eead4",
+      "emailTemplate": "5c9462f4-4ad7-4bc5-b72a-e9251a07890d",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
       "services": [ "FLU:2_3", "FLU:18_64", "FLU:65+" ],
-      "emailTemplate": "5c95148c-d665-4f47-92a0-4548e4b114ab",
+      "emailTemplate": "4b0e391a-d099-436a-9480-30982c673595",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
       "services": [ "COVID_FLU:18_64", "COVID_FLU:65+" ],
-      "emailTemplate": "cdfe56d9-8478-4b06-809e-5e75ace569c1",
+      "emailTemplate": "bc9c733e-039e-4d69-a8e2-681d7fd88989",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },

@@ -410,6 +410,7 @@ public class UserDataImportHandlerTests
         [
             "test1@nhs.net,Jane,Smith,,,,,,R1",
             "test2@nhs.net,John,Smith,,,,,,R2",
+            "MiXed.CASE.email@nhs.net,John,Smith,,,,,,R2"
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -425,11 +426,12 @@ public class UserDataImportHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(2);
+        report.Count().Should().Be(3);
         report.All(r => r.Success).Should().BeTrue();
 
         _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
         _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync("mixed.case.email@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
 
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);

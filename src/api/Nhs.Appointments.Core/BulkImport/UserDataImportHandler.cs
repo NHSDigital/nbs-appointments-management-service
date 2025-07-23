@@ -75,7 +75,7 @@ public class UserDataImportHandler(
                 var isRegionPermission = !string.IsNullOrEmpty(userRow.Region);
                 if (isRegionPermission)
                 {
-                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId, $"region:{userRow.Region}", userRow.RoleAssignments);
+                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"region:{userRow.Region}", userRow.RoleAssignments);
                 }
                 else
                 {

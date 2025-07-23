@@ -1,6 +1,6 @@
 {
   "reference": "seed-booking-reference-35",
-  "from": "2025-09-20T11:25:00",
+  "from": "2025-08-20T11:25:00",
   "duration": 5,
   "service": "COVID_FLU:18_64",
   "created": "2025-07-21T06:23:46.654321+00:00",

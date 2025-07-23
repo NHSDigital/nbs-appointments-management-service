@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
@@ -269,5 +270,37 @@ public class BookingCosmosDocumentStoreTests
         // Assert
         Assert.NotNull(capturedPatchOperations);
         Assert.Contains(capturedPatchOperations, p => p.Path == "/cancellationReason");
+    }
+
+    [Fact]
+    public async Task ConfirmProvisional_ProvidesCancellationReason_ToPatchOperation()
+    {
+        var cancellationReason = CancellationReason.CancelledBySite;
+        var contactDetails = new List<ContactItem>
+        {
+            new() { Type = ContactItemType.Email, Value = "some.email@test.com" }
+        };
+        var bookingIndexDocument = new BookingIndexDocument
+        {
+            Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+            DocumentType = "booking_index",
+            Id = "01-76-000001",
+            NhsNumber = "9999999999",
+            Reference = "01-76-000001",
+            Status = AppointmentStatus.Provisional
+        };
+        List<PatchOperation> capturedPatchOperations = null;
+
+        _indexStore.Setup(x => x.GetByIdOrDefaultAsync<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _bookingStore
+            .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches) => capturedPatchOperations = [.. patches])
+            .ReturnsAsync(() => null);
+
+        var result = await _sut.ConfirmProvisional(bookingIndexDocument.Reference, contactDetails, "another-booking-ref", cancellationReason);
+
+        result.Should().Be(BookingConfirmationResult.Success);
+        capturedPatchOperations.Should().NotBeEmpty();
+        capturedPatchOperations.Should().Contain(p => p.Path == "/cancellationReason");
     }
 }

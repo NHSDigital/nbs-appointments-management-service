@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using System.Text;
 

@@ -70,9 +70,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
                 {
                     MaximumCapacity = int.Parse(row.Cells.ElementAt(1).Value),
                     RemainingCapacity = int.Parse(row.Cells.ElementAt(2).Value),
-                    BookedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
-                    OrphanedAppointments = int.Parse(row.Cells.ElementAt(4).Value),
-                    CancelledAppointments = int.Parse(row.Cells.ElementAt(5).Value),
+                    TotalSupportedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
+                    TotalOrphanedAppointments = int.Parse(row.Cells.ElementAt(4).Value),
+                    TotalCancelledAppointments = int.Parse(row.Cells.ElementAt(5).Value),
                 });
 
             _statusCode.Should().Be(HttpStatusCode.OK);
@@ -91,8 +91,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             {
                 MaximumCapacity = int.Parse(row.Cells.ElementAt(0).Value),
                 RemainingCapacity = int.Parse(row.Cells.ElementAt(1).Value),
-                BookedAppointments = int.Parse(row.Cells.ElementAt(2).Value),
-                OrphanedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
+                TotalSupportedAppointments = int.Parse(row.Cells.ElementAt(2).Value),
+                TotalOrphanedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
             };
 
             _statusCode.Should().Be(HttpStatusCode.OK);

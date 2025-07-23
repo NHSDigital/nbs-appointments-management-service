@@ -3,14 +3,17 @@ namespace Nhs.Appointments.Core
     public class Summary : AvailabilityMetrics
     {
         public IEnumerable<DaySummary> DaySummaries { get; init; }
-        public Dictionary<string, int> Orphaned { get; init; }
+        
+        MaximumCapacity = DaySummaries.Sum(x => x.MaximumCapacity),
+        RemainingCapacity = DaySummaries.Sum(x => x.RemainingCapacity),
+        TotalSupportedAppointments = DaySummaries.Sum(x => x.TotalSupportedAppointments)
     }
     
     public class DaySummary(DateOnly date, IEnumerable<SessionSummary> sessions) : AvailabilityMetrics
     {
         public DateOnly Date { get; set; } = date;
         public readonly IEnumerable<SessionSummary> Sessions = sessions;
-        public int CancelledAppointments { get; set; }
+        public int TotalCancelledAppointments { get; set; }
     }
     
     public class SessionSummary
@@ -20,7 +23,8 @@ namespace Nhs.Appointments.Core
         public DateTime UkStartDatetime { get; set; }
         
         public DateTime UkEndDatetime { get; set; }
-        public Dictionary<string, int> Bookings { get; init; }
+        
+        public Dictionary<string, int> TotalSupportedAppointmentsByService { get; init; }
         
         public int Capacity { get; init; }
         
@@ -28,17 +32,18 @@ namespace Nhs.Appointments.Core
         
         public int MaximumCapacity { get; init; }
         
-        public int TotalBookings => Bookings.Sum(x => x.Value);
+        public int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
         
-        public int RemainingCapacity => MaximumCapacity - TotalBookings;
+        public int RemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
     }
 
     public class AvailabilityMetrics
     {
         public int MaximumCapacity { get; set; }
         public int RemainingCapacity { get; set; }
-        public int BookedAppointments { get; set; }
-        public int OrphanedAppointments { get; set; }
+        public int TotalSupportedAppointments { get; set; }
+        public int TotalOrphanedAppointments => TotalOrphanedAppointmentsByService.Sum(x => x.Value);
+        public Dictionary<string, int> TotalOrphanedAppointmentsByService { get; init; }
     }
 }
 

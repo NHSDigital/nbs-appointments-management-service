@@ -38,8 +38,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(30);
         weekSummary.RemainingCapacity.Should().Be(25);
-        weekSummary.BookedAppointments.Should().Be(5);
-        weekSummary.OrphanedAppointments.Should().Be(2);
+        weekSummary.TotalSupportedAppointments.Should().Be(5);
+        weekSummary.TotalOrphanedAppointments.Should().Be(2);
 
         var expectedSessionSummary = new List<SessionSummary>
         {
@@ -92,9 +92,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 30,
                 RemainingCapacity = 25,
-                BookedAppointments = 5,
-                OrphanedAppointments = 2,
-                CancelledAppointments = 2
+                TotalSupportedAppointments = 5,
+                TotalOrphanedAppointments = 2,
+                TotalCancelledAppointments = 2
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));
@@ -147,8 +147,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(64);
         weekSummary.RemainingCapacity.Should().Be(52);
-        weekSummary.BookedAppointments.Should().Be(12);
-        weekSummary.OrphanedAppointments.Should().Be(0);
+        weekSummary.TotalSupportedAppointments.Should().Be(12);
+        weekSummary.TotalOrphanedAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -189,9 +189,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                BookedAppointments = 6,
-                OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 6,
+                TotalOrphanedAppointments = 0,
+                TotalCancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -239,9 +239,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                BookedAppointments = 6,
-                OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 6,
+                TotalOrphanedAppointments = 0,
+                TotalCancelledAppointments = 0
             });
     }
 
@@ -287,8 +287,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.MaximumCapacity.Should().Be(64);
         weekSummary.RemainingCapacity.Should().Be(52);
-        weekSummary.BookedAppointments.Should().Be(12);
-        weekSummary.OrphanedAppointments.Should().Be(0);
+        weekSummary.TotalSupportedAppointments.Should().Be(12);
+        weekSummary.TotalOrphanedAppointments.Should().Be(0);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -321,9 +321,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                BookedAppointments = 6,
-                OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 6,
+                TotalOrphanedAppointments = 0,
+                TotalCancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -363,9 +363,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 26,
-                BookedAppointments = 6,
-                OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 6,
+                TotalOrphanedAppointments = 0,
+                TotalCancelledAppointments = 0
             });
     }
 
@@ -417,8 +417,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(165);
         
         //lost utilisation shows that 6/12 bookings are orphaned when they could have been allocated
-        weekSummary.BookedAppointments.Should().Be(6);
-        weekSummary.OrphanedAppointments.Should().Be(6);
+        weekSummary.TotalSupportedAppointments.Should().Be(6);
+        weekSummary.TotalOrphanedAppointments.Should().Be(6);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -469,9 +469,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 35,
                 RemainingCapacity = 32,
-                BookedAppointments = 3,
-                OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 3,
+                TotalOrphanedAppointments = 3,
+                TotalCancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 13));
@@ -526,9 +526,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 64,
                 RemainingCapacity = 61,
-                BookedAppointments = 3,
-                OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 3,
+                TotalOrphanedAppointments = 3,
+                TotalCancelledAppointments = 0
             });
         
         //extra padded data
@@ -553,9 +553,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 72,
                 RemainingCapacity = 72,
-                BookedAppointments = 0,
-                OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 0,
+                TotalOrphanedAppointments = 0,
+                TotalCancelledAppointments = 0
             });
     }
 
@@ -605,8 +605,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
         weekSummary.RemainingCapacity.Should().Be(58);
         
         //only half supported
-        weekSummary.BookedAppointments.Should().Be(6);
-        weekSummary.OrphanedAppointments.Should().Be(6);
+        weekSummary.TotalSupportedAppointments.Should().Be(6);
+        weekSummary.TotalOrphanedAppointments.Should().Be(6);
 
         var expectedSessionSummary1 = new List<SessionSummary>
         {
@@ -639,9 +639,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 29,
-                BookedAppointments = 3,
-                OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 3,
+                TotalOrphanedAppointments = 3,
+                TotalCancelledAppointments = 0
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -681,9 +681,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             {
                 MaximumCapacity = 32,
                 RemainingCapacity = 29,
-                BookedAppointments = 3,
-                OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                TotalSupportedAppointments = 3,
+                TotalOrphanedAppointments = 3,
+                TotalCancelledAppointments = 0
             });
     }
 }

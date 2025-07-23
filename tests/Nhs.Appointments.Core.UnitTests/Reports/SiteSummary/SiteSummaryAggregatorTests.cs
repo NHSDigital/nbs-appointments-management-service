@@ -28,7 +28,7 @@ public class SiteSummaryAggregatorTests
      
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {
-                 BookedAppointments = 10,
+                 TotalSupportedAppointments = 10,
                  MaximumCapacity = 20,
                  Orphaned = new Dictionary<string, int>()
                  {
@@ -81,7 +81,7 @@ public class SiteSummaryAggregatorTests
      
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {
-                 BookedAppointments = 0,
+                 TotalSupportedAppointments = 0,
                  MaximumCapacity = 0,
                  Orphaned = new Dictionary<string, int>(),
                  DaySummaries = new DaySummary[]
@@ -124,11 +124,11 @@ public class SiteSummaryAggregatorTests
                  }
              });
              
-             daySummary.CancelledAppointments = 1;
+             daySummary.TotalCancelledAppointments = 1;
              
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {
-                 BookedAppointments = 0,
+                 TotalSupportedAppointments = 0,
                  MaximumCapacity = 0,
                  Orphaned = new Dictionary<string, int>(),
                  DaySummaries = new []
@@ -164,7 +164,7 @@ public class SiteSummaryAggregatorTests
              
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {
-                 BookedAppointments = 0,
+                 TotalSupportedAppointments = 0,
                  MaximumCapacity = 10,
                  Orphaned = new Dictionary<string, int>(),
                  DaySummaries = new []
@@ -194,7 +194,7 @@ public class SiteSummaryAggregatorTests
              
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {
-                 BookedAppointments = 0,
+                 TotalSupportedAppointments = 0,
                  MaximumCapacity = 10,
                  Orphaned = new Dictionary<string, int>() { { "service-A", 1 }},
                  DaySummaries = new []

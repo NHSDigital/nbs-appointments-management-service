@@ -61,7 +61,7 @@ public class BookingAvailabilityStateService(
             MaximumCapacity = x.Capacity * x.ToSlots().Count(),
             Capacity = x.Capacity,
             SlotLength = x.SlotLength,
-            Bookings = x.Services.ToDictionary(key => key, _ => 0)
+            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0)
         }).ToList();
     }
 
@@ -111,7 +111,7 @@ public class BookingAvailabilityStateService(
                             .SelectMany(x => x.Sessions)
                             .Single(x => x.Id == targetSlot.InternalSessionId);
 
-                        sessionToUpdate.Bookings[booking.Service]++;
+                        sessionToUpdate.TotalSupportedAppointmentsByService[booking.Service]++;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
@@ -160,9 +160,10 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static Summary GenerateSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries)
+    private static Summary GenerateSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries, Dictionary<string, int> totalOrphanedAppointmentsByService)
     {
-        var orphaned = new Dictionary<string, int>();
+        var supportedAppointmentsByService = new Dictionary<string, int>();
+        
         foreach (var daySummary in daySummaries)
         {
             daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
@@ -178,32 +179,37 @@ public class BookingAvailabilityStateService(
                         switch (booking.AvailabilityStatus)
                         {
                             case AvailabilityStatus.Supported:
-                                daySummary.BookedAppointments++;
+                                supportedAppointmentsByService[booking.Service] = supportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
+                                daySummary.TotalSupportedAppointments++;
                                 break;
                             case AvailabilityStatus.Orphaned:
-                                orphaned[booking.Service] = orphaned.GetValueOrDefault(booking.Service, 0) + 1;
-                                daySummary.OrphanedAppointments++;
+                                daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                                 break;
                         }
 
                         break;
                     case AppointmentStatus.Cancelled:
-                        daySummary.CancelledAppointments++;
+                        daySummary.TotalCancelledAppointments++;
                         break;
                 }
             }
         }
+        
+        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
 
         return new Summary
         {
             DaySummaries = daySummaries,
-            Orphaned = orphaned,
-            MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
-            RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
-            BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
-            OrphanedAppointments = orphaned.Sum(x => x.Value)
+            TotalOrphanedAppointmentsByService = orphanedAppointmentsByService,
+           
         };
     }
+    
+    private string[] DistinctClinicalServicesFromDaySummaries(List<DaySummary> daySummaries) =>
+        daySummaries.SelectMany(daySummary =>
+                daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key)))
+            .Union(summary.OrphanedAppointments.Select(x => x.Key))
+            .Distinct().ToArray();
 
     private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
         List<LinkedSessionInstance> sessions)

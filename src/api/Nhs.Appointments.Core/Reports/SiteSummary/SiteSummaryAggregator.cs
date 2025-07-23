@@ -18,7 +18,7 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
 
         var summary = await bookingAvailabilityStateService.GetDaySummary(site, day);
         
-        if (summary.MaximumCapacity <= 0 && summary.Orphaned.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.CancelledAppointments <= 0))
+        if (summary.MaximumCapacity <= 0 && summary.TotalOrphanedAppointmentsByService.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.TotalCancelledAppointments <= 0))
         {
             await store.IfExistsDelete(site, day);
             return;
@@ -33,8 +33,8 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             Bookings = clinicalServices.ToDictionary(
                 service => service, 
                 service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0)))),
-            Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.CancelledAppointments),
-            Orphaned = summary.Orphaned,
+            Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.TotalCancelledAppointments),
+            Orphaned = summary.TotalOrphanedAppointmentsByService,
             RemainingCapacity = clinicalServices.ToDictionary(
                 service => service, 
                 service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0))),
@@ -42,10 +42,4 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             MaximumCapacity = summary.MaximumCapacity
         });
     }
-
-    private string[] DistinctClinicalServicesFromDaySummaries(Summary summary) =>
-        summary.DaySummaries.SelectMany(daySummary =>
-                daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key)))
-            .Union(summary.Orphaned.Select(x => x.Key))
-            .Distinct().ToArray();
 }

@@ -273,6 +273,6 @@ variable "disable_bulk_import_function" {
   type = bool
 }
 
-variable "disable_aggregate_daily_site_summary" {
+variable "disable_daily_site_summary_aggregation_function" {
   type = bool
 }

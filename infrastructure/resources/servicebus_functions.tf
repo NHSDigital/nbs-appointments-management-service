@@ -93,8 +93,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
-    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
-    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = var.disable_aggregate_daily_site_summary    
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true    
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
   }
 
@@ -201,7 +200,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
-    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = var.disable_aggregate_daily_site_summary
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
   }
 

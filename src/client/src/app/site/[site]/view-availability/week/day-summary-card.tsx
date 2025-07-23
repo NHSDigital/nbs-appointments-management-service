@@ -4,7 +4,7 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { dateFormat, isFutureCalendarDateUk } from '@services/timeService';
+import { RFC3339Format, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 
@@ -33,15 +33,15 @@ export const DaySummaryCard = ({
       isFutureCalendarDate &&
         canManageAvailability && {
           text: 'Add availability to this day',
-          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`,
+          href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`,
         },
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
-        href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=1`,
+        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
       },
       orphanedAppointments > 0 && {
         text: 'View manual cancellations',
-        href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=2`,
+        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
       },
     ].filter(p => p !== false);
 
@@ -57,15 +57,15 @@ export const DaySummaryCard = ({
   const actionLinks: ActionLink[] = [
     canViewDailyAppointments && {
       text: 'View daily appointments',
-      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1`,
+      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
     },
     cancelledAppointments > 0 && {
       text: 'View cancelled appointments',
-      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=1`,
+      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
     },
     orphanedAppointments > 0 && {
       text: 'View manual cancellations',
-      href: `daily-appointments?date=${ukDate.format(dateFormat)}&page=1&tab=2`,
+      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
     },
   ].filter(p => p !== false);
 
@@ -78,7 +78,7 @@ export const DaySummaryCard = ({
           canManageAvailability
             ? {
                 siteId,
-                ukDate: ukDate.format(dateFormat),
+                ukDate: ukDate.format(RFC3339Format),
               }
             : undefined
         }
@@ -87,7 +87,7 @@ export const DaySummaryCard = ({
       {isFutureCalendarDate && canManageAvailability && (
         <Link
           className="nhsuk-link"
-          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(dateFormat)}`}
+          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`}
         >
           Add Session
         </Link>

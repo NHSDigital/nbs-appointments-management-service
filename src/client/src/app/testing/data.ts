@@ -1,6 +1,6 @@
 import {
   dateTimeFormat,
-  dateFormat,
+  RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
 import {
@@ -206,14 +206,21 @@ const mockAllPermissions = [
   'site:get-meta-data',
   'availability:setup',
   'availability:query',
+  'booking:view-detail',
   'booking:make',
   'booking:query',
   'booking:cancel',
   'booking:set-status',
   'users:manage',
   'users:view',
+  'sites:query',
   'site:view',
+  'site:view:preview',
   'site:manage',
+  'site:manage:admin',
+  'system:run-reminders',
+  'system:run-provisional-sweep',
+  'reports:sitesummary',
 ];
 
 const mockAuditerPermissions = [
@@ -696,7 +703,7 @@ const mockWeekAvailabilityEnd = parseToUkDatetime(
 
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mockWeekAvailabilityStart.format(dateFormat),
+    date: mockWeekAvailabilityStart.format(RFC3339Format),
     sessions: [
       {
         capacity: 2,
@@ -715,7 +722,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mockWeekAvailabilityEnd.format(dateFormat),
+    date: mockWeekAvailabilityEnd.format(RFC3339Format),
     sessions: [
       {
         capacity: 2,

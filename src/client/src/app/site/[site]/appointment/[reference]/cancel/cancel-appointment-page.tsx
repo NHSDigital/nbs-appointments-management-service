@@ -12,7 +12,7 @@ import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import {
   dateTimeFormat,
-  dateFormat,
+  RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
 import { useRouter } from 'next/navigation';
@@ -50,7 +50,7 @@ const CancelAppointmentPage = ({
       await cancelAppointment(booking.reference, site);
     }
 
-    const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
+    const returnDate = parseToUkDatetime(booking.from).format(RFC3339Format);
     const tabNumber = form.cancelAppointment === 'yes' ? 1 : 0;
 
     replace(

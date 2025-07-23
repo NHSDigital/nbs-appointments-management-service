@@ -6,7 +6,7 @@ import timezone from 'dayjs/plugin/timezone';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import updateLocale from 'dayjs/plugin/updateLocale';
 
-export const dateFormat = 'YYYY-MM-DD';
+export const RFC3339Format = 'YYYY-MM-DD';
 export const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
 
 dayjs.extend(customParseFormat);
@@ -107,8 +107,8 @@ export const parseToTimeComponents = (
 
 export const parseToUkDatetime = (
   input: string | Date,
-  format = dateFormat,
-) => {
+  format = RFC3339Format,
+): DayJsType => {
   return dayjs.tz(input, format, ukTimezone);
 };
 
@@ -152,6 +152,20 @@ export const isAfterCalendarDateUk = (
     firstUkDatetime.startOf('day'),
     secondUkDatetime.startOf('day'),
   );
+};
+
+export const occurInOrder = (ukDates: dayjs.Dayjs[]) => {
+  for (let index = 1; index < ukDates.length; index++) {
+    if (
+      !(
+        isEqual(ukDates[index], ukDates[index - 1]) ||
+        isAfter(ukDates[index], ukDates[index - 1])
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export const isBeforeOrEqualCalendarDateUk = (
@@ -204,7 +218,7 @@ export const isOnTheSameUkDay = (
   //they must first each be converted to Uk timezone, then day format compared.
   const firstUk = dayjs.tz(first, ukTimezone);
   const secondUk = dayjs.tz(second, ukTimezone);
-  return firstUk.format(dateFormat) === secondUk.format(dateFormat);
+  return firstUk.format(RFC3339Format) === secondUk.format(RFC3339Format);
 };
 
 export const isValidDate = (
@@ -274,7 +288,7 @@ export const addToUkDatetime = (
   ukDatetime: dayjs.Dayjs,
   value: number,
   manipulateType: 'year' | 'day' | 'week' | 'hour' | 'minute',
-  format = dateFormat,
+  format = RFC3339Format,
 ): dayjs.Dayjs => {
   //we CAN'T just use dayJs.add method for this alone, as it DOES NOT work when the operation crosses a DST boundary.
   //(it preserves the original timezone rather than adjusting/re-evaluating)

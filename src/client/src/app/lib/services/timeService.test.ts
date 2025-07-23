@@ -7,7 +7,6 @@ import {
   toTwoDigitFormat,
   getUkWeeksOfTheMonth,
   parseToUkDatetime,
-  dateFormat,
   addToUkDatetime,
   startOfUkWeek,
   endOfUkWeek,
@@ -16,6 +15,8 @@ import {
   isOnTheSameUkDay,
   ukNow,
   DayJsType,
+  RFC3339Format,
+  occurInOrder,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 
@@ -126,7 +127,7 @@ describe('Time Service', () => {
 
   it('GetUKWeeksOfTheMonth changes timezone when crosses DST barrier', async () => {
     const dstChangeDateTime = '2025-10-01';
-    const dateTime = parseToUkDatetime(dstChangeDateTime, dateFormat);
+    const dateTime = parseToUkDatetime(dstChangeDateTime, RFC3339Format);
     const weeks = getUkWeeksOfTheMonth(dateTime);
 
     expect(weeks).toHaveLength(5);
@@ -437,4 +438,74 @@ describe('Time Service', () => {
       expect(result).toBe(expectedOutcome);
     },
   );
+
+  describe('occurInOrder', () => {
+    it.each([
+      [
+        [
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+          parseToUkDatetime('2024-01-03T12:00:00Z'),
+        ],
+        true,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-01T03:00:00Z'),
+          parseToUkDatetime('2024-01-01T07:00:00Z'),
+          parseToUkDatetime('2024-01-01T23:59:00Z'),
+        ],
+        true,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-03T12:00:00Z'),
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+        ],
+        false,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-03T12:00:00Z'),
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+        ],
+        false,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+        ],
+        true,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+          parseToUkDatetime('2024-01-02T12:00:00Z'),
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+        ],
+        false,
+      ],
+      [
+        [
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+          parseToUkDatetime('2024-01-01T12:00:00Z'),
+        ],
+        true,
+      ],
+      [[parseToUkDatetime('2024-01-01T12:00:00Z')], true],
+      [[], true],
+    ])(
+      'check if date is in the future',
+      (datesToCheck: DayJsType[], expectedOutcome: boolean) => {
+        const result = occurInOrder(datesToCheck);
+
+        expect(result).toBe(expectedOutcome);
+      },
+    );
+  });
 });

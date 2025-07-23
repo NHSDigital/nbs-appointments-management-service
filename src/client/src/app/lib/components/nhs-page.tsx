@@ -119,6 +119,13 @@ const getLinksForSite = async (
     });
   }
 
+  if (permissions.includes('reports:sitesummary')) {
+    navigationLinks.push({
+      label: 'Reports',
+      href: `/reports`,
+    });
+  }
+
   return navigationLinks;
 };
 

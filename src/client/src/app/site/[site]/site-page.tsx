@@ -66,10 +66,7 @@ export const SitePage = ({
           )}
           {permissionsRelevantToCards.includes('reports:sitesummary') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card
-                href={`/site/${site.id}/reports`}
-                title="Download reports"
-              />
+              <Card href={`/reports`} title="Download reports" />
             </li>
           )}
         </ul>

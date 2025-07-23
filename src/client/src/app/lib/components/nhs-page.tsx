@@ -122,7 +122,7 @@ const getLinksForSite = async (
   if (permissions.includes('reports:sitesummary')) {
     navigationLinks.push({
       label: 'Reports',
-      href: `/site/${site.id}/reports`,
+      href: `/reports`,
     });
   }
 

@@ -4,9 +4,9 @@ namespace Nhs.Appointments.Core
     {
         public IEnumerable<DaySummary> DaySummaries { get; init; }
         
-        MaximumCapacity = DaySummaries.Sum(x => x.MaximumCapacity),
-        RemainingCapacity = DaySummaries.Sum(x => x.RemainingCapacity),
-        TotalSupportedAppointments = DaySummaries.Sum(x => x.TotalSupportedAppointments)
+        // MaximumCapacity = DaySummaries.Sum(x => x.MaximumCapacity),
+        // RemainingCapacity = DaySummaries.Sum(x => x.RemainingCapacity),
+        // TotalSupportedAppointments = DaySummaries.Sum(x => x.TotalSupportedAppointments)
     }
     
     public class DaySummary(DateOnly date, IEnumerable<SessionSummary> sessions) : AvailabilityMetrics

@@ -1014,7 +1014,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
             page,
           }) => {
-            let dayIncrement = 240;
+            let dayIncrement = 260;
 
             //avoid collisions
             if (multipleServicesEnabled) {

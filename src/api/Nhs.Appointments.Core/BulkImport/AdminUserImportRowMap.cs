@@ -11,14 +11,22 @@ public class AdminUserImportRowMap : ClassMap<AdminUserImportRow>
         {
             var email = x.Row.GetField<string>("Email");
 
-            if (CsvFieldValidator.StringHasValue(email))
+            if (!CsvFieldValidator.StringHasValue(email))
             {
-                return RegularExpressionConstants.EmailAddressRegex().IsMatch(email)
-                    ? email
-                    : throw new ArgumentException($"Admin user email: {email} is not a valid email address.");
+                throw new ArgumentNullException("Email field must have a value.");
             }
 
-            throw new ArgumentNullException("Email field must have a value");
+            if (!RegularExpressionConstants.EmailAddressRegex().IsMatch(email))
+            {
+                throw new ArgumentException($"Admin user email: '{email}' is not a valid email address.");
+            }
+
+            if (!email.EndsWith("nhs.net"))
+            {
+                throw new ArgumentException($"Email must be an nhs.net email domain. Current email: '{email}'");
+            }
+
+            return email;
         });
     }
 }

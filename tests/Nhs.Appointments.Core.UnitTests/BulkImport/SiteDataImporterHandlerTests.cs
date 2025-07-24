@@ -3,7 +3,7 @@ using Nhs.Appointments.Core.BulkImport;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
-namespace Nhs.Appointments.Core.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests.BulkImport;
 public class SiteDataImporterHandlerTests
 {
     private readonly Mock<ISiteService> _siteServiceMock = new();

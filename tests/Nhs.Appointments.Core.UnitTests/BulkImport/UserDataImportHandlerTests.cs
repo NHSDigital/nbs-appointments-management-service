@@ -3,7 +3,7 @@ using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using System.Text;
 
-namespace Nhs.Appointments.Core.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests.BulkImport;
 public class UserDataImportHandlerTests
 {
     private readonly Mock<IUserService> _userServiceMock = new();

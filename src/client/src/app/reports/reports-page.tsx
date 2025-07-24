@@ -7,7 +7,7 @@ import DownloadReportForm from './download-report-form';
 import DownloadReportConfirmation from './download-report-confirmation';
 
 interface ReportsPageProps {
-  site: Site;
+  site?: Site;
 }
 
 export const ReportsPage = ({ site }: ReportsPageProps) => {
@@ -23,7 +23,7 @@ export const ReportsPage = ({ site }: ReportsPageProps) => {
       {reportRequest === undefined ? (
         <DownloadReportForm
           setReportRequest={setReportRequest}
-          goBackHref={`/site/${site.id}`}
+          goBackHref={site ? `/site/${site.id}` : '/reports'}
         />
       ) : (
         <DownloadReportConfirmation

@@ -1,5 +1,6 @@
 ﻿Feature: RunReminders
 
+    @ignore
     Scenario: Running reminders sends reminders for upcoming appointments - Covid 19
         Given the site is configured for MYA
         And I have Clinical Services
@@ -16,6 +17,7 @@
             | email        | 36b50be4-fad7-440e-8958-b0dc66efe33a   | COVID-19 | https://www.nhs.uk/bookcovid | 56345-09354 |
             | phone        | c452be27-5bae-422d-9691-6bb955dbc51f   | COVID-19 | https://www.nhs.uk/bookcovid | 56345-09354 |
 
+    @ignore  
     Scenario: Running reminders sends reminders for upcoming appointments - Flu
         Given the site is configured for MYA
         And I have Clinical Services

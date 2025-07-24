@@ -14,6 +14,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -79,8 +80,13 @@ public class CancelBookingFunction(
         {
             var (errors, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
 
-            if (payload?.cancellationReason != null) 
-            { 
+            if (errors.Any(x => x.Property == "cancellationReason"))
+            {
+                return (errors, null);
+            }
+
+            if (payload?.cancellationReason != null)
+            {
                 cancellationReason = (CancellationReason)payload.cancellationReason;
             }
         }

@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
@@ -34,8 +35,16 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var site = GetSiteId();
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}&cancellationReason={cancellationReason}",
-            null);
+
+        var payload = new { cancellationReason };
+
+        var jsonContent = new StringContent(
+            JsonConvert.SerializeObject(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}", jsonContent);
     }
 
     [When(@"I cancel the appointment with reference '(.+)'")]

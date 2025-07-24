@@ -87,7 +87,7 @@ test.describe.configure({ mode: 'serial' });
           test('Create single session of RSV availability', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -125,11 +125,11 @@ test.describe.configure({ mode: 'serial' });
           test('Create single session of RSV and Covid availability', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
-              dayIncrement += 40;
+              dayIncrement += 7;
             }
 
             const futureDate = getDateInFuture(dayIncrement);
@@ -167,7 +167,7 @@ test.describe.configure({ mode: 'serial' });
           test('Create weekly session of RSV availability', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -217,7 +217,7 @@ test.describe.configure({ mode: 'serial' });
           test('Create weekly session of RSV and Covid availability', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -293,7 +293,7 @@ test.describe.configure({ mode: 'serial' });
           });
 
           test('A user can navigate to the Create Availability flow validating weekly Session end date must be within the next year error', async () => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -323,7 +323,7 @@ test.describe.configure({ mode: 'serial' });
           });
 
           test('Create weekly session of RSV availability check summary page links', async () => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -385,7 +385,7 @@ test.describe.configure({ mode: 'serial' });
           });
 
           test('Create single session of RSV availability check summary page links', async () => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -487,7 +487,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify user is able to add a session for future date', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -578,7 +578,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify user is able to change availability', async ({
             page,
           }) => {
-            let dayIncrement = 1;
+            let dayIncrement = 29;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -651,7 +651,7 @@ test.describe.configure({ mode: 'serial' });
               test.skip();
             }
 
-            const dayIncrement = 60;
+            const dayIncrement = 40;
 
             const day = daysFromToday(dayIncrement);
             const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -783,7 +783,7 @@ test.describe.configure({ mode: 'serial' });
           });
 
           test('Verify user is able to cancel session', async ({ page }) => {
-            let dayIncrement = 5;
+            let dayIncrement = 34;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -851,7 +851,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify session not canceled if not confirmed', async ({
             page,
           }) => {
-            let dayIncrement = 3;
+            let dayIncrement = 32;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -924,7 +924,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify view daily appointment link displayed', async ({
             page,
           }) => {
-            let dayIncrement = 3;
+            let dayIncrement = 32;
 
             //avoid collisions
             if (multipleServicesEnabled) {
@@ -1014,7 +1014,7 @@ test.describe.configure({ mode: 'serial' });
           test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
             page,
           }) => {
-            let dayIncrement = 240;
+            let dayIncrement = 260;
 
             //avoid collisions
             if (multipleServicesEnabled) {

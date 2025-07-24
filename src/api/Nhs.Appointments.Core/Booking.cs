@@ -41,6 +41,10 @@ public class Booking
 
     [JsonProperty("additionalData")]
     public object AdditionalData { get; set; }
+
+
+    [JsonProperty("cancellationReason")]
+    public CancellationReason CancellationReason { get; set; }
 }
 
 public class AttendeeDetails
@@ -85,4 +89,10 @@ public enum AvailabilityStatus
     Unknown,
     Supported,
     Orphaned
+}
+
+public enum CancellationReason
+{
+    CancelledByCitizen,
+    CancelledBySite
 }

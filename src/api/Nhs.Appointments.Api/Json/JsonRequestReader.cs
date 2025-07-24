@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Json;
 
@@ -19,17 +20,19 @@ public static class JsonRequestReader
 {
     public static async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, TRequest request)> ReadRequestAsync<TRequest>(Stream requestStream, bool checkSchemaFirst = false)
     {
+        JsonDeserializationContext.Clear();
+
         var deserializerSettings = new JsonSerializerSettings
         {
-            Converters =
-                {
-                    new ShortTimeOnlyJsonConverter(), 
-                    new ShortDateOnlyJsonConverter(), 
-                    new DayOfWeekJsonConverter(), 
-                    new NullableShortDateOnlyJsonConverter(),
-                    new StrictBooleanJsonConverter(),
-                    new Newtonsoft.Json.Converters.StringEnumConverter{AllowIntegerValues=false}
-                },
+            Converters = 
+            {
+                new ShortTimeOnlyJsonConverter(), 
+                new ShortDateOnlyJsonConverter(), 
+                new DayOfWeekJsonConverter(), 
+                new NullableShortDateOnlyJsonConverter(),
+                new StrictBooleanJsonConverter(),
+                new NullableStringEnumConverter<CancellationReason>()
+            },
 
         };
         var body = await new StreamReader(requestStream).ReadToEndAsync();
@@ -43,7 +46,9 @@ public static class JsonRequestReader
 
         try
         {
-            return (Enumerable.Empty<ErrorMessageResponseItem>().ToList().AsReadOnly(), JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings));
+            var payload = JsonConvert.DeserializeObject<TRequest>(body, deserializerSettings);
+            var parseErrors = JsonDeserializationContext.GetErrors();
+            return (parseErrors, payload);
         }
         catch (Exception)
         {

@@ -11,13 +11,14 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'reports:sitesummary');
-
-  const [site] = await Promise.all([fetchSite(siteFromPath)]);
-
+  let site = undefined;
+  await assertPermission(siteFromPath ?? '*', 'reports:sitesummary');
+  if (siteFromPath !== undefined) {
+    site = await fetchSite(siteFromPath);
+  }
   return (
     <NhsTransactionalPage originPage="reports">
-      <ReportsPage site={site} />
+      <ReportsPage site={site ?? undefined} />
     </NhsTransactionalPage>
   );
 };

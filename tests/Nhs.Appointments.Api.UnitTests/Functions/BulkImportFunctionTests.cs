@@ -10,6 +10,7 @@ using Nhs.Appointments.Api.Factories;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.UnitTests;
 

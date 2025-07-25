@@ -23,6 +23,7 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
@@ -107,7 +108,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
-            .AddAutoMapper(typeof(CosmosAutoMapperProfile));
+            .AddAutoMapper(typeof(CosmosAutoMapperProfile))
+            .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>();
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")

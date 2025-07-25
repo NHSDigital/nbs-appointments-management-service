@@ -148,6 +148,25 @@ public class UserService(
                 return false;
         }
     }
+
+    public async Task SaveAdminUserAsync(string userId)
+    {
+        var roleAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "system:admin-user", Scope = "global" }
+        };
+
+        var user = new User
+        {
+            Id = userId.ToLower(),
+            RoleAssignments = [.. roleAssignments]
+        };
+
+        await userStore.SaveAdminUserAsync(user);
+    }
+
+    public async Task RemoveAdminUserAsync(string userId)
+        => await userStore.RemoveAdminUserAsync(userId);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

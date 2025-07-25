@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.BulkImport;
 
 public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodesService wellKnowOdsCodesService) : ISiteDataImportHandler
 {

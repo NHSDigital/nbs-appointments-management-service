@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Constants;
 using System;
 
@@ -8,6 +8,7 @@ public class DataImportHandlerFactory(IServiceProvider serviceProvider) : IDataI
 {
     public IDataImportHandler CreateDataImportHandler(string importType) => importType switch
     {
+        BulkImportType.AdminUser => serviceProvider.GetService<IAdminUserDataImportHandler>(),
         BulkImportType.ApiUser => serviceProvider.GetService<IApiUserDataImportHandler>(),
         BulkImportType.Site => serviceProvider.GetService<ISiteDataImportHandler>(),
         BulkImportType.User => serviceProvider.GetService<IUserDataImportHandler>(),

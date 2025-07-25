@@ -5,7 +5,7 @@ import { DayCardList } from './day-card-list';
 import {
   addToUkDatetime,
   DayJsType,
-  dateFormat,
+  RFC3339Format,
   dateTimeFormat,
 } from '@services/timeService';
 
@@ -47,7 +47,7 @@ export const ViewWeekAvailabilityPage = async ({
       nextUkWeek.month() > oneWeekAfterWeekEnd.month()
         ? getPaginationTextDifferentMonth(nextUkWeek, oneWeekAfterWeekEnd)
         : getPaginationTextSameMonth(nextUkWeek, oneWeekAfterWeekEnd),
-    href: `week?date=${nextUkWeek.format(dateFormat)}`,
+    href: `week?date=${nextUkWeek.format(RFC3339Format)}`,
   };
 
   const previous = {
@@ -55,7 +55,7 @@ export const ViewWeekAvailabilityPage = async ({
       previousUkWeek.month() < ukWeekStart.month()
         ? getPaginationTextDifferentMonth(previousUkWeek, oneWeekBeforeWeekEnd)
         : getPaginationTextSameMonth(previousUkWeek, oneWeekBeforeWeekEnd),
-    href: `week?date=${previousUkWeek.format(dateFormat)}`,
+    href: `week?date=${previousUkWeek.format(RFC3339Format)}`,
   };
 
   return (

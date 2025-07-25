@@ -2,7 +2,7 @@ import { AppointmentCountsSummary } from '@components/appointment-counts-summary
 import { Card, Table } from '@components/nhsuk-frontend';
 import { ClinicalService, WeekSummary } from '@types';
 import Link from 'next/link';
-import { dateFormat } from '@services/timeService';
+import { RFC3339Format } from '@services/timeService';
 
 type WeekSummaryCardProps = {
   ukWeekSummary: WeekSummary;
@@ -50,7 +50,7 @@ export const WeekSummaryCard = ({
       <br />
       <Link
         className="nhsuk-link"
-        href={`view-availability/week?date=${startDate.format(dateFormat)}`}
+        href={`view-availability/week?date=${startDate.format(RFC3339Format)}`}
       >
         View week
       </Link>

@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import {
   dateTimeFormat,
   DayJsType,
-  dateFormat,
+  RFC3339Format,
   getUkWeeksOfTheMonth,
 } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
@@ -20,11 +20,11 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
 
   const next = {
     title: nextMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${nextMonth.format(dateFormat)}`,
+    href: `view-availability?date=${nextMonth.format(RFC3339Format)}`,
   };
   const previous = {
     title: previousMonth.format('MMMM YYYY'),
-    href: `view-availability?date=${previousMonth.format(dateFormat)}`,
+    href: `view-availability?date=${previousMonth.format(RFC3339Format)}`,
   };
 
   const ukWeeks = getUkWeeksOfTheMonth(searchMonth);

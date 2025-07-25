@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Nhs.Appointments.Core.Features;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.BulkImport;
 
 public class UserDataImportHandler(
     IUserService userService, 

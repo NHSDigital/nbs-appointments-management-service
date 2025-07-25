@@ -112,7 +112,7 @@ public class OktaUserDirectory : IOktaUserDirectory
                 return OktaUserStatus.Deactivated;
 
             default:
-                _logger.LogInformation($"Failed to map okta user status: {userStatus}!");
+                _logger.LogError("Failed to map okta user status: {userStatus}!", userStatus);
                 return OktaUserStatus.Unknown;
         }
     }

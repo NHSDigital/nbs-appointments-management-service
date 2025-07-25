@@ -1,9 +1,9 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using Nhs.Appointments.Core.Constants;
-using static Nhs.Appointments.Core.UserDataImportHandler;
+using static Nhs.Appointments.Core.BulkImport.UserDataImportHandler;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.BulkImport;
 
 public class UserImportRowMap : ClassMap<UserImportRow>
 {
@@ -123,7 +123,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
         var siteHasValue = CsvFieldValidator.StringHasValue(siteValue);
         var regionHasValue = CsvFieldValidator.StringHasValue(regionValue);
 
-        if ((siteHasValue && regionHasValue) || (!siteHasValue && !regionHasValue))
+        if (siteHasValue && regionHasValue || !siteHasValue && !regionHasValue)
             throw new ArgumentException("Exactly one of Site or Region must be populated.");
     }
 }

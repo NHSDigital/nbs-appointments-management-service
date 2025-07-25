@@ -1,5 +1,6 @@
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.BulkImport;
 
 namespace Nhs.Appointments.Core;
 

@@ -39,7 +39,7 @@ public class GetReportSiteSummaryFunction(
         Description = "Report for all Sites based on a Date Range")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [RequiresPermission(Permissions.ReportsSiteSummary, null)]
+    [RequiresPermission(Permissions.ReportsSiteSummary, typeof(AnyUserSitesRequestInspector))]
     [Function("GetReportSiteSummaryFunction")]
     public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/site-summary")]
@@ -108,7 +108,7 @@ public class GetReportSiteSummaryFunction(
         req.Query.TryGetValue("startDate", out var startDateInput);
         req.Query.TryGetValue("endDate", out var endDateInput);
 
-        if (!DateOnly.TryParseExact(startDateInput.ToString(), "dd-MM-yyyy", out var startDate))
+        if (!DateOnly.TryParseExact(startDateInput.ToString(), "yyyy-MM-dd", out var startDate))
         {
             errors.Add(new ErrorMessageResponseItem()
             {
@@ -117,7 +117,7 @@ public class GetReportSiteSummaryFunction(
             });
         }
         
-        if (!DateOnly.TryParseExact(endDateInput.ToString(), "dd-MM-yyyy", out var endDate))
+        if (!DateOnly.TryParseExact(endDateInput.ToString(), "yyyy-MM-dd", out var endDate))
         {
             errors.Add(new ErrorMessageResponseItem()
             {

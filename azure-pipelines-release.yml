@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - release/*
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+
+parameters:
+  - name: environments
+    type: object
+    default: ["int", "stag", "prod"]
+    values: ["int", "stag", "prod", "pen", "perf"]
+
+stages:
+  - template: scripts/pipeline-templates/build.yml
+    parameters:
+      prBuildServiceConnectionName: $(prBuildServiceConnectionName)
+
+  - ${{ each env in parameters.environments }}:
+      - template: scripts/pipeline-templates/deploy.yml
+        parameters:
+          env: ${{env}}
+          variable_group: nbs-mya-${{env}}
+          httpFunctionAppName: nbs-mya-func-${{env}}-uks
+          highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+          serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+          timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+          webServerName: nbs-mya-app-${{env}}-uks
+          cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+          ${{ if eq(env, 'pen') }}:
+            resourceGroup: nbs-mya-rg-${{env}}-uks
+            serviceConnectionName: nhsuk-mya-nonprod
+          ${{ elseif eq(env, 'perf') }}:
+            resourceGroup: nbs-mya${{env}}-rg-stag-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-stag
+          ${{ else }}:
+            resourceGroup: nbs-mya-rg-${{env}}-uks
+            serviceConnectionName: nbs-mya-rg-${{env}}
+          buildNumber: "$(Build.BuildNumber)"
+          isHotfix: false

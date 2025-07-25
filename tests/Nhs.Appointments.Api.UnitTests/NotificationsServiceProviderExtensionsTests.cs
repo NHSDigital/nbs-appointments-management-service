@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests;
@@ -50,6 +51,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddDependenciesNotUnderTest()
             .AddUserNotifications(configuration)
             .AddCosmosDataStores()
+            .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .BuildServiceProvider();
@@ -106,4 +108,10 @@ public class NotificationsServiceProviderExtensionsTests
         var notificationsClient = serviceProvider.GetService(typeof(ISendNotifications));
         notificationsClient.Should().BeOfType<GovNotifyClient>();
     }
+}
+
+
+public class FakeSiteSummaryAggregator : ISiteSummaryAggregator
+{
+    public Task AggregateForSite(string site, DateOnly from, DateOnly to) => throw new NotImplementedException();
 }

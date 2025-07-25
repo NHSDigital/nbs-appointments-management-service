@@ -15,7 +15,6 @@ using Nhs.Appointments.Core;
 namespace Nhs.Appointments.Api.Functions;
 
 public class GetSitesPreviewFunction(
-    ISiteService siteService,
     IUserService userService,
     IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
@@ -47,51 +46,19 @@ public class GetSitesPreviewFunction(
         {
             return Success([]);
         }
+        
+        var icbs = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries()).Where(x => x.Type == "icb");
 
-        var sitesResult = new List<SitePreview>();
-        var ICBs = (await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries()).Where(x => x.Type == "icb");
-
-        if (await permissionChecker.HasGlobalPermissionAsync(user.Id, Permissions.ViewSitePreview))
-        {
-            var allSites = await siteService.GetSitesPreview();
-            
-            foreach (var site in allSites)
-            {
-                var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == site.IntegratedCareBoard);
-                sitesResult.Add(new SitePreview(site.Id, site.Name, site.OdsCode, siteIcb?.DisplayName));
-            }
-        }
-        else
-        {
-            var siteIds = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ViewSitePreview);
-
-            foreach (var siteId in siteIds)
-            {
-                var siteInfo = await siteService.GetSiteByIdAsync(siteId);
-                if (siteInfo != null)
-                {
-                    var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == siteInfo.IntegratedCareBoard);
-                    sitesResult.Add(new SitePreview(siteInfo.Id, siteInfo.Name, siteInfo.OdsCode, siteIcb?.DisplayName));
-                }
-            }
-
-            var regionPermissions = await permissionChecker.GetRegionPermissionsAsync(userEmail);
-            if (regionPermissions.Any())
-            {
-                foreach (var region in regionPermissions.Select(r => r.Replace("region:", "")))
-                {
-                    var sites = await siteService.GetSitesInRegion(region);
-
-                    sitesResult.AddRange(sites.Select(s =>
-                    {
-                        var siteIcb = ICBs.FirstOrDefault(x => x.OdsCode == s.IntegratedCareBoard);
-                        return new SitePreview(s.Id, s.Name, s.OdsCode, siteIcb?.DisplayName);
-                    }));
-                }
-            }
-        }
-
-        return ApiResult<IEnumerable<SitePreview>>.Success(sitesResult.Distinct());
+        var sites = await permissionChecker.GetSitesWithPermissionAsync(user.Id, Permissions.ViewSitePreview);
+        var siteResults = sites.Select(site => 
+            new SitePreview(
+                site.Id, 
+                site.Name, 
+                site.OdsCode,
+                icbs.FirstOrDefault(x => x.OdsCode.Equals(site.IntegratedCareBoard))?.DisplayName ??
+            site.IntegratedCareBoard));
+        
+        return ApiResult<IEnumerable<SitePreview>>.Success(siteResults.Distinct());
     }
 
     protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)

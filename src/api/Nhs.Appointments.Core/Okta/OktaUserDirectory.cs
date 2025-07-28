@@ -9,9 +9,9 @@ namespace Nhs.Appointments.Core.Okta;
 public class OktaUserDirectory : IOktaUserDirectory
 {
     private readonly ILogger<OktaUserDirectory> _logger;
-    private readonly UserApi _userApi;
+    private readonly IUserApi _userApi;
 
-    public OktaUserDirectory(UserApi userApi, ILogger<OktaUserDirectory> logger)
+    public OktaUserDirectory(IUserApi userApi, ILogger<OktaUserDirectory> logger)
     {
         _userApi = userApi;
         _logger = logger;
@@ -90,6 +90,12 @@ public class OktaUserDirectory : IOktaUserDirectory
     /// <returns></returns>
     private OktaUserStatus GetUserStatusForMya(UserStatus userStatus)
     {
+        // Okta's UserStatus class defines static fields like `LOCKEDOUT` but assigns them string values like "LOCKED_OUT".
+        // Because the field name and value don't always match (e.g., LOCKEDOUT => "LOCKED_OUT"),
+        // we cannot rely on enum field names or use nameof(...). Instead, we match on userStatus.Value,
+        // comparing directly against known status string values returned by Okta's API.
+        // This approach ensures compatibility with Okta's inconsistent enum-style implementation.
+
         switch (userStatus.Value)
         {
             // Okta account management isn't our concern, so treat states where admin action is needed

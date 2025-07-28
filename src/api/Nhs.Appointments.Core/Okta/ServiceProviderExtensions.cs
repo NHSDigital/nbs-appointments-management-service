@@ -32,7 +32,7 @@ public static class ServiceProviderExtensions
         }
 
         services.AddSingleton<IOktaUserDirectory, OktaUserDirectory>();
-        services.AddSingleton<UserApi>(sp =>
+        services.AddSingleton<IUserApi>(sp =>
         {
             var oktaOptions = sp.GetRequiredService<IOptions<OktaConfiguration>>().Value;
 

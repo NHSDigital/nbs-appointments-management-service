@@ -8,7 +8,7 @@ public class SiteReportRequestValidator : AbstractValidator<SiteReportRequest>
 {
     public SiteReportRequestValidator()
     {
-        RuleFor(x => x.StartDate).LessThan(x => x.EndDate)
-            .WithMessage("Start Date should be before End Date");
+        RuleFor(x => x.StartDate).LessThanOrEqualTo(x => x.EndDate)
+            .WithMessage("Start Date should be before or equal to End Date");
     }
 }

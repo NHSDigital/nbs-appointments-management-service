@@ -105,18 +105,20 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     
     public async Task<IEnumerable<Site>> GetSitesWithPermissionAsync(string userId, string requiredPermission)
     {
-        var scopes = await GetScopesWithPermissionsAsync(userId, requiredPermission);
-        var sites = await siteService.GetAllSites();
+        var scopeTask = GetScopesWithPermissionsAsync(userId, requiredPermission);
+        var sitesTask = siteService.GetAllSites();
 
-        return sites.Where(site => ScopesAssignedToSite(scopes, site));
+        await Task.WhenAll(scopeTask, sitesTask);
+
+        return sitesTask.Result.Where(site => ScopesAssignedToSite(scopeTask.Result, site));
     }
 
-    private bool ScopesAssignedToSite(IEnumerable<(string Scope, string Value)> scopes, Site site)
+    private bool ScopesAssignedToSite(IEnumerable<RoleAssignmentScope> scopes, Site site)
     {
         return scopes.Any(scope => ScopeAssignedToSite(scope, site));
     }
 
-    private bool ScopeAssignedToSite((string Scope, string Value) scope, Site site)
+    private bool ScopeAssignedToSite(RoleAssignmentScope scope, Site site)
     {
         return scope.Scope switch
         {
@@ -164,14 +166,13 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return roles;
     }
 
-    private async Task<IEnumerable<(string Scope, string Value)>> GetScopesWithPermissionsAsync(string userId, string permission)
+    private async Task<IEnumerable<RoleAssignmentScope>> GetScopesWithPermissionsAsync(string userId, string permission)
     {
         var (roleAssignments, roles) = await GetUserPermissionsAsync(userId);
         var rolesWithPermission = roles.Where(x => x.Permissions.Contains(permission)).Select(x => x.Id);
-        
+
         return roleAssignments.Where(x => rolesWithPermission.Contains(x.Role))
-            .Select(x => x.Scope.Contains(':') ? x.Scope.Split(':') : [x.Scope, null])
-            .Select(x => (Scope: x[0], Value: x[1]));
+            .Select(x => new RoleAssignmentScope(x.Scope));
     }
     
     private async Task<(IEnumerable<RoleAssignment> roleAssignments, IEnumerable<Role> roles)> GetUserPermissionsAsync(string userId)
@@ -207,6 +208,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
         return siteResults.SelectMany(s => s).Distinct();
     }
+    
 
     private static Func<RoleAssignment, bool> GlobalOnlyFilter()
         => ra => ra.Scope == GlobalScope;

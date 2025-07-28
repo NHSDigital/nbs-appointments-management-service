@@ -3,7 +3,7 @@
 namespace Nhs.Appointments.Api.Auth;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class RequiresPermissionAttribute(string permission, Type? requestInspector) : Attribute
+public class RequiresPermissionAttribute(string permission, Type requestInspector) : Attribute
 {
     public string Permission { get; } = permission;
 

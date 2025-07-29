@@ -272,3 +272,7 @@ variable "app_config_connection" {
 variable "disable_bulk_import_function" {
   type = bool
 }
+
+variable "disable_daily_site_summary_aggregation_function" {
+  type = bool
+}

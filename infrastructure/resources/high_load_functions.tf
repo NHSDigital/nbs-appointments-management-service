@@ -44,6 +44,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Notifications_Provider                                                 = "none"
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
+    SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     Auth__Providers__0__Name                                               = "nhs-mail"
     Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
     Auth__Providers__0__AuthorizeUri                                       = var.nhs_mail_authorize_uri
@@ -118,6 +120,10 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
+    "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
   }
 
   sticky_settings {
@@ -163,6 +169,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     LEASE_MANAGER_CONNECTION                                               = azurerm_storage_account.nbs_mya_leases_storage_account.primary_blob_connection_string
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                                 = "none"
+    SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     Auth__Providers__0__Name                                               = "nhs-mail"
@@ -239,6 +247,10 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.GetFeatureFlagFunction.Disabled"                         = true
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
+    "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
+    "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
   }
 
   identity {

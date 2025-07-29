@@ -22,3 +22,23 @@ public class RoleAssignment
     [JsonProperty("scope")]
     public string Scope { get; set; }
 }
+
+public record RoleAssignmentScope
+{
+    public RoleAssignmentScope(string scope)
+    {
+        if (scope.Contains(':'))
+        {
+            Scope = scope.Split(':')[0];
+            Value = scope.Split(':')[1];
+        }
+        else
+        {
+            Scope = scope;
+        }
+    }
+    
+    public string Scope { get; }
+    
+    public string Value { get; }
+}

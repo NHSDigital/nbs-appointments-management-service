@@ -16,15 +16,15 @@ public interface IPermissionChecker
     /// <returns></returns>
     Task<bool> HasGlobalPermissionAsync(string userId, string requiredPermission);
     
-    /// <summary>
-    /// Returns all site Ids that the user has the permission for.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="requiredPermission"></param>
-    /// <returns>SiteId list</returns>
-    Task<IEnumerable<string>> GetSitesWithPermissionAsync(string userId, string requiredPermission);
-    
     Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId);
 
     Task<IEnumerable<string>> GetRegionPermissionsAsync(string userId);
+    
+    /// <summary>
+    /// Returns all sites that the user has the permission for.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="requiredPermission"></param>
+    /// <returns>Site list</returns>
+    Task<IEnumerable<Site>> GetSitesWithPermissionAsync(string userId, string requiredPermission);
 }

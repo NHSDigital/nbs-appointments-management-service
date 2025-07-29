@@ -13,7 +13,10 @@ import NhsMainContainer from '@components/nhs-main-container';
 import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchFeatureFlag,
+  fetchPermissions,
+} from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
@@ -85,6 +88,7 @@ const getLinksForSite = async (
   }
 
   const permissions = await fetchPermissions(site.id);
+  const siteSummaryEnabled = await fetchFeatureFlag('SiteSummaryReport');
 
   const navigationLinks: NavigationLink[] = [];
 
@@ -119,7 +123,7 @@ const getLinksForSite = async (
     });
   }
 
-  if (permissions.includes('reports:sitesummary')) {
+  if (permissions.includes('reports:sitesummary') && siteSummaryEnabled) {
     navigationLinks.push({
       label: 'Reports',
       href: `/reports`,

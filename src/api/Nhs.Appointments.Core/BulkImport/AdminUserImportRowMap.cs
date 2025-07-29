@@ -21,7 +21,7 @@ public class AdminUserImportRowMap : ClassMap<AdminUserImportRow>
                 throw new ArgumentException($"Admin user email: '{email}' is not a valid email address.");
             }
 
-            if (!email.EndsWith("nhs.net"))
+            if (!email.ToLower().EndsWith("nhs.net"))
             {
                 throw new ArgumentException($"Email must be an nhs.net email domain. Current email: '{email}'");
             }

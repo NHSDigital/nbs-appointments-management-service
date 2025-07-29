@@ -124,10 +124,18 @@ describe('Site Page', () => {
       );
 
       expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
-        'href',
-        `/site/${mockSite.id}/${path}`,
-      );
+
+      if (path === 'reports') {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/${path}`,
+        );
+      } else {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/site/${mockSite.id}/${path}`,
+        );
+      }
     },
   );
 

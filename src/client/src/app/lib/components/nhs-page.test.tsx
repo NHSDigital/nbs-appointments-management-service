@@ -3,8 +3,9 @@ import NhsPage from './nhs-page';
 import {
   fetchUserProfile,
   fetchPermissions,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { UserProfile } from '@types';
+import { FeatureFlag, UserProfile } from '@types';
 import { mockAllPermissions, mockSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
@@ -13,6 +14,10 @@ const fetchUserProfileMock = fetchUserProfile as jest.Mock<
 >;
 const fetchPermissionsMock = fetchPermissions as jest.Mock<
   Promise<string[] | undefined>
+>;
+
+const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
+  Promise<FeatureFlag | undefined>
 >;
 
 jest.mock('@components/nhs-header-log-in', () => {
@@ -71,6 +76,10 @@ describe('Nhs Page', () => {
       'site:manage',
       'users:view',
     ]);
+
+    fetchFeatureFlagMock.mockResolvedValue({
+      enabled: true,
+    });
   });
 
   afterEach(() => {
@@ -185,6 +194,8 @@ describe('Nhs Page', () => {
       expect(fetchPermissionsMock).toHaveBeenCalledWith(
         '34e990af-5dc9-43a6-8895-b9123216d699',
       );
+
+      expect(fetchFeatureFlagMock).toHaveBeenCalledWith('SiteSummaryReport');
 
       expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
       if (path === 'reports') {

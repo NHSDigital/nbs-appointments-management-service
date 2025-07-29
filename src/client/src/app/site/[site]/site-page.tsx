@@ -7,12 +7,14 @@ interface SitePageProps {
   site: Site;
   permissions: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
+  siteSummaryEnabled: boolean;
 }
 
-export const SitePage = async ({
+export const SitePage = ({
   site,
   permissions,
   wellKnownOdsCodeEntries,
+  siteSummaryEnabled,
 }: SitePageProps) => {
   const permissionsRelevantToCards = permissions.filter(
     p =>
@@ -23,8 +25,6 @@ export const SitePage = async ({
       p === 'availability:query' ||
       p === 'reports:sitesummary',
   );
-
-  const siteSummaryEnabled = await fetchFeatureFlag('SiteSummaryReport');
 
   const overviewData = mapSiteOverviewSummaryData(
     site,

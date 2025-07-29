@@ -17,6 +17,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -31,6 +32,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -51,6 +53,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
     verifySummaryListItem('Region', mockSite.region);
@@ -70,6 +73,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockNonManagerPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -84,6 +88,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockNonManagerPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -120,6 +125,7 @@ describe('Site Page', () => {
           site={mockSite}
           permissions={[permission]}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+          siteSummaryEnabled={true}
         />,
       );
 
@@ -161,6 +167,7 @@ describe('Site Page', () => {
           site={mockSite}
           permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+          siteSummaryEnabled={true}
         />,
       );
 

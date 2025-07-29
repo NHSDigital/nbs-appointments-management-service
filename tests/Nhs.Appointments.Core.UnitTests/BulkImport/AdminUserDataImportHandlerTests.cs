@@ -66,7 +66,7 @@ public class AdminUserDataImportHandlerTests
         string[] inputRows =
         [
             "USER.doesnt.exIST1@nhs.net",
-            "User.DoESnT.Exist2@nhs.net"
+            "User.DoESnT.Exist2@NHS.net"
         ];
         var input = CsvFileBuilder.BuildInputCsv(AdminUserHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));

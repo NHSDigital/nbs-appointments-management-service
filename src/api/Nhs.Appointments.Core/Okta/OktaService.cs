@@ -9,8 +9,9 @@ public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider time
         switch (oktaUser?.Status)
         {
             case null:
-            case OktaUserStatus.Deactivated:
                 return await CreateUser(userEmail, firstName, lastName);
+            case OktaUserStatus.Deactivated:
+                return await ReactivateUser(userEmail);
             case OktaUserStatus.Active:
                 return new UserProvisioningStatus { Success = true };
             case OktaUserStatus.Provisioned:

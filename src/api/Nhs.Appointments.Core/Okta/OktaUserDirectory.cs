@@ -9,9 +9,9 @@ namespace Nhs.Appointments.Core.Okta;
 public class OktaUserDirectory : IOktaUserDirectory
 {
     private readonly ILogger<OktaUserDirectory> _logger;
-    private readonly UserApi _userApi;
+    private readonly IUserApi _userApi;
 
-    public OktaUserDirectory(UserApi userApi, ILogger<OktaUserDirectory> logger)
+    public OktaUserDirectory(IUserApi userApi, ILogger<OktaUserDirectory> logger)
     {
         _userApi = userApi;
         _logger = logger;
@@ -90,25 +90,31 @@ public class OktaUserDirectory : IOktaUserDirectory
     /// <returns></returns>
     private OktaUserStatus GetUserStatusForMya(UserStatus userStatus)
     {
-        switch (userStatus)
+        // Okta's UserStatus class defines static fields like `LOCKEDOUT` but assigns them string values like "LOCKED_OUT".
+        // Because the field name and value don't always match (e.g., LOCKEDOUT => "LOCKED_OUT"),
+        // we cannot rely on enum field names or use nameof(...). Instead, we match on userStatus.Value,
+        // comparing directly against known status string values returned by Okta's API.
+        // This approach ensures compatibility with Okta's inconsistent enum-style implementation.
+
+        switch (userStatus.Value)
         {
             // Okta account management isn't our concern, so treat states where admin action is needed
             // as being active as far as we're concerned
-            case nameof(UserStatus.ACTIVE):
-            case nameof(UserStatus.SUSPENDED):
-            case nameof(UserStatus.RECOVERY):
-            case nameof(UserStatus.PASSWORDEXPIRED):
-            case nameof(UserStatus.LOCKEDOUT):
+            case "ACTIVE":
+            case "SUSPENDED":
+            case "RECOVERY":
+            case "PASSWORD_EXPIRED":
+            case "LOCKED_OUT":
                 return OktaUserStatus.Active;
 
             // A provisioned user needs to set their own password and activate their account to move to the Active state
             // The only workflow we can safely begin for them is "Deactivate User" ("Reactivate" calls this followed by "Activate")
-            case nameof(UserStatus.PROVISIONED):
+            case "PROVISIONED":
                 return OktaUserStatus.Provisioned;
 
             // Is a user is Staged, Deprovisioned, or has never existed, it is safe to begin the "Activate User" workflow for them
-            case nameof(UserStatus.STAGED):
-            case nameof(UserStatus.DEPROVISIONED):
+            case "STAGED":
+            case "DEPROVISIONED":
                 return OktaUserStatus.Deactivated;
 
             default:

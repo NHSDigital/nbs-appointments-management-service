@@ -67,7 +67,7 @@ public class OktaServiceTests
     }
 
     [Fact]
-    public async Task CreateIfNotExists_UserDeactivated()
+    public async Task CreateIfNotExists_UserDeactivated_ReactivateUser()
     {
         var oktaUserResponse = new OktaUserResponse
         {
@@ -75,8 +75,7 @@ public class OktaServiceTests
             Status = OktaUserStatus.Deactivated
         };
         _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);
-        _oktaUserDirectory.Setup(x => x.CreateUserAsync(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+        _oktaUserDirectory.Setup(x => x.ReactivateUserAsync(It.IsAny<string>())).ReturnsAsync(true);
 
         var result = await _sut.CreateIfNotExists(userEmail, firstName, lastName);
 
@@ -93,7 +92,8 @@ public class OktaServiceTests
 
         var oktaUserResponse = new OktaUserResponse
         {
-            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), Status = OktaUserStatus.Provisioned
+            Created = new DateTimeOffset(2025, 3, 15, 15, 44, 44, TimeSpan.Zero), 
+            Status = OktaUserStatus.Provisioned
         };
         _oktaUserDirectory.Setup(x => x.GetUserAsync(It.IsAny<string>())).ReturnsAsync(oktaUserResponse);
         _oktaUserDirectory.Setup(x => x.ReactivateUserAsync(It.IsAny<string>())).ReturnsAsync(true);

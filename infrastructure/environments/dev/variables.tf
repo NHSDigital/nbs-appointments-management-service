@@ -107,6 +107,21 @@ variable "UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE" {
   sensitive = false
 }
 
+variable "DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE" {
+  type      = string
+  sensitive = false
+}
+
+variable "SITE_SUMMARY_DAYS_FORWARD" {
+  type      = string
+  sensitive = false
+}
+
+variable "SITE_SUMMARY_FIRST_RUN_DATE" {
+  type      = string
+  sensitive = false
+}
+
 variable "SPLUNK_HOST_URL" {
   type      = string
   sensitive = false

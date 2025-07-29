@@ -43,6 +43,9 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
+    DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
+    SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
@@ -151,6 +154,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
+    DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
+    SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true

@@ -57,6 +57,9 @@ module "mya_application_stag_ukw" {
   gov_notify_api_key                              = var.GOV_NOTIFY_API_KEY
   booking_reminders_cron_schedule                 = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
+  daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE
+  site_summary_days_forward                       = var.SITE_SUMMARY_DAYS_FORWARD
+  site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
   autoscale_notification_email_address            = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS

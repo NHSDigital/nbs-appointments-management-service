@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Text;
 
-namespace Nhs.Appointments.Core.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests.BulkImport;
 public class ApiUserDataImportHandlerTests
 {
     private readonly Mock<IUserService> _userServiceMock = new();

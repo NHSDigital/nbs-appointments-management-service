@@ -157,4 +157,10 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     {
         return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
     }
+
+    public async Task SaveAdminUserAsync(User adminUser)
+        => await InsertAsync(adminUser);
+
+    public async Task RemoveAdminUserAsync(string userId) =>
+        await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
 }

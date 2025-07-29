@@ -12,4 +12,6 @@ public interface IUserStore
 
     Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate);
     Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    Task SaveAdminUserAsync(User adminUser);
+    Task RemoveAdminUserAsync(string userId);
 }

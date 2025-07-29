@@ -23,9 +23,12 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.Reports;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api;
@@ -67,6 +70,11 @@ public static class FunctionConfigurationExtensions
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
+            .Configure<SiteSummaryOptions>(opts =>
+            {
+                opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
+                opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
+            })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
@@ -82,6 +90,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
             .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
+            .AddTransient<IAggregationStore, AggregationStore>()
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
@@ -97,17 +106,22 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
+            .AddTransient<ISiteReportService, SiteReportService>()
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
+            .AddTransient<IDailySiteSummaryStore, DailySiteSummaryStore>()
+            .AddTransient<ISitesSummaryTrigger, SiteSummaryTrigger>()
+            .AddTransient<ISiteSummaryAggregator, SiteSummaryAggregator>()
             .AddSingleton(TimeProvider.System)
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
-            .AddAutoMapper(typeof(CosmosAutoMapperProfile));
+            .AddAutoMapper(typeof(CosmosAutoMapperProfile))
+            .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>();
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")
@@ -148,6 +162,7 @@ public static class FunctionConfigurationExtensions
         await database.Database.CreateContainerIfNotExistsAsync(id: "core_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "index_data", partitionKeyPath: "/docType");
         await database.Database.CreateContainerIfNotExistsAsync(id: "audit_data", partitionKeyPath: "/user");
+        await database.Database.CreateContainerIfNotExistsAsync(id: "aggregated_data", partitionKeyPath: "/date");
     }
 
     private static CosmosClientOptions GetCosmosOptions(string cosmosEndpoint, bool ignoreSslCert)

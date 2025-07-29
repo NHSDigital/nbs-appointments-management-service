@@ -447,5 +447,33 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Verify(x => x.Send(It.IsAny<object>()), Times.Never);
         }
+
+        [Fact]
+        public async Task SaveAdminUser_AssignsAdminUserRole()
+        {
+            var adminEmail = "admin.user@nhs.net";
+            var expectedUser = new User
+            {
+                Id = adminEmail,
+                LatestAcceptedEulaVersion = null,
+                RoleAssignments =
+                [
+                    new()
+                    {
+                        Role = "system:admin-user",
+                        Scope = "global"
+                    }
+                ]
+            };
+
+            await _sut.SaveAdminUserAsync("admin.user@nhs.net");
+
+            _userStore.Verify(x => x.SaveAdminUserAsync(It.Is<User>(
+                u => u.Id == adminEmail &&
+                     u.RoleAssignments.Length == 1 &&
+                     u.RoleAssignments.First().Role == expectedUser.RoleAssignments.First().Role &&
+                     u.RoleAssignments.First().Scope == expectedUser.RoleAssignments.First().Scope &&
+                     u.LatestAcceptedEulaVersion == expectedUser.LatestAcceptedEulaVersion)), Times.Once);
+        }
     }
 }

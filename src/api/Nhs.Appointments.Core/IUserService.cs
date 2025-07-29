@@ -11,4 +11,6 @@ public interface IUserService
     Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task<UserIdentityStatus> GetUserIdentityStatusAsync(string siteId, string userId);
     Task UpdateRegionalUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    Task SaveAdminUserAsync(string userId);
+    Task RemoveAdminUserAsync(string userId);
 }

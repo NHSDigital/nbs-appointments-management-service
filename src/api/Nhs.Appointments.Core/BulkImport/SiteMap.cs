@@ -1,8 +1,8 @@
 using CsvHelper.Configuration;
 using Nhs.Appointments.Core.Constants;
-using static Nhs.Appointments.Core.SiteDataImporterHandler;
+using static Nhs.Appointments.Core.BulkImport.SiteDataImporterHandler;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.BulkImport;
 
 public class SiteMap : ClassMap<SiteImportRow>
 {

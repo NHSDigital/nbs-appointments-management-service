@@ -117,7 +117,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public async Task DeleteDocument(string documentId, string partitionKey)
     {
         var container = GetContainer();
-        var result = await container.DeleteItemAsync<UserDocument>(
+        var result = await container.DeleteItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey));
         RecordQueryMetrics(result.RequestCharge);

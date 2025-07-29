@@ -217,6 +217,14 @@ export async function assertPermission(site: string, permission: string) {
   }
 }
 
+export async function assertFeatureEnabled(flag: string) {
+  const response = await fetchFeatureFlag(flag);
+
+  if (!response.enabled) {
+    notFound();
+  }
+}
+
 export async function assertAnyPermissions(
   site: string,
   permissions: string[],

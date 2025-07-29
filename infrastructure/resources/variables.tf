@@ -133,6 +133,18 @@ variable "booking_reminders_cron_schedule" {
   type = string
 }
 
+variable "daily_site_summary_aggregation_cron_schedule" {
+  type = string
+}
+
+variable "site_summary_days_forward" {
+  type = string
+}
+
+variable "site_summary_first_run_date" {
+  type = string
+}
+
 variable "splunk_hec_token" {
   type      = string
   sensitive = true

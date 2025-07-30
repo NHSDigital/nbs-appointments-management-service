@@ -64,7 +64,7 @@ module "mya_application_perf" {
   splunk_host_url                                 = var.SPLUNK_HOST_URL
   autoscale_notification_email_address            = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
   disable_query_availability_function             = true
-  disable_daily_site_summary_aggregation_function = true
+  disable_daily_site_summary_aggregation_function = false
   create_high_load_function_app                   = true
   create_app_slot                                 = false
   create_autoscale_settings                       = true

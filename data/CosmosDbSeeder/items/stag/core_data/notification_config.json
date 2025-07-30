@@ -9,6 +9,12 @@
       "eventType": "UserRolesChanged"
     },
     {
+      "services": [],
+      "emailTemplate": "8a61ea48-43aa-4000-adb1-efb0b145d8da",
+      "smsTemplate": "",
+      "eventType": "OktaUserRolesChanged"
+    },
+    {
       "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+" ],
       "emailTemplate": "5c9462f4-4ad7-4bc5-b72a-e9251a07890d",
       "smsTemplate": "",

@@ -1,6 +1,6 @@
 import {
   dateTimeFormat,
-  dateFormat,
+  RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
 import {
@@ -28,7 +28,7 @@ const sundayThe16thOfJune2024 = parseToUkDatetime(
  */
 const mockWeekAvailability: DailyAvailability[] = [
   {
-    date: mondayThe10thOfJune2024.format(dateFormat),
+    date: mondayThe10thOfJune2024.format(RFC3339Format),
     sessions: [
       {
         capacity: 2,
@@ -47,7 +47,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(1, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(1, 'days').format(RFC3339Format),
     sessions: [
       {
         capacity: 2,
@@ -66,7 +66,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(2, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(2, 'days').format(RFC3339Format),
     sessions: [
       {
         capacity: 4,
@@ -78,7 +78,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(3, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(3, 'days').format(RFC3339Format),
     sessions: [
       {
         capacity: 2,
@@ -97,7 +97,7 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(4, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(4, 'days').format(RFC3339Format),
     sessions: [
       {
         capacity: 3,
@@ -109,11 +109,11 @@ const mockWeekAvailability: DailyAvailability[] = [
     ],
   },
   {
-    date: mondayThe10thOfJune2024.add(5, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(5, 'days').format(RFC3339Format),
     sessions: [],
   },
   {
-    date: mondayThe10thOfJune2024.add(6, 'days').format(dateFormat),
+    date: mondayThe10thOfJune2024.add(6, 'days').format(RFC3339Format),
     sessions: [],
   },
 ];

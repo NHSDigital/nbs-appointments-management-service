@@ -17,6 +17,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -31,6 +32,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -51,6 +53,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockAllPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
     verifySummaryListItem('Region', mockSite.region);
@@ -62,27 +65,7 @@ describe('Site Page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows the user management page if the user may see it', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockAllPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', { name: 'Manage users' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Manage users' })).toHaveAttribute(
-      'href',
-      `/site/${mockSite.id}/users`,
-    );
-  });
-
-  it('does not show the user management page if the user may not see it', () => {
+  it('renders the site address', () => {
     const mockSite = mockSites[0];
 
     render(
@@ -90,133 +73,7 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockNonManagerPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.queryByRole('link', { name: 'Manage users' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('shows the site management page if the user may see it', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockAllPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', {
-        name: 'Change site details and accessibility information',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {
-        name: 'Change site details and accessibility information',
-      }),
-    ).toHaveAttribute('href', `/site/${mockSite.id}/details`);
-  });
-
-  it('does not show the site management page if the user may not see it', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockNonManagerPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.queryByRole('link', {
-        name: 'Change site details and accessibility information',
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  // TODO: Maybe parameterise these tests over permission/card pairs
-  it('shows the create availability page if the user may see it', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockAllPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', { name: 'Create availability' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Create availability' }),
-    ).toHaveAttribute('href', `/site/${mockSite.id}/create-availability`);
-  });
-
-  it('does not show the create availability page if the user may not see it', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockNonManagerPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.queryByRole('link', { name: 'Create Availability' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('does not show any links when the user may not see any of them', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockNonManagerPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-      />,
-    );
-
-    expect(
-      screen.queryByRole('link', {
-        name: 'View availability and manage appointments for your site',
-      }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('link', { name: 'Create Availability' }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('link', {
-        name: 'Change site details and accessibility information',
-      }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('link', {
-        name: 'Manage users',
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders single value', () => {
-    const mockSite = mockSites[0];
-
-    render(
-      <SitePage
-        site={mockSite}
-        permissions={mockNonManagerPermissions}
-        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
@@ -231,10 +88,92 @@ describe('Site Page', () => {
         site={mockSite}
         permissions={mockNonManagerPermissions}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled={true}
       />,
     );
 
     verifySummaryListItem('Phone Number', '0118 999 88199 9119 725 3');
     verifySummaryListItem('Address', ['Delta Street,', 'London']);
   });
+
+  it.each([
+    [
+      'availability:query',
+      'View availability and manage appointments for your site',
+      'view-availability',
+    ],
+    ['availability:setup', 'Create availability', 'create-availability'],
+    [
+      'site:manage',
+      'Change site details and accessibility information',
+      'details',
+    ],
+    [
+      'site:view',
+      'Change site details and accessibility information',
+      'details',
+    ],
+    ['users:view', 'Manage users', 'users'],
+    ['reports:sitesummary', 'Download reports', 'reports'],
+  ])(
+    'displays the correct cards when permissions are present',
+    (permission: string, cardTitle: string, path: string) => {
+      const mockSite = mockSites[0];
+
+      render(
+        <SitePage
+          site={mockSite}
+          permissions={[permission]}
+          wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+          siteSummaryEnabled={true}
+        />,
+      );
+
+      expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
+
+      if (path === 'reports') {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/${path}`,
+        );
+      } else {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/site/${mockSite.id}/${path}`,
+        );
+      }
+    },
+  );
+
+  it.each([
+    [
+      ['availability:query'],
+      'View availability and manage appointments for your site',
+    ],
+    [['availability:setup'], 'Create availability'],
+    [
+      ['site:manage', 'site:view'],
+      'Change site details and accessibility information',
+    ],
+    [['users:view'], 'Manage users'],
+    [['reports:sitesummary'], 'Download reports'],
+  ])(
+    'hides the correct cards when permissions are lacking',
+    (permissions: string[], cardTitle: string) => {
+      const mockSite = mockSites[0];
+
+      render(
+        <SitePage
+          site={mockSite}
+          permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
+          wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+          siteSummaryEnabled={true}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: cardTitle }),
+      ).not.toBeInTheDocument();
+    },
+  );
 });

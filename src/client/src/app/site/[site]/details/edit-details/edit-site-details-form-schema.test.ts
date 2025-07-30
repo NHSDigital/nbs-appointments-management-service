@@ -1,8 +1,8 @@
-import { ValidationError } from 'yup';
 import {
   editSiteDetailsFormSchema,
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
+import { getValidationErrorMessageOrTrue } from '@testing/form-schema-test-utils';
 
 const validFormValues: EditSiteDetailsFormValues = {
   name: 'Alderney Road Community Pharmacy',
@@ -10,21 +10,6 @@ const validFormValues: EditSiteDetailsFormValues = {
   phoneNumber: '01234 567890',
   latitude: 53.789,
   longitude: -1.234,
-};
-
-const getValidationErrorMessageOrTrue = async (
-  formValues: EditSiteDetailsFormValues,
-): Promise<string | true> => {
-  try {
-    await editSiteDetailsFormSchema.validate(formValues);
-    return true;
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return error.message;
-    } else {
-      throw error;
-    }
-  }
 };
 
 describe('Set User Roles Form', () => {
@@ -41,10 +26,13 @@ describe('Set User Roles Form', () => {
   ])(
     'validates the site name',
     async (name: string | undefined, expectedErrorOrTrue: string | boolean) => {
-      const result = await getValidationErrorMessageOrTrue({
-        ...validFormValues,
-        name,
-      } as EditSiteDetailsFormValues);
+      const result = await getValidationErrorMessageOrTrue(
+        editSiteDetailsFormSchema,
+        {
+          ...validFormValues,
+          name,
+        },
+      );
 
       expect(result).toBe(expectedErrorOrTrue);
     },
@@ -62,10 +50,13 @@ describe('Set User Roles Form', () => {
       address: string | undefined,
       expectedErrorOrTrue: string | boolean,
     ) => {
-      const result = await getValidationErrorMessageOrTrue({
-        ...validFormValues,
-        address,
-      } as EditSiteDetailsFormValues);
+      const result = await getValidationErrorMessageOrTrue(
+        editSiteDetailsFormSchema,
+        {
+          ...validFormValues,
+          address,
+        },
+      );
 
       expect(result).toBe(expectedErrorOrTrue);
     },
@@ -87,10 +78,13 @@ describe('Set User Roles Form', () => {
       phoneNumber: string | undefined,
       expectedErrorOrTrue: string | boolean,
     ) => {
-      const result = await getValidationErrorMessageOrTrue({
-        ...validFormValues,
-        phoneNumber,
-      } as EditSiteDetailsFormValues);
+      const result = await getValidationErrorMessageOrTrue(
+        editSiteDetailsFormSchema,
+        {
+          ...validFormValues,
+          phoneNumber,
+        },
+      );
 
       expect(result).toBe(expectedErrorOrTrue);
     },
@@ -113,10 +107,13 @@ describe('Set User Roles Form', () => {
       latitude: number | undefined,
       expectedErrorOrTrue: string | boolean,
     ) => {
-      const result = await getValidationErrorMessageOrTrue({
-        ...validFormValues,
-        latitude,
-      } as EditSiteDetailsFormValues);
+      const result = await getValidationErrorMessageOrTrue(
+        editSiteDetailsFormSchema,
+        {
+          ...validFormValues,
+          latitude,
+        },
+      );
 
       expect(result).toBe(expectedErrorOrTrue);
     },
@@ -136,10 +133,13 @@ describe('Set User Roles Form', () => {
       longitude: number | undefined,
       expectedErrorOrTrue: string | boolean,
     ) => {
-      const result = await getValidationErrorMessageOrTrue({
-        ...validFormValues,
-        longitude,
-      } as EditSiteDetailsFormValues);
+      const result = await getValidationErrorMessageOrTrue(
+        editSiteDetailsFormSchema,
+        {
+          ...validFormValues,
+          longitude,
+        },
+      );
 
       expect(result).toBe(expectedErrorOrTrue);
     },

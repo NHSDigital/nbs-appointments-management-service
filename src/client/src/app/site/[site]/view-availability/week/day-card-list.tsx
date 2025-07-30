@@ -10,7 +10,7 @@ import {
   fetchPermissions,
   fetchWeekSummaryV2,
 } from '@services/appointmentsService';
-import { dateFormat, DayJsType } from '@services/timeService';
+import { RFC3339Format, DayJsType } from '@services/timeService';
 
 type Props = {
   site: Site;
@@ -38,7 +38,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   if (multipleServicesFlag.enabled) {
     const [weekSummaryV2, permissionsV2, clinicalServicesV2] =
       await Promise.all([
-        fetchWeekSummaryV2(site.id, ukWeekStart.format(dateFormat)),
+        fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
         fetchPermissions(site.id),
         fetchClinicalServices(),
       ]);

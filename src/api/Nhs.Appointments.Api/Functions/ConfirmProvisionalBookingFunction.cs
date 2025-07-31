@@ -130,9 +130,8 @@ public class ConfirmProvisionalBookingFunction(
         }
 
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
-        CancellationReason? parsedCancellationReason = cancellationReason != null
-            ? Enum.Parse<CancellationReason>(cancellationReason)
-            : null;
+        CancellationReason? parsedCancellationReason = string.IsNullOrEmpty(cancellationReason)
+            ? null : Enum.Parse<CancellationReason>(cancellationReason);
 
         return (ErrorMessageResponseItem.None,
             new ConfirmBookingRequest(bookingReference, contactDetails, relatedBookings, bookingToReschedule, parsedCancellationReason));

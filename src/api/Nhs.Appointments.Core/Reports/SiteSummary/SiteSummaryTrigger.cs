@@ -33,6 +33,7 @@ public class SiteSummaryTrigger(
         }
 
         await Store.SetLastRunDate(triggeredTime);
+        
     }
 
     private async Task TriggerForSite(string site, (DateOnly startDate, DateOnly endDate)[] chunks)

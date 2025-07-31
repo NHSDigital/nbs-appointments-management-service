@@ -40,4 +40,7 @@ public class BookingDocument : BookingDataCosmosDocument
 
     [JsonProperty("reminderSent")]
     public Boolean ReminderSent { get; set; }
+
+    [JsonProperty("cancellationReason")]
+    public CancellationReason? CancellationReason { get; set; }
 }

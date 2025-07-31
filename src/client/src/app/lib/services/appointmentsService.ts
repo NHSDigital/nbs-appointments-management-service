@@ -463,9 +463,18 @@ export const fetchBooking = async (reference: string, site: string) => {
   return handleBodyResponse(response);
 };
 
-export const cancelAppointment = async (reference: string, site: string) => {
+export const cancelAppointment = async (
+  reference: string,
+  site: string,
+  cancellationReason: string,
+) => {
+  const payload = {
+    cancellationReason,
+  };
+
   const response = await appointmentsApi.post(
     `booking/${reference}/cancel?site=${site}`,
+    JSON.stringify(payload),
   );
 
   return handleEmptyResponse(response);

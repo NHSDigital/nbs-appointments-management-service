@@ -1,16 +1,17 @@
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Newtonsoft.Json;
 using Xunit.Gherkin.Quick;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Persistance.Models;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
 
@@ -27,6 +28,23 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
         var site = GetSiteId();
         Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
+    }
+
+    [When(@"I cancel the appointment with cancellation reason '(.+)'")]
+    public async Task CancelAppointment(string cancellationReason)
+    {
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+        var site = GetSiteId();
+
+        var payload = new { cancellationReason };
+
+        var jsonContent = new StringContent(
+            JsonConvert.SerializeObject(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}", jsonContent);
     }
 
     [When(@"I cancel the appointment with reference '(.+)'")]
@@ -157,4 +175,22 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [And(@"default cancellation reason has been used")]
+    public async Task AssertCancellationReason()
+    {
+        var expectedCancellationReason = CancellationReason.CancelledByCitizen;
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+
+        await AssertCancellationReasonByReference(bookingReference, expectedCancellationReason);
+    }
+
+    [And(@"'(.+)' cancellation reason has been used")]
+    public async Task AssertCancellationReason(string cancellationReason)
+    {
+        var expectedCancellationReason = Enum.Parse<CancellationReason>(cancellationReason);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+
+        await AssertCancellationReasonByReference(bookingReference, expectedCancellationReason);
+    }
 }

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +7,16 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -53,7 +55,7 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site);
+        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, (CancellationReason)request.cancellationReason);
 
         switch (result)
         {
@@ -72,7 +74,25 @@ public class CancelBookingFunction(
     {
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
+        var cancellationReason = CancellationReason.CancelledByCitizen;
 
-        return await Task.FromResult((ErrorMessageResponseItem.None, new CancelBookingRequest(bookingReference, site)));
+        if (req.Body != null)
+        {
+            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
+
+            if (errors.Any(x => x.Property == "cancellationReason"))
+            {
+                return (errors, null);
+            }
+
+            if (payload?.cancellationReason != null)
+            {
+                cancellationReason = (CancellationReason)payload.cancellationReason;
+            }
+        }
+
+        var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason);
+
+        return await Task.FromResult((ErrorMessageResponseItem.None, requestModel));
     }
 }

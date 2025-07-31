@@ -34,11 +34,11 @@ describe('Cancel Appointment Page', () => {
 
     expect(
       screen.getByRole('radio', {
-        name: 'Yes, I want to cancel this appointment',
+        name: 'Cancelled by the citizen',
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Continue' }),
+      screen.getByRole('button', { name: 'Cancel appointment' }),
     ).toBeInTheDocument();
   });
 
@@ -54,7 +54,7 @@ describe('Cancel Appointment Page', () => {
     verifySummaryListItem('Contact information', 'Not provided');
   });
 
-  it('calls the cancel appointment endpoint when a user selects yes', async () => {
+  it('does not call the cancel endpoint and shows an error when no option is selected', async () => {
     const { user } = render(
       <CancelAppointmentPage
         site="TEST01"
@@ -64,37 +64,32 @@ describe('Cancel Appointment Page', () => {
     );
 
     await user.click(
-      screen.getByRole('radio', {
-        name: 'Yes, I want to cancel this appointment',
-      }),
-    );
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
-    expect(mockCancelBooking).toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith(
-      '/site/TEST01/view-availability/daily-appointments?date=2024-11-10&tab=1&page=1',
-    );
-  });
-
-  it('does not call the cancel endpoint when a user selects no', async () => {
-    const { user } = render(
-      <CancelAppointmentPage
-        site="TEST01"
-        booking={mockBookings[0]}
-        clinicalServices={clinicalServices}
-      />,
+      screen.getByRole('button', { name: 'Cancel appointment' }),
     );
 
-    await user.click(
-      screen.getByRole('radio', {
-        name: 'No, I do not want to cancel this appointment',
-      }),
-    );
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
+    expect(
+      screen.getByText('Select a reason for cancelling the appointment'),
+    ).toBeInTheDocument();
     expect(mockCancelBooking).not.toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith(
-      '/site/TEST01/view-availability/daily-appointments?date=2024-11-10&tab=0&page=1',
-    );
   });
+
+  it.each(['Cancelled by the citizen', 'Cancelled by the site'])(
+    'calls the cancel endpoint when an option is selected',
+    async option => {
+      const { user } = render(
+        <CancelAppointmentPage
+          site="TEST01"
+          booking={mockBookings[0]}
+          clinicalServices={clinicalServices}
+        />,
+      );
+
+      await user.click(screen.getByLabelText(option));
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel appointment' }),
+      );
+
+      expect(mockCancelBooking).toHaveBeenCalled();
+    },
+  );
 });

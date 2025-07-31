@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -213,6 +214,60 @@ public class BookingCosmosDocumentStoreTests
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
-            ), Times.Once);
-        }
+            ), Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task UpdateStatus_CancellationReasonIsNull_CancellationReasonPatchNotIncluded()
+    {
+        var bookingReference = "booking-ref";
+        var appointmentStatus = AppointmentStatus.Unknown;
+        var availabilityStatus = AvailabilityStatus.Unknown;
+        var bookingIndexDocument = new BookingIndexDocument();
+        List<PatchOperation> capturedPatchOperations = null;
+        
+        _indexStore.Setup(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _bookingStore
+            .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches) =>
+            {
+                capturedPatchOperations = patches.ToList();
+            })
+            .ReturnsAsync(() => null);
+
+        // Act
+        await _sut.UpdateStatus(bookingReference, appointmentStatus, availabilityStatus, cancellationReason: null);
+
+        // Assert
+        Assert.NotNull(capturedPatchOperations);
+        Assert.DoesNotContain(capturedPatchOperations, p => p.Path == "/cancellationReason");
+    }
+
+    [Fact]
+    public async Task UpdateStatus_CancellationReasonProvided_CancellationReasonPatchIncluded()
+    {
+        var bookingReference = "booking-ref";
+        var appointmentStatus = AppointmentStatus.Unknown;
+        var availabilityStatus = AvailabilityStatus.Unknown;
+        var cancellationReason = CancellationReason.CancelledBySite;
+        var bookingIndexDocument = new BookingIndexDocument();
+        List<PatchOperation> capturedPatchOperations = null;
+
+        _indexStore.Setup(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _bookingStore
+            .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches) =>
+            {
+                capturedPatchOperations = patches.ToList();
+            })
+            .ReturnsAsync(() => null);
+
+        // Act
+        await _sut.UpdateStatus(bookingReference, appointmentStatus, availabilityStatus, cancellationReason);
+
+        // Assert
+        Assert.NotNull(capturedPatchOperations);
+        Assert.Contains(capturedPatchOperations, p => p.Path == "/cancellationReason");
+    }
 }

@@ -24,7 +24,7 @@ public class SiteSummaryTrigger(
             ? Options.Value.FirstRunDate
             : DateTimeToDate(lastRunDate.Value); 
         var endDate = DateTimeToDate(triggeredTime.AddDays(Options.Value.DaysForward));
-        var chunks = SplitDateRange(startDate, endDate, 10).ToArray();
+        var chunks = SplitDateRange(startDate, endDate, 30).ToArray();
         var sites = await SiteService.GetAllSites();
 
         foreach (var site in sites)

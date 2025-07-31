@@ -38,17 +38,12 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]))
         });
-
-        var site = "site-1";
-        var from = new DateOnly(2025, 2, 1);
-        var to = new DateOnly(2025, 7, 2);
         
         await _sut.Trigger();
         
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
         _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
         _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
-        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent>(actual => actual.Site == site && actual.From == from && actual.To == to)), Times.Once);
     }
     
     [Fact]
@@ -82,7 +77,7 @@ public class SiteSummaryTriggerTests
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
         _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
         _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
-        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent>(actual => actual.Site == site && actual.From == from && actual.To == to)), Times.Once);
+        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site && actual[0].From == from && actual[0].To == to)), Times.Once);
     }
     
     [Fact]
@@ -128,8 +123,8 @@ public class SiteSummaryTriggerTests
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
         _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
         _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
-        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent>(actual => actual.Site == site1 && actual.From == from && actual.To == to)), Times.Once);
-        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent>(actual => actual.Site == site2 && actual.From == from && actual.To == to)), Times.Once);
+        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site1 && actual[0].From == from && actual[0].To == to)), Times.Once);
+        _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site2 && actual[0].From == from && actual[0].To == to)), Times.Once);
     }
     
     

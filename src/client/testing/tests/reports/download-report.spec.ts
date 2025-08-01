@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import {
   OAuthLoginPage,
   RootPage,
@@ -39,14 +40,63 @@ test('Navigates to the reports page via a site page', async () => {
   await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
 });
 
-test('Downloads a site summary report', async () => {
+test('Downloads a site summary report', async ({ page }) => {
   const reportsPage = await siteSelectionPage.topNav.clickReports();
 
-  // TODO: Select two dates using the date pickers
+  await reportsPage.selectDatesStep.startDateInput.fill('2025-08-10');
+  await reportsPage.selectDatesStep.endDateInput.fill('2025-08-20');
 
   await reportsPage.selectDatesStep.continueButton.click();
   await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
   await reportsPage.confirmDownloadStep.continueButton.click();
 
-  // TODO: Assert file download starts?
+  const download = await page.waitForEvent('download');
+  expect(download).toBeDefined();
+  expect(download.suggestedFilename()).toBe(
+    'GeneralSiteSummaryReport-2025-08-10-to-2025-08-20.csv',
+  );
+
+  const fileName = 'downloaded-test-report.csv';
+  await download.saveAs(fileName);
+  const csvContent = fs.readFileSync(fileName, 'utf-8');
+
+  const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+  const headers = lines[0].split(',');
+  expect(lines.length).toBeGreaterThan(1);
+
+  expect(headers.length).toBe(expectedFileDownloadHeaders.length);
+
+  expect(headers).toEqual(expectedFileDownloadHeaders);
+
+  fs.unlinkSync(fileName);
 });
+
+const expectedFileDownloadHeaders = [
+  'Site Name',
+  'ICB',
+  'Region',
+  'ODS Code',
+  'Longitude',
+  'Latitude',
+  'RSV:Adult Booked',
+  'COVID:5_11 Booked',
+  'COVID:12_17 Booked',
+  'COVID:18+ Booked',
+  'FLU:18_64 Booked',
+  'FLU:65+ Booked',
+  'COVID_FLU:18_64 Booked',
+  'COVID_FLU:65+ Booked',
+  'FLU:2_3 Booked',
+  'Total Bookings',
+  'Cancelled',
+  'Maximum Capacity',
+  'RSV:Adult Capacity',
+  'COVID:5_11 Capacity',
+  'COVID:12_17 Capacity',
+  'COVID:18+ Capacity',
+  'FLU:18_64 Capacity',
+  'FLU:65+ Capacity',
+  'COVID_FLU:18_64 Capacity',
+  'COVID_FLU:65+ Capacity',
+  'FLU:2_3 Capacity\r',
+];

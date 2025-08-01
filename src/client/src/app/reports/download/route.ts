@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
   const startDate = request.nextUrl.searchParams.get('startDate');
   const endDate = request.nextUrl.searchParams.get('endDate');
 
+  const fileName = `GeneralSiteSummaryReport-${startDate}-to-${endDate}.csv`;
+
   const cookieStore = await cookies();
   const tokenCookie = cookieStore.get('token');
 
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse(siteSummaryFile, {
         headers: {
           'Content-Type': 'text/csv',
-          'Content-Disposition': 'attachment; filename=some-file.csv',
+          'Content-Disposition': `attachment; filename=${fileName}`,
         },
       });
     });

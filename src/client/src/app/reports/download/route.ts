@@ -1,13 +1,12 @@
 'use server';
 import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startDate = request.nextUrl.searchParams.get('startDate');
   const endDate = request.nextUrl.searchParams.get('endDate');
 
   const cookieStore = await cookies();
-
   const tokenCookie = cookieStore.get('token');
 
   return await fetch(
@@ -20,11 +19,14 @@ export async function GET(request: NextRequest) {
           }
         : undefined,
     },
-  ).then(fileResponse => {
-    return fileResponse.blob().then(blob => {
-      return new Response(blob, {
-        headers: fileResponse.headers,
+  )
+    .then(siteSummaryResponse => siteSummaryResponse.blob())
+    .then(siteSummaryFile => {
+      return new NextResponse(siteSummaryFile, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': 'attachment; filename=some-file.csv',
+        },
       });
     });
-  });
 }

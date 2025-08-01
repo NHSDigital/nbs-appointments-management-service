@@ -38,6 +38,7 @@ const DownloadReportConfirmation = ({
               endDate: reportRequest.endDate,
             },
           }}
+          download
         >
           <Button styleType="secondary">Export data</Button>
         </Link>

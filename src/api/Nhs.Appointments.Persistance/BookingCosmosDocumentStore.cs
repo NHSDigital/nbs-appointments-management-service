@@ -197,7 +197,11 @@ public class BookingCosmosDocumentStore(
         return BookingConfirmationResult.Success;
     }
 
-    public async Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string? bookingToReschedule)
+    public async Task<BookingConfirmationResult> ConfirmProvisional(
+        string bookingReference,
+        IEnumerable<ContactItem> contactDetails,
+        string? bookingToReschedule,
+        CancellationReason? cancellationReason = null)
     {
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
         var provisionalValidationResult = ValidateBookingDocumentProvisionalState(bookingIndexDocument);
@@ -216,7 +220,7 @@ public class BookingCosmosDocumentStore(
 
         if (rescheduleDocument != null)
         {
-            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, cancellationReason: null);
+            await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, cancellationReason);
         }
         
         return BookingConfirmationResult.Success;

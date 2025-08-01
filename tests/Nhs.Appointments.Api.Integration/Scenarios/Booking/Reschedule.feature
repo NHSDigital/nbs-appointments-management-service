@@ -15,6 +15,7 @@
         And I confirm the rescheduled booking
         Then the rescheduled booking is no longer marked as provisional
         And  the original booking has been 'Cancelled'
+        And 'CancelledByCitizen' cancellation reason has been used
         
     Scenario: Cannot reschedule an appointment if the nhs number for both bookings does not match
         Given the site is configured for MYA

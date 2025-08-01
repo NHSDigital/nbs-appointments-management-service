@@ -23,7 +23,15 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Bo
     public async Task ConfirmBooking()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", null);
+        var payload = new ConfirmBookingRequestPayload(
+           contactDetails: [],
+           relatedBookings: [],
+           bookingToReschedule: string.Empty,
+           null
+       );
+        var jsonPayload = JsonSerializer.Serialize(payload);
+        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
     }
 
     [When("I confirm the bookings")]
@@ -34,7 +42,8 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Bo
         var payload = new ConfirmBookingRequestPayload(
             contactDetails: [],
             relatedBookings: new[] { relatedBookingsReference },
-            bookingToReschedule: "test-booking-to-reschedule"
+            bookingToReschedule: "test-booking-to-reschedule",
+            null
         );
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");

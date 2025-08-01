@@ -20,7 +20,7 @@ public interface IBookingWriteService
         IEnumerable<ContactItem> contactDetails);
 
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
-        IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule, string cancellationReason = null);
 
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
@@ -75,12 +75,13 @@ public class BookingWriteService(
     }
 
     public async Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
-        IEnumerable<ContactItem> contactDetails, string bookingToReschedule)
+        IEnumerable<ContactItem> contactDetails, string bookingToReschedule, string cancellationReason = null)
     {
         var isRescheduleOperation = !string.IsNullOrEmpty(bookingToReschedule);
 
-        var result =
-            await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
+        var result = !string.IsNullOrEmpty(cancellationReason) && Enum.TryParse<CancellationReason>(cancellationReason, ignoreCase: true, out var parsedReason)
+            ? await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule, parsedReason)
+            : await bookingDocumentStore.ConfirmProvisional(bookingReference, contactDetails, bookingToReschedule);
 
         await SendConfirmNotification(bookingReference, result, isRescheduleOperation);
 

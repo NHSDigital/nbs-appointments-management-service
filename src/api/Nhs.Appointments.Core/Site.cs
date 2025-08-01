@@ -12,7 +12,8 @@ public record Site(
     [JsonProperty("integratedCareBoard")] string IntegratedCareBoard,
     [JsonProperty("informationForCitizens")] string InformationForCitizens,
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
-    [JsonProperty("location")] Location Location
+    [JsonProperty("location")] Location Location,
+    [JsonProperty("status")] SiteStatus? Status
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;

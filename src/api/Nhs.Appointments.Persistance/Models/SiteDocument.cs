@@ -40,5 +40,5 @@ public class SiteDocument : CoreDataCosmosDocument
 
     [JsonProperty("type")] public string Type { get; set; }
 
-    [JsonProperty("siteStatus")] public SiteStatus Status { get; set; }
+    [JsonProperty("siteStatus")] public SiteStatus? Status { get; set; }
 }

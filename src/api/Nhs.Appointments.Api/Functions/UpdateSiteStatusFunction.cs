@@ -46,9 +46,13 @@ public class UpdateSiteStatusFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteStatusRequest request, ILogger logger)
+    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteStatusRequest request, ILogger logger)
     {
-        throw new NotImplementedException();
+        var result = await siteService.SetSiteStatus(request.site, request.status);
+
+        return result.Success
+            ? Success(new EmptyResponse())
+            : Failed(HttpStatusCode.BadRequest, $"Failed to update site status for site: {request.site}");
     }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteStatusRequest request)> ReadRequestAsync(HttpRequest req)

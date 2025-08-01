@@ -20,4 +20,6 @@ public interface ISiteStore
         string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
 
     Task<IEnumerable<Site>> GetSitesInRegionAsync(string region);
+
+    Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status);
 }

@@ -151,4 +151,23 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
     }
+
+    public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument is null)
+        {
+            return new OperationResult(false, $"The specified site: {siteId} was not found.");
+        }
+
+        var documentType = cosmosStore.GetDocumentType();
+
+        PatchOperation[] patchOperations =
+        [
+            PatchOperation.Replace("/status", status)
+        ];
+
+        await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
+        return new OperationResult(true);
+    }
 }

@@ -39,4 +39,6 @@ public class SiteDocument : CoreDataCosmosDocument
     [JsonProperty("referenceNumberGroup")] public int ReferenceNumberGroup { get; set; }
 
     [JsonProperty("type")] public string Type { get; set; }
+
+    [JsonProperty("siteStatus")] public SiteStatus Status { get; set; }
 }

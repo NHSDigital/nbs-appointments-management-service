@@ -21,6 +21,7 @@ public interface ISiteService
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
         string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
+    Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
 }
 
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
@@ -123,6 +124,9 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     {
         return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
+
+    public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
+        => await siteStore.UpdateSiteStatusAsync(siteId, status);
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {

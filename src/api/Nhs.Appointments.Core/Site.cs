@@ -71,3 +71,9 @@ public record ReferenceDetailsRequest(
     [JsonProperty("icb")] string Icb,
     [JsonProperty("region")] string Region
 );
+
+public enum SiteStatus
+{
+    Online,
+    Offline
+}

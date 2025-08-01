@@ -212,7 +212,7 @@ describe('Nhs Page', () => {
     },
   );
 
-  it('Does not request permissions if not site is provided', async () => {
+  it('Still requests global permissions if site is not provided', async () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
@@ -221,7 +221,9 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).not.toHaveBeenCalled();
+    expect(fetchPermissionsMock).toHaveBeenCalledTimes(2);
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(undefined);
+    expect(fetchPermissionsMock).toHaveBeenCalledWith('*');
   });
 
   it('Does not display any navigation links if no permissions are present', async () => {

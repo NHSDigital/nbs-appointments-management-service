@@ -169,7 +169,11 @@ export async function fetchRoles() {
   return (await handleBodyResponse(response)).roles;
 }
 
-export async function fetchPermissions(site: string) {
+export async function fetchPermissions(site: string | undefined) {
+  if (!site) {
+    return [];
+  }
+
   const response = await appointmentsApi.get<{ permissions: string[] }>(
     `user/permissions?site=${site}`,
   );

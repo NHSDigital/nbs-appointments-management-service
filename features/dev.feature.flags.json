@@ -6,6 +6,7 @@
     "BulkImport": true,
     "MultipleServices": true,
     "SiteSummaryReport": false,
+    "SiteStatus": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

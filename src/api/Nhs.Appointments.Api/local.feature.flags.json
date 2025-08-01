@@ -6,6 +6,7 @@
     "TestFeatureEnabled": true,
     "MultipleServices": false,
     "SiteSummaryReport": false,
+    "SiteStatus": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

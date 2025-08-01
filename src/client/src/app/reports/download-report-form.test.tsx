@@ -41,12 +41,16 @@ describe('Download Report Confirmation', () => {
       />,
     );
 
-    // TODO: Select two dates from the datepicker
+    await user.clear(screen.getByLabelText('Start date'));
+    await user.type(screen.getByLabelText('Start date'), '2025-08-03');
+
+    await user.clear(screen.getByLabelText('End date'));
+    await user.type(screen.getByLabelText('End date'), '2025-08-13');
 
     await user.click(screen.getByRole('button', { name: 'Create report' }));
     expect(mockSetReportRequest).toHaveBeenCalledWith({
-      startDate: '2025-10-01',
-      endDate: '2025-10-01',
+      startDate: '2025-08-03',
+      endDate: '2025-08-13',
     });
   });
 

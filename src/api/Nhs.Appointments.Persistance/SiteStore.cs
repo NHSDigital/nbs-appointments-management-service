@@ -169,7 +169,6 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         PatchOperation[] patchOperations = [ patchOperation ];
 
         await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
-
         return new OperationResult(true);
     }
 }

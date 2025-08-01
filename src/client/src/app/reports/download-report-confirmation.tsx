@@ -25,6 +25,10 @@ const DownloadReportConfirmation = ({
         and{' '}
         {parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY')}
       </p>
+      <p>
+        Bookings, availability, and cancellations made today will not be
+        included in this report
+      </p>
       <ButtonGroup>
         <Link
           href={{

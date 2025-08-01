@@ -1,11 +1,11 @@
 import { Card, SummaryList } from '@nhsuk-frontend-components';
-import { fetchFeatureFlag } from '@services/appointmentsService';
 import { mapSiteOverviewSummaryData } from '@services/siteService';
 import { Site, WellKnownOdsEntry } from '@types';
 
 interface SitePageProps {
   site: Site;
   permissions: string[];
+  permissionsAtAnySite: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
   siteSummaryEnabled: boolean;
 }
@@ -13,6 +13,7 @@ interface SitePageProps {
 export const SitePage = ({
   site,
   permissions,
+  permissionsAtAnySite,
   wellKnownOdsCodeEntries,
   siteSummaryEnabled,
 }: SitePageProps) => {
@@ -67,7 +68,7 @@ export const SitePage = ({
               <Card href={`/site/${site.id}/users`} title="Manage users" />
             </li>
           )}
-          {permissionsRelevantToCards.includes('reports:sitesummary') &&
+          {permissionsAtAnySite.includes('reports:sitesummary') &&
             siteSummaryEnabled && (
               <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
                 <Card href={`/reports`} title="Download reports" />

@@ -16,6 +16,7 @@ describe('Site Page', () => {
       <SitePage
         site={mockSite}
         permissions={mockAllPermissions}
+        permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
         siteSummaryEnabled={true}
       />,
@@ -31,6 +32,7 @@ describe('Site Page', () => {
       <SitePage
         site={mockSite}
         permissions={mockAllPermissions}
+        permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
         siteSummaryEnabled={true}
       />,
@@ -52,6 +54,7 @@ describe('Site Page', () => {
       <SitePage
         site={mockSite}
         permissions={mockAllPermissions}
+        permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
         siteSummaryEnabled={true}
       />,
@@ -72,6 +75,7 @@ describe('Site Page', () => {
       <SitePage
         site={mockSite}
         permissions={mockNonManagerPermissions}
+        permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
         siteSummaryEnabled={true}
       />,
@@ -87,6 +91,7 @@ describe('Site Page', () => {
       <SitePage
         site={mockSite}
         permissions={mockNonManagerPermissions}
+        permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
         siteSummaryEnabled={true}
       />,
@@ -124,6 +129,9 @@ describe('Site Page', () => {
         <SitePage
           site={mockSite}
           permissions={[permission]}
+          permissionsAtAnySite={
+            permission === 'reports:sitesummary' ? ['reports:sitesummary'] : []
+          }
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
           siteSummaryEnabled={true}
         />,
@@ -166,6 +174,7 @@ describe('Site Page', () => {
         <SitePage
           site={mockSite}
           permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
+          permissionsAtAnySite={[]}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
           siteSummaryEnabled={true}
         />,

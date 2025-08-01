@@ -27,19 +27,26 @@ const Page = async ({ params }: PageProps) => {
 
   await assertPermission(siteFromPath, 'site:view');
 
-  const [site, wellKnownOdsCodeEntries, sitePermissions, siteSummaryEnabled] =
-    await Promise.all([
-      fetchSite(siteFromPath),
-      fetchWellKnownOdsCodeEntries(),
-      fetchPermissions(siteFromPath),
-      fetchFeatureFlag('SiteSummaryReport'),
-    ]);
+  const [
+    site,
+    wellKnownOdsCodeEntries,
+    sitePermissions,
+    permissionsAtAnySite,
+    siteSummaryEnabled,
+  ] = await Promise.all([
+    fetchSite(siteFromPath),
+    fetchWellKnownOdsCodeEntries(),
+    fetchPermissions(siteFromPath),
+    fetchPermissions('*'),
+    fetchFeatureFlag('SiteSummaryReport'),
+  ]);
 
   return (
     <NhsPage title={site.name} site={site} originPage="site">
       <SitePage
         site={site}
         permissions={sitePermissions}
+        permissionsAtAnySite={permissionsAtAnySite}
         wellKnownOdsCodeEntries={wellKnownOdsCodeEntries}
         siteSummaryEnabled={siteSummaryEnabled.enabled}
       />

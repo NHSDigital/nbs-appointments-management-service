@@ -162,12 +162,14 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
         var documentType = cosmosStore.GetDocumentType();
 
-        PatchOperation[] patchOperations =
-        [
-            PatchOperation.Replace("/status", status)
-        ];
+        var patchOperation = originalDocument.Status is null
+            ? PatchOperation.Add("/status", status)
+            : PatchOperation.Replace("/status", status);
+
+        PatchOperation[] patchOperations = [ patchOperation ];
 
         await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
+
         return new OperationResult(true);
     }
 }

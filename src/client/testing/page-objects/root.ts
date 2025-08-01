@@ -1,4 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
+import TopNav from './top-nav';
 
 type CookieBanner = {
   preAcceptanceHeader: Locator;
@@ -27,6 +28,8 @@ export default class RootPage {
   readonly cookieBanner: CookieBanner;
   readonly footerLinks: FooterLinks;
   readonly buildNumber: Locator;
+
+  readonly topNav: TopNav;
 
   constructor(page: Page) {
     this.page = page;
@@ -67,6 +70,7 @@ export default class RootPage {
       }),
     };
     this.buildNumber = page.getByText(/^Build number: /);
+    this.topNav = new TopNav(page);
   }
 
   async goto() {

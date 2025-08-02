@@ -41,6 +41,12 @@ public class GetSitesByAreaFunction(
     [OpenApiParameter("accessNeeds", In = ParameterLocation.Query, Required = false, Type = typeof(string[]),
         CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
         Description = "Required access needs used to filter sites")]
+    [OpenApiParameter("services", In = ParameterLocation.Query, Required = false, Type = typeof(string[]), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
+        Description = "Optional parameter to be used alongside from and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range")]
+    [OpenApiParameter("from", In = ParameterLocation.Query, Required = false, Type = typeof(string), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
+        Description = "Optional parameter to be used alongside services and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
+    [OpenApiParameter("until", In = ParameterLocation.Query, Required = false, Type = typeof(string), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
+        Description = "Optional parameter to be used alongside services and from. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<SiteWithDistance>),
         Description = "List of sites within a geographical area that support requested access needs")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
@@ -88,8 +94,21 @@ public class GetSitesByAreaFunction(
         var latitude = double.Parse(req.Query["lat"]);
         var searchRadius = int.Parse(req.Query["searchRadius"]);
         var maximumRecords = int.Parse(req.Query["maxRecords"]);
+
+        var services = req.Query.ContainsKey("services")
+            ? req.Query["services"].ToString().Split(',')
+            : null;
+        
+        var from = req.Query.ContainsKey("from")
+            ? req.Query["from"].ToString()
+            : null;
+        
+        var until = req.Query.ContainsKey("until")
+            ? req.Query["until"].ToString()
+            : null;
+        
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((
             errors.AsReadOnly(),
-            new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache)));
+            new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache, services, from, until)));
     }
 }

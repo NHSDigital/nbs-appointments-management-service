@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using Nhs.Appointments.Api.Models;
 
 namespace Nhs.Appointments.Api.Validators;
@@ -23,5 +24,10 @@ public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRe
             .LessThanOrEqualTo(50)
             .GreaterThan(0)
             .Configure(rule => rule.MessageBuilder = _ => "Provide a number of maximum records (between 1 - 50 records).");
+        RuleFor(x => x.from)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("Provide a date in 'yyyy-MM-dd'")
+            .Must(x => DateOnly.TryParseExact(x, "yyyy-MM-dd", out var _))
+            .WithMessage("Provide a date in the format 'yyyy-MM-dd'");
     }
 }

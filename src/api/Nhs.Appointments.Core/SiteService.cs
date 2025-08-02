@@ -5,7 +5,7 @@ namespace Nhs.Appointments.Core;
 public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius,
-        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
+        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache, SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
@@ -26,7 +26,7 @@ public interface ISiteService
 public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
 {
     private const string CacheKey = "sites";
-    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
+    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
@@ -43,12 +43,31 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
-        
-        return sitesWithDistance
+
+        if (siteSupportsServiceFilter == null)
+        {
+            return sitesWithDistance
+                .Where(s => s.Distance <= searchRadius)
+                .Where(filterPredicate)
+                .OrderBy(site => site.Distance)
+                .Take(maximumRecords);
+        }
+
+        var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
             .Where(filterPredicate)
-            .OrderBy(site => site.Distance)
-            .Take(maximumRecords);
+            .OrderBy(site => site.Distance);
+        
+        //TODO pre-filter All Sites by 'any availability doc' within the time period? could/couldnot inspect the services in sessions?
+        
+        //TODO OPTION 1: single call and top 100?? first off to see if we can get 50 that support the service, if still short, pass another 100 in until we have 50??
+        //TODO OPTION 2: multi-threaded calls for batched site, adding them to the collection and cancellation token once 50 reached
+
+        throw new NotImplementedException();
+
+        //TODO pass these X siteIds into second query where you return which sites have availability for Service in DateRange
+        //TODO do the 'take' on the DB side
+        //.Take(maximumRecords);
     }
 
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")

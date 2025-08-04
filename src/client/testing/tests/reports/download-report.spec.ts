@@ -5,12 +5,7 @@ import {
   SitePage,
   SiteSelectionPage,
 } from '@testing-page-objects';
-import {
-  test,
-  expect,
-  overrideFeatureFlag,
-  clearAllFeatureFlagOverrides,
-} from '../../fixtures';
+import { test, expect, overrideFeatureFlag } from '../../fixtures';
 import { Site } from '@types';
 
 let rootPage: RootPage;
@@ -79,7 +74,10 @@ test('Downloads a site summary report', async ({ page }) => {
 
   expect(headers.length).toBe(expectedFileDownloadHeaders.length);
 
-  expect(headers).toEqual(expectedFileDownloadHeaders);
+  // Last element of the header may contain a line ending character
+  const headersTrimmed = headers.map(header => header.trim());
+
+  expect(headersTrimmed).toEqual(expectedFileDownloadHeaders);
 
   fs.unlinkSync(fileName);
 });
@@ -111,5 +109,5 @@ const expectedFileDownloadHeaders = [
   'FLU:65+ Capacity',
   'COVID_FLU:18_64 Capacity',
   'COVID_FLU:65+ Capacity',
-  'FLU:2_3 Capacity\r',
+  'FLU:2_3 Capacity',
 ];

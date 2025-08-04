@@ -21,7 +21,7 @@ public class SiteSummaryTriggerTests
     public async Task When_LastRun_Null()
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
-        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1) });
+        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, DaysChunkSize = 2, FirstRunDate = new DateOnly(2025, 2, 1) });
         _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync((Aggregation)null);
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
         _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(new List<Site>
@@ -50,7 +50,7 @@ public class SiteSummaryTriggerTests
     public async Task When_LastRun_Set()
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
-        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1)});
+        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, DaysChunkSize = 2, FirstRunDate = new DateOnly(2025, 2, 1)});
         _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync(new Aggregation()
         {
             LastTriggeredUtcDate = new DateTime(2025, 6, 30),
@@ -90,7 +90,7 @@ public class SiteSummaryTriggerTests
     public async Task When_Multiple_Sites()
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
-        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1)});
+        _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, DaysChunkSize = 2, FirstRunDate = new DateOnly(2025, 2, 1)});
         _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync(new  Aggregation
         {
             LastTriggeredUtcDate = new DateTime(2025, 6, 30),

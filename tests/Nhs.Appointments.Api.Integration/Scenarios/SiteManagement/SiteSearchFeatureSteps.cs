@@ -149,7 +149,6 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var searchRadiusNumber = row.Cells.ElementAt(1).Value;
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
-
         _response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&ignoreCache=true");
         _statusCode = _response.StatusCode;

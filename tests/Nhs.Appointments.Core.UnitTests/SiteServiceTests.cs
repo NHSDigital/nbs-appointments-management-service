@@ -969,4 +969,99 @@ public class SiteServiceTests
 
         _siteStore.Verify(x => x.GetSitesInRegionAsync("R1"), Times.Once);
     }
+
+    [Fact]
+    public async Task FindSitesByArea_FiltersOutOfflineSites()
+    {
+        var sites = new List<Site>
+        {
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                Name: "Site 2",
+                Address: "2 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC02",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
+                {
+                    new(Id: "accessibility/access_need_1", Value: "true")
+                },
+                status: SiteStatus.Online),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
+                Name: "Site 3",
+                Address: "3 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC03",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
+                {
+                    new(Id: "accessibility/access_need_1", Value: "true")
+                },
+                status: SiteStatus.Online),
+            new(
+                Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                Name: "Site 1",
+                Address: "1 Park Row",
+                PhoneNumber: "0113 1111111",
+                OdsCode: "ABC01",
+                Region: "R1",
+                IntegratedCareBoard: "ICB1",
+                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                InformationForCitizens: "",
+                Accessibilities: new List<Accessibility>
+                {
+                    new(Id: "accessibility/access_need_1", Value: "true")
+                },
+                status: SiteStatus.Offline)
+        };
+
+        var expectedSites = new List<SiteWithDistance>
+        {
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
+                    Name: "Site 3",
+                    Address: "3 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC03",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    },
+                    status: SiteStatus.Online),
+                Distance: 281),
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    },
+                    status: SiteStatus.Online),
+                Distance: 328)
+        };
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
+
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+
+        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
+        result.Should().BeEquivalentTo(expectedSites);
+    }
 }

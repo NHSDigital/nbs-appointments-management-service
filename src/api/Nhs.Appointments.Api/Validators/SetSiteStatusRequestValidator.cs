@@ -12,6 +12,6 @@ public class SetSiteStatusRequestValidator : AbstractValidator<SetSiteStatusRequ
 
         RuleFor(x => x.status)
             .IsInEnum()
-            .WithMessage("Provide a valid site status");
+            .WithMessage("Provide a valid site status.");
     }
 }

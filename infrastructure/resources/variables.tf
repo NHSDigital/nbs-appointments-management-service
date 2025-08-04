@@ -172,6 +172,11 @@ variable "cosmos_booking_autoscale_settings" {
   default = []
 }
 
+variable "cosmos_aggregation_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
 variable "cosmos_core_autoscale_settings" {
   type    = list(any)
   default = []

@@ -89,6 +89,9 @@ module "mya_application_stag_ukw" {
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]
+  cosmos_aggregation_autoscale_settings = [{
+    max_throughput = 10000
+  }]
   cosmos_core_autoscale_settings = [{
     max_throughput = 25000
   }]

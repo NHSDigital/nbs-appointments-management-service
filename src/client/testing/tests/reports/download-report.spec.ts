@@ -27,7 +27,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await clearAllFeatureFlagOverrides();
+  await overrideFeatureFlag('SiteSummaryReport', false);
 });
 
 test.beforeEach(async ({ page, getTestSite, getTestUser }) => {

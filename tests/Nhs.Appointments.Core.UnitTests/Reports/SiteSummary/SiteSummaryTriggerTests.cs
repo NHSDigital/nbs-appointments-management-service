@@ -22,8 +22,8 @@ public class SiteSummaryTriggerTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
         _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1) });
-        _aggregationStore.Setup(x => x.GetLastRunDate()).ReturnsAsync((DateTimeOffset?)null);
-        _aggregationStore.Setup(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()));
+        _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync((Aggregation)null);
+        _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
         _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(new List<Site>
         {
             new (
@@ -42,8 +42,8 @@ public class SiteSummaryTriggerTests
         await _sut.Trigger();
         
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
-        _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
-        _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
+        _aggregationStore.Verify(x => x.GetLastRun(), Times.Once);
+        _aggregationStore.Verify(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()), Times.Once);
     }
     
     [Fact]
@@ -51,8 +51,14 @@ public class SiteSummaryTriggerTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
         _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1)});
-        _aggregationStore.Setup(x => x.GetLastRunDate()).ReturnsAsync(new DateTime(2025, 6, 30));
-        _aggregationStore.Setup(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()));
+        _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync(new Aggregation()
+        {
+            LastTriggeredUtcDate = new DateTime(2025, 6, 30),
+            FromDateOnly = new DateOnly(2025,1,1),
+            ToDateOnly = new DateOnly(2025, 6, 30),
+            LastRanToDateOnly = new DateOnly(2025, 6, 30)
+        } );
+        _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
         _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(new List<Site>
         {
             new (
@@ -75,8 +81,8 @@ public class SiteSummaryTriggerTests
         await _sut.Trigger();
         
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
-        _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
-        _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
+        _aggregationStore.Verify(x => x.GetLastRun(), Times.Once);
+        _aggregationStore.Verify(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()), Times.Once);
         _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site && actual[0].From == from && actual[0].To == to)), Times.Once);
     }
     
@@ -85,8 +91,14 @@ public class SiteSummaryTriggerTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 1));
         _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, FirstRunDate = new DateOnly(2025, 2, 1)});
-        _aggregationStore.Setup(x => x.GetLastRunDate()).ReturnsAsync(new DateTime(2025, 6, 30));
-        _aggregationStore.Setup(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()));
+        _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync(new  Aggregation
+        {
+            LastTriggeredUtcDate = new DateTime(2025, 6, 30),
+            FromDateOnly = new DateOnly(2025,1,1),
+            ToDateOnly = new DateOnly(2025, 7, 1),
+            LastRanToDateOnly = new DateOnly(2025, 7, 1)
+        });
+        _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()));
         _siteService.Setup(x => x.GetAllSites()).ReturnsAsync(new List<Site>
         {
             new (
@@ -121,8 +133,8 @@ public class SiteSummaryTriggerTests
         await _sut.Trigger();
         
         _timeProvider.Verify(x => x.GetUtcNow(), Times.Once);
-        _aggregationStore.Verify(x => x.GetLastRunDate(), Times.Once);
-        _aggregationStore.Verify(x => x.SetLastRunDate(It.IsAny<DateTimeOffset>()), Times.Once);
+        _aggregationStore.Verify(x => x.GetLastRun(), Times.Once);
+        _aggregationStore.Verify(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()), Times.Once);
         _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site1 && actual[0].From == from && actual[0].To == to)), Times.Once);
         _messageBus.Verify(x => x.Send(It.Is<AggregateSiteSummaryEvent[]>(actual => actual[0].Site == site2 && actual[0].From == from && actual[0].To == to)), Times.Once);
     }

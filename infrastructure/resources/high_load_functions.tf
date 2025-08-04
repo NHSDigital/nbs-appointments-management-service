@@ -45,6 +45,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     Auth__Providers__0__Name                                               = "nhs-mail"
     Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
@@ -174,6 +175,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     APPLICATIONINSIGHTS_CONNECTION_STRING                                  = azurerm_application_insights.nbs_mya_application_insights.connection_string
     Notifications_Provider                                                 = "none"
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token

@@ -73,6 +73,7 @@ public static class FunctionConfigurationExtensions
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
+                opts.DaysChunkSize = configuration.GetValue<int>("SITE_SUMMARY_DAYS_CHUNK_SIZE");
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()

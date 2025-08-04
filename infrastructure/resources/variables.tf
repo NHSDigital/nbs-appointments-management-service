@@ -141,6 +141,10 @@ variable "site_summary_days_forward" {
   type = string
 }
 
+variable "site_summary_days_chunk_size" {
+  type = string
+}
+
 variable "site_summary_first_run_date" {
   type = string
 }

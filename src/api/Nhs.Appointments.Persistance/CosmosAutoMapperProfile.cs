@@ -1,5 +1,6 @@
 using AutoMapper;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance.Models;
 
@@ -49,5 +50,11 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.Cancelled, opt => opt.MapFrom(x => x.Cancelled))
             .ForMember(x => x.Orphaned, opt => opt.MapFrom(x => x.Orphaned))
             .ForMember(x => x.GeneratedAtUtc, opt => opt.MapFrom(x => x.GeneratedAtUtc));
+
+        CreateMap<AggregationDocument, Aggregation>()
+            .ForMember(x => x.LastTriggeredUtcDate, opt => opt.MapFrom(x => x.LastTriggeredUtcDate))
+            .ForMember(x => x.FromDateOnly, opt => opt.MapFrom(x => x.LastRunMetaData.FromDateOnly))
+            .ForMember(x => x.ToDateOnly, opt => opt.MapFrom(x => x.LastRunMetaData.ToDateOnly))
+            .ForMember(x => x.LastRanToDateOnly, opt => opt.MapFrom(x => x.LastRunMetaData.LastRanToDateOnly));
     }
 }

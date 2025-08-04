@@ -59,6 +59,7 @@ module "mya_application_perf" {
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE
   site_summary_days_forward                       = var.SITE_SUMMARY_DAYS_FORWARD
+  site_summary_days_chunk_size                    = var.SITE_SUMMARY_DAYS_CHUNK_SIZE
   site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL

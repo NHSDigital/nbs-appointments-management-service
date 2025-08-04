@@ -9,8 +9,6 @@ public class MassTransitBusWrapper(IBus bus) : IMessageBus
         EndpointConvention.TryGetDestinationAddress<T>(out var destinationAddress);
         var endpoint = await bus.GetSendEndpoint(destinationAddress).ConfigureAwait(false);
 
-        await bus.PublishBatch(messages);
-        
         await endpoint.SendBatch(messages);
     }
 }

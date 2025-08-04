@@ -19,41 +19,57 @@ public class SiteSummaryTrigger(
     public async Task Trigger()
     {
         var triggeredTime = TimeProvider.GetUtcNow();
-        var lastRunDate = await Store.GetLastRunDate();
-        var startDate = lastRunDate is null
-            ? Options.Value.FirstRunDate
-            : DateTimeToDate(lastRunDate.Value); 
-        var endDate = DateTimeToDate(triggeredTime.AddDays(Options.Value.DaysForward));
-        var chunks = SplitDateRange(startDate, endDate, 30).ToArray();
-        var sites = await SiteService.GetAllSites();
+        var lastRun = await Store.GetLastRun();
 
-        foreach (var site in sites)
-        {
-            await TriggerForSite(site.Id, chunks);
-        }
-
-        await Store.SetLastRunDate(triggeredTime);
+        var state = ResolveState(triggeredTime, lastRun);
         
+        if (!state.HasDaysToRun)
+        {
+            return;
+        }
+        
+        var startDate = state.DateRanTo?.AddDays(1) ?? state.From;
+        var endDate = startDate.AddDays(Options.Value.DaysChunkSize);
+        endDate = endDate > state.To ? state.To : endDate;
+        
+        var sites = (await SiteService.GetAllSites()).Select(x => x.Id).ToArray();
+
+        await SendAggregationMessages(sites, startDate, endDate);
+
+        await Store.SetLastRun(triggeredTime, state.From, state.To, endDate);
     }
 
-    private async Task TriggerForSite(string site, (DateOnly startDate, DateOnly endDate)[] chunks)
+    private AggregationState ResolveState(DateTimeOffset now, Aggregation aggregation)
     {
-        await bus.Send(chunks.Select(chunk => new AggregateSiteSummaryEvent { Site = site, From = chunk.startDate, To = chunk.endDate }).ToArray());
+        if (aggregation is null) // First Run
+        {
+            return new AggregationState(Options.Value.FirstRunDate, DateTimeToDate(now.AddDays(Options.Value.DaysForward)), null);
+        }
+
+        var hasDaysToRun = aggregation.LastRanToDateOnly < aggregation.ToDateOnly;
+        
+        if (!hasDaysToRun) // Finished
+        {
+            if (DateTimeToDate(now) > DateTimeToDate(aggregation.LastTriggeredUtcDate)) // New Day
+            {
+                return new AggregationState(DateTimeToDate(aggregation.LastTriggeredUtcDate),
+                    DateTimeToDate(now.AddDays(Options.Value.DaysForward)), null);
+            }
+        }
+        
+        return new AggregationState(aggregation.FromDateOnly, aggregation.ToDateOnly, aggregation.LastRanToDateOnly,
+            hasDaysToRun);
+    }
+    
+    private async Task SendAggregationMessages(string[] sites, DateOnly startDate, DateOnly endDate)
+    {
+        await bus.Send(sites.Select(site => new AggregateSiteSummaryEvent { Site = site, From = startDate, To = endDate }).ToArray());
     }
     
     private static DateOnly DateTimeToDate(DateTimeOffset dateTime)
     {
         return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
     }
-    
-    private static IEnumerable<(DateOnly startDate, DateOnly endDate)> SplitDateRange(DateOnly start, DateOnly end, int dayChunkSize)
-    {
-        DateOnly chunkEnd;
-        while ((chunkEnd = start.AddDays(dayChunkSize)) < end)
-        {
-            yield return (start, chunkEnd);
-            start = chunkEnd.AddDays(1);
-        }
-        yield return (start, end);
-    }
 }
+
+public record AggregationState(DateOnly From, DateOnly To, DateOnly? DateRanTo, bool HasDaysToRun = true);

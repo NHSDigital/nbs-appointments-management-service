@@ -74,7 +74,8 @@ services:
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
       - SITE_SUMMARY_DAYS_FORWARD=30
-      - SITE_SUMMARY_FIRST_RUN_DATE=2025-02-01
+      - SITE_SUMMARY_DAYS_CHUNK_SIZE=365
+      - SITE_SUMMARY_FIRST_RUN_DATE=2025-06-01
 
   splunk:
     image: splunk/splunk:latest

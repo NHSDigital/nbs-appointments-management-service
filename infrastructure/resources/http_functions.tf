@@ -69,6 +69,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     Okta__PrivateKeyKid                                            = var.okta_private_key_kid
     Okta__PEM                                                      = var.okta_pem
     SITE_SUMMARY_DAYS_FORWARD                                      = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                   = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                    = var.site_summary_first_run_date
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
@@ -158,6 +159,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     Okta__PrivateKeyKid                                            = var.okta_private_key_kid
     Okta__PEM                                                      = var.okta_pem
     SITE_SUMMARY_DAYS_FORWARD                                      = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                   = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                    = var.site_summary_first_run_date
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -8,11 +9,12 @@ public class SiteServiceTests
     private readonly Mock<IMemoryCache> _memoryCache = new();
     private readonly Mock<ISiteStore> _siteStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+    private readonly Mock<ILogger<ISiteService>> _logger = new();
     private readonly SiteService _sut;
 
     public SiteServiceTests()
     {
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, TimeProvider.System);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object, TimeProvider.System);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

@@ -24,7 +24,7 @@ public interface ISiteService
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<SiteService> logger, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time) : ISiteService
 {
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)

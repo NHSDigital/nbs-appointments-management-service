@@ -9,13 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -42,12 +39,18 @@ public class GetSitesByAreaFunction(
     [OpenApiParameter("accessNeeds", In = ParameterLocation.Query, Required = false, Type = typeof(string[]),
         CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
         Description = "Required access needs used to filter sites")]
-    [OpenApiParameter("services", In = ParameterLocation.Query, Required = false, Type = typeof(string[]), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
-        Description = "Optional parameter to be used alongside from and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range")]
-    [OpenApiParameter("from", In = ParameterLocation.Query, Required = false, Type = typeof(string), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
-        Description = "Optional parameter to be used alongside services and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
-    [OpenApiParameter("until", In = ParameterLocation.Query, Required = false, Type = typeof(string), CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma, 
-        Description = "Optional parameter to be used alongside services and from. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
+    [OpenApiParameter("services", In = ParameterLocation.Query, Required = false, Type = typeof(string[]),
+        CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
+        Description =
+            "Optional parameter to be used alongside from and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range")]
+    [OpenApiParameter("from", In = ParameterLocation.Query, Required = false, Type = typeof(string),
+        CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
+        Description =
+            "Optional parameter to be used alongside services and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
+    [OpenApiParameter("until", In = ParameterLocation.Query, Required = false, Type = typeof(string),
+        CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
+        Description =
+            "Optional parameter to be used alongside services and from. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<SiteWithDistance>),
         Description = "List of sites within a geographical area that support requested access needs")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
@@ -60,7 +63,8 @@ public class GetSitesByAreaFunction(
     // [RequiresPermission(Permissions.QuerySites, typeof(NoSiteRequestInspector))]
     [Function("GetSitesByAreaFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")]
+        HttpRequest req)
     {
         return base.RunAsync(req);
     }
@@ -69,7 +73,7 @@ public class GetSitesByAreaFunction(
         ILogger logger)
     {
         SiteSupportsServiceFilter siteSupportsServiceFilter = null;
-        
+
         //should pass validation rules
         if (request.services is { Length: 1 } && request.from != null && request.until != null)
         {
@@ -77,7 +81,7 @@ public class GetSitesByAreaFunction(
             var untilDate = DateOnly.ParseExact(request.until, "yyyy-MM-dd");
             siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.services.Single(), fromDate, untilDate);
         }
-        
+
         var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius,
             request.maximumRecords, request.accessNeeds, request.ignoreCache, siteSupportsServiceFilter);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
@@ -110,17 +114,18 @@ public class GetSitesByAreaFunction(
         var services = req.Query.ContainsKey("services")
             ? req.Query["services"].ToString().Split(',')
             : null;
-        
+
         var from = req.Query.ContainsKey("from")
             ? req.Query["from"].ToString()
             : null;
-        
+
         var until = req.Query.ContainsKey("until")
             ? req.Query["until"].ToString()
             : null;
-        
+
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((
             errors.AsReadOnly(),
-            new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache, services, from, until)));
+            new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache,
+                services, from, until)));
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Core;
 
@@ -23,7 +24,7 @@ public interface ISiteService
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<SiteService> logger, TimeProvider time) : ISiteService
 {
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -110,6 +111,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             results.AddRange(batchResults);
             iterations++;
         }
+        
+        logger.LogInformation("GetSitesSupportingService returned {resultCount} results after {iterationCount} iterations for service {service}", results.Count, iterations, service);
 
         return results;
     }

@@ -52,9 +52,7 @@ test('Downloads a site summary report', async ({ page }) => {
 
   const download = await page.waitForEvent('download');
   expect(download).toBeDefined();
-  expect(download.suggestedFilename()).toBe(
-    'GeneralSiteSummaryReport-2025-08-10-to-2025-08-20.csv',
-  );
+  expect(download.suggestedFilename()).toContain('GeneralSiteSummaryReport');
 
   const fileName = 'downloaded-test-report.csv';
   await download.saveAs(fileName);

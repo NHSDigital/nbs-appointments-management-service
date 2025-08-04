@@ -105,6 +105,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   sticky_settings {
@@ -216,6 +217,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   identity {

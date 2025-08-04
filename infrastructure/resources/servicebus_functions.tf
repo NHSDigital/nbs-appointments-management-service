@@ -96,8 +96,9 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
-    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true    
+    "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   sticky_settings {
@@ -207,6 +208,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   identity {

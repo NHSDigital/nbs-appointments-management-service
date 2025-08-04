@@ -5,7 +5,12 @@ import {
   SitePage,
   SiteSelectionPage,
 } from '@testing-page-objects';
-import { test, expect } from '../../fixtures';
+import {
+  test,
+  expect,
+  overrideFeatureFlag,
+  clearAllFeatureFlagOverrides,
+} from '../../fixtures';
 import { Site } from '@types';
 
 let rootPage: RootPage;
@@ -14,6 +19,16 @@ let siteSelectionPage: SiteSelectionPage;
 let sitePage: SitePage;
 
 let site: Site;
+
+test.describe.configure({ mode: 'serial' });
+
+test.beforeAll(async () => {
+  await overrideFeatureFlag('SiteSummaryReport', true);
+});
+
+test.afterAll(async () => {
+  await clearAllFeatureFlagOverrides();
+});
 
 test.beforeEach(async ({ page, getTestSite, getTestUser }) => {
   site = getTestSite(1);

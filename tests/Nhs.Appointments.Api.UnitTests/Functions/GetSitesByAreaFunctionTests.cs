@@ -64,7 +64,8 @@ public class GetSitesByAreaFunctionTests
                     IntegratedCareBoard: "ICB1",
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-                    Location: new Location("point", [0.1, 10])),
+                    Location: new Location("point", [0.1, 10]),
+                    status : SiteStatus.Online),
                 Distance: 100)
         };
         _siteService
@@ -98,7 +99,8 @@ public class GetSitesByAreaFunctionTests
                     IntegratedCareBoard: "ICB1",
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-                    Location: new Location("point", [0.1, 10])),
+                    Location: new Location("point", [0.1, 10]),
+                    status : SiteStatus.Online),
                 Distance: 100)
         };
         _siteService

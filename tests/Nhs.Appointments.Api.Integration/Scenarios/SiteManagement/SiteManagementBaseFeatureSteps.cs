@@ -99,7 +99,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
+            status: SiteStatus.Online
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 

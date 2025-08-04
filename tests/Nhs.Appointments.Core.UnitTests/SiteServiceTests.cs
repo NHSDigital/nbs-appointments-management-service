@@ -14,7 +14,7 @@ public class SiteServiceTests
 
     public SiteServiceTests()
     {
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object, TimeProvider.System);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object, TimeProvider.System, _featureToggleHelper.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -36,7 +36,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                }),
+                },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
                 Name: "Site 3",
@@ -50,7 +51,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                }),
+                },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                 Name: "Site 1",
@@ -64,7 +66,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                })
+                },
+                status: SiteStatus.Online)
         };
 
         var expectedSites = new List<SiteWithDistance>
@@ -82,7 +85,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 234),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -97,7 +101,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 281),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -112,7 +117,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 328)
         };
 
@@ -140,7 +146,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                }),
+                },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
                 Name: "Site 3",
@@ -154,7 +161,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                }),
+                },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
                 Name: "Site 1",
@@ -168,7 +176,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                })
+                },
+                status: SiteStatus.Online)
         };
 
         var expectedSites = new List<SiteWithDistance>
@@ -186,7 +195,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status : SiteStatus.Online),
                 Distance: 234),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -201,7 +211,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status : SiteStatus.Online),
                 Distance: 281)
         };
 
@@ -226,7 +237,8 @@ public class SiteServiceTests
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
                 InformationForCitizens: "",
-                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") }),
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                 Name: "Site 2",
@@ -237,7 +249,8 @@ public class SiteServiceTests
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
                 InformationForCitizens: "",
-                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") }),
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") },
+                status: SiteStatus.Online),
         };
 
         var expectedSites = new List<SiteWithDistance>
@@ -255,7 +268,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 357),
         };
 
@@ -283,7 +297,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
-                }),
+                },
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                 Name: "Site 2",
@@ -297,7 +312,8 @@ public class SiteServiceTests
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
-                }),
+                },
+                status: SiteStatus.Online),
         };
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
@@ -324,7 +340,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -339,7 +356,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573),
         };
 
@@ -363,7 +381,8 @@ public class SiteServiceTests
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
                 InformationForCitizens: "",
-                Accessibilities: new List<Accessibility>()),
+                Accessibilities: new List<Accessibility>(),
+                status: SiteStatus.Online),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
                 Name: "Site 2",
@@ -374,7 +393,8 @@ public class SiteServiceTests
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
                 InformationForCitizens: "",
-                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") })
+                Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") },
+                status: SiteStatus.Online)
         };
         var expectedSites = new List<SiteWithDistance>
         {
@@ -391,7 +411,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 13213),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
@@ -417,7 +438,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -432,7 +454,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
@@ -668,7 +691,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -683,7 +707,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573),
         };
         object outSites = sites.Select(s => s.Site);
@@ -711,7 +736,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -726,7 +752,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573),
         };
         object outSites = sites.Take(1).Select(s => s.Site);
@@ -756,7 +783,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -771,7 +799,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573),
         };
         object outSites = null;
@@ -798,7 +827,8 @@ public class SiteServiceTests
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
             InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") });
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
+            status: SiteStatus.Online);
 
         var expectedSite = new Site(
             Id: siteId,
@@ -810,7 +840,8 @@ public class SiteServiceTests
             IntegratedCareBoard: "ICB1",
             Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
             InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") });
+            Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
+            status: SiteStatus.Online);
         _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
         var result = await _sut.GetSiteByIdAsync(siteId);
@@ -844,7 +875,8 @@ public class SiteServiceTests
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
                     InformationForCitizens: "",
-                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
+                    status: SiteStatus.Online),
             new Site(
                     Id: "ABC02",
                     Name: "Site 2",
@@ -855,7 +887,8 @@ public class SiteServiceTests
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     InformationForCitizens: "",
-                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")})
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
+                    status: SiteStatus.Online)
         };
         object outSites = sites;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
@@ -881,7 +914,8 @@ public class SiteServiceTests
                     IntegratedCareBoard: "ICB1",
                     Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
                     InformationForCitizens: "",
-                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
+                    status: SiteStatus.Online),
             new Site(
                     Id: "ABC02",
                     Name: "Site 2",
@@ -892,7 +926,8 @@ public class SiteServiceTests
                     IntegratedCareBoard: "ICB2",
                     Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     InformationForCitizens: "",
-                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")})
+                    Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
+                    status: SiteStatus.Online)
         };
         object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
@@ -921,7 +956,8 @@ public class SiteServiceTests
                 IntegratedCareBoard: "ICB1",
                 Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
                 InformationForCitizens: "",
-                Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")}),
+                Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
+                status: SiteStatus.Online),
         };
 
         _siteStore.Setup(x => x.GetSitesInRegionAsync("R1")).ReturnsAsync(sites);

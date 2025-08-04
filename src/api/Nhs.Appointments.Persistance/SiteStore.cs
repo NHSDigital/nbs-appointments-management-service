@@ -162,7 +162,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
         var documentType = cosmosStore.GetDocumentType();
 
-        var patchOperation = originalDocument.Status is null
+        var patchOperation = originalDocument.status is null
             ? PatchOperation.Add("/status", status)
             : PatchOperation.Replace("/status", status);
 

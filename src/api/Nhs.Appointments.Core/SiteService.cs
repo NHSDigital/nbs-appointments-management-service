@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
 
@@ -37,6 +38,11 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         if (sites == null || ignoreCache)
         {
             sites = await GetAndCacheSites();
+        }
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
+        {
+            sites = sites.Where(s => s.status is SiteStatus.Online or null);
         }
 
         var sitesWithDistance = sites

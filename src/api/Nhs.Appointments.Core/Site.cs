@@ -1,4 +1,6 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace Nhs.Appointments.Core;
 
@@ -13,7 +15,7 @@ public record Site(
     [JsonProperty("informationForCitizens")] string InformationForCitizens,
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
     [JsonProperty("location")] Location Location,
-    [JsonProperty("status")] SiteStatus? Status
+    [property: JsonProperty("status")] SiteStatus? status
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;
@@ -82,8 +84,11 @@ public record ReferenceDetailsRequest(
     [JsonProperty("region")] string Region
 );
 
+[JsonConverter(typeof(StringEnumConverter))]
 public enum SiteStatus
 {
+    [EnumMember(Value = "Online")]
     Online,
+    [EnumMember(Value = "Offline")]
     Offline
 }

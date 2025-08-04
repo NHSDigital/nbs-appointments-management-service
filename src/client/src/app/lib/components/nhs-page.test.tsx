@@ -3,8 +3,10 @@ import NhsPage from './nhs-page';
 import {
   fetchUserProfile,
   fetchPermissions,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { UserProfile } from '@types';
+import { FeatureFlag, UserProfile } from '@types';
+import { mockAllPermissions, mockSite } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<
@@ -12,6 +14,10 @@ const fetchUserProfileMock = fetchUserProfile as jest.Mock<
 >;
 const fetchPermissionsMock = fetchPermissions as jest.Mock<
   Promise<string[] | undefined>
+>;
+
+const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
+  Promise<FeatureFlag | undefined>
 >;
 
 jest.mock('@components/nhs-header-log-in', () => {
@@ -70,6 +76,10 @@ describe('Nhs Page', () => {
       'site:manage',
       'users:view',
     ]);
+
+    fetchFeatureFlagMock.mockResolvedValue({
+      enabled: true,
+    });
   });
 
   afterEach(() => {
@@ -160,75 +170,49 @@ describe('Nhs Page', () => {
     expect(screen.queryByText('This is a notification')).toBeNull();
   });
 
-  it('Displays all navigation links if all permissions are present', async () => {
-    const jsx = await NhsPage({
-      title: 'Test title',
-      children: null,
-      site: {
-        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
-        name: 'Test site',
-        address: '',
-        odsCode: 'K12',
-        integratedCareBoard: '',
-        region: '',
-        phoneNumber: '01189998819991197253',
-        location: {
-          coordinates: [],
-          type: 'point',
-        },
-        accessibilities: [],
-        informationForCitizens: '',
-      },
-      breadcrumbs: [],
-      originPage: '',
-    });
-    render(jsx);
+  it.each([
+    ['availability:query', 'View availability', 'view-availability'],
+    ['availability:setup', 'Create availability', 'create-availability'],
+    ['site:manage', 'Change site details', 'details'],
+    ['site:view', 'Change site details', 'details'],
+    ['users:view', 'Manage users', 'users'],
+    ['reports:sitesummary', 'Reports', 'reports'],
+  ])(
+    'displays the correct cards when permissions are present',
+    async (permission: string, cardTitle: string, path: string) => {
+      fetchPermissionsMock.mockResolvedValue([permission]);
 
-    expect(fetchPermissionsMock).toHaveBeenCalledWith(
-      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
-    );
+      const jsx = await NhsPage({
+        title: 'Test title',
+        children: null,
+        site: mockSite,
+        breadcrumbs: [],
+        originPage: '',
+      });
+      render(jsx);
 
-    expect(
-      screen.getByRole('navigation', { name: 'Primary navigation' }),
-    ).toBeVisible();
+      expect(fetchPermissionsMock).toHaveBeenCalledWith(
+        '34e990af-5dc9-43a6-8895-b9123216d699',
+      );
 
-    const viewAvailabilityLink = screen.getByRole('link', {
-      name: 'View availability',
-    });
-    const createAvailabilityLink = screen.getByRole('link', {
-      name: 'Create availability',
-    });
-    const manageSiteLink = screen.getByRole('link', {
-      name: 'Change site details',
-    });
-    const viewUsersLink = screen.getByRole('link', { name: 'Manage users' });
+      expect(fetchFeatureFlagMock).toHaveBeenCalledWith('SiteSummaryReport');
 
-    expect(viewAvailabilityLink).toBeVisible();
-    expect(viewAvailabilityLink).toHaveAttribute(
-      'href',
-      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/view-availability',
-    );
+      expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
+      if (path === 'reports') {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/${path}`,
+        );
+      } else {
+        expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
+          'href',
+          `/site/${mockSite.id}/${path}`,
+        );
+      }
+    },
+  );
 
-    expect(createAvailabilityLink).toBeVisible();
-    expect(createAvailabilityLink).toHaveAttribute(
-      'href',
-      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/create-availability',
-    );
-
-    expect(manageSiteLink).toBeVisible();
-    expect(manageSiteLink).toHaveAttribute(
-      'href',
-      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/details',
-    );
-
-    expect(viewUsersLink).toBeVisible();
-    expect(viewUsersLink).toHaveAttribute(
-      'href',
-      '/site/6877d86e-c2df-4def-8508-e1eccf0ea6be/users',
-    );
-  });
-
-  it('Does not request permissions if not site is provided', async () => {
+  it('Still requests global permissions if site is not provided', async () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
@@ -237,7 +221,9 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(fetchPermissionsMock).not.toHaveBeenCalled();
+    expect(fetchPermissionsMock).toHaveBeenCalledTimes(2);
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(undefined);
+    expect(fetchPermissionsMock).toHaveBeenCalledWith('*');
   });
 
   it('Does not display any navigation links if no permissions are present', async () => {
@@ -246,28 +232,14 @@ describe('Nhs Page', () => {
     const jsx = await NhsPage({
       title: 'Test title',
       children: null,
-      site: {
-        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
-        name: 'Test site',
-        address: '',
-        odsCode: 'K12',
-        integratedCareBoard: '',
-        region: '',
-        phoneNumber: '01189998819991197253',
-        location: {
-          coordinates: [],
-          type: 'point',
-        },
-        accessibilities: [],
-        informationForCitizens: '',
-      },
+      site: mockSite,
       breadcrumbs: [],
       originPage: '',
     });
     render(jsx);
 
     expect(fetchPermissionsMock).toHaveBeenCalledWith(
-      '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+      '34e990af-5dc9-43a6-8895-b9123216d699',
     );
 
     expect(
@@ -285,6 +257,44 @@ describe('Nhs Page', () => {
     ).toBeNull();
     expect(screen.queryByRole('link', { name: 'Manage users' })).toBeNull();
   });
+
+  it.each([
+    [
+      ['availability:query'],
+      'View availability and manage appointments for your site',
+    ],
+    [['availability:setup'], 'Create availability'],
+    [
+      ['site:manage', 'site:view'],
+      'Change site details and accessibility information',
+    ],
+    [['users:view'], 'Manage users'],
+    [['reports:sitesummary'], 'Download reports'],
+  ])(
+    'hides the correct links when permissions are lacking',
+    async (permissions: string[], cardTitle: string) => {
+      fetchPermissionsMock.mockResolvedValue(
+        mockAllPermissions.filter(p => !permissions.includes(p)),
+      );
+
+      const jsx = await NhsPage({
+        title: 'Test title',
+        children: null,
+        site: mockSite,
+        breadcrumbs: [],
+        originPage: '',
+      });
+      render(jsx);
+
+      expect(fetchPermissionsMock).toHaveBeenCalledWith(
+        '34e990af-5dc9-43a6-8895-b9123216d699',
+      );
+
+      expect(
+        screen.queryByRole('link', { name: cardTitle }),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it('Displays a Change Site link if a site is provided', async () => {
     fetchPermissionsMock.mockResolvedValue([]);

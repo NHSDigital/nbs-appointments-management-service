@@ -12,7 +12,7 @@ import { cancelAppointment } from '@services/appointmentsService';
 import { Booking, ClinicalService } from '@types';
 import {
   dateTimeFormat,
-  dateFormat,
+  RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
 import { useRouter } from 'next/navigation';
@@ -47,7 +47,7 @@ const CancelAppointmentPage = ({
     if (form.cancellationReason !== undefined) {
       await cancelAppointment(booking.reference, site, form.cancellationReason);
 
-      const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
+      const returnDate = parseToUkDatetime(booking.from).format(RFC3339Format);
 
       replace(
         `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,

@@ -1,6 +1,7 @@
 import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
+  fetchFeatureFlag,
   fetchPermissions,
   fetchSite,
   fetchWellKnownOdsCodeEntries,
@@ -26,10 +27,18 @@ const Page = async ({ params }: PageProps) => {
 
   await assertPermission(siteFromPath, 'site:view');
 
-  const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
+  const [
+    site,
+    wellKnownOdsCodeEntries,
+    sitePermissions,
+    permissionsAtAnySite,
+    siteSummaryEnabled,
+  ] = await Promise.all([
     fetchSite(siteFromPath),
     fetchWellKnownOdsCodeEntries(),
     fetchPermissions(siteFromPath),
+    fetchPermissions('*'),
+    fetchFeatureFlag('SiteSummaryReport'),
   ]);
 
   return (
@@ -37,7 +46,9 @@ const Page = async ({ params }: PageProps) => {
       <SitePage
         site={site}
         permissions={sitePermissions}
+        permissionsAtAnySite={permissionsAtAnySite}
         wellKnownOdsCodeEntries={wellKnownOdsCodeEntries}
+        siteSummaryEnabled={siteSummaryEnabled.enabled}
       />
     </NhsPage>
   );

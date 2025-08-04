@@ -33,7 +33,7 @@ import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
-  dateFormat,
+  RFC3339Format,
   dateTimeFormat,
   parseToUkDatetime,
   ukNow,
@@ -169,7 +169,11 @@ export async function fetchRoles() {
   return (await handleBodyResponse(response)).roles;
 }
 
-export async function fetchPermissions(site: string) {
+export async function fetchPermissions(site: string | undefined) {
+  if (!site) {
+    return [];
+  }
+
   const response = await appointmentsApi.get<{ permissions: string[] }>(
     `user/permissions?site=${site}`,
   );
@@ -179,7 +183,7 @@ export async function fetchPermissions(site: string) {
 
 export async function fetchAvailabilityCreatedEvents(site: string) {
   const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
-    `availability-created?site=${site}&from=${ukNow().format(dateFormat)}`,
+    `availability-created?site=${site}&from=${ukNow().format(RFC3339Format)}`,
     {
       next: { tags: ['availability-created'] },
     },
@@ -214,6 +218,14 @@ export async function assertPermission(site: string, permission: string) {
 
   if (!response.includes(permission)) {
     notAuthorized();
+  }
+}
+
+export async function assertFeatureEnabled(flag: string) {
+  const response = await fetchFeatureFlag(flag);
+
+  if (!response.enabled) {
+    notFound();
   }
 }
 
@@ -544,7 +556,7 @@ export const cancelSession = async (
   );
   const payload: CancelSessionRequest = {
     site: site,
-    date: ukStartDatetime.format(dateFormat),
+    date: ukStartDatetime.format(RFC3339Format),
     from: ukStartDatetime.format('HH:mm'),
     until: ukEndDatetime.format('HH:mm'),
     services: Object.keys(sessionSummary.bookings),

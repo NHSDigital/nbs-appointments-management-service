@@ -9,6 +9,8 @@
     "AzureWebJobs.NotifyBookingCancelled.Disabled": true,
     "AzureWebJobs.SendBookingReminders.Disabled": true,
     "AzureWebJobs.NotifyBookingReminder.Disabled": true,
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled": true,
+    "AzureWebJobs.DailySiteSummaryAggregation.Disabled": true,
     "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled": true,
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "COSMOS_ENDPOINT": "https://localhost:8081",

@@ -92,35 +92,37 @@ const getLinksForSite = async (
 
   const navigationLinks: NavigationLink[] = [];
 
-  if (permissionsAtSite.includes('availability:query')) {
-    navigationLinks.push({
-      label: 'View availability',
-      href: `/site/${site?.id}/view-availability`,
-    });
-  }
+  if (site !== undefined) {
+    if (permissionsAtSite.includes('availability:query')) {
+      navigationLinks.push({
+        label: 'View availability',
+        href: `/site/${site.id}/view-availability`,
+      });
+    }
 
-  if (permissionsAtSite.includes('availability:setup')) {
-    navigationLinks.push({
-      label: 'Create availability',
-      href: `/site/${site?.id}/create-availability`,
-    });
-  }
+    if (permissionsAtSite.includes('availability:setup')) {
+      navigationLinks.push({
+        label: 'Create availability',
+        href: `/site/${site.id}/create-availability`,
+      });
+    }
 
-  if (
-    permissionsAtSite.includes('site:manage') ||
-    permissionsAtSite.includes('site:view')
-  ) {
-    navigationLinks.push({
-      label: 'Change site details',
-      href: `/site/${site?.id}/details`,
-    });
-  }
+    if (
+      permissionsAtSite.includes('site:manage') ||
+      permissionsAtSite.includes('site:view')
+    ) {
+      navigationLinks.push({
+        label: 'Change site details',
+        href: `/site/${site.id}/details`,
+      });
+    }
 
-  if (permissionsAtSite.includes('users:view')) {
-    navigationLinks.push({
-      label: 'Manage users',
-      href: `/site/${site?.id}/users`,
-    });
+    if (permissionsAtSite.includes('users:view')) {
+      navigationLinks.push({
+        label: 'Manage users',
+        href: `/site/${site.id}/users`,
+      });
+    }
   }
 
   if (

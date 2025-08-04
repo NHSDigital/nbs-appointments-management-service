@@ -1,8 +1,9 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
@@ -54,6 +55,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
+            .AddSingleton<IFeatureToggleHelper, FakeFeatureToggleHelper>()
             .BuildServiceProvider();
 
         var messageBus = serviceProvider.GetService(typeof(IMessageBus));
@@ -114,4 +116,13 @@ public class NotificationsServiceProviderExtensionsTests
 public class FakeSiteSummaryAggregator : ISiteSummaryAggregator
 {
     public Task AggregateForSite(string site, DateOnly from, DateOnly to) => throw new NotImplementedException();
+}
+
+public class FakeFeatureToggleHelper : IFeatureToggleHelper
+{
+    public void ClearOverrides() => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabled(string featureFlag) => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabledForSite(string featureFlag, string siteId) => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId) => throw new NotImplementedException();
+    public void SetOverride(string flagName, bool enabled) => throw new NotImplementedException();
 }

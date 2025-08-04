@@ -15,7 +15,7 @@ public record Site(
     [JsonProperty("informationForCitizens")] string InformationForCitizens,
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
     [JsonProperty("location")] Location Location,
-    [property: JsonProperty("status")] SiteStatus? status
+    [JsonProperty("status")] SiteStatus? status
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;

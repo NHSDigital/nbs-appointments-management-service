@@ -6,11 +6,11 @@ public class SetSiteStatusRequestValidator : AbstractValidator<SetSiteStatusRequ
 {
     public SetSiteStatusRequestValidator()
     {
-        RuleFor(x => x.site)
+        RuleFor(x => x.Site)
             .NotEmpty()
             .WithMessage("Provide a valid site.");
 
-        RuleFor(x => x.status)
+        RuleFor(x => x.Status)
             .IsInEnum()
             .WithMessage("Provide a valid site status.");
     }

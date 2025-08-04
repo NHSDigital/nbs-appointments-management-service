@@ -48,11 +48,11 @@ public class UpdateSiteStatusFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteStatusRequest request, ILogger logger)
     {
-        var result = await siteService.SetSiteStatus(request.site, request.status);
+        var result = await siteService.SetSiteStatus(request.Site, request.Status);
 
         return result.Success
             ? Success(new EmptyResponse())
-            : Failed(HttpStatusCode.BadRequest, $"Failed to update site status for site: {request.site}");
+            : Failed(HttpStatusCode.BadRequest, $"Failed to update site status for site: {request.Site}");
     }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SetSiteStatusRequest request)> ReadRequestAsync(HttpRequest req)
@@ -61,6 +61,6 @@ public class UpdateSiteStatusFunction(
 
         return errors.Any()
             ? (errors, payload)
-            : (errors, new SetSiteStatusRequest(payload.site, payload.status));
+            : (errors, new SetSiteStatusRequest(payload.Site, payload.Status));
     }
 }

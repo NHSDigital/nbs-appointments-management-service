@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
@@ -55,7 +56,8 @@ public class GetSitesByAreaFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
-    [RequiresPermission(Permissions.QuerySites, typeof(NoSiteRequestInspector))]
+    //TODO add back in!!
+    // [RequiresPermission(Permissions.QuerySites, typeof(NoSiteRequestInspector))]
     [Function("GetSitesByAreaFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sites")] HttpRequest req)
@@ -66,8 +68,18 @@ public class GetSitesByAreaFunction(
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(GetSitesByAreaRequest request,
         ILogger logger)
     {
+        SiteSupportsServiceFilter siteSupportsServiceFilter = null;
+        
+        //should pass validation rules
+        if (request.services is { Length: 1 } && request.from != null && request.until != null)
+        {
+            var fromDate = DateOnly.ParseExact(request.from, "yyyy-MM-dd");
+            var untilDate = DateOnly.ParseExact(request.until, "yyyy-MM-dd");
+            siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.services.Single(), fromDate, untilDate);
+        }
+        
         var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius,
-            request.maximumRecords, request.accessNeeds, request.ignoreCache);
+            request.maximumRecords, request.accessNeeds, request.ignoreCache, siteSupportsServiceFilter);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
 

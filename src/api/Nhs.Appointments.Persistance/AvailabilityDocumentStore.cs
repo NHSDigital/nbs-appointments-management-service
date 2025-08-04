@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -93,49 +94,21 @@ public class AvailabilityDocumentStore(
         };
     }
 
-    public async Task<IEnumerable<string>> GetSitesSupportingService(string service, List<string> sites, DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 100)
+    public async Task<bool> SiteSupportsService(string siteId, string service, List<string> dailyAvailabilityIds)
     {
-        //convert date range into X ids
-        var generatedIds = new List<string>();
-
-        var iterations = 0;
+        var docType = documentStore.GetDocumentType();
         
-        var results = new List<string>();
-
-        //while we are still short of the max, keep appending results
-        //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
-        while (results.Count < maxRecords)
+        Expression<Func<DailyAvailabilityDocument, bool>> filterPredicate = b =>
+            b.DocumentType == docType
+            && b.Site == siteId
+            && dailyAvailabilityIds.Contains(b.Id)
+            && b.Sessions.SelectMany(x => x.Services).Contains(service);
+        
+        using (metricsRecorder.BeginScope("SiteSupportsService"))
         {
-            //TODO go and limit provided sites to batch size to try and make up maxRecords
-            var siteBatch = sites.Skip(iterations * batchSize).Take(batchSize).ToList();
-
-            //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
-            if (siteBatch.Count == 0)
-            {
-                break;
-            }
-            
-            var docType = documentStore.GetDocumentType();
-            using (metricsRecorder.BeginScope("GetSitesSupportingService"))
-            {
-                var siteIds = (await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
-                        b.DocumentType == docType
-                        && generatedIds.Contains(b.Id)
-                        && siteBatch.Contains(b.Site) 
-                        && b.Sessions.SelectMany(x => x.Services).Contains(service)))
-                    .Take(maxRecords)
-                    //TODO order the results by the provided site order
-                    .Order(x => x.Site, siteBatch)
-                    .Select(x => x.Site);
-
-                results.AddRange(siteIds);
-            }
-            
-            iterations++;
+            var debugSql = documentStore.GeneratedSql(filterPredicate);
+            return (await documentStore.RunQueryAsync<DailyAvailabilityDocument>(filterPredicate)).Any();
         }
-
-        return results;
     }
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)

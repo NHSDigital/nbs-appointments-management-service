@@ -113,6 +113,11 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
         return IterateResults(queryFeed, rs => _mapper.Map<TModel>(rs));
     }
+    
+    public string GeneratedSql(Expression<Func<TDocument, bool>> predicate)
+    {
+        return GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToQueryDefinition().QueryText;
+    }
 
     public async Task DeleteDocument(string documentId, string partitionKey)
     {

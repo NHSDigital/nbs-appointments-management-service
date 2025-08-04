@@ -7,11 +7,12 @@ public class SiteServiceTests
     private readonly Mock<ICacheEntry> _cacheEntry = new();
     private readonly Mock<IMemoryCache> _memoryCache = new();
     private readonly Mock<ISiteStore> _siteStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly SiteService _sut;
 
     public SiteServiceTests()
     {
-        _sut = new SiteService(_siteStore.Object, _memoryCache.Object, TimeProvider.System);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, TimeProvider.System);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

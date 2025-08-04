@@ -7,5 +7,7 @@ public interface IAvailabilityStore
         Session sessionToEdit = null);
    Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
    Task<SessionInstance> CancelSession(string site, DateOnly date, Session session);
-   Task<IEnumerable<string>> GetSitesSupportingService(string service, List<string> sites, DateOnly from, DateOnly to, int maxRecords = 50, int batchSize = 100);
+
+   Task<bool> SiteSupportsService(string siteId, string service,
+       List<string> dailyAvailabilityIds);
 }

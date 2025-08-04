@@ -23,7 +23,7 @@ public interface ISiteService
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
 }
 
-public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
 {
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -53,23 +53,84 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
                 .Take(maximumRecords);
         }
 
+        //100s of records?
         var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
             .Where(filterPredicate)
-            .OrderBy(site => site.Distance);
+            .OrderBy(site => site.Distance).ToList();
         
+        var siteIdsThatSupportService = await GetSitesSupportingService(
+            sitesInDistance.Select(x => x.Site.Id).ToList(), 
+            siteSupportsServiceFilter.service, 
+            siteSupportsServiceFilter.from,
+            siteSupportsServiceFilter.until);
+
+        return sitesInDistance.Where(x => siteIdsThatSupportService.Contains(x.Site.Id));
+    }
+
+    private async Task<IEnumerable<string>> GetSitesSupportingService(List<string> siteIds, string service, DateOnly from, DateOnly to,
+        int maxRecords = 50, int batchSize = 100)
+    {
         //TODO pre-filter All Sites by 'any availability doc' within the time period? could/couldnot inspect the services in sessions?
         
         //TODO OPTION 1: single call and top 100?? first off to see if we can get 50 that support the service, if still short, pass another 100 in until we have 50??
         //TODO OPTION 2: multi-threaded calls for batched site, adding them to the collection and cancellation token once 50 reached
+        
+        var results = new List<string>();
 
-        throw new NotImplementedException();
+        var generatedIds = GetDateStringsInRange(from, to);
+        var iterations = 0;
+        
+        //while we are still short of the max, keep appending results
+        //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
+        while (results.Count < maxRecords)
+        {
+            var batchResults = new List<string>();
+            
+            //TODO go and limit provided sites to batch size to try and make up maxRecords
+            var siteIdBatch = siteIds.Skip(iterations * batchSize).Take(batchSize).ToList();
 
-        //TODO pass these X siteIds into second query where you return which sites have availability for Service in DateRange
-        //TODO do the 'take' on the DB side
-        //.Take(maximumRecords);
+            //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
+            if (siteIdBatch.Count == 0)
+            {
+                break;
+            }
+
+            var siteSupportTasks = siteIdBatch.Select(async site =>
+            {
+                var siteSupported = await availabilityStore.SiteSupportsService(site, service, generatedIds);
+                if (siteSupported)
+                {
+                    batchResults.Add(site);
+                }
+            }).ToArray();
+            
+            Task.WaitAll(siteSupportTasks);
+            
+            results.AddRange(batchResults);
+            iterations++;
+        }
+
+        return results;
     }
+    
+    private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
+    {
+        var result = new List<string>();
 
+        if (to < from)
+        {
+            throw new ArgumentException("'to' date must be on or after 'from' date.");
+        }
+
+        for (var date = from; date <= to; date = date.AddDays(1))
+        {
+            result.Add(date.ToString("yyyyMMdd"));
+        }
+
+        return result;
+    }
+    
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);

@@ -122,7 +122,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_aggregation_container" {
   resource_group_name    = local.resource_group_name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
   database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name
-  partition_key_paths    = ["/docType"]
+  partition_key_paths    = ["/date"]
 
   dynamic "autoscale_settings" {
     for_each = var.cosmos_aggregation_autoscale_settings

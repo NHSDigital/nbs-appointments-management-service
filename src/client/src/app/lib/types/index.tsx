@@ -160,7 +160,7 @@ type Site = {
   location: Location;
   accessibilities: Accessibility[];
   informationForCitizens: string;
-  site: SiteStatus | null;
+  status: SiteStatus | null;
 };
 
 type Location = {

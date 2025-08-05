@@ -44,6 +44,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true
@@ -152,6 +153,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     "AzureWebJobs.ApplyAvailabilityTemplateFunction.Disabled"              = true
     "AzureWebJobs.AuthenticateCallbackFunction.Disabled"                   = true

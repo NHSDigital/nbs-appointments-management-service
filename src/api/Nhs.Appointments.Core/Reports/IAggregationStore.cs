@@ -2,6 +2,6 @@ namespace Nhs.Appointments.Core.Reports;
 
 public interface IAggregationStore
 {
-    Task<DateTimeOffset?> GetLastRunDate();
-    Task SetLastRunDate(DateTimeOffset lastTriggerUtcDate);
+    Task<Aggregation?> GetLastRun();
+    Task SetLastRun(DateTimeOffset lastTriggerUtcDate, DateOnly aggregationFrom, DateOnly aggregationTo, DateOnly dateUntilAggregated);
 }

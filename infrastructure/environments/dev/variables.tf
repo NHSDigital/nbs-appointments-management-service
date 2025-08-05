@@ -117,6 +117,11 @@ variable "SITE_SUMMARY_DAYS_FORWARD" {
   sensitive = false
 }
 
+variable "SITE_SUMMARY_DAYS_CHUNK_SIZE" {
+  type      = string
+  sensitive = false
+}
+
 variable "SITE_SUMMARY_FIRST_RUN_DATE" {
   type      = string
   sensitive = false

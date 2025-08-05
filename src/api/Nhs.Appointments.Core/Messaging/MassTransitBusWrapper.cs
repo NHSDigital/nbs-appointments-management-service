@@ -6,9 +6,13 @@ public class MassTransitBusWrapper(IBus bus) : IMessageBus
 {
     public async Task Send<T>(params T[] messages) where T : class
     {
-       foreach(T message in messages)
+        if (!EndpointConvention.TryGetDestinationAddress<T>(out var destinationAddress))
         {
-            await bus.Send(message);
+            throw new ArgumentException($"A convention for the message type {TypeCache<T>.ShortName} was not found");
         }
+
+        var endpoint = await bus.GetSendEndpoint(destinationAddress).ConfigureAwait(false);
+
+        await endpoint.SendBatch(messages);
     }
 }

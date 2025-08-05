@@ -45,6 +45,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
     DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
@@ -104,7 +105,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
-    "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.disable_daily_site_summary_aggregation_function
   }
 
   sticky_settings {
@@ -156,6 +156,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
     DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
+    SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
@@ -215,7 +216,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
-    "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.disable_daily_site_summary_aggregation_function
   }
 
   identity {

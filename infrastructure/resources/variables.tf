@@ -141,6 +141,10 @@ variable "site_summary_days_forward" {
   type = string
 }
 
+variable "site_summary_days_chunk_size" {
+  type = string
+}
+
 variable "site_summary_first_run_date" {
   type = string
 }
@@ -164,6 +168,11 @@ variable "cosmos_capabilities" {
 }
 
 variable "cosmos_booking_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_aggregation_autoscale_settings" {
   type    = list(any)
   default = []
 }
@@ -282,9 +291,5 @@ variable "app_config_connection" {
 }
 
 variable "disable_bulk_import_function" {
-  type = bool
-}
-
-variable "disable_daily_site_summary_aggregation_function" {
   type = bool
 }

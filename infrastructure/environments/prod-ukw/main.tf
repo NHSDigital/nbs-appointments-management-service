@@ -59,6 +59,7 @@ module "mya_application_prod_ukw" {
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE
   site_summary_days_forward                       = var.SITE_SUMMARY_DAYS_FORWARD
+  site_summary_days_chunk_size                    = var.SITE_SUMMARY_DAYS_CHUNK_SIZE
   site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
@@ -84,9 +85,11 @@ module "mya_application_prod_ukw" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
-  disable_daily_site_summary_aggregation_function = true
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
+  }]
+  cosmos_aggregation_autoscale_settings = [{
+    max_throughput = 10000
   }]
   cosmos_core_autoscale_settings = [{
     max_throughput = 25000

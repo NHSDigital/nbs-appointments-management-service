@@ -113,7 +113,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";
@@ -226,7 +227,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";
@@ -266,7 +268,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";

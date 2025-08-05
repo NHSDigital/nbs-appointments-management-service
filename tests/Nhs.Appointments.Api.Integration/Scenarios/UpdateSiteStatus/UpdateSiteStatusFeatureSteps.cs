@@ -19,13 +19,24 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
     [When(@"I update the site status to '(.*)'")]
     public async Task UpdateSiteStatus(string status)
     {
-        UpdatedSiteStatus = Enum.Parse<SiteStatus>(status);
+        object payload;
 
-        var payload = new
+        if (Enum.TryParse(status, out UpdatedSiteStatus))
         {
-            site = _testId,
-            status = UpdatedSiteStatus
-        };
+            payload = new
+            {
+                site = _testId,
+                status = UpdatedSiteStatus
+            };
+        }
+        else
+        {
+            payload = new
+            {
+                site = _testId,
+                status = (SiteStatus)20 // Invalid status
+            };
+        }
 
         Response = await Http.PostAsJsonAsync("http://localhost:7071/api/site-status", payload);
     }

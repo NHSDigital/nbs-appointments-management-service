@@ -82,7 +82,6 @@ module "mya_application_stag" {
   storage_account_replication_type                = "ZRS"
   cosmos_automatic_failover_enabled               = true
   disable_bulk_import_function                    = true
-  disable_daily_site_summary_aggregation_function = true
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

@@ -3,6 +3,6 @@
     "OktaEnabled": true,
     "JointBookings": false,
     "MultipleServices": true,
-    "SiteSummaryReport": false
+    "SiteSummaryReport": true
   }
 }

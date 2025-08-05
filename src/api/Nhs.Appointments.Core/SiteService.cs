@@ -73,10 +73,6 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         int maxRecords = 50, int batchSize = 100)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
-        //TODO pre-filter All Sites by 'any availability doc' within the time period? could/couldnot inspect the services in sessions?
-        
-        //TODO OPTION 1: single call and top 100?? first off to see if we can get 50 that support the service, if still short, pass another 100 in until we have 50??
-        //TODO OPTION 2: multi-threaded calls for batched site, adding them to the collection and cancellation token once 50 reached
         
         var results = new List<SiteWithDistance>();
 
@@ -89,7 +85,6 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         {
             var concurrentBatchResults = new ConcurrentBag<SiteWithDistance>();
             
-            //TODO go and limit provided sites to batch size to try and make up maxRecords
             var orderedSiteBatch = orderedSites.Skip(iterations * batchSize).Take(batchSize).ToList();
 
             //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
@@ -109,7 +104,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
             await Task.WhenAll(siteSupportTasks);
             
-            //the order the results are added to the batch has a race condition, so still want to order the end result
+            //the concurrentBatchResults lose their original order, so we need to order the end result
             results.AddRange(concurrentBatchResults.OrderBy(site => site.Distance).Take(maxRecords));
             iterations++;
         }

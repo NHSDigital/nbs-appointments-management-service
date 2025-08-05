@@ -57,7 +57,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Retrieve sites by service filter - multiple results limited to max records and the order is maintained
+  Scenario: Retrieve sites by service filter - multiple results limited to max records ordered by distance
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -93,6 +93,91 @@ Feature: Site search
       | 3525af0d-9d89-4b32-ad6b-b85ae94589dc | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 | 3849     |
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | f178d668-a8d7-4fa6-a4b1-b886feef29a6 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+
+  Scenario: Retrieve sites by service filter - limits results to only those that support the service
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | b0fa3eaa-cbab-4736-90dd-31922a021074 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 319eb942-1bcd-4d9b-b8b2-777f06d63320 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | 8f3259bf-e44e-43e6-9837-54a5c87198c7 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+      | 55ad05a8-4fb5-47e1-a961-d18f4008862b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+    And the following sessions exist for site 'b0fa3eaa-cbab-4736-90dd-31922a021074'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
+    And the following sessions exist for site '319eb942-1bcd-4d9b-b8b2-777f06d63320'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    And the following sessions exist for site '8f3259bf-e44e-43e6-9837-54a5c87198c7'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '55ad05a8-4fb5-47e1-a961-d18f4008862b'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow | Tomorrow |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 55ad05a8-4fb5-47e1-a961-d18f4008862b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+      | 8f3259bf-e44e-43e6-9837-54a5c87198c7 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+
+  Scenario: Retrieve sites by service filter - finds a site that isn't the closest because it supports the service
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 4aeedaf7-48a8-4071-955c-93ccbcbc925c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+      | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+    And the following sessions exist for site '12e87824-a2ff-4257-92f3-ee1667c271a3'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
+    And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '78d28642-f429-4164-b758-f770b3dcd705'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
+#    Prove old endpoint doesn't return a supported service site
+    When I make the following request without access needs
+      | Max Records | Search Radius | Longitude | Latitude |
+      | 1           | 6000          | 0.082     | 51.5     |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+#    Prove new endpoint returns a supported service site
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
+      | 1           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow | Tomorrow |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+
+  Scenario: Retrieve sites by service filter - no results if the only site that supports the service is outside the search radius
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 4aeedaf7-48a8-4071-955c-93ccbcbc925c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+      | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+    And the following sessions exist for site '12e87824-a2ff-4257-92f3-ee1667c271a3'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
+    And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '78d28642-f429-4164-b758-f770b3dcd705'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
+      | 1           | 5000          | 0.082     | 51.5     | COVID   | Tomorrow | Tomorrow |
+    Then no sites are returned
 
   Scenario: Retrieve sites by service filter - no results if no sessions
     Given The following sites exist in the system

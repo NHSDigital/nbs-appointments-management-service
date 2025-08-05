@@ -27,6 +27,8 @@ import {
   BookingStatus,
   UserIdentityStatus,
   WeekSummaryV2,
+  SiteStatus,
+  UpdateSiteStatusRequest,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -566,6 +568,20 @@ export const cancelSession = async (
 
   const response = await appointmentsApi.post(
     'session/cancel',
+    JSON.stringify(payload),
+  );
+
+  return handleEmptyResponse(response);
+};
+
+export const updateSiteStatus = async (site: string, status: SiteStatus) => {
+  const payload: UpdateSiteStatusRequest = {
+    site,
+    status,
+  };
+
+  const response = await appointmentsApi.post(
+    'site-status',
     JSON.stringify(payload),
   );
 

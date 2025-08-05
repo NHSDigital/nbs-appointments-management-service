@@ -160,6 +160,7 @@ type Site = {
   location: Location;
   accessibilities: Accessibility[];
   informationForCitizens: string;
+  site: SiteStatus | null;
 };
 
 type Location = {
@@ -377,6 +378,13 @@ const clinicalServices: ClinicalService[] = [
   { label: 'RSV Adult', value: 'RSV:Adult' },
 ];
 
+type SiteStatus = 'Online' | 'Offline';
+
+type UpdateSiteStatusRequest = {
+  site: string;
+  status: SiteStatus;
+};
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -429,6 +437,8 @@ export type {
   WeekSummaryV2,
   DaySummaryV2,
   ClinicalService,
+  SiteStatus,
+  UpdateSiteStatusRequest,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

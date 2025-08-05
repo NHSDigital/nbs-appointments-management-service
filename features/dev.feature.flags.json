@@ -4,7 +4,7 @@
     "TestFeatureEnabled": true,
     "JointBookings": false,
     "MultipleServices": true,
-    "SiteSummaryReport": false,
+    "SiteSummaryReport": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

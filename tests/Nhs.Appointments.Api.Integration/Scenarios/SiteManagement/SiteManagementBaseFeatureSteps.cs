@@ -100,7 +100,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: SiteStatus.Online
+            status: null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 

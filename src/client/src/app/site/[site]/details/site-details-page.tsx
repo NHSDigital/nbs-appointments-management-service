@@ -1,6 +1,7 @@
 import { Card, SummaryList } from '@components/nhsuk-frontend';
 import {
   fetchAccessibilityDefinitions,
+  fetchFeatureFlag,
   fetchSite,
 } from '@services/appointmentsService';
 import {
@@ -21,16 +22,17 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const [accessibilityDefinitions, site] = await Promise.all([
+  const [accessibilityDefinitions, site, siteStatus] = await Promise.all([
     fetchAccessibilityDefinitions(),
     fetchSite(siteId),
+    fetchFeatureFlag('SiteStatus'),
   ]);
 
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(
     site,
     wellKnownOdsEntries,
   );
-  const siteCoreSummary = mapCoreSiteSummaryData(site);
+  const siteCoreSummary = mapCoreSiteSummaryData(site, siteStatus.enabled);
 
   return (
     <>

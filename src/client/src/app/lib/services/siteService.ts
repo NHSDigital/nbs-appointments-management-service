@@ -35,21 +35,32 @@ export const mapSiteOverviewSummaryData = (
   return { items, border: false };
 };
 
-export const mapCoreSiteSummaryData = (site: Site) => {
+export const mapCoreSiteSummaryData = (
+  site: Site,
+  siteStatusEnabled: boolean,
+) => {
   if (!site) {
     return undefined;
   }
 
-  const items: SummaryListItem[] = [
-    {
-      title: 'Name',
-      value: site.name,
-    },
-    {
-      title: 'Address',
-      value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
-    },
-  ];
+  const items: SummaryListItem[] = [];
+
+  if (siteStatusEnabled && site.status) {
+    items.push({
+      title: 'Status',
+      value: site.status?.toString(),
+      tag: { colour: site.status === 'Online' ? 'green' : 'red' },
+    });
+  }
+
+  items.push({
+    title: 'Name',
+    value: site.name,
+  });
+  items.push({
+    title: 'Address',
+    value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
+  });
 
   if (site.location.type === 'Point') {
     items.push({

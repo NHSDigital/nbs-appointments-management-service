@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -53,31 +54,31 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 .OrderBy(site => site.Distance)
                 .Take(maximumRecords);
         }
-
-        //100s of records?
+        
         var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
             .Where(filterPredicate)
-            .OrderBy(site => site.Distance).ToList();
+            .ToList();
         
-        var siteIdsThatSupportService = await GetSitesSupportingService(
-            sitesInDistance.Select(x => x.Site.Id).ToList(), 
+        return await GetSitesSupportingService(
+            sitesInDistance, 
             siteSupportsServiceFilter.service, 
             siteSupportsServiceFilter.from,
-            siteSupportsServiceFilter.until);
-
-        return sitesInDistance.Where(x => siteIdsThatSupportService.Contains(x.Site.Id));
+            siteSupportsServiceFilter.until,
+            maximumRecords,
+            maximumRecords * 2);
     }
 
-    private async Task<IEnumerable<string>> GetSitesSupportingService(List<string> siteIds, string service, DateOnly from, DateOnly to,
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, string service, DateOnly from, DateOnly to,
         int maxRecords = 50, int batchSize = 100)
     {
+        var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         //TODO pre-filter All Sites by 'any availability doc' within the time period? could/couldnot inspect the services in sessions?
         
         //TODO OPTION 1: single call and top 100?? first off to see if we can get 50 that support the service, if still short, pass another 100 in until we have 50??
         //TODO OPTION 2: multi-threaded calls for batched site, adding them to the collection and cancellation token once 50 reached
         
-        var results = new List<string>();
+        var results = new List<SiteWithDistance>();
 
         var generatedIds = GetDateStringsInRange(from, to);
         var iterations = 0;
@@ -86,29 +87,30 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
         while (results.Count < maxRecords)
         {
-            var batchResults = new List<string>();
+            var concurrentBatchResults = new ConcurrentBag<SiteWithDistance>();
             
             //TODO go and limit provided sites to batch size to try and make up maxRecords
-            var siteIdBatch = siteIds.Skip(iterations * batchSize).Take(batchSize).ToList();
+            var orderedSiteBatch = orderedSites.Skip(iterations * batchSize).Take(batchSize).ToList();
 
             //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
-            if (siteIdBatch.Count == 0)
+            if (orderedSiteBatch.Count == 0)
             {
                 break;
             }
 
-            var siteSupportTasks = siteIdBatch.Select(async site =>
+            var siteSupportTasks = orderedSiteBatch.Select(async swd =>
             {
-                var siteSupported = await availabilityStore.SiteSupportsService(site, service, generatedIds);
+                var siteSupported = await availabilityStore.SiteSupportsService(swd.Site.Id, service, generatedIds);
                 if (siteSupported)
                 {
-                    batchResults.Add(site);
+                    concurrentBatchResults.Add(swd);
                 }
             }).ToArray();
+
+            await Task.WhenAll(siteSupportTasks);
             
-            Task.WaitAll(siteSupportTasks);
-            
-            results.AddRange(batchResults);
+            //the order the results are added to the batch has a race condition, so still want to order the end result
+            results.AddRange(concurrentBatchResults.OrderBy(site => site.Distance).Take(maxRecords));
             iterations++;
         }
         

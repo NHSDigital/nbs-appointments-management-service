@@ -125,6 +125,13 @@ public abstract partial class BaseFeatureSteps : Feature
 
         response.EnsureSuccessStatusCode();
     }
+    
+    [Given("the following sessions exist for site '(.+)'")]
+    [And("the following sessions exist for site '(.+)'")]
+    public Task SetupSessionsForSite(string site, DataTable dataTable)
+    {
+        return SetupSessions(site, dataTable);
+    }
 
     [Given("the following sessions")]
     [And("the following sessions")]

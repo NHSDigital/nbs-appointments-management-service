@@ -46,6 +46,51 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
                 await _response.Content.ReadAsStreamAsync());
     }
 
+    [When("I make the following request with service filtering and with access needs")]
+    public async Task RequestSitesWithServiceFilteringAndAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var service = row.Cells.ElementAt(4).Value;
+        var from = row.Cells.ElementAt(5).Value;
+        var until = row.Cells.ElementAt(6).Value;
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+
+        _response = await Http.GetAsync(
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from}&until={until}&accessNeeds={accessNeeds}&ignoreCache=true");
+        _statusCode = _response.StatusCode;
+        (_, _actualResponse) =
+            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
+                await _response.Content.ReadAsStreamAsync());
+    }
+
+    [When("I make the following request with service filtering")]
+    public async Task RequestSitesWithServiceFiltering(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var service = row.Cells.ElementAt(4).Value;
+
+        var from = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(5).Value);
+        var until = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(6).Value);
+
+        _response = await Http.GetAsync(
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&ignoreCache=true");
+        _statusCode = _response.StatusCode;
+        (_, _actualResponse) =
+            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
+                await _response.Content.ReadAsStreamAsync());
+    }
+
     [When("I make the following request without access needs")]
     public async Task RequestSitesWithoutAccessNeeds(DataTable dataTable)
     {
@@ -54,6 +99,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var searchRadiusNumber = row.Cells.ElementAt(1).Value;
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
+
         _response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&ignoreCache=true");
         _statusCode = _response.StatusCode;
@@ -84,8 +130,17 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
 
+        _actualResponse.Should().HaveCount(dataTable.Rows.Count() - 1);
+
         _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Should().BeEquivalentTo(expectedSites);
+    }
+
+    [Then("no sites are returned")]
+    public void Assert()
+    {
+        _statusCode.Should().Be(HttpStatusCode.OK);
+        _actualResponse.Should().BeEmpty();
     }
 
     private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)

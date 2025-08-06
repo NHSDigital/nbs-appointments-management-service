@@ -238,8 +238,7 @@ Feature: Site search
       | Max Records | Search Radius | Longitude | Latitude | Service | From              | Until             |
       | 3           | 6000          | 0.082     | 51.5     | COVID   | 2 days from today | 3 days from today |
     Then no sites are returned
-
-
+    
   Scenario: Retrieve sites by service filter - results when service sessions are on different days
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
@@ -442,3 +441,59 @@ Feature: Site search
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow    | 4 days from today |
     Then no sites are returned
+
+  Scenario: Retrieve sites by service filter - only return sites with requested access needs
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 9635bee5-895c-4368-a106-2d6bc1d74087 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 7e7bc5ed-a188-499d-9eab-1566d9e3b972 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | 3558dad9-d0a6-49f4-942a-c951d07eb283 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+      | ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+    And the following sessions exist for site '9635bee5-895c-4368-a106-2d6bc1d74087'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '7e7bc5ed-a188-499d-9eab-1566d9e3b972'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '3558dad9-d0a6-49f4-942a-c951d07eb283'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    And the following sessions exist for site 'ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    When I make the following request with service filtering and with access needs
+      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    | AccessNeeds  |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow | Tomorrow | attr_one     |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+
+  Scenario: Retrieve sites by service filter - only return sites with all requested access needs
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                            | Longitude   | Latitude  |
+      | 6997851c-0bcd-462e-b1f5-b1c02f24d37d | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false,accessibility/attr_two=true   | 0.14566747  | 51.482472 |
+      | 1efc8a32-ad71-4066-821e-e535317c309a | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=true,accessibility/attr_two=false   | 0.13086317  | 51.483479 |
+      | ab746a05-345f-4c06-829b-2d5d52ec341b | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=false,accessibility/attr_two=false  | 0.040992272 | 51.455788 |
+      | 8eb79504-1545-4fd9-a358-430a649e0352 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true,accessibility/attr_two=true    | 0.082750916 | 51.494056 |
+      | ae579504-1545-4fd9-a358-430a649e0354 | Site-5 | 5 Roadside | 0113 1111111 | N12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true,accessibility/attr_two=true    | 0.081750916 | 51.484056 |
+    And the following sessions exist for site '6997851c-0bcd-462e-b1f5-b1c02f24d37d'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site '1efc8a32-ad71-4066-821e-e535317c309a'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site 'ab746a05-345f-4c06-829b-2d5d52ec341b'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    And the following sessions exist for site '8eb79504-1545-4fd9-a358-430a649e0352'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID      | 5           | 1        |
+    And the following sessions exist for site 'ae579504-1545-4fd9-a358-430a649e0354'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
+    When I make the following request with service filtering and with access needs
+      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    | AccessNeeds        |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow | Tomorrow | attr_one,attr_two  |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                          | Longitude   | Latitude  | Distance |
+      | 8eb79504-1545-4fd9-a358-430a649e0352 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true,accessibility/attr_two=true  | 0.082750916 | 51.494056 | 662      |

@@ -106,13 +106,13 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var latitude = row.Cells.ElementAt(3).Value;
 
         var service = row.Cells.ElementAt(4).Value;
-        var from = row.Cells.ElementAt(5).Value;
-        var until = row.Cells.ElementAt(6).Value;
+        var from = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(5).Value);
+        var until = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(6).Value);
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
         _response = await Http.GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from}&until={until}&accessNeeds={accessNeeds}&ignoreCache=true");
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&accessNeeds={accessNeeds}&ignoreCache=true");
         _statusCode = _response.StatusCode;
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(

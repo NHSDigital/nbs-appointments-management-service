@@ -201,6 +201,17 @@ export async function fetchEula() {
   return handleBodyResponse(response);
 }
 
+export async function fetchSiteSummaryReport(
+  startDate: string,
+  endDate: string,
+) {
+  const response = await appointmentsApi.get<Blob>(
+    `report/site-summary?startDate=${startDate}&endDate=${endDate}`,
+  );
+
+  return handleBodyResponse(response);
+}
+
 export async function acceptEula(versionDate: string) {
   const payload = {
     versionDate,

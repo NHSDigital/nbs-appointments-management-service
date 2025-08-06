@@ -91,18 +91,31 @@ class Client {
     }
 
     if (response.status === 200) {
-      let data: T | null = null;
-      try {
-        data = await response.json();
-      } catch {}
       return {
         success: true,
-        data: data,
+        data: await this.extractResponseBody<T>(response),
       };
     }
 
-    const errorMessage = response.status + ' - ' + response.url;
-    throw new Error(errorMessage);
+    return {
+      success: false,
+      httpStatusCode: response.status,
+      errorMessage: `$Unexpected status {response.status} from ${response.url}`,
+    };
+  }
+
+  private async extractResponseBody<T>(response: Response): Promise<T | null> {
+    const contentType = response.headers.get('Content-Type');
+
+    switch (contentType) {
+      case 'application/json':
+        return response.json();
+      case 'text/csv':
+        // Responsibility on the caller to invoke this with <Blob> type
+        return response.blob() as Promise<T>;
+      default:
+        return null;
+    }
   }
 }
 

@@ -1,35 +1,25 @@
 'use server';
+import { fetchSiteSummaryReport } from '@services/appointmentsService';
 import { ukNow } from '@services/timeService';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startDate = request.nextUrl.searchParams.get('startDate');
   const endDate = request.nextUrl.searchParams.get('endDate');
+  if (!startDate || !endDate) {
+    return new NextResponse('Start date and end date are required', {
+      status: 400,
+    });
+  }
 
   const fileName = `GeneralSiteSummaryReport-${ukNow().format()}.csv`;
 
-  const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get('token');
+  const blob = await fetchSiteSummaryReport(startDate, endDate);
 
-  return await fetch(
-    `${process.env.NBS_API_BASE_URL}/api/report/site-summary?startDate=${startDate}&endDate=${endDate}`,
-    {
-      method: 'GET',
-      headers: tokenCookie
-        ? {
-            Authorization: `Bearer ${tokenCookie.value}`,
-          }
-        : undefined,
+  return new NextResponse(blob, {
+    headers: {
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename=${fileName}`,
     },
-  )
-    .then(siteSummaryResponse => siteSummaryResponse.blob())
-    .then(siteSummaryFile => {
-      return new NextResponse(siteSummaryFile, {
-        headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename=${fileName}`,
-        },
-      });
-    });
+  });
 }

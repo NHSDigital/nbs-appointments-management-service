@@ -1,13 +1,15 @@
+'use client';
 import {
   Button,
   FormGroup,
+  InsetText,
   Radio,
   RadioGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { updateSiteStatus } from '@services/appointmentsService';
 import { Site, SiteStatus } from '@types';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type FormFields = {
@@ -64,6 +66,13 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
             })}
           />
         </RadioGroup>
+        <InsetText>
+          <p>
+            The change will take effect immediately. Taking your site offline
+            will mean patients can no longer book appointments until the site is
+            online again.
+          </p>
+        </InsetText>
       </FormGroup>
 
       {isSubmitting || isSubmitSuccessful ? (

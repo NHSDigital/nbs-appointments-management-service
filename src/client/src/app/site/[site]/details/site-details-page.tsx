@@ -52,12 +52,21 @@ const SiteDetailsPage = async ({
       <Card title="Site details">
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
         {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-details`}
-            className="nhsuk-link"
-          >
-            Edit site details
-          </Link>
+          <>
+            <Link
+              href={`/site/${site.id}/details/edit-details`}
+              className="nhsuk-link"
+            >
+              Edit site details
+            </Link>
+            |
+            <Link
+              href={`/site/${site.id}/details/edit-site-status`}
+              className="nhsuk-link"
+            >
+              Edit Site Status
+            </Link>
+          </>
         ) : null}
       </Card>
       <Card title="Access needs">

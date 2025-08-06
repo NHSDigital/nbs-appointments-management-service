@@ -45,11 +45,18 @@ export const mapCoreSiteSummaryData = (
 
   const items: SummaryListItem[] = [];
 
-  if (siteStatusEnabled && site.status) {
+  if (siteStatusEnabled) {
     items.push({
       title: 'Status',
-      value: site.status?.toString(),
-      tag: { colour: site.status === 'Online' ? 'green' : 'red' },
+      value: site.status?.toString() ?? 'Online',
+      tag: {
+        colour:
+          site.status === 'Online' ||
+          site.status === null ||
+          site.status === undefined
+            ? 'green'
+            : 'red',
+      },
     });
   }
 

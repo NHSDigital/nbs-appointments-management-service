@@ -57,8 +57,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         
         var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
-            .Where(filterPredicate)
-            .ToList();
+            .Where(filterPredicate);
         
         return await GetSitesSupportingService(
             sitesInDistance, 

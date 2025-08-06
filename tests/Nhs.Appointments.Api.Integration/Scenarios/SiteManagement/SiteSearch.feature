@@ -295,3 +295,150 @@ Feature: Site search
       | 4dbaffc9-f476-494b-817a-37dc8aa151c9 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | b06f4be6-16e3-40be-b373-b67a47301185 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | d2f9f101-b145-42ef-93e0-ae449efb9a78 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+    
+# This shows the temporary quicker solution for this hotfix 2.2.2 (APPT-1203) and how it isn't a perfect solution and should be fixed properly in the future
+  Scenario: Retrieve sites by service filter - returns sites that are fully booked and support the service (intended behaviour)
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 2d1780ea-73cf-43c1-ad19-1f0cb288e35b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+      | 586bc02d-310a-4b02-a117-d0d104de16bb | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | a01e7aec-4721-410b-853d-1bed6ade4c3c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | a5f2f93e-26e8-45ac-a09b-2485517f1d9c | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+    And the following sessions exist for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
+      | Date        | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 09:10 | COVID     | 10           | 1       |
+    And the following bookings have been made for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
+      | Date        | Time  | Duration | Service | Reference   |
+      | Tomorrow    | 09:00 | 10       | COVID   | 56345-11111 |
+    And the following sessions exist for site '586bc02d-310a-4b02-a117-d0d104de16bb'
+      | Date                 | From  | Until | Services  | Slot Length | Capacity |
+      | 2 days from today    | 09:00 | 09:10 | COVID     | 10           | 1       |
+    And the following bookings have been made for site '586bc02d-310a-4b02-a117-d0d104de16bb'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 2 days from today    | 09:00 | 10       | COVID   | 56345-22222 |
+    And the following sessions exist for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
+      | Date               | From  | Until | Services  | Slot Length | Capacity |
+      | 3 days from today  | 09:00 | 09:10 | COVID     | 10           | 1       |
+    And the following bookings have been made for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 3 days from today    | 09:00 | 10       | COVID   | 56345-33333 |
+    And the following sessions exist for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
+      | Date                 | From  | Until | Services | Slot Length | Capacity |
+      | 4 days from today    | 09:00 | 09:10 | COVID    | 10           | 1       |
+    And the following bookings have been made for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 4 days from today    | 09:00 | 10       | COVID   | 56345-44444 |
+    When I check daily availability for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for 'Tomorrow'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 0     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site '586bc02d-310a-4b02-a117-d0d104de16bb' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '2 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 0     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '3 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 0     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '4 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 0     |
+      | 12:00 | 00:00 | 0     |
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow    | 4 days from today |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 2d1780ea-73cf-43c1-ad19-1f0cb288e35b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+      | a01e7aec-4721-410b-853d-1bed6ade4c3c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 | 3849     |
+      | 586bc02d-310a-4b02-a117-d0d104de16bb | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
+      | a5f2f93e-26e8-45ac-a09b-2485517f1d9c | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+
+  Scenario: Retrieve sites by service filter - returns sites that are partially booked and support the service (intended behaviour)
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+      | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+      | Date        | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 09:20 | COVID     | 10           | 1       |
+    And the following bookings have been made for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+      | Date        | Time  | Duration | Service | Reference   |
+      | Tomorrow    | 09:00 | 10       | COVID   | 56345-11111 |
+    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+      | Date                 | From  | Until | Services  | Slot Length | Capacity |
+      | 2 days from today    | 09:00 | 09:20 | COVID     | 10           | 1       |
+    And the following bookings have been made for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 2 days from today    | 09:00 | 10       | COVID   | 56345-22222 |
+    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+      | Date               | From  | Until | Services  | Slot Length | Capacity |
+      | 3 days from today  | 09:00 | 09:20 | COVID     | 10           | 1       |
+    And the following bookings have been made for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 3 days from today    | 09:00 | 10       | COVID   | 56345-33333 |
+    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+      | Date                 | From  | Until | Services | Slot Length | Capacity |
+      | 4 days from today    | 09:00 | 09:20 | COVID    | 10           | 1       |
+    And the following bookings have been made for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 4 days from today    | 09:00 | 10       | COVID   | 56345-44444 |
+    When I check daily availability for site '20e7b709-83c6-416b-b5d8-27d03222e1bf' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for 'Tomorrow'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 1     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '2 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 1     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site '6beadf23-2c8c-4080-8be6-896c73634efb' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '3 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 1     |
+      | 12:00 | 00:00 | 0     |
+    When I check daily availability for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1' for 'COVID' between 'Tomorrow' and '4 days from today'
+    Then the following availability is returned for '4 days from today'
+      | From  | Until | Count |
+      | 00:00 | 12:00 | 1     |
+      | 12:00 | 00:00 | 0     |
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow    | 4 days from today |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+      | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 | 3849     |
+      | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
+      | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+
+  Scenario: Retrieve sites by service filter - returns no sites if they have orphaned bookings for that service, but no sessions for that service
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | dbd61ab0-281a-4df0-b1b7-6b6793f8e119 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+      | dfd0ac4e-d5ae-4c63-87c9-c84a84c9a7d1 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 5fdbbb82-45ee-4d0c-bbe0-57d25b55512a | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | 6f2108ef-d1b3-4479-a5dc-cf2bb68dceb9 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+    And the following orphaned bookings exist for site 'dbd61ab0-281a-4df0-b1b7-6b6793f8e119'
+      | Date        | Time  | Duration | Service | Reference   |
+      | Tomorrow    | 09:00 | 10       | COVID   | 56345-11111 |
+    And the following orphaned bookings exist for site 'dfd0ac4e-d5ae-4c63-87c9-c84a84c9a7d1'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 2 days from today    | 09:00 | 10       | COVID   | 56345-22222 |
+    And the following orphaned bookings exist for site '5fdbbb82-45ee-4d0c-bbe0-57d25b55512a'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 3 days from today    | 09:00 | 10       | COVID   | 56345-33333 |
+    And the following orphaned bookings exist for site '6f2108ef-d1b3-4479-a5dc-cf2bb68dceb9'
+      | Date                 | Time  | Duration | Service | Reference   |
+      | 4 days from today    | 09:00 | 10       | COVID   | 56345-44444 |
+    When I make the following request with service filtering
+      | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
+      | 4           | 6000          | 0.082     | 51.5     | COVID   | Tomorrow    | 4 days from today |
+    Then no sites are returned

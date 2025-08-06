@@ -36,19 +36,6 @@ const SiteDetailsPage = async ({
 
   return (
     <>
-      <Card title="Site reference details">
-        {siteReferenceSummaryData && (
-          <SummaryList {...siteReferenceSummaryData}></SummaryList>
-        )}
-        {permissions.includes('site:manage:admin') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-reference-details`}
-            className="nhsuk-link"
-          >
-            Edit site reference details
-          </Link>
-        ) : null}
-      </Card>
       <Card title="Site details">
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
         {permissions.includes('site:manage') ? (
@@ -60,13 +47,28 @@ const SiteDetailsPage = async ({
               Edit site details
             </Link>
             |
-            <Link
-              href={`/site/${site.id}/details/edit-site-status`}
-              className="nhsuk-link"
-            >
-              Edit Site Status
-            </Link>
+            {siteStatus.enabled ? (
+              <Link
+                href={`/site/${site.id}/details/edit-site-status`}
+                className="nhsuk-link"
+              >
+                Edit Site Status
+              </Link>
+            ) : null}
           </>
+        ) : null}
+      </Card>
+      <Card title="Site reference details">
+        {siteReferenceSummaryData && (
+          <SummaryList {...siteReferenceSummaryData}></SummaryList>
+        )}
+        {permissions.includes('site:manage:admin') ? (
+          <Link
+            href={`/site/${site.id}/details/edit-reference-details`}
+            className="nhsuk-link"
+          >
+            Edit site reference details
+          </Link>
         ) : null}
       </Card>
       <Card title="Access needs">

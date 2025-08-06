@@ -29,15 +29,25 @@ const Card = ({
       className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
-        <h2 className="nhsuk-card__heading nhsuk-heading-m">
-          {href ? (
-            <Link className="nhsuk-card__link" href={href}>
-              {title}
+        <div className="nhsuk-summary-card__title-wrapper">
+          <h2 className="nhsuk-card__heading nhsuk-heading-m">
+            {href ? (
+              <Link className="nhsuk-card__link" href={href}>
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
+          </h2>
+          <div className="nhsuk-summary-card__actions">
+            <Link className="nhsuk-link" href="/">
+              Test
             </Link>
-          ) : (
-            title
-          )}
-        </h2>
+            <Link className="nhsuk-link" href="/">
+              Test 2
+            </Link>
+          </div>
+        </div>
 
         {description ? (
           <p className="nhsuk-card__description">{description}</p>

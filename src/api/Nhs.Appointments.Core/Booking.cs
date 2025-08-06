@@ -44,7 +44,7 @@ public class Booking
 
 
     [JsonProperty("cancellationReason")]
-    public CancellationReason CancellationReason { get; set; }
+    public CancellationReason? CancellationReason { get; set; }
 }
 
 public class AttendeeDetails

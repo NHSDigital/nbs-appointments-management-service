@@ -1,6 +1,9 @@
 import NhsPage from '@components/nhs-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { assertPermission } from '@services/appointmentsService';
+import {
+  assertFeatureEnabled,
+  assertPermission,
+} from '@services/appointmentsService';
 import { EditSiteStatusPage } from './edit-site-status-page';
 
 export type PageProps = {
@@ -12,8 +15,8 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  // TODO: Make sure navigation doesn't occur if feature is disabled
   await assertPermission(siteFromPath, 'site:manage');
+  await assertFeatureEnabled('SiteStatus');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

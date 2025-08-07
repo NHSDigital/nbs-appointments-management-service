@@ -11,6 +11,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
+  <PackageReference Include="MassTransit" Version="8.5.1" />
+  <PackageReference Include="Microsoft.Extensions.Azure" Version="1.12.0" />
+  <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
+  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
+  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.8" />
+  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+  <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
+  <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.2.1" />
+  <PackageReference Include="Polly" Version="8.6.2" />
+  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.0" />
     <ProjectReference Include="..\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj"/>
     <ProjectReference Include="..\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj"/>
   </ItemGroup>

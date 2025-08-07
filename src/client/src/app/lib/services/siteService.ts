@@ -4,12 +4,13 @@ import { Site, WellKnownOdsEntry } from '@types';
 export const mapSiteOverviewSummaryData = (
   site: Site,
   wellKnownOdsCodeEntries: WellKnownOdsEntry[],
+  siteStatusEnabled: boolean,
 ) => {
   if (!site) {
     return undefined;
   }
 
-  const items: SummaryListItem[] = [
+  let items: SummaryListItem[] = [
     {
       title: 'Address',
       value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
@@ -32,6 +33,10 @@ export const mapSiteOverviewSummaryData = (
     },
   ];
 
+  if (siteStatusEnabled) {
+    items = [siteStatusSummaryItem(site), ...items];
+  }
+
   return { items, border: false };
 };
 
@@ -43,31 +48,16 @@ export const mapCoreSiteSummaryData = (
     return undefined;
   }
 
-  const items: SummaryListItem[] = [];
-
-  if (siteStatusEnabled) {
-    items.push({
-      title: 'Status',
-      value: site.status?.toString() ?? 'Online',
-      tag: {
-        colour:
-          site.status === 'Online' ||
-          site.status === null ||
-          site.status === undefined
-            ? 'green'
-            : 'red',
-      },
-    });
-  }
-
-  items.push({
-    title: 'Name',
-    value: site.name,
-  });
-  items.push({
-    title: 'Address',
-    value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
-  });
+  let items: SummaryListItem[] = [
+    {
+      title: 'Name',
+      value: site.name,
+    },
+    {
+      title: 'Address',
+      value: site.address.match(/[^,]+,|[^,]+$/g) || [], // Match each word followed by a comma, or the last word without a comma
+    },
+  ];
 
   if (site.location.type === 'Point') {
     items.push({
@@ -81,6 +71,10 @@ export const mapCoreSiteSummaryData = (
     });
 
     items.push({ title: 'Phone Number', value: site.phoneNumber });
+  }
+
+  if (siteStatusEnabled) {
+    items = [siteStatusSummaryItem(site), ...items];
   }
 
   return { items, border: false };
@@ -113,4 +107,19 @@ export const mapSiteReferenceSummaryData = (
   ];
 
   return { items, border: false };
+};
+
+const siteStatusSummaryItem = (site: Site) => {
+  return {
+    title: 'Status',
+    value: site.status?.toString() ?? 'Online',
+    tag: {
+      colour:
+        site.status === 'Online' ||
+        site.status === null ||
+        site.status === undefined
+          ? 'green'
+          : 'red',
+    },
+  };
 };

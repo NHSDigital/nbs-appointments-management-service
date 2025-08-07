@@ -5,11 +5,12 @@ import {
   DownloadReportFormValues,
   REPORT_DATE_EARLIEST_ALLOWED,
 } from './download-report-form-schema';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
+import FormWrapper from '../lib/form-wrapper';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;
@@ -25,6 +26,7 @@ const DownloadReportForm = ({
     handleSubmit,
     control,
     formState: { errors },
+    setError,
   } = useForm<DownloadReportFormValues>({
     defaultValues: {
       startDate: today.format(RFC3339Format),
@@ -33,12 +35,6 @@ const DownloadReportForm = ({
     resolver: yupResolver(downloadReportFormSchema),
   });
 
-  const submitForm: SubmitHandler<DownloadReportFormValues> = async (
-    form: DownloadReportFormValues,
-  ) => {
-    setReportRequest(form);
-  };
-
   return (
     <>
       <BackLink renderingStrategy={'server'} href={goBackHref} text={'Back'} />
@@ -46,13 +42,14 @@ const DownloadReportForm = ({
       <NhsHeading title="Select the dates and create a report" />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-one-third">
-          <form onSubmit={handleSubmit(submitForm)}>
-            {errors.root && (
-              <span className="nhsuk-error-message">
-                <span className="nhsuk-u-visually-hidden">Error: </span>
-                {errors.root.message}
-              </span>
-            )}
+          <FormWrapper<DownloadReportFormValues>
+            submitHandler={payload => {
+              setReportRequest(payload);
+            }}
+            handleSubmit={handleSubmit}
+            setError={setError}
+            errors={errors}
+          >
             <Controller
               name="startDate"
               control={control}
@@ -86,7 +83,7 @@ const DownloadReportForm = ({
             <ButtonGroup>
               <Button type="submit">Create report</Button>
             </ButtonGroup>
-          </form>
+          </FormWrapper>
         </div>
       </div>
     </>

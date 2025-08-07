@@ -31,8 +31,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                         new { type = "email", value = "test@test.com" },
                         new { type = "phone", value = "07777777777" }
                     },
-                bookingToReschedule,
-                cancellationReason = CancellationReason.CancelledByCitizen.ToString()
+                bookingToReschedule
             };
             Response = await Http.PostAsJsonAsync(
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);

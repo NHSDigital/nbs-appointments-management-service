@@ -26,8 +26,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Bo
         var payload = new ConfirmBookingRequestPayload(
            contactDetails: [],
            relatedBookings: [],
-           bookingToReschedule: string.Empty,
-           null
+           bookingToReschedule: string.Empty
        );
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
@@ -42,8 +41,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Bo
         var payload = new ConfirmBookingRequestPayload(
             contactDetails: [],
             relatedBookings: new[] { relatedBookingsReference },
-            bookingToReschedule: "test-booking-to-reschedule",
-            null
+            bookingToReschedule: "test-booking-to-reschedule"
         );
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");

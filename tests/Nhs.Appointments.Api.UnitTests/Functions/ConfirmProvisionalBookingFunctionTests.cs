@@ -36,30 +36,30 @@ public class ConfirmProvisionalBookingFunctionTests
     public async Task RunAsync_CallsConfirmProvisionalBooking_WhenJointBookingsDisabled(params string[] relatedBookings)
     {
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
-        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()))
+        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()))
             .ReturnsAsync(BookingConfirmationResult.Success);
 
         var request = CreateRequest(relatedBookings);
 
         await _sut.RunAsync(request);
         _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings")), Times.Once);
-        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()));
-        _bookingService.Verify(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()));
+        _bookingService.Verify(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
     public async Task RunAsync_CallsConfirmProvisionalBooking_WhenNoChildBookings()
     {
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(true);
-        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()))
+        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()))
             .ReturnsAsync(BookingConfirmationResult.Success);
 
         var request = CreateRequest([]);
 
         await _sut.RunAsync(request);
         _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings")), Times.Once);
-        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()));
-        _bookingService.Verify(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()));
+        _bookingService.Verify(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()), Times.Once);
     }
 
     [Theory]
@@ -74,7 +74,7 @@ public class ConfirmProvisionalBookingFunctionTests
 
         await _sut.RunAsync(request);
         _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings")), Times.Once);
-        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<string>()));
+        _bookingService.Setup(x => x.ConfirmProvisionalBooking(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>()));
         _bookingService.Verify(x => x.ConfirmProvisionalBookings(It.IsAny<string[]>(), It.IsAny<IEnumerable<ContactItem>>()), Times.Once);
     }
 

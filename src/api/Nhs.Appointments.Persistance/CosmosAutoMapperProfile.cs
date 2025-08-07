@@ -45,7 +45,7 @@ public class CosmosAutoMapperProfile : Profile
             .ForMember(x => x.Site, opt => opt.MapFrom(x => x.Id))
             .ForMember(x => x.Date, opt => opt.MapFrom(x => x.Date))
             .ForMember(x => x.RemainingCapacity, opt => opt.MapFrom(x => x.RemainingCapacity))
-            .ForMember(x => x.Bookings, opt => opt.(x => x.Bookings))
+            .ForMember(x => x.Bookings, opt => opt.MapFrom(x => x.Bookings))
             .ForMember(x => x.MaximumCapacity, opt => opt.MapFrom(x => x.MaximumCapacity))
             .ForMember(x => x.Cancelled, opt => opt.MapFrom(x => x.Cancelled))
             .ForMember(x => x.Orphaned, opt => opt.MapFrom(x => x.Orphaned))

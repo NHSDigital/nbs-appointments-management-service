@@ -13,7 +13,7 @@ export const EditSiteStatusPage = async ({ siteId }: Props) => {
 
   const summaryList: SummaryListItem[] = [
     {
-      title: 'Status',
+      title: 'Current site status',
       value: siteDetails.status?.toString() ?? 'Online',
       tag: {
         colour:

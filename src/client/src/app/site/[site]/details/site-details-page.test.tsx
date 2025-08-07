@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AccessibilityDefinition, Site } from '@types';
+import { AccessibilityDefinition, FeatureFlag, Site } from '@types';
 import {
   fetchAccessibilityDefinitions,
+  fetchFeatureFlag,
   fetchSite,
 } from '@services/appointmentsService';
 import {
@@ -21,12 +22,20 @@ const fetchAccessibilityDefinitionsMock =
 jest.mock('@services/appointmentsService');
 const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
 
+jest.mock('@services/appointmentsService');
+const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
+  Promise<FeatureFlag>
+>;
+
 describe('Site Details Page', () => {
   beforeEach(() => {
     fetchAccessibilityDefinitionsMock.mockResolvedValue(
       mockAccessibilityDefinitions,
     );
     fetchSiteMock.mockResolvedValue(mockSite);
+    fetchFeatureFlagMock.mockResolvedValue({
+      enabled: true,
+    });
   });
 
   it('renders', async () => {
@@ -219,5 +228,37 @@ describe('Site Details Page', () => {
     expect(
       screen.queryByRole('link', { name: 'Edit information for citizens' }),
     ).toBeNull();
+  });
+
+  it('renders the site status when the feature flag is enabled', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:view', 'site:manage'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    verifySummaryListItem('Status', 'Online');
+
+    expect(
+      screen.getByRole('link', { name: 'Change site status' }),
+    ).toBeInTheDocument();
+  });
+
+  it('hides the change site status link when feature toggle is disabled', async () => {
+    fetchFeatureFlagMock.mockResolvedValue({
+      enabled: false,
+    });
+
+    const jsx = await SiteDetailsPage({
+      siteId: mockSite.id,
+      permissions: ['site:view', 'site:manage'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    expect(
+      screen.queryByRole('link', { name: 'Change site status' }),
+    ).not.toBeInTheDocument();
   });
 });

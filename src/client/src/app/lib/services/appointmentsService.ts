@@ -585,5 +585,13 @@ export const updateSiteStatus = async (site: string, status: SiteStatus) => {
     JSON.stringify(payload),
   );
 
-  return handleEmptyResponse(response);
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    status === 'Online'
+      ? 'The site is now online and is available for appointments.'
+      : 'The site is now offline and will not be available for appointments.';
+  await raiseNotification(notificationType, notificationMessage);
+
+  handleEmptyResponse(response);
+  revalidatePath(`/site/${site}/details`);
 };

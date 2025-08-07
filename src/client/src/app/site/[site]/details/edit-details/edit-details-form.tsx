@@ -11,7 +11,7 @@ import {
   Expander,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SetSiteDetailsRequest, Site } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
@@ -21,12 +21,14 @@ import {
   editSiteDetailsFormSchema,
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
+import FormWrapper from '@components/form-wrapper';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const {
     register,
     control,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<EditSiteDetailsFormValues>({
     defaultValues: {
@@ -42,9 +44,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
 
   const { replace } = useRouter();
 
-  const submitForm: SubmitHandler<EditSiteDetailsFormValues> = async (
-    form: EditSiteDetailsFormValues,
-  ) => {
+  const submitForm = async (form: EditSiteDetailsFormValues) => {
     const payload: SetSiteDetailsRequest = {
       name: form.name.trim(),
       //remove the line breaks and save back
@@ -59,7 +59,12 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(submitForm)}>
+    <FormWrapper<EditSiteDetailsFormValues>
+      submitHandler={submitForm}
+      handleSubmit={handleSubmit}
+      setError={setError}
+      errors={errors}
+    >
       <FormGroup error={errors.name?.message}>
         <TextInput
           id="name"
@@ -112,7 +117,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
           <Button type="submit">Save and continue</Button>
         </ButtonGroup>
       )}
-    </form>
+    </FormWrapper>
   );
 };
 

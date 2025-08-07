@@ -36,7 +36,7 @@ const FormWrapper = <T extends FieldValues>({
     if (errors.root !== undefined) {
       throw new Error('Form submission error.');
     }
-  });
+  }, [errors]);
 
   return <form onSubmit={handleSubmit(submitForm)}>{children}</form>;
 };

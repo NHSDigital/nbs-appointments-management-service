@@ -149,7 +149,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabl
         var payload = new ConfirmBookingRequestPayload(
             contactDetails: [],
             relatedBookings: [],
-            ""
+            "",
+            null
         );
         
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{customId}/confirm", payload);

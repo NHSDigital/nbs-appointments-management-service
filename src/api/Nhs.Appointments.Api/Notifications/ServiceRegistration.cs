@@ -1,6 +1,8 @@
 using MassTransit;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Core;
@@ -9,7 +11,9 @@ using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Notify.Client;
+using Notify.Interfaces;
 using System;
+using Nhs.Appointments.Api.Notifications.Options;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -18,8 +22,12 @@ public static class ServiceRegistration
     public static IServiceCollection AddUserNotifications(this IServiceCollection services,
         IConfigurationRoot configuration)
     {
-        var notificationsConfig = configuration.Get<NotificationsConfig>();
+        services.Configure<GovNotifyRetryOptions>(
+            configuration.GetSection("GovNotifyRetryOptions")
+        );
 
+        var notificationsConfig = configuration.Get<NotificationsConfig>();
+        
         services.AddTransient<IUserRolesChangedNotifier, UserRolesChangedNotifier>()
                 .AddTransient<IBookingNotifier, BookingNotifier>()
                 .AddTransient<IPrivacyUtil, PrivacyUtil>()
@@ -51,9 +59,11 @@ public static class ServiceRegistration
                 break;
             case "azure":
                 services
-                    .AddScoped(x =>
-                        new NotificationClient(notificationsConfig.GovNotifyBaseUri,
-                            notificationsConfig.GovNotifyApiKey))
+                    .AddScoped<IAsyncNotificationClient>(x =>
+                        new NotificationClient(
+                            notificationsConfig.GovNotifyBaseUri,
+                            notificationsConfig.GovNotifyApiKey
+                        ))
                     .AddScoped<ISendNotifications, GovNotifyClient>()
                     .AddNotificationFunctions()
                     .AddScoped<AggregateDailySiteSummaryFunction>()

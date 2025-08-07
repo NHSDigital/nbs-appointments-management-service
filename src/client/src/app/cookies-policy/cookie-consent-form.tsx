@@ -1,5 +1,6 @@
 'use client';
 
+import FormWrapper from '@components/form-wrapper';
 import {
   Button,
   FormGroup,
@@ -10,7 +11,7 @@ import {
 import { setCookieConsent } from '@services/cookiesService';
 import { NhsMyaCookieConsent } from '@types';
 import { useRouter } from 'next/navigation';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 type CookieConsentFormProps = {
   consentCookie?: NhsMyaCookieConsent;
@@ -24,21 +25,24 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CookieConsentFormData>({
     defaultValues: { consented: consentCookie?.consented ? 'yes' : 'no' },
   });
 
   const router = useRouter();
-  const submitForm: SubmitHandler<CookieConsentFormData> = async (
-    form: CookieConsentFormData,
-  ) => {
-    await setCookieConsent(form.consented === 'yes');
-    router.push(`/sites`);
-  };
 
   return (
-    <form onSubmit={handleSubmit(submitForm)}>
+    <FormWrapper<CookieConsentFormData>
+      submitHandler={async form => {
+        await setCookieConsent(form.consented === 'yes');
+        router.push(`/sites`);
+      }}
+      handleSubmit={handleSubmit}
+      setError={setError}
+      errors={errors}
+    >
       <p>
         We'll only use these cookies if you say it's okay. We'll use a cookie to
         save your settings.
@@ -72,7 +76,7 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
       ) : (
         <Button type="submit">Save my cookie settings</Button>
       )}
-    </form>
+    </FormWrapper>
   );
 };
 

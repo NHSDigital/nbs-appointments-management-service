@@ -10,6 +10,7 @@ import {
 } from '@services/siteService';
 import { WellKnownOdsEntry } from '@types';
 import Link from 'next/link';
+import { ReactNode } from 'react';
 
 type Props = {
   siteId: string;
@@ -34,44 +35,75 @@ const SiteDetailsPage = async ({
   );
   const siteCoreSummary = mapCoreSiteSummaryData(site, siteStatus.enabled);
 
+  const siteDetailsActionLinks: ReactNode = permissions.includes(
+    'site:manage',
+  ) ? (
+    <>
+      <Link
+        href={`/site/${site.id}/details/edit-details`}
+        className="nhsuk-link"
+      >
+        Edit site details
+      </Link>
+      {siteStatus.enabled ? (
+        <>
+          &nbsp;|&nbsp;
+          <Link
+            href={`/site/${site.id}/details/edit-site-status`}
+            className="nhsuk-link"
+          >
+            Change site status
+          </Link>
+        </>
+      ) : null}
+    </>
+  ) : null;
+
+  const siteReferenceDetailsLink: ReactNode = permissions.includes(
+    'site:manage:admin',
+  ) ? (
+    <Link
+      href={`/site/${site.id}/details/edit-reference-details`}
+      className="nhsuk-link"
+    >
+      Edit site reference details
+    </Link>
+  ) : null;
+
+  const accessNeedsLink: ReactNode = permissions.includes('site:manage') ? (
+    <Link
+      href={`/site/${site.id}/details/edit-accessibilities`}
+      className="nhsuk-link"
+    >
+      Edit access needs
+    </Link>
+  ) : null;
+
+  const informationForCitizenLink: ReactNode = permissions.includes(
+    'site:manage',
+  ) ? (
+    <Link
+      href={`/site/${site.id}/details/edit-information-for-citizens`}
+      className="nhsuk-link"
+    >
+      Edit information for citizens
+    </Link>
+  ) : null;
+
   return (
     <>
-      <Card title="Site details">
+      <Card title="Site details" actionLinks={siteDetailsActionLinks}>
         {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
-        {permissions.includes('site:manage') ? (
-          <>
-            <Link
-              href={`/site/${site.id}/details/edit-details`}
-              className="nhsuk-link"
-            >
-              Edit site details
-            </Link>
-            |
-            {siteStatus.enabled ? (
-              <Link
-                href={`/site/${site.id}/details/edit-site-status`}
-                className="nhsuk-link"
-              >
-                Edit Site Status
-              </Link>
-            ) : null}
-          </>
-        ) : null}
       </Card>
-      <Card title="Site reference details">
+      <Card
+        title="Site reference details"
+        actionLinks={siteReferenceDetailsLink}
+      >
         {siteReferenceSummaryData && (
           <SummaryList {...siteReferenceSummaryData}></SummaryList>
         )}
-        {permissions.includes('site:manage:admin') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-reference-details`}
-            className="nhsuk-link"
-          >
-            Edit site reference details
-          </Link>
-        ) : null}
       </Card>
-      <Card title="Access needs">
+      <Card title="Access needs" actionLinks={accessNeedsLink}>
         <SummaryList
           borders={true}
           items={accessibilityDefinitions.map(definition => {
@@ -85,29 +117,16 @@ const SiteDetailsPage = async ({
             };
           })}
         />
-        {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-accessibilities`}
-            className="nhsuk-link"
-          >
-            Edit access needs
-          </Link>
-        ) : null}
       </Card>
-      <Card title="Information for citizens">
+      <Card
+        title="Information for citizens"
+        actionLinks={informationForCitizenLink}
+      >
         {site.informationForCitizens ? (
           <p>{site.informationForCitizens}</p>
         ) : (
           <p>Information for people visiting the site</p>
         )}
-        {permissions.includes('site:manage') ? (
-          <Link
-            href={`/site/${site.id}/details/edit-information-for-citizens`}
-            className="nhsuk-link"
-          >
-            Edit information for citizens
-          </Link>
-        ) : null}
       </Card>
     </>
   );

@@ -10,6 +10,7 @@ type Props = {
   description?: string;
   href?: string;
   children?: ReactNode;
+  actionLinks?: ReactNode;
 };
 
 /**
@@ -23,13 +24,14 @@ const Card = ({
   description,
   href,
   children,
+  actionLinks,
 }: Props) => {
   return (
     <div
       className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
-        <div className="nhsuk-summary-card__title-wrapper">
+        <div className="card-title-wrapper">
           <h2 className="nhsuk-card__heading nhsuk-heading-m">
             {href ? (
               <Link className="nhsuk-card__link" href={href}>
@@ -39,14 +41,9 @@ const Card = ({
               title
             )}
           </h2>
-          <div className="nhsuk-summary-card__actions">
-            <Link className="nhsuk-link" href="/">
-              Test
-            </Link>
-            <Link className="nhsuk-link" href="/">
-              Test 2
-            </Link>
-          </div>
+          {actionLinks ? (
+            <div className="card-action-link">{actionLinks}</div>
+          ) : null}
         </div>
 
         {description ? (

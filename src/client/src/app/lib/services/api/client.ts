@@ -107,15 +107,15 @@ class Client {
   private async extractResponseBody<T>(response: Response): Promise<T | null> {
     const contentType = response.headers.get('Content-Type');
 
-    switch (contentType) {
-      case 'application/json':
-        return response.json();
-      case 'text/csv':
-        // Responsibility on the caller to invoke this with <Blob> type
-        return response.blob() as Promise<T>;
-      default:
-        return null;
+    if (contentType?.includes('application/json')) {
+      return response.json();
     }
+
+    if (contentType?.includes('text/csv')) {
+      return response.blob() as Promise<T>;
+    }
+
+    return null;
   }
 }
 

@@ -11,7 +11,7 @@ import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
-import FormWrapper from '../lib/form-wrapper';
+import FormWrapper from '@components/form-wrapper';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;

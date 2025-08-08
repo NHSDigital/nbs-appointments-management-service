@@ -96,18 +96,24 @@ public class AvailabilityDocumentStore(
 
     public async Task<bool> SiteSupportsService(string siteId, string service, List<string> dailyAvailabilityIds)
     {
-        var docType = documentStore.GetDocumentType();
-        
-        Expression<Func<DailyAvailabilityDocument, bool>> filterPredicate = b =>
-            b.DocumentType == docType
-            && b.Site == siteId
-            && dailyAvailabilityIds.Contains(b.Id)
-            && b.Sessions.SelectMany(x => x.Services).Contains(service);
-        
         using (metricsRecorder.BeginScope("SiteSupportsService"))
         {
-            var debugSql = documentStore.GeneratedSql(filterPredicate);
-            return (await documentStore.RunQueryAsync<DailyAvailabilityDocument>(filterPredicate)).Any();
+            var docType = documentStore.GetDocumentType();
+        
+            var query = new QueryDefinition(
+                    query: "SELECT VALUE COUNT(1) "+
+                           "FROM booking_data bd " +
+                           "JOIN s IN bd.sessions" +
+                           "WHERE bd.id IN @docIds AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
+                .WithParameter("@docType", docType)
+                .WithParameter("@docIds", dailyAvailabilityIds)
+                .WithParameter("@site", siteId)
+                .WithParameter("@service", service);
+
+            var debugSql = query.QueryText;
+        
+            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(query)).Single();
+            return dailyAvailabilityCount > 0;
         }
     }
 

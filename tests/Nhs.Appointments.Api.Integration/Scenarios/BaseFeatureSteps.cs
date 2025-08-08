@@ -126,6 +126,13 @@ public abstract partial class BaseFeatureSteps : Feature
 
         response.EnsureSuccessStatusCode();
     }
+    
+    [Given("the following sessions exist for site '(.+)'")]
+    [And("the following sessions exist for site '(.+)'")]
+    public Task SetupSessionsForSite(string site, DataTable dataTable)
+    {
+        return SetupSessions(site, dataTable);
+    }
 
     [Given("the following sessions")]
     [And("the following sessions")]
@@ -291,6 +298,13 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Confirmed);
     }
+    
+    [Given("the following bookings have been made for site '(.+)'")]
+    [And("the following bookings have been made for site '(.+)'")]
+    public Task SetupBookingsForSite(string site, DataTable dataTable)
+    {
+        return SetupBookings(site, dataTable, BookingType.Confirmed);
+    }
 
     [Given("the following recent bookings have been made")]
     [And("the following recent bookings have been made")]
@@ -321,6 +335,10 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following orphaned bookings exist")]
     public Task SetupOrphanedBookings(DataTable dataTable) =>
         SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Orphaned);
+    
+    [And("the following orphaned bookings exist for site '(.+)'")]
+    public Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
+        SetupBookings(site, dataTable, BookingType.Orphaned);
 
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {

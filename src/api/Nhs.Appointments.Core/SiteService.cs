@@ -108,7 +108,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             iterations++;
         }
         
-        logger.LogInformation("GetSitesSupportingService returned {resultCount} results after {iterationCount} iterations for service {service}", results.Count, iterations, service);
+        logger.LogInformation("GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'", results.Count, iterations, service);
 
         return results;
     }

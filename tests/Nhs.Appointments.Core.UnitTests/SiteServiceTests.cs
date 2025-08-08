@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -7,11 +8,13 @@ public class SiteServiceTests
     private readonly Mock<ICacheEntry> _cacheEntry = new();
     private readonly Mock<IMemoryCache> _memoryCache = new();
     private readonly Mock<ISiteStore> _siteStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+    private readonly Mock<ILogger<ISiteService>> _logger = new();
     private readonly SiteService _sut;
 
     public SiteServiceTests()
     {
-        _sut = new SiteService(_siteStore.Object, _memoryCache.Object, TimeProvider.System);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object, TimeProvider.System);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -435,6 +438,207 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
+    }
+    
+    [Fact]
+    public async Task FindSitesByArea_DoesntUseAvailabilityStore_WhenSiteSupportsServiceFilterNull()
+    {
+        var sites = new List<SiteWithDistance>
+        {
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
+                Distance: 3573)
+        };
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        result.Should().BeEquivalentTo(sites);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed()
+    {
+        var sites = new List<SiteWithDistance>
+        {
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
+                Distance: 3573)
+        };
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+        result.Should().BeEquivalentTo(sites);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
+        
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("GetSitesSupportingService returned 2 result(s) after 1 iteration(s) for service 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
+    }
+    
+     [Fact]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed()
+    {
+        var invalidSites = new List<SiteWithDistance>
+        {
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    }),
+                Distance: 2858),
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
+                Distance: 3573)
+        };
+        var validSites = new List<SiteWithDistance>
+        {
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
+                    Name: "Site 3",
+                    Address: "3 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC03",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.2]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
+                Distance: 22522),
+            new SiteWithDistance(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bd",
+                    Name: "Site 4",
+                    Address: "4 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC04",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.3]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    }),
+                Distance: 33546)
+        };
+        
+        var sites = invalidSites.Union(validSites).ToList();
+        
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 1, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,06)));
+        result.Should().BeEquivalentTo([validSites.First()]);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
+        
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", "RSV:Adult", docIds), Times.Once);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("GetSitesSupportingService returned 1 result(s) after 2 iteration(s) for service 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
     }
 
     [Fact]

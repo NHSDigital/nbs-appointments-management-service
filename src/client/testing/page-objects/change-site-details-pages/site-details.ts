@@ -1,7 +1,7 @@
 import { expect } from '../../fixtures';
 import { type Locator, type Page } from '@playwright/test';
 import RootPage from '../root';
-import { Site } from '@types';
+import { Site, SiteStatus } from '@types';
 
 export default class SiteDetailsPage extends RootPage {
   readonly title: Locator;
@@ -10,6 +10,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly editSiteReferenceDetailsButton: Locator;
   readonly editInformationCitizenButton: Locator;
   readonly closeNotificationBannerButton: Locator;
+  readonly changeSiteStatusButton: Locator;
   readonly headerMsg = 'Manage Site';
   readonly siteDetailsheaderMsg = 'Site details';
   readonly referenceDetailsheaderMsg = 'Site reference details';
@@ -24,6 +25,7 @@ export default class SiteDetailsPage extends RootPage {
   readonly odsCodeLabel = 'ODS code';
   readonly icbLabel = 'ICB';
   readonly regionLabel = 'Region';
+  readonly siteStatusLabel = 'Status';
 
   readonly siteDetails: Site;
 
@@ -35,6 +37,12 @@ export default class SiteDetailsPage extends RootPage {
 
   readonly referenceDetailsSuccessBanner =
     'You have successfully updated the reference details for the current site.';
+
+  readonly siteStatusOnlineSuccessBanner =
+    'The site is now online and is available for appointments.';
+
+  readonly siteStatusOfflineSuccessBanner =
+    'The site is now offline and will not be available for appointments.';
 
   constructor(page: Page, siteDetails: Site) {
     super(page);
@@ -55,6 +63,9 @@ export default class SiteDetailsPage extends RootPage {
     });
     this.editInformationCitizenButton = page.getByRole('link', {
       name: 'Edit information for citizens',
+    });
+    this.changeSiteStatusButton = page.getByRole('link', {
+      name: 'Change site status',
     });
 
     this.closeNotificationBannerButton = page.getByRole('button', {
@@ -108,12 +119,29 @@ export default class SiteDetailsPage extends RootPage {
     }
   }
 
+  async verifySiteStatusNotificationVisibility(
+    shown: boolean,
+    expectedStatus: SiteStatus,
+  ) {
+    const banner =
+      expectedStatus === 'Online'
+        ? this.page.getByText(`${this.siteStatusOnlineSuccessBanner}`)
+        : this.page.getByText(`${this.siteStatusOfflineSuccessBanner}`);
+
+    if (!shown) {
+      await expect(banner).not.toBeVisible();
+    } else {
+      await expect(banner).toBeVisible();
+    }
+  }
+
   async verifyCoreDetailsContent(
     name: string,
     address: string,
     long: string,
     lat: string,
     phoneNumber: string,
+    siteStatus?: string,
   ) {
     await this.verifySummaryListItemContentValue(this.siteNameLabel, name);
     await this.verifySummaryListItemContentValue(this.addressLabel, address);
@@ -123,6 +151,13 @@ export default class SiteDetailsPage extends RootPage {
       this.phoneNumberLabel,
       phoneNumber,
     );
+
+    if (siteStatus !== undefined) {
+      await this.verifySummaryListItemContentValue(
+        this.siteStatusLabel,
+        siteStatus,
+      );
+    }
   }
 
   async verifyReferenceDetailsContent(

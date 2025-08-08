@@ -99,18 +99,16 @@ public class AvailabilityDocumentStore(
         using (metricsRecorder.BeginScope("SiteSupportsService"))
         {
             var docType = documentStore.GetDocumentType();
-        
+            
             var query = new QueryDefinition(
-                    query: "SELECT VALUE COUNT(1) "+
+                    query: "SELECT VALUE COUNT(1) " +
                            "FROM booking_data bd " +
-                           "JOIN s IN bd.sessions" +
-                           "WHERE bd.id IN @docIds AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
+                           "JOIN s IN bd.sessions " +
+                           "WHERE ARRAY_CONTAINS(@docIds, bd.id) AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
                 .WithParameter("@docType", docType)
                 .WithParameter("@docIds", dailyAvailabilityIds)
                 .WithParameter("@site", siteId)
                 .WithParameter("@service", service);
-
-            var debugSql = query.QueryText;
         
             var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(query)).Single();
             return dailyAvailabilityCount > 0;

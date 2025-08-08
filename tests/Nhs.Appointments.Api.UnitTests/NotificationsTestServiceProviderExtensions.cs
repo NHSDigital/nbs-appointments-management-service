@@ -29,8 +29,11 @@ public static class NotificationsTestServiceProviderExtensions
                 TypedDocumentCosmosStore<RolesDocument>>()
             .AddSingleton<ITypedDocumentCosmosStore<SiteDocument>,
                 TypedDocumentCosmosStore<SiteDocument>>()
+            .AddSingleton<ITypedDocumentCosmosStore<DailyAvailabilityDocument>,
+                TypedDocumentCosmosStore<DailyAvailabilityDocument>>()
             .AddSingleton<ISiteStore, SiteStore>()
             .AddSingleton<IRolesStore, RolesStore>()
+            .AddSingleton<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddSingleton<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddSingleton<ISiteService, SiteService>()
             .AddSingleton<INotificationConfigurationService, NotificationConfigurationService>();

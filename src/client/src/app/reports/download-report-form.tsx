@@ -1,10 +1,12 @@
 'use client';
 import { RFC3339Format, ukNow } from '@services/timeService';
 import {
+  downloadReportFormSchema,
   DownloadReportFormValues,
   REPORT_DATE_EARLIEST_ALLOWED,
 } from './download-report-form-schema';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
@@ -28,6 +30,7 @@ const DownloadReportForm = ({
       startDate: today.format(RFC3339Format),
       endDate: today.format(RFC3339Format),
     },
+    resolver: yupResolver(downloadReportFormSchema),
   });
 
   const submitForm: SubmitHandler<DownloadReportFormValues> = async (

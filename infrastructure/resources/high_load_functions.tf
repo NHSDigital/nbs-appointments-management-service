@@ -129,6 +129,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   sticky_settings {
@@ -261,6 +262,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
+    "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
   }
 
   identity {

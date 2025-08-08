@@ -55,7 +55,8 @@ public class GetSiteMetaDataFunctionTests
                 IntegratedCareBoard: "ICB1",
                 InformationForCitizens: "InformationForCitizens 123",
                 Accessibilities: [new(attrId, attrVal)],
-                Location: new Location("Test", [123.1, 321.3])
+                Location: new Location("Test", [123.1, 321.3]),
+                status: SiteStatus.Online
             ));
         var request = CreateRequest();
 

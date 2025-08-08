@@ -36,7 +36,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                SiteStatus.Online)
         });
         
         await _sut.Trigger();
@@ -71,7 +72,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                SiteStatus.Online)
         });
 
         var site = "site-1";
@@ -111,7 +113,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";
@@ -224,7 +227,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";
@@ -264,7 +268,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                null)
         });
 
         var site = "site-1";
@@ -325,7 +330,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0])),
+                new Location("test", [0.0]),
+                SiteStatus.Online),
             new (
                 "site-2",
                 "site-name-2",
@@ -336,7 +342,8 @@ public class SiteSummaryTriggerTests
                 "ICB",
                 "INFO",
                 new Accessibility[] { },
-                new Location("test", [0.0]))
+                new Location("test", [0.0]),
+                SiteStatus.Online)
         });
 
         var site1 = "site-1";

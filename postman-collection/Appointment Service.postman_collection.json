@@ -1066,6 +1066,29 @@
           "host": ["{{baseUrl}}"],
           "path": ["api", "session", "cancel"]
         }
+      }
+    },
+    {
+      "name": "site-status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"6877d86e-c2df-4def-8508-e1eccf0ea6be\",\r\n    \"status\": \"Online\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/site-status"
       },
       "response": []
     }

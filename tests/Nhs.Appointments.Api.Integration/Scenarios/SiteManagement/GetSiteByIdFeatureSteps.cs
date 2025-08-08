@@ -36,7 +36,8 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             Location: new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)])
+                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
+            status: null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =

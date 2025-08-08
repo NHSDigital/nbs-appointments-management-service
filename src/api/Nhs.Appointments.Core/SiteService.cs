@@ -27,7 +27,7 @@ public interface ISiteService
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
 {
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)

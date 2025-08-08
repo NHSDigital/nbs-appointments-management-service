@@ -1,7 +1,9 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Api.Notifications.Options;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;
@@ -108,6 +110,38 @@ public class NotificationsServiceProviderExtensionsTests
         var notificationsClient = serviceProvider.GetService(typeof(ISendNotifications));
         notificationsClient.Should().BeOfType<GovNotifyClient>();
     }
+
+    [Fact(DisplayName = "Binds GovNotifyRetryOptions from configuration")]
+    public void NotificationsRegistration_BindsRetryOptions()
+    {
+        // Arrange: configuration for retry options
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+            { "Notifications_Provider", "azure" },
+            { "GovNotifyBaseUri", "https://api.notifications.service.gov.uk" },
+            { "GovNotifyApiKey", "some-api-key-123abc" },
+            { "GovNotifyRetryOptions:MaxRetries", "5" },
+            { "GovNotifyRetryOptions:InitialDelayMs", "1000" },
+            { "GovNotifyRetryOptions:BackoffFactor", "2.0" }
+            })
+            .Build();
+
+        var serviceProvider = _serviceCollection
+            .AddDependenciesNotUnderTest()
+            .AddUserNotifications(configuration)
+            .BuildServiceProvider();
+
+        // Act
+        var options = serviceProvider.GetRequiredService<IOptions<GovNotifyRetryOptions>>().Value;
+
+        // Assert
+        options.MaxRetries.Should().Be(5);
+        options.InitialDelayMs.Should().Be(1000);
+        options.BackoffFactor.Should().Be(2.0);
+    }
+
+
 }
 
 

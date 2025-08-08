@@ -221,7 +221,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
+                    It.IsAny<string>(), null))
                 .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
@@ -266,10 +266,6 @@ namespace Nhs.Appointments.Core.UnitTests
                 contactDetails, initialBookingResult.Reference);
 
             rescheduleResult.Should().Be(BookingConfirmationResult.Success);
-
-            _bookingsDocumentStore.Verify(x =>
-                x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference, CancellationReason.RescheduledByCitizen),
-                Times.Once);
         }
 
         [Fact]
@@ -325,7 +321,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
+                    It.IsAny<string>(), null))
                 .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
             {
@@ -370,10 +366,6 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Verify(
                 x => x.Send(It.Is<BookingRescheduled>(e => e.Reference == rescheduledBookingResult.Reference)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x =>
-                x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference, CancellationReason.RescheduledByCitizen),
                 Times.Once);
         }
 
@@ -952,12 +944,15 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Verify();
         }
 
-        [Fact]
-        public async Task ConfirmProvisional_CancellationReasonIsUsed_WhenReschedulingAppointment()
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("CancelledByCitizen", CancellationReason.CancelledByCitizen)]
+        [InlineData("CancelledBySite", CancellationReason.CancelledBySite)]
+        public async Task ConfirmProvisional_CancellationReasonIsUsed(string reason, CancellationReason? expectedCancellationReason)
         {
             var contactDetails = new List<ContactItem> { new() { Type = ContactItemType.Email, Value = "test.email@domain.com" } };
 
-            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
+            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), expectedCancellationReason))
                 .ReturnsAsync(BookingConfirmationResult.Success);
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("test-booking-ref")).ReturnsAsync(new Booking
             {
@@ -971,12 +966,10 @@ namespace Nhs.Appointments.Core.UnitTests
                 AttendeeDetails = new AttendeeDetails()
             });
 
-            var result = await _sut.ConfirmProvisionalBooking("test-booking-ref", contactDetails, "booking-to-reschedule");
+            var result = await _sut.ConfirmProvisionalBooking("test-booking-ref", contactDetails, null, reason);
 
             result.Should().Be(BookingConfirmationResult.Success);
-            _bookingsDocumentStore.Verify(x =>
-                x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(), "booking-to-reschedule", CancellationReason.RescheduledByCitizen),
-                Times.Once);
+            _bookingsDocumentStore.Verify(x => x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(), null, expectedCancellationReason), Times.Once);
         }
     }
 

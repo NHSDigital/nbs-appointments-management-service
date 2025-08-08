@@ -94,9 +94,9 @@ public class AvailabilityDocumentStore(
         };
     }
 
-    public async Task<bool> SiteSupportsService(string siteId, string service, List<string> dailyAvailabilityIds)
+    public async Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service, List<string> datesInPeriod)
     {
-        using (metricsRecorder.BeginScope("SiteSupportsService"))
+        using (metricsRecorder.BeginScope("SiteOffersServiceDuringPeriod"))
         {
             var docType = documentStore.GetDocumentType();
             
@@ -106,7 +106,7 @@ public class AvailabilityDocumentStore(
                            "JOIN s IN bd.sessions " +
                            "WHERE ARRAY_CONTAINS(@docIds, bd.id) AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
                 .WithParameter("@docType", docType)
-                .WithParameter("@docIds", dailyAvailabilityIds)
+                .WithParameter("@docIds", datesInPeriod)
                 .WithParameter("@site", siteId)
                 .WithParameter("@service", service);
         

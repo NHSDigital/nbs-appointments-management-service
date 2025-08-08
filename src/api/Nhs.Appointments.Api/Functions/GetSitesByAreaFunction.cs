@@ -73,16 +73,14 @@ public class GetSitesByAreaFunction(
     {
         SiteSupportsServiceFilter siteSupportsServiceFilter = null;
 
-        //should pass validation rules
-        if (request.services is { Length: 1 } && request.from != null && request.until != null)
+        //if all 3 params are provided correctly, use the SiteSupportsServiceFilter
+        if (request.Services is { Length: 1 } && request.FromDate != null && request.UntilDate != null)
         {
-            var fromDate = DateOnly.ParseExact(request.from, "yyyy-MM-dd");
-            var untilDate = DateOnly.ParseExact(request.until, "yyyy-MM-dd");
-            siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.services.Single(), fromDate, untilDate);
+            siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.Services.Single(), request.FromDate.Value, request.UntilDate.Value);
         }
 
-        var sites = await siteService.FindSitesByArea(request.longitude, request.latitude, request.searchRadius,
-            request.maximumRecords, request.accessNeeds, request.ignoreCache, siteSupportsServiceFilter);
+        var sites = await siteService.FindSitesByArea(request.Longitude, request.Latitude, request.SearchRadius,
+            request.MaximumRecords, request.AccessNeeds, request.IgnoreCache, siteSupportsServiceFilter);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
 

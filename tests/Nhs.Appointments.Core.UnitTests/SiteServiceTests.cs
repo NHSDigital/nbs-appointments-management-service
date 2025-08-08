@@ -479,7 +479,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
-        _availabilityStore.Verify(x => x.SiteSupportsService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
     }
     
     [Fact]
@@ -519,14 +519,14 @@ public class SiteServiceTests
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        _availabilityStore.Setup(x => x.SiteSupportsService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
         result.Should().BeEquivalentTo(sites);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
         
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
@@ -614,20 +614,20 @@ public class SiteServiceTests
         
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         
-        _availabilityStore.Setup(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6ba", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
-        _availabilityStore.Setup(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bb", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
-        _availabilityStore.Setup(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bc", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
-        _availabilityStore.Setup(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bd", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 1, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,06)));
         result.Should().BeEquivalentTo([validSites.First()]);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
         
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bc", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteSupportsService("6877d86e-c2df-4def-8508-e1eccf0ea6bd", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", "RSV:Adult", docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", "RSV:Adult", docIds), Times.Once);
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,

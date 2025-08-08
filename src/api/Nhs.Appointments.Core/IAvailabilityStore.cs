@@ -8,6 +8,6 @@ public interface IAvailabilityStore
    Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
    Task<SessionInstance> CancelSession(string site, DateOnly date, Session session);
 
-   Task<bool> SiteSupportsService(string siteId, string service,
-       List<string> dailyAvailabilityIds);
+   Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service,
+       List<string> datesInPeriod);
 }

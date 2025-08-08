@@ -75,7 +75,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         
         var results = new List<SiteWithDistance>();
 
-        var generatedIds = GetDateStringsInRange(from, to);
+        var dateStringsInRange = GetDateStringsInRange(from, to);
         var iterations = 0;
         
         //while we are still short of the max, keep appending results
@@ -92,16 +92,16 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 break;
             }
 
-            var siteSupportTasks = orderedSiteBatch.Select(async swd =>
+            var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var siteSupported = await availabilityStore.SiteSupportsService(swd.Site.Id, service, generatedIds);
-                if (siteSupported)
+                var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(swd.Site.Id, service, dateStringsInRange);
+                if (siteOffersServiceDuringPeriod)
                 {
                     concurrentBatchResults.Add(swd);
                 }
             }).ToArray();
 
-            await Task.WhenAll(siteSupportTasks);
+            await Task.WhenAll(siteOffersServiceDuringPeriodTasks);
             
             //the concurrentBatchResults lose their original order, so we need to order the end result
             results.AddRange(concurrentBatchResults.OrderBy(site => site.Distance).Take(maxRecords));
@@ -113,7 +113,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         return results;
     }
     
-    private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
+       private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
     {
         var result = new List<string>();
 

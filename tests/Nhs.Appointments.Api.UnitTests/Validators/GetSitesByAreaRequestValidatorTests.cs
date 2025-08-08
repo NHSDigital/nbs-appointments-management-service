@@ -31,7 +31,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.longitude));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.Longitude));
     }
     
     [Theory]
@@ -54,7 +54,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.latitude));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.Latitude));
     }
     
     [Theory]
@@ -77,7 +77,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.searchRadius));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.SearchRadius));
     }
     
     [Theory]
@@ -100,7 +100,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.maximumRecords));
+        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.MaximumRecords));
     }
 
     [Theory]

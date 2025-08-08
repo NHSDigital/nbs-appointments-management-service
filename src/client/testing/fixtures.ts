@@ -2,7 +2,7 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { test as baseTest, request, TestInfo } from '@playwright/test';
-import { Site } from '@types';
+import { Site, SiteStatus } from '@types';
 
 export * from '@playwright/test';
 
@@ -12,7 +12,10 @@ import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data
 
 const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
 const testSite1Data: Site = testSite1DataRaw;
-const testSite2Data: Site = testSite2DataRaw;
+const testSite2Data: Site = {
+  ...testSite2DataRaw,
+  status: testSite2DataRaw.status as SiteStatus,
+};
 
 interface UserSeedDataRaw {
   Username: string;

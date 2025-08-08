@@ -46,11 +46,9 @@ public class GetSitesByAreaFunction(
         Description =
             "Optional parameter to be used alongside from and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = false, Type = typeof(string),
-        CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
         Description =
             "Optional parameter to be used alongside services and until. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
     [OpenApiParameter("until", In = ParameterLocation.Query, Required = false, Type = typeof(string),
-        CollectionDelimiter = OpenApiParameterCollectionDelimiterType.Comma,
         Description =
             "Optional parameter to be used alongside services and from. When all three of these parameters are used, it filters the results to only those sites that support the services within that date range. DateFormat yyyy-MM-dd.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<SiteWithDistance>),

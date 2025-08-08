@@ -8,7 +8,6 @@ import {
 import { Site } from '@types';
 import EditSiteStatusPage from '../../page-objects/change-site-details-pages/edit-site-status';
 import { test, overrideFeatureFlag } from '../../fixtures';
-import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -49,7 +48,10 @@ test.beforeEach(async ({ page, getTestSite }) => {
 });
 
 test('Clicking back mid-form does not save the changes', async ({ page }) => {
-  verifySummaryListItem(siteStatusPage.siteStatusLabel, 'Online');
+  await siteStatusPage.verifySummaryListItemContentValue(
+    siteStatusPage.siteStatusLabel,
+    'Online',
+  );
   await siteStatusPage.takeSiteOffline.click();
   await siteStatusPage.backLink.click();
 
@@ -62,11 +64,17 @@ test('Clicking back mid-form does not save the changes', async ({ page }) => {
   await siteDetailsPage.changeSiteStatusButton.click();
   await page.waitForURL(`**/site/${site.id}/details/edit-site-status`);
 
-  verifySummaryListItem(siteStatusPage.siteStatusLabel, 'Online');
+  await siteStatusPage.verifySummaryListItemContentValue(
+    siteStatusPage.siteStatusLabel,
+    'Online',
+  );
 });
 
 test('Update site status', async ({ page }) => {
-  verifySummaryListItem(siteStatusPage.siteStatusLabel, 'Online');
+  await siteStatusPage.verifySummaryListItemContentValue(
+    siteStatusPage.siteStatusLabel,
+    'Online',
+  );
   await siteStatusPage.takeSiteOffline.click();
   await siteStatusPage.saveAndContinueButton.click();
 

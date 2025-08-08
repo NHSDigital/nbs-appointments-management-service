@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -10,6 +11,7 @@ public class SiteServiceTests
     private readonly Mock<ISiteStore> _siteStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<ILogger<ISiteService>> _logger = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
 
     public SiteServiceTests()
@@ -481,7 +483,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -496,7 +499,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
@@ -523,7 +527,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -538,7 +543,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
@@ -581,7 +587,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 2858),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -596,7 +603,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 3573)
         };
         var validSites = new List<SiteWithDistance>
@@ -614,7 +622,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 22522),
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bd",
@@ -629,7 +638,8 @@ public class SiteServiceTests
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
-                    }),
+                    },
+                    status: SiteStatus.Online),
                 Distance: 33546)
         };
         

@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { RootPage } from '@testing-page-objects';
+import { expect } from '../../fixtures';
 
 export default class EditSiteStatusPage extends RootPage {
   readonly title: Locator;
@@ -36,5 +37,17 @@ export default class EditSiteStatusPage extends RootPage {
     this.keepSiteOffline = page.getByRole('link', {
       name: 'Keep site offline',
     });
+  }
+
+  async verifySummaryListItemContentValue(title: string, value: string) {
+    const listitem = this.page.getByRole('listitem', {
+      name: `${title} summary`,
+    });
+    await expect(listitem).toBeVisible();
+
+    await expect(listitem.getByRole('term')).toBeVisible();
+    await expect(listitem.getByRole('term')).toHaveText(title);
+    await expect(listitem.getByRole('definition')).toBeVisible();
+    await expect(listitem.getByRole('definition')).toHaveText(value);
   }
 }
